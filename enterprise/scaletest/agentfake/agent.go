@@ -5,12 +5,14 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"cdr.dev/slog/v3"
 	"github.com/coder/coder/v2/agent/proto"
 	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/coder/quartz"
 )
 
 const reconnectBackoff = 1 * time.Second
@@ -20,6 +22,12 @@ type Agent struct {
 	coderURL *url.URL
 	token    string
 	logger   slog.Logger
+
+	Clock quartz.Clock
+
+	// Zero ConnectionReportInterval disables fake connection reporting.
+	ConnectionReportInterval time.Duration
+	ConnectionReportDuration time.Duration
 
 	cancel context.CancelFunc
 }
@@ -87,12 +95,84 @@ func (a *Agent) connectAndServe(ctx context.Context, client *agentsdk.Client) er
 			slog.Error(err))
 	}
 
+	go a.runConnectionReports(ctx, rpc)
+
 	select {
 	case <-ctx.Done():
 		return nil
 	case <-conn.Closed():
 		return xerrors.New("dRPC connection closed by remote")
 	}
+}
+
+// runConnectionReports emits a periodic synthetic SSH session
+// (CONNECT then DISCONNECT) via ReportConnection. Each session uses one
+// connection_id so coderd pairs the two halves onto a single
+// connection_log row.
+func (a *Agent) runConnectionReports(ctx context.Context, rpc proto.DRPCAgentClient28) {
+	if a.ConnectionReportInterval <= 0 {
+		return
+	}
+	clock := a.Clock
+	if clock == nil {
+		clock = quartz.NewReal()
+	}
+
+	// Wake often enough to honor both interval and duration. The select
+	// branches gate which action (if any) fires on each tick.
+	tick := a.ConnectionReportInterval
+	if a.ConnectionReportDuration > 0 && a.ConnectionReportDuration < tick {
+		tick = a.ConnectionReportDuration
+	}
+	ticker := clock.NewTicker(tick, "agentfake", "connectionReports")
+	defer ticker.Stop()
+
+	var (
+		openID   uuid.UUID
+		closeAt  time.Time
+		nextOpen = clock.Now().Add(a.ConnectionReportInterval)
+	)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case now := <-ticker.C:
+			switch {
+			case openID != uuid.Nil && !now.Before(closeAt):
+				a.sendConnection(ctx, rpc, openID, proto.Connection_DISCONNECT, now)
+				openID = uuid.Nil
+				nextOpen = now.Add(a.ConnectionReportInterval)
+			case openID == uuid.Nil && !now.Before(nextOpen):
+				id := uuid.New()
+				closeAt = now.Add(a.ConnectionReportDuration)
+				if a.sendConnection(ctx, rpc, id, proto.Connection_CONNECT, now) {
+					openID = id
+				} else {
+					// CONNECT failed; try again next interval. No
+					// dangling openID means we won't desync.
+					nextOpen = now.Add(a.ConnectionReportInterval)
+				}
+			}
+		}
+	}
+}
+
+func (a *Agent) sendConnection(ctx context.Context, rpc proto.DRPCAgentClient28, id uuid.UUID, action proto.Connection_Action, now time.Time) bool {
+	_, err := rpc.ReportConnection(ctx, &proto.ReportConnectionRequest{
+		Connection: &proto.Connection{
+			Id:        id[:],
+			Action:    action,
+			Type:      proto.Connection_SSH,
+			Timestamp: timestamppb.New(now),
+		},
+	})
+	if err != nil && ctx.Err() == nil {
+		a.logger.Debug(ctx, "report connection failed",
+			slog.F("action", action.String()),
+			slog.Error(err))
+		return false
+	}
+	return true
 }
 
 // Close stops the agent. Safe to call multiple times.
