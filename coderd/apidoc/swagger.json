@@ -15457,7 +15457,8 @@
 				"paused",
 				"completed",
 				"error",
-				"requires_action"
+				"requires_action",
+				"interrupting"
 			],
 			"x-enum-varnames": [
 				"ChatStatusWaiting",
@@ -15466,7 +15467,8 @@
 				"ChatStatusPaused",
 				"ChatStatusCompleted",
 				"ChatStatusError",
-				"ChatStatusRequiresAction"
+				"ChatStatusRequiresAction",
+				"ChatStatusInterrupting"
 			]
 		},
 		"codersdk.ChatStreamActionRequired": {
