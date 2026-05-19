@@ -42,6 +42,12 @@ type ManagerOptions struct {
 	Template string
 	// Owner restricts enumeration to workspaces owned by the given user. Optional; if empty, all owners are included.
 	Owner string
+
+	// ConnectionReportInterval is the idle gap between synthetic SSH
+	// sessions per fake agent. Zero disables connection reporting.
+	ConnectionReportInterval time.Duration
+	// ConnectionReportDuration is the length of each synthetic SSH session.
+	ConnectionReportDuration time.Duration
 }
 
 // Manager supervises a set of fake Agents in one process. It enumerates the agents it owns from coderd at Run time
@@ -84,8 +90,11 @@ func (m *Manager) Run(ctx context.Context) error {
 
 	agents := make([]*Agent, 0, len(tokens))
 	for i, ti := range tokens {
-		agents = append(agents, NewAgent(m.client.URL, ti.Token,
-			m.logger.Named("agent-"+strconv.Itoa(i))))
+		a := NewAgent(m.client.URL, ti.Token,
+			m.logger.Named("agent-"+strconv.Itoa(i)))
+		a.ConnectionReportInterval = m.opts.ConnectionReportInterval
+		a.ConnectionReportDuration = m.opts.ConnectionReportDuration
+		agents = append(agents, a)
 	}
 	m.mu.Lock()
 	m.agents = agents

@@ -4,6 +4,7 @@ package cli
 
 import (
 	"os/signal"
+	"time"
 
 	"golang.org/x/xerrors"
 
@@ -26,8 +27,10 @@ func (r *RootCmd) AGPLExperimental() []*serpent.Command {
 
 func (r *RootCmd) scaletestAgentFake() *serpent.Command {
 	var (
-		template string
-		owner    string
+		template            string
+		owner               string
+		connReportInterval  time.Duration
+		connReportDuration  time.Duration
 	)
 
 	cmd := &serpent.Command{
@@ -69,8 +72,10 @@ func (r *RootCmd) scaletestAgentFake() *serpent.Command {
 
 			logger := inv.Logger
 			mgr := agentfake.NewManager(client, logger, agentfake.ManagerOptions{
-				Template: template,
-				Owner:    owner,
+				Template:                 template,
+				Owner:                    owner,
+				ConnectionReportInterval: connReportInterval,
+				ConnectionReportDuration: connReportDuration,
 			})
 			defer mgr.Close()
 
@@ -93,6 +98,20 @@ func (r *RootCmd) scaletestAgentFake() *serpent.Command {
 			Env:         "CODER_SCALETEST_AGENTFAKE_OWNER",
 			Description: "Optional workspace-owner filter (username). When empty, all owners' workspaces of the template are included.",
 			Value:       serpent.StringOf(&owner),
+		},
+		{
+			Flag:        "connection-report-interval",
+			Env:         "CODER_SCALETEST_AGENTFAKE_CONNECTION_REPORT_INTERVAL",
+			Description: "Idle gap between synthetic SSH connect events per fake agent. Zero disables connection reporting.",
+			Default:     "30s",
+			Value:       serpent.DurationOf(&connReportInterval),
+		},
+		{
+			Flag:        "connection-report-duration",
+			Env:         "CODER_SCALETEST_AGENTFAKE_CONNECTION_REPORT_DURATION",
+			Description: "Synthetic SSH session length per fake agent. Ignored when --connection-report-interval is zero.",
+			Default:     "5s",
+			Value:       serpent.DurationOf(&connReportDuration),
 		},
 	}
 
