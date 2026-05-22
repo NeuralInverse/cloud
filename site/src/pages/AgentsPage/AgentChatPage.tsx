@@ -218,18 +218,16 @@ export const runPromoteQueuedMessage = async (params: {
 	}
 };
 
-type UpdateGoalMutation = (variables: {
-	chatId: string;
-	mutation: TypesGen.ChatGoalMutation;
-}) => Promise<unknown>;
-
 /** @internal Exported for testing. */
 export const runGoalAction = async (params: {
 	agentId: string | undefined;
 	goal: TypesGen.ChatGoal | undefined;
 	action: Exclude<TypesGen.ChatGoalMutationAction, "set">;
 	completionSummary?: string;
-	updateGoal: UpdateGoalMutation;
+	updateGoal: (variables: {
+		chatId: string;
+		mutation: TypesGen.ChatGoalMutation;
+	}) => Promise<unknown>;
 	dismissCompletedGoal: (chatId: string) => void;
 	liveChatStatus?: TypesGen.ChatStatus | null;
 	onPausedRunningGoal?: () => void;

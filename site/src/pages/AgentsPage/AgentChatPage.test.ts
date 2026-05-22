@@ -252,13 +252,16 @@ describe("runGoalAction", () => {
 		expect(updateGoal).not.toHaveBeenCalled();
 	});
 
-	it("sends clear mutations for active goals", async () => {
+	it.each([
+		"active",
+		"paused",
+	] as const)("sends clear mutations for %s goals", async (status) => {
 		const updateGoal = vi.fn(async () => undefined);
 		const dismissCompletedGoal = vi.fn();
 
 		await runGoalAction({
 			agentId: "chat-1",
-			goal: makeGoal("active"),
+			goal: makeGoal(status),
 			action: "clear",
 			updateGoal,
 			dismissCompletedGoal,
