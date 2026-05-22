@@ -103,6 +103,7 @@ const AgentCreatePage: FC = () => {
 		model,
 		mcpServerIds,
 		organizationId,
+		goalMutation,
 		planMode,
 	}: CreateChatOptions) => {
 		const content: TypesGen.ChatInputPart[] = [];
@@ -120,6 +121,7 @@ const AgentCreatePage: FC = () => {
 			workspace_id: workspaceId,
 			mcp_server_ids:
 				mcpServerIds && mcpServerIds.length > 0 ? mcpServerIds : undefined,
+			goal_mutation: goalMutation,
 			plan_mode: planMode === "plan" ? "plan" : undefined,
 			client_type: "ui",
 			...(model ? { model_config_id: model } : {}),
