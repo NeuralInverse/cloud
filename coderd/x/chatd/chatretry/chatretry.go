@@ -30,12 +30,6 @@ const (
 
 type ClassifiedError = chaterror.ClassifiedError
 
-// IsRetryable determines whether an error from an LLM provider is
-// transient and worth retrying.
-func IsRetryable(err error) bool {
-	return chaterror.Classify(err).Retryable
-}
-
 // Delay returns the backoff duration for the given 0-indexed attempt.
 // Uses exponential backoff: min(InitialDelay * 2^attempt, MaxDelay).
 // Matches the backoff curve used in coder/mux.

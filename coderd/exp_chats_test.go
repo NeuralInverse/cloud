@@ -1846,7 +1846,9 @@ func TestWatchChats(t *testing.T) {
 		require.Equal(t, createdChat.OwnerID, got.OwnerID)
 		require.Equal(t, modelConfig.ID, got.LastModelConfigID)
 		require.Equal(t, createdChat.Title, got.Title)
-		require.Equal(t, codersdk.ChatStatusPending, got.Status)
+		// CreateChat inserts new chats in the running state under the
+		// chatstate state machine, so the created event carries running.
+		require.Equal(t, codersdk.ChatStatusRunning, got.Status)
 		require.NotNil(t, got.RootChatID)
 		require.Equal(t, createdChat.ID, *got.RootChatID)
 		require.NotZero(t, got.CreatedAt)
@@ -1980,7 +1982,7 @@ func TestWatchChats(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client, db := newChatClientWithDatabase(t)
+		client, db, api := newChatClientWithAPIAndDatabase(t)
 		user := coderdtest.CreateFirstUser(t, client.Client)
 		modelConfig := createChatModelConfig(t, client)
 
@@ -1994,6 +1996,11 @@ func TestWatchChats(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
+
+		// The parent chat is created via the API, so the chat worker moves
+		// it to running. Archiving is only allowed from a terminal state,
+		// so wait for it to settle before archiving below.
+		coderdtest.WaitForChatSettled(ctx, t, api, parentChat.ID)
 
 		childOne := dbgen.Chat(t, db, database.Chat{
 			OrganizationID:    user.OrganizationID,
@@ -4469,7 +4476,7 @@ func TestGetChat(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client, db := newChatClientWithDatabase(t)
+		client, db, api := newChatClientWithAPIAndDatabase(t)
 		user := coderdtest.CreateFirstUser(t, client.Client)
 		modelConfig := createChatModelConfig(t, client)
 
@@ -4483,6 +4490,11 @@ func TestGetChat(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
+
+		// The parent chat is created via the API, so the chat worker moves
+		// it to running. Archiving is only allowed from a terminal state,
+		// so wait for it to settle before archiving below.
+		coderdtest.WaitForChatSettled(ctx, t, api, parentChat.ID)
 
 		child := dbgen.Chat(t, db, database.Chat{
 			OrganizationID:    user.OrganizationID,
@@ -8468,6 +8480,62 @@ func TestProposeChatTitle(t *testing.T) {
 		require.True(t, after.UpdatedAt.Equal(before.UpdatedAt),
 			"propose must not bump updated_at")
 	})
+}
+
+// TestPostChats_AutomaticTitleGeneration verifies that creating a chat kicks
+// off best-effort automatic title generation: the create response carries the
+// synchronous fallback title, and the chat provider receives an asynchronous
+// title-generation request (the structured "propose_title" call).
+func TestPostChats_AutomaticTitleGeneration(t *testing.T) {
+	t.Parallel()
+
+	ctx := testutil.Context(t, testutil.WaitLong)
+
+	// titleRequested is signaled when the provider receives the structured
+	// title-generation request. Automatic title generation issues a
+	// non-streaming request using the "propose_title" schema, which uniquely
+	// identifies it (the turn status label uses "propose_turn_status_label").
+	titleRequested := make(chan struct{}, 1)
+	baseURL := chattest.NewOpenAI(t, func(req *chattest.OpenAIRequest) chattest.OpenAIResponse {
+		if req.Stream {
+			return chattest.OpenAIStreamingResponse(chattest.OpenAITextChunks("Hello from test server.")...)
+		}
+		if bytes.Contains(req.RawBody, []byte("propose_title")) {
+			select {
+			case titleRequested <- struct{}{}:
+			default:
+			}
+		}
+		return chattest.OpenAINonStreamingResponse(`{"title": "Generated Title"}`)
+	})
+
+	client, api := newChatClientWithAPI(t)
+	firstUser := coderdtest.CreateFirstUser(t, client.Client)
+	_ = createChatModelConfigWithBaseURL(t, client, baseURL)
+
+	chat, err := client.CreateChat(ctx, codersdk.CreateChatRequest{
+		OrganizationID: firstUser.OrganizationID,
+		Content: []codersdk.ChatInputPart{{
+			Type: codersdk.ChatInputPartTypeText,
+			Text: "automatic title generation please",
+		}},
+	})
+	require.NoError(t, err)
+	// The create response carries the synchronous fallback title derived from
+	// the message, not the asynchronously generated one.
+	require.Equal(t, "automatic title generation please", chat.Title)
+
+	// The create endpoint kicks off detached title generation; the provider
+	// should receive the title request without any further client action.
+	select {
+	case <-titleRequested:
+	case <-ctx.Done():
+		t.Fatal("timed out waiting for automatic title generation to be triggered")
+	}
+
+	// Drain background work so the detached goroutine finishes before the test
+	// (and its fake provider) tears down.
+	coderdtest.WaitForChatSettled(ctx, t, api, chat.ID)
 }
 
 func TestGetChatDiffStatus(t *testing.T) {

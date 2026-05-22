@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
+	"net/http"
+	"net/http/httptest"
 	"sync"
 	"testing"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/sqlc-dev/pqtype"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
@@ -145,11 +147,11 @@ type subscribeFailingPubsub struct {
 }
 
 func (subscribeFailingPubsub) Subscribe(_ string, _ pubsub.Listener) (func(), error) {
-	return nil, errors.New("subscribe disabled")
+	return nil, xerrors.New("subscribe disabled")
 }
 
 func (subscribeFailingPubsub) SubscribeWithErr(_ string, _ pubsub.ListenerWithErr) (func(), error) {
-	return nil, errors.New("subscribe disabled")
+	return nil, xerrors.New("subscribe disabled")
 }
 
 type subagentTestLogSink struct {
@@ -644,7 +646,7 @@ func TestCreateChildSubagentChatInheritsWorkspaceBinding(t *testing.T) {
 	parentChat, err := db.GetChatByID(ctx, parent.ID)
 	require.NoError(t, err)
 
-	child, err := server.createChildSubagentChat(ctx, parentChat, "inspect bindings", "")
+	child, err := server.createChildSubagentChatWithOptions(ctx, parentChat, "inspect bindings", "", childSubagentChatOptions{})
 	require.NoError(t, err)
 
 	childChat, err := db.GetChatByID(ctx, child.ID)
@@ -807,7 +809,7 @@ func TestCreateChildSubagentChatCopiesPlanMode(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, planMode, parentChat.PlanMode)
 
-	child, err := server.createChildSubagentChat(ctx, parentChat, "inspect bindings", "")
+	child, err := server.createChildSubagentChatWithOptions(ctx, parentChat, "inspect bindings", "", childSubagentChatOptions{})
 	require.NoError(t, err)
 
 	childChat, err := db.GetChatByID(ctx, child.ID)
@@ -2667,11 +2669,12 @@ func TestCreateChildSubagentChat_InheritsMCPServerIDs(t *testing.T) {
 		"parent chat must have the MCP server IDs we set")
 
 	// Spawn a child subagent chat.
-	child, err := server.createChildSubagentChat(
+	child, err := server.createChildSubagentChatWithOptions(
 		ctx,
 		parentChat,
 		"do some work",
 		"child-task",
+		childSubagentChatOptions{},
 	)
 	require.NoError(t, err)
 
@@ -2705,11 +2708,12 @@ func TestCreateChildSubagentChat_NoMCPServersStaysEmpty(t *testing.T) {
 	require.NoError(t, err)
 
 	// Spawn a child.
-	child, err := server.createChildSubagentChat(
+	child, err := server.createChildSubagentChatWithOptions(
 		ctx,
 		parentChat,
 		"do some work",
 		"child-no-mcp",
+		childSubagentChatOptions{},
 	)
 	require.NoError(t, err)
 
@@ -3285,7 +3289,7 @@ func TestAwaitSubagentCompletion(t *testing.T) {
 
 		probeCh := make(chan struct{}, 1)
 		cancelProbe, err := ps.SubscribeWithErr(
-			coderdpubsub.ChatStreamNotifyChannel(child.ID),
+			coderdpubsub.ChatStateUpdateChannel(child.ID),
 			func(_ context.Context, _ []byte, _ error) {
 				select {
 				case probeCh <- struct{}{}:
@@ -3315,7 +3319,7 @@ func TestAwaitSubagentCompletion(t *testing.T) {
 			assert.Equal(c, "pubsub result", report)
 		}, testutil.WaitMedium, testutil.IntervalFast)
 		require.NoError(t, ps.Publish(
-			coderdpubsub.ChatStreamNotifyChannel(child.ID),
+			coderdpubsub.ChatStateUpdateChannel(child.ID),
 			[]byte("done"),
 		))
 		testutil.RequireReceive(ctx, t, probeCh)
@@ -3388,11 +3392,44 @@ func TestAwaitSubagentCompletion(t *testing.T) {
 
 	t.Run("ContextCanceled", func(t *testing.T) {
 		t.Parallel()
+
+		providerCalled := make(chan struct{}, 1)
+		providerReleased := make(chan struct{})
+		providerServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			select {
+			case providerCalled <- struct{}{}:
+			default:
+			}
+
+			select {
+			case <-r.Context().Done():
+			case <-providerReleased:
+			}
+		}))
+		t.Cleanup(func() {
+			close(providerReleased)
+			providerServer.Close()
+		})
+
+		db, ps := dbtestutil.NewDB(t)
+		server := newInternalTestServer(t, db, ps, chatprovider.ProviderAPIKeys{})
 		ctx := chatdTestContext(t)
+		user, org, _ := seedInternalChatDeps(t, db)
+		provider := dbgen.ChatProvider(t, db, database.ChatProvider{
+			Provider:    "openai",
+			DisplayName: "OpenAI",
+			BaseUrl:     providerServer.URL,
+		})
+		model := dbgen.ChatModelConfig(t, db, database.ChatModelConfig{
+			Provider:     "openai",
+			Model:        "gpt-4o-mini",
+			AIProviderID: uuid.NullUUID{UUID: provider.ID, Valid: true},
+		})
 
 		parent, child := createParentChildChats(ctx, t, server, user, org, model)
 
-		setChatStatus(ctx, t, db, child.ID, database.ChatStatusRunning, "")
+		testutil.RequireReceive(ctx, t, providerCalled)
+
 		// Use a short-lived context instead of goroutine + sleep.
 		shortCtx, cancel := context.WithTimeout(ctx, testutil.IntervalMedium)
 		defer cancel()

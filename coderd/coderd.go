@@ -828,6 +828,8 @@ func New(options *Options) *API {
 			UsageTracker:                   options.WorkspaceUsageTracker,
 			PrometheusRegistry:             options.PrometheusRegistry,
 			OIDCTokenSource:                oidcMCPSrc,
+			NotificationsEnqueuer:          options.NotificationsEnqueuer,
+			Auditor:                        &api.Auditor,
 		}).Start()
 		gitSyncLogger := options.Logger.Named("gitsync")
 		refresher := gitsync.NewRefresher(
