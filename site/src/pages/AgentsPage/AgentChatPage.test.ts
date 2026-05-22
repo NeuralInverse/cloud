@@ -1,13 +1,14 @@
 import { act, renderHook } from "@testing-library/react";
 import { createRef } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ChatQueuedMessage } from "#/api/typesGenerated";
+import type { ChatGoal, ChatQueuedMessage } from "#/api/typesGenerated";
 import { MockUserOwner, MockWorkspace } from "#/testHelpers/entities";
 import {
 	draftInputStorageKeyPrefix,
 	getPersistedDraftInputValue,
 	getWorkspaceOptionsWithLinkedWorkspace,
 	restoreOptimisticRequestSnapshot,
+	runGoalAction,
 	runPromoteQueuedMessage,
 	submitEditAndScroll,
 	useConversationEditingState,
@@ -220,6 +221,58 @@ describe("restoreOptimisticRequestSnapshot", () => {
 		expect(restoredSnapshot.chatStatus).toBe(previousSnapshot.chatStatus);
 		expect(restoredSnapshot.streamState).toBe(previousSnapshot.streamState);
 		expect(restoredSnapshot.streamError).toEqual(previousSnapshot.streamError);
+	});
+});
+
+describe("runGoalAction", () => {
+	const makeGoal = (status: ChatGoal["status"]): ChatGoal => ({
+		id: "goal-1",
+		root_chat_id: "chat-1",
+		objective: "Fix the release blocker",
+		status,
+		created_by_user_id: "user-1",
+		completed_by_agent: false,
+		created_at: "2026-05-22T00:00:00Z",
+		updated_at: "2026-05-22T00:00:00Z",
+	});
+
+	it("dismisses completed goals locally without sending a clear mutation", async () => {
+		const updateGoal = vi.fn(async () => undefined);
+		const dismissCompletedGoal = vi.fn();
+
+		await runGoalAction({
+			agentId: "chat-1",
+			goal: makeGoal("complete"),
+			action: "clear",
+			updateGoal,
+			dismissCompletedGoal,
+		});
+
+		expect(dismissCompletedGoal).toHaveBeenCalledWith("chat-1");
+		expect(updateGoal).not.toHaveBeenCalled();
+	});
+
+	it("sends clear mutations for active goals", async () => {
+		const updateGoal = vi.fn(async () => undefined);
+		const dismissCompletedGoal = vi.fn();
+
+		await runGoalAction({
+			agentId: "chat-1",
+			goal: makeGoal("active"),
+			action: "clear",
+			updateGoal,
+			dismissCompletedGoal,
+		});
+
+		expect(updateGoal).toHaveBeenCalledWith({
+			chatId: "chat-1",
+			mutation: {
+				action: "clear",
+				goal_id: "goal-1",
+				completion_summary: undefined,
+			},
+		});
+		expect(dismissCompletedGoal).not.toHaveBeenCalled();
 	});
 });
 

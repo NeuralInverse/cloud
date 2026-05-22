@@ -218,6 +218,52 @@ export const runPromoteQueuedMessage = async (params: {
 	}
 };
 
+type UpdateGoalMutation = (variables: {
+	chatId: string;
+	mutation: TypesGen.ChatGoalMutation;
+}) => Promise<unknown>;
+
+/** @internal Exported for testing. */
+export const runGoalAction = async (params: {
+	agentId: string | undefined;
+	goal: TypesGen.ChatGoal | undefined;
+	action: Exclude<TypesGen.ChatGoalMutationAction, "set">;
+	completionSummary?: string;
+	updateGoal: UpdateGoalMutation;
+	dismissCompletedGoal: (chatId: string) => void;
+	liveChatStatus?: TypesGen.ChatStatus | null;
+	onPausedRunningGoal?: () => void;
+}): Promise<void> => {
+	const {
+		agentId,
+		goal,
+		action,
+		completionSummary,
+		updateGoal,
+		dismissCompletedGoal,
+		liveChatStatus,
+		onPausedRunningGoal,
+	} = params;
+	if (!agentId) {
+		return;
+	}
+	if (action === "clear" && goal?.status === "complete") {
+		dismissCompletedGoal(agentId);
+		return;
+	}
+	await updateGoal({
+		chatId: agentId,
+		mutation: {
+			action,
+			goal_id: goal?.id,
+			completion_summary: completionSummary,
+		},
+	});
+	if (action === "pause" && liveChatStatus === "running") {
+		onPausedRunningGoal?.();
+	}
+};
+
 export async function submitEditAndScroll({
 	editMessage,
 	editArgs,
@@ -1199,20 +1245,22 @@ const AgentChatPage: FC = () => {
 		action: Exclude<TypesGen.ChatGoalMutationAction, "set">,
 		completionSummary?: string,
 	) => {
-		if (!agentId) {
-			return;
-		}
-		const mutation: TypesGen.ChatGoalMutation = {
+		await runGoalAction({
+			agentId,
+			goal: chatQuery.data?.goal,
 			action,
-			goal_id: chatQuery.data?.goal?.id,
-			completion_summary: completionSummary,
-		};
-		await updateChatGoalAsync({ chatId: agentId, mutation });
-		if (action === "pause" && liveChatStatus === "running") {
-			toast.info(
-				"Goal paused. The current turn may continue. Use Stop for immediate interruption.",
-			);
-		}
+			completionSummary,
+			updateGoal: updateChatGoalAsync,
+			dismissCompletedGoal: (chatId) => {
+				setCachedChatGoal(queryClient, chatId, undefined);
+			},
+			liveChatStatus,
+			onPausedRunningGoal: () => {
+				toast.info(
+					"Goal paused. The current turn may continue. Use Stop for immediate interruption.",
+				);
+			},
+		});
 	};
 
 	const handleGoalCommand = async (
