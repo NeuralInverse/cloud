@@ -345,8 +345,7 @@ export const mergeWatchedChatSummary = (
 		isFreshEnough || isSummaryEvent
 			? watchedChat.last_turn_summary
 			: cachedChat.last_turn_summary;
-	const nextGoal =
-		isFreshEnough || isGoalEvent ? watchedChat.goal : cachedChat.goal;
+	const nextGoal = isGoalEvent ? watchedChat.goal : cachedChat.goal;
 	const nextHasUnread =
 		isFreshEnough && isStatusEvent && watchedChat.id !== activeChatId
 			? true
@@ -424,6 +423,9 @@ export const mergeWatchedChatIntoCaches = (
 			return mergeCachedChat(cachedChat);
 		},
 	);
+	if (options.eventKind === "goal_change") {
+		setCachedChatGoal(queryClient, watchedChat.id, watchedChat.goal);
+	}
 };
 
 const getNextOptimisticPinOrder = (queryClient: QueryClient): number => {
@@ -492,7 +494,7 @@ const isChatGoalQuery = (query: { queryKey: readonly unknown[] }): boolean => {
 	return key.length === 3 && typeof key[1] === "string" && key[2] === "goal";
 };
 
-const chatGoalFamilyID = (chat: TypesGen.Chat): string =>
+const chatRootId = (chat: TypesGen.Chat): string =>
 	chat.root_chat_id ?? chat.parent_chat_id ?? chat.id;
 
 export const invalidateChatListQueries = (queryClient: QueryClient) => {
@@ -873,7 +875,7 @@ export const setCachedChatGoal = (
 			chatKey(targetChatId),
 		);
 		if (detailChat) {
-			return chatGoalFamilyID(detailChat);
+			return chatRootId(detailChat);
 		}
 
 		const listQueries = queryClient.getQueriesData<
@@ -887,13 +889,13 @@ export const setCachedChatGoal = (
 			for (const page of pages) {
 				for (const chat of page) {
 					if (chat.id === targetChatId) {
-						return chatGoalFamilyID(chat);
+						return chatRootId(chat);
 					}
 					const child = chat.children?.find(
 						(child) => child.id === targetChatId,
 					);
 					if (child) {
-						return chatGoalFamilyID(child);
+						return chatRootId(child);
 					}
 				}
 			}
@@ -903,8 +905,7 @@ export const setCachedChatGoal = (
 
 	const familyId =
 		goal?.root_chat_id ?? findCachedChatFamilyID(chatId) ?? chatId;
-	const isFamilyChat = (chat: TypesGen.Chat) =>
-		chatGoalFamilyID(chat) === familyId;
+	const isFamilyChat = (chat: TypesGen.Chat) => chatRootId(chat) === familyId;
 	const applyGoal = (chat: TypesGen.Chat) =>
 		chat.goal === goal ? chat : { ...chat, goal };
 	const applyGoalToFamily = (chat: TypesGen.Chat) =>
