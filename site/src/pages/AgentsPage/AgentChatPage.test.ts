@@ -239,7 +239,6 @@ describe("runGoalAction", () => {
 	it.each([
 		"active",
 		"paused",
-		"complete",
 	] as const)("sends clear mutations for %s goals", async (status) => {
 		const updateGoal = vi.fn(async () => undefined);
 
@@ -258,6 +257,22 @@ describe("runGoalAction", () => {
 				completion_summary: undefined,
 			},
 		});
+	});
+
+	it("does not send clear mutations for completed goals", async () => {
+		const updateGoal = vi.fn(async () => undefined);
+		const onMissingGoal = vi.fn();
+
+		await runGoalAction({
+			agentId: "chat-1",
+			goal: makeGoal("complete"),
+			action: "clear",
+			updateGoal,
+			onMissingGoal,
+		});
+
+		expect(updateGoal).not.toHaveBeenCalled();
+		expect(onMissingGoal).toHaveBeenCalledOnce();
 	});
 
 	it("notifies when pausing a running goal", async () => {
