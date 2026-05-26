@@ -259,6 +259,47 @@ describe("runGoalAction", () => {
 		});
 	});
 
+	it("sends resume mutations for paused goals", async () => {
+		const updateGoal = vi.fn(async () => undefined);
+
+		await runGoalAction({
+			agentId: "chat-1",
+			goal: makeGoal("paused"),
+			action: "resume",
+			updateGoal,
+		});
+
+		expect(updateGoal).toHaveBeenCalledWith({
+			chatId: "chat-1",
+			mutation: {
+				action: "resume",
+				goal_id: "goal-1",
+				completion_summary: undefined,
+			},
+		});
+	});
+
+	it("forwards completion summaries", async () => {
+		const updateGoal = vi.fn(async () => undefined);
+
+		await runGoalAction({
+			agentId: "chat-1",
+			goal: makeGoal("active"),
+			action: "complete",
+			completionSummary: "Shipped and verified.",
+			updateGoal,
+		});
+
+		expect(updateGoal).toHaveBeenCalledWith({
+			chatId: "chat-1",
+			mutation: {
+				action: "complete",
+				goal_id: "goal-1",
+				completion_summary: "Shipped and verified.",
+			},
+		});
+	});
+
 	it("does not send clear mutations for completed goals", async () => {
 		const updateGoal = vi.fn(async () => undefined);
 		const onMissingGoal = vi.fn();

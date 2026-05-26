@@ -34,8 +34,14 @@ export const Active: Story = {
 		const canvas = within(canvasElement);
 		expect(canvas.getByLabelText("Current goal")).toBeVisible();
 		expect(canvas.getByText("Active")).toBeVisible();
+
 		await userEvent.click(canvas.getByRole("button", { name: /Pause/i }));
-		expect(args.onAction).toHaveBeenCalledWith("pause");
+		await userEvent.click(canvas.getByRole("button", { name: /Complete/i }));
+		await userEvent.click(canvas.getByRole("button", { name: /Clear/i }));
+
+		expect(args.onAction).toHaveBeenNthCalledWith(1, "pause");
+		expect(args.onAction).toHaveBeenNthCalledWith(2, "complete");
+		expect(args.onAction).toHaveBeenNthCalledWith(3, "clear");
 	},
 };
 
@@ -47,8 +53,12 @@ export const Paused: Story = {
 	play: async ({ canvasElement, args }) => {
 		const canvas = within(canvasElement);
 		expect(canvas.getByText("Paused")).toBeVisible();
+
 		await userEvent.click(canvas.getByRole("button", { name: /Resume/i }));
-		expect(args.onAction).toHaveBeenCalledWith("resume");
+		await userEvent.click(canvas.getByRole("button", { name: /Clear/i }));
+
+		expect(args.onAction).toHaveBeenNthCalledWith(1, "resume");
+		expect(args.onAction).toHaveBeenNthCalledWith(2, "clear");
 	},
 };
 
