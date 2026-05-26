@@ -2,7 +2,6 @@ package chattool_test
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"strings"
 	"testing"
@@ -76,8 +75,10 @@ func TestGoalTools(t *testing.T) {
 	require.NoError(t, json.Unmarshal([]byte(completeResp.Content), &payload))
 	require.True(t, payload.Completed)
 
-	_, err = db.GetCurrentChatGoalByRootChatID(dbauthz.AsSystemRestricted(ctx), chat.ID)
-	require.ErrorIs(t, err, sql.ErrNoRows)
+	completedGoal, err := db.GetCurrentChatGoalByRootChatID(dbauthz.AsSystemRestricted(ctx), chat.ID)
+	require.NoError(t, err)
+	require.Equal(t, goal.ID, completedGoal.ID)
+	require.Equal(t, database.ChatGoalStatusComplete, completedGoal.Status)
 }
 
 func TestGetGoalReturnsNullWithoutCurrentGoal(t *testing.T) {
