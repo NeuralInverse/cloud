@@ -937,10 +937,10 @@ const AgentChatPage: FC = () => {
 	const chatAuthorizationObject =
 		chatRecord !== undefined
 			? {
-				resource_type: "chat" as const,
-				owner_id: chatRecord.owner_id,
-				organization_id: chatRecord.organization_id,
-			}
+					resource_type: "chat" as const,
+					owner_id: chatRecord.owner_id,
+					organization_id: chatRecord.organization_id,
+				}
 			: undefined;
 	const chatAuthorizationChecks: TypesGen.AuthorizationRequest["checks"] = {};
 	if (chatAuthorizationObject !== undefined && shouldCheckCanShareChat) {
