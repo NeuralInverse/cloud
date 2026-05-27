@@ -2218,6 +2218,7 @@ export interface ChatMessage {
 	readonly created_at: string;
 	readonly role: ChatMessageRole;
 	readonly content?: readonly ChatMessagePart[];
+	readonly sent_as_goal?: boolean;
 	readonly usage?: ChatMessageUsage;
 }
 

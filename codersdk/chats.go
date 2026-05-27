@@ -227,6 +227,7 @@ type ChatMessage struct {
 	CreatedAt     time.Time         `json:"created_at" format:"date-time"`
 	Role          ChatMessageRole   `json:"role"`
 	Content       []ChatMessagePart `json:"content,omitempty"`
+	SentAsGoal    bool              `json:"sent_as_goal,omitempty"`
 	Usage         *ChatMessageUsage `json:"usage,omitempty"`
 }
 

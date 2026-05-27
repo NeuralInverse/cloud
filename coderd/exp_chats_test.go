@@ -288,7 +288,7 @@ func TestChatGoalAPI(t *testing.T) {
 	t.Parallel()
 
 	ctx := testutil.Context(t, testutil.WaitLong)
-	client := newChatClient(t)
+	client, db := newChatClientWithDatabase(t)
 	firstUser := coderdtest.CreateFirstUser(t, client.Client)
 	createChatModelConfig(t, client)
 
@@ -307,6 +307,24 @@ func TestChatGoalAPI(t *testing.T) {
 	require.NotNil(t, chat.Goal)
 	require.Equal(t, "ship the API", chat.Goal.Objective)
 	require.Equal(t, codersdk.ChatGoalStatusActive, chat.Goal.Status)
+
+	sentAsGoalMessages := func(t *testing.T) []codersdk.ChatMessage {
+		t.Helper()
+
+		messages, err := client.GetChatMessages(ctx, chat.ID, nil)
+		require.NoError(t, err)
+		var out []codersdk.ChatMessage
+		for _, message := range messages.Messages {
+			if message.SentAsGoal {
+				out = append(out, message)
+			}
+		}
+		return out
+	}
+
+	sentAsGoal := sentAsGoalMessages(t)
+	require.Len(t, sentAsGoal, 1)
+	require.Equal(t, codersdk.ChatMessageRoleUser, sentAsGoal[0].Role)
 
 	goalResp, err := client.GetChatGoal(ctx, chat.ID)
 	require.NoError(t, err)
@@ -368,6 +386,31 @@ func TestChatGoalAPI(t *testing.T) {
 	gotChat, err = client.GetChat(ctx, chat.ID)
 	require.NoError(t, err)
 	require.Nil(t, gotChat.Goal)
+
+	_, err = db.UpdateChatStatus(dbauthz.AsSystemRestricted(ctx), database.UpdateChatStatusParams{
+		ID:     chat.ID,
+		Status: database.ChatStatusWaiting,
+	})
+	require.NoError(t, err)
+
+	messageResponse, err := client.CreateChatMessage(ctx, chat.ID, codersdk.CreateChatMessageRequest{
+		Content: []codersdk.ChatInputPart{{
+			Type: codersdk.ChatInputPartTypeText,
+			Text: "send a new goal",
+		}},
+		GoalMutation: &codersdk.ChatGoalMutation{
+			Action:    codersdk.ChatGoalMutationActionSet,
+			Objective: "ship the message response marker",
+		},
+	})
+	require.NoError(t, err)
+	require.False(t, messageResponse.Queued)
+	require.NotNil(t, messageResponse.Message)
+	require.True(t, messageResponse.Message.SentAsGoal)
+	require.NotNil(t, messageResponse.Goal)
+
+	sentAsGoal = sentAsGoalMessages(t)
+	require.Len(t, sentAsGoal, 2)
 }
 
 func TestPostChats(t *testing.T) {

@@ -3036,6 +3036,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
   "id": 0,
   "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
   "role": "system",
+  "sent_as_goal": true,
   "usage": {
     "cache_creation_tokens": 0,
     "cache_read_tokens": 0,
@@ -3059,6 +3060,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `id`              | integer                                                       | false    |              |             |
 | `model_config_id` | string                                                        | false    |              |             |
 | `role`            | [codersdk.ChatMessageRole](#codersdkchatmessagerole)          | false    |              |             |
+| `sent_as_goal`    | boolean                                                       | false    |              |             |
 | `usage`           | [codersdk.ChatMessageUsage](#codersdkchatmessageusage)        | false    |              |             |
 
 ## codersdk.ChatMessagePart
@@ -3303,6 +3305,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
       "id": 0,
       "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
       "role": "system",
+      "sent_as_goal": true,
       "usage": {
         "cache_creation_tokens": 0,
         "cache_read_tokens": 0,
@@ -3775,6 +3778,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
     "id": 0,
     "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
     "role": "system",
+    "sent_as_goal": true,
     "usage": {
       "cache_creation_tokens": 0,
       "cache_read_tokens": 0,
@@ -4744,6 +4748,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
     "id": 0,
     "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
     "role": "system",
+    "sent_as_goal": true,
     "usage": {
       "cache_creation_tokens": 0,
       "cache_read_tokens": 0,
@@ -7263,6 +7268,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
     "id": 0,
     "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
     "role": "system",
+    "sent_as_goal": true,
     "usage": {
       "cache_creation_tokens": 0,
       "cache_read_tokens": 0,

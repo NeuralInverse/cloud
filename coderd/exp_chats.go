@@ -2379,8 +2379,17 @@ func (api *API) getChatMessages(rw http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	sentAsGoalIDs, err := chatGoalMessageIDs(ctx, api.Database, messages)
+	if err != nil {
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			Message: "Failed to get chat goal message markers.",
+			Detail:  err.Error(),
+		})
+		return
+	}
+
 	httpapi.Write(ctx, rw, http.StatusOK, codersdk.ChatMessagesResponse{
-		Messages:       convertChatMessages(messages),
+		Messages:       convertChatMessagesWithSentAsGoalIDs(messages, sentAsGoalIDs),
 		QueuedMessages: convertChatQueuedMessages(queuedMessages),
 		HasMore:        hasMore,
 	})
@@ -3357,7 +3366,10 @@ func (api *API) postChatMessages(rw http.ResponseWriter, r *http.Request) {
 			response.QueuedMessage = convertChatQueuedMessagePtr(*sendResult.QueuedMessage)
 		}
 	} else {
-		message := convertChatMessage(sendResult.Message)
+		message := db2sdk.ChatMessageWithSentAsGoal(
+			sendResult.Message,
+			chatMessageSentAsGoal(sendResult.Message, sendResult.Goal),
+		)
 		response.Message = &message
 	}
 	if sendResult.Goal != nil {
@@ -6699,16 +6711,35 @@ func convertChatQueuedMessages(msgs []database.ChatQueuedMessage) []codersdk.Cha
 	return result
 }
 
+func chatMessageSentAsGoal(message database.ChatMessage, goal *database.ChatGoal) bool {
+	return goal != nil && goal.CreatedFromMessageID.Valid && goal.CreatedFromMessageID.Int64 == message.ID
+}
+
+func chatGoalMessageIDs(ctx context.Context, store database.Store, messages []database.ChatMessage) (map[int64]struct{}, error) {
+	messageIDs := make([]int64, 0, len(messages))
+	for _, message := range messages {
+		messageIDs = append(messageIDs, message.ID)
+	}
+	if len(messageIDs) == 0 {
+		return map[int64]struct{}{}, nil
+	}
+	ids, err := store.GetChatGoalMessageIDsByMessageIDs(ctx, messageIDs)
+	if err != nil {
+		return nil, xerrors.Errorf("get chat goal message ids: %w", err)
+	}
+	set := make(map[int64]struct{}, len(ids))
+	for _, id := range ids {
+		set[id] = struct{}{}
+	}
+	return set, nil
+}
+
 func convertChatMessage(m database.ChatMessage) codersdk.ChatMessage {
 	return db2sdk.ChatMessage(m)
 }
 
-func convertChatMessages(messages []database.ChatMessage) []codersdk.ChatMessage {
-	result := make([]codersdk.ChatMessage, 0, len(messages))
-	for _, m := range messages {
-		result = append(result, convertChatMessage(m))
-	}
-	return result
+func convertChatMessagesWithSentAsGoalIDs(messages []database.ChatMessage, sentAsGoalIDs map[int64]struct{}) []codersdk.ChatMessage {
+	return db2sdk.ChatMessagesWithSentAsGoalIDs(messages, sentAsGoalIDs)
 }
 
 func parseUserAIProviderID(r *http.Request) (uuid.UUID, error) {

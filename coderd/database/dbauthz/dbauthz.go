@@ -3117,6 +3117,10 @@ func (q *querier) GetChatGeneralModelOverride(ctx context.Context) (string, erro
 	return q.db.GetChatGeneralModelOverride(ctx)
 }
 
+func (q *querier) GetChatGoalMessageIDsByMessageIDs(ctx context.Context, messageIDs []int64) ([]int64, error) {
+	return q.db.GetChatGoalMessageIDsByMessageIDs(ctx, messageIDs)
+}
+
 func (q *querier) GetChatIncludeDefaultSystemPrompt(ctx context.Context) (bool, error) {
 	// The include-default-system-prompt flag is a deployment-wide setting read
 	// during chat creation by every authenticated user, so no RBAC policy

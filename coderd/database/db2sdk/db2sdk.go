@@ -1595,6 +1595,25 @@ func ChatMessage(m database.ChatMessage) codersdk.ChatMessage {
 	return msg
 }
 
+// ChatMessageWithSentAsGoal converts a database chat message and sets the
+// durable goal-origin marker.
+func ChatMessageWithSentAsGoal(m database.ChatMessage, sentAsGoal bool) codersdk.ChatMessage {
+	msg := ChatMessage(m)
+	msg.SentAsGoal = sentAsGoal
+	return msg
+}
+
+// ChatMessagesWithSentAsGoalIDs converts database chat messages and marks
+// those whose IDs appear in sentAsGoalIDs.
+func ChatMessagesWithSentAsGoalIDs(messages []database.ChatMessage, sentAsGoalIDs map[int64]struct{}) []codersdk.ChatMessage {
+	out := make([]codersdk.ChatMessage, 0, len(messages))
+	for _, message := range messages {
+		_, sentAsGoal := sentAsGoalIDs[message.ID]
+		out = append(out, ChatMessageWithSentAsGoal(message, sentAsGoal))
+	}
+	return out
+}
+
 // chatMessageUsage builds a ChatMessageUsage from the database row,
 // returning nil when no token fields are populated.
 func chatMessageUsage(m database.ChatMessage) *codersdk.ChatMessageUsage {

@@ -12184,13 +12184,24 @@ func TestChatGoalPersistence(t *testing.T) {
 	insertGoal := func(t *testing.T, store database.Store, ctx context.Context, chat database.Chat, owner database.User, objective string) database.ChatGoal {
 		t.Helper()
 
+		message := dbgen.ChatMessage(t, store, database.ChatMessage{
+			ChatID:    chat.ID,
+			CreatedBy: uuid.NullUUID{UUID: owner.ID, Valid: true},
+			Role:      database.ChatMessageRoleUser,
+		})
 		goal, err := store.InsertActiveChatGoal(ctx, database.InsertActiveChatGoalParams{
 			RootChatID:        chat.ID,
 			CreatedFromChatID: uuid.NullUUID{UUID: chat.ID, Valid: true},
-			Objective:         objective,
-			CreatedByUserID:   owner.ID,
+			CreatedFromMessageID: sql.NullInt64{
+				Int64: message.ID,
+				Valid: true,
+			},
+			Objective:       objective,
+			CreatedByUserID: owner.ID,
 		})
 		require.NoError(t, err)
+		require.True(t, goal.CreatedFromMessageID.Valid)
+		require.Equal(t, message.ID, goal.CreatedFromMessageID.Int64)
 		return goal
 	}
 
@@ -12201,7 +12212,11 @@ func TestChatGoalPersistence(t *testing.T) {
 		first := insertGoal(t, store, ctx, chat, owner, "ship goal persistence")
 		require.Equal(t, database.ChatGoalStatusActive, first.Status)
 
-		_, err := store.InsertActiveChatGoal(ctx, database.InsertActiveChatGoalParams{
+		goalMessageIDs, err := store.GetChatGoalMessageIDsByMessageIDs(ctx, []int64{first.CreatedFromMessageID.Int64})
+		require.NoError(t, err)
+		require.Equal(t, []int64{first.CreatedFromMessageID.Int64}, goalMessageIDs)
+
+		_, err = store.InsertActiveChatGoal(ctx, database.InsertActiveChatGoalParams{
 			RootChatID:      chat.ID,
 			Objective:       "conflicting active goal",
 			CreatedByUserID: owner.ID,

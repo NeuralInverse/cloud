@@ -370,6 +370,14 @@ ORDER BY
 LIMIT
     COALESCE(NULLIF(@limit_val::int, 0), 50);
 
+-- name: GetChatGoalMessageIDsByMessageIDs :many
+SELECT DISTINCT
+    created_from_message_id::bigint AS message_id
+FROM
+    chat_goals
+WHERE
+    created_from_message_id = ANY(@message_ids::bigint[]);
+
 -- name: GetChatUserPromptsByChatID :many
 -- Returns the concatenated text of each user-visible user prompt in a
 -- chat, newest first. Used by the composer to populate the up/down
@@ -1851,12 +1859,14 @@ RETURNING *;
 INSERT INTO chat_goals (
     root_chat_id,
     created_from_chat_id,
+    created_from_message_id,
     objective,
     status,
     created_by_user_id
 ) VALUES (
     @root_chat_id::uuid,
     sqlc.narg('created_from_chat_id')::uuid,
+    sqlc.narg('created_from_message_id')::bigint,
     @objective::text,
     'active',
     @created_by_user_id::uuid

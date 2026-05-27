@@ -1605,7 +1605,7 @@ func (p *Server) ApplyGoalMutation(ctx context.Context, opts ApplyGoalMutationOp
 		if !isRootChat(lockedChat) {
 			return ErrChatGoalNotRoot
 		}
-		goal, err := applyGoalMutation(ctx, tx, lockedChat.ID, lockedChat.ID, opts.CreatedBy, mutation)
+		goal, err := applyGoalMutation(ctx, tx, lockedChat.ID, lockedChat.ID, 0, opts.CreatedBy, mutation)
 		if err != nil {
 			return err
 		}
@@ -1644,6 +1644,29 @@ func currentChatGoal(ctx context.Context, db database.Store, rootChatID uuid.UUI
 		return nil, xerrors.Errorf("get current chat goal: %w", err)
 	}
 	return &goal, nil
+}
+
+func messageSentAsGoal(message database.ChatMessage, goal *database.ChatGoal) bool {
+	return goal != nil && goal.CreatedFromMessageID.Valid && goal.CreatedFromMessageID.Int64 == message.ID
+}
+
+func chatGoalMessageIDSet(ctx context.Context, store database.Store, messages []database.ChatMessage) (map[int64]struct{}, error) {
+	messageIDs := make([]int64, 0, len(messages))
+	for _, message := range messages {
+		messageIDs = append(messageIDs, message.ID)
+	}
+	if len(messageIDs) == 0 {
+		return map[int64]struct{}{}, nil
+	}
+	ids, err := store.GetChatGoalMessageIDsByMessageIDs(ctx, messageIDs)
+	if err != nil {
+		return nil, xerrors.Errorf("get chat goal message ids: %w", err)
+	}
+	set := make(map[int64]struct{}, len(ids))
+	for _, id := range ids {
+		set[id] = struct{}{}
+	}
+	return set, nil
 }
 
 func validateGoalObjectiveLength(objective string) error {
@@ -1755,6 +1778,7 @@ func applyGoalMutation(
 	tx database.Store,
 	rootChatID uuid.UUID,
 	createdFromChatID uuid.UUID,
+	createdFromMessageID int64,
 	createdBy uuid.UUID,
 	mutation codersdk.ChatGoalMutation,
 ) (*database.ChatGoal, error) {
@@ -1768,6 +1792,10 @@ func applyGoalMutation(
 			CreatedFromChatID: uuid.NullUUID{
 				UUID:  createdFromChatID,
 				Valid: createdFromChatID != uuid.Nil,
+			},
+			CreatedFromMessageID: sql.NullInt64{
+				Int64: createdFromMessageID,
+				Valid: createdFromMessageID > 0,
 			},
 			Objective:       mutation.Objective,
 			CreatedByUserID: createdBy,
@@ -1926,17 +1954,6 @@ func (p *Server) CreateChat(ctx context.Context, opts CreateOptions) (database.C
 			return xerrors.Errorf("insert chat: %w", err)
 		}
 
-		if goalMutation != nil {
-			if !isRootChat(insertedChat) {
-				return ErrChatGoalNotRoot
-			}
-			var err error
-			createdGoal, err = applyGoalMutation(ctx, tx, insertedChat.ID, insertedChat.ID, opts.OwnerID, *goalMutation)
-			if err != nil {
-				return err
-			}
-		}
-
 		userPrompt := SanitizePromptText(opts.SystemPrompt)
 		workspaceAwareness := workspaceDetachedAwareness
 		if opts.WorkspaceID.Valid {
@@ -2007,9 +2024,29 @@ func (p *Server) CreateChat(ctx context.Context, opts CreateOptions) (database.C
 		userMsg = userMsg.withCreatedBy(opts.OwnerID)
 		appendUserChatMessage(&msgParams, userMsg)
 
-		_, err = tx.InsertChatMessages(ctx, msgParams)
+		insertedMessages, err := tx.InsertChatMessages(ctx, msgParams)
 		if err != nil {
 			return xerrors.Errorf("insert initial chat messages: %w", err)
+		}
+
+		if goalMutation != nil {
+			if !isRootChat(insertedChat) {
+				return ErrChatGoalNotRoot
+			}
+			initialUserMessageID := int64(0)
+			for _, message := range insertedMessages {
+				if message.Role == database.ChatMessageRoleUser {
+					initialUserMessageID = message.ID
+				}
+			}
+			if initialUserMessageID == 0 {
+				return xerrors.New("initial user message was not inserted")
+			}
+			var err error
+			createdGoal, err = applyGoalMutation(ctx, tx, insertedChat.ID, insertedChat.ID, initialUserMessageID, opts.OwnerID, *goalMutation)
+			if err != nil {
+				return err
+			}
 		}
 
 		chat = insertedChat
@@ -2195,7 +2232,7 @@ func (p *Server) SendMessage(
 			return err
 		}
 		if goalMutation != nil {
-			goal, err := applyGoalMutation(ctx, tx, lockedChat.ID, lockedChat.ID, opts.CreatedBy, *goalMutation)
+			goal, err := applyGoalMutation(ctx, tx, lockedChat.ID, lockedChat.ID, message.ID, opts.CreatedBy, *goalMutation)
 			if err != nil {
 				return err
 			}
@@ -2245,7 +2282,7 @@ func (p *Server) SendMessage(
 		return result, nil
 	}
 
-	p.publishMessage(opts.ChatID, result.Message)
+	p.publishMessageWithSentAsGoal(opts.ChatID, result.Message, messageSentAsGoal(result.Message, result.Goal))
 	p.publishStatus(opts.ChatID, result.Chat.Status, result.Chat.WorkerID)
 	p.publishChatPubsubEvent(result.Chat, codersdk.ChatWatchEventKindStatusChange, nil)
 	if result.Goal != nil {
@@ -5457,14 +5494,29 @@ func (p *Server) SubscribeAuthorized(
 			Error:  &codersdk.ChatError{Message: "failed to load initial snapshot"},
 		})
 	} else {
-		for _, msg := range messages {
-			sdkMsg := db2sdk.ChatMessage(msg)
+		sentAsGoalIDs, err := chatGoalMessageIDSet(ctx, p.db, messages)
+		if err != nil {
+			p.logger.Error(ctx, "failed to load chat goal message ids",
+				slog.Error(err),
+				slog.F("chat_id", chatID),
+			)
 			initialSnapshot = append(initialSnapshot, codersdk.ChatStreamEvent{
-				Type:    codersdk.ChatStreamEventTypeMessage,
-				ChatID:  chatID,
-				Message: &sdkMsg,
+				Type:   codersdk.ChatStreamEventTypeError,
+				ChatID: chatID,
+				Error:  &codersdk.ChatError{Message: "failed to load initial snapshot"},
 			})
-			delivered[msg.ID] = struct{}{}
+			messages = nil
+		} else {
+			for _, msg := range messages {
+				_, sentAsGoal := sentAsGoalIDs[msg.ID]
+				sdkMsg := db2sdk.ChatMessageWithSentAsGoal(msg, sentAsGoal)
+				initialSnapshot = append(initialSnapshot, codersdk.ChatStreamEvent{
+					Type:    codersdk.ChatStreamEventTypeMessage,
+					ChatID:  chatID,
+					Message: &sdkMsg,
+				})
+				delivered[msg.ID] = struct{}{}
+			}
 		}
 	}
 
@@ -5631,6 +5683,13 @@ func (p *Server) SubscribeAuthorized(
 							slog.Error(msgErr),
 						)
 					} else {
+						sentAsGoalIDs, markerErr := chatGoalMessageIDSet(mergedCtx, p.db, newMessages)
+						if markerErr != nil {
+							p.logger.Warn(mergedCtx, "failed to load chat goal message ids",
+								slog.F("chat_id", chatID),
+								slog.Error(markerErr),
+							)
+						}
 						for _, msg := range newMessages {
 							if msg.ID <= lookupAfter {
 								continue
@@ -5638,7 +5697,8 @@ func (p *Server) SubscribeAuthorized(
 							if _, ok := delivered[msg.ID]; ok {
 								continue
 							}
-							sdkMsg := db2sdk.ChatMessage(msg)
+							_, sentAsGoal := sentAsGoalIDs[msg.ID]
+							sdkMsg := db2sdk.ChatMessageWithSentAsGoal(msg, sentAsGoal)
 							select {
 							case <-mergedCtx.Done():
 								return
@@ -6055,7 +6115,11 @@ func panicFailureReason(recovered any) string {
 }
 
 func (p *Server) publishMessage(chatID uuid.UUID, message database.ChatMessage) {
-	sdkMessage := db2sdk.ChatMessage(message)
+	p.publishMessageWithSentAsGoal(chatID, message, false)
+}
+
+func (p *Server) publishMessageWithSentAsGoal(chatID uuid.UUID, message database.ChatMessage, sentAsGoal bool) {
+	sdkMessage := db2sdk.ChatMessageWithSentAsGoal(message, sentAsGoal)
 	event := codersdk.ChatStreamEvent{
 		Type:    codersdk.ChatStreamEventTypeMessage,
 		ChatID:  chatID,

@@ -4785,20 +4785,21 @@ type ChatFileLink struct {
 }
 
 type ChatGoal struct {
-	ID                uuid.UUID      `db:"id" json:"id"`
-	RootChatID        uuid.UUID      `db:"root_chat_id" json:"root_chat_id"`
-	CreatedFromChatID uuid.NullUUID  `db:"created_from_chat_id" json:"created_from_chat_id"`
-	Objective         string         `db:"objective" json:"objective"`
-	Status            ChatGoalStatus `db:"status" json:"status"`
-	CompletionSummary sql.NullString `db:"completion_summary" json:"completion_summary"`
-	CreatedByUserID   uuid.UUID      `db:"created_by_user_id" json:"created_by_user_id"`
-	CompletedByUserID uuid.NullUUID  `db:"completed_by_user_id" json:"completed_by_user_id"`
-	CompletedByAgent  bool           `db:"completed_by_agent" json:"completed_by_agent"`
-	CreatedAt         time.Time      `db:"created_at" json:"created_at"`
-	UpdatedAt         time.Time      `db:"updated_at" json:"updated_at"`
-	CompletedAt       sql.NullTime   `db:"completed_at" json:"completed_at"`
-	ClearedAt         sql.NullTime   `db:"cleared_at" json:"cleared_at"`
-	ReplacedAt        sql.NullTime   `db:"replaced_at" json:"replaced_at"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	RootChatID           uuid.UUID      `db:"root_chat_id" json:"root_chat_id"`
+	CreatedFromChatID    uuid.NullUUID  `db:"created_from_chat_id" json:"created_from_chat_id"`
+	CreatedFromMessageID sql.NullInt64  `db:"created_from_message_id" json:"created_from_message_id"`
+	Objective            string         `db:"objective" json:"objective"`
+	Status               ChatGoalStatus `db:"status" json:"status"`
+	CompletionSummary    sql.NullString `db:"completion_summary" json:"completion_summary"`
+	CreatedByUserID      uuid.UUID      `db:"created_by_user_id" json:"created_by_user_id"`
+	CompletedByUserID    uuid.NullUUID  `db:"completed_by_user_id" json:"completed_by_user_id"`
+	CompletedByAgent     bool           `db:"completed_by_agent" json:"completed_by_agent"`
+	CreatedAt            time.Time      `db:"created_at" json:"created_at"`
+	UpdatedAt            time.Time      `db:"updated_at" json:"updated_at"`
+	CompletedAt          sql.NullTime   `db:"completed_at" json:"completed_at"`
+	ClearedAt            sql.NullTime   `db:"cleared_at" json:"cleared_at"`
+	ReplacedAt           sql.NullTime   `db:"replaced_at" json:"replaced_at"`
 }
 
 type ChatMessage struct {

@@ -1911,6 +1911,7 @@ Experimental: this endpoint is subject to change.
       "id": 0,
       "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
       "role": "system",
+      "sent_as_goal": true,
       "usage": {
         "cache_creation_tokens": 0,
         "cache_read_tokens": 0,
@@ -2151,6 +2152,7 @@ Experimental: this endpoint is subject to change.
     "id": 0,
     "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
     "role": "system",
+    "sent_as_goal": true,
     "usage": {
       "cache_creation_tokens": 0,
       "cache_read_tokens": 0,
@@ -2366,6 +2368,7 @@ Experimental: this endpoint is subject to change.
     "id": 0,
     "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
     "role": "system",
+    "sent_as_goal": true,
     "usage": {
       "cache_creation_tokens": 0,
       "cache_read_tokens": 0,
@@ -2557,6 +2560,7 @@ Experimental: this endpoint is subject to change.
     "id": 0,
     "model_config_id": "f5fb4d91-62ca-4377-9ee6-5d43ba00d205",
     "role": "system",
+    "sent_as_goal": true,
     "usage": {
       "cache_creation_tokens": 0,
       "cache_read_tokens": 0,

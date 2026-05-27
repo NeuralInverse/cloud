@@ -10,6 +10,7 @@ CREATE TABLE chat_goals (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     root_chat_id UUID NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
     created_from_chat_id UUID REFERENCES chats(id) ON DELETE SET NULL,
+    created_from_message_id BIGINT REFERENCES chat_messages(id) ON DELETE SET NULL,
     objective TEXT NOT NULL,
     status chat_goal_status NOT NULL,
     completion_summary TEXT,
@@ -36,3 +37,7 @@ CREATE UNIQUE INDEX idx_chat_goals_current
 
 CREATE INDEX idx_chat_goals_root_created
     ON chat_goals(root_chat_id, created_at DESC, id DESC);
+
+CREATE INDEX idx_chat_goals_created_from_message_id
+    ON chat_goals(created_from_message_id)
+    WHERE created_from_message_id IS NOT NULL;

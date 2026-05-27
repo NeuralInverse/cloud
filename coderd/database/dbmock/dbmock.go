@@ -2760,6 +2760,21 @@ func (mr *MockStoreMockRecorder) GetChatGeneralModelOverride(ctx any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChatGeneralModelOverride", reflect.TypeOf((*MockStore)(nil).GetChatGeneralModelOverride), ctx)
 }
 
+// GetChatGoalMessageIDsByMessageIDs mocks base method.
+func (m *MockStore) GetChatGoalMessageIDsByMessageIDs(ctx context.Context, messageIds []int64) ([]int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChatGoalMessageIDsByMessageIDs", ctx, messageIds)
+	ret0, _ := ret[0].([]int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChatGoalMessageIDsByMessageIDs indicates an expected call of GetChatGoalMessageIDsByMessageIDs.
+func (mr *MockStoreMockRecorder) GetChatGoalMessageIDsByMessageIDs(ctx, messageIds any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChatGoalMessageIDsByMessageIDs", reflect.TypeOf((*MockStore)(nil).GetChatGoalMessageIDsByMessageIDs), ctx, messageIds)
+}
+
 // GetChatIncludeDefaultSystemPrompt mocks base method.
 func (m *MockStore) GetChatIncludeDefaultSystemPrompt(ctx context.Context) (bool, error) {
 	m.ctrl.T.Helper()

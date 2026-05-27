@@ -1681,6 +1681,7 @@ CREATE TABLE chat_goals (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     root_chat_id uuid NOT NULL,
     created_from_chat_id uuid,
+    created_from_message_id bigint,
     objective text NOT NULL,
     status chat_goal_status NOT NULL,
     completion_summary text,
@@ -4306,6 +4307,8 @@ CREATE INDEX idx_chat_files_org ON chat_files USING btree (organization_id);
 
 CREATE INDEX idx_chat_files_owner ON chat_files USING btree (owner_id);
 
+CREATE INDEX idx_chat_goals_created_from_message_id ON chat_goals USING btree (created_from_message_id) WHERE (created_from_message_id IS NOT NULL);
+
 CREATE UNIQUE INDEX idx_chat_goals_current ON chat_goals USING btree (root_chat_id) WHERE (status = ANY (ARRAY['active'::chat_goal_status, 'paused'::chat_goal_status]));
 
 CREATE INDEX idx_chat_goals_root_created ON chat_goals USING btree (root_chat_id, created_at DESC, id DESC);
@@ -4676,6 +4679,9 @@ ALTER TABLE ONLY chat_goals
 
 ALTER TABLE ONLY chat_goals
     ADD CONSTRAINT chat_goals_created_from_chat_id_fkey FOREIGN KEY (created_from_chat_id) REFERENCES chats(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY chat_goals
+    ADD CONSTRAINT chat_goals_created_from_message_id_fkey FOREIGN KEY (created_from_message_id) REFERENCES chat_messages(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY chat_goals
     ADD CONSTRAINT chat_goals_root_chat_id_fkey FOREIGN KEY (root_chat_id) REFERENCES chats(id) ON DELETE CASCADE;

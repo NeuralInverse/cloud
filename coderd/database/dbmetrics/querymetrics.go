@@ -1489,6 +1489,14 @@ func (m queryMetricsStore) GetChatGeneralModelOverride(ctx context.Context) (str
 	return r0, r1
 }
 
+func (m queryMetricsStore) GetChatGoalMessageIDsByMessageIDs(ctx context.Context, messageIds []int64) ([]int64, error) {
+	start := time.Now()
+	r0, r1 := m.s.GetChatGoalMessageIDsByMessageIDs(ctx, messageIds)
+	m.queryLatencies.WithLabelValues("GetChatGoalMessageIDsByMessageIDs").Observe(time.Since(start).Seconds())
+	m.queryCounts.WithLabelValues(httpmw.ExtractHTTPRoute(ctx), httpmw.ExtractHTTPMethod(ctx), "GetChatGoalMessageIDsByMessageIDs").Inc()
+	return r0, r1
+}
+
 func (m queryMetricsStore) GetChatIncludeDefaultSystemPrompt(ctx context.Context) (bool, error) {
 	start := time.Now()
 	r0, r1 := m.s.GetChatIncludeDefaultSystemPrompt(ctx)

@@ -5861,6 +5861,20 @@ func TestChatGoalLifecycleMutations(t *testing.T) {
 	require.Equal(t, database.ChatGoalStatusActive, goal.Status)
 	require.Equal(t, "build the feature", goal.Objective)
 	require.Equal(t, chat.ID, goal.CreatedFromChatID.UUID)
+	messages, err := db.GetChatMessagesByChatID(ctx, database.GetChatMessagesByChatIDParams{ChatID: chat.ID})
+	require.NoError(t, err)
+	var initialUserMessage database.ChatMessage
+	for _, message := range messages {
+		if message.Role == database.ChatMessageRoleUser {
+			initialUserMessage = message
+		}
+	}
+	require.NotZero(t, initialUserMessage.ID)
+	require.True(t, goal.CreatedFromMessageID.Valid)
+	require.Equal(t, initialUserMessage.ID, goal.CreatedFromMessageID.Int64)
+	goalMessageIDs, err := db.GetChatGoalMessageIDsByMessageIDs(ctx, []int64{initialUserMessage.ID})
+	require.NoError(t, err)
+	require.Equal(t, []int64{initialUserMessage.ID}, goalMessageIDs)
 
 	chat, err = db.UpdateChatStatus(ctx, database.UpdateChatStatusParams{
 		ID:     chat.ID,
@@ -5881,6 +5895,15 @@ func TestChatGoalLifecycleMutations(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, sendResult.Goal)
 	require.Equal(t, "ship the feature", sendResult.Goal.Objective)
+
+	require.True(t, sendResult.Goal.CreatedFromMessageID.Valid)
+	require.Equal(t, sendResult.Message.ID, sendResult.Goal.CreatedFromMessageID.Int64)
+	goalMessageIDs, err = db.GetChatGoalMessageIDsByMessageIDs(ctx, []int64{
+		initialUserMessage.ID,
+		sendResult.Message.ID,
+	})
+	require.NoError(t, err)
+	require.ElementsMatch(t, []int64{initialUserMessage.ID, sendResult.Message.ID}, goalMessageIDs)
 
 	goal, err = db.GetCurrentChatGoalByRootChatID(ctx, chat.ID)
 	require.NoError(t, err)
