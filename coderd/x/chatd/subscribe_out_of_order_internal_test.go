@@ -38,6 +38,7 @@ func TestSubscribeDeliversOutOfOrderDurableMessage(t *testing.T) {
 			ChatID:  chatID,
 			AfterID: 0,
 		}).Return([]database.ChatMessage{initialUser, initialAssistant}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{initialUser.ID, initialAssistant.ID}).Return(nil, nil),
 		db.EXPECT().GetChatQueuedMessages(gomock.Any(), chatID).Return(nil, nil),
 	)
 	// Notify-driven catch-up queries return nothing so the test only
@@ -177,6 +178,7 @@ func TestSubscribeRunsDBFallbackWhenCacheDeliversUnrelatedMessage(t *testing.T) 
 			ChatID:  chatID,
 			AfterID: 5,
 		}).Return([]database.ChatMessage{crossReplica}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{crossReplica.ID}).Return(nil, nil),
 	)
 
 	server := newSubscribeTestServer(t, db)

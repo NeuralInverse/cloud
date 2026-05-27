@@ -2159,6 +2159,7 @@ func TestSubscribeDedupesLocallyDeliveredMessageOnNotifyCatchup(t *testing.T) {
 			ChatID:  chatID,
 			AfterID: 0,
 		}).Return([]database.ChatMessage{initialMessage}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{initialMessage.ID}).Return(nil, nil),
 		db.EXPECT().GetChatQueuedMessages(gomock.Any(), chatID).Return(nil, nil),
 		// DB catchup runs unconditionally on every notify; the delivered
 		// set dedupes against locally-delivered messages.
@@ -2208,6 +2209,7 @@ func TestSubscribeUsesDurableCacheWhenLocalMessageWasNotDelivered(t *testing.T) 
 			ChatID:  chatID,
 			AfterID: 0,
 		}).Return([]database.ChatMessage{initialMessage}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{initialMessage.ID}).Return(nil, nil),
 		db.EXPECT().GetChatQueuedMessages(gomock.Any(), chatID).Return(nil, nil),
 		// DB catchup runs unconditionally; cached id=2 is deduped via
 		// the delivered set so this query returning nil is sufficient.
@@ -2265,11 +2267,13 @@ func TestSubscribeQueriesDatabaseWhenDurableCacheMisses(t *testing.T) {
 			ChatID:  chatID,
 			AfterID: 0,
 		}).Return([]database.ChatMessage{initialMessage}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{initialMessage.ID}).Return(nil, nil),
 		db.EXPECT().GetChatQueuedMessages(gomock.Any(), chatID).Return(nil, nil),
 		db.EXPECT().GetChatMessagesByChatID(gomock.Any(), database.GetChatMessagesByChatIDParams{
 			ChatID:  chatID,
 			AfterID: 1,
 		}).Return([]database.ChatMessage{catchupMessage}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{catchupMessage.ID}).Return(nil, nil),
 	)
 
 	server := newSubscribeTestServer(t, db)
@@ -2314,11 +2318,13 @@ func TestSubscribeFullRefreshStillUsesDatabaseCatchup(t *testing.T) {
 			ChatID:  chatID,
 			AfterID: 0,
 		}).Return([]database.ChatMessage{initialMessage}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{initialMessage.ID}).Return(nil, nil),
 		db.EXPECT().GetChatQueuedMessages(gomock.Any(), chatID).Return(nil, nil),
 		db.EXPECT().GetChatMessagesByChatID(gomock.Any(), database.GetChatMessagesByChatIDParams{
 			ChatID:  chatID,
 			AfterID: 0,
 		}).Return([]database.ChatMessage{editedMessage}, nil),
+		db.EXPECT().GetChatGoalMessageIDsByMessageIDs(gomock.Any(), []int64{editedMessage.ID}).Return(nil, nil),
 	)
 
 	server := newSubscribeTestServer(t, db)
