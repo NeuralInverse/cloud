@@ -1270,9 +1270,7 @@ const AgentChatPage: FC = () => {
 				toast.info("No current goal.");
 			},
 			onPausedRunningGoal: () => {
-				toast.info(
-					"Goal paused. The current turn may continue. Use Stop for immediate interruption.",
-				);
+				toast.info("Goal paused. Use Stop to halt the current turn.");
 			},
 		});
 	};
