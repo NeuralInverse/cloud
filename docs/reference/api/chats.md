@@ -326,10 +326,10 @@ Status Code **200**
 | Property      | Value(s)                                                                                                                                 |
 |---------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | `client_type` | `api`, `ui`                                                                                                                              |
+| `status`      | `active`, `cleared`, `complete`, `completed`, `error`, `paused`, `pending`, `replaced`, `requires_action`, `running`, `waiting`          |
 | `kind`        | `auth`, `config`, `generic`, `missing_key`, `overloaded`, `provider_disabled`, `rate_limit`, `startup_timeout`, `timeout`, `usage_limit` |
 | `type`        | `context-file`, `file`, `file-reference`, `reasoning`, `skill`, `source`, `text`, `tool-call`, `tool-result`                             |
 | `plan_mode`   | `plan`                                                                                                                                   |
-| `status`      | `active`, `cleared`, `complete`, `completed`, `error`, `paused`, `pending`, `replaced`, `requires_action`, `running`, `waiting`          |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
