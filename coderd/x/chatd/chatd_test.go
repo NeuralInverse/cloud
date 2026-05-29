@@ -5982,9 +5982,14 @@ func TestChatGoalLifecycleMutations(t *testing.T) {
 	require.NotNil(t, completed.Goal)
 	require.Equal(t, database.ChatGoalStatusComplete, completed.Goal.Status)
 	require.False(t, completed.Goal.CompletedByAgent)
+	require.True(t, completed.Goal.CompletedByUserID.Valid)
+	require.Equal(t, user.ID, completed.Goal.CompletedByUserID.UUID)
 	currentGoal, err := db.GetCurrentChatGoalByRootChatID(ctx, chat.ID)
 	require.NoError(t, err)
 	require.Equal(t, database.ChatGoalStatusComplete, currentGoal.Status)
+	require.False(t, currentGoal.CompletedByAgent)
+	require.True(t, currentGoal.CompletedByUserID.Valid)
+	require.Equal(t, user.ID, currentGoal.CompletedByUserID.UUID)
 
 	cleared, err := server.ApplyGoalMutation(ctx, chatd.ApplyGoalMutationOptions{
 		ChatID:    chat.ID,

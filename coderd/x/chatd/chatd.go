@@ -1856,7 +1856,7 @@ func applyGoalMutation(
 				UUID:  createdBy,
 				Valid: createdBy != uuid.Nil,
 			},
-			CompletedByAgent: createdBy == uuid.Nil,
+			CompletedByAgent: false,
 		})
 		if err != nil {
 			return nil, goalMutationUpdateError("complete chat goal", err)
