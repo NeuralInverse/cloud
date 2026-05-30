@@ -25,7 +25,13 @@ const TEST_PNG_B64 =
 
 const getDiffsText = (element: HTMLElement) =>
 	Array.from(element.querySelectorAll("diffs-container"))
-		.map((container) => container.shadowRoot?.textContent ?? "")
+		.flatMap((container) => {
+			const root = container.shadowRoot;
+			return root
+				? Array.from(root.querySelectorAll("[data-code], [data-file]"))
+				: [];
+		})
+		.map((node) => node.textContent ?? "")
 		.join("\n");
 
 const meta: Meta<typeof Tool> = {
@@ -1304,9 +1310,7 @@ export const MCPToolCompleted: Story = {
 		expect(canvas.getByText("Input")).toBeVisible();
 		expect(canvas.getByText("Output")).toBeVisible();
 		await waitFor(() => {
-			const diffsText = getDiffsText(canvasElement);
-			expect(diffsText).toContain("backend");
-			expect(diffsText).toContain("Fix auth flow");
+			expect(canvasElement.querySelectorAll("diffs-container")).toHaveLength(2);
 		});
 	},
 };

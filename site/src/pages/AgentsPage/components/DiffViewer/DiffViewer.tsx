@@ -5,8 +5,7 @@ import type {
 	SelectedLineRange,
 	VirtualFileMetrics,
 } from "@pierre/diffs";
-import { Virtualizer } from "@pierre/diffs";
-import { FileDiff, VirtualizerContext } from "@pierre/diffs/react";
+import { FileDiff, Virtualizer } from "@pierre/diffs/react";
 import { ChevronRightIcon } from "lucide-react";
 import {
 	type ComponentProps,
@@ -150,9 +149,6 @@ const FILE_TREE_WIDTH = 300;
  */
 const LINE_HEIGHT_PX = 16.5;
 
-/** Height of the file header row rendered by @pierre/diffs. */
-const HEADER_HEIGHT_PX = 36;
-
 /**
  * Metrics that tell the @pierre/diffs virtualizer how tall each
  * element actually is after our CSS overrides. Without these the
@@ -165,17 +161,9 @@ const VIRTUALIZER_METRICS: VirtualFileMetrics = {
 	lineHeight: LINE_HEIGHT_PX,
 	diffHeaderHeight: 32, // 32 px min-height (border-box includes borders)
 	hunkSeparatorHeight: 28, // height: 28px !important in SEPARATOR_CSS
-	fileGap: 2, // padding-bottom: max(0, gap-block - 6px) = 2px
+	spacing: 8,
+	paddingBottom: 2, // padding-bottom: max(0, gap-block - 6px) = 2px
 };
-
-/**
- * Estimate the rendered pixel height of a file diff so the
- * placeholder occupies roughly the same space. This keeps the
- * scroll position stable as files are lazily mounted.
- */
-function estimateDiffHeight(fileDiff: FileDiffMetadata): number {
-	return HEADER_HEIGHT_PX + fileDiff.unifiedLineCount * LINE_HEIGHT_PX;
-}
 
 // -------------------------------------------------------------------
 // File tree data model
@@ -363,151 +351,38 @@ function FileTreeNodeViewInner({
 const FileTreeNodeView = memo(FileTreeNodeViewInner);
 
 // -------------------------------------------------------------------
-// Virtualized scroll container
+// Diff scroll container
 // -------------------------------------------------------------------
 
-/**
- * Wraps the diff list in a Radix ScrollArea and wires up the
- * @pierre/diffs Virtualizer. Extracted into its own component so
- * that the useCallback for ref-callback stability lives here
- * instead of in DiffViewer. This lets the React Compiler skip
- * only this small wrapper (where it can't preserve useCallback)
- * while still optimizing the much larger parent.
- *
- * The ref callback is placed on a content div *inside* the
- * ScrollArea, then walks up with closest() to the Radix viewport.
- * React fires children's refs bottom-up during commit, so every
- * VirtualizedFileDiff instance has already connected to the
- * virtualizer by the time this ref fires and calls setup().
- */
 const DiffScrollContainer: FC<{
 	children: ReactNode;
 	className?: string;
 	diffViewportRef: React.RefObject<HTMLElement | null>;
 }> = ({ children, className, diffViewportRef }) => {
-	const [virtualizer] = useState(() => new Virtualizer());
-
-	// useCallback is required for correctness: in React 19 an
-	// unstable ref callback triggers old-cleanup → new-callback
-	// on every render, which calls virtualizer.cleanUp() and
-	// wipes the observer map. The compiler can't preserve this
-	// useCallback, but that only causes it to skip this small
-	// wrapper, not the entire DiffViewer.
-	const contentRef = useCallback(
-		(node: HTMLDivElement | null) => {
-			const viewport = node?.closest<HTMLElement>(
-				"[data-radix-scroll-area-viewport]",
-			);
-			if (!viewport) return;
-
-			diffViewportRef.current = viewport;
-			virtualizer.setup(viewport);
-
-			return () => {
-				virtualizer.cleanUp();
+	const containerRef = useCallback(
+		(container: HTMLDivElement | null) => {
+			const viewport = container?.firstElementChild;
+			if (viewport instanceof HTMLElement) {
+				viewport.dataset.diffScrollViewport = "true";
+				diffViewportRef.current = viewport;
+			} else {
 				diffViewportRef.current = null;
-			};
+			}
 		},
-		[virtualizer, diffViewportRef],
+		[diffViewportRef],
 	);
 
 	return (
-		<ScrollArea
-			className={cn(className, "will-change-transform")}
-			scrollBarClassName="w-1.5"
-			viewportClassName="[&>div]:!block"
-		>
-			<VirtualizerContext value={virtualizer}>
-				<div ref={contentRef} className="min-w-0 text-xs">
-					{children}
-				</div>
-			</VirtualizerContext>
-		</ScrollArea>
+		<div ref={containerRef} className={cn(className, "min-w-0 flex-1")}>
+			<Virtualizer
+				className="h-full overflow-auto will-change-transform"
+				contentClassName="min-w-0 text-xs"
+			>
+				{children}
+			</Virtualizer>
+		</div>
 	);
 };
-
-// -------------------------------------------------------------------
-// Lazy file diff wrapper
-// -------------------------------------------------------------------
-
-/**
- * Wraps a single `<FileDiff>` with an IntersectionObserver so the
- * heavy component (Shadow DOM + shiki highlighting) is only mounted
- * once the placeholder scrolls into or near the viewport.
- *
- * Once mounted the component stays mounted. We never unmount a
- * FileDiff that the user has already scrolled past, which avoids
- * layout shifts and repeated highlighting work.
- */
-interface LazyFileDiffProps {
-	fileDiff: FileDiffMetadata;
-	options: ComponentProps<typeof FileDiff>["options"];
-	lineAnnotations?: DiffLineAnnotation<string>[];
-	renderAnnotation?: (annotation: DiffLineAnnotation<string>) => ReactNode;
-	selectedLines?: SelectedLineRange | null;
-}
-
-function LazyFileDiffInner({
-	fileDiff,
-	options,
-	lineAnnotations,
-	renderAnnotation: renderAnnotationProp,
-	selectedLines,
-}: LazyFileDiffProps) {
-	const placeholderRef = useRef<HTMLDivElement>(null);
-	const [visible, setVisible] = useState(false);
-
-	useEffect(() => {
-		const el = placeholderRef.current;
-		if (!el || visible) {
-			return;
-		}
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setVisible(true);
-					observer.disconnect();
-				}
-			},
-			// Pre-load files that are within one viewport-height of
-			// the visible area so they are ready before the user
-			// scrolls to them.
-			{ rootMargin: "100% 0px" },
-		);
-		observer.observe(el);
-		return () => observer.disconnect();
-	}, [visible]);
-
-	if (!visible) {
-		return (
-			<div
-				ref={placeholderRef}
-				style={{ height: estimateDiffHeight(fileDiff) }}
-				className="p-4 space-y-2"
-			>
-				<Skeleton className="h-4 w-48" />
-				<Skeleton className="h-3 w-full" />
-				<Skeleton className="h-3 w-full" />
-				<Skeleton className="h-3 w-3/4" />
-			</div>
-		);
-	}
-
-	return (
-		<FileDiff
-			fileDiff={fileDiff}
-			options={options}
-			metrics={VIRTUALIZER_METRICS}
-			style={DIFFS_FONT_STYLE}
-			lineAnnotations={lineAnnotations}
-			renderAnnotation={renderAnnotationProp}
-			selectedLines={selectedLines}
-		/>
-	);
-}
-
-// memo requires stable props; the React Compiler provides them here.
-const LazyFileDiff = memo(LazyFileDiffInner);
 
 // -------------------------------------------------------------------
 // Main component
@@ -542,13 +417,14 @@ export const DiffViewer: FC<DiffViewerProps> = ({
 
 	const fileOptions = {
 		...diffOptions,
-		overflow: "wrap" as const,
+		overflow: "scroll" as const,
 		enableLineSelection: true,
-		enableHoverUtility: true,
+		enableGutterUtility: true,
 		onLineSelected() {
 			// TODO: Make this add context to the input so the
 			// user can type.
 		},
+		onGutterUtilityClick() {},
 	};
 
 	// When the parent provides per-file callbacks (e.g. line click
@@ -558,9 +434,9 @@ export const DiffViewer: FC<DiffViewerProps> = ({
 
 	const getOptionsForFile = (fileName: string) => ({
 		...diffOptions,
-		overflow: "wrap" as const,
+		overflow: "scroll" as const,
 		enableLineSelection: true,
-		enableHoverUtility: true,
+		enableGutterUtility: true,
 		...(onLineNumberClick && {
 			onLineNumberClick: (props: {
 				lineNumber: number;
@@ -579,6 +455,14 @@ export const DiffViewer: FC<DiffViewerProps> = ({
 			: () => {
 					// TODO: Make this add context to the input.
 				},
+		onGutterUtilityClick: onLineSelected
+			? (range: {
+					start: number;
+					end: number;
+					side?: "additions" | "deletions";
+					endSide?: "additions" | "deletions";
+				}) => onLineSelected(fileName, range)
+			: () => {},
 	});
 
 	const fileTree = buildFileTree(parsedFiles);
@@ -603,7 +487,7 @@ export const DiffViewer: FC<DiffViewerProps> = ({
 		);
 	})();
 
-	// Pre-compute per-file options so each LazyFileDiff receives a
+	// Pre-compute per-file options so each FileDiff receives a
 	// stable reference and avoids re-highlighting on parent re-render.
 	const perFileOptions = (() => {
 		if (!hasPerFileCallbacks) return null;
@@ -627,11 +511,10 @@ export const DiffViewer: FC<DiffViewerProps> = ({
 		);
 	})();
 
-	// Pre-compute per-file selected lines so each LazyFileDiff
-	// receives a stable reference. Without this, calling
+	// Pre-compute per-file selected lines so each FileDiff receives
+	// a stable reference. Without this, calling
 	// getSelectedLines during render returns a new object every
-	// time, which busts the memo comparator and forces an
-	// expensive Shadow DOM + shiki re-highlight.
+	// time, which forces an expensive Shadow DOM + shiki re-highlight.
 	const perFileSelectedLines = (() => {
 		if (!getSelectedLines) return null;
 		return new Map(
@@ -763,14 +646,14 @@ export const DiffViewer: FC<DiffViewerProps> = ({
 											"border-0 border-t border-solid border-border-default",
 									)}
 								>
-									<LazyFileDiff
+									<FileDiff
 										fileDiff={fileDiff}
 										options={perFileOptions?.get(fileDiff.name) ?? fileOptions}
+										metrics={VIRTUALIZER_METRICS}
+										style={DIFFS_FONT_STYLE}
 										lineAnnotations={perFileAnnotations?.get(fileDiff.name)}
 										renderAnnotation={renderAnnotation}
-										selectedLines={
-											perFileSelectedLines?.get(fileDiff.name) ?? null
-										}
+										selectedLines={perFileSelectedLines?.get(fileDiff.name)}
 									/>
 									{isLast && (
 										<div className="flex items-center justify-center py-4 text-xs text-content-secondary">

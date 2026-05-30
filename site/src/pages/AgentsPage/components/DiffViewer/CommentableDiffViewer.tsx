@@ -212,10 +212,38 @@ export const CommentableDiffViewer: FC<CommentableDiffViewerProps> = ({
 		useState<CommentBoxState | null>(null);
 
 	const activeCommentBoxRef = useRef<CommentBoxState | null>(null);
+	const scrollAnchorRef = useRef<{ element: HTMLElement; top: number } | null>(
+		null,
+	);
+
+	useLayoutEffect(() => {
+		const anchor = scrollAnchorRef.current;
+		if (!anchor) return;
+		scrollAnchorRef.current = null;
+		anchor.element.scrollTop +=
+			anchor.element.getBoundingClientRect().top - anchor.top;
+	});
 
 	const updateCommentBox = (box: CommentBoxState | null) => {
 		activeCommentBoxRef.current = box;
 		setActiveCommentBox(box);
+	};
+
+	const captureScrollAnchor = () => {
+		const selection = window.getSelection();
+		const selectedNode = selection?.anchorNode;
+		const selectedElement =
+			selectedNode instanceof HTMLElement
+				? selectedNode
+				: selectedNode?.parentElement;
+		const diffViewport = selectedElement?.closest<HTMLElement>(
+			"[data-diff-scroll-viewport]",
+		);
+		if (!diffViewport) return;
+		scrollAnchorRef.current = {
+			element: diffViewport,
+			top: diffViewport.getBoundingClientRect().top,
+		};
 	};
 
 	// ---------------------------------------------------------------
@@ -248,6 +276,7 @@ export const CommentableDiffViewer: FC<CommentableDiffViewerProps> = ({
 	) => {
 		const result = commentBoxFromRange(fileName, range);
 		if (result === "ignore") return;
+		captureScrollAnchor();
 		updateCommentBox(result);
 	};
 

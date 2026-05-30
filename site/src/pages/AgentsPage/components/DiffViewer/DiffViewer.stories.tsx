@@ -1,7 +1,7 @@
 import type { DiffLineAnnotation, SelectedLineRange } from "@pierre/diffs";
 import { parsePatchFiles } from "@pierre/diffs";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, waitFor } from "storybook/test";
+import { expect, fn, userEvent, waitFor } from "storybook/test";
 import type { DiffStyle } from "../DiffViewer/DiffViewer";
 import { DiffViewer } from "../DiffViewer/DiffViewer";
 import { InlinePromptInput } from "../DiffViewer/RemoteDiffPanel";
@@ -453,11 +453,9 @@ export const LargeDiff: Story = {
 			expect(nav).not.toBeNull();
 		});
 
-		// Find the diff content viewport (the one containing file
-		// sections) rather than the file-tree sidebar viewport.
-		const fileSection = canvasElement.querySelector("[data-file-name]");
-		const viewport = fileSection?.closest<HTMLElement>(
-			"[data-radix-scroll-area-viewport]",
+		// Find the diff content viewport rather than the file-tree sidebar viewport.
+		const viewport = canvasElement.querySelector<HTMLElement>(
+			"[data-diff-scroll-viewport]",
 		);
 		if (!viewport) throw new Error("diff viewport not found");
 
@@ -473,7 +471,9 @@ export const LargeDiff: Story = {
 		});
 
 		// Scroll to roughly the middle of the diff content.
+		await userEvent.hover(viewport);
 		viewport.scrollTop = viewport.scrollHeight / 2;
+		viewport.dispatchEvent(new Event("scroll", { bubbles: true }));
 
 		// The observer should fire and highlight a different file.
 		await waitFor(() => {

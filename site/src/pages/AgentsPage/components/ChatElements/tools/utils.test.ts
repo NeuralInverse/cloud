@@ -1105,6 +1105,27 @@ describe("parseServerEditResults", () => {
 });
 
 describe("parseServerEditDiffText", () => {
+	const changedLineContents = (
+		diff: NonNullable<ReturnType<typeof parseServerEditDiffText>>,
+	) =>
+		diff.hunks.flatMap((hunk) =>
+			hunk.hunkContent.flatMap((content) => {
+				if (content.type !== "change") {
+					return [];
+				}
+				return [
+					...diff.deletionLines.slice(
+						content.deletionLineIndex,
+						content.deletionLineIndex + content.deletions,
+					),
+					...diff.additionLines.slice(
+						content.additionLineIndex,
+						content.additionLineIndex + content.additions,
+					),
+				].map((line) => line.trimEnd());
+			}),
+		);
+
 	it("returns null for an empty string (no-op edit)", () => {
 		expect(parseServerEditDiffText("")).toBeNull();
 	});
@@ -1115,6 +1136,46 @@ describe("parseServerEditDiffText", () => {
 		);
 		expect(diff).not.toBeNull();
 		expect(diff?.name).toBe("/abs/a.txt");
+	});
+
+	it("parses quoted git diff headers", () => {
+		const diff = parseServerEditDiffText(
+			[
+				'diff --git "a/path with spaces.ts" "b/path with spaces.ts"',
+				"index 1111111..2222222 100644",
+				'--- "a/path with spaces.ts"',
+				'+++ "b/path with spaces.ts"',
+				"@@ -1 +1 @@",
+				"-old value",
+				"+new value",
+				"",
+			].join("\n"),
+		);
+
+		expect(diff).not.toBeNull();
+		expect(diff?.name).toBe("path with spaces.ts");
+		expect(changedLineContents(diff!)).toEqual(["old value", "new value"]);
+	});
+
+	it("parses diffs that include git patch footer metadata", () => {
+		const diff = parseServerEditDiffText(
+			[
+				"diff --git a/example.ts b/example.ts",
+				"index 1111111..2222222 100644",
+				"--- a/example.ts",
+				"+++ b/example.ts",
+				"@@ -1 +1 @@",
+				"-old value",
+				"+new value",
+				"-- ",
+				"2.45.0",
+				"",
+			].join("\n"),
+		);
+
+		expect(diff).not.toBeNull();
+		expect(diff?.name).toBe("example.ts");
+		expect(changedLineContents(diff!)).toEqual(["old value", "new value"]);
 	});
 });
 
