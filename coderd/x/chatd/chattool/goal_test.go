@@ -89,6 +89,7 @@ func TestCompleteGoalSchemaUsesStringGoalID(t *testing.T) {
 	goalIDParam, ok := info.Parameters["goal_id"].(map[string]any)
 	require.True(t, ok)
 	require.Equal(t, "string", goalIDParam["type"])
+	require.Contains(t, goalIDParam["description"], "UUIDv4 string")
 }
 
 func TestGetGoalReturnsNullWithoutCurrentGoal(t *testing.T) {
@@ -152,7 +153,7 @@ func TestCompleteGoalValidatesInput(t *testing.T) {
 		{
 			name:    "invalid goal id",
 			input:   `{"goal_id":"not-a-uuid","summary":"done"}`,
-			message: "invalid goal_id",
+			message: "goal_id is required",
 		},
 		{
 			name:    "empty summary",

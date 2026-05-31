@@ -32,7 +32,7 @@ type GoalToolOptions struct {
 type getGoalArgs struct{}
 
 type completeGoalArgs struct {
-	GoalID  string `json:"goal_id" description:"The expected current goal ID. The tool fails if the current goal changed."`
+	GoalID  string `json:"goal_id" description:"The expected current goal ID as a UUIDv4 string. The tool fails if the current goal changed."`
 	Summary string `json:"summary" description:"A concise non-empty summary of how the goal was completed."`
 }
 
@@ -80,7 +80,7 @@ func CompleteGoal(db database.Store, options GoalToolOptions) fantasy.AgentTool 
 			}
 			goalID, err := uuid.Parse(goalIDStr)
 			if err != nil {
-				return fantasy.NewTextErrorResponse("invalid goal_id"), nil
+				return fantasy.NewTextErrorResponse("goal_id is required"), nil
 			}
 			summary := strings.TrimSpace(args.Summary)
 			if summary == "" {
