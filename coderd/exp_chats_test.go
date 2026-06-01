@@ -413,6 +413,68 @@ func TestChatGoalAPI(t *testing.T) {
 	require.Len(t, sentAsGoal, 2)
 }
 
+func TestPatchChatGoalRequiresOwnerForSharedSiteOwner(t *testing.T) {
+	t.Parallel()
+
+	ctx := testutil.Context(t, testutil.WaitLong)
+	ownerClient, db := newChatClientWithDatabase(t)
+	firstUser := coderdtest.CreateFirstUser(t, ownerClient.Client)
+	createChatModelConfig(t, ownerClient)
+
+	sharedOwnerRaw, sharedOwner := coderdtest.CreateAnotherUser(
+		t,
+		ownerClient.Client,
+		firstUser.OrganizationID,
+		rbac.RoleOwner(),
+		rbac.ScopedRoleAgentsAccess(firstUser.OrganizationID),
+	)
+	sharedOwnerClient := codersdk.NewExperimentalClient(sharedOwnerRaw)
+
+	chat, err := ownerClient.CreateChat(ctx, codersdk.CreateChatRequest{
+		OrganizationID: firstUser.OrganizationID,
+		Content: []codersdk.ChatInputPart{{
+			Type: codersdk.ChatInputPartTypeText,
+			Text: "start with an owner goal",
+		}},
+		GoalMutation: &codersdk.ChatGoalMutation{
+			Action:    codersdk.ChatGoalMutationActionSet,
+			Objective: "protect goal updates",
+		},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, chat.Goal)
+
+	err = db.UpdateChatACLByID(dbauthz.As(ctx, rbac.Subject{
+		ID:    firstUser.UserID.String(),
+		Roles: rbac.RoleIdentifiers{rbac.RoleOwner()},
+		Scope: rbac.ScopeAll,
+	}), database.UpdateChatACLByIDParams{
+		ID: chat.ID,
+		UserACL: database.ChatACL{
+			sharedOwner.ID.String(): database.ChatACLEntry{Permissions: []policy.Action{policy.ActionRead}},
+		},
+		GroupACL: database.ChatACL{},
+	})
+	require.NoError(t, err)
+
+	gotGoal, err := sharedOwnerClient.GetChatGoal(ctx, chat.ID)
+	require.NoError(t, err)
+	require.NotNil(t, gotGoal.Goal)
+	require.Equal(t, chat.Goal.ID, gotGoal.Goal.ID)
+
+	_, err = sharedOwnerClient.UpdateChatGoal(ctx, chat.ID, codersdk.ChatGoalMutation{
+		Action: codersdk.ChatGoalMutationActionPause,
+		GoalID: &chat.Goal.ID,
+	})
+	sdkErr := requireSDKError(t, err, http.StatusForbidden)
+	require.Contains(t, sdkErr.Message, "Only the chat owner")
+
+	current, err := ownerClient.GetChatGoal(ctx, chat.ID)
+	require.NoError(t, err)
+	require.NotNil(t, current.Goal)
+	require.Equal(t, codersdk.ChatGoalStatusActive, current.Goal.Status)
+}
+
 func TestPostChats(t *testing.T) {
 	t.Parallel()
 

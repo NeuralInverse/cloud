@@ -2245,6 +2245,16 @@ func (api *API) patchChatGoal(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Only the chat owner may mutate goals. Shared readers with the
+	// owner role pass the RBAC check above, but the goal controls the
+	// chat owner's future agent behavior.
+	if apiKey.UserID != chat.OwnerID {
+		httpapi.Write(ctx, rw, http.StatusForbidden, codersdk.Response{
+			Message: "Only the chat owner may update goals.",
+		})
+		return
+	}
+
 	if api.chatDaemon == nil {
 		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
 			Message: "Chat processor is unavailable.",
