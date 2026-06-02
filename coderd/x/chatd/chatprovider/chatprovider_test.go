@@ -1569,6 +1569,13 @@ func TestResolveModelWithProviderHint(t *testing.T) {
 			wantModel:    "claude-opus-4.6",
 		},
 		{
+			name:         "OpenAIHintPreservesUnknownSlashNamespace",
+			modelName:    "meta-llama/llama-3-70b",
+			providerHint: fantasyopenai.Name,
+			wantProvider: fantasyopenai.Name,
+			wantModel:    "meta-llama/llama-3-70b",
+		},
+		{
 			name:         "AnthropicHintStripsCanonicalPrefix",
 			modelName:    "anthropic/claude-4-5-sonnet",
 			providerHint: fantasyanthropic.Name,

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"slices"
 	"strings"
@@ -31,6 +30,11 @@ import (
 	"github.com/coder/coder/v2/aibridge/recorder"
 	"github.com/coder/coder/v2/aibridge/tracing"
 	"github.com/coder/quartz"
+)
+
+const (
+	upstreamEmptyStreamMessage     = "The AI provider did not return a response. Try again or contact your administrator if this persists."
+	upstreamMalformedStreamMessage = "The AI provider returned an invalid response. Try again or contact your administrator if this persists."
 )
 
 type StreamingInterception struct {
@@ -488,15 +492,14 @@ func (i *StreamingInterception) newStream(ctx context.Context, svc openai.ChatCo
 	return svc.NewStreaming(ctx, openai.ChatCompletionNewParams{}, opts...)
 }
 
-// mapStreamError converts a mid-stream upstream error or
-// processing error into a relayable ResponseError. Returns nil
-// when the error is unrecoverable, in which case nothing can be
-// relayed back.
+// mapStreamError turns stream errors or empty-stream anomalies into
+// relayable ResponseErrors. Returns nil for unrecoverable errors that
+// cannot be relayed.
 func (i *StreamingInterception) mapStreamError(ctx context.Context, logger slog.Logger, streamErr, lastErr error, stats *sseStreamStats, downstreamStarted bool) *intercept.ResponseError {
 	if streamErr == nil && stats.isEmptyDataStream() {
 		i.logUpstreamStreamFailure(ctx, logger, "empty_stream", streamErr, stats, downstreamStarted)
 		return intercept.NewResponseError(
-			"upstream stream closed without any data events",
+			upstreamEmptyStreamMessage,
 			intercept.OpenAIErrTypeAPI,
 			intercept.OpenAIErrCodeServer,
 			http.StatusBadGateway,
@@ -516,7 +519,7 @@ func (i *StreamingInterception) mapStreamError(ctx context.Context, logger slog.
 		if stats != nil && stats.isSSEUpstream() && stats.hasDataEvents() && isJSONDecodeStreamError(streamErr) {
 			i.logUpstreamStreamFailure(ctx, logger, "malformed_json", streamErr, stats, downstreamStarted)
 			return intercept.NewResponseError(
-				fmt.Sprintf("malformed upstream stream data: %s", streamErr),
+				upstreamMalformedStreamMessage,
 				intercept.OpenAIErrTypeAPI,
 				intercept.OpenAIErrCodeServer,
 				http.StatusBadGateway,
@@ -552,7 +555,7 @@ func (i *StreamingInterception) logUpstreamStreamFailure(ctx context.Context, lo
 		fields = append(fields,
 			slog.F("upstream_status", stats.statusCodeInt()),
 			slog.F("upstream_content_type", stats.contentTypeString()),
-			slog.F("saw_data_chunk", stats.hasDataEvents()),
+			slog.F("has_data_events", stats.hasDataEvents()),
 			slog.F("saw_done", stats.sawDone.Load()),
 			slog.F("data_event_count", stats.dataEvents.Load()),
 			slog.F("comment_count", stats.comments.Load()),
@@ -564,15 +567,11 @@ func (i *StreamingInterception) logUpstreamStreamFailure(ctx context.Context, lo
 }
 
 func isJSONDecodeStreamError(err error) bool {
-	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+	if _, ok := errors.AsType[*json.SyntaxError](err); ok {
 		return true
 	}
-	var syntaxErr *json.SyntaxError
-	if errors.As(err, &syntaxErr) {
-		return true
-	}
-	var typeErr *json.UnmarshalTypeError
-	return errors.As(err, &typeErr)
+	_, ok := errors.AsType[*json.UnmarshalTypeError](err)
+	return ok
 }
 
 type streamProcessor struct {

@@ -12,6 +12,8 @@ import (
 	"sync/atomic"
 )
 
+const maxSSELineSize = bufio.MaxScanTokenSize << 9 // 32 MB
+
 type sseStreamStats struct {
 	responseReceived atomic.Bool
 	statusCode       atomic.Int64
@@ -63,30 +65,30 @@ func (s *sseStreamStats) hasDataEvents() bool {
 }
 
 func (s *sseStreamStats) isEmptyDataStream() bool {
-	return s != nil && s.isSSEUpstream() && s.dataEvents.Load() == 0 && !s.sawDone.Load()
+	return s != nil && s.isSSEUpstream() && s.dataEvents.Load() == 0
 }
 
 func isEventStreamContentType(contentType string) bool {
 	mediaType, _, err := mime.ParseMediaType(contentType)
 	if err != nil {
-		mediaType = strings.TrimSpace(strings.Split(contentType, ";")[0])
+		mediaType, _, _ = strings.Cut(contentType, ";")
+		mediaType = strings.TrimSpace(mediaType)
 	}
 	return strings.EqualFold(mediaType, "text/event-stream")
 }
 
 type sseFilteringBody struct {
-	reader   *io.PipeReader
-	upstream io.ReadCloser
-
-	closeOnce sync.Once
-	closeErr  error
+	reader        *io.PipeReader
+	upstream      io.ReadCloser
+	closeUpstream func() error
 }
 
 func newSSEFilteringBody(upstream io.ReadCloser, stats *sseStreamStats) io.ReadCloser {
 	reader, writer := io.Pipe()
 	body := &sseFilteringBody{
-		reader:   reader,
-		upstream: upstream,
+		reader:        reader,
+		upstream:      upstream,
+		closeUpstream: sync.OnceValue(upstream.Close),
 	}
 	go body.filter(writer, stats)
 	return body
@@ -100,20 +102,13 @@ func (b *sseFilteringBody) Close() error {
 	return errors.Join(b.reader.Close(), b.closeUpstream())
 }
 
-func (b *sseFilteringBody) closeUpstream() error {
-	b.closeOnce.Do(func() {
-		b.closeErr = b.upstream.Close()
-	})
-	return b.closeErr
-}
-
 func (b *sseFilteringBody) filter(writer *io.PipeWriter, stats *sseStreamStats) {
 	defer func() {
 		_ = b.closeUpstream()
 	}()
 
 	scanner := bufio.NewScanner(b.upstream)
-	scanner.Buffer(nil, bufio.MaxScanTokenSize<<9)
+	scanner.Buffer(nil, maxSSELineSize)
 
 	var event bytes.Buffer
 	var eventData bytes.Buffer
@@ -160,12 +155,12 @@ func (b *sseFilteringBody) filter(writer *io.PipeWriter, stats *sseStreamStats) 
 			continue
 		}
 
-		eventHadLine = true
 		name, value, _ := bytes.Cut(line, []byte(":"))
 		if len(name) == 0 {
 			stats.comments.Add(1)
 			continue
 		}
+		eventHadLine = true
 		if len(value) > 0 && value[0] == ' ' {
 			value = value[1:]
 		}

@@ -100,7 +100,7 @@ func TestValidateChatModelConfigAIProvider(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := validateChatModelConfigAIProvider(tt.model, tt.provider)
+			got := validateChatModelConfigAIProvider(tt.provider, tt.model)
 			if tt.wantErr {
 				require.NotNil(t, got)
 				require.Contains(t, got.Detail, tt.wantDetail)

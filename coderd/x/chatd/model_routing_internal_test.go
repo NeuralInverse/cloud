@@ -659,7 +659,10 @@ func TestAIBridgeRoutingFailClosed(t *testing.T) {
 			aibridgeTestRoute(provider),
 			modelBuildOptions{ActiveAPIKeyID: uuid.NewString()},
 		)
-		require.ErrorContains(t, err, "configured as type openai")
+		require.ErrorContains(t, err, "does not support slash-namespaced models")
+		classified := chaterror.Classify(err)
+		require.Equal(t, codersdk.ChatErrorKindConfig, classified.Kind)
+		require.False(t, classified.Retryable)
 	})
 
 	t.Run("StaticModel", func(t *testing.T) {

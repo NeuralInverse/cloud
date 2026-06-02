@@ -150,7 +150,7 @@ func TestStreamingInterception_HandlesUpstreamSSEEdgeCases(t *testing.T) {
 			body:               "",
 			expectErr:          true,
 			expectedStatusCode: http.StatusBadGateway,
-			expectedBody:       "upstream stream closed without any data events",
+			expectedBody:       upstreamEmptyStreamMessage,
 			unexpectedBody:     "unexpected end of JSON input",
 		},
 		{
@@ -158,7 +158,7 @@ func TestStreamingInterception_HandlesUpstreamSSEEdgeCases(t *testing.T) {
 			body:               ": OPENROUTER PROCESSING\n\n",
 			expectErr:          true,
 			expectedStatusCode: http.StatusBadGateway,
-			expectedBody:       "upstream stream closed without any data events",
+			expectedBody:       upstreamEmptyStreamMessage,
 			unexpectedBody:     "unexpected end of JSON input",
 		},
 		{
@@ -166,15 +166,22 @@ func TestStreamingInterception_HandlesUpstreamSSEEdgeCases(t *testing.T) {
 			body:               ": OPENROUTER PROCESSING\n",
 			expectErr:          true,
 			expectedStatusCode: http.StatusBadGateway,
-			expectedBody:       "upstream stream closed without any data events",
+			expectedBody:       upstreamEmptyStreamMessage,
 			unexpectedBody:     "unexpected end of JSON input",
+		},
+		{
+			name:               "done marker only",
+			body:               "data: [DONE]\n\n",
+			expectErr:          true,
+			expectedStatusCode: http.StatusBadGateway,
+			expectedBody:       upstreamEmptyStreamMessage,
 		},
 		{
 			name:               "malformed data event",
 			body:               "data: {not-json}\n\n",
 			expectErr:          true,
 			expectedStatusCode: http.StatusBadGateway,
-			expectedBody:       "malformed upstream stream data",
+			expectedBody:       upstreamMalformedStreamMessage,
 		},
 		{
 			name:               "valid chunk without done",

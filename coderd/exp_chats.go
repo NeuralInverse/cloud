@@ -6768,10 +6768,10 @@ func (api *API) listChatModelConfigs(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(ctx, rw, http.StatusOK, resp)
 }
 
-func validateChatModelConfigAIProvider(model string, aiProvider database.AIProvider) *codersdk.Response {
+func validateChatModelConfigAIProvider(aiProvider database.AIProvider, model string) *codersdk.Response {
 	if err := chatd.ValidateAIGatewayProviderModel(aiProvider, model); err != nil {
 		return &codersdk.Response{
-			Message: "Invalid AI provider type for OpenRouter model.",
+			Message: "AI provider type openai does not support slash-namespaced models.",
 			Detail:  err.Error(),
 		}
 	}
@@ -6823,7 +6823,7 @@ func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if resp := validateChatModelConfigAIProvider(model, aiProvider); resp != nil {
+	if resp := validateChatModelConfigAIProvider(aiProvider, model); resp != nil {
 		httpapi.Write(ctx, rw, http.StatusBadRequest, *resp)
 		return
 	}
@@ -6896,7 +6896,7 @@ func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 			return errChatProviderNotConfigured
 		}
 		insertParams.Provider = string(lockedAIProvider.Type)
-		if resp := validateChatModelConfigAIProvider(insertParams.Model, lockedAIProvider); resp != nil {
+		if resp := validateChatModelConfigAIProvider(lockedAIProvider, insertParams.Model); resp != nil {
 			aiProviderValidationResp = resp
 			return errChatModelConfigInvalidAIProvider
 		}
@@ -6941,9 +6941,6 @@ func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case xerrors.Is(err, errChatModelConfigInvalidAIProvider):
-			if aiProviderValidationResp == nil {
-				aiProviderValidationResp = &codersdk.Response{Message: "Invalid AI provider type for OpenRouter model.", Detail: err.Error()}
-			}
 			httpapi.Write(ctx, rw, http.StatusBadRequest, *aiProviderValidationResp)
 			return
 		case database.IsUniqueViolation(err):
@@ -7017,7 +7014,6 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 
 	provider := existing.Provider
 	aiProviderID := existing.AIProviderID
-	var selectedAIProvider *database.AIProvider
 	if req.AIProviderID != nil {
 		//nolint:gocritic // The route already authorized chat model config updates.
 		aiProvider, err := api.Database.GetAIProviderByID(dbauthz.AsChatd(ctx), *req.AIProviderID)
@@ -7038,33 +7034,11 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 		}
 		provider = string(aiProvider.Type)
 		aiProviderID = uuid.NullUUID{UUID: aiProvider.ID, Valid: true}
-		selectedAIProvider = &aiProvider
 	}
 
 	model := existing.Model
 	if trimmed := strings.TrimSpace(req.Model); trimmed != "" {
 		model = trimmed
-	}
-
-	if selectedAIProvider == nil && provider == string(database.AiProviderTypeOpenai) && aiProviderID.Valid {
-		//nolint:gocritic // The route already authorized chat model config updates.
-		aiProvider, err := api.Database.GetAIProviderByID(dbauthz.AsChatd(ctx), aiProviderID.UUID)
-		if err != nil && !httpapi.Is404Error(err) {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
-				Message: "Failed to get AI provider.",
-				Detail:  err.Error(),
-			})
-			return
-		}
-		if err == nil {
-			selectedAIProvider = &aiProvider
-		}
-	}
-	if selectedAIProvider != nil {
-		if resp := validateChatModelConfigAIProvider(model, *selectedAIProvider); resp != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, *resp)
-			return
-		}
 	}
 
 	displayName := existing.DisplayName
@@ -7131,10 +7105,11 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 		ID:                   existing.ID,
 	}
 
+	revalidateAIProvider := updateParams.AIProviderID.Valid && (req.AIProviderID != nil || strings.TrimSpace(req.Model) != "")
 	var aiProviderValidationResp *codersdk.Response
 	var updated database.ChatModelConfig
 	err = api.Database.InTx(func(tx database.Store) error {
-		if updateParams.AIProviderID.Valid && req.AIProviderID != nil {
+		if revalidateAIProvider {
 			//nolint:gocritic // The route already authorized chat model config updates.
 			aiProvider, err := tx.GetAIProviderByIDForReferenceLock(dbauthz.AsChatd(ctx), updateParams.AIProviderID.UUID)
 			if err != nil {
@@ -7147,7 +7122,7 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 				return errChatProviderNotConfigured
 			}
 			updateParams.Provider = string(aiProvider.Type)
-			if resp := validateChatModelConfigAIProvider(updateParams.Model, aiProvider); resp != nil {
+			if resp := validateChatModelConfigAIProvider(aiProvider, updateParams.Model); resp != nil {
 				aiProviderValidationResp = resp
 				return errChatModelConfigInvalidAIProvider
 			}
@@ -7195,9 +7170,6 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case xerrors.Is(err, errChatModelConfigInvalidAIProvider):
-			if aiProviderValidationResp == nil {
-				aiProviderValidationResp = &codersdk.Response{Message: "Invalid AI provider type for OpenRouter model.", Detail: err.Error()}
-			}
 			httpapi.Write(ctx, rw, http.StatusBadRequest, *aiProviderValidationResp)
 			return
 		case database.IsUniqueViolation(err):
