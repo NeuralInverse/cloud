@@ -459,7 +459,7 @@ func (a *agent) init() {
 		Logger:         a.logger.Named("agentcontext"),
 		Clock:          a.clock,
 		WorkingDir:     workingDirFn,
-		BuiltinRoots:   defaultContextRoots(a.contextConfig, workingDirFn),
+		BuiltinRoots:   defaultContextRoots(),
 		InitialSources: initialContextSources(a.contextConfig, workingDirFn),
 		AllowedRoots:   defaultContextAllowedRoots(workingDirFn),
 	})
