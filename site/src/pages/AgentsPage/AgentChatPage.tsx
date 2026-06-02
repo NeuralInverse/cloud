@@ -1720,8 +1720,6 @@ const AgentChatPage: FC = () => {
 			persistedError={persistedError}
 			isArchived={isArchived}
 			chatOwner={chatOwner}
-			canUpdateOtherUserChat={canUpdateOtherUserChat}
-			canUpdateOtherUserChatLoading={canUpdateOtherUserChatLoading}
 			canShareChat={canShareChat}
 			workspace={workspace}
 			workspaceAgent={workspaceAgent}

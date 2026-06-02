@@ -103,8 +103,6 @@ interface AgentChatPageViewProps {
 	persistedError: ChatDetailError | undefined;
 	isArchived: boolean;
 	chatOwner: ChatOwnerInfo | undefined;
-	canUpdateOtherUserChat: boolean;
-	canUpdateOtherUserChatLoading: boolean;
 	canShareChat: boolean;
 	workspaceAgent?: TypesGen.WorkspaceAgent;
 	workspace?: TypesGen.Workspace;
@@ -217,8 +215,6 @@ export const AgentChatPageView: FC<AgentChatPageViewProps> = ({
 	persistedError,
 	isArchived,
 	chatOwner,
-	canUpdateOtherUserChat,
-	canUpdateOtherUserChatLoading,
 	canShareChat,
 	workspaceAgent,
 	workspace,
@@ -447,16 +443,10 @@ export const AgentChatPageView: FC<AgentChatPageViewProps> = ({
 	const chatOwnerLabel =
 		chatOwner?.name?.trim() ||
 		(chatOwnerUsername ? `@${chatOwnerUsername}` : "another user");
-	const isOtherUserReadOnly =
-		!isArchived &&
-		chatOwner !== undefined &&
-		(canUpdateOtherUserChatLoading || !canUpdateOtherUserChat);
-	const chatOwnerWarning =
-		!isArchived && chatOwner !== undefined && !canUpdateOtherUserChatLoading
-			? canUpdateOtherUserChat
-				? `This is not your chat. Prompting here will use ${chatOwnerLabel}'s identity.`
-				: `This chat is owned by ${chatOwnerLabel}. You have read-only access.`
-			: undefined;
+	const isOtherUserReadOnly = !isArchived && chatOwner !== undefined;
+	const chatOwnerWarning = isOtherUserReadOnly
+		? `This chat is owned by ${chatOwnerLabel}. It is read-only.`
+		: undefined;
 	const topGoal = currentChatGoal(goal);
 
 	const titleElement = (
