@@ -82,7 +82,7 @@ func TestAnthropicMessages(t *testing.T) {
 				t.Cleanup(cancel)
 
 				fix := fixtures.Parse(t, fixtures.AntSingleBuiltinTool)
-				upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+				upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 				bridgeServer := newBridgeTestServer(ctx, t, upstream.URL)
 
@@ -132,7 +132,7 @@ func TestAnthropicMessages(t *testing.T) {
 				assert.Equal(t, "read the foo file", promptUsages[0].Prompt)
 
 				// Verify PRM attribution is NOT present on non-Bedrock Anthropic requests.
-				received := upstream.receivedRequests()
+				received := upstream.ReceivedRequests()
 				require.Len(t, received, 1)
 				ua := received[0].Header.Get("User-Agent")
 				assert.NotContains(t, ua, "sdk-ua-app-id",
@@ -223,7 +223,7 @@ func TestAnthropicMessagesModelThoughts(t *testing.T) {
 			t.Cleanup(cancel)
 
 			fix := fixtures.Parse(t, tc.fixture)
-			upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+			upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 			bridgeServer := newBridgeTestServer(ctx, t, upstream.URL)
 
@@ -289,7 +289,7 @@ func TestAWSBedrockIntegration(t *testing.T) {
 				t.Cleanup(cancel)
 
 				fix := fixtures.Parse(t, fixtures.AntSingleBuiltinTool)
-				upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+				upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 				// We define region here to validate that with Region & BaseURL defined, the latter takes precedence.
 				bedrockCfg := &config.AWSBedrock{
@@ -322,7 +322,7 @@ func TestAWSBedrockIntegration(t *testing.T) {
 
 				// Verify that Bedrock-specific model name was used in the request to the mock server
 				// and the interception data.
-				received := upstream.receivedRequests()
+				received := upstream.ReceivedRequests()
 				require.Len(t, received, 1)
 
 				// The Anthropic SDK's Bedrock middleware extracts "model" and "stream"
@@ -420,7 +420,7 @@ func TestAWSBedrockIntegration(t *testing.T) {
 					t.Cleanup(cancel)
 
 					fix := fixtures.Parse(t, fixtures.AntSimpleBedrock)
-					upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+					upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 					bCfg := &config.AWSBedrock{
 						Region:          "us-west-2",
@@ -448,7 +448,7 @@ func TestAWSBedrockIntegration(t *testing.T) {
 					_, err = io.ReadAll(resp.Body)
 					require.NoError(t, err)
 
-					received := upstream.receivedRequests()
+					received := upstream.ReceivedRequests()
 					require.Len(t, received, 1)
 					body := received[0].Body
 
@@ -517,7 +517,7 @@ func TestOpenAIChatCompletions(t *testing.T) {
 				t.Cleanup(cancel)
 
 				fix := fixtures.Parse(t, fixtures.OaiChatSingleBuiltinTool)
-				upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+				upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 				bridgeServer := newBridgeTestServer(ctx, t, upstream.URL)
 
@@ -595,7 +595,7 @@ func TestOpenAIChatCompletions(t *testing.T) {
 				// Setup mock server for multi-turn interaction.
 				// First request → tool call response, second → tool response.
 				fix := fixtures.Parse(t, tc.fixture)
-				upstream := newMockUpstream(ctx, t, newFixtureResponse(fix), newFixtureToolResponse(fix))
+				upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix), testutil.NewFixtureToolResponse(fix))
 
 				// Setup MCP proxies with the tool from the fixture
 				mockMCP := setupMCPForTest(t, defaultTracer)
@@ -786,7 +786,7 @@ func TestSimple(t *testing.T) {
 					t.Cleanup(cancel)
 
 					fix := fixtures.Parse(t, tc.fixture)
-					upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+					upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 					bridgeServer := newBridgeTestServer(ctx, t, upstream.URL+tc.basePath)
 
@@ -799,7 +799,7 @@ func TestSimple(t *testing.T) {
 					require.Equal(t, http.StatusOK, resp.StatusCode)
 
 					// Then: I expect the upstream request to have the correct path.
-					received := upstream.receivedRequests()
+					received := upstream.ReceivedRequests()
 					require.Len(t, received, 1)
 					require.Equal(t, tc.expectedPath, received[0].Path)
 
@@ -893,7 +893,7 @@ func TestSessionIDTracking(t *testing.T) {
 			t.Cleanup(cancel)
 
 			fix := fixtures.Parse(t, tc.fixture)
-			upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+			upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 			bridgeServer := newBridgeTestServer(ctx, t, upstream.URL, withProvider(config.ProviderAnthropic))
 
 			reqBody := fix.Request()
@@ -978,7 +978,7 @@ func TestFallthrough(t *testing.T) {
 			t.Parallel()
 
 			fix := fixtures.Parse(t, tc.fixture)
-			upstream := newMockUpstream(t.Context(), t, newFixtureResponse(fix))
+			upstream := testutil.NewMockUpstream(t.Context(), t, testutil.NewFixtureResponse(fix))
 			bridgeServer := newBridgeTestServer(t.Context(), t, upstream.URL+tc.basePath)
 
 			resp, err := bridgeServer.makeRequest(t, http.MethodGet, tc.requestPath, nil)
@@ -989,7 +989,7 @@ func TestFallthrough(t *testing.T) {
 
 			// Verify upstream received the request at the expected path
 			// with the API key header.
-			received := upstream.receivedRequests()
+			received := upstream.ReceivedRequests()
 			require.Len(t, received, 1)
 			require.Equal(t, tc.expectedUpstreamPath, received[0].Path)
 			require.Contains(t, received[0].Header.Get(tc.expectAuthHeader), apiKey)
@@ -1318,7 +1318,7 @@ func TestErrorHandling(t *testing.T) {
 						// Setup mock server. Error fixtures contain raw HTTP
 						// responses that may cause the bridge to retry.
 						fix := fixtures.Parse(t, tc.fixture)
-						upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+						upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 						bridgeServer := newBridgeTestServer(ctx, t, upstream.URL)
 
@@ -1390,7 +1390,7 @@ func TestErrorHandling(t *testing.T) {
 
 				// Setup mock server.
 				fix := fixtures.Parse(t, tc.fixture)
-				upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+				upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 				upstream.StatusCode = http.StatusInternalServerError
 
 				bridgeServer := newBridgeTestServer(ctx, t, upstream.URL)
@@ -1444,11 +1444,11 @@ func TestStableRequestEncoding(t *testing.T) {
 
 			// Create a mock upstream that serves the same blocking response for each request.
 			count := 10
-			responses := make([]upstreamResponse, count)
+			responses := make([]testutil.UpstreamResponse, count)
 			for i := range count {
-				responses[i] = newFixtureResponse(fix)
+				responses[i] = testutil.NewFixtureResponse(fix)
 			}
-			upstream := newMockUpstream(ctx, t, responses...)
+			upstream := testutil.NewMockUpstream(ctx, t, responses...)
 
 			bridgeServer := newBridgeTestServer(ctx, t, upstream.URL,
 				withMCP(mockMCP),
@@ -1463,7 +1463,7 @@ func TestStableRequestEncoding(t *testing.T) {
 			}
 
 			// All upstream request bodies should be identical.
-			received := upstream.receivedRequests()
+			received := upstream.ReceivedRequests()
 			require.Len(t, received, count)
 			reference := string(received[0].Body)
 			for _, r := range received[1:] {
@@ -1711,7 +1711,7 @@ func TestAnthropicToolChoiceParallelDisabled(t *testing.T) {
 			}
 
 			fix := fixtures.Parse(t, tc.fixture)
-			upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+			upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 			bridgeServer := newBridgeTestServer(ctx, t, upstream.URL,
 				withMCP(mockMCP),
@@ -1727,7 +1727,7 @@ func TestAnthropicToolChoiceParallelDisabled(t *testing.T) {
 			require.Equal(t, http.StatusOK, resp.StatusCode)
 
 			// Verify tool_choice in the upstream request.
-			received := upstream.receivedRequests()
+			received := upstream.ReceivedRequests()
 			require.Len(t, received, 1)
 			var receivedRequest map[string]any
 			require.NoError(t, json.Unmarshal(received[0].Body, &receivedRequest))
@@ -1867,7 +1867,7 @@ func TestChatCompletionsParallelToolCallsDisabled(t *testing.T) {
 				t.Cleanup(cancel)
 
 				fix := fixtures.Parse(t, tc.fixture)
-				upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+				upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 				var opts []bridgeOption
 				if tc.withInjectedTools {
@@ -1892,7 +1892,7 @@ func TestChatCompletionsParallelToolCallsDisabled(t *testing.T) {
 				_, err = io.ReadAll(resp.Body)
 				require.NoError(t, err)
 
-				received := upstream.receivedRequests()
+				received := upstream.ReceivedRequests()
 				require.Len(t, received, 1)
 
 				var upstreamReq map[string]any
@@ -1922,7 +1922,7 @@ func TestThinkingAdaptiveIsPreserved(t *testing.T) {
 			t.Cleanup(cancel)
 
 			// Create a mock server that captures the request body sent upstream.
-			upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+			upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 			bridgeServer := newBridgeTestServer(ctx, t, upstream.URL)
 
@@ -1940,7 +1940,7 @@ func TestThinkingAdaptiveIsPreserved(t *testing.T) {
 			require.NoError(t, err)
 
 			// Verify the thinking field was preserved in the upstream request.
-			received := upstream.receivedRequests()
+			received := upstream.ReceivedRequests()
 			require.Len(t, received, 1)
 			assert.Equal(t, "adaptive", gjson.GetBytes(received[0].Body, "thinking.type").Str)
 		})
@@ -1987,7 +1987,7 @@ func TestEnvironmentDoNotLeak(t *testing.T) {
 			t.Cleanup(cancel)
 
 			fix := fixtures.Parse(t, tc.fixture)
-			upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+			upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 			// Set environment variables that the SDK would automatically read.
 			// These should NOT leak into upstream requests.
@@ -2003,7 +2003,7 @@ func TestEnvironmentDoNotLeak(t *testing.T) {
 			require.Equal(t, http.StatusOK, resp.StatusCode)
 
 			// Verify that environment values did not leak.
-			received := upstream.receivedRequests()
+			received := upstream.ReceivedRequests()
 			require.Len(t, received, 1)
 			require.Empty(t, received[0].Header.Get(tc.headerName))
 		})
@@ -2099,7 +2099,7 @@ func TestActorHeaders(t *testing.T) {
 				t.Cleanup(cancel)
 
 				fix := fixtures.Parse(t, tc.fixture)
-				upstream := newMockUpstream(ctx, t, newFixtureResponse(fix))
+				upstream := testutil.NewMockUpstream(ctx, t, testutil.NewFixtureResponse(fix))
 
 				metadataKey := "Username"
 				bridgeServer := newBridgeTestServer(ctx, t, upstream.URL,
@@ -2121,7 +2121,7 @@ func TestActorHeaders(t *testing.T) {
 				_, err = io.ReadAll(resp.Body)
 				require.NoError(t, err)
 
-				received := upstream.receivedRequests()
+				received := upstream.ReceivedRequests()
 				require.NotEmpty(t, received)
 				receivedHeaders := received[0].Header
 
