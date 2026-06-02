@@ -461,7 +461,7 @@ func (a *agent) init() {
 		WorkingDir:     workingDirFn,
 		BuiltinRoots:   defaultContextRoots(),
 		InitialSources: initialContextSources(a.contextConfig, workingDirFn),
-		AllowedRoots:   defaultContextAllowedRoots(workingDirFn),
+		AllowedRoots:   defaultContextAllowedRoots(),
 	})
 	if ctxMgrErr != nil {
 		// NewManager only errors on programmer mistakes today.
