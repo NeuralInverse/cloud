@@ -6768,6 +6768,16 @@ func (api *API) listChatModelConfigs(rw http.ResponseWriter, r *http.Request) {
 	httpapi.Write(ctx, rw, http.StatusOK, resp)
 }
 
+func validateChatModelConfigAIProvider(model string, aiProvider database.AIProvider) *codersdk.Response {
+	if err := chatd.ValidateAIGatewayProviderModel(aiProvider, model); err != nil {
+		return &codersdk.Response{
+			Message: "Invalid AI provider type for OpenRouter model.",
+			Detail:  err.Error(),
+		}
+	}
+	return nil
+}
+
 func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	apiKey := httpmw.APIKey(r)
@@ -6810,6 +6820,11 @@ func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
 			Message: "Model is required.",
 		})
+		return
+	}
+
+	if resp := validateChatModelConfigAIProvider(model, aiProvider); resp != nil {
+		httpapi.Write(ctx, rw, http.StatusBadRequest, *resp)
 		return
 	}
 
@@ -6866,6 +6881,7 @@ func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 		UpdatedBy:            uuid.NullUUID{UUID: apiKey.UserID, Valid: apiKey.UserID != uuid.Nil},
 	}
 
+	var aiProviderValidationResp *codersdk.Response
 	var inserted database.ChatModelConfig
 	err = api.Database.InTx(func(tx database.Store) error {
 		//nolint:gocritic // The route already authorized chat model config updates.
@@ -6880,6 +6896,10 @@ func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 			return errChatProviderNotConfigured
 		}
 		insertParams.Provider = string(lockedAIProvider.Type)
+		if resp := validateChatModelConfigAIProvider(insertParams.Model, lockedAIProvider); resp != nil {
+			aiProviderValidationResp = resp
+			return errChatModelConfigInvalidAIProvider
+		}
 
 		insertAsDefault := isDefault
 		if !insertAsDefault {
@@ -6920,6 +6940,12 @@ func (api *API) createChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 	}, nil)
 	if err != nil {
 		switch {
+		case xerrors.Is(err, errChatModelConfigInvalidAIProvider):
+			if aiProviderValidationResp == nil {
+				aiProviderValidationResp = &codersdk.Response{Message: "Invalid AI provider type for OpenRouter model.", Detail: err.Error()}
+			}
+			httpapi.Write(ctx, rw, http.StatusBadRequest, *aiProviderValidationResp)
+			return
 		case database.IsUniqueViolation(err):
 			httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
 				Message: "Chat model config already exists.",
@@ -6991,6 +7017,7 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 
 	provider := existing.Provider
 	aiProviderID := existing.AIProviderID
+	var selectedAIProvider *database.AIProvider
 	if req.AIProviderID != nil {
 		//nolint:gocritic // The route already authorized chat model config updates.
 		aiProvider, err := api.Database.GetAIProviderByID(dbauthz.AsChatd(ctx), *req.AIProviderID)
@@ -7011,11 +7038,33 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 		}
 		provider = string(aiProvider.Type)
 		aiProviderID = uuid.NullUUID{UUID: aiProvider.ID, Valid: true}
+		selectedAIProvider = &aiProvider
 	}
 
 	model := existing.Model
 	if trimmed := strings.TrimSpace(req.Model); trimmed != "" {
 		model = trimmed
+	}
+
+	if selectedAIProvider == nil && provider == string(database.AiProviderTypeOpenai) && aiProviderID.Valid {
+		//nolint:gocritic // The route already authorized chat model config updates.
+		aiProvider, err := api.Database.GetAIProviderByID(dbauthz.AsChatd(ctx), aiProviderID.UUID)
+		if err != nil && !httpapi.Is404Error(err) {
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				Message: "Failed to get AI provider.",
+				Detail:  err.Error(),
+			})
+			return
+		}
+		if err == nil {
+			selectedAIProvider = &aiProvider
+		}
+	}
+	if selectedAIProvider != nil {
+		if resp := validateChatModelConfigAIProvider(model, *selectedAIProvider); resp != nil {
+			httpapi.Write(ctx, rw, http.StatusBadRequest, *resp)
+			return
+		}
 	}
 
 	displayName := existing.DisplayName
@@ -7082,6 +7131,7 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 		ID:                   existing.ID,
 	}
 
+	var aiProviderValidationResp *codersdk.Response
 	var updated database.ChatModelConfig
 	err = api.Database.InTx(func(tx database.Store) error {
 		if updateParams.AIProviderID.Valid && req.AIProviderID != nil {
@@ -7097,6 +7147,10 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 				return errChatProviderNotConfigured
 			}
 			updateParams.Provider = string(aiProvider.Type)
+			if resp := validateChatModelConfigAIProvider(updateParams.Model, aiProvider); resp != nil {
+				aiProviderValidationResp = resp
+				return errChatModelConfigInvalidAIProvider
+			}
 		}
 
 		setAsDefault := updateParams.IsDefault && !existing.IsDefault
@@ -7140,6 +7194,12 @@ func (api *API) updateChatModelConfig(rw http.ResponseWriter, r *http.Request) {
 	}, nil)
 	if err != nil {
 		switch {
+		case xerrors.Is(err, errChatModelConfigInvalidAIProvider):
+			if aiProviderValidationResp == nil {
+				aiProviderValidationResp = &codersdk.Response{Message: "Invalid AI provider type for OpenRouter model.", Detail: err.Error()}
+			}
+			httpapi.Write(ctx, rw, http.StatusBadRequest, *aiProviderValidationResp)
+			return
 		case database.IsUniqueViolation(err):
 			httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
 				Message: "Chat model config already exists.",
@@ -7481,8 +7541,9 @@ func validateChatProviderAPIKeySize(apiKey string) error {
 }
 
 var (
-	errChatModelConfigNotFound   = xerrors.New("chat model config not found")
-	errChatProviderNotConfigured = xerrors.New("chat provider is not configured")
+	errChatModelConfigNotFound          = xerrors.New("chat model config not found")
+	errChatProviderNotConfigured        = xerrors.New("chat provider is not configured")
+	errChatModelConfigInvalidAIProvider = xerrors.New("invalid AI provider for chat model config")
 )
 
 // ChatProviderAPIKeysFromDeploymentValues returns deployment-backed chat

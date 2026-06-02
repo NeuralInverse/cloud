@@ -3744,6 +3744,33 @@ func TestCreateChatModelConfig(t *testing.T) {
 		require.Equal(t, "AI provider is disabled.", sdkErr.Message)
 	})
 
+	t.Run("RejectsOpenRouterMisconfiguredAsOpenAI", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := testutil.Context(t, testutil.WaitLong)
+		client := newChatClient(t)
+		_ = coderdtest.CreateFirstUser(t, client.Client)
+
+		aiProvider, err := client.CreateAIProvider(ctx, codersdk.CreateAIProviderRequest{
+			Type:    codersdk.AIProviderTypeOpenAI,
+			Name:    "openrouter",
+			Enabled: true,
+			BaseURL: "https://openrouter.ai/api/v1",
+			APIKeys: []string{"test-api-key"},
+		})
+		require.NoError(t, err)
+
+		contextLimit := int64(4096)
+		_, err = client.CreateChatModelConfig(ctx, codersdk.CreateChatModelConfigRequest{
+			AIProviderID: &aiProvider.ID,
+			Model:        "anthropic/claude-opus-4.6",
+			ContextLimit: &contextLimit,
+		})
+		sdkErr := requireSDKError(t, err, http.StatusBadRequest)
+		require.Equal(t, "Invalid AI provider type for OpenRouter model.", sdkErr.Message)
+		require.Contains(t, sdkErr.Detail, "Change the AI provider type to openrouter or openai-compat.")
+	})
+
 	t.Run("ForbiddenForOrganizationMember", func(t *testing.T) {
 		t.Parallel()
 
@@ -3821,6 +3848,38 @@ func TestUpdateChatModelConfig(t *testing.T) {
 		require.NotNil(t, updated.AIProviderID)
 		require.Equal(t, *modelConfig.AIProviderID, *updated.AIProviderID)
 		require.Equal(t, "gpt-4o-mini-updated", updated.Model)
+	})
+
+	t.Run("RejectsOpenRouterMisconfiguredAsOpenAI", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := testutil.Context(t, testutil.WaitLong)
+		client := newChatClient(t)
+		_ = coderdtest.CreateFirstUser(t, client.Client)
+
+		aiProvider, err := client.CreateAIProvider(ctx, codersdk.CreateAIProviderRequest{
+			Type:    codersdk.AIProviderTypeOpenAI,
+			Name:    "openrouter",
+			Enabled: true,
+			BaseURL: "https://openrouter.ai/api/v1",
+			APIKeys: []string{"test-api-key"},
+		})
+		require.NoError(t, err)
+
+		contextLimit := int64(4096)
+		modelConfig, err := client.CreateChatModelConfig(ctx, codersdk.CreateChatModelConfigRequest{
+			AIProviderID: &aiProvider.ID,
+			Model:        "gpt-4o-mini",
+			ContextLimit: &contextLimit,
+		})
+		require.NoError(t, err)
+
+		_, err = client.UpdateChatModelConfig(ctx, modelConfig.ID, codersdk.UpdateChatModelConfigRequest{
+			Model: "anthropic/claude-opus-4.6",
+		})
+		sdkErr := requireSDKError(t, err, http.StatusBadRequest)
+		require.Equal(t, "Invalid AI provider type for OpenRouter model.", sdkErr.Message)
+		require.Contains(t, sdkErr.Detail, "Change the AI provider type to openrouter or openai-compat.")
 	})
 
 	t.Run("DisablePreservesRecordAndHidesItFromNonAdmins", func(t *testing.T) {

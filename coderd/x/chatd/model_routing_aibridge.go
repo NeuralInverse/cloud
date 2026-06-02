@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"charm.land/fantasy"
@@ -87,6 +88,42 @@ func (t *aiGatewayRoundTripper) RoundTrip(req *http.Request) (*http.Response, er
 	return t.base.RoundTrip(cloned)
 }
 
+// ValidateAIGatewayProviderModel rejects AI Gateway model/provider pairs
+// that would route with the wrong upstream model ID.
+func ValidateAIGatewayProviderModel(provider database.AIProvider, model string) error {
+	if provider.Type != database.AiProviderTypeOpenai {
+		return nil
+	}
+	if !isSlashNamespacedAIGatewayModel(model) || !isOpenRouterLikeAIGatewayProvider(provider) {
+		return nil
+	}
+	return xerrors.New("AI provider appears to be OpenRouter but is configured as type openai. Change the AI provider type to openrouter or openai-compat.")
+}
+
+func isSlashNamespacedAIGatewayModel(model string) bool {
+	prefix, suffix, ok := strings.Cut(strings.TrimSpace(model), "/")
+	return ok && strings.TrimSpace(prefix) != "" && strings.TrimSpace(suffix) != ""
+}
+
+func isOpenRouterLikeAIGatewayProvider(provider database.AIProvider) bool {
+	if strings.EqualFold(strings.TrimSpace(provider.Name), "openrouter") {
+		return true
+	}
+	baseURL := strings.TrimSpace(provider.BaseUrl)
+	if baseURL == "" {
+		return false
+	}
+	parsed, err := url.Parse(baseURL)
+	if err == nil && parsed.Hostname() == "" && !strings.Contains(baseURL, "://") {
+		parsed, err = url.Parse("https://" + baseURL)
+	}
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(parsed.Hostname())
+	return host == "openrouter.ai" || strings.HasSuffix(host, ".openrouter.ai")
+}
+
 func (p *Server) newAIGatewayModel(
 	_ context.Context,
 	req modelClientRequest,
@@ -108,6 +145,10 @@ func (p *Server) newAIGatewayModel(
 				Detail:    "If this error persists after resending, please report it as a bug.",
 			},
 		)
+	}
+
+	if err := ValidateAIGatewayProviderModel(route.Provider, req.ModelName); err != nil {
+		return nil, err
 	}
 
 	factoryPtr := p.aibridgeTransportFactory

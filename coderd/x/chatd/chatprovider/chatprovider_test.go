@@ -1548,6 +1548,27 @@ func TestResolveModelWithProviderHint(t *testing.T) {
 			wantModel:    "anthropic/claude-4-5-sonnet",
 		},
 		{
+			name:         "OpenRouterHintPreservesOpenRouterModelID",
+			modelName:    "anthropic/claude-opus-4.6",
+			providerHint: fantasyopenrouter.Name,
+			wantProvider: fantasyopenrouter.Name,
+			wantModel:    "anthropic/claude-opus-4.6",
+		},
+		{
+			name:         "OpenAICompatHintPreservesOpenRouterModelID",
+			modelName:    "anthropic/claude-opus-4.6",
+			providerHint: fantasyopenaicompat.Name,
+			wantProvider: fantasyopenaicompat.Name,
+			wantModel:    "anthropic/claude-opus-4.6",
+		},
+		{
+			name:         "OpenAIHintStripsCanonicalPrefix",
+			modelName:    "anthropic/claude-opus-4.6",
+			providerHint: fantasyopenai.Name,
+			wantProvider: fantasyanthropic.Name,
+			wantModel:    "claude-opus-4.6",
+		},
+		{
 			name:         "AnthropicHintStripsCanonicalPrefix",
 			modelName:    "anthropic/claude-4-5-sonnet",
 			providerHint: fantasyanthropic.Name,
