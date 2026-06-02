@@ -16,9 +16,14 @@ import (
 	"github.com/coder/coder/v2/coderd/database/dbauthz"
 	"github.com/coder/coder/v2/coderd/httpmw"
 	"github.com/coder/coder/v2/coderd/rbac"
+	stringutil "github.com/coder/coder/v2/coderd/util/strings"
 )
 
-const listTemplatesPageSize = 10
+const (
+	listTemplatesPageSize                = 10
+	listTemplatesDescriptionPreviewRunes = 200
+	listTemplatesAbstractPreviewRunes    = 500
+)
 
 // ListTemplatesOptions configures the list_templates tool.
 type ListTemplatesOptions struct {
@@ -27,7 +32,7 @@ type ListTemplatesOptions struct {
 }
 
 type listTemplatesArgs struct {
-	Query string `json:"query,omitempty" description:"Optional text to filter templates by name or description."`
+	Query string `json:"query,omitempty" description:"Optional text to filter templates by name, display name, description, or abstract."`
 	Page  int    `json:"page,omitempty" description:"Page number for pagination (starts at 1). Each page returns up to 10 templates."`
 }
 
@@ -40,8 +45,8 @@ func ListTemplates(db database.Store, organizationID uuid.UUID, options ListTemp
 	return fantasy.NewAgentTool(
 		"list_templates",
 		"List available workspace templates. Optionally filter by a "+
-			"search query matching template name or description. "+
-			"Results include short UI descriptions and agent-facing abstracts when present. "+
+			"search query matching template name, display name, description, or abstract. "+
+			"Description is short UI text; abstract is richer selection context. "+
 			"Results are ordered by number of active developers (most popular first). "+
 			"Returns 10 per page. Use the page parameter to paginate through results.",
 		func(ctx context.Context, args listTemplatesArgs, _ fantasy.ToolCall) (fantasy.ToolResponse, error) {
@@ -58,9 +63,8 @@ func ListTemplates(db database.Store, organizationID uuid.UUID, options ListTemp
 					Valid: true,
 				},
 			}
-			query := strings.TrimSpace(args.Query)
-			if query != "" {
-				filterParams.FuzzyName = query
+			if query := strings.TrimSpace(args.Query); query != "" {
+				filterParams.FuzzySearch = query
 			}
 
 			var allowlist map[uuid.UUID]bool
@@ -126,10 +130,10 @@ func ListTemplates(db database.Store, organizationID uuid.UUID, options ListTemp
 					item["display_name"] = display
 				}
 				if desc := strings.TrimSpace(t.Description); desc != "" {
-					item["description"] = truncateRunes(desc, 200)
+					item["description"] = stringutil.Truncate(desc, listTemplatesDescriptionPreviewRunes)
 				}
 				if abstract := strings.TrimSpace(t.Abstract); abstract != "" {
-					item["abstract"] = abstract
+					item["abstract"] = stringutil.Truncate(abstract, listTemplatesAbstractPreviewRunes, stringutil.TruncateWithEllipsis)
 				}
 				if count, ok := ownerCounts[t.ID]; ok && count > 0 {
 					item["active_developers"] = count

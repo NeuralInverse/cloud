@@ -314,6 +314,30 @@ func TestTools(t *testing.T) {
 		}
 	})
 
+	t.Run("ListTemplatesReturnsAbstractPreview", func(t *testing.T) {
+		ctx := testutil.Context(t, testutil.WaitShort)
+		abstract := strings.Repeat("a", 600)
+		_, err := client.UpdateTemplateMeta(ctx, r.Template.ID, codersdk.UpdateTemplateMeta{
+			Abstract: &abstract,
+		})
+		require.NoError(t, err)
+
+		tb, err := toolsdk.NewDeps(memberClient)
+		require.NoError(t, err)
+		result, err := testTool(t, toolsdk.ListTemplates, tb, toolsdk.NoArgs{})
+		require.NoError(t, err)
+
+		var found bool
+		for _, template := range result {
+			if template.ID == r.Template.ID.String() {
+				require.Equal(t, strings.Repeat("a", 499)+"…", template.Abstract)
+				found = true
+				break
+			}
+		}
+		require.True(t, found, "expected fixture template in list response")
+	})
+
 	t.Run("Whoami", func(t *testing.T) {
 		tb, err := toolsdk.NewDeps(memberClient)
 		require.NoError(t, err)

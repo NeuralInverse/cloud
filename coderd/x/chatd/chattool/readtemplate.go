@@ -10,6 +10,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/coder/v2/coderd/database"
+	stringutil "github.com/coder/coder/v2/coderd/util/strings"
 )
 
 // ReadTemplateOptions configures the read_template tool.
@@ -103,7 +104,7 @@ func ReadTemplate(db database.Store, organizationID uuid.UUID, options ReadTempl
 					param["display_name"] = display
 				}
 				if desc := strings.TrimSpace(p.Description); desc != "" {
-					param["description"] = truncateRunes(desc, 300)
+					param["description"] = stringutil.Truncate(desc, 300)
 				}
 				if p.DefaultValue != "" {
 					param["default"] = p.DefaultValue

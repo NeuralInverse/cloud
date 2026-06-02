@@ -18,6 +18,7 @@ import (
 	"github.com/coder/aisdk-go"
 	"github.com/coder/coder/v2/buildinfo"
 	"github.com/coder/coder/v2/cli/cliui"
+	stringutil "github.com/coder/coder/v2/coderd/util/strings"
 	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
 	"github.com/coder/coder/v2/codersdk"
 	"github.com/coder/coder/v2/codersdk/workspacesdk"
@@ -59,6 +60,8 @@ const (
 	ToolNameSendTaskInput               = "coder_send_task_input"
 	ToolNameGetTaskLogs                 = "coder_get_task_logs"
 )
+
+const minimalTemplateAbstractPreviewRunes = 500
 
 func NewDeps(client *codersdk.Client, opts ...func(*Deps)) (Deps, error) {
 	d := Deps{
@@ -635,15 +638,7 @@ var ListTemplates = Tool[NoArgs, []MinimalTemplate]{
 		}
 		minimalTemplates := make([]MinimalTemplate, len(templates))
 		for i, template := range templates {
-			minimalTemplates[i] = MinimalTemplate{
-				DisplayName:     template.DisplayName,
-				ID:              template.ID.String(),
-				Name:            template.Name,
-				Description:     template.Description,
-				Abstract:        template.Abstract,
-				ActiveVersionID: template.ActiveVersionID,
-				ActiveUserCount: template.ActiveUserCount,
-			}
+			minimalTemplates[i] = toMinimalTemplate(template, minimalTemplateAbstractPreviewRunes)
 		}
 		return minimalTemplates, nil
 	},
@@ -773,16 +768,8 @@ When selecting a preset: if a preset is marked default and the user has not spec
 			return TemplateDetail{}, xerrors.Errorf("get template presets: %w", err)
 		}
 		detail := TemplateDetail{
-			MinimalTemplate: MinimalTemplate{
-				DisplayName:     template.DisplayName,
-				ID:              template.ID.String(),
-				Name:            template.Name,
-				Description:     template.Description,
-				Abstract:        template.Abstract,
-				ActiveVersionID: template.ActiveVersionID,
-				ActiveUserCount: template.ActiveUserCount,
-			},
-			Parameters: parameters,
+			MinimalTemplate: toMinimalTemplate(template, 0),
+			Parameters:      parameters,
 		}
 		for _, p := range presets {
 			detail.Presets = append(detail.Presets, toPresetView(p))
@@ -1724,6 +1711,22 @@ type MinimalTemplate struct {
 	Abstract        string    `json:"abstract,omitempty"`
 	ActiveVersionID uuid.UUID `json:"active_version_id"`
 	ActiveUserCount int       `json:"active_user_count"`
+}
+
+func toMinimalTemplate(t codersdk.Template, abstractMaxRunes int) MinimalTemplate {
+	abstract := strings.TrimSpace(t.Abstract)
+	if abstractMaxRunes > 0 {
+		abstract = stringutil.Truncate(abstract, abstractMaxRunes, stringutil.TruncateWithEllipsis)
+	}
+	return MinimalTemplate{
+		DisplayName:     t.DisplayName,
+		ID:              t.ID.String(),
+		Name:            t.Name,
+		Description:     t.Description,
+		Abstract:        abstract,
+		ActiveVersionID: t.ActiveVersionID,
+		ActiveUserCount: t.ActiveUserCount,
+	}
 }
 
 type WorkspaceLSArgs struct {
