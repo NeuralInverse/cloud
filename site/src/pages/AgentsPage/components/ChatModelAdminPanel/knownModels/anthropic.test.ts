@@ -41,11 +41,15 @@ describe("anthropicKnownModels", () => {
 
 			expect(knownModel.reasoningEffort).toBe("high");
 			expect(knownModel.thinkingBudgetTokens).toBeUndefined();
+			expect(knownModel.thinkingDisplay).toBe(
+				modelIdentifier === "claude-opus-4-8" ? "summarized" : undefined,
+			);
 		}
 
 		const sonnet46 = requireAnthropicKnownModel("claude-sonnet-4-6");
 		expect(sonnet46.reasoningEffort).toBe("medium");
 		expect(sonnet46.thinkingBudgetTokens).toBeUndefined();
+		expect(sonnet46.thinkingDisplay).toBeUndefined();
 
 		for (const modelIdentifier of ["claude-haiku-4-5", "claude-sonnet-4-5"]) {
 			const knownModel = requireAnthropicKnownModel(modelIdentifier);

@@ -13,11 +13,10 @@ import type { KnownModel } from "./types";
 // models that support adaptive thinking (Opus 4.8, Opus 4.7, Opus 4.6,
 // Sonnet 4.6) carry `reasoningEffort`, which Coder maps to
 // `thinking.type: "adaptive"` with the `effort` parameter. Models that do not
-// (Haiku 4.5, Sonnet 4.5)
-// carry `thinkingBudgetTokens` instead, which Coder maps to the legacy
-// `thinking.type: "enabled"` path with `budget_tokens`. Setting `effort` on
-// the legacy path produces an "adaptive thinking is not supported on this
-// model" HTTP 400 from Anthropic.
+// (Haiku 4.5, Sonnet 4.5) carry `thinkingBudgetTokens` instead, which Coder
+// maps to the legacy `thinking.type: "enabled"` path with `budget_tokens`.
+// Setting `effort` on the legacy path produces an "adaptive thinking is not
+// supported on this model" HTTP 400 from Anthropic.
 export const anthropicKnownModels = [
 	{
 		provider: "anthropic",
@@ -27,6 +26,7 @@ export const anthropicKnownModels = [
 		contextLimit: 1_000_000,
 		maxOutputTokens: 128_000,
 		reasoningEffort: "high",
+		thinkingDisplay: "summarized",
 		inputCost: 5,
 		outputCost: 25,
 		cacheReadCost: 0.5,

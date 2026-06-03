@@ -2303,10 +2303,11 @@ export interface ChatModelAnthropicProviderOptions {
 
 // From codersdk/chats.go
 /**
- * ChatModelAnthropicThinkingOptions configures Anthropic thinking budget.
+ * ChatModelAnthropicThinkingOptions configures Anthropic thinking behavior.
  */
 export interface ChatModelAnthropicThinkingOptions {
 	readonly budget_tokens?: number;
+	readonly display?: string;
 }
 
 // From codersdk/chats.go

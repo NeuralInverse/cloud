@@ -887,9 +887,13 @@ func MergeMissingProviderOptions(
 			}
 			if dstAnthropic.Thinking == nil {
 				dstAnthropic.Thinking = defaultAnthropic.Thinking
-			} else if defaultAnthropic.Thinking != nil &&
-				dstAnthropic.Thinking.BudgetTokens == nil {
-				dstAnthropic.Thinking.BudgetTokens = defaultAnthropic.Thinking.BudgetTokens
+			} else if defaultAnthropic.Thinking != nil {
+				if dstAnthropic.Thinking.BudgetTokens == nil {
+					dstAnthropic.Thinking.BudgetTokens = defaultAnthropic.Thinking.BudgetTokens
+				}
+				if dstAnthropic.Thinking.Display == nil {
+					dstAnthropic.Thinking.Display = defaultAnthropic.Thinking.Display
+				}
 			}
 			if dstAnthropic.Effort == nil {
 				dstAnthropic.Effort = defaultAnthropic.Effort
@@ -1163,6 +1167,7 @@ func ModelFromConfig(
 	var providerClient fantasy.Provider
 	switch provider {
 	case fantasyanthropic.Name:
+		httpClient = withAnthropicThinkingDisplayPatches(httpClient)
 		options := []fantasyanthropic.Option{
 			fantasyanthropic.WithAPIKey(apiKey),
 			fantasyanthropic.WithUserAgent(userAgent),
@@ -1173,9 +1178,7 @@ func ModelFromConfig(
 		if baseURL != "" {
 			options = append(options, fantasyanthropic.WithBaseURL(baseURL))
 		}
-		if httpClient != nil {
-			options = append(options, fantasyanthropic.WithHTTPClient(httpClient))
-		}
+		options = append(options, fantasyanthropic.WithHTTPClient(httpClient))
 		providerClient, err = fantasyanthropic.New(options...)
 	case fantasyazure.Name:
 		if baseURL == "" {

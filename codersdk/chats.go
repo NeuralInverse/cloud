@@ -1219,9 +1219,10 @@ type ChatModelOpenAIProviderOptions struct {
 	AllowedDomains      []string         `json:"allowed_domains,omitempty" label:"Web Search: Allowed Domains" description:"Restrict web search to these domains"`
 }
 
-// ChatModelAnthropicThinkingOptions configures Anthropic thinking budget.
+// ChatModelAnthropicThinkingOptions configures Anthropic thinking behavior.
 type ChatModelAnthropicThinkingOptions struct {
-	BudgetTokens *int64 `json:"budget_tokens,omitempty" description:"Maximum number of tokens the model may use for thinking"`
+	BudgetTokens *int64  `json:"budget_tokens,omitempty" description:"Maximum number of tokens the model may use for thinking"`
+	Display      *string `json:"display,omitempty" description:"Controls how Anthropic returns thinking content" enum:"summarized,omitted"`
 }
 
 // ChatModelAnthropicProviderOptions configures Anthropic provider behavior.

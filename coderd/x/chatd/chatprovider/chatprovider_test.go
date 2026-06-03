@@ -1,6 +1,7 @@
 package chatprovider_test
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"io"
@@ -1210,6 +1211,132 @@ func bedrockNonStreamingResponse() map[string]any {
 	}
 }
 
+func TestModelFromConfig_AnthropicThinkingDisplayPatch(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		modelID      string
+		context      func(context.Context) context.Context
+		wantDisplay  string
+		wantThinking bool
+	}{
+		{
+			name:         "Opus48DefaultsToSummarized",
+			modelID:      "claude-opus-4-8",
+			wantDisplay:  "summarized",
+			wantThinking: true,
+		},
+		{
+			name:    "ConfigCanOmitThinking",
+			modelID: "claude-sonnet-4-20250514",
+			context: func(ctx context.Context) context.Context {
+				display := "omitted"
+				return chatprovider.ContextWithAnthropicThinkingDisplay(ctx, &codersdk.ChatModelProviderOptions{
+					Anthropic: &codersdk.ChatModelAnthropicProviderOptions{
+						Thinking: &codersdk.ChatModelAnthropicThinkingOptions{Display: &display},
+					},
+				})
+			},
+			wantDisplay:  "omitted",
+			wantThinking: true,
+		},
+		{
+			name:        "NoThinkingIsUnchanged",
+			modelID:     "claude-opus-4-8",
+			wantDisplay: "",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := testutil.Context(t, testutil.WaitShort)
+			if tt.context != nil {
+				ctx = tt.context(ctx)
+			}
+
+			type requestCapture struct {
+				Body      map[string]any
+				ReadError error
+			}
+			requests := make(chan requestCapture, 1)
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				body, err := io.ReadAll(r.Body)
+				capture := requestCapture{ReadError: err}
+				if err == nil {
+					capture.Body = map[string]any{}
+					capture.ReadError = json.Unmarshal(body, &capture.Body)
+				}
+				requests <- capture
+
+				w.Header().Set("Content-Type", "application/json")
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"id":            "msg_test",
+					"type":          "message",
+					"role":          "assistant",
+					"model":         tt.modelID,
+					"content":       []any{map[string]any{"type": "text", "text": "hello"}},
+					"stop_reason":   "end_turn",
+					"stop_sequence": nil,
+					"usage": map[string]any{
+						"input_tokens":  1,
+						"output_tokens": 1,
+					},
+				})
+			}))
+			defer server.Close()
+
+			model, err := chatprovider.ModelFromConfig(
+				fantasyanthropic.Name,
+				tt.modelID,
+				chatprovider.ProviderAPIKeys{
+					ByProvider: map[string]string{
+						fantasyanthropic.Name: "test-key",
+					},
+					BaseURLByProvider: map[string]string{
+						fantasyanthropic.Name: server.URL,
+					},
+				},
+				chatprovider.UserAgent(),
+				nil,
+				nil,
+			)
+			require.NoError(t, err)
+
+			call := fantasy.Call{
+				Prompt: []fantasy.Message{{
+					Role:    fantasy.MessageRoleUser,
+					Content: []fantasy.MessagePart{fantasy.TextPart{Text: "hello"}},
+				}},
+			}
+			if tt.wantThinking {
+				effort := fantasyanthropic.EffortHigh
+				call.ProviderOptions = fantasy.ProviderOptions{
+					fantasyanthropic.Name: &fantasyanthropic.ProviderOptions{
+						Effort: &effort,
+					},
+				}
+			}
+
+			_, err = model.Generate(ctx, call)
+			require.NoError(t, err)
+
+			got := testutil.TryReceive(ctx, t, requests)
+			require.NoError(t, got.ReadError)
+			thinking, _ := got.Body["thinking"].(map[string]any)
+			if tt.wantDisplay == "" {
+				if thinking != nil {
+					require.NotContains(t, thinking, "display")
+				}
+				return
+			}
+			require.Equal(t, tt.wantDisplay, thinking["display"])
+		})
+	}
+}
+
 // TestModelFromConfig_ExtraHeaders verifies that extra headers passed
 // to ModelFromConfig are sent on outgoing LLM API requests. Only the
 // OpenAI and Anthropic providers are tested end-to-end because the
@@ -1453,6 +1580,34 @@ func TestModelFromConfig_HTTPClient(t *testing.T) {
 	})
 	require.NoError(t, err)
 	_ = testutil.TryReceive(ctx, t, called)
+}
+
+func TestMergeMissingProviderOptions_AnthropicThinking(t *testing.T) {
+	t.Parallel()
+
+	options := &codersdk.ChatModelProviderOptions{
+		Anthropic: &codersdk.ChatModelAnthropicProviderOptions{
+			Thinking: &codersdk.ChatModelAnthropicThinkingOptions{
+				BudgetTokens: ptr.Ref[int64](4096),
+			},
+		},
+	}
+	defaults := &codersdk.ChatModelProviderOptions{
+		Anthropic: &codersdk.ChatModelAnthropicProviderOptions{
+			Thinking: &codersdk.ChatModelAnthropicThinkingOptions{
+				BudgetTokens: ptr.Ref[int64](8192),
+				Display:      ptr.Ref("summarized"),
+			},
+		},
+	}
+
+	chatprovider.MergeMissingProviderOptions(&options, defaults)
+
+	require.NotNil(t, options)
+	require.NotNil(t, options.Anthropic)
+	require.NotNil(t, options.Anthropic.Thinking)
+	require.EqualValues(t, 4096, *options.Anthropic.Thinking.BudgetTokens)
+	require.Equal(t, "summarized", *options.Anthropic.Thinking.Display)
 }
 
 func TestMergeMissingProviderOptions_OpenRouterNested(t *testing.T) {

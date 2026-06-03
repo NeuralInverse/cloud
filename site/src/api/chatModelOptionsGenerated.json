@@ -103,6 +103,15 @@
 					"input_type": "input"
 				},
 				{
+					"json_name": "thinking.display",
+					"go_name": "Thinking.Display",
+					"type": "string",
+					"description": "Controls how Anthropic returns thinking content",
+					"required": false,
+					"enum": ["summarized", "omitted"],
+					"input_type": "select"
+				},
+				{
 					"json_name": "effort",
 					"go_name": "Effort",
 					"type": "string",

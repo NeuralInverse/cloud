@@ -44,6 +44,10 @@ const thinkingBudgetTokensPathByProvider: Record<string, string> = {
 	anthropic: "config.anthropic.thinking.budgetTokens",
 };
 
+const thinkingDisplayPathByProvider: Record<string, string> = {
+	anthropic: "config.anthropic.thinking.display",
+};
+
 const maybeApplyDefault = ({
 	appliedFields,
 	initialValues,
@@ -143,6 +147,20 @@ export const applyKnownModelDefaults = ({
 				nextValues,
 				path,
 				value: String(knownModel.thinkingBudgetTokens),
+				values,
+			});
+		}
+	}
+
+	if (knownModel.thinkingDisplay !== undefined) {
+		const path = thinkingDisplayPathByProvider[provider];
+		if (path !== undefined) {
+			maybeApplyDefault({
+				appliedFields,
+				initialValues,
+				nextValues,
+				path,
+				value: knownModel.thinkingDisplay,
 				values,
 			});
 		}

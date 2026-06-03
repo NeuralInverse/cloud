@@ -330,6 +330,20 @@ describe("applyKnownModelDefaults", () => {
 		expect(result.appliedFields).toContain("config.anthropic.effort");
 	});
 
+	it("sets Anthropic thinking display when present in the catalog", () => {
+		const result = applyDefaults({
+			values: buildInitialModelFormValues(),
+			initialValues: buildInitialModelFormValues(),
+			provider: "anthropic",
+			knownModel: requireKnownModel("anthropic", "claude-opus-4-8"),
+		});
+
+		expect(getPath(result.values, "config.anthropic.thinking.display")).toBe(
+			"summarized",
+		);
+		expect(result.appliedFields).toContain("config.anthropic.thinking.display");
+	});
+
 	it.each([
 		"claude-haiku-4-5",
 		"claude-sonnet-4-5",

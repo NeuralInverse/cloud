@@ -12,6 +12,7 @@ export type KnownModel = {
 	contextLimit?: number;
 	maxOutputTokens?: number;
 	reasoningEffort?: "low" | "medium" | "high";
+	thinkingDisplay?: "summarized" | "omitted";
 	/**
 	 * Anthropic-only: numeric budget for the legacy
 	 * `thinking.budget_tokens` API.
