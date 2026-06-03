@@ -4392,6 +4392,7 @@ export type Experiment =
 	| "auto-fill-parameters"
 	| "example"
 	| "mcp-server-http"
+	| "minimum-implicit-member"
 	| "notifications"
 	| "oauth2"
 	| "workspace-build-updates"
@@ -4401,6 +4402,7 @@ export const Experiments: Experiment[] = [
 	"auto-fill-parameters",
 	"example",
 	"mcp-server-http",
+	"minimum-implicit-member",
 	"notifications",
 	"oauth2",
 	"workspace-build-updates",
@@ -6096,6 +6098,12 @@ export interface Organization extends MinimalOrganization {
 	readonly created_at: string;
 	readonly updated_at: string;
 	readonly is_default: boolean;
+	/**
+	 * DefaultOrgMemberRoles are unioned into every member's effective
+	 * roles at request time. Changes propagate to all members on the
+	 * next request.
+	 */
+	readonly default_org_member_roles: readonly string[];
 }
 
 // From codersdk/organizations.go
@@ -8841,6 +8849,11 @@ export interface UpdateOrganizationRequest {
 	readonly display_name?: string;
 	readonly description?: string;
 	readonly icon?: string;
+	/**
+	 * DefaultOrgMemberRoles, when non-nil, replaces the org's default
+	 * member roles.
+	 */
+	readonly default_org_member_roles?: string[];
 }
 
 // From codersdk/users.go

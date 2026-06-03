@@ -5003,6 +5003,7 @@ const (
 	ExperimentOAuth2                Experiment = "oauth2"                  // Enables OAuth2 provider functionality.
 	ExperimentMCPServerHTTP         Experiment = "mcp-server-http"         // Enables the MCP HTTP server functionality.
 	ExperimentWorkspaceBuildUpdates Experiment = "workspace-build-updates" // Enables publishing workspace build updates to the all builds pubsub channel.
+	ExperimentMinimumImplicitMember Experiment = "minimum-implicit-member" // Allows organizations to deviate from the default organization-member roles, in support of Gateway Accounts.
 )
 
 func (e Experiment) DisplayName() string {
@@ -5021,6 +5022,8 @@ func (e Experiment) DisplayName() string {
 		return "MCP HTTP Server Functionality"
 	case ExperimentWorkspaceBuildUpdates:
 		return "Workspace Build Updates Channel"
+	case ExperimentMinimumImplicitMember:
+		return "Gateway Accounts (minimum implicit member)"
 	default:
 		// Split on hyphen and convert to title case
 		// e.g. "mcp-server-http" -> "Mcp Server Http"
@@ -5038,6 +5041,7 @@ var ExperimentsKnown = Experiments{
 	ExperimentOAuth2,
 	ExperimentMCPServerHTTP,
 	ExperimentWorkspaceBuildUpdates,
+	ExperimentMinimumImplicitMember,
 }
 
 // ExperimentsSafe should include all experiments that are safe for

@@ -213,6 +213,17 @@ func ScopedRoleOrgWorkspaceAccess(organizationID uuid.UUID) RoleIdentifier {
 	return RoleIdentifier{Name: RoleOrgWorkspaceAccess(), OrganizationID: organizationID}
 }
 
+// DefaultOrgMemberRoles is the deployment-wide default for the
+// organizations.default_org_member_roles column, applied to every new
+// organization at creation time. The column has no SQL DEFAULT, so this
+// is the sole authoritative source: every InsertOrganization call site
+// must supply this value unless a caller-chosen override is required.
+// Returned as a fresh slice each call to prevent accidental mutation of
+// the shared default through append or index assignment.
+func DefaultOrgMemberRoles() []string {
+	return []string{orgWorkspaceAccess}
+}
+
 // OrgWorkspaceAccessMemberPerms returns the member-scoped permission set
 // for the organization-workspace-access role.
 func OrgWorkspaceAccessMemberPerms() []Permission {
@@ -786,7 +797,8 @@ var assignRoles = map[string]map[string]bool{
 	},
 
 	prebuildsOrchestrator: {
-		orgMember: true,
+		orgMember:          true,
+		orgWorkspaceAccess: true,
 	},
 }
 
