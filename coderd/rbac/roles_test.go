@@ -1497,6 +1497,7 @@ func TestListRoles(t *testing.T) {
 		fmt.Sprintf("organization-user-admin:%s", orgID.String()),
 		fmt.Sprintf("organization-template-admin:%s", orgID.String()),
 		fmt.Sprintf("organization-workspace-creation-ban:%s", orgID.String()),
+		fmt.Sprintf("organization-workspace-access:%s", orgID.String()),
 		fmt.Sprintf("agents-access:%s", orgID.String()),
 	},
 		orgRoleNames)
