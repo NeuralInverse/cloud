@@ -32,7 +32,8 @@ import (
 	"github.com/coder/websocket"
 )
 
-const statsInterval = 500 * time.Millisecond
+// StatsInterval is the report interval returned by FakeAgentAPI.UpdateStats.
+const StatsInterval = 500 * time.Millisecond
 
 func NewClient(t testing.TB,
 	logger slog.Logger,
@@ -126,6 +127,17 @@ func (c *Client) RefreshToken(context.Context) error {
 	defer c.mu.Unlock()
 	c.refreshTokenCalls++
 	return nil
+}
+
+// SetUpdateStatsOverride sets a function that wraps UpdateStats calls.
+// The provided function receives a next callback for the default behavior.
+func (c *Client) SetUpdateStatsOverride(fn func(
+	ctx context.Context,
+	req *agentproto.UpdateStatsRequest,
+	next func(context.Context, *agentproto.UpdateStatsRequest) (*agentproto.UpdateStatsResponse, error),
+) (*agentproto.UpdateStatsResponse, error),
+) {
+	c.fakeAgentAPI.SetUpdateStatsOverride(fn)
 }
 
 func (c *Client) GetNumRefreshTokenCalls() int {
@@ -232,20 +244,26 @@ type FakeAgentAPI struct {
 	t      testing.TB
 	logger slog.Logger
 
-	manifest            *agentproto.Manifest
-	startupCh           chan *agentproto.Startup
-	statsCh             chan *agentproto.Stats
-	appHealthCh         chan *agentproto.BatchUpdateAppHealthRequest
-	logsCh              chan<- *agentproto.BatchCreateLogsRequest
-	lifecycleStates     []codersdk.WorkspaceAgentLifecycle
-	metadata            map[string]agentsdk.Metadata
-	timings             []*agentproto.Timing
-	connectionReports   []*agentproto.ReportConnectionRequest
-	subAgents           map[uuid.UUID]*agentproto.SubAgent
-	subAgentDirs        map[uuid.UUID]string
-	subAgentDisplayApps map[uuid.UUID][]agentproto.CreateSubAgentRequest_DisplayApp
-	subAgentApps        map[uuid.UUID][]*agentproto.CreateSubAgentRequest_App
+	initialUpdateStatsBarrier <-chan struct{} // blocks initial (empty) UpdateStats until closed
+	manifest                  *agentproto.Manifest
+	startupCh                 chan *agentproto.Startup
+	statsCh                   chan *agentproto.Stats
+	appHealthCh               chan *agentproto.BatchUpdateAppHealthRequest
+	logsCh                    chan<- *agentproto.BatchCreateLogsRequest
+	lifecycleStates           []codersdk.WorkspaceAgentLifecycle
+	metadata                  map[string]agentsdk.Metadata
+	timings                   []*agentproto.Timing
+	connectionReports         []*agentproto.ReportConnectionRequest
+	subAgents                 map[uuid.UUID]*agentproto.SubAgent
+	subAgentDirs              map[uuid.UUID]string
+	subAgentDisplayApps       map[uuid.UUID][]agentproto.CreateSubAgentRequest_DisplayApp
+	subAgentApps              map[uuid.UUID][]*agentproto.CreateSubAgentRequest_App
 
+	updateStatsOverride func(
+		ctx context.Context,
+		req *agentproto.UpdateStatsRequest,
+		next func(context.Context, *agentproto.UpdateStatsRequest) (*agentproto.UpdateStatsResponse, error),
+	) (*agentproto.UpdateStatsResponse, error)
 	getAnnouncementBannersFunc              func() ([]codersdk.BannerConfig, error)
 	getResourcesMonitoringConfigurationFunc func() (*agentproto.GetResourcesMonitoringConfigurationResponse, error)
 	pushResourcesMonitoringUsageFunc        func(*agentproto.PushResourcesMonitoringUsageRequest) (*agentproto.PushResourcesMonitoringUsageResponse, error)
@@ -320,8 +338,26 @@ func (f *FakeAgentAPI) PushResourcesMonitoringUsage(_ context.Context, req *agen
 	return f.pushResourcesMonitoringUsageFunc(req)
 }
 
+func (f *FakeAgentAPI) SetUpdateStatsOverride(fn func(
+	ctx context.Context,
+	req *agentproto.UpdateStatsRequest,
+	next func(context.Context, *agentproto.UpdateStatsRequest) (*agentproto.UpdateStatsResponse, error),
+) (*agentproto.UpdateStatsResponse, error),
+) {
+	f.Lock()
+	defer f.Unlock()
+	f.updateStatsOverride = fn
+}
+
 func (f *FakeAgentAPI) UpdateStats(ctx context.Context, req *agentproto.UpdateStatsRequest) (*agentproto.UpdateStatsResponse, error) {
 	f.logger.Debug(ctx, "update stats called", slog.F("req", req))
+	if f.updateStatsOverride != nil {
+		return f.updateStatsOverride(ctx, req, f.updateStatsDefault)
+	}
+	return f.updateStatsDefault(ctx, req)
+}
+
+func (f *FakeAgentAPI) updateStatsDefault(ctx context.Context, req *agentproto.UpdateStatsRequest) (*agentproto.UpdateStatsResponse, error) {
 	// empty request is sent to get the interval; but our tests don't want empty stats requests
 	if req.Stats != nil {
 		select {
@@ -330,8 +366,14 @@ func (f *FakeAgentAPI) UpdateStats(ctx context.Context, req *agentproto.UpdateSt
 		case f.statsCh <- req.Stats:
 			// OK!
 		}
+	} else if barrier := f.initialUpdateStatsBarrier; barrier != nil {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-barrier:
+		}
 	}
-	return &agentproto.UpdateStatsResponse{ReportInterval: durationpb.New(statsInterval)}, nil
+	return &agentproto.UpdateStatsResponse{ReportInterval: durationpb.New(StatsInterval)}, nil
 }
 
 func (f *FakeAgentAPI) GetLifecycleStates() []codersdk.WorkspaceAgentLifecycle {
