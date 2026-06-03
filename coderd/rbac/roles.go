@@ -325,6 +325,14 @@ type RoleOptions struct {
 	NoOwnerWorkspaceExec bool
 	NoWorkspaceSharing   bool
 	NoChatSharing        bool
+
+	// MinimumImplicitMember removes the workspace-ops elevation
+	// (OrgWorkspaceAccessMemberPerms) from organization-member and
+	// organization-service-account. With it set, those two roles carry
+	// only the floor, and the elevation must be granted explicitly via
+	// the organization-workspace-access role (typically attached
+	// through default_org_member_roles).
+	MinimumImplicitMember bool
 }
 
 // ReservedRoleName exists because the database should only allow unique role
@@ -345,6 +353,8 @@ func ReloadBuiltinRoles(opts *RoleOptions) {
 	if opts == nil {
 		opts = &RoleOptions{}
 	}
+
+	minimumImplicitMember.Store(opts.MinimumImplicitMember)
 
 	denyPermissions := []Permission{}
 	if opts.NoWorkspaceSharing {
@@ -1185,12 +1195,16 @@ func OrgMemberPermissions(org OrgSettings) OrgRolePermissions {
 		ResourceInboxNotification.Type:      ResourceInboxNotification.AvailableActions(),
 	})
 
-	// Workspace-ops elevation. Today bundled into organization-member;
-	// the minimum-implicit-member experiment will move the binding
-	// exclusively onto organization-workspace-access so a user without
-	// that role has only the floor. See OrgWorkspaceAccessMemberPerms
-	// for the perm set and the "Intentionally omitted" rationale.
-	elevation := OrgWorkspaceAccessMemberPerms()
+	// Workspace-ops elevation. When MinimumImplicitMember is off, the
+	// elevation is bundled into organization-member here. When on, the
+	// elevation lives exclusively on organization-workspace-access; a
+	// user without that role then has only the floor. See
+	// OrgWorkspaceAccessMemberPerms for the perm set and the
+	// "Intentionally omitted" rationale.
+	var elevation []Permission
+	if !MinimumImplicitMember() {
+		elevation = OrgWorkspaceAccessMemberPerms()
+	}
 
 	memberPerms := slices.Concat(elevation, floor)
 
@@ -1241,7 +1255,8 @@ func OrgServiceAccountPermissions(org OrgSettings) OrgRolePermissions {
 
 	// service account-scoped permissions. Composed from a floor plus the
 	// same workspace-ops elevation as OrgMemberPermissions; the service
-	// account role mirrors the org-member partition.
+	// account role mirrors the org-member partition. See
+	// OrgMemberPermissions for the MinimumImplicitMember rationale.
 	floor := Permissions(map[string][]policy.Action{
 		// Read-self org-member record.
 		ResourceOrganizationMember.Type: {policy.ActionRead},
@@ -1266,7 +1281,10 @@ func OrgServiceAccountPermissions(org OrgSettings) OrgRolePermissions {
 		ResourceInboxNotification.Type:      ResourceInboxNotification.AvailableActions(),
 	})
 
-	elevation := OrgWorkspaceAccessMemberPerms()
+	var elevation []Permission
+	if !MinimumImplicitMember() {
+		elevation = OrgWorkspaceAccessMemberPerms()
+	}
 
 	memberPerms := slices.Concat(elevation, floor)
 
