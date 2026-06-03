@@ -26,11 +26,11 @@ export const ProductLogo: FC<{ className?: string }> = ({ className }) => {
 			className={cn("h-12 max-w-[200px] application-logo", className)}
 		/>
 	) : (
-		<CoderLogo className={cn("h-12", className)} />
+		<NILogo className={cn("h-12", className)} />
 	);
 };
 
-const CoderLogo: FC<React.ComponentProps<"svg">> = ({
+const NILogo: FC<React.ComponentProps<"svg">> = ({
 	className,
 	...props
 }) => (

@@ -7,9 +7,9 @@
  * Message somebody from Team Blueberry if you need more context, but so far,
  * these projects are importing the file:
  *
- * - The Coder VS Code extension
+ * - The Neural Inverse VS Code extension
  *   @see {@link https://github.com/coder/vscode-coder}
- * - The Coder Backstage plugin
+ * - The Neural Inverse Backstage plugin
  *   @see {@link https://github.com/coder/backstage-plugins}
  *
  * It is important that this file not do any aliased imports, or else the other
@@ -4046,11 +4046,11 @@ export class Api extends ApiMethods implements ClientApi {
 	};
 
 	setSessionToken = (token: string): void => {
-		this.axios.defaults.headers.common["Coder-Session-Token"] = token;
+		this.axios.defaults.headers.common["NI-Session-Token"] = token;
 	};
 
 	getSessionToken = (): string | undefined => {
-		return this.axios.defaults.headers.common["Coder-Session-Token"] as
+		return this.axios.defaults.headers.common["NI-Session-Token"] as
 			| string
 			| undefined;
 	};

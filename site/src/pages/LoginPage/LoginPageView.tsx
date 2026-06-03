@@ -63,7 +63,7 @@ export const LoginPageView: FC<LoginPageViewProps> = ({
 				)}
 				<footer className="text-xs text-content-secondary mt-6">
 					<div>
-						Copyright &copy; {new Date().getFullYear()} Coder Technologies, Inc.
+						Copyright &copy; {new Date().getFullYear()} Neural Inverse Inc.
 					</div>
 					<div>{buildInfo?.version}</div>
 					{tosAccepted && (

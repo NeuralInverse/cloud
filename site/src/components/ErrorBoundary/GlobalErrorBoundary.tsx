@@ -49,7 +49,7 @@ export const GlobalErrorBoundaryInner: FC<GlobalErrorBoundaryInnerProps> = ({
 								target="_blank"
 								rel="noreferrer"
 							>
-								Coder Discord community
+								Neural Inverse Discord community
 								<span className="sr-only"> (link opens in a new tab)</span>
 							</Link>{" "}
 							or{" "}

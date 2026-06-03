@@ -24,7 +24,7 @@ const PaywallAIGovernance = () => {
 				</PaywallHeading>
 				<PaywallDescription>
 					AI Gateway provides auditable visibility into user prompts and LLM
-					tool calls from developer tools within Coder Workspaces. AI Gateway
+					tool calls from developer tools within Neural Inverse Workspaces. AI Gateway
 					requires a Premium license with AI Governance add-on.
 				</PaywallDescription>
 				<PaywallDocumentationLink href={docs("/ai-coder/ai-governance")}>

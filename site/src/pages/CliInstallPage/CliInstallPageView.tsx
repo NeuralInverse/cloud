@@ -38,7 +38,7 @@ export const CliInstallPageView: FC<CliInstallPageViewProps> = ({ origin }) => {
 				</RouterLink>
 			</div>
 			<div className="mt-6 text-xs text-content-secondary">
-				&copy; {new Date().getFullYear()} Coder Technologies, Inc.
+				&copy; {new Date().getFullYear()} Neural Inverse Inc.
 			</div>
 		</div>
 	);

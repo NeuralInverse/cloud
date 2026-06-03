@@ -142,7 +142,7 @@ export const UserDropdownContent: FC<UserDropdownContentProps> = ({
 				</Tooltip>
 			)}
 			<DropdownMenuItem className="text-xs" disabled>
-				<span>&copy; {new Date().getFullYear()} Coder Technologies, Inc.</span>
+				<span>&copy; {new Date().getFullYear()} Neural Inverse Inc.</span>
 			</DropdownMenuItem>
 		</>
 	);

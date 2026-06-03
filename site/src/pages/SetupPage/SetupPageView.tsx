@@ -194,7 +194,7 @@ export const SetupPageView: FC<SetupPageViewProps> = ({
 				<header className="mb-8">
 					<ProductLogo />
 					<h1 className="text-2xl font-normal mt-4 mb-0">
-						Welcome to <strong>Coder</strong>
+						Welcome to <strong>Neural Inverse Cloud</strong>
 					</h1>
 					<p className="mt-3 mb-0 text-sm text-content-secondary font-normal">
 						Set up your admin account and start building secure, reproducible
@@ -381,7 +381,7 @@ export const SetupPageView: FC<SetupPageViewProps> = ({
 								data-testid="onboarding_info.newsletter_marketing"
 							/>
 							<div className="flex flex-col text-sm">
-								<span className="font-medium">Monthly Coder newsletter</span>
+								<span className="font-medium">Monthly Neural Inverse newsletter</span>
 								<span className="text-content-secondary">
 									Latest articles, workshops, events, and announcements
 								</span>
@@ -398,7 +398,7 @@ export const SetupPageView: FC<SetupPageViewProps> = ({
 								rel="noreferrer"
 								className="text-content-link hover:underline"
 							>
-								Coder Privacy Policy
+								Neural Inverse Privacy Policy
 							</a>
 							.
 						</p>
@@ -434,7 +434,7 @@ export const SetupPageView: FC<SetupPageViewProps> = ({
 				</form>
 
 				<div className="text-xs text-content-secondary pt-6">
-					&copy; {new Date().getFullYear()} Coder Technologies, Inc.
+					&copy; {new Date().getFullYear()} Neural Inverse Inc.
 				</div>
 			</div>
 		</div>

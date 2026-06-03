@@ -1391,7 +1391,7 @@ export interface BaseReport {
 
 // From nicloudsdk/deployment.go
 /**
- * BuildInfoResponse contains build information for this instance of Coder.
+ * BuildInfoResponse contains build information for this instance of Neural Inverse Cloud.
  */
 export interface BuildInfoResponse {
 	/**
@@ -1470,9 +1470,9 @@ export const BuildReasons: BuildReason[] = [
 
 // From nicloudsdk/client.go
 /**
- * BuildVersionHeader contains build information of Coder.
+ * BuildVersionHeader contains build information of Neural Inverse Cloud.
  */
-export const BuildVersionHeader = "X-Coder-Build-Version";
+export const BuildVersionHeader = "X-NI-Build-Version";
 
 // From nicloudsdk/client.go
 /**
@@ -7608,7 +7608,7 @@ export interface SessionLifetime {
 /**
  * SessionTokenHeader is the custom header to use for authentication.
  */
-export const SessionTokenHeader = "Coder-Session-Token";
+export const SessionTokenHeader = "NI-Session-Token";
 
 // From nicloudsdk/workspacesharing.go
 export type ShareableWorkspaceOwners = "everyone" | "none" | "service_accounts";
