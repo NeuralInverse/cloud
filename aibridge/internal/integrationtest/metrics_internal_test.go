@@ -13,11 +13,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/sjson"
 
-	"github.com/coder/coder/v2/aibridge"
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/fixtures"
-	"github.com/coder/coder/v2/aibridge/internal/testutil"
-	"github.com/coder/coder/v2/aibridge/metrics"
+	"github.com/NeuralInverse/cloud/v2/aibridge"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/fixtures"
+	"github.com/NeuralInverse/cloud/v2/aibridge/internal/testutil"
+	"github.com/NeuralInverse/cloud/v2/aibridge/metrics"
 )
 
 func TestMetrics_Interception(t *testing.T) {

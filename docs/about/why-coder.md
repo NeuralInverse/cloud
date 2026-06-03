@@ -1,3 +1,3 @@
-# Why use Coder
+# Why use Neural Inverse Cloud
 
 TODO: Make this page!

@@ -10,13 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestGitAskpass(t *testing.T) {
@@ -34,14 +34,14 @@ func TestGitAskpass(t *testing.T) {
 		url := srv.URL
 		inv, _ := clitest.New(t, "--agent-url", url, "Username for 'https://github.com':")
 		inv.Environ.Set("GIT_PREFIX", "/")
-		inv.Environ.Set("CODER_AGENT_TOKEN", "fake-token")
+		inv.Environ.Set("NEURALINVERSE_AGENT_TOKEN", "fake-token")
 		stdout := expecter.NewAttachedToInvocation(t, inv)
 		clitest.Start(t, inv)
 		stdout.ExpectMatchContext(ctx, "something")
 
 		inv, _ = clitest.New(t, "--agent-url", url, "Password for 'https://potato@github.com':")
 		inv.Environ.Set("GIT_PREFIX", "/")
-		inv.Environ.Set("CODER_AGENT_TOKEN", "fake-token")
+		inv.Environ.Set("NEURALINVERSE_AGENT_TOKEN", "fake-token")
 		stdout = expecter.NewAttachedToInvocation(t, inv)
 		clitest.Start(t, inv)
 		stdout.ExpectMatchContext(ctx, "bananas")
@@ -51,7 +51,7 @@ func TestGitAskpass(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(context.Background(), w, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(context.Background(), w, http.StatusNotFound, nicloudsdk.Response{
 				Message: "Nope!",
 			})
 		}))
@@ -59,7 +59,7 @@ func TestGitAskpass(t *testing.T) {
 		url := srv.URL
 		inv, _ := clitest.New(t, "--agent-url", url, "--no-open", "Username for 'https://github.com':")
 		inv.Environ.Set("GIT_PREFIX", "/")
-		inv.Environ.Set("CODER_AGENT_TOKEN", "fake-token")
+		inv.Environ.Set("NEURALINVERSE_AGENT_TOKEN", "fake-token")
 		stdout := expecter.NewAttachedToInvocation(t, inv)
 		err := inv.Run()
 		require.ErrorIs(t, err, cliui.ErrCanceled)
@@ -90,7 +90,7 @@ func TestGitAskpass(t *testing.T) {
 
 		inv, _ := clitest.New(t, "--agent-url", url, "--no-open", "Username for 'https://github.com':")
 		inv.Environ.Set("GIT_PREFIX", "/")
-		inv.Environ.Set("CODER_AGENT_TOKEN", "fake-token")
+		inv.Environ.Set("NEURALINVERSE_AGENT_TOKEN", "fake-token")
 		var stdout, stderr *expecter.Expecter
 		stdout, inv.Stdout = expecter.NewPiped(t)
 		stderr, inv.Stderr = expecter.NewPiped(t)

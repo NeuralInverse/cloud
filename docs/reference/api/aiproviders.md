@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/ai/providers \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/ai/providers`
@@ -44,7 +44,7 @@ curl -X GET http://coder-server:8080/api/v2/ai/providers \
 
 | Status | Meaning                                                 | Description | Schema                                                        |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.AIProvider](schemas.md#codersdkaiprovider) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.AIProvider](schemas.md#nicloudsdkaiprovider) |
 
 <h3 id="list-ai-providers-responseschema">Response Schema</h3>
 
@@ -63,8 +63,8 @@ Status Code **200**
 | `» enabled`      | boolean                                                              | false    |              |             |
 | `» id`           | string(uuid)                                                         | false    |              |             |
 | `» name`         | string                                                               | false    |              |             |
-| `» settings`     | [codersdk.AIProviderSettings](schemas.md#codersdkaiprovidersettings) | false    |              |             |
-| `» type`         | [codersdk.AIProviderType](schemas.md#codersdkaiprovidertype)         | false    |              |             |
+| `» settings`     | [nicloudsdk.AIProviderSettings](schemas.md#nicloudsdkaiprovidersettings) | false    |              |             |
+| `» type`         | [nicloudsdk.AIProviderType](schemas.md#nicloudsdkaiprovidertype)         | false    |              |             |
 | `» updated_at`   | string(date-time)                                                    | false    |              |             |
 
 #### Enumerated Values
@@ -84,7 +84,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/ai/providers \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/ai/providers`
@@ -109,7 +109,7 @@ curl -X POST http://coder-server:8080/api/v2/ai/providers \
 
 | Name   | In   | Type                                                                           | Required | Description                |
 |--------|------|--------------------------------------------------------------------------------|----------|----------------------------|
-| `body` | body | [codersdk.CreateAIProviderRequest](schemas.md#codersdkcreateaiproviderrequest) | true     | Create AI provider request |
+| `body` | body | [nicloudsdk.CreateAIProviderRequest](schemas.md#nicloudsdkcreateaiproviderrequest) | true     | Create AI provider request |
 
 ### Example responses
 
@@ -140,7 +140,7 @@ curl -X POST http://coder-server:8080/api/v2/ai/providers \
 
 | Status | Meaning                                                      | Description | Schema                                               |
 |--------|--------------------------------------------------------------|-------------|------------------------------------------------------|
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [codersdk.AIProvider](schemas.md#codersdkaiprovider) |
+| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [nicloudsdk.AIProvider](schemas.md#nicloudsdkaiprovider) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -152,7 +152,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/ai/providers/{idOrName} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/ai/providers/{idOrName}`
@@ -192,7 +192,7 @@ curl -X GET http://coder-server:8080/api/v2/ai/providers/{idOrName} \
 
 | Status | Meaning                                                 | Description | Schema                                               |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.AIProvider](schemas.md#codersdkaiprovider) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.AIProvider](schemas.md#nicloudsdkaiprovider) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -203,7 +203,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/ai/providers/{idOrName} \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/ai/providers/{idOrName}`
@@ -231,7 +231,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PATCH http://coder-server:8080/api/v2/ai/providers/{idOrName} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/ai/providers/{idOrName}`
@@ -258,7 +258,7 @@ curl -X PATCH http://coder-server:8080/api/v2/ai/providers/{idOrName} \
 | Name       | In   | Type                                                                           | Required | Description                |
 |------------|------|--------------------------------------------------------------------------------|----------|----------------------------|
 | `idOrName` | path | string                                                                         | true     | Provider ID or name        |
-| `body`     | body | [codersdk.UpdateAIProviderRequest](schemas.md#codersdkupdateaiproviderrequest) | true     | Update AI provider request |
+| `body`     | body | [nicloudsdk.UpdateAIProviderRequest](schemas.md#nicloudsdkupdateaiproviderrequest) | true     | Update AI provider request |
 
 ### Example responses
 
@@ -289,6 +289,6 @@ curl -X PATCH http://coder-server:8080/api/v2/ai/providers/{idOrName} \
 
 | Status | Meaning                                                 | Description | Schema                                               |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.AIProvider](schemas.md#codersdkaiprovider) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.AIProvider](schemas.md#nicloudsdkaiprovider) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

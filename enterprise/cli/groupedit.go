@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	agpl "github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	agpl "github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -49,7 +49,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 				return xerrors.Errorf("group by org and name: %w", err)
 			}
 
-			req := codersdk.PatchGroupRequest{
+			req := nicloudsdk.PatchGroupRequest{
 				Name: name,
 			}
 
@@ -61,7 +61,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 				req.DisplayName = &displayName
 			}
 
-			userRes, err := client.Users(ctx, codersdk.UsersRequest{})
+			userRes, err := client.Users(ctx, nicloudsdk.UsersRequest{})
 			if err != nil {
 				return xerrors.Errorf("get users: %w", err)
 			}
@@ -102,7 +102,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 		{
 			Flag:        "display-name",
 			Description: `Optional human friendly name for the group.`,
-			Env:         "CODER_DISPLAY_NAME",
+			Env:         "NEURALINVERSE_DISPLAY_NAME",
 			Value:       serpent.StringOf(&displayName),
 		},
 		{
@@ -125,7 +125,7 @@ func (r *RootCmd) groupEdit() *serpent.Command {
 
 // convertToUserIDs accepts a list of users in the form of IDs or email addresses
 // and translates any emails to the matching user ID.
-func convertToUserIDs(userList []string, users []codersdk.User) ([]string, error) {
+func convertToUserIDs(userList []string, users []nicloudsdk.User) ([]string, error) {
 	converted := make([]string, 0, len(userList))
 
 	for _, user := range userList {

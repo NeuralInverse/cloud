@@ -23,12 +23,12 @@ locals {
     "BB" = ["BBA", "BBB"]
   }
 
-  username = data.coder_workspace_owner.me.name
+  username = data.ni_workspace_owner.me.name
 }
 
-data "coder_workspace_owner" "me" {}
+data "ni_workspace_owner" "me" {}
 
-data "coder_parameter" "zero" {
+data "ni_parameter" "zero" {
   name         = "zero"
   display_name = "Root"
   description  = "Hello ${local.username}, pick your next parameter using this `dropdown` parameter."
@@ -47,7 +47,7 @@ data "coder_parameter" "zero" {
   }
 }
 
-data "coder_parameter" "one" {
+data "ni_parameter" "one" {
 
   name         = "One"
   display_name = "Level One"
@@ -57,10 +57,10 @@ data "coder_parameter" "one" {
   form_type = "multi-select"
   order     = 2
   mutable   = true
-  default   = "[\"${local.one_options[data.coder_parameter.zero.value][0]}\"]"
+  default   = "[\"${local.one_options[data.ni_parameter.zero.value][0]}\"]"
 
   dynamic "option" {
-    for_each = local.one_options[data.coder_parameter.zero.value]
+    for_each = local.one_options[data.ni_parameter.zero.value]
     content {
       name  = option.value
       value = option.value
@@ -71,10 +71,10 @@ data "coder_parameter" "one" {
 module "two" {
   source = "./modules/two"
 
-  one_value = data.coder_parameter.one.value
+  one_value = data.ni_parameter.one.value
 }
 
-data "coder_parameter" "three" {
+data "ni_parameter" "three" {
 
   name         = "Three"
   display_name = "Level Three"
@@ -95,7 +95,7 @@ data "coder_parameter" "three" {
   }
 }
 
-data "coder_parameter" "four" {
+data "ni_parameter" "four" {
   name         = "four"
   display_name = "Level Four"
   description  = "This is the last level."
@@ -106,14 +106,14 @@ data "coder_parameter" "four" {
   default   = "a_fake_value_to_satisfy_import"
 
   option {
-    name  = format("%s-%s", local.username, data.coder_parameter.three.value)
+    name  = format("%s-%s", local.username, data.ni_parameter.three.value)
     value = "a_fake_value_to_satisfy_import"
   }
 
   dynamic "option" {
-    for_each = data.coder_workspace_owner.me.rbac_roles
+    for_each = data.ni_workspace_owner.me.rbac_roles
     content {
-      name  = format("%s-%s", option.value.name, data.coder_parameter.three.value)
+      name  = format("%s-%s", option.value.name, data.ni_parameter.three.value)
       value = option.value.name
     }
   }

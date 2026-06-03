@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 func (r *Runner) apply(ctx context.Context, stage string, req *sdkproto.ApplyRequest) (

@@ -8,14 +8,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestTemplatePresets(t *testing.T) {
@@ -25,14 +25,14 @@ func TestTemplatePresets(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Given: a template version without presets
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets([]*proto.Preset{}))
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets([]*proto.Preset{}))
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// When: listing presets for that template
 		inv, root := clitest.New(t, "templates", "presets", "list", template.Name)
@@ -57,9 +57,9 @@ func TestTemplatePresets(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Given: an active template version that includes presets
 		presets := []*proto.Preset{
@@ -97,9 +97,9 @@ func TestTemplatePresets(t *testing.T) {
 				},
 			},
 		}
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets(presets))
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets(presets))
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		require.Equal(t, version.ID, template.ActiveVersionID)
 
 		// When: listing presets for that template
@@ -131,9 +131,9 @@ func TestTemplatePresets(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Given: a template with an active version that has no presets,
 		// and another template version that includes presets
@@ -173,14 +173,14 @@ func TestTemplatePresets(t *testing.T) {
 			},
 		}
 		// Given: first template version with presets
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets(presets))
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets(presets))
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		// Given: second template version without presets
-		activeVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets([]*proto.Preset{}), template.ID)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, activeVersion.ID)
+		activeVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets([]*proto.Preset{}), template.ID)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, activeVersion.ID)
 		// Given: second template version is the active version
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: activeVersion.ID,
 		})
 		require.NoError(t, err)
@@ -188,7 +188,7 @@ func TestTemplatePresets(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, activeVersion.ID, updatedTemplate.ActiveVersionID)
 		// Given: template has two versions
-		templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: updatedTemplate.ID,
 		})
 		require.NoError(t, err)
@@ -221,9 +221,9 @@ func TestTemplatePresets(t *testing.T) {
 	t.Run("ListsPresetsJSON", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Given: an active template version that includes presets
 		preset := proto.Preset{
@@ -242,9 +242,9 @@ func TestTemplatePresets(t *testing.T) {
 			},
 		}
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets([]*proto.Preset{&preset}))
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, templateWithPresets([]*proto.Preset{&preset}))
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		require.Equal(t, version.ID, template.ActiveVersionID)
 
 		// When: listing presets for that template

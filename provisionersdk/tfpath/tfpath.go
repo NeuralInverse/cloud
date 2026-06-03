@@ -212,7 +212,7 @@ func (l Layout) Cleanup(ctx context.Context, logger slog.Logger, fs afero.Fs) {
 }
 
 // CleanStaleSessions browses the work directory searching for stale session
-// directories. Coder provisioner is supposed to remove them once after finishing the provisioning,
+// directories. Neural Inverse Cloud provisioner is supposed to remove them once after finishing the provisioning,
 // but there is a risk of keeping them in case of a failure.
 func (l Layout) CleanStaleSessions(ctx context.Context, logger slog.Logger, fs afero.Fs, now time.Time) error {
 	parent := filepath.Dir(l.WorkDirectory())
@@ -238,7 +238,7 @@ func (l Layout) CleanStaleSessions(ctx context.Context, logger slog.Logger, fs a
 			if err != nil {
 				// This should not be a fatal error. If it is, the provisioner would be rendered
 				// non-functional until this directory is cleaned up. Ideally there would be a
-				// way to escalate this to an operator alert in Coder. Until then, the best we
+				// way to escalate this to an operator alert in Neural Inverse Cloud. Until then, the best we
 				// can do is log it on every cleanup attempt (every build). Eventually the disk
 				// usage will be noticeable, and hopefully these logs are noticed.
 				logger.Error(ctx, "failed to remove stale session directory",

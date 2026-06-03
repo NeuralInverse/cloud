@@ -7,9 +7,9 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/intercept"
-	"github.com/coder/coder/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
 )
 
 var ErrUnknownRoute = xerrors.New("unknown route")
@@ -31,16 +31,16 @@ var ErrUnknownRoute = xerrors.New("unknown route")
 // Example:
 //
 //   - OpenAI chat completions
-//     AI Bridge base URL (set in Codex): "https://host.coder.com/api/v2/aibridge/openai/v1"
-//     Upstream base URl (set in coder config): http://api.openai.com/v1
-//     Request: Codex -> https://host.coder.com/api/v2/aibridge/openai/v1/chat/completions -> AI Bridge -> http://api.openai.com/v1/chat/completions
-//     url change: 'https://host.coder.com/api/v2/aibridge/openai/v1' -> 'http://api.openai.com/v1' | '/chat/completions' suffix remains the same
+//     AI Bridge base URL (set in Codex): "https://host.cloud.neuralinverse.com/api/v2/aibridge/openai/v1"
+//     Upstream base URl (set in neuralinverse config): http://api.openai.com/v1
+//     Request: Codex -> https://host.cloud.neuralinverse.com/api/v2/aibridge/openai/v1/chat/completions -> AI Bridge -> http://api.openai.com/v1/chat/completions
+//     url change: 'https://host.cloud.neuralinverse.com/api/v2/aibridge/openai/v1' -> 'http://api.openai.com/v1' | '/chat/completions' suffix remains the same
 //
 //   - Anthropic messages
-//     AI Bridge base URL (set in Codex): "https://host.coder.com/api/v2/aibridge/anthropic"
-//     Upstream base URl (set in coder config): http://api.anthropic.com
-//     Request: Codex -> https://host.coder.com/api/v2/aibridge/anthropic/v1/messages -> AI Bridge -> http://api.anthropic.com/v1/messages
-//     url change: 'https://host.coder.com/api/v2/aibridge/anthropic' -> 'http://api.anthropic.com' | '/v1/messages' suffix remains the same
+//     AI Bridge base URL (set in Codex): "https://host.cloud.neuralinverse.com/api/v2/aibridge/anthropic"
+//     Upstream base URl (set in neuralinverse config): http://api.anthropic.com
+//     Request: Codex -> https://host.cloud.neuralinverse.com/api/v2/aibridge/anthropic/v1/messages -> AI Bridge -> http://api.anthropic.com/v1/messages
+//     url change: 'https://host.cloud.neuralinverse.com/api/v2/aibridge/anthropic' -> 'http://api.anthropic.com' | '/v1/messages' suffix remains the same
 //
 // !Note!
 // OpenAI and Anthropic use different route patterns.

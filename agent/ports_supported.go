@@ -9,23 +9,23 @@ import (
 	"github.com/cakturk/go-netstat/netstat"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 type osListeningPortsGetter struct {
 	cacheDuration time.Duration
 	mut           sync.Mutex
-	ports         []codersdk.WorkspaceAgentListeningPort
+	ports         []nicloudsdk.WorkspaceAgentListeningPort
 	mtime         time.Time
 }
 
-func (lp *osListeningPortsGetter) GetListeningPorts() ([]codersdk.WorkspaceAgentListeningPort, error) {
+func (lp *osListeningPortsGetter) GetListeningPorts() ([]nicloudsdk.WorkspaceAgentListeningPort, error) {
 	lp.mut.Lock()
 	defer lp.mut.Unlock()
 
 	if time.Since(lp.mtime) < lp.cacheDuration {
 		// copy
-		ports := make([]codersdk.WorkspaceAgentListeningPort, len(lp.ports))
+		ports := make([]nicloudsdk.WorkspaceAgentListeningPort, len(lp.ports))
 		copy(ports, lp.ports)
 		return ports, nil
 	}
@@ -38,7 +38,7 @@ func (lp *osListeningPortsGetter) GetListeningPorts() ([]codersdk.WorkspaceAgent
 	}
 
 	seen := make(map[uint16]struct{}, len(tabs))
-	ports := []codersdk.WorkspaceAgentListeningPort{}
+	ports := []nicloudsdk.WorkspaceAgentListeningPort{}
 	for _, tab := range tabs {
 		if tab.LocalAddr == nil {
 			continue
@@ -55,7 +55,7 @@ func (lp *osListeningPortsGetter) GetListeningPorts() ([]codersdk.WorkspaceAgent
 		if tab.Process != nil {
 			procName = tab.Process.Name
 		}
-		ports = append(ports, codersdk.WorkspaceAgentListeningPort{
+		ports = append(ports, nicloudsdk.WorkspaceAgentListeningPort{
 			ProcessName: procName,
 			Network:     "tcp",
 			Port:        tab.LocalAddr.Port,
@@ -66,7 +66,7 @@ func (lp *osListeningPortsGetter) GetListeningPorts() ([]codersdk.WorkspaceAgent
 	lp.mtime = time.Now()
 
 	// copy
-	ports = make([]codersdk.WorkspaceAgentListeningPort, len(lp.ports))
+	ports = make([]nicloudsdk.WorkspaceAgentListeningPort, len(lp.ports))
 	copy(ports, lp.ports)
 	return ports, nil
 }

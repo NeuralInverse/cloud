@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/aibridge/clients \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/aibridge/clients`
@@ -41,7 +41,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/aibridge/interceptions \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/aibridge/interceptions`
@@ -137,7 +137,7 @@ curl -X GET http://coder-server:8080/api/v2/aibridge/interceptions \
 
 | Status | Meaning                                                 | Description | Schema                                                                                             |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.AIBridgeListInterceptionsResponse](schemas.md#codersdkaibridgelistinterceptionsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.AIBridgeListInterceptionsResponse](schemas.md#nicloudsdkaibridgelistinterceptionsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -149,7 +149,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/aibridge/models \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/aibridge/models`
@@ -182,7 +182,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/aibridge/sessions \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/aibridge/sessions`
@@ -243,7 +243,7 @@ curl -X GET http://coder-server:8080/api/v2/aibridge/sessions \
 
 | Status | Meaning                                                 | Description | Schema                                                                                   |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.AIBridgeListSessionsResponse](schemas.md#codersdkaibridgelistsessionsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.AIBridgeListSessionsResponse](schemas.md#nicloudsdkaibridgelistsessionsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -255,7 +255,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/aibridge/sessions/{session_id} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/aibridge/sessions/{session_id}`
@@ -372,6 +372,6 @@ curl -X GET http://coder-server:8080/api/v2/aibridge/sessions/{session_id} \
 
 | Status | Meaning                                                 | Description | Schema                                                                                       |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.AIBridgeSessionThreadsResponse](schemas.md#codersdkaibridgesessionthreadsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.AIBridgeSessionThreadsResponse](schemas.md#nicloudsdkaibridgesessionthreadsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

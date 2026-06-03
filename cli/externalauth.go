@@ -6,8 +6,8 @@ import (
 	"github.com/tidwall/gjson"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
 	"github.com/coder/serpent"
 )
 
@@ -38,7 +38,7 @@ func externalAuthAccessToken() *serpent.Command {
 				Description: "Ensure that the user is authenticated with GitHub before cloning.",
 				Command: `#!/usr/bin/env sh
 
-OUTPUT=$(coder external-auth access-token github)
+OUTPUT=$(neuralinverse external-auth access-token github)
 if [ $? -eq 0 ]; then
   echo "Authenticated with GitHub"
 else
@@ -49,7 +49,7 @@ fi
 			},
 			Example{
 				Description: "Obtain an extra property of an access token for additional metadata.",
-				Command:     "coder external-auth access-token slack --extra \"authed_user.id\"",
+				Command:     "neuralinverse external-auth access-token slack --extra \"authed_user.id\"",
 			},
 		),
 		Middleware: serpent.Chain(

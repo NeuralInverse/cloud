@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -23,7 +23,7 @@ func (r *RootCmd) deleteWorkspace() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Delete a workspace for another user (if you have permission)",
-				Command:     "coder delete <username>/<workspace_name>",
+				Command:     "neuralinverse delete <username>/<workspace_name>",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -53,13 +53,13 @@ func (r *RootCmd) deleteWorkspace() *serpent.Command {
 			}
 
 			var state []byte
-			req := codersdk.CreateWorkspaceBuildRequest{
-				Transition:       codersdk.WorkspaceTransitionDelete,
+			req := nicloudsdk.CreateWorkspaceBuildRequest{
+				Transition:       nicloudsdk.WorkspaceTransitionDelete,
 				ProvisionerState: state,
 				Orphan:           orphan,
 			}
 			if prov.provisionerLogDebug {
-				req.LogLevel = codersdk.ProvisionerLogLevelDebug
+				req.LogLevel = nicloudsdk.ProvisionerLogLevelDebug
 			}
 			build, err := client.CreateWorkspaceBuild(inv.Context(), workspace.ID, req)
 			if err != nil {

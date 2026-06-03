@@ -7,15 +7,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 )
 
 func TestDupClientCopyingHeaders(t *testing.T) {
 	t.Parallel()
 	httpClient := &http.Client{
-		Transport: &codersdk.HeaderTransport{
-			Transport: &codersdk.HeaderTransport{
+		Transport: &nicloudsdk.HeaderTransport{
+			Transport: &nicloudsdk.HeaderTransport{
 				Transport: http.DefaultTransport,
 				Header: map[string][]string{
 					"X-Coder-Test":  {"foo"},
@@ -31,8 +31,8 @@ func TestDupClientCopyingHeaders(t *testing.T) {
 	}
 	serverURL, err := url.Parse("http://coder.example.com")
 	require.NoError(t, err)
-	sdkClient := codersdk.New(serverURL,
-		codersdk.WithSessionToken("test-token"), codersdk.WithHTTPClient(httpClient))
+	sdkClient := nicloudsdk.New(serverURL,
+		nicloudsdk.WithSessionToken("test-token"), nicloudsdk.WithHTTPClient(httpClient))
 
 	dup, err := loadtestutil.DupClientCopyingHeaders(sdkClient, map[string][]string{
 		"X-Coder-Test3": {"clocks"},
@@ -41,7 +41,7 @@ func TestDupClientCopyingHeaders(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "http://coder.example.com", dup.URL.String())
 	require.Equal(t, "test-token", dup.SessionToken())
-	ht, ok := dup.HTTPClient.Transport.(*codersdk.HeaderTransport)
+	ht, ok := dup.HTTPClient.Transport.(*nicloudsdk.HeaderTransport)
 	require.True(t, ok)
 	require.Equal(t, "bar", ht.Header.Get("X-Coder-Test"))
 	require.Equal(t, "baz", ht.Header.Get("X-Coder-Test2"))

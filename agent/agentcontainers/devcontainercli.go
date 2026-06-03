@@ -14,8 +14,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // DevcontainerConfig is a wrapper around the output from `read-configuration`.
@@ -33,7 +33,7 @@ type DevcontainerMergedConfiguration struct {
 }
 
 type DevcontainerMergedCustomizations struct {
-	Coder []CoderCustomization `json:"coder,omitempty"`
+	Coder []NICustomization `json:"neuralinverse,omitempty"`
 }
 
 type DevcontainerFeatures map[string]any
@@ -83,11 +83,11 @@ type DevcontainerConfiguration struct {
 }
 
 type DevcontainerCustomizations struct {
-	Coder CoderCustomization `json:"coder,omitempty"`
+	Coder NICustomization `json:"neuralinverse,omitempty"`
 }
 
-type CoderCustomization struct {
-	DisplayApps map[codersdk.DisplayApp]bool `json:"displayApps,omitempty"`
+type NICustomization struct {
+	DisplayApps map[nicloudsdk.DisplayApp]bool `json:"displayApps,omitempty"`
 	Apps        []SubAgentApp                `json:"apps,omitempty"`
 	Name        string                       `json:"name,omitempty"`
 	Ignore      bool                         `json:"ignore,omitempty"`
@@ -295,7 +295,7 @@ func (d *devcontainerCLI) Exec(ctx context.Context, workspaceFolder, configPath 
 	args := []string{"exec"}
 	// For now, always set workspace folder even if --container-id is provided.
 	// Otherwise the environment of exec will be incomplete, like `pwd` will be
-	// /home/coder instead of /workspaces/coder. The downside is that the local
+	// /home/neuralinverse instead of /workspaces/coder. The downside is that the local
 	// `devcontainer.json` config will overwrite settings serialized in the
 	// container label.
 	if workspaceFolder != "" {

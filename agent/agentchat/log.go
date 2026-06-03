@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/httpmw/loggermw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw/loggermw"
 )
 
 type chatContextKey struct{}
@@ -50,7 +50,7 @@ func Fields(ctx context.Context) []slog.Field {
 }
 
 // Middleware tags agent logs for requests that originate from
-// chatd. Agent log lines emitted while serving a request with Coder-Chat-Id,
+// chatd. Agent log lines emitted while serving a request with Neural Inverse Cloud-Chat-Id,
 // or by background work started by such a request, should include chat_id.
 // Install after loggermw.Logger so access-log enrichment can run.
 func Middleware(next http.Handler) http.Handler {

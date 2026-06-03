@@ -44,7 +44,7 @@ pnpm storybook --no-open
 Playwright writes per-test failure artifacts to `site/test-results/` when
 running `pnpm playwright:test` from `site/`. Failed tests keep screenshots,
 videos, and traces through the Playwright config. The HTML report is written
-to `site/playwright-report/`, and the coderd debug log is written to
+to `site/playwright-report/`, and the nicloud debug log is written to
 `site/e2e/test-results/debug.log`.
 
 In CI, the `test-e2e` job uploads failure artifacts to the workflow run's

@@ -4,7 +4,7 @@
 
 <div class="tabs">
 
-To get started with Coder, the easiest way to set up the required environment is to use the provided [Nix environment](https://github.com/coder/coder/tree/main/nix).
+To get started with Neural Inverse Cloud, the easiest way to set up the required environment is to use the provided [Nix environment](https://github.com/NeuralInverse/cloud/tree/main/nix).
 Learn more [how Nix works](https://nixos.org/guides/how-nix-works).
 
 ### Nix
@@ -56,7 +56,7 @@ Learn more [how Nix works](https://nixos.org/guides/how-nix-works).
 
 ### Without Nix
 
-If you're not using the Nix environment, you can launch a local [DevContainer](https://github.com/coder/coder/tree/main/.devcontainer) to get a fully configured development environment.
+If you're not using the Nix environment, you can launch a local [DevContainer](https://github.com/NeuralInverse/cloud/tree/main/.devcontainer) to get a fully configured development environment.
 
 DevContainers are supported in tools like **VS Code** and **GitHub Codespaces**, and come preloaded with all required dependencies: Docker, Go, Node.js with `pnpm`, `mise`, and `make`.
 
@@ -91,7 +91,7 @@ run `make pre-commit-light` instead of the full `make pre-commit`, and
 `pre-push` is skipped entirely. Changes to Go, TypeScript, SQL, proto, or
 the Makefile trigger the full targets as before.
 
-### Running Coder on development mode
+### Running Neural Inverse Cloud on development mode
 
 1. Run the development script to spin up the local environment:
 
@@ -114,12 +114,12 @@ the Makefile trigger the full targets as before.
    ./scripts/coder-dev.sh list
       ```
 
-   This should return an empty list of workspaces. If you encounter an error, review the output from the [develop.sh](https://github.com/coder/coder/blob/main/scripts/develop.sh) script for issues.
+   This should return an empty list of workspaces. If you encounter an error, review the output from the [develop.sh](https://github.com/NeuralInverse/cloud/blob/main/scripts/develop.sh) script for issues.
 
    > [!NOTE]
    > `coder-dev.sh` is a helper script that behaves like the regular coder CLI, but uses the binary built from your local source and shares the same configuration directory set up by `develop.sh`. This ensures your local changes are reflected when testing.
    >
-   > The default user is `admin@coder.com` and the default password is `SomeSecurePassword!`
+   > The default user is `admin@cloud.neuralinverse.com` and the default password is `SomeSecurePassword!`
 
 1. Create Your First Workspace
 
@@ -138,7 +138,7 @@ this:
 
 - Run `./scripts/deploy-pr.sh`
 - Manually trigger the
-  [`pr-deploy.yaml`](https://github.com/coder/coder/actions/workflows/pr-deploy.yaml)
+  [`pr-deploy.yaml`](https://github.com/NeuralInverse/cloud/actions/workflows/pr-deploy.yaml)
   GitHub Action workflow.
 
 #### Available options
@@ -196,7 +196,7 @@ to a new API route in a later PR. Or, you might implement a new React component 
 
 The following information has been borrowed from [Go's review philosophy](https://go.dev/doc/contribute#reviews).
 
-Coder values thorough reviews. For each review comment that you receive, please
+Neural Inverse Cloud values thorough reviews. For each review comment that you receive, please
 "close" it by implementing the suggestion or providing an explanation on why the
 suggestion isn't the best option. Be sure to do this for each comment; you can
 click **Done** to indicate that you've implemented the suggestion, or you can
@@ -211,10 +211,10 @@ be applied selectively or to discourage anyone from contributing.
 
 ## Releases
 
-Coder releases are initiated via
-[`./scripts/release.sh`](https://github.com/coder/coder/blob/main/scripts/release.sh)
+Neural Inverse Cloud releases are initiated via
+[`./scripts/release.sh`](https://github.com/NeuralInverse/cloud/blob/main/scripts/release.sh)
 and automated via GitHub Actions. Specifically, the
-[`release.yaml`](https://github.com/coder/coder/blob/main/.github/workflows/release.yaml)
+[`release.yaml`](https://github.com/NeuralInverse/cloud/blob/main/.github/workflows/release.yaml)
 workflow.
 
 Release notes are automatically generated from commit titles and PR metadata.
@@ -255,7 +255,7 @@ release branch.
 ### Creating a release (via workflow dispatch)
 
 If the
-[`release.yaml`](https://github.com/coder/coder/actions/workflows/release.yaml)
+[`release.yaml`](https://github.com/NeuralInverse/cloud/actions/workflows/release.yaml)
 workflow fails after the tag has been pushed, retry it from the GitHub Actions
 UI: press "Run workflow", set "Use workflow from" to the tag (e.g.
 `Tag: v2.34.0`), select the correct release channel, and do **not** select
@@ -279,11 +279,11 @@ characters long (no more than 72).
 
 Examples:
 
-- Good: `feat(coderd): add feature X`
-- Bad: `feat(coderd): added feature X` (past tense)
+- Good: `feat(nicloud): add feature X`
+- Bad: `feat(nicloud): added feature X` (past tense)
 
 Scopes must reference a real path in the repository (a directory or file stem)
-and must contain all changed files. For example, use `coderd/database` if all
+and must contain all changed files. For example, use `nicloud/database` if all
 changes are within that directory. If changes span multiple top-level
 directories, omit the scope.
 
@@ -299,7 +299,7 @@ to use the original commit title instead of the PR title.
 
 When a merged PR on `main` should also ship in older releases, add the
 `backport` label to the PR. The
-[backport workflow](https://github.com/coder/coder/blob/main/.github/workflows/backport.yaml)
+[backport workflow](https://github.com/NeuralInverse/cloud/blob/main/.github/workflows/backport.yaml)
 will automatically detect the latest three `release/*` branches,
 cherry-pick the merge commit onto each one, and open PRs for
 review.
@@ -317,9 +317,9 @@ with instructions for manual resolution — no conflict markers are committed.
 Breaking changes can be triggered in two ways:
 
 - Add `!` to the commit message title, e.g.
-  `feat(coderd)!: remove deprecated endpoint /test`
+  `feat(nicloud)!: remove deprecated endpoint /test`
 - Add the
-  [`release/breaking`](https://github.com/coder/coder/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fbreaking)
+  [`release/breaking`](https://github.com/NeuralInverse/cloud/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fbreaking)
   label to a PR that has, or will be, merged into `main`.
 
 ### Generative AI
@@ -331,17 +331,17 @@ are followed. If most of your PR was generated by AI, please read and comply wit
 
 > [!CAUTION]
 > If you find a vulnerability, **DO NOT FILE AN ISSUE**. Instead, send an email
-> to <security@coder.com>.
+> to <security@cloud.neuralinverse.com>.
 
 The
-[`security`](https://github.com/coder/coder/issues?q=sort%3Aupdated-desc+label%3Asecurity)
+[`security`](https://github.com/NeuralInverse/cloud/issues?q=sort%3Aupdated-desc+label%3Asecurity)
 label can be added to PRs that have, or will be, merged into `main`. Doing so
 will make sure the change stands out in the release notes.
 
 ### Experimental
 
 The
-[`release/experimental`](https://github.com/coder/coder/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fexperimental)
+[`release/experimental`](https://github.com/NeuralInverse/cloud/issues?q=sort%3Aupdated-desc+label%3Arelease%2Fexperimental)
 label can be used to move the note to the bottom of the release notes under a
 separate title.
 

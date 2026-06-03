@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestSharingShare(t *testing.T) {
@@ -25,14 +25,14 @@ func TestSharingShare(t *testing.T) {
 		t.Parallel()
 
 		var (
-			client, db                           = coderdtest.NewWithDatabase(t, nil)
-			orgOwner                             = coderdtest.CreateFirstUser(t, client)
-			workspaceOwnerClient, workspaceOwner = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
+			client, db                           = nicloudtest.NewWithDatabase(t, nil)
+			orgOwner                             = nicloudtest.CreateFirstUser(t, client)
+			workspaceOwnerClient, workspaceOwner = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
 			workspace                            = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				OwnerID:        workspaceOwner.ID,
 				OrganizationID: orgOwner.OrganizationID,
 			}).Do().Workspace
-			_, toShareWithUser = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toShareWithUser = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
 		)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
@@ -46,35 +46,35 @@ func TestSharingShare(t *testing.T) {
 
 		acl, err := workspaceOwnerClient.WorkspaceACL(inv.Context(), workspace.ID)
 		require.NoError(t, err)
-		assert.Contains(t, acl.Users, codersdk.WorkspaceUser{
-			MinimalUser: codersdk.MinimalUser{
+		assert.Contains(t, acl.Users, nicloudsdk.WorkspaceUser{
+			MinimalUser: nicloudsdk.MinimalUser{
 				ID:        toShareWithUser.ID,
 				Username:  toShareWithUser.Username,
 				Name:      toShareWithUser.Name,
 				AvatarURL: toShareWithUser.AvatarURL,
 			},
-			Role: codersdk.WorkspaceRole("use"),
+			Role: nicloudsdk.WorkspaceRole("use"),
 		})
 
 		assert.Contains(t, out.String(), toShareWithUser.Username)
-		assert.Contains(t, out.String(), codersdk.WorkspaceRoleUse)
+		assert.Contains(t, out.String(), nicloudsdk.WorkspaceRoleUse)
 	})
 
 	t.Run("ShareWithUsers_Multiple", func(t *testing.T) {
 		t.Parallel()
 
 		var (
-			client, db = coderdtest.NewWithDatabase(t, nil)
-			orgOwner   = coderdtest.CreateFirstUser(t, client)
+			client, db = nicloudtest.NewWithDatabase(t, nil)
+			orgOwner   = nicloudtest.CreateFirstUser(t, client)
 
-			workspaceOwnerClient, workspaceOwner = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
+			workspaceOwnerClient, workspaceOwner = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
 			workspace                            = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				OwnerID:        workspaceOwner.ID,
 				OrganizationID: orgOwner.OrganizationID,
 			}).Do().Workspace
 
-			_, toShareWithUser1 = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
-			_, toShareWithUser2 = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toShareWithUser1 = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toShareWithUser2 = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
 		)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
@@ -92,23 +92,23 @@ func TestSharingShare(t *testing.T) {
 
 		acl, err := workspaceOwnerClient.WorkspaceACL(inv.Context(), workspace.ID)
 		require.NoError(t, err)
-		assert.Contains(t, acl.Users, codersdk.WorkspaceUser{
-			MinimalUser: codersdk.MinimalUser{
+		assert.Contains(t, acl.Users, nicloudsdk.WorkspaceUser{
+			MinimalUser: nicloudsdk.MinimalUser{
 				ID:        toShareWithUser1.ID,
 				Username:  toShareWithUser1.Username,
 				Name:      toShareWithUser1.Name,
 				AvatarURL: toShareWithUser1.AvatarURL,
 			},
-			Role: codersdk.WorkspaceRoleUse,
+			Role: nicloudsdk.WorkspaceRoleUse,
 		})
-		assert.Contains(t, acl.Users, codersdk.WorkspaceUser{
-			MinimalUser: codersdk.MinimalUser{
+		assert.Contains(t, acl.Users, nicloudsdk.WorkspaceUser{
+			MinimalUser: nicloudsdk.MinimalUser{
 				ID:        toShareWithUser2.ID,
 				Username:  toShareWithUser2.Username,
 				Name:      toShareWithUser2.Name,
 				AvatarURL: toShareWithUser2.AvatarURL,
 			},
-			Role: codersdk.WorkspaceRoleUse,
+			Role: nicloudsdk.WorkspaceRoleUse,
 		})
 
 		assert.Contains(t, out.String(), toShareWithUser1.Username)
@@ -119,14 +119,14 @@ func TestSharingShare(t *testing.T) {
 		t.Parallel()
 
 		var (
-			client, db                           = coderdtest.NewWithDatabase(t, nil)
-			orgOwner                             = coderdtest.CreateFirstUser(t, client)
-			workspaceOwnerClient, workspaceOwner = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
+			client, db                           = nicloudtest.NewWithDatabase(t, nil)
+			orgOwner                             = nicloudtest.CreateFirstUser(t, client)
+			workspaceOwnerClient, workspaceOwner = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
 			workspace                            = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				OwnerID:        workspaceOwner.ID,
 				OrganizationID: orgOwner.OrganizationID,
 			}).Do().Workspace
-			_, toShareWithUser = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toShareWithUser = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
 		)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
@@ -142,24 +142,24 @@ func TestSharingShare(t *testing.T) {
 
 		acl, err := workspaceOwnerClient.WorkspaceACL(inv.Context(), workspace.ID)
 		require.NoError(t, err)
-		assert.Contains(t, acl.Users, codersdk.WorkspaceUser{
-			MinimalUser: codersdk.MinimalUser{
+		assert.Contains(t, acl.Users, nicloudsdk.WorkspaceUser{
+			MinimalUser: nicloudsdk.MinimalUser{
 				ID:        toShareWithUser.ID,
 				Username:  toShareWithUser.Username,
 				Name:      toShareWithUser.Name,
 				AvatarURL: toShareWithUser.AvatarURL,
 			},
-			Role: codersdk.WorkspaceRoleAdmin,
+			Role: nicloudsdk.WorkspaceRoleAdmin,
 		})
 
 		found := false
 		for _, line := range strings.Split(out.String(), "\n") {
-			if strings.Contains(line, toShareWithUser.Username) && strings.Contains(line, string(codersdk.WorkspaceRoleAdmin)) {
+			if strings.Contains(line, toShareWithUser.Username) && strings.Contains(line, string(nicloudsdk.WorkspaceRoleAdmin)) {
 				found = true
 				break
 			}
 		}
-		assert.True(t, found, fmt.Sprintf("expected to find the username %s and role %s in the command: %s", toShareWithUser.Username, codersdk.WorkspaceRoleAdmin, out.String()))
+		assert.True(t, found, fmt.Sprintf("expected to find the username %s and role %s in the command: %s", toShareWithUser.Username, nicloudsdk.WorkspaceRoleAdmin, out.String()))
 	})
 }
 
@@ -170,20 +170,20 @@ func TestSharingStatus(t *testing.T) {
 		t.Parallel()
 
 		var (
-			client, db                           = coderdtest.NewWithDatabase(t, nil)
-			orgOwner                             = coderdtest.CreateFirstUser(t, client)
-			workspaceOwnerClient, workspaceOwner = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
+			client, db                           = nicloudtest.NewWithDatabase(t, nil)
+			orgOwner                             = nicloudtest.CreateFirstUser(t, client)
+			workspaceOwnerClient, workspaceOwner = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
 			workspace                            = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				OwnerID:        workspaceOwner.ID,
 				OrganizationID: orgOwner.OrganizationID,
 			}).Do().Workspace
-			_, toShareWithUser = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toShareWithUser = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
 			ctx                = testutil.Context(t, testutil.WaitMedium)
 		)
 
-		err := client.UpdateWorkspaceACL(ctx, workspace.ID, codersdk.UpdateWorkspaceACL{
-			UserRoles: map[string]codersdk.WorkspaceRole{
-				toShareWithUser.ID.String(): codersdk.WorkspaceRoleUse,
+		err := client.UpdateWorkspaceACL(ctx, workspace.ID, nicloudsdk.UpdateWorkspaceACL{
+			UserRoles: map[string]nicloudsdk.WorkspaceRole{
+				toShareWithUser.ID.String(): nicloudsdk.WorkspaceRoleUse,
 			},
 		})
 		require.NoError(t, err)
@@ -198,12 +198,12 @@ func TestSharingStatus(t *testing.T) {
 
 		found := false
 		for _, line := range strings.Split(out.String(), "\n") {
-			if strings.Contains(line, toShareWithUser.Username) && strings.Contains(line, string(codersdk.WorkspaceRoleUse)) {
+			if strings.Contains(line, toShareWithUser.Username) && strings.Contains(line, string(nicloudsdk.WorkspaceRoleUse)) {
 				found = true
 				break
 			}
 		}
-		assert.True(t, found, "expected to find username %s with role %s in the output: %s", toShareWithUser.Username, codersdk.WorkspaceRoleUse, out.String())
+		assert.True(t, found, "expected to find username %s with role %s in the output: %s", toShareWithUser.Username, nicloudsdk.WorkspaceRoleUse, out.String())
 	})
 }
 
@@ -214,24 +214,24 @@ func TestSharingRemove(t *testing.T) {
 		t.Parallel()
 
 		var (
-			client, db                           = coderdtest.NewWithDatabase(t, nil)
-			orgOwner                             = coderdtest.CreateFirstUser(t, client)
-			workspaceOwnerClient, workspaceOwner = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
+			client, db                           = nicloudtest.NewWithDatabase(t, nil)
+			orgOwner                             = nicloudtest.CreateFirstUser(t, client)
+			workspaceOwnerClient, workspaceOwner = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
 			workspace                            = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				OwnerID:        workspaceOwner.ID,
 				OrganizationID: orgOwner.OrganizationID,
 			}).Do().Workspace
-			_, toRemoveUser    = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
-			_, toShareWithUser = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toRemoveUser    = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toShareWithUser = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
 		)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		// Share the workspace with a user to later remove
-		err := client.UpdateWorkspaceACL(ctx, workspace.ID, codersdk.UpdateWorkspaceACL{
-			UserRoles: map[string]codersdk.WorkspaceRole{
-				toShareWithUser.ID.String(): codersdk.WorkspaceRoleUse,
-				toRemoveUser.ID.String():    codersdk.WorkspaceRoleUse,
+		err := client.UpdateWorkspaceACL(ctx, workspace.ID, nicloudsdk.UpdateWorkspaceACL{
+			UserRoles: map[string]nicloudsdk.WorkspaceRole{
+				toShareWithUser.ID.String(): nicloudsdk.WorkspaceRoleUse,
+				toRemoveUser.ID.String():    nicloudsdk.WorkspaceRoleUse,
 			},
 		})
 		require.NoError(t, err)
@@ -271,24 +271,24 @@ func TestSharingRemove(t *testing.T) {
 		t.Parallel()
 
 		var (
-			client, db                           = coderdtest.NewWithDatabase(t, nil)
-			orgOwner                             = coderdtest.CreateFirstUser(t, client)
-			workspaceOwnerClient, workspaceOwner = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
+			client, db                           = nicloudtest.NewWithDatabase(t, nil)
+			orgOwner                             = nicloudtest.CreateFirstUser(t, client)
+			workspaceOwnerClient, workspaceOwner = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
 			workspace                            = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				OwnerID:        workspaceOwner.ID,
 				OrganizationID: orgOwner.OrganizationID,
 			}).Do().Workspace
-			_, toRemoveUser1 = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
-			_, toRemoveUser2 = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toRemoveUser1 = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
+			_, toRemoveUser2 = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID)
 		)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		// Share the workspace with a user to later remove
-		err := client.UpdateWorkspaceACL(ctx, workspace.ID, codersdk.UpdateWorkspaceACL{
-			UserRoles: map[string]codersdk.WorkspaceRole{
-				toRemoveUser2.ID.String(): codersdk.WorkspaceRoleUse,
-				toRemoveUser1.ID.String(): codersdk.WorkspaceRoleUse,
+		err := client.UpdateWorkspaceACL(ctx, workspace.ID, nicloudsdk.UpdateWorkspaceACL{
+			UserRoles: map[string]nicloudsdk.WorkspaceRole{
+				toRemoveUser2.ID.String(): nicloudsdk.WorkspaceRoleUse,
+				toRemoveUser1.ID.String(): nicloudsdk.WorkspaceRoleUse,
 			},
 		})
 		require.NoError(t, err)

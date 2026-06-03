@@ -8,13 +8,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentcontextconfig"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontextconfig"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // filterParts returns only the parts matching the given type.
-func filterParts(parts []codersdk.ChatMessagePart, t codersdk.ChatMessagePartType) []codersdk.ChatMessagePart {
-	var out []codersdk.ChatMessagePart
+func filterParts(parts []nicloudsdk.ChatMessagePart, t nicloudsdk.ChatMessagePartType) []nicloudsdk.ChatMessagePart {
+	var out []nicloudsdk.ChatMessagePart
 	for _, p := range parts {
 		if p.Type == t {
 			out = append(out, p)
@@ -56,8 +56,8 @@ func TestContextPartsFromDir(t *testing.T) {
 		require.NoError(t, os.WriteFile(instructionPath, []byte("project instructions"), 0o600))
 
 		parts := agentcontextconfig.ContextPartsFromDir(dir)
-		contextParts := filterParts(parts, codersdk.ChatMessagePartTypeContextFile)
-		skillParts := filterParts(parts, codersdk.ChatMessagePartTypeSkill)
+		contextParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeContextFile)
+		skillParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeSkill)
 
 		require.Len(t, parts, 1)
 		require.Len(t, contextParts, 1)
@@ -74,8 +74,8 @@ func TestContextPartsFromDir(t *testing.T) {
 		skillDir := writeSkillMetaFile(t, dir, "my-skill", "A test skill")
 
 		parts := agentcontextconfig.ContextPartsFromDir(dir)
-		contextParts := filterParts(parts, codersdk.ChatMessagePartTypeContextFile)
-		skillParts := filterParts(parts, codersdk.ChatMessagePartTypeSkill)
+		contextParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeContextFile)
+		skillParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeSkill)
 
 		require.Len(t, parts, 1)
 		require.Empty(t, contextParts)
@@ -98,8 +98,8 @@ func TestContextPartsFromDir(t *testing.T) {
 		)
 
 		parts := agentcontextconfig.ContextPartsFromDir(dir)
-		contextParts := filterParts(parts, codersdk.ChatMessagePartTypeContextFile)
-		skillParts := filterParts(parts, codersdk.ChatMessagePartTypeSkill)
+		contextParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeContextFile)
+		skillParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeSkill)
 
 		require.Len(t, parts, 1)
 		require.Empty(t, contextParts)
@@ -128,8 +128,8 @@ func TestContextPartsFromDir(t *testing.T) {
 		skillDir := writeSkillMetaFile(t, dir, "combined-skill", "Combined test skill")
 
 		parts := agentcontextconfig.ContextPartsFromDir(dir)
-		contextParts := filterParts(parts, codersdk.ChatMessagePartTypeContextFile)
-		skillParts := filterParts(parts, codersdk.ChatMessagePartTypeSkill)
+		contextParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeContextFile)
+		skillParts := filterParts(parts, nicloudsdk.ChatMessagePartTypeSkill)
 
 		require.Len(t, parts, 2)
 		require.Len(t, contextParts, 1)
@@ -203,10 +203,10 @@ func TestResolve(t *testing.T) {
 		cfg, mcpFiles := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
 		require.Equal(t, []string{optMCP}, mcpFiles)
-		ctxFiles := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeContextFile)
+		ctxFiles := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 		require.Len(t, ctxFiles, 1)
 		require.Equal(t, "custom instructions", ctxFiles[0].ContextFileContent)
-		skillParts := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeSkill)
+		skillParts := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeSkill)
 		require.Len(t, skillParts, 1)
 		require.Equal(t, "my-skill", skillParts[0].SkillName)
 		require.Equal(t, "META.yaml", skillParts[0].ContextFileSkillMetaFile)
@@ -225,7 +225,7 @@ func TestResolve(t *testing.T) {
 
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
-		ctxFiles := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeContextFile)
+		ctxFiles := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 		require.Len(t, ctxFiles, 1)
 		require.Equal(t, "hello", ctxFiles[0].ContextFileContent)
 	})
@@ -245,7 +245,7 @@ func TestResolve(t *testing.T) {
 		workDir := t.TempDir()
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
-		ctxFiles := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeContextFile)
+		ctxFiles := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 		require.Len(t, ctxFiles, 2)
 		require.Equal(t, "from a", ctxFiles[0].ContextFileContent)
 		require.Equal(t, "from b", ctxFiles[1].ContextFileContent)
@@ -267,7 +267,7 @@ func TestResolve(t *testing.T) {
 
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
-		ctxFiles := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeContextFile)
+		ctxFiles := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 		require.NotNil(t, cfg.Parts)
 		require.Len(t, ctxFiles, 1)
 		require.Equal(t, "home instructions", ctxFiles[0].ContextFileContent)
@@ -290,7 +290,7 @@ func TestResolve(t *testing.T) {
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
 		// Should find the working dir file (not in instruction dirs).
-		ctxFiles := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeContextFile)
+		ctxFiles := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 		require.NotNil(t, cfg.Parts)
 		require.Len(t, ctxFiles, 1)
 		require.Equal(t, "project instructions", ctxFiles[0].ContextFileContent)
@@ -306,7 +306,7 @@ func TestResolve(t *testing.T) {
 
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
-		ctxFiles := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeContextFile)
+		ctxFiles := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 		require.Len(t, ctxFiles, 1)
 		require.True(t, ctxFiles[0].ContextFileTruncated)
 		require.Len(t, ctxFiles[0].ContextFileContent, 64*1024)
@@ -346,7 +346,7 @@ func TestResolve(t *testing.T) {
 
 			cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
-			ctxFiles := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeContextFile)
+			ctxFiles := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 			require.Len(t, ctxFiles, 1)
 			require.Equal(t, tt.expected, ctxFiles[0].ContextFileContent)
 		})
@@ -377,7 +377,7 @@ func TestResolve(t *testing.T) {
 
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
 
-		skillParts := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeSkill)
+		skillParts := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeSkill)
 		require.Len(t, skillParts, 1)
 		require.Equal(t, "my-skill", skillParts[0].SkillName)
 		require.Equal(t, "A test skill", skillParts[0].SkillDescription)
@@ -434,7 +434,7 @@ func TestResolve(t *testing.T) {
 		))
 
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
-		skillParts := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeSkill)
+		skillParts := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeSkill)
 		require.Empty(t, skillParts)
 	})
 
@@ -460,7 +460,7 @@ func TestResolve(t *testing.T) {
 		}
 
 		cfg, _ := agentcontextconfig.Resolve(workDir, agentcontextconfig.ReadEnvConfig())
-		skillParts := filterParts(cfg.Parts, codersdk.ChatMessagePartTypeSkill)
+		skillParts := filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeSkill)
 		require.Len(t, skillParts, 1)
 		require.Equal(t, "from skills1", skillParts[0].SkillDescription)
 	})
@@ -486,7 +486,7 @@ func TestResolve(t *testing.T) {
 		})
 
 		got := map[string]string{}
-		for _, p := range filterParts(cfg.Parts, codersdk.ChatMessagePartTypeSkill) {
+		for _, p := range filterParts(cfg.Parts, nicloudsdk.ChatMessagePartTypeSkill) {
 			got[p.SkillName] = p.SkillDescription
 		}
 		require.Equal(t, map[string]string{
@@ -519,7 +519,7 @@ func TestNewAPI_LazyDirectory(t *testing.T) {
 }
 
 // TestClearEnvVars verifies that ClearEnvVars removes every
-// CODER_AGENT_EXP_* env var from the process.
+// NEURALINVERSE_AGENT_EXP_* env var from the process.
 //
 //nolint:paralleltest // Mutates process-wide environment.
 func TestClearEnvVars(t *testing.T) {
@@ -572,7 +572,7 @@ func TestResolve_ConfigOverridesEnv(t *testing.T) {
 	workDir := t.TempDir()
 	result, _ := agentcontextconfig.Resolve(workDir, cfg)
 
-	ctxFiles := filterParts(result.Parts, codersdk.ChatMessagePartTypeContextFile)
+	ctxFiles := filterParts(result.Parts, nicloudsdk.ChatMessagePartTypeContextFile)
 	require.Len(t, ctxFiles, 1)
 	require.Equal(t, "from config", ctxFiles[0].ContextFileContent)
 }

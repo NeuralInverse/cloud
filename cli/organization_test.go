@@ -14,11 +14,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/pretty"
 )
 
@@ -34,9 +34,9 @@ func TestCurrentOrganization(t *testing.T) {
 
 		orgID := uuid.New()
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			json.NewEncoder(w).Encode([]codersdk.Organization{
+			json.NewEncoder(w).Encode([]nicloudsdk.Organization{
 				{
-					MinimalOrganization: codersdk.MinimalOrganization{
+					MinimalOrganization: nicloudsdk.MinimalOrganization{
 						ID:   orgID,
 						Name: "not-default",
 					},
@@ -48,7 +48,7 @@ func TestCurrentOrganization(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		client := codersdk.New(must(url.Parse(srv.URL)))
+		client := nicloudsdk.New(must(url.Parse(srv.URL)))
 		inv, root := clitest.New(t, "organizations", "show", "selected")
 		clitest.SetupConfig(t, client, root)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -71,9 +71,9 @@ func TestOrganizationList(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			switch {
 			case r.Method == http.MethodGet && r.URL.Path == "/api/v2/organizations":
-				_ = json.NewEncoder(w).Encode([]codersdk.Organization{
+				_ = json.NewEncoder(w).Encode([]nicloudsdk.Organization{
 					{
-						MinimalOrganization: codersdk.MinimalOrganization{
+						MinimalOrganization: nicloudsdk.MinimalOrganization{
 							ID:          orgID,
 							Name:        "my-org",
 							DisplayName: "My Org",
@@ -89,7 +89,7 @@ func TestOrganizationList(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := codersdk.New(must(url.Parse(server.URL)))
+		client := nicloudsdk.New(must(url.Parse(server.URL)))
 		inv, root := clitest.New(t, "organizations", "list")
 		clitest.SetupConfig(t, client, root)
 
@@ -114,8 +114,8 @@ func TestOrganizationDelete(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			switch {
 			case r.Method == http.MethodGet && r.URL.Path == "/api/v2/organizations/my-org":
-				_ = json.NewEncoder(w).Encode(codersdk.Organization{
-					MinimalOrganization: codersdk.MinimalOrganization{
+				_ = json.NewEncoder(w).Encode(nicloudsdk.Organization{
+					MinimalOrganization: nicloudsdk.MinimalOrganization{
 						ID:   orgID,
 						Name: "my-org",
 					},
@@ -132,7 +132,7 @@ func TestOrganizationDelete(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := codersdk.New(must(url.Parse(server.URL)))
+		client := nicloudsdk.New(must(url.Parse(server.URL)))
 		inv, root := clitest.New(t, "organizations", "delete", "my-org", "--yes")
 		clitest.SetupConfig(t, client, root)
 
@@ -150,8 +150,8 @@ func TestOrganizationDelete(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			switch {
 			case r.Method == http.MethodGet && r.URL.Path == "/api/v2/organizations/my-org":
-				_ = json.NewEncoder(w).Encode(codersdk.Organization{
-					MinimalOrganization: codersdk.MinimalOrganization{
+				_ = json.NewEncoder(w).Encode(nicloudsdk.Organization{
+					MinimalOrganization: nicloudsdk.MinimalOrganization{
 						ID:   orgID,
 						Name: "my-org",
 					},
@@ -168,7 +168,7 @@ func TestOrganizationDelete(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := codersdk.New(must(url.Parse(server.URL)))
+		client := nicloudsdk.New(must(url.Parse(server.URL)))
 		inv, root := clitest.New(t, "organizations", "delete", "my-org")
 		clitest.SetupConfig(t, client, root)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -194,8 +194,8 @@ func TestOrganizationDelete(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			switch {
 			case r.Method == http.MethodGet && r.URL.Path == "/api/v2/organizations/default":
-				_ = json.NewEncoder(w).Encode(codersdk.Organization{
-					MinimalOrganization: codersdk.MinimalOrganization{
+				_ = json.NewEncoder(w).Encode(nicloudsdk.Organization{
+					MinimalOrganization: nicloudsdk.MinimalOrganization{
 						ID:   orgID,
 						Name: "default",
 					},
@@ -213,7 +213,7 @@ func TestOrganizationDelete(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := codersdk.New(must(url.Parse(server.URL)))
+		client := nicloudsdk.New(must(url.Parse(server.URL)))
 		inv, root := clitest.New(t, "organizations", "delete", "default", "--yes")
 		clitest.SetupConfig(t, client, root)
 

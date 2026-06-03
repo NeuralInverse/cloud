@@ -19,8 +19,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/pty"
 )
 
 // screenReconnectingPTY provides a reconnectable PTY via `screen`.
@@ -120,7 +120,7 @@ func newScreen(ctx context.Context, logger slog.Logger, execer agentexec.Execer,
 		"escape ^Ss",
 	}
 
-	rpty.configFile = filepath.Join(os.TempDir(), "coder-screen", "config")
+	rpty.configFile = filepath.Join(os.TempDir(), "neuralinverse-screen", "config")
 	err = os.MkdirAll(filepath.Dir(rpty.configFile), 0o700)
 	if err != nil {
 		rpty.state.setState(StateDone, xerrors.Errorf("make screen config dir: %w", err))

@@ -1,10 +1,10 @@
 # Image Management
 
-While Coder provides example
+While Neural Inverse Cloud provides example
 [base container images](https://github.com/coder/enterprise-images) for
 workspaces, it's often best to create custom images that matches the needs of
 your users. This document serves a guide to operational maturity with some best
-practices around managing workspaces images for Coder.
+practices around managing workspaces images for Neural Inverse Cloud.
 
 1. Create a minimal base image
 2. Create golden image(s) with standard tooling
@@ -17,21 +17,21 @@ internal one, thanks to Terraform.
 
 ## Create a minimal base image
 
-While you may not use this directly in Coder templates, it's useful to have a
+While you may not use this directly in Neural Inverse Cloud templates, it's useful to have a
 minimal base image is a small image that contains only the necessary
-dependencies to work in your network and work with Coder. Here are some things
+dependencies to work in your network and work with Neural Inverse Cloud. Here are some things
 to consider:
 
 - `curl`, `wget`, or `busybox` is required to download and run
-  [the agent](https://github.com/coder/coder/blob/main/provisionersdk/scripts/bootstrap_linux.sh)
+  [the agent](https://github.com/NeuralInverse/cloud/blob/main/provisionersdk/scripts/bootstrap_linux.sh)
 - `git` is recommended so developers can clone repositories
-- If the Coder server is using a certificate from an internal certificate
+- If the Neural Inverse Cloud server is using a certificate from an internal certificate
   authority (CA), you'll need to add or mount these into your image
 - Other generic utilities that will be required by all users, such as `ssh`,
   `docker`, `bash`, `jq`, and/or internal tooling
 - Consider creating (and starting the container with) a non-root user
 
-See Coder's
+See Neural Inverse Cloud's
 [example base image](https://github.com/coder/enterprise-images/tree/main/images/minimal)
 for reference.
 
@@ -43,7 +43,7 @@ Java, TypeScript), IDEs (VS Code, JetBrains, PyCharm), and other tools (e.g.
 `docker`). Unlike project-specific images (which are also important), general
 purpose images are great for:
 
-- **Scripting:** Developers may just want to hop in a Coder workspace to run
+- **Scripting:** Developers may just want to hop in a Neural Inverse Cloud workspace to run
   basic scripts or queries.
 - **Day 1 Onboarding:** New developers can quickly get started with a familiar
   environment without having to browse through (or create) an image

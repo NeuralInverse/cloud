@@ -20,11 +20,11 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	strings2 "github.com/coder/coder/v2/coderd/util/strings"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	strings2 "github.com/NeuralInverse/cloud/v2/nicloud/util/strings"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 const (
@@ -263,8 +263,8 @@ func (r *Runner) Done() <-chan struct{} {
 	return r.done
 }
 
-// Fail immediately halts updates and, if the job is not complete sends FailJob to the coder server. Running goroutines
-// are canceled but complete asynchronously (although they are prevented from further updating the job to the coder
+// Fail immediately halts updates and, if the job is not complete sends FailJob to the neuralinverse server. Running goroutines
+// are canceled but complete asynchronously (although they are prevented from further updating the job to the neuralinverse server
 // server). The provided context sets how long to keep trying to send the FailJob.
 func (r *Runner) Fail(ctx context.Context, f *proto.FailedJob) error {
 	f.JobId = r.job.JobId
@@ -309,7 +309,7 @@ func (r *Runner) setFail(f *proto.FailedJob) {
 	}
 }
 
-// ForceStop signals all goroutines to stop and prevents any further API calls back to coder server for this job
+// ForceStop signals all goroutines to stop and prevents any further API calls back to neuralinverse server for this job
 func (r *Runner) ForceStop() {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
@@ -467,7 +467,7 @@ func (r *Runner) configure(config *sdkproto.Config) *proto.FailedJob {
 	return nil
 }
 
-// heartbeatRoutine periodically sends updates on the job, which keeps coder server
+// heartbeatRoutine periodically sends updates on the job, which keeps neuralinverse server
 // from assuming the job is stalled, and allows the runner to learn if the job
 // has been canceled by the user.
 func (r *Runner) heartbeatRoutine(ctx context.Context) {
@@ -576,7 +576,7 @@ func (r *Runner) runTemplateImport(ctx context.Context) (*proto.CompletedJob, *p
 		CreatedAt: time.Now().UnixMilli(),
 	})
 	startProvision, err := r.runTemplateImportProvision(ctx, updateResponse.VariableValues, &sdkproto.Metadata{
-		CoderUrl:             r.job.GetTemplateImport().Metadata.CoderUrl,
+		NIUrl:             r.job.GetTemplateImport().Metadata.NIUrl,
 		WorkspaceOwnerGroups: r.job.GetTemplateImport().Metadata.WorkspaceOwnerGroups,
 		WorkspaceTransition:  sdkproto.WorkspaceTransition_START,
 	})
@@ -592,7 +592,7 @@ func (r *Runner) runTemplateImport(ctx context.Context) (*proto.CompletedJob, *p
 		CreatedAt: time.Now().UnixMilli(),
 	})
 	stopProvision, err := r.runTemplateImportProvision(ctx, updateResponse.VariableValues, &sdkproto.Metadata{
-		CoderUrl:             r.job.GetTemplateImport().Metadata.CoderUrl,
+		NIUrl:             r.job.GetTemplateImport().Metadata.NIUrl,
 		WorkspaceOwnerGroups: r.job.GetTemplateImport().Metadata.WorkspaceOwnerGroups,
 		WorkspaceTransition:  sdkproto.WorkspaceTransition_STOP,
 	})
@@ -600,7 +600,7 @@ func (r *Runner) runTemplateImport(ctx context.Context) (*proto.CompletedJob, *p
 		return nil, r.failedJobf("template import provision for stop: %s", err)
 	}
 
-	// For backwards compatibility with older versions of coderd
+	// For backwards compatibility with older versions of nicloud
 	externalAuthProviderNames := make([]string, 0, len(startProvision.ExternalAuthProviders))
 	for _, it := range startProvision.ExternalAuthProviders {
 		externalAuthProviderNames = append(externalAuthProviderNames, it.Id)
@@ -764,8 +764,8 @@ func (r *Runner) runTemplateDryRun(ctx context.Context) (*proto.CompletedJob, *p
 	// Ensure all metadata fields are set as they are all optional for dry-run.
 	metadata := r.job.GetTemplateDryRun().GetMetadata()
 	metadata.WorkspaceTransition = sdkproto.WorkspaceTransition_START
-	if metadata.CoderUrl == "" {
-		metadata.CoderUrl = "http://localhost:3000"
+	if metadata.NIUrl == "" {
+		metadata.NIUrl = "http://localhost:3000"
 	}
 	if metadata.WorkspaceName == "" {
 		metadata.WorkspaceName = "dryrun"
@@ -913,7 +913,7 @@ func (r *Runner) runWorkspaceBuild(ctx context.Context) (*proto.CompletedJob, *p
 	timings := make([]*sdkproto.Timing, 0)
 
 	var cachedModulesTar []byte
-	// Download modules if cached in coderd
+	// Download modules if cached in nicloud
 	if r.job.GetWorkspaceBuild().Metadata.TemplateVersionModulesFile != "" {
 		fileID, err := uuid.Parse(r.job.GetWorkspaceBuild().Metadata.TemplateVersionModulesFile)
 		if err != nil {
@@ -1148,7 +1148,7 @@ func (r *Runner) failedJobf(format string, args ...interface{}) *proto.FailedJob
 
 func (r *Runner) startTrace(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return r.tracer.Start(ctx, name, append(opts, trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd"),
+		semconv.ServiceNameKey.String("nicloud.provisionerd"),
 		attribute.String("job_id", r.job.JobId),
 	))...)
 }

@@ -31,13 +31,13 @@ provider "google" {
   project = var.project_id
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 data "google_compute_default_service_account" "default" {}
 
 resource "google_compute_disk" "root" {
-  name  = "coder-${data.coder_workspace.me.id}-root"
+  name  = "coder-${data.ni_workspace.me.id}-root"
   type  = "pd-ssd"
   zone  = module.gcp_region.value
   image = "projects/windows-cloud/global/images/windows-server-2022-dc-core-v20220215"
@@ -46,7 +46,7 @@ resource "google_compute_disk" "root" {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   auth = "google-instance-identity"
   arch = "amd64"
   os   = "windows"
@@ -54,8 +54,8 @@ resource "coder_agent" "main" {
 
 resource "google_compute_instance" "dev" {
   zone         = module.gcp_region.value
-  count        = data.coder_workspace.me.start_count
-  name         = "coder-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
+  count        = data.ni_workspace.me.start_count
+  name         = "coder-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
   machine_type = "e2-medium"
   network_interface {
     network = "default"
@@ -72,12 +72,12 @@ resource "google_compute_instance" "dev" {
     scopes = ["cloud-platform"]
   }
   metadata = {
-    windows-startup-script-ps1 = coder_agent.main.init_script
+    windows-startup-script-ps1 = ni_agent.main.init_script
     serial-port-enable         = "TRUE"
   }
 }
 resource "coder_metadata" "workspace_info" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = google_compute_instance.dev[0].id
 
   item {

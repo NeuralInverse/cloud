@@ -22,8 +22,8 @@ import (
 	"golang.org/x/exp/constraints"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -31,11 +31,11 @@ const (
 	sshDefaultConfigFileName = "~/.ssh/config"
 	sshStartToken            = "# ------------START-CODER-----------"
 	sshEndToken              = "# ------------END-CODER------------"
-	sshConfigSectionHeader   = "# This section is managed by coder. DO NOT EDIT."
+	sshConfigSectionHeader   = "# This section is managed by neuralinverse. DO NOT EDIT."
 	sshConfigDocsHeader      = `
 #
 # You should not hand-edit this section unless you are removing it, all
-# changes will be lost when running "coder config-ssh".
+# changes will be lost when running "neuralinverse config-ssh".
 `
 	sshConfigOptionsHeader = `#
 # Last config-ssh options:
@@ -43,7 +43,7 @@ const (
 )
 
 // sshConfigOptions represents options that can be stored and read
-// from the coder config in ~/.ssh/coder.
+// from the neuralinverse config in ~/.ssh/coder.
 type sshConfigOptions struct {
 	waitEnum string
 	// Deprecated: moving away from prefix to hostnameSuffix
@@ -55,7 +55,7 @@ type sshConfigOptions struct {
 	headerCommand       string
 	removedKeys         map[string]bool
 	globalConfigPath    string
-	coderBinaryPath     string
+	niBinaryPath     string
 	skipProxyCommand    bool
 	forceUnixSeparators bool
 }
@@ -74,7 +74,7 @@ func (o *sshConfigOptions) addOptions(options ...string) error {
 }
 
 func (o *sshConfigOptions) addOption(option string) error {
-	key, value, err := codersdk.ParseSSHConfigOption(option)
+	key, value, err := nicloudsdk.ParseSSHConfigOption(option)
 	if err != nil {
 		return err
 	}
@@ -111,14 +111,14 @@ func (o sshConfigOptions) equal(other sshConfigOptions) bool {
 }
 
 func (o sshConfigOptions) writeToBuffer(buf *bytes.Buffer) error {
-	escapedCoderBinaryProxy, err := sshConfigProxyCommandEscape(o.coderBinaryPath, o.forceUnixSeparators)
+	escapedNIBinaryProxy, err := sshConfigProxyCommandEscape(o.niBinaryPath, o.forceUnixSeparators)
 	if err != nil {
-		return xerrors.Errorf("escape coder binary for ProxyCommand failed: %w", err)
+		return xerrors.Errorf("escape neuralinverse binary for ProxyCommand failed: %w", err)
 	}
 
-	escapedCoderBinaryMatchExec, err := sshConfigMatchExecEscape(o.coderBinaryPath)
+	escapedCoderBinaryMatchExec, err := sshConfigMatchExecEscape(o.niBinaryPath)
 	if err != nil {
-		return xerrors.Errorf("escape coder binary for Match exec failed: %w", err)
+		return xerrors.Errorf("escape neuralinverse binary for Match exec failed: %w", err)
 	}
 
 	escapedGlobalConfig, err := sshConfigProxyCommandEscape(o.globalConfigPath, o.forceUnixSeparators)
@@ -159,7 +159,7 @@ func (o sshConfigOptions) writeToBuffer(buf *bytes.Buffer) error {
 			_, _ = buf.WriteString("\t")
 			_, _ = fmt.Fprintf(buf,
 				"ProxyCommand %s %s ssh --stdio%s --ssh-host-prefix %s %%h",
-				escapedCoderBinaryProxy, rootFlags, flags, o.userHostPrefix,
+				escapedNIBinaryProxy, rootFlags, flags, o.userHostPrefix,
 			)
 			_, _ = buf.WriteString("\n")
 		}
@@ -175,14 +175,14 @@ func (o sshConfigOptions) writeToBuffer(buf *bytes.Buffer) error {
 		_, _ = buf.WriteString(v)
 		_, _ = buf.WriteString("\n")
 	}
-	// the ^^ options should always apply, but we only want to use the proxy command if Coder Connect is not running.
+	// the ^^ options should always apply, but we only want to use the proxy command if Neural Inverse Cloud Connect is not running.
 	if !o.skipProxyCommand {
 		_, _ = fmt.Fprintf(buf, "\nMatch host *.%s !exec \"%s connect exists %%h\"\n",
 			o.hostnameSuffix, escapedCoderBinaryMatchExec)
 		_, _ = buf.WriteString("\t")
 		_, _ = fmt.Fprintf(buf,
 			"ProxyCommand %s %s ssh --stdio%s --hostname-suffix %s %%h",
-			escapedCoderBinaryProxy, rootFlags, flags, o.hostnameSuffix,
+			escapedNIBinaryProxy, rootFlags, flags, o.hostnameSuffix,
 		)
 		_, _ = buf.WriteString("\n")
 	}
@@ -238,15 +238,15 @@ func (r *RootCmd) configSSH() *serpent.Command {
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "config-ssh",
-		Short:       "Add an SSH Host entry for your workspaces \"ssh workspace.coder\"",
+		Short:       "Add an SSH Host entry for your workspaces \"ssh workspace.neuralinverse\"",
 		Long: FormatExamples(
 			Example{
 				Description: "You can use -o (or --ssh-option) so set SSH options to be used for all your workspaces",
-				Command:     "coder config-ssh -o ForwardAgent=yes",
+				Command:     "neuralinverse config-ssh -o ForwardAgent=yes",
 			},
 			Example{
 				Description: "You can use --dry-run (or -n) to see the changes that would be made",
-				Command:     "coder config-ssh --dry-run",
+				Command:     "neuralinverse config-ssh --dry-run",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -312,7 +312,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 			// Parse the previous configuration only if config-ssh
 			// has been run previously.
 			var lastConfig *sshConfigOptions
-			section, ok, err := sshConfigGetCoderSection(configRaw)
+			section, ok, err := sshConfigGetNISection(configRaw)
 			if err != nil {
 				return err
 			}
@@ -329,7 +329,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				for _, v := range sshConfigOpts.sshOptions {
 					// If the user passes an invalid option, we should catch
 					// this early.
-					if _, _, err := codersdk.ParseSSHConfigOption(v); err != nil {
+					if _, _, err := nicloudsdk.ParseSSHConfigOption(v); err != nil {
 						return xerrors.Errorf("invalid option from flag: %w", err)
 					}
 				}
@@ -366,7 +366,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 			configModified := configRaw
 
 			buf := &bytes.Buffer{}
-			before, _, after, err := sshConfigSplitOnCoderSection(configModified)
+			before, _, after, err := sshConfigSplitOnNISection(configModified)
 			if err != nil {
 				return err
 			}
@@ -378,20 +378,20 @@ func (r *RootCmd) configSSH() *serpent.Command {
 			newline := len(before) > 0
 			sshConfigWriteSectionHeader(buf, newline, sshConfigOpts)
 
-			coderdConfig, err := client.SSHConfiguration(ctx)
+			nicloudConfig, err := client.SSHConfiguration(ctx)
 			if err != nil {
 				// If the error is 404, this deployment does not support
 				// this endpoint yet. Do not error, just assume defaults.
 				// TODO: Remove this in 2 months (May 31, 2023). Just return the error
 				// 	and remove this 404 check.
-				var sdkErr *codersdk.Error
+				var sdkErr *nicloudsdk.Error
 				if !(xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound) {
-					return xerrors.Errorf("fetch coderd config failed: %w", err)
+					return xerrors.Errorf("fetch nicloud config failed: %w", err)
 				}
-				coderdConfig.HostnamePrefix = "coder."
+				nicloudConfig.HostnamePrefix = "coder."
 			}
 
-			configOptions, err := mergeSSHOptions(sshConfigOpts, coderdConfig, string(root), coderBinary)
+			configOptions, err := mergeSSHOptions(sshConfigOpts, nicloudConfig, string(root), coderBinary)
 			if err != nil {
 				return err
 			}
@@ -406,7 +406,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 			_, _ = buf.Write(after)
 
 			if !bytes.Equal(configModified, buf.Bytes()) {
-				changes = append(changes, fmt.Sprintf("Update the coder section in %s", sshConfigFile))
+				changes = append(changes, fmt.Sprintf("Update the neuralinverse section in %s", sshConfigFile))
 				configModified = buf.Bytes()
 			}
 
@@ -458,8 +458,8 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				_, _ = fmt.Fprintf(out, "Updated %q\n", sshConfigFile)
 			}
 
-			res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
-				Owner: codersdk.Me,
+			res, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{
+				Owner: nicloudsdk.Me,
 				Limit: 1,
 			})
 			if err != nil {
@@ -474,7 +474,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 					_, _ = fmt.Fprintf(out, "For example, try running:\n\n\t$ ssh %s%s\n", configOptions.userHostPrefix, res.Workspaces[0].Name)
 				}
 			} else {
-				_, _ = fmt.Fprint(out, "You don't have any workspaces yet, try creating one with:\n\n\t$ coder create <workspace>\n")
+				_, _ = fmt.Fprint(out, "You don't have any workspaces yet, try creating one with:\n\n\t$ neuralinverse create <workspace>\n")
 			}
 			return nil
 		},
@@ -483,16 +483,16 @@ func (r *RootCmd) configSSH() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "ssh-config-file",
-			Env:         "CODER_SSH_CONFIG_FILE",
+			Env:         "NEURALINVERSE_SSH_CONFIG_FILE",
 			Default:     sshDefaultConfigFileName,
 			Description: "Specifies the path to an SSH config.",
 			Value:       serpent.StringOf(&sshConfigFile),
 		},
 		{
-			Flag:    "coder-binary-path",
-			Env:     "CODER_SSH_CONFIG_BINARY_PATH",
+			Flag:    "neuralinverse-binary-path",
+			Env:     "NEURALINVERSE_SSH_CONFIG_BINARY_PATH",
 			Default: "",
-			Description: "Optionally specify the absolute path to the coder binary used in ProxyCommand. " +
+			Description: "Optionally specify the absolute path to the neuralinverse binary used in ProxyCommand. " +
 				"By default, the binary invoking this command ('config ssh') is used.",
 			Value: serpent.Validate(serpent.StringOf(&coderCliPath), func(value *serpent.String) error {
 				if runtime.GOOS == goosWindows {
@@ -501,7 +501,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 				}
 				absolute := filepath.IsAbs(value.String())
 				if !absolute {
-					return xerrors.Errorf("coder cli path must be an absolute path")
+					return xerrors.Errorf("neuralinverse cli path must be an absolute path")
 				}
 				return nil
 			}),
@@ -509,45 +509,45 @@ func (r *RootCmd) configSSH() *serpent.Command {
 		{
 			Flag:          "ssh-option",
 			FlagShorthand: "o",
-			Env:           "CODER_SSH_CONFIG_OPTS",
+			Env:           "NEURALINVERSE_SSH_CONFIG_OPTS",
 			Description:   "Specifies additional SSH options to embed in each host stanza.",
 			Value:         serpent.StringArrayOf(&sshConfigOpts.sshOptions),
 		},
 		{
 			Flag:          "dry-run",
 			FlagShorthand: "n",
-			Env:           "CODER_SSH_DRY_RUN",
+			Env:           "NEURALINVERSE_SSH_DRY_RUN",
 			Description:   "Perform a trial run with no changes made, showing a diff at the end.",
 			Value:         serpent.BoolOf(&dryRun),
 		},
 		{
 			Flag:        "skip-proxy-command",
-			Env:         "CODER_SSH_SKIP_PROXY_COMMAND",
+			Env:         "NEURALINVERSE_SSH_SKIP_PROXY_COMMAND",
 			Description: "Specifies whether the ProxyCommand option should be skipped. Useful for testing.",
 			Value:       serpent.BoolOf(&sshConfigOpts.skipProxyCommand),
 			Hidden:      true,
 		},
 		{
 			Flag:        "use-previous-options",
-			Env:         "CODER_SSH_USE_PREVIOUS_OPTIONS",
+			Env:         "NEURALINVERSE_SSH_USE_PREVIOUS_OPTIONS",
 			Description: "Specifies whether or not to keep options from previous run of config-ssh.",
 			Value:       serpent.BoolOf(&usePreviousOpts),
 		},
 		{
 			Flag:        "ssh-host-prefix",
-			Env:         "CODER_CONFIGSSH_SSH_HOST_PREFIX",
+			Env:         "NEURALINVERSE_CONFIGSSH_SSH_HOST_PREFIX",
 			Description: "Override the default host prefix.",
 			Value:       serpent.StringOf(&sshConfigOpts.userHostPrefix),
 		},
 		{
 			Flag:        "hostname-suffix",
-			Env:         "CODER_CONFIGSSH_HOSTNAME_SUFFIX",
+			Env:         "NEURALINVERSE_CONFIGSSH_HOSTNAME_SUFFIX",
 			Description: "Override the default hostname suffix.",
 			Value:       serpent.StringOf(&sshConfigOpts.hostnameSuffix),
 		},
 		{
 			Flag:        "wait",
-			Env:         "CODER_CONFIGSSH_WAIT", // Not to be mixed with CODER_SSH_WAIT.
+			Env:         "NEURALINVERSE_CONFIGSSH_WAIT", // Not to be mixed with NEURALINVERSE_SSH_WAIT.
 			Description: "Specifies whether or not to wait for the startup script to finish executing. Auto means that the agent startup script behavior configured in the workspace template is used.",
 			Default:     "auto",
 			Value:       serpent.EnumOf(&sshConfigOpts.waitEnum, "yes", "no", "auto"),
@@ -555,13 +555,13 @@ func (r *RootCmd) configSSH() *serpent.Command {
 		{
 			Flag:        "disable-autostart",
 			Description: "Disable starting the workspace automatically when connecting via SSH.",
-			Env:         "CODER_CONFIGSSH_DISABLE_AUTOSTART",
+			Env:         "NEURALINVERSE_CONFIGSSH_DISABLE_AUTOSTART",
 			Value:       serpent.BoolOf(&sshConfigOpts.disableAutostart),
 			Default:     "false",
 		},
 		{
 			Flag: "force-unix-filepaths",
-			Env:  "CODER_CONFIGSSH_UNIX_FILEPATHS",
+			Env:  "NEURALINVERSE_CONFIGSSH_UNIX_FILEPATHS",
 			Description: "By default, 'config-ssh' uses the os path separator when writing the ssh config. " +
 				"This might be an issue in Windows machine that use a unix-like shell. " +
 				"This flag forces the use of unix file paths (the forward slash '/').",
@@ -574,7 +574,7 @@ func (r *RootCmd) configSSH() *serpent.Command {
 }
 
 func mergeSSHOptions(
-	user sshConfigOptions, coderd codersdk.SSHConfigResponse, globalConfigPath, coderBinaryPath string,
+	user sshConfigOptions, nicloud nicloudsdk.SSHConfigResponse, globalConfigPath, niBinaryPath string,
 ) (
 	sshConfigOptions, error,
 ) {
@@ -595,13 +595,13 @@ func mergeSSHOptions(
 	configOptions.sshOptions = nil
 
 	configOptions.globalConfigPath = globalConfigPath
-	configOptions.coderBinaryPath = coderBinaryPath
+	configOptions.niBinaryPath = niBinaryPath
 	// user config takes precedence
 	if user.userHostPrefix == "" {
-		configOptions.userHostPrefix = coderd.HostnamePrefix
+		configOptions.userHostPrefix = nicloud.HostnamePrefix
 	}
 	if user.hostnameSuffix == "" {
-		configOptions.hostnameSuffix = coderd.HostnameSuffix
+		configOptions.hostnameSuffix = nicloud.HostnameSuffix
 	}
 
 	// User options first (SSH only uses the first
@@ -615,11 +615,11 @@ func mergeSSHOptions(
 
 	// Deployment options second, allow them to
 	// override standard options.
-	for k, v := range coderd.SSHConfigOptions {
+	for k, v := range nicloud.SSHConfigOptions {
 		opt := fmt.Sprintf("%s %s", k, v)
 		err := configOptions.addOptions(opt)
 		if err != nil {
-			return sshConfigOptions{}, xerrors.Errorf("add coderd config option %q: %w", opt, err)
+			return sshConfigOptions{}, xerrors.Errorf("add nicloud config option %q: %w", opt, err)
 		}
 	}
 
@@ -711,10 +711,10 @@ func sshConfigParseLastOptions(r io.Reader) (o sshConfigOptions) {
 	return o
 }
 
-// sshConfigGetCoderSection is a helper function that only returns the coder
+// sshConfigGetNeural Inverse CloudSection is a helper function that only returns the coder
 // section of the SSH config and a boolean if it exists.
-func sshConfigGetCoderSection(data []byte) (section []byte, ok bool, err error) {
-	_, section, _, err = sshConfigSplitOnCoderSection(data)
+func sshConfigGetNISection(data []byte) (section []byte, ok bool, err error) {
+	_, section, _, err = sshConfigSplitOnNISection(data)
 	if err != nil {
 		return nil, false, err
 	}
@@ -722,14 +722,14 @@ func sshConfigGetCoderSection(data []byte) (section []byte, ok bool, err error) 
 	return section, len(section) > 0, nil
 }
 
-// sshConfigSplitOnCoderSection splits the SSH config into 3 sections.
-// All lines before sshStartToken, the coder section, and all lines after
+// sshConfigSplitOnNeural Inverse CloudSection splits the SSH config into 3 sections.
+// All lines before sshStartToken, the neuralinverse section, and all lines after
 // sshEndToken.
-func sshConfigSplitOnCoderSection(data []byte) (before, section []byte, after []byte, err error) {
+func sshConfigSplitOnNISection(data []byte) (before, section []byte, after []byte, err error) {
 	startCount := bytes.Count(data, []byte(sshStartToken))
 	endCount := bytes.Count(data, []byte(sshEndToken))
 	if startCount > 1 || endCount > 1 {
-		return nil, nil, nil, xerrors.New("Malformed config: ssh config has multiple coder sections, please remove all but one")
+		return nil, nil, nil, xerrors.New("Malformed config: ssh config has multiple neuralinverse sections, please remove all but one")
 	}
 
 	startIndex := bytes.Index(data, []byte(sshStartToken))
@@ -742,7 +742,7 @@ func sshConfigSplitOnCoderSection(data []byte) (before, section []byte, after []
 	}
 	if startIndex != -1 && endIndex != -1 {
 		if startIndex > endIndex {
-			return nil, nil, nil, xerrors.New("Malformed config: ssh config has coder section, but it is malformed and the END header is before the START header")
+			return nil, nil, nil, xerrors.New("Malformed config: ssh config has neuralinverse section, but it is malformed and the END header is before the START header")
 		}
 		// We use -1 and +1 here to also include the preceding
 		// and trailing newline, where applicable.
@@ -773,11 +773,11 @@ func sshConfigSplitOnCoderSection(data []byte) (before, section []byte, after []
 //
 // Given the following ProxyCommand:
 //
-//	ProxyCommand "/path/with space/coder" ssh --stdio work
+//	ProxyCommand "/path/with space/neuralinverse" ssh --stdio work
 //
 // This is ~what OpenSSH would execute:
 //
-//	/bin/bash -c '"/path/with space/to/coder" ssh --stdio workspace'
+//	/bin/bash -c '"/path/with space/to/neuralinverse" ssh --stdio workspace'
 //
 // However, since it's actually an arg in C, the contents inside the
 // single quotes are interpreted as is, e.g. if there was a '\t', it
@@ -831,7 +831,7 @@ func sshConfigProxyCommandEscape(path string, forceUnixPath bool) (string, error
 	return path, nil
 }
 
-// currentBinPath returns the path to the coder binary suitable for use in ssh
+// currentBinPath returns the path to the neuralinverse binary suitable for use in ssh
 // ProxyCommand.
 func currentBinPath(w io.Writer) (string, error) {
 	exePath, err := os.Executable()

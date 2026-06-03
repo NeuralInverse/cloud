@@ -13,11 +13,11 @@ import (
 	"golang.org/x/term"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/pty"
 	"github.com/coder/serpent"
 )
 
@@ -82,7 +82,7 @@ type handleRPTYArgs struct {
 	ReconnectID    string
 }
 
-func handleRPTY(inv *serpent.Invocation, client *codersdk.Client, args handleRPTYArgs) error {
+func handleRPTY(inv *serpent.Invocation, client *nicloudsdk.Client, args handleRPTYArgs) error {
 	ctx, cancel := context.WithCancel(inv.Context())
 	defer cancel()
 
@@ -166,9 +166,9 @@ func handleRPTY(inv *serpent.Invocation, client *codersdk.Client, args handleRPT
 	}
 	defer conn.Close()
 
-	closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, ws.ID, codersdk.PostWorkspaceUsageRequest{
+	closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, ws.ID, nicloudsdk.PostWorkspaceUsageRequest{
 		AgentID: agt.ID,
-		AppName: codersdk.UsageAppNameReconnectingPty,
+		AppName: nicloudsdk.UsageAppNameReconnectingPty,
 	})
 	defer closeUsage()
 

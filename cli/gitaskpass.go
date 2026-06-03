@@ -11,10 +11,10 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/gitauth"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/gitauth"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
 	"github.com/coder/retry"
 	"github.com/coder/serpent"
 )
@@ -42,7 +42,7 @@ func detectGitRef(workingDirectory string) (branch string, remoteOrigin string) 
 	return branch, remoteOrigin
 }
 
-// gitAskpass is used by the Coder agent to automatically authenticate
+// gitAskpass is used by the Neural Inverse Cloud agent to automatically authenticate
 // with Git providers based on a hostname.
 func gitAskpass(agentAuth *AgentAuth) *serpent.Command {
 	cmd := &serpent.Command{
@@ -78,12 +78,12 @@ func gitAskpass(agentAuth *AgentAuth) *serpent.Command {
 				Match:           host,
 				GitBranch:       gitBranch,
 				GitRemoteOrigin: gitRemoteOrigin,
-				ChatID:          inv.Environ.Get("CODER_CHAT_ID"),
+				ChatID:          inv.Environ.Get("NEURALINVERSE_CHAT_ID"),
 			})
 			if err != nil {
-				var apiError *codersdk.Error
+				var apiError *nicloudsdk.Error
 				if errors.As(err, &apiError) && apiError.StatusCode() == http.StatusNotFound {
-					// This prevents the "Run 'coder --help' for usage"
+					// This prevents the "Run 'neuralinverse --help' for usage"
 					// message from occurring.
 					lines := []string{apiError.Message}
 					if apiError.Detail != "" {
@@ -98,7 +98,7 @@ func gitAskpass(agentAuth *AgentAuth) *serpent.Command {
 			}
 			if token.URL != "" {
 				// This is to help the agent authenticate with Git.
-				if inv.Environ.Get("CODER_CHAT_AGENT") == "true" {
+				if inv.Environ.Get("NEURALINVERSE_CHAT_AGENT") == "true" {
 					_, _ = fmt.Fprintf(inv.Stderr, `You must notify the user to authenticate with Git.\n\nThe URL is: %s\n`, token.URL)
 					return cliui.ErrCanceled
 				}

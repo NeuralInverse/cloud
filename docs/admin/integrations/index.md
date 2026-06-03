@@ -1,6 +1,6 @@
 # Integrations
 
-Coder is highly extensible and is not limited to the platforms outlined in these
+Neural Inverse Cloud is highly extensible and is not limited to the platforms outlined in these
 docs. The control plane can be provisioned on any VM or container compute, and
 workspaces can include any Terraform resource. See our
 [architecture diagram](../infrastructure/architecture.md) for more details.
@@ -10,9 +10,9 @@ our [installation guides](../../install/index.md).
 
 <children></children>
 
-The following resources may help as you're deploying Coder.
+The following resources may help as you're deploying Neural Inverse Cloud.
 
-- [Coder packages: one-click install on cloud providers](https://github.com/coder/packages)
-- [Deploy Coder Air-gapped](../../install/airgap.md)
+- [Neural Inverse Cloud packages: one-click install on cloud providers](https://github.com/coder/packages)
+- [Deploy Neural Inverse Cloud Air-gapped](../../install/airgap.md)
 - [Supported resources (Terraform registry)](https://registry.terraform.io)
 - [Writing custom templates](../templates/index.md)

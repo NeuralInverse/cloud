@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/aibridge/mcp"
+	"github.com/NeuralInverse/cloud/v2/aibridge/mcp"
 )
 
 func TestGetClientInfo(t *testing.T) {

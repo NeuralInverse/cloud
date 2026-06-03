@@ -17,14 +17,14 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/config"
-	aibcontext "github.com/coder/coder/v2/aibridge/context"
-	"github.com/coder/coder/v2/aibridge/intercept"
-	"github.com/coder/coder/v2/aibridge/intercept/apidump"
-	"github.com/coder/coder/v2/aibridge/keypool"
-	"github.com/coder/coder/v2/aibridge/mcp"
-	"github.com/coder/coder/v2/aibridge/recorder"
-	"github.com/coder/coder/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	aibcontext "github.com/NeuralInverse/cloud/v2/aibridge/context"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept/apidump"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/mcp"
+	"github.com/NeuralInverse/cloud/v2/aibridge/recorder"
+	"github.com/NeuralInverse/cloud/v2/aibridge/tracing"
 	"github.com/coder/quartz"
 )
 
@@ -125,7 +125,7 @@ func (i *interceptionBase) baseTraceAttributes(r *http.Request, streaming bool) 
 
 func (i *interceptionBase) Model() string {
 	if i.req == nil {
-		return "coder-aibridge-unknown"
+		return "neuralinverse-aibridge-unknown"
 	}
 
 	return i.req.Model

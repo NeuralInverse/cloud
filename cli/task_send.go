@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 )
@@ -25,10 +25,10 @@ func (r *RootCmd) taskSend() *serpent.Command {
 ` +
 			FormatExamples(Example{
 				Description: "Send direct input to a task",
-				Command:     `coder task send task1 "Please also add unit tests"`,
+				Command:     `neuralinverse task send task1 "Please also add unit tests"`,
 			}, Example{
 				Description: "Send input from stdin to a task",
-				Command:     `echo "Please also add unit tests" | coder task send task1 --stdin`,
+				Command:     `echo "Please also add unit tests" | neuralinverse task send task1 --stdin`,
 			}),
 		Middleware: serpent.RequireRangeArgs(1, 2),
 		Options: serpent.OptionSet{
@@ -79,10 +79,10 @@ func (r *RootCmd) taskSend() *serpent.Command {
 			var workspaceBuildID uuid.UUID
 
 			switch task.Status {
-			case codersdk.TaskStatusActive:
+			case nicloudsdk.TaskStatusActive:
 				// Already active, no build to watch.
 
-			case codersdk.TaskStatusPaused:
+			case nicloudsdk.TaskStatusPaused:
 				resp, err := client.ResumeTask(ctx, task.OwnerName, task.ID)
 				if err != nil {
 					return xerrors.Errorf("resume task %q: %w", display, err)
@@ -92,7 +92,7 @@ func (r *RootCmd) taskSend() *serpent.Command {
 
 				workspaceBuildID = resp.WorkspaceBuild.ID
 
-			case codersdk.TaskStatusInitializing:
+			case nicloudsdk.TaskStatusInitializing:
 				if !task.WorkspaceID.Valid {
 					return xerrors.Errorf("send input to task %q: task has no backing workspace", display)
 				}
@@ -112,7 +112,7 @@ func (r *RootCmd) taskSend() *serpent.Command {
 				return xerrors.Errorf("wait for task %q to be idle: %w", display, err)
 			}
 
-			if err := client.TaskSend(ctx, codersdk.Me, task.ID, codersdk.TaskSendRequest{Input: taskInput}); err != nil {
+			if err := client.TaskSend(ctx, nicloudsdk.Me, task.ID, nicloudsdk.TaskSendRequest{Input: taskInput}); err != nil {
 				return xerrors.Errorf("send input to task %q: %w", display, err)
 			}
 
@@ -127,7 +127,7 @@ func (r *RootCmd) taskSend() *serpent.Command {
 // then polls until the task becomes active and its app state is idle.
 // This merges build-watching and idle-polling into a single loop so
 // that status changes (e.g. paused) are never missed between phases.
-func waitForTaskIdle(ctx context.Context, inv *serpent.Invocation, clk quartz.Clock, client *codersdk.Client, task codersdk.Task, workspaceBuildID uuid.UUID) error {
+func waitForTaskIdle(ctx context.Context, inv *serpent.Invocation, clk quartz.Clock, client *nicloudsdk.Client, task nicloudsdk.Task, workspaceBuildID uuid.UUID) error {
 	if workspaceBuildID != uuid.Nil {
 		if err := cliui.WorkspaceBuild(ctx, inv.Stdout, client, workspaceBuildID); err != nil {
 			return xerrors.Errorf("watch workspace build: %w", err)
@@ -178,11 +178,11 @@ func waitForTaskIdle(ctx context.Context, inv *serpent.Invocation, clk quartz.Cl
 			}
 
 			switch task.Status {
-			case codersdk.TaskStatusInitializing,
-				codersdk.TaskStatusPending:
+			case nicloudsdk.TaskStatusInitializing,
+				nicloudsdk.TaskStatusPending:
 				// Not yet active, keep polling.
 				continue
-			case codersdk.TaskStatusActive:
+			case nicloudsdk.TaskStatusActive:
 				// Task is active; check app state.
 				if task.CurrentState == nil {
 					// The MCP may not have reported state yet.
@@ -200,21 +200,21 @@ func waitForTaskIdle(ctx context.Context, inv *serpent.Invocation, clk quartz.Cl
 				// state report.
 				nilStateDeadline = time.Time{}
 				switch task.CurrentState.State {
-				case codersdk.TaskStateIdle,
-					codersdk.TaskStateComplete,
-					codersdk.TaskStateFailed:
+				case nicloudsdk.TaskStateIdle,
+					nicloudsdk.TaskStateComplete,
+					nicloudsdk.TaskStateFailed:
 					return nil
 				default:
 					// Still working, keep polling.
 					continue
 				}
-			case codersdk.TaskStatusError:
+			case nicloudsdk.TaskStatusError:
 				if time.Now().After(gracePeriodDeadline) {
 					return xerrors.Errorf("task entered %s state while waiting for it to become idle", task.Status)
 				}
-			case codersdk.TaskStatusPaused:
+			case nicloudsdk.TaskStatusPaused:
 				return xerrors.Errorf("task was paused while waiting for it to become idle")
-			case codersdk.TaskStatusUnknown:
+			case nicloudsdk.TaskStatusUnknown:
 				return xerrors.Errorf("task entered %s state while waiting for it to become idle", task.Status)
 			default:
 				return xerrors.Errorf("task entered unexpected state (%s) while waiting for it to become idle", task.Status)

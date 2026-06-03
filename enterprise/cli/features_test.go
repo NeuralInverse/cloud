@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestFeaturesList(t *testing.T) {
@@ -21,8 +21,8 @@ func TestFeaturesList(t *testing.T) {
 	t.Run("Table", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{DontAddLicense: true})
+		anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "features", "list")
 		clitest.SetupConfig(t, anotherClient, conf)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -33,8 +33,8 @@ func TestFeaturesList(t *testing.T) {
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{DontAddLicense: true})
+		anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "features", "list", "-o", "json")
 		clitest.SetupConfig(t, anotherClient, conf)
 		doneChan := make(chan struct{})
@@ -49,12 +49,12 @@ func TestFeaturesList(t *testing.T) {
 
 		<-doneChan
 
-		var entitlements codersdk.Entitlements
+		var entitlements nicloudsdk.Entitlements
 		err := json.Unmarshal(buf.Bytes(), &entitlements)
 		require.NoError(t, err, "unmarshal JSON output")
 		assert.Empty(t, entitlements.Warnings)
-		for _, featureName := range codersdk.FeatureNames {
-			assert.Equal(t, codersdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
+		for _, featureName := range nicloudsdk.FeatureNames {
+			assert.Equal(t, nicloudsdk.EntitlementNotEntitled, entitlements.Features[featureName].Entitlement)
 		}
 		assert.False(t, entitlements.HasLicense)
 	})

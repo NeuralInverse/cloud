@@ -14,7 +14,7 @@ terraform {
 
 # Last updated 2023-03-14
 # aws ec2 describe-regions | jq -r '[.Regions[].RegionName] | sort'
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name         = "region"
   display_name = "Region"
   description  = "The region to deploy the workspace in."
@@ -107,7 +107,7 @@ data "coder_parameter" "region" {
   }
 }
 
-data "coder_parameter" "instance_type" {
+data "ni_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
   description  = "What instance type should your workspace use?"
@@ -140,11 +140,11 @@ data "coder_parameter" "instance_type" {
 }
 
 provider "aws" {
-  region = data.coder_parameter.region.value
+  region = data.ni_parameter.region.value
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -159,8 +159,8 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "coder_agent" "dev" {
-  count          = data.coder_workspace.me.start_count
+resource "ni_agent" "dev" {
+  count          = data.ni_workspace.me.start_count
   arch           = "amd64"
   auth           = "aws-instance-identity"
   os             = "linux"
@@ -195,28 +195,28 @@ resource "coder_agent" "dev" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/modules/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.dev[0].id
+  agent_id = ni_agent.dev[0].id
   order    = 1
 }
 
 # See https://registry.coder.com/modules/coder/jetbrains
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
-  agent_id   = coder_agent.dev[0].id
+  agent_id   = ni_agent.dev[0].id
   agent_name = "dev"
   folder     = "/home/coder"
 }
 
 locals {
-  hostname   = lower(data.coder_workspace.me.name)
+  hostname   = lower(data.ni_workspace.me.name)
   linux_user = "coder"
 }
 
@@ -243,19 +243,19 @@ data "cloudinit_config" "user_data" {
     content = templatefile("${path.module}/cloud-init/userdata.sh.tftpl", {
       linux_user = local.linux_user
 
-      init_script = try(coder_agent.dev[0].init_script, "")
+      init_script = try(ni_agent.dev[0].init_script, "")
     })
   }
 }
 
 resource "aws_instance" "dev" {
   ami               = data.aws_ami.ubuntu.id
-  availability_zone = "${data.coder_parameter.region.value}a"
-  instance_type     = data.coder_parameter.instance_type.value
+  availability_zone = "${data.ni_parameter.region.value}a"
+  instance_type     = data.ni_parameter.instance_type.value
 
   user_data = data.cloudinit_config.user_data.rendered
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
     # Required if you are using our example policy, see template README
     Coder_Provisioned = "true"
   }
@@ -268,7 +268,7 @@ resource "coder_metadata" "workspace_info" {
   resource_id = aws_instance.dev.id
   item {
     key   = "region"
-    value = data.coder_parameter.region.value
+    value = data.ni_parameter.region.value
   }
   item {
     key   = "instance type"
@@ -282,5 +282,5 @@ resource "coder_metadata" "workspace_info" {
 
 resource "aws_ec2_instance_state" "dev" {
   instance_id = aws_instance.dev.id
-  state       = data.coder_workspace.me.transition == "start" ? "running" : "stopped"
+  state       = data.ni_workspace.me.transition == "start" ? "running" : "stopped"
 }

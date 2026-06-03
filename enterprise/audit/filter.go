@@ -3,7 +3,7 @@ package audit
 import (
 	"context"
 
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
 )
 
 // FilterDecision is a bitwise flag describing the actions a given filter allows
@@ -15,10 +15,10 @@ const (
 	// should not be stored or exported anywhere.
 	FilterDecisionDrop FilterDecision = 0
 	// FilterDecisionStore indicates that the audit log should be allowed to be
-	// stored in the Coder database.
+	// stored in the Neural Inverse Cloud database.
 	FilterDecisionStore FilterDecision = 1 << iota
 	// FilterDecisionExport indicates that the audit log should be exported
-	// externally of Coder.
+	// externally of Neural Inverse Cloud.
 	FilterDecisionExport
 )
 

@@ -12,10 +12,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 )
 
 // Runner executes a single chat conversation as part of a scaletest run.
@@ -30,7 +30,7 @@ type Runner struct {
 	turnStartTime      time.Time
 	currentPhase       string
 	lastStreamError    string
-	lastStatus         codersdk.ChatStatus
+	lastStatus         nicloudsdk.ChatStatus
 	sawTurnRunning     bool
 	sawTurnFirstOutput bool
 	markTurnStartReady func()
@@ -52,7 +52,7 @@ var (
 	_ harness.Collectable = &Runner{}
 )
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: newChatClient(client),
 		cfg:    cfg,
@@ -108,12 +108,12 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 	r.resetConversation(time.Now(), markTurnStartReady)
 
 	createStartedAt := time.Now()
-	chat, err := r.client.CreateChat(ctx, codersdk.CreateChatRequest{
+	chat, err := r.client.CreateChat(ctx, nicloudsdk.CreateChatRequest{
 		OrganizationID: r.cfg.OrganizationID,
 		WorkspaceID:    &workspaceID,
 		ModelConfigID:  &modelConfigID,
-		Content: []codersdk.ChatInputPart{{
-			Type: codersdk.ChatInputPartTypeText,
+		Content: []nicloudsdk.ChatInputPart{{
+			Type: nicloudsdk.ChatInputPartTypeText,
 			Text: r.cfg.Prompt,
 		}},
 	})
@@ -169,14 +169,14 @@ func (r *Runner) resetConversation(conversationStart time.Time, markTurnStartRea
 	r.markTurnStartReady = markTurnStartReady
 }
 
-func (r *Runner) runConversation(ctx context.Context, chatID uuid.UUID, logger slog.Logger, events <-chan codersdk.ChatStreamEvent) error {
+func (r *Runner) runConversation(ctx context.Context, chatID uuid.UUID, logger slog.Logger, events <-chan nicloudsdk.ChatStreamEvent) error {
 	r.chatID = chatID
 
 	for event := range events {
 		r.result.eventCount++
 
 		switch event.Type {
-		case codersdk.ChatStreamEventTypeStatus:
+		case nicloudsdk.ChatStreamEventTypeStatus:
 			if event.Status == nil {
 				continue
 			}
@@ -187,21 +187,21 @@ func (r *Runner) runConversation(ctx context.Context, chatID uuid.UUID, logger s
 			if done {
 				return nil
 			}
-		case codersdk.ChatStreamEventTypeMessagePart:
+		case nicloudsdk.ChatStreamEventTypeMessagePart:
 			r.handleMessagePartEvent(ctx, logger)
-		case codersdk.ChatStreamEventTypeMessage:
+		case nicloudsdk.ChatStreamEventTypeMessage:
 			// StreamChat replays persisted rows as message events, not
 			// message_part deltas, when a turn finished server-side before
 			// the stream attached. Route assistant rows through the same
 			// first-output path; skip user rows so persisted prompts do not
 			// count as model output.
-			if event.Message == nil || event.Message.Role != codersdk.ChatMessageRoleAssistant {
+			if event.Message == nil || event.Message.Role != nicloudsdk.ChatMessageRoleAssistant {
 				continue
 			}
 			r.handleMessagePartEvent(ctx, logger)
-		case codersdk.ChatStreamEventTypeRetry:
+		case nicloudsdk.ChatStreamEventTypeRetry:
 			r.handleRetryEvent(ctx, logger, event.Retry)
-		case codersdk.ChatStreamEventTypeError:
+		case nicloudsdk.ChatStreamEventTypeError:
 			r.handleErrorEvent(ctx, logger, event.Error)
 		}
 	}
@@ -218,11 +218,11 @@ func (r *Runner) runConversation(ctx context.Context, chatID uuid.UUID, logger s
 	return xerrors.Errorf("chat %s stream ended before completing %d of %d turns", chatID, r.result.turnsCompleted, r.cfg.Turns)
 }
 
-func (r *Runner) handleStatusEvent(ctx context.Context, chatID uuid.UUID, logger slog.Logger, status codersdk.ChatStatus) (bool, error) {
+func (r *Runner) handleStatusEvent(ctx context.Context, chatID uuid.UUID, logger slog.Logger, status nicloudsdk.ChatStatus) (bool, error) {
 	if status == r.lastStatus {
 		return false, nil
 	}
-	if status == codersdk.ChatStatusWaiting &&
+	if status == nicloudsdk.ChatStatusWaiting &&
 		!r.sawTurnFirstOutput &&
 		(r.sawTurnRunning || r.result.turnsCompleted > 0) {
 		return false, nil
@@ -230,18 +230,18 @@ func (r *Runner) handleStatusEvent(ctx context.Context, chatID uuid.UUID, logger
 	r.lastStatus = status
 
 	switch status {
-	case codersdk.ChatStatusRunning:
+	case nicloudsdk.ChatStatusRunning:
 		r.sawTurnRunning = true
 		r.cfg.Metrics.ChatTimeToRunningSeconds.WithLabelValues(r.currentPhase).Observe(time.Since(r.turnStartTime).Seconds())
 		logger.Info(ctx, "chat reached running status",
 			slog.F("phase", r.currentPhase),
 		)
 		return false, nil
-	case codersdk.ChatStatusWaiting:
+	case nicloudsdk.ChatStatusWaiting:
 		r.result.turnsCompleted++
 		turnDuration := time.Since(r.turnStartTime)
 		r.cfg.Metrics.ChatTimeToTerminalStatusSeconds.WithLabelValues(r.currentPhase).Observe(turnDuration.Seconds())
-		r.cfg.Metrics.ChatTerminalStatusTotal.WithLabelValues(string(codersdk.ChatStatusWaiting)).Inc()
+		r.cfg.Metrics.ChatTerminalStatusTotal.WithLabelValues(string(nicloudsdk.ChatStatusWaiting)).Inc()
 		r.cfg.Metrics.ChatTurnsCompletedTotal.Inc()
 		logger.Info(ctx, "chat completed turn",
 			slog.F("turn", r.result.turnsCompleted),
@@ -249,10 +249,10 @@ func (r *Runner) handleStatusEvent(ctx context.Context, chatID uuid.UUID, logger
 			slog.F("duration", turnDuration),
 		)
 		if r.result.turnsCompleted >= r.cfg.Turns {
-			r.result.finalStatus = string(codersdk.ChatStatusWaiting)
+			r.result.finalStatus = string(nicloudsdk.ChatStatusWaiting)
 			conversationDuration := time.Since(r.conversationStart)
 			logger.Info(ctx, "chat reached terminal status",
-				slog.F("status", codersdk.ChatStatusWaiting),
+				slog.F("status", nicloudsdk.ChatStatusWaiting),
 				slog.F("duration", conversationDuration),
 				slog.F("turns_completed", r.result.turnsCompleted),
 			)
@@ -291,12 +291,12 @@ func (r *Runner) handleStatusEvent(ctx context.Context, chatID uuid.UUID, logger
 			return false, err
 		}
 		return false, nil
-	case codersdk.ChatStatusError:
-		r.result.finalStatus = string(codersdk.ChatStatusError)
+	case nicloudsdk.ChatStatusError:
+		r.result.finalStatus = string(nicloudsdk.ChatStatusError)
 		r.result.failureStage = failureStageStatusError
 		turnDuration := time.Since(r.turnStartTime)
 		r.cfg.Metrics.ChatTimeToTerminalStatusSeconds.WithLabelValues(r.currentPhase).Observe(turnDuration.Seconds())
-		r.cfg.Metrics.ChatTerminalStatusTotal.WithLabelValues(string(codersdk.ChatStatusError)).Inc()
+		r.cfg.Metrics.ChatTerminalStatusTotal.WithLabelValues(string(nicloudsdk.ChatStatusError)).Inc()
 		r.cfg.Metrics.ChatStageFailuresTotal.WithLabelValues(r.result.failureStage).Inc()
 
 		errMessage := r.lastStreamError
@@ -304,7 +304,7 @@ func (r *Runner) handleStatusEvent(ctx context.Context, chatID uuid.UUID, logger
 			errMessage = "chat reached error status"
 		}
 		logger.Error(ctx, "chat reached terminal status",
-			slog.F("status", codersdk.ChatStatusError),
+			slog.F("status", nicloudsdk.ChatStatusError),
 			slog.F("turns_completed", r.result.turnsCompleted),
 			slog.F("turns", r.cfg.Turns),
 			slog.F("error", errMessage),
@@ -318,9 +318,9 @@ func (r *Runner) handleStatusEvent(ctx context.Context, chatID uuid.UUID, logger
 func (r *Runner) sendNextTurn(ctx context.Context, chatID uuid.UUID, logger slog.Logger, nextTurn int, phase string) error {
 	messageStartedAt := time.Now()
 	modelConfigID := r.cfg.ModelConfigID
-	_, err := r.client.CreateChatMessage(ctx, chatID, codersdk.CreateChatMessageRequest{
-		Content: []codersdk.ChatInputPart{{
-			Type: codersdk.ChatInputPartTypeText,
+	_, err := r.client.CreateChatMessage(ctx, chatID, nicloudsdk.CreateChatMessageRequest{
+		Content: []nicloudsdk.ChatInputPart{{
+			Type: nicloudsdk.ChatInputPartTypeText,
 			Text: r.cfg.Prompt,
 		}},
 		ModelConfigID: &modelConfigID,
@@ -351,7 +351,7 @@ func (r *Runner) handleMessagePartEvent(ctx context.Context, logger slog.Logger)
 	)
 }
 
-func (r *Runner) handleRetryEvent(ctx context.Context, logger slog.Logger, retry *codersdk.ChatStreamRetry) {
+func (r *Runner) handleRetryEvent(ctx context.Context, logger slog.Logger, retry *nicloudsdk.ChatStreamRetry) {
 	r.result.retryCount++
 	r.cfg.Metrics.ChatRetryEventsTotal.Inc()
 	if retry != nil {
@@ -365,7 +365,7 @@ func (r *Runner) handleRetryEvent(ctx context.Context, logger slog.Logger, retry
 	logger.Warn(ctx, "chat retry event")
 }
 
-func (r *Runner) handleErrorEvent(ctx context.Context, logger slog.Logger, eventErr *codersdk.ChatError) {
+func (r *Runner) handleErrorEvent(ctx context.Context, logger slog.Logger, eventErr *nicloudsdk.ChatError) {
 	if eventErr != nil && eventErr.Message != "" {
 		r.lastStreamError = eventErr.Message
 		logger.Warn(ctx, "chat stream error",
@@ -388,7 +388,7 @@ func (r *Runner) Cleanup(ctx context.Context, id string, logs io.Writer) error {
 
 	archived := true
 	logger.Info(ctx, "archiving chat session")
-	if err := r.client.UpdateChat(ctx, r.chatID, codersdk.UpdateChatRequest{Archived: &archived}); err != nil {
+	if err := r.client.UpdateChat(ctx, r.chatID, nicloudsdk.UpdateChatRequest{Archived: &archived}); err != nil {
 		logger.Error(ctx, "failed to archive chat", slog.Error(err))
 		return xerrors.Errorf("archive chat: %w", err)
 	}

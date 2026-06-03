@@ -118,7 +118,7 @@ func IsBoringCrypto() bool {
 	return boringcrypto
 }
 
-// ExternalURL returns a URL referencing the current Coder version.
+// ExternalURL returns a URL referencing the current Neural Inverse Cloud version.
 // For production builds, this will link directly to a release.
 // For development builds, this will link to a commit.
 func ExternalURL() string {

@@ -1,29 +1,29 @@
 # Upgrade
 
-This article describes how to upgrade your Coder server.
+This article describes how to upgrade your Neural Inverse Cloud server.
 
 > [!CAUTION]
-> Prior to upgrading a production Coder deployment, take a database snapshot since
-> Coder does not support rollbacks.
+> Prior to upgrading a production Neural Inverse Cloud deployment, take a database snapshot since
+> Neural Inverse Cloud does not support rollbacks.
 
 For upgrade recommendations and troubleshooting, see
 [Upgrading Best Practices](./upgrade-best-practices.md).
 
-## Reinstall Coder to upgrade
+## Reinstall Neural Inverse Cloud to upgrade
 
-To upgrade your Coder server, reinstall Coder using your original method
+To upgrade your Neural Inverse Cloud server, reinstall Neural Inverse Cloud using your original method
 of [install](../install/index.md).
 
-### Coder install script
+### Neural Inverse Cloud install script
 
-1. If you installed Coder using the `install.sh` script, re-run the below command
+1. If you installed Neural Inverse Cloud using the `install.sh` script, re-run the below command
    on the host:
 
    ```shell
-   curl -L https://coder.com/install.sh | sh
+   curl -L https://cloud.neuralinverse.com/install.sh | sh
    ```
 
-1. If you're running Coder as a system service, you can restart it with `systemctl`:
+1. If you're running Neural Inverse Cloud as a system service, you can restart it with `systemctl`:
 
    ```shell
    systemctl daemon-reload
@@ -37,7 +37,7 @@ of [install](../install/index.md).
 ### docker-compose
 
 If you installed using `docker-compose`, run the below command to upgrade the
-Coder container:
+Neural Inverse Cloud container:
 
 ```shell
 docker-compose pull coder && docker-compose up -d coder
@@ -46,20 +46,20 @@ docker-compose pull coder && docker-compose up -d coder
 ### Kubernetes
 
 See
-[Upgrading Coder via Helm](../install/kubernetes.md#upgrading-coder-via-helm).
+[Upgrading Neural Inverse Cloud via Helm](../install/kubernetes.md#upgrading-coder-via-helm).
 
-### Coder AMI on AWS
+### Neural Inverse Cloud AMI on AWS
 
-1. Run the Coder installation script on the host:
+1. Run the Neural Inverse Cloud installation script on the host:
 
    ```shell
-   curl -L https://coder.com/install.sh | sh
+   curl -L https://cloud.neuralinverse.com/install.sh | sh
    ```
 
    The script will unpack the new `coder` binary version over the one currently
    installed.
 
-1. Restart the Coder system process with `systemctl`:
+1. Restart the Neural Inverse Cloud system process with `systemctl`:
 
    ```shell
    systemctl daemon-reload
@@ -69,11 +69,11 @@ See
 ### Windows
 
 Download the latest Windows installer or binary from
-[GitHub releases](https://github.com/coder/coder/releases/latest), or upgrade
+[GitHub releases](https://github.com/NeuralInverse/cloud/releases/latest), or upgrade
 from Winget.
 
 ```pwsh
-winget install Coder.Coder
+winget install Neural Inverse Cloud.Neural Inverse Cloud
 ```
 
 </div>

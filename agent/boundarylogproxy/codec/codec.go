@@ -16,7 +16,7 @@ import (
 	"golang.org/x/xerrors"
 	"google.golang.org/protobuf/proto"
 
-	agentproto "github.com/coder/coder/v2/agent/proto"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
 )
 
 type Tag uint8

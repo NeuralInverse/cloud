@@ -17,9 +17,9 @@ Provision Azure Linux VMs as [Coder workspaces](https://coder.com/docs/workspace
 
 ### Authentication
 
-This template assumes that coderd is run in an environment that is authenticated
+This template assumes that nicloud is run in an environment that is authenticated
 with Azure. For example, run `az login` then `az account set --subscription=<id>`
-to import credentials on the system and user running coderd. For other ways to
+to import credentials on the system and user running nicloud. For other ways to
 authenticate, [consult the Terraform docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs#authenticating-to-azure).
 
 ## Architecture
@@ -58,7 +58,7 @@ It is possible to make the VM persistent (instead of ephemeral) by removing the 
 ```hcl
 # Stop the VM
 resource "null_resource" "stop_vm" {
-  count      = data.coder_workspace.me.transition == "stop" ? 1 : 0
+  count      = data.ni_workspace.me.transition == "stop" ? 1 : 0
   depends_on = [azurerm_linux_virtual_machine.main]
   provisioner "local-exec" {
     # Use deallocate so the VM is not charged
@@ -68,7 +68,7 @@ resource "null_resource" "stop_vm" {
 
 # Start the VM
 resource "null_resource" "start" {
-  count      = data.coder_workspace.me.transition == "start" ? 1 : 0
+  count      = data.ni_workspace.me.transition == "start" ? 1 : 0
   depends_on = [azurerm_linux_virtual_machine.main]
   provisioner "local-exec" {
     command = "az vm start --ids ${azurerm_linux_virtual_machine.main.id}"

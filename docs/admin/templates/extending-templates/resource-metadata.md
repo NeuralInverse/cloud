@@ -14,7 +14,7 @@ You can use `coder_metadata` to show Terraform resource attributes like these:
 ![ui](../../../images/admin/templates/coder-metadata-ui.png)
 
 > [!NOTE]
-> Coder automatically generates the <code>type</code> metadata.
+> Neural Inverse Cloud automatically generates the <code>type</code> metadata.
 
 You can also present automatically updating, dynamic values with
 [agent metadata](./agent-metadata.md).
@@ -31,7 +31,7 @@ resource "kubernetes_persistent_volume_claim" "root" {
 
 resource "kubernetes_deployment" "coder" {
   # My deployment is ephemeral
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   ...
 }
 
@@ -48,7 +48,7 @@ resource "coder_metadata" "pvc" {
 }
 
 resource "coder_metadata" "deployment" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   resource_id = kubernetes_deployment.coder[0].id
   item {
     key = "name"
@@ -65,7 +65,7 @@ attribute:
 
 ```tf
 resource "coder_metadata" "hide_serviceaccount" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   resource_id = kubernetes_service_account.user_data.id
   hide = true
   item {
@@ -82,7 +82,7 @@ must be a valid path or URL.
 
 ```tf
 resource "coder_metadata" "resource_with_icon" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   resource_id = kubernetes_service_account.user_data.id
   icon = "/icon/database.svg"
   item {

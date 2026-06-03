@@ -10,13 +10,13 @@ type Metrics struct {
 func NewMetrics(reg prometheus.Registerer, labelNames ...string) *Metrics {
 	m := &Metrics{
 		LatencyInitialResponseSeconds: *prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Namespace: "coderd",
+			Namespace: "nicloud",
 			Subsystem: "scaletest",
 			Name:      "dynamic_parameters_latency_initial_response_seconds",
 			Help:      "Time in seconds to get the initial dynamic parameters response from start of request.",
 		}, labelNames),
 		LatencyChangeResponseSeconds: *prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Namespace: "coderd",
+			Namespace: "nicloud",
 			Subsystem: "scaletest",
 			Name:      "dynamic_parameters_latency_change_response_seconds",
 			Help:      "Time in seconds to between sending a dynamic parameters change request and receiving the response.",

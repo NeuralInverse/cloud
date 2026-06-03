@@ -43,7 +43,7 @@ func TempDirUnixSocket(t testing.TB) string {
 
 func AgentSocketPath(t testing.TB) string {
 	if runtime.GOOS == "windows" {
-		return fmt.Sprintf(`\\.\pipe\com.coder.agentsocket_test.%s.%s`, t.Name(), rand.Text())
+		return fmt.Sprintf(`\\.\pipe\com.neuralinverse.agentsocket_test.%s.%s`, t.Name(), rand.Text())
 	}
 	return filepath.Join(TempDirUnixSocket(t), "test.sock")
 }

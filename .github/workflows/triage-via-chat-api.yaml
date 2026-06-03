@@ -10,7 +10,7 @@
 #     resource allocation internally.
 #   - Uses POST /api/experimental/chats to create a chat session.
 #   - Polls GET /api/experimental/chats/<id> until the agent finishes.
-#   - Chat URL format: ${CODER_URL}/agents?chat=${CHAT_ID}
+#   - Chat URL format: ${NEURALINVERSE_URL}/agents?chat=${CHAT_ID}
 
 name: AI Triage via Chat API
 
@@ -35,8 +35,8 @@ jobs:
     if: github.event.label.name == 'chat-triage' || github.event_name == 'workflow_dispatch'
     timeout-minutes: 30
     env:
-      CODER_URL: ${{ secrets.TRAIAGE_CODER_URL }}
-      CODER_SESSION_TOKEN: ${{ secrets.TRAIAGE_CODER_SESSION_TOKEN }}
+      NEURALINVERSE_URL: ${{ secrets.TRAIAGE_NEURALINVERSE_URL }}
+      NEURALINVERSE_SESSION_TOKEN: ${{ secrets.TRAIAGE_NEURALINVERSE_SESSION_TOKEN }}
     permissions:
       contents: read
       issues: write
@@ -138,7 +138,7 @@ jobs:
           )
           # Perform variable substitution on the prompt — scoped to $ISSUE_URL only.
           # Using envsubst without arguments would expand every env var in scope
-          # (including CODER_SESSION_TOKEN), so we name the variable explicitly.
+          # (including NEURALINVERSE_SESSION_TOKEN), so we name the variable explicitly.
           TASK_PROMPT=$(echo "${TASK_PROMPT}" | envsubst '$ISSUE_URL')
 
           echo "Creating chat with prompt:"
@@ -147,11 +147,11 @@ jobs:
           # POST to the Chat API to create a new chat session.
           RESPONSE=$(curl --silent --fail-with-body \
             -X POST \
-            -H "Coder-Session-Token: ${CODER_SESSION_TOKEN}" \
+            -H "Coder-Session-Token: ${NEURALINVERSE_SESSION_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n --arg prompt "${TASK_PROMPT}" \
               '{content: [{type: "text", text: $prompt}]}')" \
-            "${CODER_URL}/api/experimental/chats")
+            "${NEURALINVERSE_URL}/api/experimental/chats")
 
           echo "Chat API response:"
           echo "${RESPONSE}" | jq .
@@ -173,7 +173,7 @@ jobs:
             exit 1
           fi
 
-          CHAT_URL="${CODER_URL}/agents?chat=${CHAT_ID}"
+          CHAT_URL="${NEURALINVERSE_URL}/agents?chat=${CHAT_ID}"
 
           echo "Chat created: ${CHAT_ID} (status: ${CHAT_STATUS})"
           echo "Chat URL: ${CHAT_URL}"
@@ -204,8 +204,8 @@ jobs:
 
           while true; do
             RESPONSE=$(curl --silent --fail-with-body \
-              -H "Coder-Session-Token: ${CODER_SESSION_TOKEN}" \
-              "${CODER_URL}/api/experimental/chats/${CHAT_ID}")
+              -H "Coder-Session-Token: ${NEURALINVERSE_SESSION_TOKEN}" \
+              "${NEURALINVERSE_URL}/api/experimental/chats/${CHAT_ID}")
 
             STATUS=$(echo "${RESPONSE}" | jq -r '.status')
 

@@ -68,7 +68,7 @@ assert_maps_to "docs/install/index.md" "install"
 assert_maps_to "docs/admin/README.md" "admin"
 
 # Branch 4: nested regular file strips .md and keeps the dir prefix.
-assert_maps_to "docs/ai-coder/tasks.md" "ai-coder/tasks"
+assert_maps_to "docs/ai-nicloud/tasks.md" "ai-coder/tasks"
 
 # Branch 5: top-level non-README file strips .md with no dir prefix.
 assert_maps_to "docs/CHANGELOG.md" "CHANGELOG"

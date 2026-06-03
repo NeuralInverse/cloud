@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-resource "coder_agent" "dev1" {
+resource "ni_agent" "dev1" {
   os   = "linux"
   arch = "amd64"
   resources_monitoring {
@@ -18,7 +18,7 @@ resource "coder_agent" "dev1" {
   }
 }
 
-resource "coder_agent" "dev2" {
+resource "ni_agent" "dev2" {
   os   = "linux"
   arch = "amd64"
   resources_monitoring {
@@ -40,16 +40,16 @@ resource "coder_agent" "dev2" {
 }
 
 # app1 is for testing subdomain default.
-resource "coder_app" "app1" {
-  agent_id = coder_agent.dev1.id
+resource "ni_app" "app1" {
+  agent_id = ni_agent.dev1.id
   slug     = "app1"
   # subdomain should default to false.
   # subdomain = false
 }
 
 # app2 tests that subdomaincan be true, and that healthchecks work.
-resource "coder_app" "app2" {
-  agent_id  = coder_agent.dev1.id
+resource "ni_app" "app2" {
+  agent_id  = ni_agent.dev1.id
   slug      = "app2"
   subdomain = true
   healthcheck {
@@ -61,7 +61,7 @@ resource "coder_app" "app2" {
 
 resource "null_resource" "dev" {
   depends_on = [
-    coder_agent.dev1,
-    coder_agent.dev2
+    ni_agent.dev1,
+    ni_agent.dev2
   ]
 }

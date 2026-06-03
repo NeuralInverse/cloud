@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/provisioner"
+	"github.com/NeuralInverse/cloud/v2/provisioner"
 )
 
 func TestSafeAgentName(t *testing.T) {

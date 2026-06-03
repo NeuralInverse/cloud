@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 // nolint:paralleltest
@@ -32,7 +32,7 @@ func TestResetPassword(t *testing.T) {
 	const newPassword = "MyNewPassword!"
 
 	logger := testutil.Logger(t)
-	// start postgres and coder server processes
+	// start postgres and neuralinverse server processes
 	connectionURL, err := dbtestutil.Open(t)
 	require.NoError(t, err)
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -56,9 +56,9 @@ func TestResetPassword(t *testing.T) {
 	}, testutil.WaitLong, testutil.IntervalFast)
 	accessURL, err := url.Parse(rawURL)
 	require.NoError(t, err)
-	client := codersdk.New(accessURL)
+	client := nicloudsdk.New(accessURL)
 
-	_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
+	_, err = client.CreateFirstUser(ctx, nicloudsdk.CreateFirstUserRequest{
 		Email:    email,
 		Username: username,
 		Password: oldPassword,
@@ -93,13 +93,13 @@ func TestResetPassword(t *testing.T) {
 
 	// now try logging in
 
-	_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	_, err = client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: oldPassword,
 	})
 	require.Error(t, err)
 
-	_, err = client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	_, err = client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: newPassword,
 	})

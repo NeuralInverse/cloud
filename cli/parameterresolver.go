@@ -7,9 +7,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil/levenshtein"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil/levenshtein"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -24,41 +24,41 @@ const (
 )
 
 type ParameterResolver struct {
-	lastBuildParameters       []codersdk.WorkspaceBuildParameter
-	sourceWorkspaceParameters []codersdk.WorkspaceBuildParameter
+	lastBuildParameters       []nicloudsdk.WorkspaceBuildParameter
+	sourceWorkspaceParameters []nicloudsdk.WorkspaceBuildParameter
 
-	presetParameters       []codersdk.WorkspaceBuildParameter
-	richParameters         []codersdk.WorkspaceBuildParameter
+	presetParameters       []nicloudsdk.WorkspaceBuildParameter
+	richParameters         []nicloudsdk.WorkspaceBuildParameter
 	richParametersDefaults map[string]string
 	richParametersFile     map[string]string
-	ephemeralParameters    []codersdk.WorkspaceBuildParameter
+	ephemeralParameters    []nicloudsdk.WorkspaceBuildParameter
 
 	promptRichParameters      bool
 	promptEphemeralParameters bool
 	useParameterDefaults      bool
 }
 
-func (pr *ParameterResolver) WithLastBuildParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithLastBuildParameters(params []nicloudsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.lastBuildParameters = params
 	return pr
 }
 
-func (pr *ParameterResolver) WithSourceWorkspaceParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithSourceWorkspaceParameters(params []nicloudsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.sourceWorkspaceParameters = params
 	return pr
 }
 
-func (pr *ParameterResolver) WithPresetParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithPresetParameters(params []nicloudsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.presetParameters = params
 	return pr
 }
 
-func (pr *ParameterResolver) WithRichParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithRichParameters(params []nicloudsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.richParameters = params
 	return pr
 }
 
-func (pr *ParameterResolver) WithEphemeralParameters(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithEphemeralParameters(params []nicloudsdk.WorkspaceBuildParameter) *ParameterResolver {
 	pr.ephemeralParameters = params
 	return pr
 }
@@ -68,7 +68,7 @@ func (pr *ParameterResolver) WithRichParametersFile(fileMap map[string]string) *
 	return pr
 }
 
-func (pr *ParameterResolver) WithRichParametersDefaults(params []codersdk.WorkspaceBuildParameter) *ParameterResolver {
+func (pr *ParameterResolver) WithRichParametersDefaults(params []nicloudsdk.WorkspaceBuildParameter) *ParameterResolver {
 	if pr.richParametersDefaults == nil {
 		pr.richParametersDefaults = make(map[string]string)
 	}
@@ -103,8 +103,8 @@ func (pr *ParameterResolver) WithUseParameterDefaults(useParameterDefaults bool)
 // 6. last build
 // 7. preset
 // 8. user input (unless auto-accepting defaults)
-func (pr *ParameterResolver) Resolve(inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []codersdk.TemplateVersionParameter) ([]codersdk.WorkspaceBuildParameter, error) {
-	var staged []codersdk.WorkspaceBuildParameter
+func (pr *ParameterResolver) Resolve(inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []nicloudsdk.TemplateVersionParameter) ([]nicloudsdk.WorkspaceBuildParameter, error) {
+	var staged []nicloudsdk.WorkspaceBuildParameter
 	var err error
 
 	staged = pr.resolveWithParametersMapFile(staged)
@@ -121,8 +121,8 @@ func (pr *ParameterResolver) Resolve(inv *serpent.Invocation, action WorkspaceCL
 	return staged, nil
 }
 
-func (pr *ParameterResolver) InitialValues() []codersdk.WorkspaceBuildParameter {
-	var staged []codersdk.WorkspaceBuildParameter
+func (pr *ParameterResolver) InitialValues() []nicloudsdk.WorkspaceBuildParameter {
+	var staged []nicloudsdk.WorkspaceBuildParameter
 
 	staged = pr.resolveWithParametersMapFile(staged)
 	staged = pr.resolveWithCommandLineOrEnv(staged)
@@ -133,7 +133,7 @@ func (pr *ParameterResolver) InitialValues() []codersdk.WorkspaceBuildParameter 
 	return staged
 }
 
-func (pr *ParameterResolver) resolveWithPreset(resolved []codersdk.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithPreset(resolved []nicloudsdk.WorkspaceBuildParameter) []nicloudsdk.WorkspaceBuildParameter {
 next:
 	for _, presetParameter := range pr.presetParameters {
 		for i, r := range resolved {
@@ -148,7 +148,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithParametersMapFile(resolved []codersdk.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithParametersMapFile(resolved []nicloudsdk.WorkspaceBuildParameter) []nicloudsdk.WorkspaceBuildParameter {
 next:
 	for name, value := range pr.richParametersFile {
 		for i, r := range resolved {
@@ -158,7 +158,7 @@ next:
 			}
 		}
 
-		resolved = append(resolved, codersdk.WorkspaceBuildParameter{
+		resolved = append(resolved, nicloudsdk.WorkspaceBuildParameter{
 			Name:  name,
 			Value: value,
 		})
@@ -166,7 +166,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithCommandLineOrEnv(resolved []codersdk.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithCommandLineOrEnv(resolved []nicloudsdk.WorkspaceBuildParameter) []nicloudsdk.WorkspaceBuildParameter {
 nextRichParameter:
 	for _, richParameter := range pr.richParameters {
 		for i, r := range resolved {
@@ -193,7 +193,7 @@ nextEphemeralParameter:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithLastBuildParameters(resolved []codersdk.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithLastBuildParameters(resolved []nicloudsdk.WorkspaceBuildParameter) []nicloudsdk.WorkspaceBuildParameter {
 	if pr.promptRichParameters {
 		return resolved // don't pull parameters from last build
 	}
@@ -212,7 +212,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithLastBuildParametersInParameters(resolved []codersdk.WorkspaceBuildParameter, templateVersionParameters []codersdk.TemplateVersionParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithLastBuildParametersInParameters(resolved []nicloudsdk.WorkspaceBuildParameter, templateVersionParameters []nicloudsdk.TemplateVersionParameter) []nicloudsdk.WorkspaceBuildParameter {
 	if pr.promptRichParameters {
 		return resolved // don't pull parameters from last build
 	}
@@ -248,7 +248,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithSourceBuildParameters(resolved []codersdk.WorkspaceBuildParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithSourceBuildParameters(resolved []nicloudsdk.WorkspaceBuildParameter) []nicloudsdk.WorkspaceBuildParameter {
 next:
 	for _, buildParameter := range pr.sourceWorkspaceParameters {
 		for i, r := range resolved {
@@ -263,7 +263,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) resolveWithSourceBuildParametersInParameters(resolved []codersdk.WorkspaceBuildParameter, templateVersionParameters []codersdk.TemplateVersionParameter) []codersdk.WorkspaceBuildParameter {
+func (pr *ParameterResolver) resolveWithSourceBuildParametersInParameters(resolved []nicloudsdk.WorkspaceBuildParameter, templateVersionParameters []nicloudsdk.TemplateVersionParameter) []nicloudsdk.WorkspaceBuildParameter {
 next:
 	for _, buildParameter := range pr.sourceWorkspaceParameters {
 		tvp := findTemplateVersionParameter(buildParameter, templateVersionParameters)
@@ -287,7 +287,7 @@ next:
 	return resolved
 }
 
-func (pr *ParameterResolver) verifyConstraints(resolved []codersdk.WorkspaceBuildParameter, action WorkspaceCLIAction, templateVersionParameters []codersdk.TemplateVersionParameter) error {
+func (pr *ParameterResolver) verifyConstraints(resolved []nicloudsdk.WorkspaceBuildParameter, action WorkspaceCLIAction, templateVersionParameters []nicloudsdk.TemplateVersionParameter) error {
 	for _, r := range resolved {
 		tvp := findTemplateVersionParameter(r, templateVersionParameters)
 		if tvp == nil {
@@ -305,7 +305,7 @@ func (pr *ParameterResolver) verifyConstraints(resolved []codersdk.WorkspaceBuil
 	return nil
 }
 
-func (pr *ParameterResolver) resolveWithInput(resolved []codersdk.WorkspaceBuildParameter, inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []codersdk.TemplateVersionParameter) ([]codersdk.WorkspaceBuildParameter, error) {
+func (pr *ParameterResolver) resolveWithInput(resolved []nicloudsdk.WorkspaceBuildParameter, inv *serpent.Invocation, action WorkspaceCLIAction, templateVersionParameters []nicloudsdk.TemplateVersionParameter) ([]nicloudsdk.WorkspaceBuildParameter, error) {
 	for _, tvp := range templateVersionParameters {
 		p := findWorkspaceBuildParameter(tvp.Name, resolved)
 		if p != nil {
@@ -351,7 +351,7 @@ func (pr *ParameterResolver) resolveWithInput(resolved []codersdk.WorkspaceBuild
 				}
 			}
 
-			resolved = append(resolved, codersdk.WorkspaceBuildParameter{
+			resolved = append(resolved, nicloudsdk.WorkspaceBuildParameter{
 				Name:  tvp.Name,
 				Value: parameterValue,
 			})
@@ -366,7 +366,7 @@ func (pr *ParameterResolver) isFirstTimeUse(parameterName string) bool {
 	return findWorkspaceBuildParameter(parameterName, pr.lastBuildParameters) == nil
 }
 
-func (pr *ParameterResolver) isLastBuildParameterInvalidOption(templateVersionParameter codersdk.TemplateVersionParameter) bool {
+func (pr *ParameterResolver) isLastBuildParameterInvalidOption(templateVersionParameter nicloudsdk.TemplateVersionParameter) bool {
 	if len(templateVersionParameter.Options) == 0 {
 		return false
 	}
@@ -379,7 +379,7 @@ func (pr *ParameterResolver) isLastBuildParameterInvalidOption(templateVersionPa
 	return false
 }
 
-func findTemplateVersionParameter(workspaceBuildParameter codersdk.WorkspaceBuildParameter, templateVersionParameters []codersdk.TemplateVersionParameter) *codersdk.TemplateVersionParameter {
+func findTemplateVersionParameter(workspaceBuildParameter nicloudsdk.WorkspaceBuildParameter, templateVersionParameters []nicloudsdk.TemplateVersionParameter) *nicloudsdk.TemplateVersionParameter {
 	for _, tvp := range templateVersionParameters {
 		if tvp.Name == workspaceBuildParameter.Name {
 			return &tvp
@@ -388,7 +388,7 @@ func findTemplateVersionParameter(workspaceBuildParameter codersdk.WorkspaceBuil
 	return nil
 }
 
-func findWorkspaceBuildParameter(parameterName string, params []codersdk.WorkspaceBuildParameter) *codersdk.WorkspaceBuildParameter {
+func findWorkspaceBuildParameter(parameterName string, params []nicloudsdk.WorkspaceBuildParameter) *nicloudsdk.WorkspaceBuildParameter {
 	for _, p := range params {
 		if p.Name == parameterName {
 			return &p
@@ -397,7 +397,7 @@ func findWorkspaceBuildParameter(parameterName string, params []codersdk.Workspa
 	return nil
 }
 
-func isValidTemplateParameterOption(buildParameter codersdk.WorkspaceBuildParameter, templateVersionParameter codersdk.TemplateVersionParameter) bool {
+func isValidTemplateParameterOption(buildParameter nicloudsdk.WorkspaceBuildParameter, templateVersionParameter nicloudsdk.TemplateVersionParameter) bool {
 	// Multi-select parameters store values as a JSON array (e.g.
 	// '["vim","emacs"]'), so we need to parse the array and validate
 	// each element individually against the allowed options.
@@ -429,7 +429,7 @@ func isValidTemplateParameterOption(buildParameter codersdk.WorkspaceBuildParame
 	return false
 }
 
-func templateVersionParametersNotFound(unknown string, params []codersdk.TemplateVersionParameter) error {
+func templateVersionParametersNotFound(unknown string, params []nicloudsdk.TemplateVersionParameter) error {
 	var sb strings.Builder
 	_, _ = sb.WriteString(fmt.Sprintf("parameter %q is not present in the template.", unknown))
 	// Going with a fairly generous edit distance

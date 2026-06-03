@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"tailscale.com/net/tsaddr"
 
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -26,7 +26,7 @@ func TestConnectExists_Running(t *testing.T) {
 	inv := (&serpent.Invocation{
 		Command: cmd,
 		Args:    []string{"connect", "exists", "test.example"},
-	}).WithContext(withCoderConnectRunning(ctx))
+	}).WithContext(withNIConnectRunning(ctx))
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 	inv.Stdout = stdout
@@ -46,7 +46,7 @@ func TestConnectExists_NotRunning(t *testing.T) {
 	inv := (&serpent.Invocation{
 		Command: cmd,
 		Args:    []string{"connect", "exists", "test.example"},
-	}).WithContext(withCoderConnectNotRunning(ctx))
+	}).WithContext(withNIConnectNotRunning(ctx))
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 	inv.Stdout = stdout
@@ -61,15 +61,15 @@ type fakeResolver struct {
 
 func (f *fakeResolver) LookupIP(_ context.Context, _, _ string) ([]net.IP, error) {
 	if f.shouldReturnSuccess {
-		return []net.IP{net.ParseIP(tsaddr.CoderServiceIPv6().String())}, nil
+		return []net.IP{net.ParseIP(tsaddr.NIServiceIPv6().String())}, nil
 	}
 	return nil, &net.DNSError{IsNotFound: true}
 }
 
-func withCoderConnectRunning(ctx context.Context) context.Context {
+func withNIConnectRunning(ctx context.Context) context.Context {
 	return workspacesdk.WithTestOnlyCoderContextResolver(ctx, &fakeResolver{shouldReturnSuccess: true})
 }
 
-func withCoderConnectNotRunning(ctx context.Context) context.Context {
+func withNIConnectNotRunning(ctx context.Context) context.Context {
 	return workspacesdk.WithTestOnlyCoderContextResolver(ctx, &fakeResolver{shouldReturnSuccess: false})
 }

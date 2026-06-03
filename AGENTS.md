@@ -74,7 +74,7 @@ instructions focused on guardrails that agents should see immediately.
 
 - **Database changes**: Follow
   [Database Development Patterns](.claude/docs/DATABASE.md). Modify
-  `coderd/database/queries/*.sql`, run `make gen`, update
+  `nicloud/database/queries/*.sql`, run `make gen`, update
   `enterprise/audit/table.go` for audit errors, then run `make gen` again.
 - **LSP navigation**: Use LSP tools first. See
   [Modern Go](.claude/docs/GO.md) for Go LSP and
@@ -126,7 +126,7 @@ and audit table checks.
 
 ## Architecture
 
-- **coderd**: Main API service
+- **nicloud**: Main API service
 - **provisionerd**: Infrastructure provisioning
 - **Agents**: Workspace services (SSH, port forwarding)
 - **Database**: PostgreSQL with `dbauthz` authorization
@@ -141,7 +141,7 @@ and audit table checks.
 - When you use a scope, it must be a real filesystem path containing every
   changed file.
 - Use a broader path scope, or omit the scope, for cross-cutting changes.
-- Example: `fix(coderd/chatd): ...` for changes only in `coderd/chatd/`.
+- Example: `fix(nicloud/chatd): ...` for changes only in `nicloud/chatd/`.
 
 ### Frontend Patterns
 

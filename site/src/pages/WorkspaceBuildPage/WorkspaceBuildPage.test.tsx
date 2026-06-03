@@ -100,7 +100,7 @@ describe("WorkspaceBuildPage", () => {
 
 		await user.click(
 			screen.getByRole("tab", {
-				name: `coder_agent.${MockWorkspaceAgent.name}`,
+				name: `ni_agent.${MockWorkspaceAgent.name}`,
 			}),
 		);
 

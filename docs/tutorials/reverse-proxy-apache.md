@@ -2,17 +2,17 @@
 
 ## Requirements
 
-1. Start a Coder deployment and be sure to set the following
+1. Start a Neural Inverse Cloud deployment and be sure to set the following
    [configuration values](../admin/setup/index.md):
 
    ```env
-   CODER_HTTP_ADDRESS=127.0.0.1:3000
-   CODER_ACCESS_URL=https://coder.example.com
-   CODER_WILDCARD_ACCESS_URL=*coder.example.com
+   NEURALINVERSE_HTTP_ADDRESS=127.0.0.1:3000
+   NEURALINVERSE_ACCESS_URL=https://coder.example.com
+   NEURALINVERSE_WILDCARD_ACCESS_URL=*coder.example.com
    ```
 
    Throughout the guide, be sure to replace `coder.example.com` with the domain
-   you intend to use with Coder.
+   you intend to use with Neural Inverse Cloud.
 
 2. Configure your DNS provider to point your coder.example.com and
    \*.coder.example.com to your server's public IP address.
@@ -92,10 +92,10 @@ providers, refer to the
 
 ## Configure Apache
 
-This example assumes Coder is running locally on `127.0.0.1:3000` and that
+This example assumes Neural Inverse Cloud is running locally on `127.0.0.1:3000` and that
 you're using `coder.example.com` as your subdomain.
 
-1. Create Apache configuration for Coder:
+1. Create Apache configuration for Neural Inverse Cloud:
 
    ```shell
    sudo nano /etc/apache2/sites-available/coder.conf
@@ -168,5 +168,5 @@ you're using `coder.example.com` as your subdomain.
    sudo certbot renew -q
    ```
 
-And that's it, you should now be able to access Coder at your sub(domain) e.g.
+And that's it, you should now be able to access Neural Inverse Cloud at your sub(domain) e.g.
 `https://coder.example.com`.

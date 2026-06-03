@@ -105,7 +105,7 @@ export const IdpGroupSyncForm: FC<IdpGroupSyncFormProps> = ({
 		enableReinitialize: Boolean(groupSyncSettings),
 	});
 	const [idpGroupName, setIdpGroupName] = useState("");
-	const [coderGroups, setCoderGroups] = useState<Option[]>([]);
+	const [niGroups, setCoderGroups] = useState<Option[]>([]);
 	const id = useId();
 	const [comboInputValue, setComboInputValue] = useState("");
 	const [open, setOpen] = useState(false);
@@ -294,7 +294,7 @@ export const IdpGroupSyncForm: FC<IdpGroupSyncFormProps> = ({
 								id: `${id}-coder-group`,
 							}}
 							className="min-w-60 max-w-3xl"
-							value={coderGroups}
+							value={niGroups}
 							onChange={setCoderGroups}
 							options={groups
 								.filter((group) => !isEveryoneGroup(group))
@@ -316,13 +316,13 @@ export const IdpGroupSyncForm: FC<IdpGroupSyncFormProps> = ({
 						<Button
 							type="submit"
 							className="min-w-fit"
-							disabled={!idpGroupName || coderGroups.length === 0}
+							disabled={!idpGroupName || niGroups.length === 0}
 							onClick={() => {
 								const newSyncSettings = {
 									...form.values,
 									mapping: {
 										...form.values.mapping,
-										[idpGroupName]: coderGroups.map((group) => group.value),
+										[idpGroupName]: niGroups.map((group) => group.value),
 									},
 								};
 								void form.setFieldValue("mapping", newSyncSettings.mapping);
@@ -355,7 +355,7 @@ export const IdpGroupSyncForm: FC<IdpGroupSyncFormProps> = ({
 										key={idpGroup}
 										idpGroup={idpGroup}
 										exists={claimFieldValues?.includes(idpGroup)}
-										coderGroup={getGroupNames(groups)}
+										niGroup={getGroupNames(groups)}
 										onDelete={handleDelete}
 									/>
 								))}
@@ -374,7 +374,7 @@ export const IdpGroupSyncForm: FC<IdpGroupSyncFormProps> = ({
 											key={groupId}
 											idpGroup={idpGroup}
 											exists={claimFieldValues?.includes(idpGroup)}
-											coderGroup={getGroupNames([groupId])}
+											niGroup={getGroupNames([groupId])}
 											onDelete={handleDelete}
 										/>
 									))}
@@ -390,14 +390,14 @@ export const IdpGroupSyncForm: FC<IdpGroupSyncFormProps> = ({
 interface GroupRowProps {
 	idpGroup: string;
 	exists: boolean | undefined;
-	coderGroup: readonly string[];
+	niGroup: readonly string[];
 	onDelete: (idpOrg: string) => void;
 }
 
 const GroupRow: FC<GroupRowProps> = ({
 	idpGroup,
 	exists = true,
-	coderGroup,
+	niGroup,
 	onDelete,
 }) => {
 	return (
@@ -426,7 +426,7 @@ const GroupRow: FC<GroupRowProps> = ({
 			</TableCell>
 
 			<TableCell>
-				<IdpPillList roles={coderGroup} />
+				<IdpPillList roles={niGroup} />
 			</TableCell>
 
 			<TableCell>

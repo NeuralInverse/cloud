@@ -54,7 +54,7 @@ const PaywallAIGovernance = () => {
 						</span>
 					</PaywallFeature>
 				</PaywallFeatures>
-				<PaywallCTA href="https://coder.com/contact/sales">
+				<PaywallCTA href="https://cloud.neuralinverse.com/contact/sales">
 					Contact Sales
 				</PaywallCTA>
 			</PaywallStack>

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
 	"github.com/coder/quartz"
 )
 

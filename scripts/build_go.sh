@@ -5,7 +5,7 @@
 # Usage: ./build_go.sh [--version 1.2.3-devel+abcdef] [--os linux] [--arch amd64] [--output path/to/output] [--slim] [--agpl] [--boringcrypto]
 #
 # Defaults to linux:amd64 with slim disabled, but can be controlled with GOOS,
-# GOARCH and CODER_SLIM_BUILD=1. If no version is specified, defaults to the
+# GOARCH and NEURALINVERSE_SLIM_BUILD=1. If no version is specified, defaults to the
 # version from ./version.sh.
 #
 # GOARM can be controlled by suffixing any arm architecture (i.e. arm or arm64)
@@ -37,13 +37,13 @@ version=""
 os="${GOOS:-linux}"
 arch="${GOARCH:-amd64}"
 output_path=""
-slim="${CODER_SLIM_BUILD:-0}"
-agpl="${CODER_BUILD_AGPL:-0}"
-sign_darwin="${CODER_SIGN_DARWIN:-0}"
-sign_windows="${CODER_SIGN_WINDOWS:-0}"
-sign_gpg="${CODER_SIGN_GPG:-0}"
-boringcrypto=${CODER_BUILD_BORINGCRYPTO:-0}
-windows_resources="${CODER_WINDOWS_RESOURCES:-0}"
+slim="${NEURALINVERSE_SLIM_BUILD:-0}"
+agpl="${NEURALINVERSE_BUILD_AGPL:-0}"
+sign_darwin="${NEURALINVERSE_SIGN_DARWIN:-0}"
+sign_windows="${NEURALINVERSE_SIGN_WINDOWS:-0}"
+sign_gpg="${NEURALINVERSE_SIGN_GPG:-0}"
+boringcrypto=${NEURALINVERSE_BUILD_BORINGCRYPTO:-0}
+windows_resources="${NEURALINVERSE_WINDOWS_RESOURCES:-0}"
 debug=0
 develop_in_coder="${DEVELOP_IN_CODER:-0}"
 
@@ -143,9 +143,9 @@ if [[ "$debug" == 0 ]]; then
 fi
 
 if [[ "$develop_in_coder" == 1 ]]; then
-	echo "INFO : Overriding codersdk.SessionTokenCookie as we are developing inside a Coder workspace."
+	echo "INFO : Overriding nicloudsdk.SessionTokenCookie as we are developing inside a Coder workspace."
 	ldflags+=(
-		-X "'github.com/coder/coder/v2/codersdk.SessionTokenCookie=dev_coder_session_token'"
+		-X "'github.com/coder/coder/v2/nicloudsdk.SessionTokenCookie=dev_coder_session_token'"
 	)
 fi
 
@@ -192,9 +192,9 @@ elif [[ "$arch" == "armv"* ]] || [[ "$arch" == "arm64v"* ]]; then
 	arch="${arch//v*/}"
 fi
 
-cmd_path="./enterprise/cmd/coder"
+cmd_path="./enterprise/cmd/neuralinverse"
 if [[ "$agpl" == 1 ]]; then
-	cmd_path="./cmd/coder"
+	cmd_path="./cmd/neuralinverse"
 fi
 
 goexp=""

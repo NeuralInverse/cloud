@@ -1,9 +1,9 @@
 # Working with Dev Containers
 
-The dev container integration appears in your Coder dashboard, providing a
+The dev container integration appears in your Neural Inverse Cloud dashboard, providing a
 visual representation of the running environment:
 
-![Two dev containers running as sub-agents in a Coder workspace](../../images/user-guides/devcontainers/devcontainer-running.png)_Dev containers appear as sub-agents with their own apps, SSH access, and port forwarding_
+![Two dev containers running as sub-agents in a Neural Inverse Cloud workspace](../../images/user-guides/devcontainers/devcontainer-running.png)_Dev containers appear as sub-agents with their own apps, SSH access, and port forwarding_
 
 ## SSH access
 
@@ -12,7 +12,7 @@ Each dev container has its own agent name, derived from the workspace folder
 in your workspace dashboard, or see
 [Agent naming](./index.md#agent-naming) for details on how names are generated.
 
-### Using the Coder CLI
+### Using the Neural Inverse Cloud CLI
 
 The simplest way to SSH into a dev container is using `coder ssh` with the
 workspace and agent name:
@@ -61,17 +61,17 @@ and other tools that use SSH.
 ## Web terminal access
 
 Once your workspace and dev container are running, you can use the web terminal
-in the Coder interface to execute commands directly inside the dev container.
+in the Neural Inverse Cloud interface to execute commands directly inside the dev container.
 
-![Coder web terminal with dev container](../../images/user-guides/devcontainers/devcontainer-web-terminal.png)
+![Neural Inverse Cloud web terminal with dev container](../../images/user-guides/devcontainers/devcontainer-web-terminal.png)
 
 ## IDE integration (VS Code)
 
 You can open your dev container directly in VS Code by:
 
 1. Selecting **Open in VS Code Desktop** from the dev container agent in the
-   Coder web interface.
-1. Using the Coder CLI:
+   Neural Inverse Cloud web interface.
+1. Using the Neural Inverse Cloud CLI:
 
    ```console
    coder open vscode <workspace>.<agent>
@@ -92,7 +92,7 @@ work.
 ## Port forwarding
 
 Since dev containers run as sub-agents, you can forward ports directly to them
-using standard Coder port forwarding:
+using standard Neural Inverse Cloud port forwarding:
 
 ```console
 coder port-forward <workspace>.<agent> --tcp 8080
@@ -106,7 +106,7 @@ coder port-forward my-workspace.my-project --tcp 8080
 ```
 
 This forwards port 8080 on your local machine directly to port 8080 in the dev
-container. Coder also automatically detects ports opened inside the container.
+container. Neural Inverse Cloud also automatically detects ports opened inside the container.
 
 ### Exposing ports on the parent workspace
 
@@ -127,13 +127,13 @@ using the main workspace agent.
 ## Dev container features
 
 You can use standard [dev container features](https://containers.dev/features)
-in your `devcontainer.json` file. Coder also maintains a
+in your `devcontainer.json` file. Neural Inverse Cloud also maintains a
 [repository of features](https://github.com/coder/devcontainer-features) to
 enhance your development experience.
 
 For example, the
 [code-server](https://github.com/coder/devcontainer-features/blob/main/src/code-server)
-feature from the [Coder features repository](https://github.com/coder/devcontainer-features):
+feature from the [Neural Inverse Cloud features repository](https://github.com/coder/devcontainer-features):
 
 ```json
 {
@@ -149,7 +149,7 @@ feature from the [Coder features repository](https://github.com/coder/devcontain
 ## Rebuilding dev containers
 
 When you modify your `devcontainer.json`, you need to rebuild the container for
-changes to take effect. Coder detects changes and shows an **Outdated** status
+changes to take effect. Neural Inverse Cloud detects changes and shows an **Outdated** status
 next to the dev container.
 
 ![Dev container showing Outdated status with rebuild option](../../images/user-guides/devcontainers/devcontainer-outdated.png)_The Outdated indicator appears when changes to devcontainer.json are detected_

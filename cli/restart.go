@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -58,8 +58,8 @@ func (r *RootCmd) restart() *serpent.Command {
 			if err != nil {
 				return xerrors.Errorf("parse ephemeral parameters: %w", err)
 			}
-			wbr := codersdk.CreateWorkspaceBuildRequest{
-				Transition: codersdk.WorkspaceTransitionStop,
+			wbr := nicloudsdk.CreateWorkspaceBuildRequest{
+				Transition: nicloudsdk.WorkspaceTransitionStop,
 				// Ephemeral parameters should be passed to both stop and start builds.
 				// TODO: maybe these values should be sourced from the previous build?
 				//  It has to be manually sourced, as ephemeral parameters do not carry across
@@ -67,7 +67,7 @@ func (r *RootCmd) restart() *serpent.Command {
 				RichParameterValues: stopParamValues,
 			}
 			if bflags.provisionerLogDebug {
-				wbr.LogLevel = codersdk.ProvisionerLogLevelDebug
+				wbr.LogLevel = nicloudsdk.ProvisionerLogLevelDebug
 			}
 			build, err := client.CreateWorkspaceBuild(ctx, workspace.ID, wbr)
 			if err != nil {
@@ -82,7 +82,7 @@ func (r *RootCmd) restart() *serpent.Command {
 			build, err = client.CreateWorkspaceBuild(ctx, workspace.ID, startReq)
 			// It's possible for a workspace build to fail due to the template requiring starting
 			// workspaces with the active version.
-			if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusForbidden {
+			if cerr, ok := nicloudsdk.AsError(err); ok && cerr.StatusCode() == http.StatusForbidden {
 				_, _ = fmt.Fprintln(inv.Stdout, "Unable to restart the workspace with the template version from the last build. Policy may require you to restart with the current active template version.")
 				build, err = startWorkspace(inv, client, workspace, parameterFlags, bflags, WorkspaceUpdate)
 				if err != nil {

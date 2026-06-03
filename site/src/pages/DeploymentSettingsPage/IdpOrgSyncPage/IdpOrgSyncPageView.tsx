@@ -108,7 +108,7 @@ export const IdpOrgSyncPageView: FC<IdpSyncPageViewProps> = ({
 		onSubmit,
 		enableReinitialize: Boolean(organizationSyncSettings),
 	});
-	const [coderOrgs, setCoderOrgs] = useState<Option[]>([]);
+	const [niOrgs, setCoderOrgs] = useState<Option[]>([]);
 	const [idpOrgName, setIdpOrgName] = useState("");
 	const [inputValue, setInputValue] = useState("");
 	const organizationMappingCount = form.values.mapping
@@ -290,7 +290,7 @@ export const IdpOrgSyncPageView: FC<IdpSyncPageViewProps> = ({
 										id: `${id}-coder-org`,
 									}}
 									className="min-w-60 max-w-3xl"
-									value={coderOrgs}
+									value={niOrgs}
 									onChange={setCoderOrgs}
 									options={organizations.map((org) => ({
 										label: org.display_name,
@@ -310,13 +310,13 @@ export const IdpOrgSyncPageView: FC<IdpSyncPageViewProps> = ({
 								<Button
 									type="submit"
 									className="min-w-fit"
-									disabled={!idpOrgName || coderOrgs.length === 0}
+									disabled={!idpOrgName || niOrgs.length === 0}
 									onClick={async () => {
 										const newSyncSettings = {
 											...form.values,
 											mapping: {
 												...form.values.mapping,
-												[idpOrgName]: coderOrgs.map((org) => org.value),
+												[idpOrgName]: niOrgs.map((org) => org.value),
 											},
 										};
 										void form.setFieldValue("mapping", newSyncSettings.mapping);
@@ -347,7 +347,7 @@ export const IdpOrgSyncPageView: FC<IdpSyncPageViewProps> = ({
 										<OrganizationRow
 											key={idpOrg}
 											idpOrg={idpOrg}
-											coderOrgs={getOrgNames(organizations)}
+											niOrgs={getOrgNames(organizations)}
 											onDelete={handleDelete}
 											exists={claimFieldValues?.includes(idpOrg)}
 										/>
@@ -432,14 +432,14 @@ const IdpMappingTable: FC<IdpMappingTableProps> = ({ isEmpty, children }) => {
 interface OrganizationRowProps {
 	idpOrg: string;
 	exists: boolean | undefined;
-	coderOrgs: readonly string[];
+	niOrgs: readonly string[];
 	onDelete: (idpOrg: string) => void;
 }
 
 const OrganizationRow: FC<OrganizationRowProps> = ({
 	idpOrg,
 	exists = true,
-	coderOrgs,
+	niOrgs,
 	onDelete,
 }) => {
 	return (
@@ -467,7 +467,7 @@ const OrganizationRow: FC<OrganizationRowProps> = ({
 				</div>
 			</TableCell>
 			<TableCell>
-				<OrganizationPills organizations={coderOrgs} />
+				<OrganizationPills organizations={niOrgs} />
 			</TableCell>
 			<TableCell>
 				<Button

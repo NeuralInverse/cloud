@@ -12,22 +12,22 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestTokens(t *testing.T) {
 	t.Parallel()
-	client := coderdtest.New(t, nil)
-	adminUser := coderdtest.CreateFirstUser(t, client)
+	client := nicloudtest.New(t, nil)
+	adminUser := nicloudtest.CreateFirstUser(t, client)
 
-	secondUserClient, secondUser := coderdtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
-	thirdUserClient, thirdUser := coderdtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
+	secondUserClient, secondUser := nicloudtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
+	thirdUserClient, thirdUser := nicloudtest.CreateAnotherUser(t, client, adminUser.OrganizationID)
 
 	ctx, cancelFunc := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancelFunc()
@@ -56,7 +56,7 @@ func TestTokens(t *testing.T) {
 
 	allowWorkspaceID := uuid.New()
 	allowSpec := fmt.Sprintf("workspace:%s", allowWorkspaceID.String())
-	inv, root = clitest.New(t, "tokens", "create", "--name", "scoped-token", "--scope", string(codersdk.APIKeyScopeWorkspaceRead), "--allow", allowSpec)
+	inv, root = clitest.New(t, "tokens", "create", "--name", "scoped-token", "--scope", string(nicloudsdk.APIKeyScopeWorkspaceRead), "--allow", allowSpec)
 	clitest.SetupConfig(t, client, root)
 	buf = new(bytes.Buffer)
 	inv.Stdout = buf
@@ -103,7 +103,7 @@ func TestTokens(t *testing.T) {
 	err = inv.WithContext(ctx).Run()
 	require.NoError(t, err)
 	res = buf.String()
-	require.Contains(t, res, string(codersdk.APIKeyScopeWorkspaceRead))
+	require.Contains(t, res, string(nicloudsdk.APIKeyScopeWorkspaceRead))
 	require.Contains(t, res, allowSpec)
 
 	// Test listing tokens from the second user's session
@@ -146,17 +146,17 @@ func TestTokens(t *testing.T) {
 	err = inv.WithContext(ctx).Run()
 	require.NoError(t, err)
 
-	var tokens []codersdk.APIKey
+	var tokens []nicloudsdk.APIKey
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &tokens))
 	require.Len(t, tokens, 2)
-	tokenByName := make(map[string]codersdk.APIKey, len(tokens))
+	tokenByName := make(map[string]nicloudsdk.APIKey, len(tokens))
 	for _, tk := range tokens {
 		tokenByName[tk.TokenName] = tk
 	}
 	require.Contains(t, tokenByName, "token-one")
 	require.Contains(t, tokenByName, "scoped-token")
 	scopedToken := tokenByName["scoped-token"]
-	require.Contains(t, scopedToken.Scopes, codersdk.APIKeyScopeWorkspaceRead)
+	require.Contains(t, scopedToken.Scopes, nicloudsdk.APIKeyScopeWorkspaceRead)
 	require.Len(t, scopedToken.AllowList, 1)
 	require.Equal(t, allowSpec, scopedToken.AllowList[0].String())
 
@@ -251,8 +251,8 @@ func TestTokens(t *testing.T) {
 func TestTokensListExpiredFiltering(t *testing.T) {
 	t.Parallel()
 
-	client, _, api := coderdtest.NewWithAPI(t, nil)
-	owner := coderdtest.CreateFirstUser(t, client)
+	client, _, api := nicloudtest.NewWithAPI(t, nil)
+	owner := nicloudtest.CreateFirstUser(t, client)
 
 	// Create a valid (non-expired) token
 	validToken, _ := dbgen.APIKey(t, api.Database, database.APIKey{

@@ -3,7 +3,7 @@ package context
 import (
 	"context"
 
-	"github.com/coder/coder/v2/aibridge/recorder"
+	"github.com/NeuralInverse/cloud/v2/aibridge/recorder"
 )
 
 type (

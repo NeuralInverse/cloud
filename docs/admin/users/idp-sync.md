@@ -3,10 +3,10 @@
 
 > [!NOTE]
 > IdP sync is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 IdP (Identity provider) sync allows you to use OpenID Connect (OIDC) to
-synchronize Coder groups, roles, and organizations based on claims from your IdP.
+synchronize Neural Inverse Cloud groups, roles, and organizations based on claims from your IdP.
 
 ## Prerequisites
 
@@ -33,8 +33,8 @@ for help troubleshooting common issues.
 
 ## Group Sync
 
-If your OpenID Connect provider supports group claims, you can configure Coder
-to synchronize groups in your auth provider to groups within Coder. To enable
+If your OpenID Connect provider supports group claims, you can configure Neural Inverse Cloud
+to synchronize groups in your auth provider to groups within Neural Inverse Cloud. To enable
 group sync, ensure that the `groups` claim is being sent by your OpenID
 provider. You might need to request an additional
 [scope](../../reference/cli/server.md#--oidc-scopes) or additional configuration
@@ -66,13 +66,13 @@ group sync for each organization.
    **Save**.
 
 1. Select **Auto create missing groups** to automatically create groups
-   returned by the OIDC provider if they do not exist in Coder.
+   returned by the OIDC provider if they do not exist in Neural Inverse Cloud.
 
-1. Enter the **IdP group name** and **Coder group**, then **Add IdP group**.
+1. Enter the **IdP group name** and **Neural Inverse Cloud group**, then **Add IdP group**.
 
 ### CLI
 
-1. Confirm you have the [Coder CLI](../../install/index.md) installed and are
+1. Confirm you have the [Neural Inverse Cloud CLI](../../install/index.md) installed and are
    logged in with a user who is an Owner or has an Organization Admin role.
 
 1. To fetch the current group sync settings for an organization, run the
@@ -96,7 +96,7 @@ group sync for each organization.
    ```
 
 Below is an example that uses the `groups` claim and maps all groups prefixed by
-`coder-` into Coder:
+`coder-` into Neural Inverse Cloud:
 
 ```json
 {
@@ -107,12 +107,12 @@ Below is an example that uses the `groups` claim and maps all groups prefixed by
 }
 ```
 
-You must specify Coder group IDs instead of group names.
+You must specify Neural Inverse Cloud group IDs instead of group names.
 You can find the ID for a corresponding group by visiting
 `https://coder.example.com/api/v2/groups`.
 
 Here is another example which maps `coder-admins` from the identity provider to
-two groups in Coder and `coder-users` from the identity provider to another
+two groups in Neural Inverse Cloud and `coder-users` from the identity provider to another
 group:
 
 ```json
@@ -138,24 +138,24 @@ coder organizations settings set group-sync \
   < group-sync.json
 ```
 
-Visit the Coder UI to confirm these changes:
+Visit the Neural Inverse Cloud UI to confirm these changes:
 
 ![IdP Sync](../../images/admin/users/organizations/group-sync.png)
 
 ### Server Flags
 
 > [!NOTE]
-> Use server flags only with Coder deployments with a single organization.
+> Use server flags only with Neural Inverse Cloud deployments with a single organization.
 > You can use the dashboard to configure group sync instead.
 
-1. Configure the Coder server to read groups from the claim name with the
+1. Configure the Neural Inverse Cloud server to read groups from the claim name with the
    [OIDC group field](../../reference/cli/server.md#--oidc-group-field) server
    flag:
 
    - Environment variable:
 
      ```sh
-     CODER_OIDC_GROUP_FIELD=groups
+     NEURALINVERSE_OIDC_GROUP_FIELD=groups
      ```
 
    - As a flag:
@@ -165,10 +165,10 @@ Visit the Coder UI to confirm these changes:
      ```
 
 1. On login, users will automatically be assigned to groups that have matching
-   names in Coder and removed from groups that the user no longer belongs to.
+   names in Neural Inverse Cloud and removed from groups that the user no longer belongs to.
 
 1. For cases when an OIDC provider only returns group IDs or you want to have
-   different group names in Coder than in your OIDC provider, you can configure
+   different group names in Neural Inverse Cloud than in your OIDC provider, you can configure
    mapping between the two with the
    [OIDC group mapping](../../reference/cli/server.md#--oidc-group-mapping) server
    flag:
@@ -176,42 +176,42 @@ Visit the Coder UI to confirm these changes:
    - Environment variable:
 
      ```sh
-     CODER_OIDC_GROUP_MAPPING='{"myOIDCGroupID": "myCoderGroupName"}'
+     NEURALINVERSE_OIDC_GROUP_MAPPING='{"myOIDCGroupID": "myNeural Inverse CloudGroupName"}'
      ```
 
    - As a flag:
 
      ```sh
-     --oidc-group-mapping '{"myOIDCGroupID": "myCoderGroupName"}'
+     --oidc-group-mapping '{"myOIDCGroupID": "myNeural Inverse CloudGroupName"}'
      ```
 
-   Below is an example mapping in the Coder Helm chart:
+   Below is an example mapping in the Neural Inverse Cloud Helm chart:
 
    ```yaml
    coder:
      env:
-       - name: CODER_OIDC_GROUP_MAPPING
+       - name: NEURALINVERSE_OIDC_GROUP_MAPPING
          value: >
-           {"myOIDCGroupID": "myCoderGroupName"}
+           {"myOIDCGroupID": "myNeural Inverse CloudGroupName"}
    ```
 
    From this example, users that belong to the `myOIDCGroupID` group in your
-   OIDC provider will be added to the `myCoderGroupName` group in Coder.
+   OIDC provider will be added to the `myNeural Inverse CloudGroupName` group in Neural Inverse Cloud.
 
 </div>
 
 ### Group allowlist
 
-You can limit which groups from your identity provider can log in to Coder with
-[CODER_OIDC_ALLOWED_GROUPS](../../reference/cli/server.md#--oidc-allowed-groups).
+You can limit which groups from your identity provider can log in to Neural Inverse Cloud with
+[NEURALINVERSE_OIDC_ALLOWED_GROUPS](../../reference/cli/server.md#--oidc-allowed-groups).
 Users who are not in a matching group will see the following error:
 
 <Image height="412px" src="../../images/admin/group-allowlist.png" alt="Unauthorized group error" align="center" />
 
 ## Role Sync
 
-If your OpenID Connect provider supports roles claims, you can configure Coder
-to synchronize roles in your auth provider to roles within Coder.
+If your OpenID Connect provider supports roles claims, you can configure Neural Inverse Cloud
+to synchronize roles in your auth provider to roles within Neural Inverse Cloud.
 
 For deployments with multiple [organizations](./organizations.md), configure
 role sync at the organization level.
@@ -229,7 +229,7 @@ role sync at the organization level.
 
 1. Enter the **Role sync field**, then select **Save**.
 
-1. Enter the **IdP role name** and **Coder role**, then **Add IdP role**.
+1. Enter the **IdP role name** and **Neural Inverse Cloud role**, then **Add IdP role**.
 
    To add a new custom role, select **Roles** from the sidebar, then
    **Create custom role**.
@@ -238,7 +238,7 @@ role sync at the organization level.
 
 ### CLI
 
-1. Confirm you have the [Coder CLI](../../install/index.md) installed and are
+1. Confirm you have the [Neural Inverse Cloud CLI](../../install/index.md) installed and are
    logged in with a user who is an Owner or has an Organization Admin role.
 
 1. To fetch the current group sync settings for an organization, run the
@@ -285,40 +285,40 @@ coder organizations settings set role-sync \
   < role-sync.json
 ```
 
-Visit the Coder UI to confirm these changes:
+Visit the Neural Inverse Cloud UI to confirm these changes:
 
 ![IdP Sync](../../images/admin/users/organizations/role-sync.png)
 
 ### Server Flags
 
 > [!NOTE]
-> Use server flags only with Coder deployments with a single organization.
+> Use server flags only with Neural Inverse Cloud deployments with a single organization.
 > You can use the dashboard to configure role sync instead.
 
-1. Configure the Coder server to read groups from the claim name with the
+1. Configure the Neural Inverse Cloud server to read groups from the claim name with the
    [OIDC role field](../../reference/cli/server.md#--oidc-user-role-field)
    server flag:
 
-1. Set the following in your Coder server [configuration](../setup/index.md).
+1. Set the following in your Neural Inverse Cloud server [configuration](../setup/index.md).
 
    ```env
     # Depending on your identity provider configuration, you may need to explicitly request a "roles" scope
-   CODER_OIDC_SCOPES=openid,profile,email,offline_access,roles
+   NEURALINVERSE_OIDC_SCOPES=openid,profile,email,offline_access,roles
 
    # The following fields are required for role sync:
-   CODER_OIDC_USER_ROLE_FIELD=roles
-   CODER_OIDC_USER_ROLE_MAPPING='{"TemplateAuthor":["template-admin","user-admin"]}'
+   NEURALINVERSE_OIDC_USER_ROLE_FIELD=roles
+   NEURALINVERSE_OIDC_USER_ROLE_MAPPING='{"TemplateAuthor":["template-admin","user-admin"]}'
    ```
 
-One role from your identity provider can be mapped to many roles in Coder. The
-example above maps to two roles in Coder.
+One role from your identity provider can be mapped to many roles in Neural Inverse Cloud. The
+example above maps to two roles in Neural Inverse Cloud.
 
 </div>
 
 ## Organization Sync
 
 If your OpenID Connect provider supports groups/role claims, you can configure
-Coder to synchronize claims in your auth provider to organizations within Coder.
+Neural Inverse Cloud to synchronize claims in your auth provider to organizations within Neural Inverse Cloud.
 
 Viewing and editing the organization settings requires deployment admin
 permissions (UserAdmin or Owner).
@@ -327,7 +327,7 @@ Organization sync works across all organizations. On user login, the sync will
 add and remove the user from organizations based on their IdP claims. After the
 sync, the user's state should match that of the IdP.
 
-You can initiate an organization sync through the Coder dashboard or CLI:
+You can initiate an organization sync through the Neural Inverse Cloud dashboard or CLI:
 
 <div class="tabs">
 
@@ -339,7 +339,7 @@ You can initiate an organization sync through the Coder dashboard or CLI:
    https://[coder.example.com]/api/v2/organizations
    ```
 
-1. As a Coder organization user admin or site-wide user admin, go to
+1. As a Neural Inverse Cloud organization user admin or site-wide user admin, go to
    **Admin settings** > **Deployment** and select **IdP organization sync**.
 
 1. In the **Organization sync field** text box, enter the organization claim,
@@ -350,14 +350,14 @@ You can initiate an organization sync through the Coder dashboard or CLI:
    Do not disable **Assign Default Organization**. If you disable the default
    organization, the system will remove users who are already assigned to it.
 
-1. Enter an IdP organization name and Coder organization(s), then select **Add
+1. Enter an IdP organization name and Neural Inverse Cloud organization(s), then select **Add
    IdP organization**:
 
    ![IdP organization sync](../../images/admin/users/organizations/idp-org-sync.png)
 
 ### CLI
 
-Use the Coder CLI to show and adjust the settings.
+Use the Neural Inverse Cloud CLI to show and adjust the settings.
 
 These deployment-wide settings are stored in the database. After you change the
 settings, a user's memberships will update when they log out and log back in.
@@ -413,13 +413,13 @@ Some common issues when enabling group, role, or organization sync.
 
 If you are running into issues with a sync:
 
-1. View your Coder server logs and enable
+1. View your Neural Inverse Cloud server logs and enable
    [verbose mode](../../reference/cli/index.md#-v---verbose).
 
 1. To reduce noise, you can filter for only logs related to group/role sync:
 
    ```sh
-   CODER_LOG_FILTER=".*userauth.*|.*groups returned.*"
+   NEURALINVERSE_LOG_FILTER=".*userauth.*|.*groups returned.*"
    ```
 
 1. Restart the server after changing these configuration values.
@@ -429,16 +429,16 @@ If you are running into issues with a sync:
 The logs for a successful sync look like this (human-readable):
 
 ```sh
-[debu]  coderd.userauth: got oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  source=id_token  claim_fields="[aio aud email exp groups iat idp iss name nbf oid preferred_username rh sub tid uti ver]"  blank=[]
+[debu]  nicloud.userauth: got oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  source=id_token  claim_fields="[aio aud email exp groups iat idp iss name nbf oid preferred_username rh sub tid uti ver]"  blank=[]
 
-[debu]  coderd.userauth: got oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  source=userinfo  claim_fields="[email family_name given_name name picture sub]"  blank=[]
+[debu]  nicloud.userauth: got oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  source=userinfo  claim_fields="[email family_name given_name name picture sub]"  blank=[]
 
-[debu]  coderd.userauth: got oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  source=merged  claim_fields="[aio aud email exp family_name given_name groups iat idp iss name nbf oid picture preferred_username rh sub tid uti ver]"  blank=[]
+[debu]  nicloud.userauth: got oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  source=merged  claim_fields="[aio aud email exp family_name given_name groups iat idp iss name nbf oid picture preferred_username rh sub tid uti ver]"  blank=[]
 
-[debu]  coderd: groups returned in oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  email=ben@coder.com  username=ben  len=3  groups="[c8048e91-f5c3-47e5-9693-834de84034ad 66ad2cc3-a42f-4574-a281-40d1922e5b65 70b48175-107b-4ad8-b405-4d888a1c466f]"
+[debu]  nicloud: groups returned in oidc claims  request_id=49e86507-6842-4b0b-94d4-f245e62e49f3  email=ben@cloud.neuralinverse.com  username=ben  len=3  groups="[c8048e91-f5c3-47e5-9693-834de84034ad 66ad2cc3-a42f-4574-a281-40d1922e5b65 70b48175-107b-4ad8-b405-4d888a1c466f]"
 ```
 
-To view the full claim, the Owner role can visit this endpoint on their Coder
+To view the full claim, the Owner role can visit this endpoint on their Neural Inverse Cloud
 deployment after logging in:
 
 ```sh
@@ -447,7 +447,7 @@ https://[coder.example.com]/api/v2/debug/[username]/debug-link
 
 ### User not being assigned / Group does not exist
 
-If you want Coder to create groups that do not exist, you can set the following
+If you want Neural Inverse Cloud to create groups that do not exist, you can set the following
 environment variable.
 
 If you enable this, your OIDC provider might be sending over many unnecessary
@@ -456,7 +456,7 @@ to prevent creating excess groups.
 
 ```env
 # as an environment variable
-CODER_OIDC_GROUP_AUTO_CREATE=true
+NEURALINVERSE_OIDC_GROUP_AUTO_CREATE=true
 ```
 
 ```shell
@@ -464,8 +464,8 @@ CODER_OIDC_GROUP_AUTO_CREATE=true
 --oidc-group-auto-create=true
 ```
 
-A basic regex filtering option on the Coder side is available. This is applied
-**after** the group mapping (`CODER_OIDC_GROUP_MAPPING`), meaning if the group
+A basic regex filtering option on the Neural Inverse Cloud side is available. This is applied
+**after** the group mapping (`NEURALINVERSE_OIDC_GROUP_MAPPING`), meaning if the group
 is remapped, the remapped value is tested in the regex. This is useful if you
 want to filter out groups that do not match a certain pattern. For example, if
 you want to only allow groups that start with `my-group-` to be created, you can
@@ -473,7 +473,7 @@ set the following environment variable.
 
 ```env
 # as an environment variable
-CODER_OIDC_GROUP_REGEX_FILTER="^my-group-.*$"
+NEURALINVERSE_OIDC_GROUP_REGEX_FILTER="^my-group-.*$"
 ```
 
 ```shell
@@ -494,7 +494,7 @@ scope. For example, Azure AD uses `GroupMember.Read.All` instead of `groups`.
 You can find the correct scope name in the IdP's documentation. Some IdPs allow
 configuring the name of this scope.
 
-The solution is to update the value of `CODER_OIDC_SCOPES` to the correct value
+The solution is to update the value of `NEURALINVERSE_OIDC_SCOPES` to the correct value
 for the identity provider.
 
 ### No `group` claim in the `got oidc claims` log
@@ -505,7 +505,7 @@ Steps to troubleshoot.
    `groups` claim will be sent.
 2. Check if another claim appears to be the correct claim with a different name.
    A common name is `memberOf` instead of `groups`. If this is present, update
-   `CODER_OIDC_GROUP_FIELD=memberOf`.
+   `NEURALINVERSE_OIDC_GROUP_FIELD=memberOf`.
 3. Make sure the number of groups being sent is under the limit of the IdP. Some
    IdPs will return an error, while others will just omit the `groups` claim. A
    common solution is to create a filter on the identity provider that returns
@@ -522,7 +522,7 @@ Steps to troubleshoot.
 > [!NOTE]
 > Tested on ADFS 4.0, Windows Server 2019
 
-1. In your Federation Server, create a new application group for Coder.
+1. In your Federation Server, create a new application group for Neural Inverse Cloud.
    Follow the steps as described in the [Windows Server documentation]
    (https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/development/msal/adfs-msal-web-app-web-api#app-registration-in-ad-fs).
 
@@ -538,13 +538,13 @@ Steps to troubleshoot.
    This will look something like
    `https://adfs.corp/adfs/.well-known/openid-configuration`.
 
-1. In Coder's configuration file (or Helm values as appropriate), set the
+1. In Neural Inverse Cloud's configuration file (or Helm values as appropriate), set the
    following environment variables or their corresponding CLI arguments:
 
-   - `CODER_OIDC_ISSUER_URL`: `issuer` value from the previous step.
-   - `CODER_OIDC_CLIENT_ID`: Client ID from step 1.
-   - `CODER_OIDC_CLIENT_SECRET`: Client Secret from step 1.
-   - `CODER_OIDC_AUTH_URL_PARAMS`: set to
+   - `NEURALINVERSE_OIDC_ISSUER_URL`: `issuer` value from the previous step.
+   - `NEURALINVERSE_OIDC_CLIENT_ID`: Client ID from step 1.
+   - `NEURALINVERSE_OIDC_CLIENT_SECRET`: Client Secret from step 1.
+   - `NEURALINVERSE_OIDC_AUTH_URL_PARAMS`: set to
 
      ```json
      {"resource":"$CLIENT_ID"}
@@ -556,7 +556,7 @@ Steps to troubleshoot.
      This is required for the upstream OIDC provider to return the requested
      claims.
 
-   - `CODER_OIDC_IGNORE_USERINFO`: Set to `true`.
+   - `NEURALINVERSE_OIDC_IGNORE_USERINFO`: Set to `true`.
 
 1. Configure
    [Issuance Transform Rules](https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/operations/create-a-rule-to-send-ldap-attributes-as-claims)

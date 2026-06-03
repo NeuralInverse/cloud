@@ -13,21 +13,21 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 }
 
 var _ harness.Runnable = &Runner{}
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -59,7 +59,7 @@ func (r *Runner) Run(ctx context.Context, _ string, logs io.Writer) error {
 		height = DefaultHeight
 	}
 
-	_, _ = fmt.Fprintln(logs, "Opening reconnecting PTY connection to agent via coderd...")
+	_, _ = fmt.Fprintln(logs, "Opening reconnecting PTY connection to agent via nicloud...")
 	_, _ = fmt.Fprintf(logs, "\tID:      %s\n", id.String())
 	_, _ = fmt.Fprintf(logs, "\tWidth:   %d\n", width)
 	_, _ = fmt.Fprintf(logs, "\tHeight:  %d\n", height)

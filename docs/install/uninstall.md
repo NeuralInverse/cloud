@@ -1,11 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 # Uninstall
 
-This article walks you through how to uninstall your Coder server.
+This article walks you through how to uninstall your Neural Inverse Cloud server.
 
-To uninstall your Coder server, delete the following directories.
+To uninstall your Neural Inverse Cloud server, delete the following directories.
 
-## The Coder server binary and CLI
+## The Neural Inverse Cloud server binary and CLI
 
 <div class="tabs">
 
@@ -33,7 +33,7 @@ sudo apk del coder
 
 </div>
 
-If you installed Coder manually or used the install script on an unsupported
+If you installed Neural Inverse Cloud manually or used the install script on an unsupported
 operating system, you can remove the binary directly:
 
 ```shell
@@ -46,7 +46,7 @@ sudo rm /usr/local/bin/coder
 brew uninstall coder
 ```
 
-If you installed Coder manually, you can remove the binary directly:
+If you installed Neural Inverse Cloud manually, you can remove the binary directly:
 
 ```shell
 sudo rm /usr/local/bin/coder
@@ -55,18 +55,18 @@ sudo rm /usr/local/bin/coder
 ## Windows
 
 ```powershell
-winget uninstall Coder.Coder
+winget uninstall Neural Inverse Cloud.Neural Inverse Cloud
 ```
 
 </div>
 
-## Coder as a system service configuration
+## Neural Inverse Cloud as a system service configuration
 
 ```shell
 sudo rm /etc/coder.d/coder.env
 ```
 
-## Coder settings, cache, and the optional built-in PostgreSQL database
+## Neural Inverse Cloud settings, cache, and the optional built-in PostgreSQL database
 
 There is a `postgres` directory within the `coderv2` directory that has the
 database engine and database. If you want to reuse the database, consider not

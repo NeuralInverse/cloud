@@ -44,25 +44,25 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/tailnettest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/pty/ptytest"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/tailnettest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
 func TestMain(m *testing.M) {
-	if os.Getenv("CODER_TEST_RUN_SUB_AGENT_MAIN") == "1" {
+	if os.Getenv("NEURALINVERSE_TEST_RUN_SUB_AGENT_MAIN") == "1" {
 		// If we're running as a subagent, we don't want to run the main tests.
 		// Instead, we just run the subagent tests.
 		exit := runSubAgentMain()
@@ -385,7 +385,7 @@ func TestAgent_SessionExec(t *testing.T) {
 		t.Run(fmt.Sprintf("(:%d)", port), func(t *testing.T) {
 			t.Parallel()
 
-			session := setupSSHSessionOnPort(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil, port)
+			session := setupSSHSessionOnPort(t, agentsdk.Manifest{}, nicloudsdk.ServiceBannerConfig{}, nil, port)
 
 			command := "echo test"
 			if runtime.GOOS == "windows" {
@@ -404,7 +404,7 @@ func TestAgent_Session_EnvironmentVariables(t *testing.T) {
 
 	tmpdir := t.TempDir()
 
-	// Defined by the coder script runner, hardcoded here since we don't
+	// Defined by the neuralinverse script runner, hardcoded here since we don't
 	// have a reference to it.
 	scriptBinDir := filepath.Join(tmpdir, "coder-script-data", "bin")
 
@@ -415,7 +415,7 @@ func TestAgent_Session_EnvironmentVariables(t *testing.T) {
 			"MY_SESSION_MANIFEST": "false",
 		},
 	}
-	banner := codersdk.ServiceBannerConfig{}
+	banner := nicloudsdk.ServiceBannerConfig{}
 	session := setupSSHSession(t, manifest, banner, nil, func(_ *agenttest.Client, opts *agent.Options) {
 		opts.ScriptDataDir = tmpdir
 		opts.EnvironmentVariables["MY_OVERRIDE"] = "true"
@@ -595,7 +595,7 @@ func TestAgent_StartupScript_SecretInjection(t *testing.T) {
 	)
 
 	manifest := agentsdk.Manifest{
-		Scripts: []codersdk.WorkspaceAgentScript{{
+		Scripts: []nicloudsdk.WorkspaceAgentScript{{
 			Script:     script,
 			Timeout:    30 * time.Second,
 			RunOnStart: true,
@@ -614,12 +614,12 @@ func TestAgent_StartupScript_SecretInjection(t *testing.T) {
 	})
 
 	// Wait for the startup script to complete.
-	var got []codersdk.WorkspaceAgentLifecycle
+	var got []nicloudsdk.WorkspaceAgentLifecycle
 	assert.Eventually(t, func() bool {
 		got = client.GetLifecycleStates()
-		return len(got) > 0 && got[len(got)-1] == codersdk.WorkspaceAgentLifecycleReady
+		return len(got) > 0 && got[len(got)-1] == nicloudsdk.WorkspaceAgentLifecycleReady
 	}, testutil.WaitLong, testutil.IntervalMedium)
-	require.Contains(t, got, codersdk.WorkspaceAgentLifecycleReady, "agent never reached ready")
+	require.Contains(t, got, nicloudsdk.WorkspaceAgentLifecycleReady, "agent never reached ready")
 
 	// Verify the startup script could read the secret env var.
 	envProof, err := os.ReadFile(envProofPath)
@@ -634,7 +634,7 @@ func TestAgent_StartupScript_SecretInjection(t *testing.T) {
 
 func TestAgent_GitSSH(t *testing.T) {
 	t.Parallel()
-	session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+	session := setupSSHSession(t, agentsdk.Manifest{}, nicloudsdk.ServiceBannerConfig{}, nil)
 	command := "sh -c 'echo $GIT_SSH_COMMAND'"
 	if runtime.GOOS == "windows" {
 		command = "cmd.exe /c echo %GIT_SSH_COMMAND%"
@@ -658,7 +658,7 @@ func TestAgent_SessionTTYShell(t *testing.T) {
 			t.Parallel()
 			ctx := testutil.Context(t, testutil.WaitMedium)
 
-			session := setupSSHSessionOnPort(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil, port)
+			session := setupSSHSessionOnPort(t, agentsdk.Manifest{}, nicloudsdk.ServiceBannerConfig{}, nil, port)
 			command := "sh"
 			if runtime.GOOS == "windows" {
 				command = "cmd.exe"
@@ -683,7 +683,7 @@ func TestAgent_SessionTTYShell(t *testing.T) {
 
 func TestAgent_SessionTTYExitCode(t *testing.T) {
 	t.Parallel()
-	session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+	session := setupSSHSession(t, agentsdk.Manifest{}, nicloudsdk.ServiceBannerConfig{}, nil)
 	command := "areallynotrealcommand"
 	err := session.RequestPty("xterm", 128, 128, ssh.TerminalModes{})
 	require.NoError(t, err)
@@ -723,7 +723,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 	tests := []struct {
 		name       string
 		manifest   agentsdk.Manifest
-		banner     codersdk.ServiceBannerConfig
+		banner     nicloudsdk.ServiceBannerConfig
 		expected   []string
 		unexpected []string
 		expectedRe *regexp.Regexp
@@ -731,14 +731,14 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:       "WithoutServiceBanner",
 			manifest:   agentsdk.Manifest{MOTDFile: name},
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     nicloudsdk.ServiceBannerConfig{},
 			expected:   []string{wantMOTD},
 			unexpected: []string{wantServiceBanner},
 		},
 		{
 			name:     "WithServiceBanner",
 			manifest: agentsdk.Manifest{MOTDFile: name},
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
@@ -747,7 +747,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:     "ServiceBannerDisabled",
 			manifest: agentsdk.Manifest{MOTDFile: name},
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: false,
 				Message: wantServiceBanner,
 			},
@@ -757,7 +757,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:     "ServiceBannerOnly",
 			manifest: agentsdk.Manifest{},
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
@@ -767,13 +767,13 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 		{
 			name:       "None",
 			manifest:   agentsdk.Manifest{},
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     nicloudsdk.ServiceBannerConfig{},
 			unexpected: []string{wantServiceBanner, wantMOTD},
 		},
 		{
 			name:     "CarriageReturns",
 			manifest: agentsdk.Manifest{},
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: "service\n\nbanner\nhere",
 			},
@@ -788,7 +788,7 @@ func TestAgent_Session_TTY_MOTD(t *testing.T) {
 			manifest: agentsdk.Manifest{
 				MOTDFile: name,
 			},
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: "\n\n\n\n\n\nbanner\n\n\n\n\n\n",
 			},
@@ -824,24 +824,24 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 	wantServiceBanner := "Service banner text goes here"
 
 	tests := []struct {
-		banner     codersdk.ServiceBannerConfig
+		banner     nicloudsdk.ServiceBannerConfig
 		expected   []string
 		unexpected []string
 	}{
 		{
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     nicloudsdk.ServiceBannerConfig{},
 			expected:   []string{},
 			unexpected: []string{wantServiceBanner},
 		},
 		{
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
 			expected: []string{wantServiceBanner},
 		},
 		{
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: false,
 				Message: wantServiceBanner,
 			},
@@ -849,7 +849,7 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 			unexpected: []string{wantServiceBanner},
 		},
 		{
-			banner: codersdk.ServiceBannerConfig{
+			banner: nicloudsdk.ServiceBannerConfig{
 				Enabled: true,
 				Message: wantServiceBanner,
 			},
@@ -857,7 +857,7 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 			unexpected: []string{},
 		},
 		{
-			banner:     codersdk.ServiceBannerConfig{},
+			banner:     nicloudsdk.ServiceBannerConfig{},
 			unexpected: []string{wantServiceBanner},
 		},
 	}
@@ -887,12 +887,12 @@ func TestAgent_Session_TTY_MOTD_Update(t *testing.T) {
 				// fetchServiceBannerLoop completes (call + store), so after
 				// receiving two signals at least one store has happened.
 				ready := make(chan struct{}, 2)
-				client.SetAnnouncementBannersFunc(func() ([]codersdk.BannerConfig, error) {
+				client.SetAnnouncementBannersFunc(func() ([]nicloudsdk.BannerConfig, error) {
 					select {
 					case ready <- struct{}{}:
 					default:
 					}
-					return []codersdk.BannerConfig{test.banner}, nil
+					return []nicloudsdk.BannerConfig{test.banner}, nil
 				})
 				testutil.TryReceive(ctx, t, ready)
 				testutil.TryReceive(ctx, t, ready)
@@ -930,7 +930,7 @@ func TestAgent_Session_TTY_QuietLogin(t *testing.T) {
 	t.Run("NotLogin", func(t *testing.T) {
 		session := setupSSHSession(t, agentsdk.Manifest{
 			MOTDFile: name,
-		}, codersdk.ServiceBannerConfig{
+		}, nicloudsdk.ServiceBannerConfig{
 			Enabled: true,
 			Message: wantMaybeServiceBanner,
 		}, func(fs afero.Fs) {
@@ -954,7 +954,7 @@ func TestAgent_Session_TTY_QuietLogin(t *testing.T) {
 	t.Run("Hushlogin", func(t *testing.T) {
 		session := setupSSHSession(t, agentsdk.Manifest{
 			MOTDFile: name,
-		}, codersdk.ServiceBannerConfig{
+		}, nicloudsdk.ServiceBannerConfig{
 			Enabled: true,
 			Message: wantMaybeServiceBanner,
 		}, func(fs afero.Fs) {
@@ -1549,7 +1549,7 @@ func TestAgent_EnvironmentVariables(t *testing.T) {
 		EnvironmentVariables: map[string]string{
 			key: value,
 		},
-	}, codersdk.ServiceBannerConfig{}, nil)
+	}, nicloudsdk.ServiceBannerConfig{}, nil)
 	command := "sh -c 'echo $" + key + "'"
 	if runtime.GOOS == "windows" {
 		command = "cmd.exe /c echo %" + key + "%"
@@ -1566,7 +1566,7 @@ func TestAgent_EnvironmentVariableExpansion(t *testing.T) {
 		EnvironmentVariables: map[string]string{
 			key: "$SOMETHINGNOTSET",
 		},
-	}, codersdk.ServiceBannerConfig{}, nil)
+	}, nicloudsdk.ServiceBannerConfig{}, nil)
 	command := "sh -c 'echo $" + key + "'"
 	if runtime.GOOS == "windows" {
 		command = "cmd.exe /c echo %" + key + "%"
@@ -1584,11 +1584,11 @@ func TestAgent_EnvironmentVariableExpansion(t *testing.T) {
 func TestAgent_CoderEnvVars(t *testing.T) {
 	t.Parallel()
 
-	for _, key := range []string{"CODER", "CODER_WORKSPACE_NAME", "CODER_WORKSPACE_OWNER_NAME", "CODER_WORKSPACE_AGENT_NAME"} {
+	for _, key := range []string{"CODER", "NEURALINVERSE_WORKSPACE_NAME", "NEURALINVERSE_WORKSPACE_OWNER_NAME", "NEURALINVERSE_WORKSPACE_AGENT_NAME"} {
 		t.Run(key, func(t *testing.T) {
 			t.Parallel()
 
-			session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+			session := setupSSHSession(t, agentsdk.Manifest{}, nicloudsdk.ServiceBannerConfig{}, nil)
 			command := "sh -c 'echo $" + key + "'"
 			if runtime.GOOS == "windows" {
 				command = "cmd.exe /c echo %" + key + "%"
@@ -1610,7 +1610,7 @@ func TestAgent_SSHConnectionEnvVars(t *testing.T) {
 		t.Run(key, func(t *testing.T) {
 			t.Parallel()
 
-			session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+			session := setupSSHSession(t, agentsdk.Manifest{}, nicloudsdk.ServiceBannerConfig{}, nil)
 			command := "sh -c 'echo $" + key + "'"
 			if runtime.GOOS == "windows" {
 				command = "cmd.exe /c echo %" + key + "%"
@@ -1652,7 +1652,7 @@ func TestAgent_SSHConnectionLoginVars(t *testing.T) {
 		t.Run(tt.key, func(t *testing.T) {
 			t.Parallel()
 
-			session := setupSSHSession(t, agentsdk.Manifest{}, codersdk.ServiceBannerConfig{}, nil)
+			session := setupSSHSession(t, agentsdk.Manifest{}, nicloudsdk.ServiceBannerConfig{}, nil)
 			command := "sh -c 'echo $" + tt.key + "'"
 			if runtime.GOOS == "windows" {
 				command = "cmd.exe /c echo %" + tt.key + "%"
@@ -1674,7 +1674,7 @@ func TestAgent_Metadata(t *testing.T) {
 
 		//nolint:dogsled
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+			Metadata: []nicloudsdk.WorkspaceAgentMetadataDescription{
 				{
 					Key:      "greeting1",
 					Interval: 0,
@@ -1714,7 +1714,7 @@ func TestAgent_Metadata(t *testing.T) {
 		t.Parallel()
 		//nolint:dogsled
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+			Metadata: []nicloudsdk.WorkspaceAgentMetadataDescription{
 				{
 					Key:      "greeting",
 					Interval: 1,
@@ -1763,7 +1763,7 @@ func TestAgentMetadata_Timing(t *testing.T) {
 	)
 	//nolint:dogsled
 	_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-		Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+		Metadata: []nicloudsdk.WorkspaceAgentMetadataDescription{
 			{
 				Key:      "greeting",
 				Interval: reportInterval,
@@ -1827,19 +1827,19 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{{
 				Script:     "sleep 3",
 				Timeout:    time.Millisecond,
 				RunOnStart: true,
 			}},
 		}, 0)
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleStartTimeout,
+		want := []nicloudsdk.WorkspaceAgentLifecycle{
+			nicloudsdk.WorkspaceAgentLifecycleStarting,
+			nicloudsdk.WorkspaceAgentLifecycleStartTimeout,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []nicloudsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1852,19 +1852,19 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{{
 				Script:     "false",
 				Timeout:    30 * time.Second,
 				RunOnStart: true,
 			}},
 		}, 0)
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleStartError,
+		want := []nicloudsdk.WorkspaceAgentLifecycle{
+			nicloudsdk.WorkspaceAgentLifecycleStarting,
+			nicloudsdk.WorkspaceAgentLifecycleStartError,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []nicloudsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1877,19 +1877,19 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, _ := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{{
 				Script:     "echo foo",
 				Timeout:    30 * time.Second,
 				RunOnStart: true,
 			}},
 		}, 0)
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
+		want := []nicloudsdk.WorkspaceAgentLifecycle{
+			nicloudsdk.WorkspaceAgentLifecycleStarting,
+			nicloudsdk.WorkspaceAgentLifecycleReady,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []nicloudsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return len(got) > 0 && got[len(got)-1] == want[len(want)-1]
@@ -1902,7 +1902,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, closer := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{{
 				Script:    "sleep 3",
 				Timeout:   30 * time.Second,
 				RunOnStop: true,
@@ -1910,7 +1910,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		}, 0)
 
 		assert.Eventually(t, func() bool {
-			return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+			return slices.Contains(client.GetLifecycleStates(), nicloudsdk.WorkspaceAgentLifecycleReady)
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
 		// Start close asynchronously so that we an inspect the state.
@@ -1924,13 +1924,13 @@ func TestAgent_Lifecycle(t *testing.T) {
 			<-done
 		})
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
-			codersdk.WorkspaceAgentLifecycleShuttingDown,
+		want := []nicloudsdk.WorkspaceAgentLifecycle{
+			nicloudsdk.WorkspaceAgentLifecycleStarting,
+			nicloudsdk.WorkspaceAgentLifecycleReady,
+			nicloudsdk.WorkspaceAgentLifecycleShuttingDown,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []nicloudsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1943,7 +1943,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, closer := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{{
 				Script:    "sleep 3",
 				Timeout:   time.Millisecond,
 				RunOnStop: true,
@@ -1951,7 +1951,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		}, 0)
 
 		assert.Eventually(t, func() bool {
-			return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+			return slices.Contains(client.GetLifecycleStates(), nicloudsdk.WorkspaceAgentLifecycleReady)
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
 		// Start close asynchronously so that we an inspect the state.
@@ -1965,14 +1965,14 @@ func TestAgent_Lifecycle(t *testing.T) {
 			<-done
 		})
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
-			codersdk.WorkspaceAgentLifecycleShuttingDown,
-			codersdk.WorkspaceAgentLifecycleShutdownTimeout,
+		want := []nicloudsdk.WorkspaceAgentLifecycle{
+			nicloudsdk.WorkspaceAgentLifecycleStarting,
+			nicloudsdk.WorkspaceAgentLifecycleReady,
+			nicloudsdk.WorkspaceAgentLifecycleShuttingDown,
+			nicloudsdk.WorkspaceAgentLifecycleShutdownTimeout,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []nicloudsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -1985,7 +1985,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		t.Parallel()
 
 		_, client, _, _, closer := setupAgent(t, agentsdk.Manifest{
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{{
 				Script:    "false",
 				Timeout:   30 * time.Second,
 				RunOnStop: true,
@@ -1993,7 +1993,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 		}, 0)
 
 		assert.Eventually(t, func() bool {
-			return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+			return slices.Contains(client.GetLifecycleStates(), nicloudsdk.WorkspaceAgentLifecycleReady)
 		}, testutil.WaitShort, testutil.IntervalMedium)
 
 		// Start close asynchronously so that we an inspect the state.
@@ -2007,14 +2007,14 @@ func TestAgent_Lifecycle(t *testing.T) {
 			<-done
 		})
 
-		want := []codersdk.WorkspaceAgentLifecycle{
-			codersdk.WorkspaceAgentLifecycleStarting,
-			codersdk.WorkspaceAgentLifecycleReady,
-			codersdk.WorkspaceAgentLifecycleShuttingDown,
-			codersdk.WorkspaceAgentLifecycleShutdownError,
+		want := []nicloudsdk.WorkspaceAgentLifecycle{
+			nicloudsdk.WorkspaceAgentLifecycleStarting,
+			nicloudsdk.WorkspaceAgentLifecycleReady,
+			nicloudsdk.WorkspaceAgentLifecycleShuttingDown,
+			nicloudsdk.WorkspaceAgentLifecycleShutdownError,
 		}
 
-		var got []codersdk.WorkspaceAgentLifecycle
+		var got []nicloudsdk.WorkspaceAgentLifecycle
 		assert.Eventually(t, func() bool {
 			got = client.GetLifecycleStates()
 			return slices.Contains(got, want[len(want)-1])
@@ -2036,7 +2036,7 @@ func TestAgent_Lifecycle(t *testing.T) {
 			uuid.New(),
 			agentsdk.Manifest{
 				DERPMap: derpMap,
-				Scripts: []codersdk.WorkspaceAgentScript{{
+				Scripts: []nicloudsdk.WorkspaceAgentScript{{
 					ID:         uuid.New(),
 					LogPath:    "coder-startup-script.log",
 					Script:     "echo 1",
@@ -2362,11 +2362,11 @@ func TestAgent_ReconnectingPTY(t *testing.T) {
 // command. As such, it does not run by default in CI.
 // You can run it manually as follows:
 //
-// CODER_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_ReconnectingPTYContainer
+// NEURALINVERSE_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_ReconnectingPTYContainer
 func TestAgent_ReconnectingPTYContainer(t *testing.T) {
 	t.Parallel()
-	if os.Getenv("CODER_TEST_USE_DOCKER") != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if os.Getenv("NEURALINVERSE_TEST_USE_DOCKER") != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 	if _, err := exec.LookPath("devcontainer"); err != nil {
 		t.Skip("This test requires the devcontainer CLI: npm install -g @devcontainers/cli")
@@ -2436,14 +2436,14 @@ type subAgentRequestPayload struct {
 }
 
 // runSubAgentMain is the main function for the sub-agent that connects
-// to the control plane. It reads the CODER_AGENT_URL and
-// CODER_AGENT_TOKEN environment variables, sends the token, and exits
+// to the control plane. It reads the NEURALINVERSE_AGENT_URL and
+// NEURALINVERSE_AGENT_TOKEN environment variables, sends the token, and exits
 // with a status code based on the response.
 func runSubAgentMain() int {
-	url := os.Getenv("CODER_AGENT_URL")
-	token := os.Getenv("CODER_AGENT_TOKEN")
+	url := os.Getenv("NEURALINVERSE_AGENT_URL")
+	token := os.Getenv("NEURALINVERSE_AGENT_TOKEN")
 	if url == "" || token == "" {
-		_, _ = fmt.Fprintln(os.Stderr, "CODER_AGENT_URL and CODER_AGENT_TOKEN must be set")
+		_, _ = fmt.Fprintln(os.Stderr, "NEURALINVERSE_AGENT_URL and NEURALINVERSE_AGENT_TOKEN must be set")
 		return 10
 	}
 
@@ -2491,12 +2491,12 @@ func runSubAgentMain() int {
 //
 // You can run it manually as follows:
 //
-// CODER_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_DevcontainerAutostart
+// NEURALINVERSE_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_DevcontainerAutostart
 //
 //nolint:paralleltest // This test sets an environment variable.
 func TestAgent_DevcontainerAutostart(t *testing.T) {
-	if os.Getenv("CODER_TEST_USE_DOCKER") != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if os.Getenv("NEURALINVERSE_TEST_USE_DOCKER") != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 	if _, err := exec.LookPath("devcontainer"); err != nil {
 		t.Skip("This test requires the devcontainer CLI: npm install -g @devcontainers/cli")
@@ -2579,7 +2579,7 @@ func TestAgent_DevcontainerAutostart(t *testing.T) {
 	manifest := agentsdk.Manifest{
 		// Set up pre-conditions for auto-starting a devcontainer, the script
 		// is expected to be prepared by the provisioner normally.
-		Devcontainers: []codersdk.WorkspaceAgentDevcontainer{
+		Devcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 			{
 				ID:   devcontainerID,
 				Name: "test",
@@ -2587,7 +2587,7 @@ func TestAgent_DevcontainerAutostart(t *testing.T) {
 				WorkspaceFolder: unexpandedWorkspaceFolder,
 			},
 		},
-		Scripts: []codersdk.WorkspaceAgentScript{
+		Scripts: []nicloudsdk.WorkspaceAgentScript{
 			{
 				ID:          devcontainerID,
 				LogSourceID: agentsdk.ExternalLogSourceID,
@@ -2614,7 +2614,7 @@ func TestAgent_DevcontainerAutostart(t *testing.T) {
 			// The agent will copy "itself", but in the case of this test, the
 			// agent is actually this test binary. So we'll tell the test binary
 			// to execute the sub-agent main function via this env.
-			agentcontainers.WithSubAgentEnv("CODER_TEST_RUN_SUB_AGENT_MAIN=1"),
+			agentcontainers.WithSubAgentEnv("NEURALINVERSE_TEST_RUN_SUB_AGENT_MAIN=1"),
 		)
 	})
 
@@ -2709,10 +2709,10 @@ func TestAgent_DevcontainerAutostart(t *testing.T) {
 //
 // You can run it manually as follows:
 //
-// CODER_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_DevcontainerRecreate
+// NEURALINVERSE_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_DevcontainerRecreate
 func TestAgent_DevcontainerRecreate(t *testing.T) {
-	if os.Getenv("CODER_TEST_USE_DOCKER") != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if os.Getenv("NEURALINVERSE_TEST_USE_DOCKER") != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 	t.Parallel()
 
@@ -2739,14 +2739,14 @@ func TestAgent_DevcontainerRecreate(t *testing.T) {
 	manifest := agentsdk.Manifest{
 		// Set up pre-conditions for auto-starting a devcontainer, the
 		// script is used to extract the log source ID.
-		Devcontainers: []codersdk.WorkspaceAgentDevcontainer{
+		Devcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 			{
 				ID:              devcontainerID,
 				Name:            "test",
 				WorkspaceFolder: workspaceFolder,
 			},
 		},
-		Scripts: []codersdk.WorkspaceAgentScript{
+		Scripts: []nicloudsdk.WorkspaceAgentScript{
 			{
 				ID:          devcontainerID,
 				LogSourceID: devcontainerLogSourceID,
@@ -2771,12 +2771,12 @@ func TestAgent_DevcontainerRecreate(t *testing.T) {
 	// producing logs that may interfere with the recreate logs.
 	testutil.Eventually(ctx, t, func(context.Context) bool {
 		states := client.GetLifecycleStates()
-		return slices.Contains(states, codersdk.WorkspaceAgentLifecycleReady)
+		return slices.Contains(states, nicloudsdk.WorkspaceAgentLifecycleReady)
 	}, testutil.IntervalMedium, "devcontainer not ready")
 
 	t.Logf("Looking for container with label: devcontainer.local_folder=%s", workspaceFolder)
 
-	var container codersdk.WorkspaceAgentContainer
+	var container nicloudsdk.WorkspaceAgentContainer
 	testutil.Eventually(ctx, t, func(context.Context) bool {
 		resp, err := conn.ListContainers(ctx)
 		if err != nil {
@@ -2793,7 +2793,7 @@ func TestAgent_DevcontainerRecreate(t *testing.T) {
 		}
 		return false
 	}, testutil.IntervalMedium, "no container with workspace folder label found")
-	defer func(container codersdk.WorkspaceAgentContainer) {
+	defer func(container nicloudsdk.WorkspaceAgentContainer) {
 		// We can't rely on pool here because the container is not
 		// managed by it (it is managed by @devcontainer/cli).
 		err := pool.Client.RemoveContainer(docker.RemoveContainerOptions{
@@ -2813,7 +2813,7 @@ func TestAgent_DevcontainerRecreate(t *testing.T) {
 	// Invoke recreate to trigger the destruction and recreation of the
 	// devcontainer, we do it in a goroutine so we can process logs
 	// concurrently.
-	go func(container codersdk.WorkspaceAgentContainer) {
+	go func(container nicloudsdk.WorkspaceAgentContainer) {
 		_, err := conn.RecreateDevcontainer(ctx, devcontainerID.String())
 		assert.NoError(t, err, "recreate devcontainer should succeed")
 	}(container)
@@ -2860,7 +2860,7 @@ waitForOutcomeLoop:
 		}
 		return false
 	}, testutil.IntervalMedium, "new devcontainer not found")
-	defer func(container codersdk.WorkspaceAgentContainer) {
+	defer func(container nicloudsdk.WorkspaceAgentContainer) {
 		// We can't rely on pool here because the container is not
 		// managed by it (it is managed by @devcontainer/cli).
 		err := pool.Client.RemoveContainer(docker.RemoveContainerOptions{
@@ -2910,12 +2910,12 @@ func TestAgent_DevcontainersDisabledForSubAgent(t *testing.T) {
 //
 // You can run it manually as follows:
 //
-// CODER_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_DevcontainerPrebuildClaim
+// NEURALINVERSE_TEST_USE_DOCKER=1 go test -count=1 ./agent -run TestAgent_DevcontainerPrebuildClaim
 //
 //nolint:paralleltest // This test sets an environment variable.
 func TestAgent_DevcontainerPrebuildClaim(t *testing.T) {
-	if os.Getenv("CODER_TEST_USE_DOCKER") != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if os.Getenv("NEURALINVERSE_TEST_USE_DOCKER") != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 	if _, err := exec.LookPath("devcontainer"); err != nil {
 		t.Skip("This test requires the devcontainer CLI: npm install -g @devcontainers/cli")
@@ -2951,7 +2951,7 @@ func TestAgent_DevcontainerPrebuildClaim(t *testing.T) {
 		 	"coder": {
 				"apps": [{
 					"slug": "zed",
-					"url": "zed://ssh/${localEnv:CODER_WORKSPACE_AGENT_NAME}.${localEnv:CODER_WORKSPACE_NAME}.${localEnv:CODER_WORKSPACE_OWNER_NAME}.coder${containerWorkspaceFolder}"
+					"url": "zed://ssh/${localEnv:NEURALINVERSE_WORKSPACE_AGENT_NAME}.${localEnv:NEURALINVERSE_WORKSPACE_NAME}.${localEnv:NEURALINVERSE_WORKSPACE_OWNER_NAME}.coder${containerWorkspaceFolder}"
 				}]
 			}
 		}
@@ -2963,10 +2963,10 @@ func TestAgent_DevcontainerPrebuildClaim(t *testing.T) {
 		OwnerName:     "prebuilds",
 		WorkspaceName: "prebuilds-xyz-123",
 
-		Devcontainers: []codersdk.WorkspaceAgentDevcontainer{
+		Devcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 			{ID: devcontainerID, Name: "test", WorkspaceFolder: workspaceFolder},
 		},
-		Scripts: []codersdk.WorkspaceAgentScript{
+		Scripts: []nicloudsdk.WorkspaceAgentScript{
 			{ID: devcontainerID, LogSourceID: devcontainerLogSourceID},
 		},
 	}
@@ -2982,10 +2982,10 @@ func TestAgent_DevcontainerPrebuildClaim(t *testing.T) {
 	})
 
 	testutil.Eventually(ctx, t, func(ctx context.Context) bool {
-		return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+		return slices.Contains(client.GetLifecycleStates(), nicloudsdk.WorkspaceAgentLifecycleReady)
 	}, testutil.IntervalMedium, "agent not ready")
 
-	var dcPrebuild codersdk.WorkspaceAgentDevcontainer
+	var dcPrebuild nicloudsdk.WorkspaceAgentDevcontainer
 	testutil.Eventually(ctx, t, func(ctx context.Context) bool {
 		resp, err := conn.ListContainers(ctx)
 		require.NoError(t, err)
@@ -3038,10 +3038,10 @@ func TestAgent_DevcontainerPrebuildClaim(t *testing.T) {
 		OwnerName:     "user",
 		WorkspaceName: "user-workspace",
 
-		Devcontainers: []codersdk.WorkspaceAgentDevcontainer{
+		Devcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 			{ID: devcontainerID, Name: "test", WorkspaceFolder: workspaceFolder},
 		},
-		Scripts: []codersdk.WorkspaceAgentScript{
+		Scripts: []nicloudsdk.WorkspaceAgentScript{
 			{ID: devcontainerID, LogSourceID: devcontainerLogSourceID},
 		},
 	}
@@ -3057,10 +3057,10 @@ func TestAgent_DevcontainerPrebuildClaim(t *testing.T) {
 	})
 
 	testutil.Eventually(ctx, t, func(ctx context.Context) bool {
-		return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+		return slices.Contains(client.GetLifecycleStates(), nicloudsdk.WorkspaceAgentLifecycleReady)
 	}, testutil.IntervalMedium, "agent not ready")
 
-	var dcClaimed codersdk.WorkspaceAgentDevcontainer
+	var dcClaimed nicloudsdk.WorkspaceAgentDevcontainer
 	testutil.Eventually(ctx, t, func(ctx context.Context) bool {
 		resp, err := conn.ListContainers(ctx)
 		require.NoError(t, err)
@@ -3190,11 +3190,11 @@ func TestAgent_Dial(t *testing.T) {
 				err = conn.Close()
 				require.NoError(t, err)
 
-				// also connect via the CoderServicePrefix, to test that we can reach the agent on this
-				// IP. This will be required for CoderVPN.
+				// also connect via the NIServicePrefix, to test that we can reach the agent on this
+				// IP. This will be required for NIVPN.
 				_, rawPort, _ := net.SplitHostPort(l.Addr().String())
 				port, _ := strconv.ParseUint(rawPort, 10, 16)
-				ipp := netip.AddrPortFrom(tailnet.CoderServicePrefix.AddrFromUUID(agentID), uint16(port))
+				ipp := netip.AddrPortFrom(tailnet.NIServicePrefix.AddrFromUUID(agentID), uint16(port))
 
 				switch l.Addr().Network() {
 				case "tcp":
@@ -3432,7 +3432,7 @@ func TestAgent_ReconnectNoLifecycleReemit(t *testing.T) {
 		agentID,
 		agentsdk.Manifest{
 			DERPMap: derpMap,
-			Scripts: []codersdk.WorkspaceAgentScript{{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{{
 				Script:     "echo hello",
 				Timeout:    30 * time.Second,
 				RunOnStart: true,
@@ -3451,7 +3451,7 @@ func TestAgent_ReconnectNoLifecycleReemit(t *testing.T) {
 
 	// Wait for the agent to reach Ready state.
 	require.Eventually(t, func() bool {
-		return slices.Contains(client.GetLifecycleStates(), codersdk.WorkspaceAgentLifecycleReady)
+		return slices.Contains(client.GetLifecycleStates(), nicloudsdk.WorkspaceAgentLifecycleReady)
 	}, testutil.WaitShort, testutil.IntervalFast)
 
 	statesBefore := slices.Clone(client.GetLifecycleStates())
@@ -3681,7 +3681,7 @@ func TestAgent_ScriptLogging(t *testing.T) {
 		t,
 		agentsdk.Manifest{
 			DERPMap: derpMap,
-			Scripts: []codersdk.WorkspaceAgentScript{
+			Scripts: []nicloudsdk.WorkspaceAgentScript{
 				{
 					LogSourceID: lsStart,
 					RunOnStart:  true,
@@ -3752,7 +3752,7 @@ func setupAgentSSHClient(ctx context.Context, t *testing.T) *ssh.Client {
 func setupSSHSession(
 	t *testing.T,
 	manifest agentsdk.Manifest,
-	banner codersdk.BannerConfig,
+	banner nicloudsdk.BannerConfig,
 	prepareFS func(fs afero.Fs),
 	opts ...func(*agenttest.Client, *agent.Options),
 ) *ssh.Session {
@@ -3762,7 +3762,7 @@ func setupSSHSession(
 func setupSSHSessionOnPort(
 	t *testing.T,
 	manifest agentsdk.Manifest,
-	banner codersdk.BannerConfig,
+	banner nicloudsdk.BannerConfig,
 	prepareFS func(fs afero.Fs),
 	port uint16,
 	opts ...func(*agenttest.Client, *agent.Options),
@@ -3770,8 +3770,8 @@ func setupSSHSessionOnPort(
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
 	opts = append(opts, func(c *agenttest.Client, o *agent.Options) {
-		c.SetAnnouncementBannersFunc(func() ([]codersdk.BannerConfig, error) {
-			return []codersdk.BannerConfig{banner}, nil
+		c.SetAnnouncementBannersFunc(func() ([]nicloudsdk.BannerConfig, error) {
+			return []nicloudsdk.BannerConfig{banner}, nil
 		})
 	})
 	//nolint:dogsled
@@ -3805,7 +3805,7 @@ func setupAgent(t testing.TB, metadata agentsdk.Manifest, ptyTimeout time.Durati
 // setupAgentWithSecrets is like setupAgent but also injects user
 // secrets into the agent's proto manifest. Separate from setupAgent
 // because agentsdk.Manifest intentionally does not carry secrets; see
-// the Manifest doc comment in codersdk/agentsdk.
+// the Manifest doc comment in nicloudsdk/agentsdk.
 func setupAgentWithSecrets(t testing.TB, metadata agentsdk.Manifest, secrets []agentsdk.WorkspaceSecret, ptyTimeout time.Duration, opts ...func(*agenttest.Client, *agent.Options)) (
 	workspacesdk.AgentConn,
 	*agenttest.Client,
@@ -4081,7 +4081,7 @@ func TestAgent_Metrics_SSH(t *testing.T) {
 			},
 		},
 		{
-			Name: "coderd_agentstats_currently_reachable_peers",
+			Name: "nicloud_agentstats_currently_reachable_peers",
 			Type: proto.Stats_Metric_GAUGE,
 			CheckFn: func(float64) error {
 				// We can't reliably ping a peer here, and networking is out of
@@ -4097,7 +4097,7 @@ func TestAgent_Metrics_SSH(t *testing.T) {
 			},
 		},
 		{
-			Name: "coderd_agentstats_currently_reachable_peers",
+			Name: "nicloud_agentstats_currently_reachable_peers",
 			Type: proto.Stats_Metric_GAUGE,
 			CheckFn: func(float64) error {
 				return nil
@@ -4110,7 +4110,7 @@ func TestAgent_Metrics_SSH(t *testing.T) {
 			},
 		},
 		{
-			Name: "coderd_agentstats_startup_script_seconds",
+			Name: "nicloud_agentstats_startup_script_seconds",
 			Type: proto.Stats_Metric_GAUGE,
 			CheckFn: func(f float64) error {
 				if f >= 0 {

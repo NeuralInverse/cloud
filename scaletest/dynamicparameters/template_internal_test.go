@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -71,7 +71,7 @@ func TestSetupPartitions_TemplateExists(t *testing.T) {
 		expectedOrgID:            orgID,
 		expectedTags:             map[string]string{"foo": "bar"},
 		matchedProvisioners:      1,
-		templateVersionJobStatus: codersdk.ProvisionerJobSucceeded,
+		templateVersionJobStatus: nicloudsdk.ProvisionerJobSucceeded,
 	}
 	mClock := quartz.NewMock(t)
 	trap := mClock.Trap().TickerFunc("waitForTemplateVersionJobs")
@@ -116,9 +116,9 @@ func TestSetupPartitions_TemplateDoesntExist(t *testing.T) {
 		t:                        t,
 		expectedTemplateName:     "test-template",
 		expectedOrgID:            orgID,
-		templateByNameError:      codersdk.NewTestError(http.StatusNotFound, "", ""),
+		templateByNameError:      nicloudsdk.NewTestError(http.StatusNotFound, "", ""),
 		matchedProvisioners:      1,
-		templateVersionJobStatus: codersdk.ProvisionerJobSucceeded,
+		templateVersionJobStatus: nicloudsdk.ProvisionerJobSucceeded,
 	}
 	mClock := quartz.NewMock(t)
 	trap := mClock.Trap().TickerFunc("waitForTemplateVersionJobs")
@@ -163,7 +163,7 @@ func TestSetupPartitions_NoMatchedProvisioners(t *testing.T) {
 		expectedTemplateName:     "test-template",
 		expectedOrgID:            orgID,
 		matchedProvisioners:      0,
-		templateVersionJobStatus: codersdk.ProvisionerJobSucceeded,
+		templateVersionJobStatus: nicloudsdk.ProvisionerJobSucceeded,
 	}
 	mClock := quartz.NewMock(t)
 	uut := partitioner{
@@ -199,7 +199,7 @@ func TestSetupPartitions_JobFailed(t *testing.T) {
 		expectedTemplateName:     "test-template",
 		expectedOrgID:            orgID,
 		matchedProvisioners:      1,
-		templateVersionJobStatus: codersdk.ProvisionerJobFailed,
+		templateVersionJobStatus: nicloudsdk.ProvisionerJobFailed,
 	}
 	mClock := quartz.NewMock(t)
 	trap := mClock.Trap().TickerFunc("waitForTemplateVersionJobs")
@@ -237,7 +237,7 @@ type fakeClient struct {
 
 	expectedTags             map[string]string
 	matchedProvisioners      int
-	templateVersionJobStatus codersdk.ProvisionerJobStatus
+	templateVersionJobStatus nicloudsdk.ProvisionerJobStatus
 
 	createTemplateCount   int
 	templateVersionsCount int
@@ -245,52 +245,52 @@ type fakeClient struct {
 	templateByNameCount   int
 }
 
-func (f *fakeClient) TemplateByName(ctx context.Context, orgID uuid.UUID, templateName string) (codersdk.Template, error) {
+func (f *fakeClient) TemplateByName(ctx context.Context, orgID uuid.UUID, templateName string) (nicloudsdk.Template, error) {
 	f.templateByNameCount++
 	require.Equal(f.t, f.expectedOrgID, orgID)
 	require.Equal(f.t, f.expectedTemplateName, templateName)
 
 	if f.templateByNameError != nil {
-		return codersdk.Template{}, f.templateByNameError
+		return nicloudsdk.Template{}, f.templateByNameError
 	}
-	return codersdk.Template{
+	return nicloudsdk.Template{
 		ID:   uuid.New(),
 		Name: f.expectedTemplateName,
 	}, nil
 }
 
-func (f *fakeClient) CreateTemplate(ctx context.Context, orgID uuid.UUID, createReq codersdk.CreateTemplateRequest) (codersdk.Template, error) {
+func (f *fakeClient) CreateTemplate(ctx context.Context, orgID uuid.UUID, createReq nicloudsdk.CreateTemplateRequest) (nicloudsdk.Template, error) {
 	f.createTemplateCount++
 	require.Equal(f.t, f.expectedOrgID, orgID)
 	require.Equal(f.t, f.expectedTemplateName, createReq.Name)
 
-	return codersdk.Template{
+	return nicloudsdk.Template{
 		ID:   uuid.New(),
 		Name: f.expectedTemplateName,
 	}, nil
 }
 
-func (f *fakeClient) CreateTemplateVersion(ctx context.Context, orgID uuid.UUID, createReq codersdk.CreateTemplateVersionRequest) (codersdk.TemplateVersion, error) {
+func (f *fakeClient) CreateTemplateVersion(ctx context.Context, orgID uuid.UUID, createReq nicloudsdk.CreateTemplateVersionRequest) (nicloudsdk.TemplateVersion, error) {
 	f.templateVersionsCount++
 	require.Equal(f.t, f.expectedTags, createReq.ProvisionerTags)
-	return codersdk.TemplateVersion{
+	return nicloudsdk.TemplateVersion{
 		ID:                  uuid.New(),
 		Name:                f.expectedTemplateName,
-		MatchedProvisioners: &codersdk.MatchedProvisioners{Count: f.matchedProvisioners},
+		MatchedProvisioners: &nicloudsdk.MatchedProvisioners{Count: f.matchedProvisioners},
 	}, nil
 }
 
-func (f *fakeClient) Upload(ctx context.Context, contentType string, reader io.Reader) (codersdk.UploadResponse, error) {
+func (f *fakeClient) Upload(ctx context.Context, contentType string, reader io.Reader) (nicloudsdk.UploadResponse, error) {
 	f.uploadsCount++
-	return codersdk.UploadResponse{
+	return nicloudsdk.UploadResponse{
 		ID: uuid.New(),
 	}, nil
 }
 
-func (f *fakeClient) TemplateVersion(ctx context.Context, versionID uuid.UUID) (codersdk.TemplateVersion, error) {
-	return codersdk.TemplateVersion{
+func (f *fakeClient) TemplateVersion(ctx context.Context, versionID uuid.UUID) (nicloudsdk.TemplateVersion, error) {
+	return nicloudsdk.TemplateVersion{
 		ID:                  versionID,
-		Job:                 codersdk.ProvisionerJob{Status: f.templateVersionJobStatus},
-		MatchedProvisioners: &codersdk.MatchedProvisioners{Count: f.matchedProvisioners},
+		Job:                 nicloudsdk.ProvisionerJob{Status: f.templateVersionJobStatus},
+		MatchedProvisioners: &nicloudsdk.MatchedProvisioners{Count: f.matchedProvisioners},
 	}, nil
 }

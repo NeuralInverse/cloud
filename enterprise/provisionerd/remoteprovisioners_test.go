@@ -10,13 +10,13 @@ import (
 	"go.uber.org/goleak"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/enterprise/provisionerd"
-	"github.com/coder/coder/v2/provisioner/echo"
-	agpl "github.com/coder/coder/v2/provisionerd"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/enterprise/provisionerd"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	agpl "github.com/NeuralInverse/cloud/v2/provisionerd"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestMain(m *testing.M) {

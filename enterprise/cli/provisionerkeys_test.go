@@ -6,15 +6,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/provisionerkey"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/provisionerkey"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestProvisionerKeys(t *testing.T) {
@@ -23,14 +23,14 @@ func TestProvisionerKeys(t *testing.T) {
 	t.Run("CRUD", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
-		orgAdminClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
+		orgAdminClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgAdmin(owner.OrganizationID))
 
 		name := "dont-TEST-me"
 		ctx := testutil.Context(t, testutil.WaitMedium)

@@ -21,11 +21,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
 )
 
 var (
@@ -67,7 +67,7 @@ func New(opts Options) *Runner {
 		cronCtxCancel: cronCtxCancel,
 		cron:          cron.New(cron.WithParser(parser)),
 		closed:        make(chan struct{}),
-		dataDir:       filepath.Join(opts.DataDirBase, "coder-script-data"),
+		dataDir:       filepath.Join(opts.DataDirBase, "neuralinverse-script-data"),
 		scriptsExecuted: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: "agent",
 			Subsystem: "scripts",
@@ -87,7 +87,7 @@ type Runner struct {
 	closed          chan struct{}
 	closeMutex      sync.Mutex
 	cron            *cron.Cron
-	scripts         []codersdk.WorkspaceAgentScript
+	scripts         []nicloudsdk.WorkspaceAgentScript
 	dataDir         string
 	scriptCompleted ScriptCompletedFunc
 
@@ -125,7 +125,7 @@ type InitOption func(*Runner)
 // Init initializes the runner with the provided scripts.
 // It also schedules any scripts that have a schedule.
 // This function must be called before Execute.
-func (r *Runner) Init(scripts []codersdk.WorkspaceAgentScript, scriptCompleted ScriptCompletedFunc, opts ...InitOption) error {
+func (r *Runner) Init(scripts []nicloudsdk.WorkspaceAgentScript, scriptCompleted ScriptCompletedFunc, opts ...InitOption) error {
 	r.initMutex.Lock()
 	defer r.initMutex.Unlock()
 	if r.initialized {
@@ -234,7 +234,7 @@ func (r *Runner) Execute(ctx context.Context, option ExecuteOption) error {
 }
 
 // trackRun wraps "run" with metrics.
-func (r *Runner) trackRun(ctx context.Context, script codersdk.WorkspaceAgentScript, option ExecuteOption) error {
+func (r *Runner) trackRun(ctx context.Context, script nicloudsdk.WorkspaceAgentScript, option ExecuteOption) error {
 	err := r.run(ctx, script, option)
 	if err != nil {
 		r.scriptsExecuted.WithLabelValues("false").Add(1)
@@ -248,10 +248,10 @@ func (r *Runner) trackRun(ctx context.Context, script codersdk.WorkspaceAgentScr
 // If the timeout is exceeded, the process is sent an interrupt signal.
 // If the process does not exit after a few seconds, it is forcefully killed.
 // This function immediately returns after a timeout, and does not wait for the process to exit.
-func (r *Runner) run(ctx context.Context, script codersdk.WorkspaceAgentScript, option ExecuteOption) error {
+func (r *Runner) run(ctx context.Context, script nicloudsdk.WorkspaceAgentScript, option ExecuteOption) error {
 	logPath := script.LogPath
 	if logPath == "" {
-		logPath = fmt.Sprintf("coder-script-%s.log", script.LogSourceID)
+		logPath = fmt.Sprintf("neuralinverse-script-%s.log", script.LogSourceID)
 	}
 	if logPath[0] == '~' {
 		// First we check the environment.
@@ -312,10 +312,10 @@ func (r *Runner) run(ctx context.Context, script codersdk.WorkspaceAgentScript, 
 
 	// Expose env vars that can be used in the script for storing data
 	// and binaries. In the future, we may want to expose more env vars
-	// for the script to use, like CODER_SCRIPT_DATA_DIR for persistent
+	// for the script to use, like NEURALINVERSE_SCRIPT_DATA_DIR for persistent
 	// storage.
-	cmd.Env = append(cmd.Env, "CODER_SCRIPT_DATA_DIR="+scriptDataDir)
-	cmd.Env = append(cmd.Env, "CODER_SCRIPT_BIN_DIR="+r.ScriptBinDir())
+	cmd.Env = append(cmd.Env, "NEURALINVERSE_SCRIPT_DATA_DIR="+scriptDataDir)
+	cmd.Env = append(cmd.Env, "NEURALINVERSE_SCRIPT_BIN_DIR="+r.ScriptBinDir())
 
 	scriptLogger := r.GetScriptLogger(script.LogSourceID)
 	// If ctx is canceled here (or in a writer below), we may be
@@ -328,9 +328,9 @@ func (r *Runner) run(ctx context.Context, script codersdk.WorkspaceAgentScript, 
 		}
 	}()
 
-	infoW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, codersdk.LogLevelInfo)
+	infoW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, nicloudsdk.LogLevelInfo)
 	defer infoW.Close()
-	errW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, codersdk.LogLevelError)
+	errW := agentsdk.LogsWriter(ctx, scriptLogger.Send, script.LogSourceID, nicloudsdk.LogLevelError)
 	defer errW.Close()
 	cmd.Stdout = io.MultiWriter(fileWriter, infoW)
 	cmd.Stderr = io.MultiWriter(fileWriter, errW)
@@ -439,7 +439,7 @@ func (r *Runner) run(ctx context.Context, script codersdk.WorkspaceAgentScript, 
 			"This usually means a child process was started with references to stdout or stderr. As a result, this " +
 				"process may now have been terminated. Consider redirecting the output or using a separate " +
 				"\"coder_script\" for the process, see " +
-				"https://coder.com/docs/templates/troubleshooting#startup-script-issues for more information.",
+				"https://cloud.neuralinverse.com/docs/templates/troubleshooting#startup-script-issues for more information.",
 		)
 		// Inform the user by propagating the message via log writers.
 		_, _ = fmt.Fprintf(cmd.Stderr, "WARNING: %s. %s\n", message, details)

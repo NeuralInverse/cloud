@@ -15,7 +15,7 @@ parameters like instance size, geographical location, repository URL, etc.
 This example lets a developer choose a Docker host for the workspace:
 
 ```tf
-data "coder_parameter" "docker_host" {
+data "ni_parameter" "docker_host" {
   name        = "Region"
   description = "Which region would you like to deploy to?"
   icon        = "/emojis/1f30f.png"
@@ -46,13 +46,13 @@ From there, a template can refer to a parameter's value:
 
 ```tf
 provider "docker" {
-  host = data.coder_parameter.docker_host.value
+  host = data.ni_parameter.docker_host.value
 }
 ```
 
 ## Types
 
-A Coder parameter can have one of these types:
+A Neural Inverse Cloud parameter can have one of these types:
 
 - `string`
 - `bool`
@@ -65,7 +65,7 @@ JSON array and the Terraform
 function. For example:
 
 ```tf
-data "coder_parameter" "security_groups" {
+data "ni_parameter" "security_groups" {
   name        = "Security groups"
   icon        = "/icon/aws.png"
   type        = "list(string)"
@@ -110,7 +110,7 @@ data "coder_parameter" "security_groups" {
 A `string` parameter can provide a set of options to limit the user's choices:
 
 ```tf
-data "coder_parameter" "docker_host" {
+data "ni_parameter" "docker_host" {
   name        = "Region"
   description = "Which region would you like to deploy to?"
   type        = "string"
@@ -138,7 +138,7 @@ data "coder_parameter" "docker_host" {
 
 ### Incompatibility in Parameter Options for Workspace Builds
 
-When creating Coder templates, authors have the flexibility to modify parameter
+When creating Neural Inverse Cloud templates, authors have the flexibility to modify parameter
 options associated with rich parameters. Such modifications can involve adding,
 substituting, or removing a parameter option. It's important to note that making
 these changes can lead to discrepancies in parameter values utilized by ongoing
@@ -172,18 +172,18 @@ A parameter is _required_ if it doesn't have the `default` property. The user
 **must** provide a value to this parameter before creating a workspace:
 
 ```tf
-data "coder_parameter" "account_name" {
+data "ni_parameter" "account_name" {
   name        = "Account name"
   description = "Cloud account name"
   mutable     = true
 }
 ```
 
-If a parameter contains the `default` property, Coder will use this value if the
+If a parameter contains the `default` property, Neural Inverse Cloud will use this value if the
 user does not specify any:
 
 ```tf
-data "coder_parameter" "base_image" {
+data "ni_parameter" "base_image" {
   name        = "Base image"
   description = "Base machine image to download"
   default     = "ubuntu:latest"
@@ -194,7 +194,7 @@ Admins can also set the `default` property to an empty value so that the
 parameter field can remain empty:
 
 ```tf
-data "coder_parameter" "dotfiles_url" {
+data "ni_parameter" "dotfiles_url" {
   name        = "dotfiles URL"
   description = "Git repository with dotfiles"
   mutable     = true
@@ -216,7 +216,7 @@ resources like volumes, regions, and so on.
 Example:
 
 ```tf
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name        = "Region"
   description = "Region where the workspace is hosted"
   mutable     = false
@@ -230,7 +230,7 @@ parameters, the **Create workspace** button is disabled until the issues are res
 ## Ephemeral parameters
 
 Ephemeral parameters are introduced to users in order to model specific
-behaviors in a Coder workspace, such as reverting to a previous image, restoring
+behaviors in a Neural Inverse Cloud workspace, such as reverting to a previous image, restoring
 from a volume snapshot, or building a project without using cache. These
 parameters are only settable when starting, updating, or restarting a workspace
 and do not persist after the workspace is stopped.
@@ -239,7 +239,7 @@ Since these parameters are ephemeral in nature, subsequent builds proceed in the
 standard manner:
 
 ```tf
-data "coder_parameter" "force_rebuild" {
+data "ni_parameter" "force_rebuild" {
   name         = "force_rebuild"
   type         = "bool"
   description  = "Rebuild the Docker image rather than use the cached one."
@@ -251,7 +251,7 @@ data "coder_parameter" "force_rebuild" {
 
 ## Validating parameters
 
-Coder supports parameters with multiple validation modes: min, max,
+Neural Inverse Cloud supports parameters with multiple validation modes: min, max,
 monotonic numbers, and regular expressions.
 
 ### Number
@@ -263,7 +263,7 @@ the current and new values. Use the `monotonic` attribute for resources that
 can't be shrunk or grown without implications, like disk volume size.
 
 ```tf
-data "coder_parameter" "instances" {
+data "ni_parameter" "instances" {
   name        = "Instances"
   type        = "number"
   description = "Number of compute instances"
@@ -280,7 +280,7 @@ along with its associated `min` and/or `max` properties. The following message
 placeholders are available `{min}`, `{max}`, and `{value}`.
 
 ```tf
-data "coder_parameter" "instances" {
+data "ni_parameter" "instances" {
   name        = "Instances"
   type        = "number"
   description = "Number of compute instances"
@@ -304,7 +304,7 @@ You can validate a `string` parameter to match a regular expression. The `regex`
 property requires a corresponding `error` property.
 
 ```tf
-data "coder_parameter" "project_id" {
+data "ni_parameter" "project_id" {
   name        = "Project ID"
   description = "Alpha-numeric project ID"
   validation {
@@ -323,7 +323,7 @@ their needs.
 ![Template with options in the preset dropdown](../../../images/admin/templates/extend-templates/template-preset-dropdown.png)
 
 Use the
-[`coder_workspace_preset`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_preset)
+[`ni_workspace_preset`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_preset)
 data source to define the preset parameters. After you save the template file,
 the presets will be available for all new workspace deployments.
 
@@ -345,7 +345,7 @@ For a complete list of all available fields, see the
 <details><summary>Expand for an example</summary>
 
 ```tf
-data "coder_workspace_preset" "goland-gpu" {
+data "ni_workspace_preset" "goland-gpu" {
   name        = "GoLand with GPU"
   description = "Development workspace with GPU acceleration for GoLand IDE"
   icon        = "/emojis/1f680.png"
@@ -357,7 +357,7 @@ data "coder_workspace_preset" "goland-gpu" {
   }
 }
 
-data "coder_workspace_preset" "pittsburgh" {
+data "ni_workspace_preset" "pittsburgh" {
   name        = "Pittsburgh"
   description = "Development workspace hosted in United States"
   icon        = "/emojis/1f1fa-1f1f8.png"
@@ -367,35 +367,35 @@ data "coder_workspace_preset" "pittsburgh" {
   }
 }
 
-data "coder_parameter" "machine_type" {
+data "ni_parameter" "machine_type" {
   name          = "machine_type"
   display_name  = "Machine Type"
   type          = "string"
   default       = "n1-standard-2"
 }
 
-data "coder_parameter" "attach_gpu" {
+data "ni_parameter" "attach_gpu" {
   name          = "attach_gpu"
   display_name  = "Attach GPU?"
   type          = "bool"
   default       = "false"
 }
 
-data "coder_parameter" "gcp_region" {
+data "ni_parameter" "gcp_region" {
   name          = "gcp_region"
   display_name  = "GCP Region"
   type          = "string"
   default       = "us-central1-a"
 }
 
-data "coder_parameter" "jetbrains_ide" {
+data "ni_parameter" "jetbrains_ide" {
   name          = "jetbrains_ide"
   display_name  = "JetBrains IDE"
   type          = "string"
   default       = "IU"
 }
 
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name          = "region"
   display_name  = "Region"
   type          = "string"
@@ -407,14 +407,14 @@ data "coder_parameter" "region" {
 
 ## Create Autofill
 
-When the template doesn't specify default values, Coder may still autofill
+When the template doesn't specify default values, Neural Inverse Cloud may still autofill
 parameters in one of two ways:
 
-- Coder will look for URL query parameters with form `param.<name>=<value>`.
+- Neural Inverse Cloud will look for URL query parameters with form `param.<name>=<value>`.
 
   This feature enables platform teams to create pre-filled template creation links.
 
-- Coder can populate recently used parameter key-value pairs for the user.
+- Neural Inverse Cloud can populate recently used parameter key-value pairs for the user.
   This feature helps reduce repetition when filling common parameters such as
   `dotfiles_url` or `region`.
 
@@ -424,11 +424,11 @@ parameters in one of two ways:
   coder server --experiments=auto-fill-parameters
   ```
 
-  Or set the [environment variable](../../setup/index.md), `CODER_EXPERIMENTS=auto-fill-parameters`
+  Or set the [environment variable](../../setup/index.md), `NEURALINVERSE_EXPERIMENTS=auto-fill-parameters`
 
 ## Dynamic Parameters
 
-Coder v2.24.0 introduces [Dynamic Parameters](./dynamic-parameters.md) to extend the existing parameter system with
+Neural Inverse Cloud v2.24.0 introduces [Dynamic Parameters](./dynamic-parameters.md) to extend the existing parameter system with
 conditional form controls, enriched input types, and user identity awareness.
 This feature allows template authors to create interactive workspace creation forms, meaning more environment
 customization and fewer templates to maintain.

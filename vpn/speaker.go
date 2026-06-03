@@ -59,7 +59,7 @@ const (
 	SpeakerRoleTunnel  SpeakerRole = "tunnel"
 )
 
-// speaker is an implementation of the CoderVPN protocol. It handles unary RPCs and their responses,
+// speaker is an implementation of the Neural Inverse CloudVPN protocol. It handles unary RPCs and their responses,
 // as well as the low-level serialization & deserialization to the ReadWriteCloser (rwc).
 //
 //	      ┌────────┐                                                             sendCh
@@ -250,7 +250,7 @@ func (s *speaker[_, R, _]) tryToDeliverResponse(resp R) {
 	}
 }
 
-// handshake performs the initial CoderVPN protocol handshake over the given conn
+// handshake performs the initial Neural Inverse CloudVPN protocol handshake over the given conn
 func handshake(
 	ctx context.Context, conn io.ReadWriteCloser, logger slog.Logger, me, them SpeakerRole,
 ) error {

@@ -6,13 +6,13 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 // extractContext reads chat identity headers from the request.
 // Returns zero values if headers are absent (non-chat request).
 func extractContext(r *http.Request) (chatID uuid.UUID, ancestorIDs []uuid.UUID, ok bool) {
-	raw := r.Header.Get(workspacesdk.CoderChatIDHeader)
+	raw := r.Header.Get(workspacesdk.NIChatIDHeader)
 	if raw == "" {
 		return uuid.Nil, nil, false
 	}
@@ -20,7 +20,7 @@ func extractContext(r *http.Request) (chatID uuid.UUID, ancestorIDs []uuid.UUID,
 	if err != nil {
 		return uuid.Nil, nil, false
 	}
-	rawAncestors := r.Header.Get(workspacesdk.CoderAncestorChatIDsHeader)
+	rawAncestors := r.Header.Get(workspacesdk.NIAncestorChatIDsHeader)
 	if rawAncestors != "" {
 		var ids []string
 		if err := json.Unmarshal([]byte(rawAncestors), &ids); err == nil {

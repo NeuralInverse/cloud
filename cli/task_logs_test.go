@@ -12,11 +12,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	agentapisdk "github.com/coder/agentapi-sdk-go"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func Test_TaskLogs_Golden(t *testing.T) {
@@ -52,7 +52,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify JSON is valid.
-		var logs []codersdk.TaskLogEntry
+		var logs []nicloudsdk.TaskLogEntry
 		err = json.NewDecoder(strings.NewReader(output.Stdout())).Decode(&logs)
 		require.NoError(t, err)
 
@@ -75,7 +75,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify JSON is valid.
-		var logs []codersdk.TaskLogEntry
+		var logs []nicloudsdk.TaskLogEntry
 		err = json.NewDecoder(strings.NewReader(output.Stdout())).Decode(&logs)
 		require.NoError(t, err)
 
@@ -105,9 +105,9 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		userClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		var stdout strings.Builder
 		inv, root := clitest.New(t, "task", "logs", "doesnotexist")
@@ -123,9 +123,9 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		userClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		var stdout strings.Builder
 		inv, root := clitest.New(t, "task", "logs", uuid.Nil.String())
@@ -155,7 +155,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		t.Parallel()
 
 		setupCtx := testutil.Context(t, testutil.WaitLong)
-		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, codersdk.TaskStatusPaused, testMessages)
+		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, nicloudsdk.TaskStatusPaused, testMessages)
 		userClient := client
 
 		inv, root := clitest.New(t, "task", "logs", task.Name)
@@ -174,7 +174,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		t.Parallel()
 
 		setupCtx := testutil.Context(t, testutil.WaitLong)
-		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, codersdk.TaskStatusPaused, testMessages)
+		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, nicloudsdk.TaskStatusPaused, testMessages)
 		userClient := client
 
 		inv, root := clitest.New(t, "task", "logs", task.Name, "--output", "json")
@@ -186,7 +186,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify JSON is valid.
-		var logs []codersdk.TaskLogEntry
+		var logs []nicloudsdk.TaskLogEntry
 		err = json.NewDecoder(strings.NewReader(output.Stdout())).Decode(&logs)
 		require.NoError(t, err)
 
@@ -197,7 +197,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 	t.Run("SnapshotWithoutLogs_NoSnapshotCaptured", func(t *testing.T) {
 		t.Parallel()
 
-		userClient, task := setupCLITaskTestWithoutSnapshot(t, codersdk.TaskStatusPaused)
+		userClient, task := setupCLITaskTestWithoutSnapshot(t, nicloudsdk.TaskStatusPaused)
 
 		inv, root := clitest.New(t, "task", "logs", task.Name)
 		output := clitest.Capture(inv)
@@ -224,7 +224,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		}
 
 		setupCtx := testutil.Context(t, testutil.WaitLong)
-		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, codersdk.TaskStatusPending, singleMessage)
+		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, nicloudsdk.TaskStatusPending, singleMessage)
 		userClient := client
 
 		inv, root := clitest.New(t, "task", "logs", task.Name)
@@ -243,7 +243,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		t.Parallel()
 
 		setupCtx := testutil.Context(t, testutil.WaitLong)
-		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, codersdk.TaskStatusInitializing, []agentapisdk.Message{})
+		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, nicloudsdk.TaskStatusInitializing, []agentapisdk.Message{})
 		userClient := client
 
 		inv, root := clitest.New(t, "task", "logs", task.Name)
@@ -262,7 +262,7 @@ func Test_TaskLogs_Golden(t *testing.T) {
 		t.Parallel()
 
 		setupCtx := testutil.Context(t, testutil.WaitLong)
-		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, codersdk.TaskStatusInitializing, testMessages)
+		client, task := setupCLITaskTestWithSnapshot(setupCtx, t, nicloudsdk.TaskStatusInitializing, testMessages)
 		userClient := client
 
 		inv, root := clitest.New(t, "task", "logs", task.Name)

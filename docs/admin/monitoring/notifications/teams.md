@@ -1,11 +1,11 @@
 # Microsoft Teams Notifications
 
 [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams) is a widely
-used collaboration platform, and with Coder's integration, you can enable
+used collaboration platform, and with Neural Inverse Cloud's integration, you can enable
 automated notifications directly within Teams using workflows and
 [Adaptive Cards](https://adaptivecards.io/)
 
-Administrators can configure Coder to send notifications via an incoming webhook
+Administrators can configure Neural Inverse Cloud to send notifications via an incoming webhook
 endpoint. These notifications appear as messages in Teams chats, either with the
 Flow Bot or a specified user/service account.
 
@@ -15,7 +15,7 @@ Before setting up Microsoft Teams notifications, ensure that you have the
 following:
 
 - Administrator access to the Teams platform
-- Coder platform >=v2.16.0
+- Neural Inverse Cloud platform >=v2.16.0
 
 ## Build Teams Workflow
 
@@ -101,9 +101,9 @@ The process of setting up a Teams workflow consists of three key steps:
        "body": [
            {
                "type": "Image",
-               "url": "https://coder.com/coder-logo-horizontal.png",
+               "url": "https://cloud.neuralinverse.com/coder-logo-horizontal.png",
                "height": "40px",
-               "altText": "Coder",
+               "altText": "Neural Inverse Cloud",
                "horizontalAlignment": "center"
            },
            {
@@ -123,7 +123,7 @@ The process of setting up a Teams workflow consists of three key steps:
    }
    ```
 
-   _Notice_: The Coder `actions` format differs from the `ActionSet` schema, so
+   _Notice_: The Neural Inverse Cloud `actions` format differs from the `ActionSet` schema, so
    its properties need to be modified: include `Action.OpenUrl` type, rename
    `label` to `title`. Unfortunately, there is no straightforward solution for
    `for-each` pattern.
@@ -133,14 +133,14 @@ The process of setting up a Teams workflow consists of three key steps:
 
 ## Enable Webhook Integration
 
-To enable webhook integration in Coder, define the POST webhook endpoint created
+To enable webhook integration in Neural Inverse Cloud, define the POST webhook endpoint created
 by your Teams workflow:
 
 ```bash
-export CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT=https://prod-16.eastus.logic.azure.com:443/workflows/f8fbe3e8211e4b638...`
+export NEURALINVERSE_NOTIFICATIONS_WEBHOOK_ENDPOINT=https://prod-16.eastus.logic.azure.com:443/workflows/f8fbe3e8211e4b638...`
 ```
 
-Finally, go to the **Notification Settings** in Coder and switch the notifier to
+Finally, go to the **Notification Settings** in Neural Inverse Cloud and switch the notifier to
 **Webhook**.
 
 ## Limitations

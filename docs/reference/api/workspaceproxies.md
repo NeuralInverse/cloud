@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/regions \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/regions`
@@ -37,6 +37,6 @@ curl -X GET http://coder-server:8080/api/v2/regions \
 
 | Status | Meaning                                                 | Description | Schema                                                                                         |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.RegionsResponse-codersdk_Region](schemas.md#codersdkregionsresponse-codersdk_region) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.RegionsResponse-nicloudsdk_Region](schemas.md#nicloudsdkregionsresponse-nicloudsdk_region) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

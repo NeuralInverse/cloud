@@ -9,15 +9,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestAIBridgeListInterceptions(t *testing.T) {
@@ -26,19 +26,19 @@ func TestAIBridgeListInterceptions(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := nicloudtest.DeploymentValues(t)
 		dv.AI.BridgeConfig.Enabled = true
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, db, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAIBridge: 1,
+					nicloudsdk.FeatureAIBridge: 1,
 				},
 			},
 		})
-		_, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		_, member := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 		now := dbtime.Now()
 		interception1 := dbgen.AIBridgeInterception(t, db, database.InsertAIBridgeInterceptionParams{
 			InitiatorID: member.ID,
@@ -78,19 +78,19 @@ func TestAIBridgeListInterceptions(t *testing.T) {
 	t.Run("Filter", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := nicloudtest.DeploymentValues(t)
 		dv.AI.BridgeConfig.Enabled = true
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, db, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAIBridge: 1,
+					nicloudsdk.FeatureAIBridge: 1,
 				},
 			},
 		})
-		_, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		_, member := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 		now := dbtime.Now()
 
@@ -165,19 +165,19 @@ func TestAIBridgeListInterceptions(t *testing.T) {
 	t.Run("FilterByMe", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := nicloudtest.DeploymentValues(t)
 		dv.AI.BridgeConfig.Enabled = true
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, db, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAIBridge: 1,
+					nicloudsdk.FeatureAIBridge: 1,
 				},
 			},
 		})
-		memberClient, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		memberClient, member := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 		now := dbtime.Now()
 
@@ -191,7 +191,7 @@ func TestAIBridgeListInterceptions(t *testing.T) {
 			"aibridge",
 			"interceptions",
 			"list",
-			"--initiator", codersdk.Me,
+			"--initiator", nicloudsdk.Me,
 		}
 		inv, root := newCLI(t, args...)
 		clitest.SetupConfig(t, memberClient, root)
@@ -210,15 +210,15 @@ func TestAIBridgeListInterceptions(t *testing.T) {
 	t.Run("Pagination", func(t *testing.T) {
 		t.Parallel()
 
-		dv := coderdtest.DeploymentValues(t)
+		dv := nicloudtest.DeploymentValues(t)
 		dv.AI.BridgeConfig.Enabled = true
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, db, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues: dv,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAIBridge: 1,
+					nicloudsdk.FeatureAIBridge: 1,
 				},
 			},
 		})
@@ -265,7 +265,7 @@ func TestAIBridgeListInterceptions(t *testing.T) {
 func requireHasInterceptions(t *testing.T, out []byte, ids []uuid.UUID) {
 	t.Helper()
 
-	var results []codersdk.AIBridgeInterception
+	var results []nicloudsdk.AIBridgeInterception
 	require.NoError(t, json.Unmarshal(out, &results))
 	require.Len(t, results, len(ids))
 	for i, id := range ids {

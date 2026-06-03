@@ -5,13 +5,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 func TestIsValidTemplateParameterOption(t *testing.T) {
 	t.Parallel()
 
-	options := []codersdk.TemplateVersionParameterOption{
+	options := []nicloudsdk.TemplateVersionParameterOption{
 		{Name: "Vim", Value: "vim"},
 		{Name: "Emacs", Value: "emacs"},
 		{Name: "VS Code", Value: "vscode"},
@@ -19,8 +19,8 @@ func TestIsValidTemplateParameterOption(t *testing.T) {
 
 	t.Run("SingleSelectValid", func(t *testing.T) {
 		t.Parallel()
-		bp := codersdk.WorkspaceBuildParameter{Name: "editor", Value: "vim"}
-		tvp := codersdk.TemplateVersionParameter{
+		bp := nicloudsdk.WorkspaceBuildParameter{Name: "editor", Value: "vim"}
+		tvp := nicloudsdk.TemplateVersionParameter{
 			Name:    "editor",
 			Type:    "string",
 			Options: options,
@@ -30,8 +30,8 @@ func TestIsValidTemplateParameterOption(t *testing.T) {
 
 	t.Run("SingleSelectInvalid", func(t *testing.T) {
 		t.Parallel()
-		bp := codersdk.WorkspaceBuildParameter{Name: "editor", Value: "notepad"}
-		tvp := codersdk.TemplateVersionParameter{
+		bp := nicloudsdk.WorkspaceBuildParameter{Name: "editor", Value: "notepad"}
+		tvp := nicloudsdk.TemplateVersionParameter{
 			Name:    "editor",
 			Type:    "string",
 			Options: options,
@@ -41,8 +41,8 @@ func TestIsValidTemplateParameterOption(t *testing.T) {
 
 	t.Run("MultiSelectAllValid", func(t *testing.T) {
 		t.Parallel()
-		bp := codersdk.WorkspaceBuildParameter{Name: "editors", Value: `["vim","emacs"]`}
-		tvp := codersdk.TemplateVersionParameter{
+		bp := nicloudsdk.WorkspaceBuildParameter{Name: "editors", Value: `["vim","emacs"]`}
+		tvp := nicloudsdk.TemplateVersionParameter{
 			Name:    "editors",
 			Type:    "list(string)",
 			Options: options,
@@ -52,8 +52,8 @@ func TestIsValidTemplateParameterOption(t *testing.T) {
 
 	t.Run("MultiSelectOneInvalid", func(t *testing.T) {
 		t.Parallel()
-		bp := codersdk.WorkspaceBuildParameter{Name: "editors", Value: `["vim","notepad"]`}
-		tvp := codersdk.TemplateVersionParameter{
+		bp := nicloudsdk.WorkspaceBuildParameter{Name: "editors", Value: `["vim","notepad"]`}
+		tvp := nicloudsdk.TemplateVersionParameter{
 			Name:    "editors",
 			Type:    "list(string)",
 			Options: options,
@@ -63,8 +63,8 @@ func TestIsValidTemplateParameterOption(t *testing.T) {
 
 	t.Run("MultiSelectEmptyArray", func(t *testing.T) {
 		t.Parallel()
-		bp := codersdk.WorkspaceBuildParameter{Name: "editors", Value: `[]`}
-		tvp := codersdk.TemplateVersionParameter{
+		bp := nicloudsdk.WorkspaceBuildParameter{Name: "editors", Value: `[]`}
+		tvp := nicloudsdk.TemplateVersionParameter{
 			Name:    "editors",
 			Type:    "list(string)",
 			Options: options,
@@ -74,8 +74,8 @@ func TestIsValidTemplateParameterOption(t *testing.T) {
 
 	t.Run("MultiSelectInvalidJSON", func(t *testing.T) {
 		t.Parallel()
-		bp := codersdk.WorkspaceBuildParameter{Name: "editors", Value: `not-json`}
-		tvp := codersdk.TemplateVersionParameter{
+		bp := nicloudsdk.WorkspaceBuildParameter{Name: "editors", Value: `not-json`}
+		tvp := nicloudsdk.TemplateVersionParameter{
 			Name:    "editors",
 			Type:    "list(string)",
 			Options: options,

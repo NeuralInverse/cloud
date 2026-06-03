@@ -28,7 +28,7 @@ customization options, keyboard shortcuts, and troubleshooting guides.
 
 ### Through with the CLI
 
-Coder will use the optimal path for an SSH connection (determined by your
+Neural Inverse Cloud will use the optimal path for an SSH connection (determined by your
 deployment's [networking configuration](../../admin/infrastructure/index.md))
 when using the CLI:
 
@@ -45,16 +45,16 @@ Or, you can configure plain SSH on your client below.
 
 ### Configure SSH
 
-Coder generates [SSH key pairs](../../admin/security/secrets.md#ssh-keys) for
+Neural Inverse Cloud generates [SSH key pairs](../../admin/security/secrets.md#ssh-keys) for
 each user to simplify the setup process.
 
-1. Use your terminal to authenticate the CLI with Coder web UI and your workspaces:
+1. Use your terminal to authenticate the CLI with Neural Inverse Cloud web UI and your workspaces:
 
    ```bash
    coder login <accessURL>
    ```
 
-1. Access Coder via SSH:
+1. Access Neural Inverse Cloud via SSH:
 
    ```shell
    coder config-ssh
@@ -82,7 +82,7 @@ Your workspace is now accessible via `ssh coder.<workspace_name>`
 
 ## Visual Studio Code
 
-You can develop in your Coder workspace remotely with
+You can develop in your Neural Inverse Cloud workspace remotely with
 [VS Code](https://code.visualstudio.com/download).
 We support connecting with the desktop client and VS Code in the browser with [code-server](#code-server).
 
@@ -93,19 +93,19 @@ Read more details on [using VS Code in your workspace](./vscode.md).
 ## Cursor
 
 [Cursor](https://cursor.sh/) is an IDE built on VS Code with enhanced AI capabilities.
-Cursor connects using the Coder extension.
+Cursor connects using the Neural Inverse Cloud extension.
 
 Read more about [using Cursor with your workspace](./cursor.md).
 
 ## Windsurf
 
 [Windsurf](./windsurf.md) is Codeium's code editor designed for AI-assisted development.
-Windsurf connects using the Coder extension.
+Windsurf connects using the Neural Inverse Cloud extension.
 
 ## Antigravity
 
 [Antigravity](https://antigravity.google/) is Google's desktop IDE.
-Antigravity connects using the Coder extension.
+Antigravity connects using the Neural Inverse Cloud extension.
 
 Read more about [using Antigravity with your workspace](./antigravity.md).
 
@@ -132,7 +132,7 @@ on connecting your JetBrains IDEs.
 [code-server](https://github.com/coder/code-server) is our supported method of
 running VS Code in the web browser.
 Learn more about [what makes code-server different from VS Code web](./code-server.md) or visit the
-[documentation for code-server](https://coder.com/docs/code-server).
+[documentation for code-server](https://cloud.neuralinverse.com/docs/code-server).
 
 ![code-server in a workspace](../../images/code-server-ide.png)
 
@@ -150,20 +150,20 @@ Supported IDEs:
 - Airflow
 - File Browser
 
-Our [Module Registry](https://registry.coder.com/modules) also hosts a variety
+Our [Module Registry](https://registry.cloud.neuralinverse.com/modules) also hosts a variety
 of tools for extending the capability of your workspace. If you have a request
 for a new IDE or tool, please file an issue in our
 [Modules repo](https://github.com/coder/registry/issues).
 
-## Coder Desktop
+## Neural Inverse Cloud Desktop
 
-[Coder Desktop](../desktop/index.md) is a native application that provides seamless access to your workspaces via a VPN tunnel. With Coder Desktop, you get:
+[Neural Inverse Cloud Desktop](../desktop/index.md) is a native application that provides seamless access to your workspaces via a VPN tunnel. With Neural Inverse Cloud Desktop, you get:
 
 - **Automatic port forwarding**: All workspace ports are available at `workspace-name.coder:PORT` with no manual setup
 - **SSH access**: Connect with `ssh workspace-name.coder` using any SSH client
 - **File sync**: Bidirectional file synchronization between local and remote directories
 
-Coder Desktop is the recommended way to access workspace services for developers who want a seamless, native experience.
+Neural Inverse Cloud Desktop is the recommended way to access workspace services for developers who want a seamless, native experience.
 
 ## Ports and Port forwarding
 
@@ -172,7 +172,7 @@ ports window in the dashboard. These ports are often used to run internal
 services or preview environments.
 
 > [!TIP]
-> For automatic access to all ports without manual configuration, use [Coder Desktop](../desktop/index.md).
+> For automatic access to all ports without manual configuration, use [Neural Inverse Cloud Desktop](../desktop/index.md).
 
 You can also [share ports](./port-forwarding.md#sharing-ports) with other users,
 or [port-forward](./port-forwarding.md#the-coder-port-forward-command) through
@@ -183,5 +183,5 @@ the CLI with `coder port forward`. Read more in the
 
 ## Remote Desktops
 
-Coder also supports connecting with an RDP solution, see our
+Neural Inverse Cloud also supports connecting with an RDP solution, see our
 [RDP guide](./remote-desktops.md) for details.

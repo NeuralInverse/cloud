@@ -11,7 +11,7 @@ resources.
 
 ## Creating workspaces
 
-You can create a workspace in the UI. Log in to your Coder instance, go to the
+You can create a workspace in the UI. Log in to your Neural Inverse Cloud instance, go to the
 **Templates** tab, find the template you need, and select **Create Workspace**.
 
 ![Creating a workspace in the UI](../images/creating-workspace-ui.png)
@@ -23,7 +23,7 @@ You can manage your existing templates in the **Workspaces** tab.
 
 You can also create a workspace from the command line:
 
-Each Coder user has their own workspaces created from
+Each Neural Inverse Cloud user has their own workspaces created from
 [templates](../admin/templates/index.md):
 
 ```shell
@@ -47,8 +47,8 @@ coder show <workspace-name>
 
 ## Workspace filtering
 
-In the Coder UI, you can filter your workspaces using pre-defined filters or
-Coder's filter query. Filters follow the pattern `[filter name]:[filter text]`
+In the Neural Inverse Cloud UI, you can filter your workspaces using pre-defined filters or
+Neural Inverse Cloud's filter query. Filters follow the pattern `[filter name]:[filter text]`
 and multiple filters can be specified separated by a space i.e
 `owner:me status:running`
 
@@ -60,7 +60,7 @@ The following filters are supported:
 - `template` - Name of the template.
 - `status` - Indicates the status of the workspace, e.g, `status:failed` For a
   list of supported statuses, see
-  [WorkspaceStatus documentation](https://pkg.go.dev/github.com/coder/coder/codersdk#WorkspaceStatus).
+  [WorkspaceStatus documentation](https://pkg.go.dev/github.com/NeuralInverse/cloud/nicloudsdk#WorkspaceStatus).
 - `outdated` - Filters workspaces using an outdated template version, e.g,
   `outdated:true`
 - `dormant` - Filters workspaces based on the dormant state, e.g `dormant:true`
@@ -77,7 +77,7 @@ from, you can update the workspace.
 
 ![Updating a workspace](../images/workspace-update.png)
 
-If the workspace is running, Coder stops it, updates it, then starts the
+If the workspace is running, Neural Inverse Cloud stops it, updates it, then starts the
 workspace again.
 
 ### Updating via the CLI
@@ -123,7 +123,7 @@ To set a workspace's schedule, go to the workspace, then **Settings** >
 
 ![Scheduling UI](../images/schedule.png)
 
-Coder might also stop a workspace automatically if there is a
+Neural Inverse Cloud might also stop a workspace automatically if there is a
 [template update](../admin/templates/managing-templates/index.md#updating-templates)
 available.
 
@@ -132,7 +132,7 @@ Learn more about [workspace lifecycle](./workspace-lifecycle.md) and our
 
 ## Workspace resources
 
-Workspaces in Coder are started and stopped, often based on whether there was
+Workspaces in Neural Inverse Cloud are started and stopped, often based on whether there was
 any activity or if there was a [template update](../admin/templates/index.md)
 available.
 
@@ -150,10 +150,10 @@ state is out of sync with the template.
 coder update <your workspace name> --always-prompt
 ```
 
-First, try re-entering parameters from a workspace. In the Coder UI, you can
-filter your workspaces using pre-defined filters or employing the Coder's filter
+First, try re-entering parameters from a workspace. In the Neural Inverse Cloud UI, you can
+filter your workspaces using pre-defined filters or employing the Neural Inverse Cloud's filter
 query. Take a look at the following examples to understand how to use the
-Coder's filter query:
+Neural Inverse Cloud's filter query:
 
 - To find the workspaces that you own, use the filter `owner:me`.
 - To find workspaces that are currently running, use the filter
@@ -167,7 +167,7 @@ You can also do this in the CLI with the following command:
 coder update <your workspace name> --always-prompt
 ```
 
-If that does not work, a Coder admin can manually push and pull the Terraform
+If that does not work, a Neural Inverse Cloud admin can manually push and pull the Terraform
 state for a given workspace. This can lead to state corruption or deleted
 resources if you do not know what you are doing.
 
@@ -179,7 +179,7 @@ coder state push <username>/<workspace name>
 
 ## Logging
 
-Coder stores macOS and Linux logs at the following locations:
+Neural Inverse Cloud stores macOS and Linux logs at the following locations:
 
 | Service           | Location                         |
 |-------------------|----------------------------------|

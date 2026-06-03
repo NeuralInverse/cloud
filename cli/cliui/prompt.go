@@ -14,7 +14,7 @@ import (
 	"github.com/mattn/go-isatty"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/pty"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )

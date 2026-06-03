@@ -1,6 +1,6 @@
-# Installing Coder
+# Installing Neural Inverse Cloud
 
-A single CLI (`coder`) is used for both the Coder server and the client.
+A single CLI (`coder`) is used for both the Neural Inverse Cloud server and the client.
 
 We support two release channels: mainline and stable - read the
 [Releases](./releases/index.md) page to learn more about which best suits your team.
@@ -11,13 +11,13 @@ We support two release channels: mainline and stable - read the
 
 ## Linux/macOS
 
-Our install script is the fastest way to install Coder on Linux/macOS:
+Our install script is the fastest way to install Neural Inverse Cloud on Linux/macOS:
 
 ```sh
-curl -L https://coder.com/install.sh | sh
+curl -L https://cloud.neuralinverse.com/install.sh | sh
 ```
 
-Refer to [GitHub releases](https://github.com/coder/coder/releases) for
+Refer to [GitHub releases](https://github.com/NeuralInverse/cloud/releases) for
 alternate installation methods (e.g. standalone binaries, system packages).
 
 ## Windows
@@ -26,30 +26,30 @@ If you plan to use the built-in PostgreSQL database, ensure that the
 [Visual C++ Runtime](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist#latest-microsoft-visual-c-redistributable-version)
 is installed.
 
-Use [GitHub releases](https://github.com/coder/coder/releases) to download the
+Use [GitHub releases](https://github.com/NeuralInverse/cloud/releases) to download the
 Windows installer (`.msi`) or standalone binary (`.exe`).
 
 ![Windows setup wizard](../images/install/windows-installer.png)
 
 Alternatively, you can use the
 [`winget`](https://learn.microsoft.com/en-us/windows/package-manager/winget/#use-winget)
-package manager to install Coder:
+package manager to install Neural Inverse Cloud:
 
 ```powershell
-winget install Coder.Coder
+winget install Neural Inverse Cloud.Neural Inverse Cloud
 ```
 
 </div>
 
-To start the Coder server:
+To start the Neural Inverse Cloud server:
 
 ```sh
 coder server
 ```
 
-![Coder install](../images/screenshots/welcome-create-admin-user.png)
+![Neural Inverse Cloud install](../images/screenshots/welcome-create-admin-user.png)
 
-To log in to an existing Coder deployment:
+To log in to an existing Neural Inverse Cloud deployment:
 
 ```sh
 coder login https://coder.example.com
@@ -58,13 +58,13 @@ coder login https://coder.example.com
 ## Download the CLI from your deployment
 
 > [!NOTE]
-> Available in Coder 2.19 and newer on macOS and Linux clients only.
+> Available in Neural Inverse Cloud 2.19 and newer on macOS and Linux clients only.
 
-Every Coder server hosts CLI binaries for all supported platforms. You can run a
-script to download the appropriate CLI for your machine from your Coder
+Every Neural Inverse Cloud server hosts CLI binaries for all supported platforms. You can run a
+script to download the appropriate CLI for your machine from your Neural Inverse Cloud
 deployment.
 
-![Install Coder binary from your deployment](../images/install/install_from_deployment.png)
+![Install Neural Inverse Cloud binary from your deployment](../images/install/install_from_deployment.png)
 
 This script works within air-gapped deployments and ensures that the version of
 the CLI you have installed on your machine matches the version of the server.

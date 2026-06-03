@@ -28,7 +28,7 @@ import (
 // Add or remove directories here to control the scanner's scope.
 var scanDirs = []string{
 	"agent",
-	"coderd",
+	"nicloud",
 	"enterprise",
 	"provisionerd",
 	"tailnet",
@@ -40,7 +40,7 @@ var scanDirs = []string{
 //
 //	eliminate the need for this skip list.
 var skipPaths = []string{
-	"coderd/aibridged/metrics.go",
+	"nicloud/aibridged/metrics.go",
 	"enterprise/aibridgeproxyd/metrics.go",
 }
 
@@ -295,7 +295,7 @@ func resolveStringExpr(expr ast.Expr, decls declarations) string {
 // resolveBinaryExpr resolves a binary expression (string concatenation) to a string.
 // It recursively resolves the left and right operands.
 // Example:
-//   - "coderd_" + "api_" + "requests": "coderd_api_requests"
+//   - "nicloud_" + "api_" + "requests": "nicloud_api_requests"
 //   - namespace + "_" + metricName: resolved concatenation
 func resolveBinaryExpr(expr *ast.BinaryExpr, decls declarations) string {
 	left := resolveStringExpr(expr.X, decls)
@@ -389,7 +389,7 @@ func extractLabels(expr ast.Expr, decls declarations) []string {
 
 // extractNewDescMetric extracts a metric from a prometheus.NewDesc() call.
 // Pattern: prometheus.NewDesc(name, help, variableLabels, constLabels)
-// Currently, coder only uses MustNewConstMetric with NewDesc.
+// Currently, neuralinverse only uses MustNewConstMetric with NewDesc.
 // TODO(ssncferreira): Add support for other MustNewConst* functions if needed.
 func extractNewDescMetric(call *ast.CallExpr, decls declarations) (Metric, bool) {
 	// Check if this is a prometheus.NewDesc call.
@@ -427,7 +427,7 @@ func extractNewDescMetric(call *ast.CallExpr, decls declarations) (Metric, bool)
 	// Infer metric type from name suffix.
 	// TODO(ssncferreira): The actual type is determined by the MustNewConst* function
 	// 	that uses this descriptor (e.g., MustNewConstMetric with prometheus.CounterValue or
-	// 	prometheus.GaugeValue). Currently, coder only uses MustNewConstMetric, so we
+	// 	prometheus.GaugeValue). Currently, neuralinverse only uses MustNewConstMetric, so we
 	// 	infer the type from naming conventions.
 	metricType := MetricTypeGauge
 	if strings.HasSuffix(name, "_total") || strings.HasSuffix(name, "_count") {
@@ -522,7 +522,7 @@ func buildMetricName(namespace, subsystem, name string) string {
 		metricNameParts = append(metricNameParts, name)
 	}
 	// Join non-empty parts with "_" to handle optional namespace/subsystem.
-	// e.g., ("coderd", "", "agents_up"): "coderd_agents_up"
+	// e.g., ("nicloud", "", "agents_up"): "nicloud_agents_up"
 	return strings.Join(metricNameParts, "_")
 }
 

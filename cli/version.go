@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -59,7 +59,7 @@ func defaultVersionInfo() *versionInfo {
 	}
 }
 
-// version prints the coder version
+// version prints the neuralinverse version
 func (*RootCmd) version(versionInfo func() *versionInfo) *serpent.Command {
 	var (
 		formatter = cliui.NewOutputFormatter(
@@ -71,7 +71,7 @@ func (*RootCmd) version(versionInfo func() *versionInfo) *serpent.Command {
 
 	cmd := &serpent.Command{
 		Use:     "version",
-		Short:   "Show coder version",
+		Short:   "Show neuralinverse version",
 		Options: serpent.OptionSet{},
 		Handler: func(inv *serpent.Invocation) error {
 			out, err := formatter.Format(inv.Context(), vi)

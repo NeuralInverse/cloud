@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentsocket"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentsocket"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestServer(t *testing.T) {

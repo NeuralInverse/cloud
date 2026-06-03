@@ -6,19 +6,19 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
 )
 
 func TestFavoriteUnfavorite(t *testing.T) {
 	t.Parallel()
 
 	var (
-		client, db           = coderdtest.NewWithDatabase(t, nil)
-		owner                = coderdtest.CreateFirstUser(t, client)
-		memberClient, member = coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db           = nicloudtest.NewWithDatabase(t, nil)
+		owner                = nicloudtest.CreateFirstUser(t, client)
+		memberClient, member = nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		ws                   = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{OwnerID: member.ID, OrganizationID: owner.OrganizationID}).Do()
 	)
 
@@ -30,7 +30,7 @@ func TestFavoriteUnfavorite(t *testing.T) {
 	err := inv.Run()
 	require.NoError(t, err)
 
-	updated := coderdtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
+	updated := nicloudtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
 	require.True(t, updated.Favorite)
 
 	buf.Reset()
@@ -40,6 +40,6 @@ func TestFavoriteUnfavorite(t *testing.T) {
 	inv.Stdout = &buf
 	err = inv.Run()
 	require.NoError(t, err)
-	updated = coderdtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
+	updated = nicloudtest.MustWorkspace(t, memberClient, ws.Workspace.ID)
 	require.False(t, updated.Favorite)
 }

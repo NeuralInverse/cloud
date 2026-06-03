@@ -19,7 +19,7 @@ linters-settings:
           - github.com/coder/coder/v2/buildinfo
         deny:
           - pkg: github.com/coder/coder/v2
-            desc: aibridge code must not import coder packages outside aibridge; buildinfo is the only exception
+            desc: aibridge code must not import neuralinverse packages outside aibridge; buildinfo is the only exception
 
   exhaustruct:
     include:
@@ -27,7 +27,7 @@ linters-settings:
       - 'httpmw\.\w+'
       # We want to enforce all values are specified when inserting or updating
       # a database row. Ref: #9936
-      - 'github.com/coder/coder/v2/coderd/database\.[^G][^e][^t]\w+Params'
+      - 'github.com/coder/coder/v2/nicloud/database\.[^G][^e][^t]\w+Params'
   gocognit:
     min-complexity: 300
 

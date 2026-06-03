@@ -15,17 +15,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentcontainers/watcher"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/watcher"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestOpenVSCode(t *testing.T) {
@@ -42,12 +42,12 @@ func TestOpenVSCode(t *testing.T) {
 	})
 
 	_ = agenttest.New(t, client.URL, agentToken)
-	_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+	_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 	insideWorkspaceEnv := map[string]string{
 		"CODER":                      "true",
-		"CODER_WORKSPACE_NAME":       workspace.Name,
-		"CODER_WORKSPACE_AGENT_NAME": agentName,
+		"NEURALINVERSE_WORKSPACE_NAME":       workspace.Name,
+		"NEURALINVERSE_WORKSPACE_AGENT_NAME": agentName,
 	}
 
 	wd, err := os.Getwd()
@@ -136,7 +136,7 @@ func TestOpenVSCode(t *testing.T) {
 				return
 			}
 
-			me, err := client.User(ctx, codersdk.Me)
+			me, err := client.User(ctx, nicloudsdk.Me)
 			require.NoError(t, err)
 
 			line := stdout.ReadLine(ctx)
@@ -175,12 +175,12 @@ func TestOpenVSCode_NoAgentDirectory(t *testing.T) {
 	})
 
 	_ = agenttest.New(t, client.URL, agentToken)
-	_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+	_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 	insideWorkspaceEnv := map[string]string{
 		"CODER":                      "true",
-		"CODER_WORKSPACE_NAME":       workspace.Name,
-		"CODER_WORKSPACE_AGENT_NAME": agentName,
+		"NEURALINVERSE_WORKSPACE_NAME":       workspace.Name,
+		"NEURALINVERSE_WORKSPACE_AGENT_NAME": agentName,
 	}
 
 	wd, err := os.Getwd()
@@ -261,7 +261,7 @@ func TestOpenVSCode_NoAgentDirectory(t *testing.T) {
 				return
 			}
 
-			me, err := client.User(ctx, codersdk.Me)
+			me, err := client.User(ctx, nicloudsdk.Me)
 			require.NoError(t, err)
 
 			line := stdout.ReadLine(ctx)
@@ -290,10 +290,10 @@ func TestOpenVSCode_NoAgentDirectory(t *testing.T) {
 }
 
 type fakeContainerCLI struct {
-	resp codersdk.WorkspaceAgentListContainersResponse
+	resp nicloudsdk.WorkspaceAgentListContainersResponse
 }
 
-func (f *fakeContainerCLI) List(ctx context.Context) (codersdk.WorkspaceAgentListContainersResponse, error) {
+func (f *fakeContainerCLI) List(ctx context.Context) (nicloudsdk.WorkspaceAgentListContainersResponse, error) {
 	return f.resp, nil
 }
 
@@ -333,8 +333,8 @@ func (f *fakeDevcontainerCLI) Exec(ctx context.Context, workspaceFolder, configF
 	}
 	var token string
 	for _, arg := range opt.Args {
-		if strings.HasPrefix(arg, "CODER_AGENT_TOKEN=") {
-			token = strings.TrimPrefix(arg, "CODER_AGENT_TOKEN=")
+		if strings.HasPrefix(arg, "NEURALINVERSE_AGENT_TOKEN=") {
+			token = strings.TrimPrefix(arg, "NEURALINVERSE_AGENT_TOKEN=")
 			break
 		}
 	}
@@ -376,8 +376,8 @@ func TestOpenVSCodeDevContainer(t *testing.T) {
 	})
 
 	fCCLI := &fakeContainerCLI{
-		resp: codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{
+		resp: nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{
 				{
 					ID:           containerID,
 					CreatedAt:    dbtime.Now(),
@@ -417,13 +417,13 @@ func TestOpenVSCodeDevContainer(t *testing.T) {
 			agentcontainers.WithDevcontainerCLI(fDCCLI),
 			agentcontainers.WithWatcher(watcher.NewNoop()),
 			agentcontainers.WithDevcontainers(
-				[]codersdk.WorkspaceAgentDevcontainer{{
+				[]nicloudsdk.WorkspaceAgentDevcontainer{{
 					ID:              devcontainerID,
 					Name:            devcontainerName,
 					WorkspaceFolder: workspaceFolder,
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				}},
-				[]codersdk.WorkspaceAgentScript{{
+				[]nicloudsdk.WorkspaceAgentScript{{
 					ID:          devcontainerID,
 					LogSourceID: uuid.New(),
 				}},
@@ -431,8 +431,8 @@ func TestOpenVSCodeDevContainer(t *testing.T) {
 			agentcontainers.WithContainerLabelIncludeFilter("coder.test", t.Name()),
 		)
 	})
-	resources := coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).AgentNames([]string{parentAgentName}).Wait()
-	parentAgent := coderdtest.RequireWorkspaceAgentByName(t, resources, parentAgentName)
+	resources := nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).AgentNames([]string{parentAgentName}).Wait()
+	parentAgent := nicloudtest.RequireWorkspaceAgentByName(t, resources, parentAgentName)
 	parentAgentID := parentAgent.ID
 
 	// Agent connection does not guarantee the parent agent's container API
@@ -450,7 +450,7 @@ func TestOpenVSCodeDevContainer(t *testing.T) {
 			if dc.ID != devcontainerID {
 				continue
 			}
-			if dc.Status != codersdk.WorkspaceAgentDevcontainerStatusRunning {
+			if dc.Status != nicloudsdk.WorkspaceAgentDevcontainerStatusRunning {
 				t.Logf("devcontainer %s status %q", devcontainerName, dc.Status)
 				return false
 			}
@@ -487,7 +487,7 @@ func TestOpenVSCodeDevContainer(t *testing.T) {
 				if workspaceAgent.ID != devcontainerAgentID {
 					continue
 				}
-				if workspaceAgent.Status != codersdk.WorkspaceAgentConnected {
+				if workspaceAgent.Status != nicloudsdk.WorkspaceAgentConnected {
 					t.Logf("devcontainer subagent %s status %q", devcontainerAgentID, workspaceAgent.Status)
 					return false
 				}
@@ -500,8 +500,8 @@ func TestOpenVSCodeDevContainer(t *testing.T) {
 
 	insideWorkspaceEnv := map[string]string{
 		"CODER":                      "true",
-		"CODER_WORKSPACE_NAME":       workspace.Name,
-		"CODER_WORKSPACE_AGENT_NAME": devcontainerName,
+		"NEURALINVERSE_WORKSPACE_NAME":       workspace.Name,
+		"NEURALINVERSE_WORKSPACE_AGENT_NAME": devcontainerName,
 	}
 
 	wd, err := os.Getwd()
@@ -585,7 +585,7 @@ func TestOpenVSCodeDevContainer(t *testing.T) {
 				return
 			}
 
-			me, err := client.User(ctx, codersdk.Me)
+			me, err := client.User(ctx, nicloudsdk.Me)
 			require.NoError(t, err)
 
 			line := stdout.ReadLine(ctx)

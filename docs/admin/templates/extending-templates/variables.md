@@ -1,6 +1,6 @@
 # Terraform template-wide variables
 
-In Coder, Terraform templates offer extensive flexibility through template-wide
+In Neural Inverse Cloud, Terraform templates offer extensive flexibility through template-wide
 variables. These variables, managed by template authors, facilitate the
 construction of customizable templates. Unlike parameters, which are primarily
 for workspace customization, template variables remain under the control of the
@@ -17,7 +17,7 @@ variable "CLOUD_API_KEY" {
 
 Given that variables are a
 [fundamental concept in Terraform](https://developer.hashicorp.com/terraform/language/values/variables),
-Coder endeavors to fully support them. Native support includes `string`,
+Neural Inverse Cloud endeavors to fully support them. Native support includes `string`,
 `number`, and `bool` formats. However, other types such as `list(string)` or
 `map(any)` will default to being treated as strings.
 
@@ -30,7 +30,7 @@ first push. At this stage, the template administrator faces two choices:
    utilize the `--var name=value` command-line argument during the push to
    supply the variable's value.
 2. _Define `default` property_: set a default property for the template
-   variable. If the administrator doesn't input a value via CLI, Coder
+   variable. If the administrator doesn't input a value via CLI, Neural Inverse Cloud
    automatically uses this default during the push.
 
 After the initial push, variables are stored in the database table, associated
@@ -39,7 +39,7 @@ _Template Settings_ without requiring an extra push.
 
 ### Resolved values vs. default values
 
-It's crucial to note that Coder templates operate based on resolved values
+It's crucial to note that Neural Inverse Cloud templates operate based on resolved values
 during a push, rather than default values. This ensures that default values do
 not inadvertently override the configured variable settings during the push
 process.
@@ -57,20 +57,20 @@ variables, you can employ a straightforward solution:
    coder_image = newimage:tag
    ```
 
-1. Push the new template revision using Coder CLI:
+1. Push the new template revision using Neural Inverse Cloud CLI:
 
    ```shell
    coder templates push my-template -y # no need to use --var
    ```
 
 This file serves as a mechanism to override the template settings for variables.
-It can be stored in the repository for easy access and reference. Coder CLI
+It can be stored in the repository for easy access and reference. Neural Inverse Cloud CLI
 automatically detects it and loads variable values.
 
 ## Input options
 
-When working with Terraform configurations in Coder, you have several options
-for providing values to variables using the Coder CLI:
+When working with Terraform configurations in Neural Inverse Cloud, you have several options
+for providing values to variables using the Neural Inverse Cloud CLI:
 
 1. _Manual input in CLI_: You can manually input values for Terraform variables
    directly in the CLI during the deployment process.
@@ -115,7 +115,7 @@ values for your Terraform projects. This approach offers several advantages:
 - Ease of maintenance: Modify variable values in a single location under version
   control, simplifying maintenance and updates.
 
-Coder automatically loads variable definition files following a specific order,
+Neural Inverse Cloud automatically loads variable definition files following a specific order,
 providing flexibility and control over variable configuration. The loading
 sequence is as follows:
 

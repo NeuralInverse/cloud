@@ -11,14 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/cli/sessionstore"
-	"github.com/coder/coder/v2/cli/sessionstore/testhelpers"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore/testhelpers"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/serpent"
 )
 
@@ -70,8 +70,8 @@ func TestUseKeyring(t *testing.T) {
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Create a test server
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		// Create CLI invocation which defaults to using the keyring
 		env := setupKeyringTestEnv(t, client.URL.String(),
@@ -118,8 +118,8 @@ func TestUseKeyring(t *testing.T) {
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Create a test server
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		// First, login with the keyring (default)
 		env := setupKeyringTestEnv(t, client.URL.String(),
@@ -183,8 +183,8 @@ func TestUseKeyring(t *testing.T) {
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Create a test server
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		env := setupKeyringTestEnv(t, client.URL.String(),
 			"login",
@@ -225,10 +225,10 @@ func TestUseKeyring(t *testing.T) {
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Create a test server
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
-		// Login using CODER_USE_KEYRING environment variable set to disable keyring usage,
+		// Login using NEURALINVERSE_USE_KEYRING environment variable set to disable keyring usage,
 		// which should have the same behavior on all platforms.
 		env := setupKeyringTestEnv(t, client.URL.String(),
 			"login",
@@ -239,7 +239,7 @@ func TestUseKeyring(t *testing.T) {
 		inv := env.inv
 		stdout := expecter.NewAttachedToInvocation(t, inv)
 		stdin := testutil.NewWriterAttachedToInvocation(t, logger.Named("stdin"), inv)
-		inv.Environ.Set("CODER_USE_KEYRING", "false")
+		inv.Environ.Set("NEURALINVERSE_USE_KEYRING", "false")
 
 		doneChan := make(chan struct{})
 		go func() {
@@ -256,7 +256,7 @@ func TestUseKeyring(t *testing.T) {
 		// Verify that session file WAS created (not using keyring)
 		sessionFile := path.Join(string(env.cfg), "session")
 		_, err := os.Stat(sessionFile)
-		require.NoError(t, err, "session file should exist when CODER_USE_KEYRING set to false")
+		require.NoError(t, err, "session file should exist when NEURALINVERSE_USE_KEYRING set to false")
 
 		// Read and verify the token from file
 		content, err := os.ReadFile(sessionFile)
@@ -269,8 +269,8 @@ func TestUseKeyring(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		// Login with --use-keyring=false to explicitly disable keyring usage, which
 		// should have the same behavior on all platforms.
@@ -324,8 +324,8 @@ func TestUseKeyringUnsupportedOS(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		env := setupKeyringTestEnv(t, client.URL.String(),
 			"login",
@@ -364,8 +364,8 @@ func TestUseKeyringUnsupportedOS(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		// First login to create a session (will use file storage due to automatic fallback)
 		env := setupKeyringTestEnv(t, client.URL.String(),

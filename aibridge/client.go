@@ -9,14 +9,14 @@ type Client string
 
 const (
 	// Possible values for the "client" field in interception records.
-	// Must be kept in sync with documentation: https://github.com/coder/coder/blob/90c11f3386578da053ec5cd9f1475835b980e7c7/docs/ai-coder/ai-bridge/monitoring.md?plain=1#L36-L44
+	// Must be kept in sync with documentation: https://github.com/coder/coder/blob/90c11f3386578da053ec5cd9f1475835b980e7c7/docs/ai-nicloud/ai-bridge/monitoring.md?plain=1#L36-L44
 	ClientClaudeCode  Client = "Claude Code"
 	ClientCodex       Client = "Codex"
 	ClientZed         Client = "Zed"
 	ClientCopilotVSC  Client = "GitHub Copilot (VS Code)"
 	ClientCopilotCLI  Client = "GitHub Copilot (CLI)"
 	ClientKilo        Client = "Kilo Code"
-	ClientCoderAgents Client = "Coder Agents"
+	ClientNIAgents Client = "Coder Agents"
 	ClientCrush       Client = "Charm Crush"
 	ClientMux         Client = "Mux"
 	ClientRoo         Client = "Roo Code"
@@ -31,7 +31,7 @@ func GuessClient(r *http.Request) Client {
 	userAgent := strings.ToLower(r.UserAgent())
 	originator := r.Header.Get("originator")
 
-	// Must be kept in sync with documentation: https://github.com/coder/coder/blob/90c11f3386578da053ec5cd9f1475835b980e7c7/docs/ai-coder/ai-bridge/monitoring.md?plain=1#L36-L44
+	// Must be kept in sync with documentation: https://github.com/coder/coder/blob/90c11f3386578da053ec5cd9f1475835b980e7c7/docs/ai-nicloud/ai-bridge/monitoring.md?plain=1#L36-L44
 	switch {
 	case strings.HasPrefix(userAgent, "mux/"):
 		return ClientMux
@@ -49,8 +49,8 @@ func GuessClient(r *http.Request) Client {
 		return ClientKilo
 	case strings.HasPrefix(userAgent, "roo-code/") || originator == "roo-code":
 		return ClientRoo
-	case strings.HasPrefix(userAgent, "coder-agents/"):
-		return ClientCoderAgents
+	case strings.HasPrefix(userAgent, "neuralinverse-agents/"):
+		return ClientNIAgents
 	case strings.HasPrefix(userAgent, "charm crush/") || strings.HasPrefix(userAgent, "charm-crush/"):
 		return ClientCrush
 	case r.Header.Get("x-cursor-client-version") != "":

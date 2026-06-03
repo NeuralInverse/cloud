@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func Test_ProxyCRUD(t *testing.T) {
@@ -21,10 +21,10 @@ func Test_ProxyCRUD(t *testing.T) {
 	t.Run("Create", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					nicloudsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
@@ -82,17 +82,17 @@ func Test_ProxyCRUD(t *testing.T) {
 
 	t.Run("Delete", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy: 1,
+					nicloudsdk.FeatureWorkspaceProxy: 1,
 				},
 			},
 		})
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		expectedName := "test-proxy"
-		_, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		_, err := client.CreateWorkspaceProxy(ctx, nicloudsdk.CreateWorkspaceProxyRequest{
 			Name:        expectedName,
 			DisplayName: "Test Proxy",
 			Icon:        "/emojis/us.png",

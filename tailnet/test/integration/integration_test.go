@@ -27,12 +27,12 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/nettype"
 
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/test/integration"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/test/integration"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
-const runTestEnv = "CODER_TAILNET_TESTS"
+const runTestEnv = "NEURALINVERSE_TAILNET_TESTS"
 
 var (
 	isSubprocess = flag.Bool("subprocess", false, "Signifies that this is a test subprocess")

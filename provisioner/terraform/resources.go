@@ -16,13 +16,13 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	stringutil "github.com/coder/coder/v2/coderd/util/strings"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	stringutil "github.com/NeuralInverse/cloud/v2/nicloud/util/strings"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 	"github.com/coder/terraform-provider-coder/v2/provider"
 )
 
@@ -35,7 +35,7 @@ type agentMetadata struct {
 	Order       int64  `mapstructure:"order"`
 }
 
-// A mapping of attributes on the "coder_agent" resource.
+// A mapping of attributes on the "ni_agent" resource.
 type agentAttributes struct {
 	Auth            string            `mapstructure:"auth"`
 	OperatingSystem string            `mapstructure:"os"`
@@ -94,7 +94,7 @@ type agentDisplayAppsAttributes struct {
 	PortForwardingHelper bool `mapstructure:"port_forwarding_helper"`
 }
 
-// A mapping of attributes on the "coder_app" resource.
+// A mapping of attributes on the "ni_app" resource.
 type agentAppAttributes struct {
 	ID      string `mapstructure:"id"`
 	AgentID string `mapstructure:"agent_id"`
@@ -179,7 +179,7 @@ func hasExternalAgentResources(graph *gographviz.Graph) bool {
 			labelValue := strings.Trim(label, `"`)
 			// The first condition is for the case where the resource is in the root module.
 			// The second condition is for the case where the resource is in a child module.
-			if strings.HasPrefix(labelValue, "coder_external_agent.") || strings.Contains(labelValue, ".coder_external_agent.") {
+			if strings.HasPrefix(labelValue, "ni_external_agent.") || strings.Contains(labelValue, ".ni_external_agent.") {
 				return true
 			}
 		}
@@ -188,7 +188,7 @@ func hasExternalAgentResources(graph *gographviz.Graph) bool {
 }
 
 // ConvertState consumes Terraform state and a GraphViz representation
-// produced by `terraform graph` to produce resources consumable by Coder.
+// produced by `terraform graph` to produce resources consumable by Neural Inverse Cloud.
 // nolint:gocognit // This function makes more sense being large for now, until refactored.
 func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph string, logger slog.Logger) (*State, error) {
 	parsedGraph, err := gographviz.ParseString(rawGraph)
@@ -217,10 +217,10 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 			findTerraformResources(module)
 		}
 		for _, resource := range mod.Resources {
-			if resource.Type == "coder_parameter" {
+			if resource.Type == "ni_parameter" {
 				tfResourcesRichParameters = append(tfResourcesRichParameters, resource)
 			}
-			if resource.Type == "coder_workspace_preset" {
+			if resource.Type == "ni_workspace_preset" {
 				tfResourcesPresets = append(tfResourcesPresets, resource)
 			}
 			if resource.Type == "coder_ai_task" {
@@ -245,7 +245,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 
 	// Find all agents!
 	agentNames := map[string]struct{}{}
-	for _, tfResource := range sortedResources["coder_agent"] {
+	for _, tfResource := range sortedResources["ni_agent"] {
 		var attrs agentAttributes
 		err = mapstructure.Decode(tfResource.AttributeValues, &attrs)
 		if err != nil {
@@ -266,7 +266,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 			return nil, xerrors.Errorf("agent name %q does not match regex %q", tfResource.Name, provisioner.AgentNameRegex.String())
 		}
 		// Agent names must be case-insensitive-unique, to be unambiguous in
-		// `coder_app`s and CoderVPN DNS names.
+		// `ni_app`s and Neural Inverse CloudVPN DNS names.
 		if _, ok := agentNames[strings.ToLower(tfResource.Name)]; ok {
 			return nil, xerrors.Errorf("duplicate agent name: %s", tfResource.Name)
 		}
@@ -275,14 +275,14 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 		// Handling for deprecated attributes. login_before_ready was replaced
 		// by startup_script_behavior, but we still need to support it for
 		// backwards compatibility.
-		startupScriptBehavior := string(codersdk.WorkspaceAgentStartupScriptBehaviorNonBlocking)
+		startupScriptBehavior := string(nicloudsdk.WorkspaceAgentStartupScriptBehaviorNonBlocking)
 		if attrs.StartupScriptBehavior != "" {
 			startupScriptBehavior = attrs.StartupScriptBehavior
 		} else {
 			// Handling for provider pre-v0.6.10 (because login_before_ready
 			// defaulted to true, we must check for its presence).
 			if _, ok := tfResource.AttributeValues["login_before_ready"]; ok && !attrs.LoginBeforeReady {
-				startupScriptBehavior = string(codersdk.WorkspaceAgentStartupScriptBehaviorBlocking)
+				startupScriptBehavior = string(nicloudsdk.WorkspaceAgentStartupScriptBehaviorBlocking)
 			}
 		}
 
@@ -356,10 +356,10 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 			agent.Scripts = append(agent.Scripts, &proto.Script{
 				// This is ▶️
 				Icon:             "/emojis/25b6-fe0f.png",
-				LogPath:          "coder-startup-script.log",
+				LogPath:          "neuralinverse-startup-script.log",
 				DisplayName:      "Startup Script",
 				Script:           attrs.StartupScript,
-				StartBlocksLogin: startupScriptBehavior == string(codersdk.WorkspaceAgentStartupScriptBehaviorBlocking),
+				StartBlocksLogin: startupScriptBehavior == string(nicloudsdk.WorkspaceAgentStartupScriptBehaviorBlocking),
 				RunOnStart:       true,
 			})
 		}
@@ -367,7 +367,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 			agent.Scripts = append(agent.Scripts, &proto.Script{
 				// This is ◀️
 				Icon:        "/emojis/25c0.png",
-				LogPath:     "coder-shutdown-script.log",
+				LogPath:     "neuralinverse-shutdown-script.log",
 				DisplayName: "Shutdown Script",
 				Script:      attrs.ShutdownScript,
 				RunOnStop:   true,
@@ -457,7 +457,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 	}
 
 	// Manually associate agents with instance IDs.
-	for _, resource := range sortedResources["coder_agent_instance"] {
+	for _, resource := range sortedResources["ni_agent_instance"] {
 		agentIDRaw, valid := resource.AttributeValues["agent_id"]
 		if !valid {
 			continue
@@ -497,7 +497,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 
 	// Associate Apps with agents.
 	appSlugs := make(map[string]struct{})
-	for _, resource := range sortedResources["coder_app"] {
+	for _, resource := range sortedResources["ni_app"] {
 		var attrs agentAppAttributes
 		err = mapstructure.Decode(resource.AttributeValues, &attrs)
 		if err != nil {
@@ -560,7 +560,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 		if appID == "" {
 			// This should never happen since the "id" attribute is set on creation:
 			// https://github.com/coder/terraform-provider-coder/blob/cfa101df4635e405e66094fa7779f9a89d92f400/provider/app.go#L37
-			logger.Warn(ctx, "coder_app's id was unexpectedly empty", slog.F("name", attrs.Name))
+			logger.Warn(ctx, "ni_app's id was unexpectedly empty", slog.F("name", attrs.Name))
 
 			appID = uuid.NewString()
 		}
@@ -746,7 +746,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 		}
 	}
 
-	for _, resource := range managedNonCoderResources(sortedResources) {
+	for _, resource := range managedNonNIResources(sortedResources) {
 		label := convertAddressToLabel(resource.Address)
 		modulePath, err := convertAddressToModulePath(resource.Address)
 		if err != nil {
@@ -787,7 +787,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 		var param provider.Parameter
 		err = mapstructure.Decode(resource.AttributeValues, &param)
 		if err != nil {
-			return nil, xerrors.Errorf("decode map values for coder_parameter.%s: %w", resource.Name, err)
+			return nil, xerrors.Errorf("decode map values for ni_parameter.%s: %w", resource.Name, err)
 		}
 		var defaultVal string
 		if param.Default != nil {
@@ -796,7 +796,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 
 		pft, err := proto.FormType(param.FormType)
 		if err != nil {
-			return nil, xerrors.Errorf("decode form_type for coder_parameter.%s: %w", resource.Name, err)
+			return nil, xerrors.Errorf("decode form_type for ni_parameter.%s: %w", resource.Name, err)
 		}
 
 		protoParam := &proto.RichParameter{
@@ -823,7 +823,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 				if ok {
 					validationAttributeValuesMapStr, ok := validationAttributeValuesArr[0].(map[string]interface{})
 					if ok {
-						// Backward compatibility with terraform-coder-plugin < v0.8.2:
+						// Backward compatibility with terraform-neuralinverse-plugin < v0.8.2:
 						// * "min_disabled" and "max_disabled" are not available yet
 						// * "min" and "max" are required to be specified together
 						if _, ok = validationAttributeValuesMapStr["min_disabled"]; !ok {
@@ -880,7 +880,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 			s = "s"
 		}
 		return nil, xerrors.Errorf(
-			"coder_parameter names must be unique but %s appear%s multiple times",
+			"ni_parameter names must be unique but %s appear%s multiple times",
 			stringutil.JoinWithConjunction(duplicatedParamNames), s,
 		)
 	}
@@ -925,14 +925,14 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 				s = "s"
 			}
 			return nil, xerrors.Errorf(
-				"coder_workspace_preset parameters must be unique but %s appear%s multiple times", stringutil.JoinWithConjunction(duplicatedPresetParameterNames), s,
+				"ni_workspace_preset parameters must be unique but %s appear%s multiple times", stringutil.JoinWithConjunction(duplicatedPresetParameterNames), s,
 			)
 		}
 
 		if len(nonExistentParameters) > 0 {
 			logger.Warn(
 				ctx,
-				"coder_workspace_preset defines preset values for at least one parameter that is not defined by the template",
+				"ni_workspace_preset defines preset values for at least one parameter that is not defined by the template",
 				slog.F("parameters", stringutil.JoinWithConjunction(nonExistentParameters)),
 			)
 		}
@@ -940,7 +940,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 		if len(preset.Prebuilds) != 1 {
 			logger.Warn(
 				ctx,
-				"coder_workspace_preset must have exactly one prebuild block",
+				"ni_workspace_preset must have exactly one prebuild block",
 			)
 		}
 		var prebuildInstances int32
@@ -981,7 +981,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 			s = "s"
 		}
 		return nil, xerrors.Errorf(
-			"coder_workspace_preset names must be unique but %s appear%s multiple times",
+			"ni_workspace_preset names must be unique but %s appear%s multiple times",
 			stringutil.JoinWithConjunction(duplicatedPresetNames), s,
 		)
 	}
@@ -994,7 +994,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 		}
 	}
 	if defaultPresets > 1 {
-		return nil, xerrors.Errorf("a maximum of 1 coder_workspace_preset can be marked as default, but %d are set", defaultPresets)
+		return nil, xerrors.Errorf("a maximum of 1 ni_workspace_preset can be marked as default, but %d are set", defaultPresets)
 	}
 
 	// This will only pick up resources which will actually be created.
@@ -1124,13 +1124,13 @@ func sortResourcesByType(tfResourcesByLabel map[string]map[string]*tfjson.StateR
 	return byType
 }
 
-// managedNonCoderResources returns all managed resources that are not
-// internal Coder types, sorted by address. It uses the pre-grouped
+// managedNonNeural Inverse CloudResources returns all managed resources that are not
+// internal Neural Inverse Cloud types, sorted by address. It uses the pre-grouped
 // map from sortResourcesByType.
-func managedNonCoderResources(byType map[string][]*tfjson.StateResource) []*tfjson.StateResource {
+func managedNonNIResources(byType map[string][]*tfjson.StateResource) []*tfjson.StateResource {
 	skip := map[string]bool{
-		"coder_script": true, "coder_agent": true,
-		"coder_agent_instance": true, "coder_app": true,
+		"coder_script": true, "ni_agent": true,
+		"ni_agent_instance": true, "ni_app": true,
 		"coder_metadata": true,
 	}
 	var result []*tfjson.StateResource
@@ -1177,9 +1177,9 @@ func dependsOnAgent(graph *gographviz.Graph, agent *proto.Agent, resourceAgentID
 	// Plan: we need to find if there is edge between the agent and the resource.
 	if agent.Id == "" && resourceAgentID == "" {
 		resourceNodeSuffix := fmt.Sprintf(`] %s.%s (expand)"`, resource.Type, resource.Name)
-		agentNodeSuffix := fmt.Sprintf(`] coder_agent.%s (expand)"`, agent.Name)
+		agentNodeSuffix := fmt.Sprintf(`] ni_agent.%s (expand)"`, agent.Name)
 
-		// Traverse the graph to check if the coder_<resource_type> depends on coder_agent.
+		// Traverse the graph to check if the coder_<resource_type> depends on ni_agent.
 		for _, dst := range graph.Edges.SrcToDsts {
 			for _, edges := range dst {
 				for _, edge := range edges {
@@ -1321,9 +1321,9 @@ func findResourcesInGraph(graph *gographviz.Graph, tfResourcesByLabel map[string
 			if resource.Mode != tfjson.ManagedResourceMode {
 				continue
 			}
-			// Don't associate Coder resources with other Coder resources!
-			// Except for coder_external_agent, which is a special case.
-			if strings.HasPrefix(resource.Type, "coder_") && resource.Type != "coder_external_agent" {
+			// Don't associate Coder resources with other Neural Inverse Cloud resources!
+			// Except for ni_external_agent, which is a special case.
+			if strings.HasPrefix(resource.Type, "coder_") && resource.Type != "ni_external_agent" {
 				continue
 			}
 			graphResources = append(graphResources, &graphResource{

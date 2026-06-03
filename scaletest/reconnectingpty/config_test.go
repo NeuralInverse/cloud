@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/reconnectingpty"
 )
 
 func Test_Config(t *testing.T) {

@@ -6,10 +6,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/enterprise/tailnet"
-	agpltest "github.com/coder/coder/v2/tailnet/test"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/enterprise/tailnet"
+	agpltest "github.com/NeuralInverse/cloud/v2/tailnet/test"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestPGCoordinator_ReadyForHandshake_OK(t *testing.T) {

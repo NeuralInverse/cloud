@@ -1,26 +1,26 @@
 # Reusing template code
 
-To reuse code across different Coder templates, such as common scripts or
+To reuse code across different Neural Inverse Cloud templates, such as common scripts or
 resource definitions, we suggest using
 [Terraform Modules](https://developer.hashicorp.com/terraform/language/modules).
 
-You can store these modules externally from your Coder deployment, like in a git
+You can store these modules externally from your Neural Inverse Cloud deployment, like in a git
 repository or a Terraform registry. This example shows how to reference a module
 from your template:
 
 ```tf
-data "coder_workspace" "me" {}
+data "ni_workspace" "me" {}
 
 module "coder-base" {
   source = "github.com/my-organization/coder-base"
 
   # Modules take in variables and can provision infrastructure
   vpc_name            = "devex-3"
-  subnet_tags         = { "name": data.coder_workspace.me.name }
+  subnet_tags         = { "name": data.ni_workspace.me.name }
   code_server_version = 4.14.1
 }
 
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
   # Modules can provide outputs, such as helper scripts
   startup_script=<<EOF
   #!/bin/sh
@@ -35,22 +35,22 @@ and
 [module sources](https://developer.hashicorp.com/terraform/language/modules/sources)
 in the Terraform documentation.
 
-## Coder modules
+## Neural Inverse Cloud modules
 
-Coder publishes plenty of modules that can be used to simplify some common tasks
+Neural Inverse Cloud publishes plenty of modules that can be used to simplify some common tasks
 across templates. Some of the modules we publish are,
 
-1. [`code-server`](https://registry.coder.com/modules/coder/code-server) and
-   [`vscode-web`](https://registry.coder.com/modules/coder/vscode-web)
-2. [`git-clone`](https://registry.coder.com/modules/coder/git-clone)
-3. [`dotfiles`](https://registry.coder.com/modules/coder/dotfiles)
-4. [`jetbrains`](https://registry.coder.com/modules/coder/jetbrains)
-5. [`jfrog-oauth`](https://registry.coder.com/modules/coder/jfrog-oauth) and
-   [`jfrog-token`](https://registry.coder.com/modules/coder/jfrog-token)
-6. [`vault-github`](https://registry.coder.com/modules/coder/vault-github)
+1. [`code-server`](https://registry.cloud.neuralinverse.com/modules/coder/code-server) and
+   [`vscode-web`](https://registry.cloud.neuralinverse.com/modules/coder/vscode-web)
+2. [`git-clone`](https://registry.cloud.neuralinverse.com/modules/coder/git-clone)
+3. [`dotfiles`](https://registry.cloud.neuralinverse.com/modules/coder/dotfiles)
+4. [`jetbrains`](https://registry.cloud.neuralinverse.com/modules/coder/jetbrains)
+5. [`jfrog-oauth`](https://registry.cloud.neuralinverse.com/modules/coder/jfrog-oauth) and
+   [`jfrog-token`](https://registry.cloud.neuralinverse.com/modules/coder/jfrog-token)
+6. [`vault-github`](https://registry.cloud.neuralinverse.com/modules/coder/vault-github)
 
 For a full list of available modules please check
-[Coder module registry](https://registry.coder.com/modules).
+[Neural Inverse Cloud module registry](https://registry.cloud.neuralinverse.com/modules).
 
 ## Offline installations
 
@@ -63,10 +63,10 @@ In offline and restricted deployments, there are three ways to fetch modules.
 ### Artifactory Remote Terraform Repository (Recommended)
 
 Configure Artifactory as a **Remote Terraform Repository** that proxies and
-caches the Coder registry. This approach provides automatic updates and
+caches the Neural Inverse Cloud registry. This approach provides automatic updates and
 requires no manual synchronization.
 
-See [Mirror the Coder Registry with JFrog Artifactory](../../../install/registry-mirror-artifactory.md)
+See [Mirror the Neural Inverse Cloud Registry with JFrog Artifactory](../../../install/registry-mirror-artifactory.md)
 for complete setup instructions.
 
 ### Artifactory Local Repository
@@ -88,9 +88,9 @@ to resolve modules via [Artifactory](https://jfrog.com/artifactory/).
    ```
 
 1. Generate a token with access to the `tf` repo and set an `ENV` variable
-   `TF_TOKEN_example.jfrog.io="XXXXXXXXXXXXXXX"` on the Coder provisioner.
+   `TF_TOKEN_example.jfrog.io="XXXXXXXXXXXXXXX"` on the Neural Inverse Cloud provisioner.
 1. Create a file `.terraformrc` with following content and mount at
-   `/home/coder/.terraformrc` within the Coder provisioner.
+   `/home/coder/.terraformrc` within the Neural Inverse Cloud provisioner.
 
    ```tf
    provider_installation {
@@ -109,7 +109,7 @@ to resolve modules via [Artifactory](https://jfrog.com/artifactory/).
    module "module-name" {
      source = "https://example.jfrog.io/tf__coder/module-name/coder"
      version = "1.0.0"
-     agent_id = coder_agent.example.id
+     agent_id = ni_agent.example.id
      ...
    }
    ```
@@ -122,14 +122,14 @@ Based on the instructions
 #### Example template
 
 We have an example template
-[here](https://github.com/coder/coder/blob/main/examples/jfrog/remote/main.tf)
+[here](https://github.com/NeuralInverse/cloud/blob/main/examples/jfrog/remote/main.tf)
 that uses our
-[JFrog Docker](https://github.com/coder/coder/blob/main/examples/jfrog/docker/main.tf)
+[JFrog Docker](https://github.com/NeuralInverse/cloud/blob/main/examples/jfrog/docker/main.tf)
 template as the underlying module.
 
 ### Private git repository
 
-If you are importing a module from a private git repository, the Coder server or
+If you are importing a module from a private git repository, the Neural Inverse Cloud server or
 [provisioner](../../provisioners/index.md) needs git credentials. Since this token
 will only be used for cloning your repositories with modules, it is best to
 create a token with access limited to the repository and no extra permissions.
@@ -137,7 +137,7 @@ In GitHub, you can generate a
 [fine-grained token](https://docs.github.com/en/rest/overview/permissions-required-for-fine-grained-personal-access-tokens?apiVersion=2022-11-28)
 with read only access to the necessary repos.
 
-If you are running Coder on a VM, make sure that you have `git` installed and
+If you are running Neural Inverse Cloud on a VM, make sure that you have `git` installed and
 the `coder` user has access to the following files:
 
 ```shell
@@ -153,8 +153,8 @@ the `coder` user has access to the following files:
 https://your-github-username:your-github-pat@github.com
 ```
 
-If you are running Coder on Docker or Kubernetes, `git` is pre-installed in the
-Coder image. However, you still need to mount credentials. This can be done via
+If you are running Neural Inverse Cloud on Docker or Kubernetes, `git` is pre-installed in the
+Neural Inverse Cloud image. However, you still need to mount credentials. This can be done via
 a Docker volume mount or Kubernetes secrets.
 
 #### Passing git credentials in Kubernetes
@@ -164,7 +164,7 @@ You might want to do this in a temporary directory to avoid conflicting with
 your own git credentials.
 
 Next, create the secret in Kubernetes. Be sure to do this in the same namespace
-that Coder is installed in.
+that Neural Inverse Cloud is installed in.
 
 ```shell
 export NAMESPACE=coder
@@ -181,7 +181,7 @@ data:
 EOF
 ```
 
-Then, modify Coder's Helm values to mount the secret.
+Then, modify Neural Inverse Cloud's Helm values to mount the secret.
 
 ```yaml
 coder:
@@ -205,4 +205,4 @@ coder:
 - JFrog's
   [Terraform Registry support](https://jfrog.com/help/r/jfrog-artifactory-documentation/terraform-registry)
 - [Configuring the JFrog toolchain inside a workspace](../../integrations/jfrog-artifactory.md)
-- [Coder Module Registry](https://registry.coder.com/modules)
+- [Neural Inverse Cloud Module Registry](https://registry.cloud.neuralinverse.com/modules)

@@ -12,9 +12,9 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/scaletest/dynamicparameters"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/dynamicparameters"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 	"github.com/coder/serpent"
 )
 
@@ -112,7 +112,7 @@ func (r *RootCmd) scaletestDynamicParameters() *serpent.Command {
 						MetricLabelValues: []string{fmt.Sprintf("%d", part.ConcurrentEvaluations)},
 					}
 					// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-					// requests being unbalanced among Coder instances.
+					// requests being unbalanced among Neural Inverse Cloud instances.
 					runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 					if err != nil {
 						return xerrors.Errorf("create runner client: %w", err)

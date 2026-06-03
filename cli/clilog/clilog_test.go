@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/clilog"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -105,7 +105,7 @@ func TestBuilder(t *testing.T) {
 			t.Cleanup(func() { _ = stderr.Close() })
 
 			// Use the default deployment values.
-			dv := coderdtest.DeploymentValues(t)
+			dv := nicloudtest.DeploymentValues(t)
 			cmd := &serpent.Command{
 				Use:     "test",
 				Handler: testHandler(t, clilog.FromDeploymentValues(dv)),
@@ -123,14 +123,14 @@ func TestBuilder(t *testing.T) {
 		t.Run("Override", func(t *testing.T) {
 			tempFile := filepath.Join(t.TempDir(), "test.log")
 			tempJSON := filepath.Join(t.TempDir(), "test.json")
-			dv := &codersdk.DeploymentValues{
-				Logging: codersdk.LoggingConfig{
+			dv := &nicloudsdk.DeploymentValues{
+				Logging: nicloudsdk.LoggingConfig{
 					Filter: []string{"foo", "baz"},
 					Human:  serpent.String(tempFile),
 					JSON:   serpent.String(tempJSON),
 				},
 				Verbose: true,
-				Trace: codersdk.TraceConfig{
+				Trace: nicloudsdk.TraceConfig{
 					Enable: true,
 				},
 			}

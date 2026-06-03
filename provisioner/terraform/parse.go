@@ -8,10 +8,10 @@ import (
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
 	"github.com/mitchellh/go-wordwrap"
 
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/provisioner/terraform/tfparse"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform/tfparse"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 // Parse extracts Terraform variables from source-code.

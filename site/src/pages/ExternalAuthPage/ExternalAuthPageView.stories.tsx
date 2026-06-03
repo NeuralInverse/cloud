@@ -129,8 +129,8 @@ export const DeviceAuthenticatedInstalled = {
 					account: {
 						id: 0,
 						avatar_url: "https://github.com/coder.png",
-						login: "coder",
-						name: "Coder",
+						login: "neuralinverse",
+						name: "Neural Inverse Cloud",
 						profile_url: "https://github.com/coder",
 					},
 				},

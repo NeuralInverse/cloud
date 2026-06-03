@@ -12,13 +12,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	boundarycli "github.com/coder/boundary/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // Actually testing the functionality of coder/boundary takes place in the
@@ -36,7 +36,7 @@ func TestBoundarySubcommand(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify help output contains expected information.
-	// We're simply confirming that `coder boundary --help` ran without a runtime error as
+	// We're simply confirming that `neuralinverse boundary --help` ran without a runtime error as
 	// a good chunk of serpents self validation logic happens at runtime.
 	output := buf.String()
 	assert.Contains(t, output, boundarycli.BaseCommand("dev").Short)
@@ -48,10 +48,10 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 	t.Run("EntitledAndEnabled", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureBoundary: 1,
+					nicloudsdk.FeatureBoundary: 1,
 				},
 			},
 		})
@@ -70,8 +70,8 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 		t.Parallel()
 
 		// Create a proxy server that returns entitlements without boundary feature.
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
 					// No FeatureBoundary
 				},
@@ -80,8 +80,8 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 
 		proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/api/v2/entitlements" {
-				res := codersdk.Entitlements{
-					Features:         map[codersdk.FeatureName]codersdk.Feature{},
+				res := nicloudsdk.Entitlements{
+					Features:         map[nicloudsdk.FeatureName]nicloudsdk.Feature{},
 					Warnings:         []string{},
 					Errors:           []string{},
 					HasLicense:       true,
@@ -89,16 +89,16 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 					RequireTelemetry: false,
 				}
 				// Set boundary to not entitled, all other features to entitled.
-				for _, feature := range codersdk.FeatureNames {
-					if feature == codersdk.FeatureBoundary {
+				for _, feature := range nicloudsdk.FeatureNames {
+					if feature == nicloudsdk.FeatureBoundary {
 						// Explicitly set boundary to not entitled.
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementNotEntitled,
 							Enabled:     false,
 						}
 					} else {
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementEntitled,
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementEntitled,
 							Enabled:     true,
 						}
 					}
@@ -118,7 +118,7 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 
 		proxyURL, err := url.Parse(proxy.URL)
 		require.NoError(t, err)
-		proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+		proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 		proxyClient.SetSessionToken(client.SessionToken())
 		t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -135,34 +135,34 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 		t.Parallel()
 
 		// Create a proxy server that returns entitlements with boundary disabled.
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureBoundary: 1,
+					nicloudsdk.FeatureBoundary: 1,
 				},
 			},
 		})
 
 		proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/api/v2/entitlements" {
-				res := codersdk.Entitlements{
-					Features:         map[codersdk.FeatureName]codersdk.Feature{},
+				res := nicloudsdk.Entitlements{
+					Features:         map[nicloudsdk.FeatureName]nicloudsdk.Feature{},
 					Warnings:         []string{},
 					Errors:           []string{},
 					HasLicense:       true,
 					Trial:            false,
 					RequireTelemetry: false,
 				}
-				for _, feature := range codersdk.FeatureNames {
-					if feature == codersdk.FeatureBoundary {
+				for _, feature := range nicloudsdk.FeatureNames {
+					if feature == nicloudsdk.FeatureBoundary {
 						// Feature is entitled but disabled.
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementEntitled,
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementEntitled,
 							Enabled:     false,
 						}
 					} else {
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementEntitled,
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementEntitled,
 							Enabled:     true,
 						}
 					}
@@ -182,7 +182,7 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 
 		proxyURL, err := url.Parse(proxy.URL)
 		require.NoError(t, err)
-		proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+		proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 		proxyClient.SetSessionToken(client.SessionToken())
 		t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -199,7 +199,7 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 		t.Parallel()
 
 		// Create an AGPL server (no enterprise features).
-		client := coderdtest.New(t, &coderdtest.Options{})
+		client := nicloudtest.New(t, &nicloudtest.Options{})
 
 		proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/api/v2/entitlements" {
@@ -219,7 +219,7 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 
 		proxyURL, err := url.Parse(proxy.URL)
 		require.NoError(t, err)
-		proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+		proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 		proxyClient.SetSessionToken(client.SessionToken())
 		t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -239,8 +239,8 @@ func TestBoundaryLicenseVerification(t *testing.T) {
 // it's skipped.
 func TestBoundaryChildProcessSkipsCheck(t *testing.T) {
 	// Cannot use t.Parallel() with t.Setenv().
-	client, _ := coderdenttest.New(t, &coderdenttest.Options{
-		LicenseOptions: &coderdenttest.LicenseOptions{
+	client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
 				// No FeatureBoundary - would normally fail
 			},
@@ -250,23 +250,23 @@ func TestBoundaryChildProcessSkipsCheck(t *testing.T) {
 	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v2/entitlements" {
 			// Return not entitled for boundary - this would normally cause failure.
-			res := codersdk.Entitlements{
-				Features:         map[codersdk.FeatureName]codersdk.Feature{},
+			res := nicloudsdk.Entitlements{
+				Features:         map[nicloudsdk.FeatureName]nicloudsdk.Feature{},
 				Warnings:         []string{},
 				Errors:           []string{},
 				HasLicense:       true,
 				Trial:            false,
 				RequireTelemetry: false,
 			}
-			for _, feature := range codersdk.FeatureNames {
-				if feature == codersdk.FeatureBoundary {
-					res.Features[feature] = codersdk.Feature{
-						Entitlement: codersdk.EntitlementNotEntitled,
+			for _, feature := range nicloudsdk.FeatureNames {
+				if feature == nicloudsdk.FeatureBoundary {
+					res.Features[feature] = nicloudsdk.Feature{
+						Entitlement: nicloudsdk.EntitlementNotEntitled,
 						Enabled:     false,
 					}
 				} else {
-					res.Features[feature] = codersdk.Feature{
-						Entitlement: codersdk.EntitlementEntitled,
+					res.Features[feature] = nicloudsdk.Feature{
+						Entitlement: nicloudsdk.EntitlementEntitled,
 						Enabled:     true,
 					}
 				}
@@ -286,7 +286,7 @@ func TestBoundaryChildProcessSkipsCheck(t *testing.T) {
 
 	proxyURL, err := url.Parse(proxy.URL)
 	require.NoError(t, err)
-	proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+	proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 	proxyClient.SetSessionToken(client.SessionToken())
 	t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 

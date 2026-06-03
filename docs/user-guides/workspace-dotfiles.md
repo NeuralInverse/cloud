@@ -2,7 +2,7 @@
 
 <!-- markdown-link-check-disable -->
 
-Coder offers the `coder dotfiles <repo>` command which simplifies workspace
+Neural Inverse Cloud offers the `coder dotfiles <repo>` command which simplifies workspace
 personalization. Our behavior is consistent with Codespaces, so
 [their documentation](https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-codespaces-for-your-account#dotfiles)
 explains how it loads your repo.
@@ -20,7 +20,7 @@ your workspace automatically.
 
 > [!NOTE]
 > Template admins: this can be enabled quite easily with a our
-> [dotfiles module](https://registry.coder.com/modules/dotfiles) using just a
+> [dotfiles module](https://registry.cloud.neuralinverse.com/modules/dotfiles) using just a
 > few lines in the template.
 
 ## Personalize script
@@ -40,7 +40,7 @@ sudo apt install -y neovim fish cargo
 
 > [!NOTE]
 > Template admins: refer to
-> [this module](https://registry.coder.com/modules/personalize) to enable the
+> [this module](https://registry.cloud.neuralinverse.com/modules/personalize) to enable the
 > `~/personalize` script on templates.
 
 ## Setup script support
@@ -57,7 +57,7 @@ their dotfiles repo:
 - `setup`
 - `script/setup`
 
-If any of the above files are found (in the specified order), Coder will try to
+If any of the above files are found (in the specified order), Neural Inverse Cloud will try to
 execute the first match. After the first match is found, other files will be
 ignored.
 

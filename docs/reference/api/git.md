@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/external-auth \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/external-auth`
@@ -33,7 +33,7 @@ curl -X GET http://coder-server:8080/api/v2/external-auth \
 
 | Status | Meaning                                                 | Description | Schema                                                           |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ExternalAuthLink](schemas.md#codersdkexternalauthlink) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ExternalAuthLink](schemas.md#nicloudsdkexternalauthlink) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -45,7 +45,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/external-auth/{externalauth} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/external-auth/{externalauth}`
@@ -95,7 +95,7 @@ curl -X GET http://coder-server:8080/api/v2/external-auth/{externalauth} \
 
 | Status | Meaning                                                 | Description | Schema                                                   |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ExternalAuth](schemas.md#codersdkexternalauth) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ExternalAuth](schemas.md#nicloudsdkexternalauth) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -107,7 +107,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/external-auth/{externalauth} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/external-auth/{externalauth}`
@@ -133,7 +133,7 @@ curl -X DELETE http://coder-server:8080/api/v2/external-auth/{externalauth} \
 
 | Status | Meaning                                                 | Description | Schema                                                                                       |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.DeleteExternalAuthByIDResponse](schemas.md#codersdkdeleteexternalauthbyidresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.DeleteExternalAuthByIDResponse](schemas.md#nicloudsdkdeleteexternalauthbyidresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -145,7 +145,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/external-auth/{externalauth}/device \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/external-auth/{externalauth}/device`
@@ -174,7 +174,7 @@ curl -X GET http://coder-server:8080/api/v2/external-auth/{externalauth}/device 
 
 | Status | Meaning                                                 | Description | Schema                                                               |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ExternalAuthDevice](schemas.md#codersdkexternalauthdevice) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ExternalAuthDevice](schemas.md#nicloudsdkexternalauthdevice) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -185,7 +185,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/external-auth/{externalauth}/device \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/external-auth/{externalauth}/device`

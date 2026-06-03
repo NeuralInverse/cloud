@@ -17,8 +17,8 @@ import (
 	protobuf "google.golang.org/protobuf/proto"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 // ProvisionGraphWithAgentAndAPIKeyScope returns provision responses that will mock a fake
@@ -610,8 +610,8 @@ func TarWithOptions(ctx context.Context, logger slog.Logger, responses *Response
 		mainTFData := `
 terraform {
   required_providers {
-    coder = {
-      source = "coder/coder"
+    neuralinverse = {
+      source = "NeuralInverse/cloud"
     }
   }
 }
@@ -657,7 +657,7 @@ func ParameterTerraform(param *proto.RichParameter) (string, error) {
 			return v.DefaultValue != "" || v.Ephemeral
 		},
 	}).Parse(`
-data "coder_parameter" "{{ .Name }}" {
+data "ni_parameter" "{{ .Name }}" {
   name         = "{{ .Name }}"
   display_name = "{{ .DisplayName }}"
   description  = "{{ .Description }}"

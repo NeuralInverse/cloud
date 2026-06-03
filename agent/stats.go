@@ -10,7 +10,7 @@ import (
 	"tailscale.com/types/netlogtype"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
 )
 
 const maxConns = 2048

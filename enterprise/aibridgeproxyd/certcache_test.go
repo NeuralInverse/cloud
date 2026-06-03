@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/enterprise/aibridgeproxyd"
+	"github.com/NeuralInverse/cloud/v2/enterprise/aibridgeproxyd"
 )
 
 func TestCertCache_Fetch(t *testing.T) {

@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestPing(t *testing.T) {
@@ -25,7 +25,7 @@ func TestPing(t *testing.T) {
 		stdout := expecter.NewAttachedToInvocation(t, inv)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		_ = nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -49,7 +49,7 @@ func TestPing(t *testing.T) {
 		stdout := expecter.NewAttachedToInvocation(t, inv)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		_ = nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -90,7 +90,7 @@ func TestPing(t *testing.T) {
 				stdout := expecter.NewAttachedToInvocation(t, inv)
 
 				_ = agenttest.New(t, client.URL, agentToken)
-				_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+				_ = nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 				ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 				defer cancel()

@@ -47,7 +47,7 @@ const renderPage = async () => {
 const removeMember = async () => {
 	const user = userEvent.setup();
 
-	const users = await screen.findAllByText(/.*@coder.com/);
+	const users = await screen.findAllByText(/.*@cloud.neuralinverse.com/);
 	const userRow = users[1].closest("tr");
 	if (!userRow) {
 		throw new Error("Error on get the first user row");
@@ -69,7 +69,7 @@ const updateUserRole = async (role: SlimRole) => {
 
 	// Get the second user in the table (the first user is "me" and has
 	// no action menu).
-	const users = await screen.findAllByText(/.*@coder.com/);
+	const users = await screen.findAllByText(/.*@cloud.neuralinverse.com/);
 	const userRow = users[1].closest("tr");
 	if (!userRow) {
 		throw new Error("Error on get the first user row");

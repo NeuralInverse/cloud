@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/scaletest/smtpmock"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/smtpmock"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestServer_StartStop(t *testing.T) {
@@ -89,17 +89,17 @@ func TestServer_FilterByEmail(t *testing.T) {
 	require.NoError(t, err)
 	defer srv.Stop()
 
-	err = sendTestEmail(srv.SMTPAddress(), "admin@coder.com", "Email for admin", "Body 1")
+	err = sendTestEmail(srv.SMTPAddress(), "admin@cloud.neuralinverse.com", "Email for admin", "Body 1")
 	require.NoError(t, err)
 
-	err = sendTestEmail(srv.SMTPAddress(), "test-user@coder.com", "Email for test-user", "Body 2")
+	err = sendTestEmail(srv.SMTPAddress(), "test-user@cloud.neuralinverse.com", "Email for test-user", "Body 2")
 	require.NoError(t, err)
 
 	require.Eventually(t, func() bool {
 		return srv.MessageCount() == 2
 	}, testutil.WaitShort, testutil.IntervalMedium)
 
-	url := fmt.Sprintf("%s/messages?email=admin@coder.com", srv.APIAddress())
+	url := fmt.Sprintf("%s/messages?email=admin@cloud.neuralinverse.com", srv.APIAddress())
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	require.NoError(t, err)
 
@@ -131,7 +131,7 @@ func TestServer_NotificationTemplateID(t *testing.T) {
 	notificationID := uuid.New()
 	body := fmt.Sprintf(`<p><a href=3D"http://127.0.0.1:3000/settings/notifications?disabled=3D%s">Unsubscribe</a></p>`, notificationID.String())
 
-	err = sendTestEmail(srv.SMTPAddress(), "test-user@coder.com", "Notification", body)
+	err = sendTestEmail(srv.SMTPAddress(), "test-user@cloud.neuralinverse.com", "Notification", body)
 	require.NoError(t, err)
 
 	require.Eventually(t, func() bool {
@@ -167,7 +167,7 @@ func TestServer_Purge(t *testing.T) {
 	require.NoError(t, err)
 	defer srv.Stop()
 
-	err = sendTestEmail(srv.SMTPAddress(), "test-user@coder.com", "Test", "Body")
+	err = sendTestEmail(srv.SMTPAddress(), "test-user@cloud.neuralinverse.com", "Test", "Body")
 	require.NoError(t, err)
 
 	require.Eventually(t, func() bool {
@@ -187,7 +187,7 @@ func TestServer_Purge(t *testing.T) {
 }
 
 func sendTestEmail(smtpAddr, to, subject, body string) error {
-	from := "noreply@coder.com"
+	from := "noreply@cloud.neuralinverse.com"
 	now := time.Now().Format(time.RFC1123Z)
 
 	msg := strings.Builder{}

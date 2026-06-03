@@ -12,11 +12,11 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -29,8 +29,8 @@ const PresetNone = "none"
 var ErrNoPresetFound = xerrors.New("no preset found")
 
 type CreateOptions struct {
-	BeforeCreate func(ctx context.Context, client *codersdk.Client, template codersdk.Template, templateVersionID uuid.UUID) error
-	AfterCreate  func(ctx context.Context, inv *serpent.Invocation, client *codersdk.Client, workspace codersdk.Workspace) error
+	BeforeCreate func(ctx context.Context, client *nicloudsdk.Client, template nicloudsdk.Template, templateVersionID uuid.UUID) error
+	AfterCreate  func(ctx context.Context, inv *serpent.Invocation, client *nicloudsdk.Client, workspace nicloudsdk.Workspace) error
 }
 
 func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
@@ -57,7 +57,7 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Create a workspace for another user (if you have permission)",
-				Command:     "coder create <username>/<workspace_name>",
+				Command:     "neuralinverse create <username>/<workspace_name>",
 			},
 		),
 		Handler: func(inv *serpent.Invocation) error {
@@ -66,9 +66,9 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				return err
 			}
 
-			workspaceOwner := codersdk.Me
+			workspaceOwner := nicloudsdk.Me
 			if len(inv.Args) >= 1 {
-				workspaceOwner, workspaceName, err = codersdk.SplitWorkspaceIdentifier(inv.Args[0])
+				workspaceOwner, workspaceName, err = nicloudsdk.SplitWorkspaceIdentifier(inv.Args[0])
 				if err != nil {
 					return err
 				}
@@ -78,11 +78,11 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				workspaceName, err = cliui.Prompt(inv, cliui.PromptOptions{
 					Text: "Specify a name for your workspace:",
 					Validate: func(workspaceName string) error {
-						err = codersdk.NameValid(workspaceName)
+						err = nicloudsdk.NameValid(workspaceName)
 						if err != nil {
 							return xerrors.Errorf("workspace name %q is invalid: %w", workspaceName, err)
 						}
-						_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, codersdk.WorkspaceOptions{})
+						_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, nicloudsdk.WorkspaceOptions{})
 						if err == nil {
 							return xerrors.Errorf("a workspace already exists named %q", workspaceName)
 						}
@@ -93,23 +93,23 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 					return err
 				}
 			}
-			err = codersdk.NameValid(workspaceName)
+			err = nicloudsdk.NameValid(workspaceName)
 			if err != nil {
 				return xerrors.Errorf("workspace name %q is invalid: %w", workspaceName, err)
 			}
-			_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, codersdk.WorkspaceOptions{})
+			_, err = client.WorkspaceByOwnerAndName(inv.Context(), workspaceOwner, workspaceName, nicloudsdk.WorkspaceOptions{})
 			if err == nil {
 				return xerrors.Errorf("a workspace already exists named %q", workspaceName)
 			}
 
-			var sourceWorkspace codersdk.Workspace
+			var sourceWorkspace nicloudsdk.Workspace
 			if copyParametersFrom != "" {
-				sourceWorkspaceOwner, sourceWorkspaceName, err := codersdk.SplitWorkspaceIdentifier(copyParametersFrom)
+				sourceWorkspaceOwner, sourceWorkspaceName, err := nicloudsdk.SplitWorkspaceIdentifier(copyParametersFrom)
 				if err != nil {
 					return err
 				}
 
-				sourceWorkspace, err = client.WorkspaceByOwnerAndName(inv.Context(), sourceWorkspaceOwner, sourceWorkspaceName, codersdk.WorkspaceOptions{})
+				sourceWorkspace, err = client.WorkspaceByOwnerAndName(inv.Context(), sourceWorkspaceOwner, sourceWorkspaceName, nicloudsdk.WorkspaceOptions{})
 				if err != nil {
 					return xerrors.Errorf("get source workspace: %w", err)
 				}
@@ -118,23 +118,23 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				templateName = sourceWorkspace.TemplateName
 			}
 
-			var template codersdk.Template
+			var template nicloudsdk.Template
 			var templateVersionID uuid.UUID
 			switch {
 			case templateName == "":
 				_, _ = fmt.Fprintln(inv.Stdout, pretty.Sprint(cliui.DefaultStyles.Wrap, "Select a template below to preview the provisioned infrastructure:"))
 
-				templates, err := client.Templates(inv.Context(), codersdk.TemplateFilter{})
+				templates, err := client.Templates(inv.Context(), nicloudsdk.TemplateFilter{})
 				if err != nil {
 					return err
 				}
 
-				slices.SortFunc(templates, func(a, b codersdk.Template) int {
+				slices.SortFunc(templates, func(a, b nicloudsdk.Template) int {
 					return slice.Descending(a.ActiveUserCount, b.ActiveUserCount)
 				})
 
 				templateNames := make([]string, 0, len(templates))
-				templateByName := make(map[string]codersdk.Template, len(templates))
+				templateByName := make(map[string]nicloudsdk.Template, len(templates))
 
 				// If more than 1 organization exists in the list of templates,
 				// then include the organization name in the select options.
@@ -185,7 +185,7 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				}
 				templateVersionID = sourceWorkspace.LatestBuild.TemplateVersionID
 			default:
-				templates, err := client.Templates(inv.Context(), codersdk.TemplateFilter{
+				templates, err := client.Templates(inv.Context(), nicloudsdk.TemplateFilter{
 					ExactName: templateName,
 				})
 				if err != nil {
@@ -206,7 +206,7 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 						return xerrors.Errorf("multiple templates found with the name %q, use `--org=<organization_name>` to specify which template by that name to use. Organizations available: %s", templateName, strings.Join(templateOrgs, ", "))
 					}
 
-					index := slices.IndexFunc(templates, func(i codersdk.Template) bool {
+					index := slices.IndexFunc(templates, func(i nicloudsdk.Template) bool {
 						return i.OrganizationID == selectedOrg.ID
 					})
 					if index == -1 {
@@ -214,7 +214,7 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 					}
 
 					// remake the list with the only template selected
-					templates = []codersdk.Template{templates[index]}
+					templates = []nicloudsdk.Template{templates[index]}
 				}
 
 				template = templates[0]
@@ -241,7 +241,7 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				if template.OrganizationID != selectedOrg.ID {
 					orgNameFormat := "'--org=%q'"
 					if orgValueSource == serpent.ValueSourceEnv {
-						orgNameFormat = "CODER_ORGANIZATION=%q"
+						orgNameFormat = "NEURALINVERSE_ORGANIZATION=%q"
 					}
 
 					return xerrors.Errorf("template is in organization %q, but %s was specified. Use %s to use this template",
@@ -271,7 +271,7 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				return xerrors.Errorf("can't parse given parameter defaults: %w", err)
 			}
 
-			var sourceWorkspaceParameters []codersdk.WorkspaceBuildParameter
+			var sourceWorkspaceParameters []nicloudsdk.WorkspaceBuildParameter
 			if copyParametersFrom != "" {
 				sourceWorkspaceParameters, err = client.WorkspaceBuildParameters(inv.Context(), sourceWorkspace.LatestBuild.ID)
 				if err != nil {
@@ -285,8 +285,8 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				return xerrors.Errorf("failed to get presets: %w", err)
 			}
 
-			var preset *codersdk.Preset
-			var presetParameters []codersdk.WorkspaceBuildParameter
+			var preset *nicloudsdk.Preset
+			var presetParameters []nicloudsdk.WorkspaceBuildParameter
 
 			// If the template has no presets, or the user explicitly used --preset none,
 			// skip applying a preset
@@ -351,13 +351,13 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 				ttlMillis = ptr.Ref(stopAfter.Milliseconds())
 			}
 
-			req := codersdk.CreateWorkspaceRequest{
+			req := nicloudsdk.CreateWorkspaceRequest{
 				TemplateVersionID:   templateVersionID,
 				Name:                workspaceName,
 				AutostartSchedule:   schedSpec,
 				TTLMillis:           ttlMillis,
 				RichParameterValues: richParameters,
-				AutomaticUpdates:    codersdk.AutomaticUpdates(autoUpdates),
+				AutomaticUpdates:    nicloudsdk.AutomaticUpdates(autoUpdates),
 			}
 
 			// If a preset exists, update the create workspace request's preset ID
@@ -406,50 +406,50 @@ func (r *RootCmd) Create(opts CreateOptions) *serpent.Command {
 		serpent.Option{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_TEMPLATE_NAME",
+			Env:           "NEURALINVERSE_TEMPLATE_NAME",
 			Description:   "Specify a template name.",
 			Value:         serpent.StringOf(&templateName),
 		},
 		serpent.Option{
 			Flag:        "template-version",
-			Env:         "CODER_TEMPLATE_VERSION",
+			Env:         "NEURALINVERSE_TEMPLATE_VERSION",
 			Description: "Specify a template version name.",
 			Value:       serpent.StringOf(&templateVersion),
 		},
 		serpent.Option{
 			Flag:        "preset",
-			Env:         "CODER_PRESET_NAME",
+			Env:         "NEURALINVERSE_PRESET_NAME",
 			Description: "Specify the name of a template version preset. Use 'none' to explicitly indicate that no preset should be used.",
 			Value:       serpent.StringOf(&presetName),
 		},
 		serpent.Option{
 			Flag:        "start-at",
-			Env:         "CODER_WORKSPACE_START_AT",
-			Description: "Specify the workspace autostart schedule. Check coder schedule start --help for the syntax.",
+			Env:         "NEURALINVERSE_WORKSPACE_START_AT",
+			Description: "Specify the workspace autostart schedule. Check neuralinverse schedule start --help for the syntax.",
 			Value:       serpent.StringOf(&startAt),
 		},
 		serpent.Option{
 			Flag:        "stop-after",
-			Env:         "CODER_WORKSPACE_STOP_AFTER",
+			Env:         "NEURALINVERSE_WORKSPACE_STOP_AFTER",
 			Description: "Specify a duration after which the workspace should shut down (e.g. 8h).",
 			Value:       serpent.DurationOf(&stopAfter),
 		},
 		serpent.Option{
 			Flag:        "automatic-updates",
-			Env:         "CODER_WORKSPACE_AUTOMATIC_UPDATES",
+			Env:         "NEURALINVERSE_WORKSPACE_AUTOMATIC_UPDATES",
 			Description: "Specify automatic updates setting for the workspace (accepts 'always' or 'never').",
-			Default:     string(codersdk.AutomaticUpdatesNever),
+			Default:     string(nicloudsdk.AutomaticUpdatesNever),
 			Value:       serpent.StringOf(&autoUpdates),
 		},
 		serpent.Option{
 			Flag:        "copy-parameters-from",
-			Env:         "CODER_WORKSPACE_COPY_PARAMETERS_FROM",
+			Env:         "NEURALINVERSE_WORKSPACE_COPY_PARAMETERS_FROM",
 			Description: "Specify the source workspace name to copy parameters from.",
 			Value:       serpent.StringOf(&copyParametersFrom),
 		},
 		serpent.Option{
 			Flag:        "no-wait",
-			Env:         "CODER_CREATE_NO_WAIT",
+			Env:         "NEURALINVERSE_CREATE_NO_WAIT",
 			Description: "Return immediately after creating the workspace. The build will run in the background.",
 			Value:       serpent.BoolOf(&noWait),
 		},
@@ -469,17 +469,17 @@ type prepWorkspaceBuildArgs struct {
 	// The owner is required when evaluating dynamic parameters
 	Owner string
 
-	LastBuildParameters       []codersdk.WorkspaceBuildParameter
-	SourceWorkspaceParameters []codersdk.WorkspaceBuildParameter
+	LastBuildParameters       []nicloudsdk.WorkspaceBuildParameter
+	SourceWorkspaceParameters []nicloudsdk.WorkspaceBuildParameter
 
 	PromptEphemeralParameters bool
-	EphemeralParameters       []codersdk.WorkspaceBuildParameter
+	EphemeralParameters       []nicloudsdk.WorkspaceBuildParameter
 
-	PresetParameters      []codersdk.WorkspaceBuildParameter
+	PresetParameters      []nicloudsdk.WorkspaceBuildParameter
 	PromptRichParameters  bool
-	RichParameters        []codersdk.WorkspaceBuildParameter
+	RichParameters        []nicloudsdk.WorkspaceBuildParameter
 	RichParameterFile     string
-	RichParameterDefaults []codersdk.WorkspaceBuildParameter
+	RichParameterDefaults []nicloudsdk.WorkspaceBuildParameter
 
 	UseParameterDefaults bool
 }
@@ -487,7 +487,7 @@ type prepWorkspaceBuildArgs struct {
 // resolvePreset returns the preset matching the given presetName (if specified),
 // or the default preset (if any).
 // Returns ErrNoPresetFound if no matching or default preset is found.
-func resolvePreset(presets []codersdk.Preset, presetName string) (*codersdk.Preset, error) {
+func resolvePreset(presets []nicloudsdk.Preset, presetName string) (*nicloudsdk.Preset, error) {
 	// If preset name is specified, find it
 	if presetName != "" {
 		for _, p := range presets {
@@ -511,8 +511,8 @@ func resolvePreset(presets []codersdk.Preset, presetName string) (*codersdk.Pres
 
 // promptPresetSelection shows a CLI selection menu of the presets defined in the template version.
 // Returns the selected preset
-func promptPresetSelection(inv *serpent.Invocation, presets []codersdk.Preset) (*codersdk.Preset, error) {
-	presetMap := make(map[string]*codersdk.Preset)
+func promptPresetSelection(inv *serpent.Invocation, presets []nicloudsdk.Preset) (*nicloudsdk.Preset, error) {
+	presetMap := make(map[string]*nicloudsdk.Preset)
 	var presetOptions []string
 
 	for _, preset := range presets {
@@ -540,7 +540,7 @@ func promptPresetSelection(inv *serpent.Invocation, presets []codersdk.Preset) (
 }
 
 // displayAppliedPreset shows the user which preset was applied and its parameters
-func displayAppliedPreset(inv *serpent.Invocation, preset *codersdk.Preset, parameters []codersdk.WorkspaceBuildParameter) {
+func displayAppliedPreset(inv *serpent.Invocation, preset *nicloudsdk.Preset, parameters []nicloudsdk.WorkspaceBuildParameter) {
 	label := fmt.Sprintf("Preset '%s'", preset.Name)
 	if preset.Default {
 		label += " (default)"
@@ -554,7 +554,7 @@ func displayAppliedPreset(inv *serpent.Invocation, preset *codersdk.Preset, para
 
 // prepWorkspaceBuild will ensure a workspace build will succeed on the latest template version.
 // Any missing params will be prompted to the user. It supports rich parameters.
-func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args prepWorkspaceBuildArgs) ([]codersdk.WorkspaceBuildParameter, error) {
+func prepWorkspaceBuild(inv *serpent.Invocation, client *nicloudsdk.Client, args prepWorkspaceBuildArgs) ([]nicloudsdk.WorkspaceBuildParameter, error) {
 	ctx := inv.Context()
 
 	templateVersion, err := client.TemplateVersion(ctx, args.TemplateVersionID)
@@ -592,7 +592,7 @@ func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args p
 		WithRichParametersDefaults(args.RichParameterDefaults).
 		WithUseParameterDefaults(args.UseParameterDefaults)
 
-	var templateVersionParameters []codersdk.TemplateVersionParameter
+	var templateVersionParameters []nicloudsdk.TemplateVersionParameter
 	if !dynamicParameters {
 		templateVersionParameters, err = client.TemplateVersionRichParameters(inv.Context(), templateVersion.ID)
 		if err != nil {
@@ -636,7 +636,7 @@ func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args p
 	}
 
 	err = cliui.ExternalAuth(ctx, inv.Stdout, cliui.ExternalAuthOptions{
-		Fetch: func(ctx context.Context) ([]codersdk.TemplateVersionExternalAuth, error) {
+		Fetch: func(ctx context.Context) ([]nicloudsdk.TemplateVersionExternalAuth, error) {
 			return client.TemplateVersionExternalAuth(ctx, templateVersion.ID)
 		},
 	})
@@ -648,7 +648,7 @@ func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args p
 	// Skip for start and restart to avoid unnecessary delays
 	if args.Action == WorkspaceCreate || args.Action == WorkspaceUpdate {
 		// Run a dry-run with the given parameters to check correctness
-		dryRun, err := client.CreateTemplateVersionDryRun(inv.Context(), templateVersion.ID, codersdk.CreateTemplateVersionDryRunRequest{
+		dryRun, err := client.CreateTemplateVersionDryRun(inv.Context(), templateVersion.ID, nicloudsdk.CreateTemplateVersionDryRunRequest{
 			WorkspaceName:       args.NewWorkspaceName,
 			RichParameterValues: buildParameters,
 		})
@@ -663,13 +663,13 @@ func prepWorkspaceBuild(inv *serpent.Invocation, client *codersdk.Client, args p
 		cliutil.WarnMatchedProvisioners(inv.Stdout, &matchedProvisioners, dryRun)
 		_, _ = fmt.Fprintln(inv.Stdout, "Planning workspace...")
 		err = cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
-			Fetch: func() (codersdk.ProvisionerJob, error) {
+			Fetch: func() (nicloudsdk.ProvisionerJob, error) {
 				return client.TemplateVersionDryRun(inv.Context(), templateVersion.ID, dryRun.ID)
 			},
 			Cancel: func() error {
 				return client.CancelTemplateVersionDryRun(inv.Context(), templateVersion.ID, dryRun.ID)
 			},
-			Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
+			Logs: func() (<-chan nicloudsdk.ProvisionerJobLog, io.Closer, error) {
 				return client.TemplateVersionDryRunLogsAfter(inv.Context(), templateVersion.ID, dryRun.ID, 0)
 			},
 			// Don't show log output for the dry-run unless there's an error.

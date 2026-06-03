@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
 import type { Reporter, TestCase, TestResult } from "@playwright/test/reporter";
 import { API } from "#/api/api";
-import { coderdPProfPort } from "./constants";
+import { nicloudPProfPort } from "./constants";
 
 class CoderReporter implements Reporter {
 	async onTestEnd(test: TestCase, result: TestResult) {
@@ -25,7 +25,7 @@ class CoderReporter implements Reporter {
 const exportDebugPprof = async (outputFile: string) => {
 	const axiosInstance = API.getAxiosInstance();
 	const response = await axiosInstance.get(
-		`http://127.0.0.1:${coderdPProfPort}/debug/pprof/goroutine?debug=1`,
+		`http://127.0.0.1:${nicloudPProfPort}/debug/pprof/goroutine?debug=1`,
 	);
 
 	if (response.status !== 200) {

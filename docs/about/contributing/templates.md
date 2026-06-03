@@ -1,21 +1,21 @@
 # Contributing templates
 
-Learn how to create and contribute complete Coder workspace templates to the Coder Registry. Templates provide ready-to-use workspace configurations that users can deploy directly to create development environments.
+Learn how to create and contribute complete Neural Inverse Cloud workspace templates to the Neural Inverse Cloud Registry. Templates provide ready-to-use workspace configurations that users can deploy directly to create development environments.
 
-## What are Coder templates
+## What are Neural Inverse Cloud templates
 
-Coder templates are complete Terraform configurations that define entire workspace environments. Unlike modules (which are reusable components), templates provide full infrastructure definitions that include:
+Neural Inverse Cloud templates are complete Terraform configurations that define entire workspace environments. Unlike modules (which are reusable components), templates provide full infrastructure definitions that include:
 
 - Infrastructure setup (containers, VMs, cloud resources)
-- Coder agent configuration
+- Neural Inverse Cloud agent configuration
 - Development tools and IDE integrations
 - Networking and security settings
 - Complete startup automation
 
-Templates appear on the Coder Registry and can be deployed directly by users.
+Templates appear on the Neural Inverse Cloud Registry and can be deployed directly by users.
 
 > [!TIP]
-> If you use an AI coding assistant, the [coder-templates](https://github.com/coder/registry/blob/main/.agents/skills/coder-templates/SKILL.md) agent skill from the Coder Registry can guide you through creating and updating templates with best practices built-in.
+> If you use an AI coding assistant, the [coder-templates](https://github.com/coder/registry/blob/main/.agents/skills/coder-templates/SKILL.md) agent skill from the Neural Inverse Cloud Registry can guide you through creating and updating templates with best practices built-in.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Before contributing templates, ensure you have:
 
 - Strong Terraform knowledge
 - [Terraform installed](https://developer.hashicorp.com/terraform/install)
-- [Coder CLI installed](https://coder.com/docs/install)
+- [Neural Inverse Cloud CLI installed](https://cloud.neuralinverse.com/docs/install)
 - Access to your target infrastructure platform (Docker, AWS, GCP, etc.)
 - [Bun installed](https://bun.sh/docs/installation) (for tooling)
 
@@ -115,12 +115,12 @@ terraform {
   }
 }
 
-# Coder data sources
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+# Neural Inverse Cloud data sources
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-# Coder agent
-resource "coder_agent" "main" {
+# Neural Inverse Cloud agent
+resource "ni_agent" "main" {
   arch                   = "amd64"
   os                     = "linux"
   startup_script_timeout = 180
@@ -137,15 +137,15 @@ resource "coder_agent" "main" {
 
 # Registry modules for IDEs and tools
 module "code-server" {
-  source   = "registry.coder.com/coder/code-server/coder"
+  source   = "registry.cloud.neuralinverse.com/coder/code-server/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
 }
 
 module "git-clone" {
-  source   = "registry.coder.com/coder/git-clone/coder"
+  source   = "registry.cloud.neuralinverse.com/coder/git-clone/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   url      = "https://github.com/example/repo.git"
 }
 
@@ -155,12 +155,12 @@ resource "docker_image" "main" {
 }
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = docker_image.main.name
-  name  = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+  name  = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
 
-  command = ["sh", "-c", coder_agent.main.init_script]
-  env     = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+  command = ["sh", "-c", ni_agent.main.init_script]
+  env     = ["NEURALINVERSE_AGENT_TOKEN=${ni_agent.main.token}"]
 
   host {
     host = "host.docker.internal"
@@ -170,7 +170,7 @@ resource "docker_container" "workspace" {
 
 # Metadata
 resource "coder_metadata" "workspace_info" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = docker_container.workspace[0].id
 
   item {
@@ -219,7 +219,7 @@ A complete Ubuntu-based development workspace with VS Code, Git, and essential d
 
 ## Usage
 
-1. Deploy this template in your Coder instance
+1. Deploy this template in your Neural Inverse Cloud instance
 2. Create a new workspace from the template
 3. Access VS Code through the workspace dashboard
 4. Start developing in your fully configured environment
@@ -265,45 +265,45 @@ Use registry modules for common features:
 ```terraform
 # VS Code in browser
 module "code-server" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/code-server/coder"
+  count    = data.ni_workspace.me.start_count
+  source   = "registry.cloud.neuralinverse.com/coder/code-server/coder"
   version  = "1.3.0"
-  agent_id = coder_agent.example.id
+  agent_id = ni_agent.example.id
 }
 
 # JetBrains IDEs
 module "jetbrains" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/jetbrains/coder"
+  count    = data.ni_workspace.me.start_count
+  source   = "registry.cloud.neuralinverse.com/coder/jetbrains/coder"
   version  = "1.0.0"
-  agent_id = coder_agent.example.id
+  agent_id = ni_agent.example.id
   folder   = "/home/coder/project"
 }
 
 # Git repository cloning
 module "git-clone" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/git-clone/coder"
+  count    = data.ni_workspace.me.start_count
+  source   = "registry.cloud.neuralinverse.com/coder/git-clone/coder"
   version  = "1.1.0"
-  agent_id = coder_agent.example.id
-  url      = "https://github.com/coder/coder"
+  agent_id = ni_agent.example.id
+  url      = "https://github.com/NeuralInverse/cloud"
   base_dir = "~/projects/coder"
 }
 
 # File browser interface
 module "filebrowser" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/filebrowser/coder"
+  count    = data.ni_workspace.me.start_count
+  source   = "registry.cloud.neuralinverse.com/coder/filebrowser/coder"
   version  = "1.1.1"
-  agent_id = coder_agent.example.id
+  agent_id = ni_agent.example.id
 }
 
 # Dotfiles management
 module "dotfiles" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/dotfiles/coder"
+  count    = data.ni_workspace.me.start_count
+  source   = "registry.cloud.neuralinverse.com/coder/dotfiles/coder"
   version  = "1.2.0"
-  agent_id = coder_agent.example.id
+  agent_id = ni_agent.example.id
 }
 ```
 
@@ -335,13 +335,13 @@ variable "workspace_name" {
 
 ### Local testing
 
-Test your template locally with Coder:
+Test your template locally with Neural Inverse Cloud:
 
 ```bash
 # Navigate to your template directory
 cd registry/[your-username]/templates/[template-name]
 
-# Push to Coder for testing
+# Push to Neural Inverse Cloud for testing
 coder templates push test-template -d .
 
 # Create a test workspace
@@ -390,7 +390,7 @@ Before submitting your template, verify:
 
 ### Making changes
 
-1. **Test thoroughly**: Always test template changes in a Coder instance
+1. **Test thoroughly**: Always test template changes in a Neural Inverse Cloud instance
 2. **Maintain compatibility**: Ensure existing workspaces continue to function
 3. **Document changes**: Update the README with new features or requirements
 4. **Follow versioning**: Update version numbers for significant changes
@@ -407,7 +407,7 @@ Before submitting your template, verify:
 2. **Test thoroughly**:
 
    ```bash
-   # Test with Coder
+   # Test with Neural Inverse Cloud
    coder templates push test-python-template -d .
    coder create test-workspace --template test-python-template
 
@@ -435,12 +435,12 @@ Before submitting your template, verify:
 ```terraform
 # Simple Docker template
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = "ubuntu:24.04"
-  name  = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+  name  = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
 
-  command = ["sh", "-c", coder_agent.main.init_script]
-  env     = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+  command = ["sh", "-c", ni_agent.main.init_script]
+  env     = ["NEURALINVERSE_AGENT_TOKEN=${ni_agent.main.token}"]
 }
 ```
 
@@ -449,14 +449,14 @@ resource "docker_container" "workspace" {
 ```terraform
 # AWS EC2 template
 resource "aws_instance" "workspace" {
-  count         = data.coder_workspace.me.start_count
+  count         = data.ni_workspace.me.start_count
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
 
-  user_data = coder_agent.main.init_script
+  user_data = ni_agent.main.init_script
 
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
   }
 }
 ```
@@ -466,10 +466,10 @@ resource "aws_instance" "workspace" {
 ```terraform
 # Kubernetes template
 resource "kubernetes_pod" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
 
   metadata {
-    name = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+    name = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
   }
 
   spec {
@@ -477,10 +477,10 @@ resource "kubernetes_pod" "workspace" {
       name  = "workspace"
       image = "ubuntu:24.04"
 
-      command = ["sh", "-c", coder_agent.main.init_script]
+      command = ["sh", "-c", ni_agent.main.init_script]
       env {
-        name  = "CODER_AGENT_TOKEN"
-        value = coder_agent.main.token
+        name  = "NEURALINVERSE_AGENT_TOKEN"
+        value = ni_agent.main.token
       }
     }
   }
@@ -512,18 +512,18 @@ resource "kubernetes_pod" "workspace" {
 
 ## Get help
 
-- **Examples**: Review real-world examples from the [official Coder templates](https://registry.coder.com/contributors/coder?tab=templates):
-  - [AWS EC2 (Devcontainer)](https://registry.coder.com/templates/aws-devcontainer) - AWS EC2 VMs with Envbuilder
-  - [Docker (Devcontainer)](https://registry.coder.com/templates/docker-devcontainer) - Docker-in-Docker with Dev Containers integration
-  - [Kubernetes (Devcontainer)](https://registry.coder.com/templates/kubernetes-devcontainer) - Kubernetes pods with Envbuilder
-  - [Docker Containers](https://registry.coder.com/templates/docker) - Basic Docker container workspaces
-  - [AWS EC2 (Linux)](https://registry.coder.com/templates/aws-linux) - AWS EC2 VMs for Linux development
-  - [Google Compute Engine (Linux)](https://registry.coder.com/templates/gcp-vm-container) - GCP VM instances
-  - [Scratch](https://registry.coder.com/templates/scratch) - Minimal starter template
-- **Modules**: Browse available modules at [registry.coder.com/modules](https://registry.coder.com/modules)
+- **Examples**: Review real-world examples from the [official Neural Inverse Cloud templates](https://registry.cloud.neuralinverse.com/contributors/coder?tab=templates):
+  - [AWS EC2 (Devcontainer)](https://registry.cloud.neuralinverse.com/templates/aws-devcontainer) - AWS EC2 VMs with Envbuilder
+  - [Docker (Devcontainer)](https://registry.cloud.neuralinverse.com/templates/docker-devcontainer) - Docker-in-Docker with Dev Containers integration
+  - [Kubernetes (Devcontainer)](https://registry.cloud.neuralinverse.com/templates/kubernetes-devcontainer) - Kubernetes pods with Envbuilder
+  - [Docker Containers](https://registry.cloud.neuralinverse.com/templates/docker) - Basic Docker container workspaces
+  - [AWS EC2 (Linux)](https://registry.cloud.neuralinverse.com/templates/aws-linux) - AWS EC2 VMs for Linux development
+  - [Google Compute Engine (Linux)](https://registry.cloud.neuralinverse.com/templates/gcp-vm-container) - GCP VM instances
+  - [Scratch](https://registry.cloud.neuralinverse.com/templates/scratch) - Minimal starter template
+- **Modules**: Browse available modules at [registry.cloud.neuralinverse.com/modules](https://registry.cloud.neuralinverse.com/modules)
 - **Issues**: Open an issue at [github.com/coder/registry](https://github.com/coder/registry/issues)
-- **Community**: Join the [Coder Discord](https://discord.gg/coder) for questions
-- **Documentation**: Check the [Coder docs](https://coder.com/docs) for template guidance
+- **Community**: Join the [Neural Inverse Cloud Discord](https://discord.gg/coder) for questions
+- **Documentation**: Check the [Neural Inverse Cloud docs](https://cloud.neuralinverse.com/docs) for template guidance
 
 ## Next steps
 

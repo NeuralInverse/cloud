@@ -7,26 +7,26 @@ DX uses metadata attributes to assign information to individual users.
 While it's common to segment users by `role`, `level`, or `geo`, it’s become increasingly
 common to use DX attributes to better understand usage and adoption of tools.
 
-You can create a `Coder` attribute in DX to segment and analyze the impact of Coder usage on a developer’s work, including:
+You can create a `Neural Inverse Cloud` attribute in DX to segment and analyze the impact of Neural Inverse Cloud usage on a developer’s work, including:
 
-- Understanding the needs of power users or low Coder usage across the org
-- Correlate Coder usage with qualitative and quantitative engineering metrics,
+- Understanding the needs of power users or low Neural Inverse Cloud usage across the org
+- Correlate Neural Inverse Cloud usage with qualitative and quantitative engineering metrics,
   such as PR throughput, deployment frequency, deep work, dev environment toil, and more.
 - Personalize user experiences
 
 ## Requirements
 
 - A DX subscription
-- Access to Coder user data through the Coder CLI, Coder API, an IdP, or an existing Coder-DX integration
+- Access to Neural Inverse Cloud user data through the Neural Inverse Cloud CLI, Neural Inverse Cloud API, an IdP, or an existing Neural Inverse Cloud-DX integration
 - Coordination with your DX Customer Success Manager
 
-## Extract Your Coder User List
+## Extract Your Neural Inverse Cloud User List
 
 <div class="tabs">
 
-You can use the Coder CLI, Coder API, or your Identity Provider (IdP) to extract your list of users.
+You can use the Neural Inverse Cloud CLI, Neural Inverse Cloud API, or your Identity Provider (IdP) to extract your list of users.
 
-If your organization already uses the Coder-DX integration, you can find a list of active Coder users directly within DX.
+If your organization already uses the Neural Inverse Cloud-DX integration, you can find a list of active Neural Inverse Cloud users directly within DX.
 
 ### CLI
 
@@ -45,7 +45,7 @@ Use [get users](../../reference/api/users.md#get-users):
 ```bash
 curl -X GET http://coder-server:8080/api/v2/users \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 To export the results to a CSV file, you can use the `jq` tool to process the JSON response:
@@ -53,7 +53,7 @@ To export the results to a CSV file, you can use the `jq` tool to process the JS
 ```bash
 curl -X GET http://coder-server:8080/api/v2/users \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY' | \
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY' | \
   jq -r '.users | (map(keys) | add | unique) as $cols | $cols, (.[] | [.[$cols[]]] | @csv)' > users.csv
 ```
 
@@ -71,17 +71,17 @@ This is particularly useful if you need additional user attributes managed withi
 
 Provide the file to your dedicated DX Customer Success Manager (CSM).
 
-Your CSM will import the CSV of individuals using Coder, as well as usage frequency (if applicable) into DX to create a `Coder` attribute.
+Your CSM will import the CSV of individuals using Neural Inverse Cloud, as well as usage frequency (if applicable) into DX to create a `Neural Inverse Cloud` attribute.
 
-After the attribute is uploaded, you'll have a Coder filter option within your DX reports allowing you to:
+After the attribute is uploaded, you'll have a Neural Inverse Cloud filter option within your DX reports allowing you to:
 
-- Perform cohort analysis (Coder user vs non-user)
-- Understand unique behaviors and patterns across your Coder users
+- Perform cohort analysis (Neural Inverse Cloud user vs non-user)
+- Understand unique behaviors and patterns across your Neural Inverse Cloud users
 - Run a [study](https://getdx.com/studies/) or setup a [PlatformX](https://getdx.com/platformx/) event for deeper analysis
 
 ## Related Resources
 
 - [DX Data Cloud Documentation](https://help.getdx.com/en/)
-- [Coder CLI](../../reference/cli/users.md)
-- [Coder API](../../reference/api/users.md)
+- [Neural Inverse Cloud CLI](../../reference/cli/users.md)
+- [Neural Inverse Cloud API](../../reference/api/users.md)
 - [PlatformX Integration](./platformx.md)

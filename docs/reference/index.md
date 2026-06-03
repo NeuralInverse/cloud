@@ -2,18 +2,18 @@
 
 ## Automation
 
-All actions possible through the Coder dashboard can also be automated. There
-are several ways to extend/automate Coder:
+All actions possible through the Neural Inverse Cloud dashboard can also be automated. There
+are several ways to extend/automate Neural Inverse Cloud:
 
-- [coderd Terraform Provider](https://registry.terraform.io/providers/coder/coderd/latest)
+- [nicloud Terraform Provider](https://registry.terraform.io/providers/coder/nicloud/latest)
 - [CLI](../reference/cli/index.md)
 - [REST API](../reference/api/index.md)
-- [Coder SDK](https://pkg.go.dev/github.com/coder/coder/v2/codersdk)
+- [Neural Inverse Cloud SDK](https://pkg.go.dev/github.com/NeuralInverse/cloud/v2/nicloudsdk)
 - [Agent API](../reference/agent-api/index.md)
 
 ## Quickstart
 
-Generate a token on your Coder deployment by visiting:
+Generate a token on your Neural Inverse Cloud deployment by visiting:
 
 ```shell
 https://coder.example.com/settings/tokens
@@ -30,14 +30,14 @@ coder ls \
 
 # REST API (with curl)
 curl https://coder.example.com/api/v2/workspaces?q=owner:me \
-  -H "Coder-Session-Token: <your-token>"
+  -H "Neural Inverse Cloud-Session-Token: <your-token>"
 ```
 
 ## Documentation
 
 We publish an [API reference](../reference/api/index.md) in our documentation.
 You can also enable a
-[Swagger endpoint](../reference/cli/server.md#--swagger-enable) on your Coder
+[Swagger endpoint](../reference/cli/server.md#--swagger-enable) on your Neural Inverse Cloud
 deployment.
 
 ## Use cases
@@ -48,8 +48,8 @@ payloads, we recommend checking the relevant documentation.
 
 ### Users & Groups
 
-- [Manage Users via Terraform](https://registry.terraform.io/providers/coder/coderd/latest/docs/resources/user)
-- [Manage Groups via Terraform](https://registry.terraform.io/providers/coder/coderd/latest/docs/resources/group)
+- [Manage Users via Terraform](https://registry.terraform.io/providers/coder/nicloud/latest/docs/resources/user)
+- [Manage Groups via Terraform](https://registry.terraform.io/providers/coder/nicloud/latest/docs/resources/group)
 
 ### Templates
 
@@ -62,15 +62,15 @@ Workspace agents have a special token that can send logs, metrics, and workspace
 activity.
 
 - [Custom workspace logs](../reference/api/agents.md#patch-workspace-agent-logs):
-  Expose messages prior to the Coder init script running (e.g. pulling image, VM
+  Expose messages prior to the Neural Inverse Cloud init script running (e.g. pulling image, VM
   starting, restoring snapshot).
-  [coder-logstream-kube](https://github.com/coder/coder-logstream-kube) uses
+  [coder-logstream-kube](https://github.com/NeuralInverse/cloud-logstream-kube) uses
   this to show Kubernetes events, such as image pulls or ResourceQuota
   restrictions.
 
   ```shell
   curl -X PATCH https://coder.example.com/api/v2/workspaceagents/me/logs \
-  -H "Coder-Session-Token: $CODER_AGENT_TOKEN" \
+  -H "Neural Inverse Cloud-Session-Token: $NEURALINVERSE_AGENT_TOKEN" \
   -d "{
   \"logs\": [
     {
@@ -95,7 +95,7 @@ activity.
   if pgrep -f "my_training_script.py" > /dev/null
   then
     curl -X PUT "https://coder.example.com/api/v2/workspaces/$WORKSPACE_ID/extend" \
-    -H "Coder-Session-Token: $CODER_AGENT_TOKEN" \
+    -H "Neural Inverse Cloud-Session-Token: $NEURALINVERSE_AGENT_TOKEN" \
     -d '{
       "deadline": "2019-08-24T14:15:22Z"
     }'

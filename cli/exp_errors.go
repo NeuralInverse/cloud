@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -28,12 +28,12 @@ func (RootCmd) errorExample() *serpent.Command {
 	resp := recorder.Result()
 	_ = resp.Body.Close()
 	resp.Request, _ = http.NewRequest(http.MethodPost, "http://example.com", nil)
-	apiError := codersdk.ReadBodyAsError(resp)
+	apiError := nicloudsdk.ReadBodyAsError(resp)
 	//nolint:errorlint,forcetypeassert
-	apiError.(*codersdk.Error).Response = codersdk.Response{
+	apiError.(*nicloudsdk.Error).Response = nicloudsdk.Response{
 		Message: "Top level sdk error message.",
 		Detail:  "magic dust unavailable, please try again later",
-		Validations: []codersdk.ValidationError{
+		Validations: []nicloudsdk.ValidationError{
 			{
 				Field:  "region",
 				Detail: "magic dust is not available in your region",
@@ -41,10 +41,10 @@ func (RootCmd) errorExample() *serpent.Command {
 		},
 	}
 	//nolint:errorlint,forcetypeassert
-	apiError.(*codersdk.Error).Helper = "Have you tried turning it off and on again?"
+	apiError.(*nicloudsdk.Error).Helper = "Have you tried turning it off and on again?"
 
 	//nolint:errorlint,forcetypeassert
-	cpy := *apiError.(*codersdk.Error)
+	cpy := *apiError.(*nicloudsdk.Error)
 	apiErrorNoHelper := &cpy
 	apiErrorNoHelper.Helper = ""
 
@@ -61,7 +61,7 @@ func (RootCmd) errorExample() *serpent.Command {
 			return inv.Command.HelpHandler(inv)
 		},
 		Children: []*serpent.Command{
-			// Typical codersdk api error
+			// Typical nicloudsdk api error
 			errorCmd("api", apiError),
 
 			// Typical cli error

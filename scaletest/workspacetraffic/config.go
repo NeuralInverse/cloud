@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 type Config struct {
@@ -45,7 +45,7 @@ type Config struct {
 
 	App AppConfig `json:"app"`
 
-	WebClient *codersdk.Client
+	WebClient *nicloudsdk.Client
 }
 
 func (c Config) Validate() error {

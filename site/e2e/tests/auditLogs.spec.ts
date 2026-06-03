@@ -20,7 +20,7 @@ const name = randomName();
 const userToAudit = {
 	username: `peep-${name}`,
 	password: defaultPassword,
-	email: `peep-${name}@coder.com`,
+	email: `peep-${name}@cloud.neuralinverse.com`,
 	roles: ["Template Admin", "User Admin"],
 };
 

@@ -11,19 +11,19 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 // Env var names for context configuration. Prefixed with EXP_
 // to indicate these are experimental and may change.
 const (
-	EnvInstructionsDirs = "CODER_AGENT_EXP_INSTRUCTIONS_DIRS"
-	EnvInstructionsFile = "CODER_AGENT_EXP_INSTRUCTIONS_FILE"
-	EnvSkillsDirs       = "CODER_AGENT_EXP_SKILLS_DIRS"
-	EnvSkillMetaFile    = "CODER_AGENT_EXP_SKILL_META_FILE"
-	EnvMCPConfigFiles   = "CODER_AGENT_EXP_MCP_CONFIG_FILES"
+	EnvInstructionsDirs = "NEURALINVERSE_AGENT_EXP_INSTRUCTIONS_DIRS"
+	EnvInstructionsFile = "NEURALINVERSE_AGENT_EXP_INSTRUCTIONS_FILE"
+	EnvSkillsDirs       = "NEURALINVERSE_AGENT_EXP_SKILLS_DIRS"
+	EnvSkillMetaFile    = "NEURALINVERSE_AGENT_EXP_SKILL_META_FILE"
+	EnvMCPConfigFiles   = "NEURALINVERSE_AGENT_EXP_MCP_CONFIG_FILES"
 )
 
 const (
@@ -60,9 +60,9 @@ var invisibleRunePattern = regexp.MustCompile(
 // skills override project-scoped ones with the same name
 // (discoverSkills picks the first occurrence per skill name).
 const (
-	DefaultInstructionsDir  = "~/.coder"
+	DefaultInstructionsDir  = "~/.neuralinverse"
 	DefaultInstructionsFile = "AGENTS.md"
-	DefaultSkillsDir        = "~/.coder/skills,.agents/skills"
+	DefaultSkillsDir        = "~/.neuralinverse/skills,.agents/skills"
 	DefaultSkillMetaFile    = "SKILL.md"
 	DefaultMCPConfigFile    = ".mcp.json"
 )
@@ -87,7 +87,7 @@ func (c Config) applyDefaults() Config {
 	return c
 }
 
-// ReadEnvConfig reads the CODER_AGENT_EXP_* environment
+// ReadEnvConfig reads the NEURALINVERSE_AGENT_EXP_* environment
 // variables, falling back to defaults for unset values.
 func ReadEnvConfig() Config {
 	return Config{
@@ -99,7 +99,7 @@ func ReadEnvConfig() Config {
 	}.applyDefaults()
 }
 
-// envVarKeys returns every CODER_AGENT_EXP_* env var key
+// envVarKeys returns every NEURALINVERSE_AGENT_EXP_* env var key
 // used by the context configuration subsystem.
 func envVarKeys() []string {
 	return []string{
@@ -108,7 +108,7 @@ func envVarKeys() []string {
 	}
 }
 
-// ClearEnvVars removes the CODER_AGENT_EXP_* environment
+// ClearEnvVars removes the NEURALINVERSE_AGENT_EXP_* environment
 // variables from the current process so they are not
 // inherited by child processes.
 func ClearEnvVars() {
@@ -163,7 +163,7 @@ func Resolve(workingDir string, cfg Config) (workspacesdk.ContextConfigResponse,
 
 	// Guarantee non-nil slice to signal agent support.
 	if parts == nil {
-		parts = []codersdk.ChatMessagePart{}
+		parts = []nicloudsdk.ChatMessagePart{}
 	}
 
 	return workspacesdk.ContextConfigResponse{
@@ -175,8 +175,8 @@ func Resolve(workingDir string, cfg Config) (workspacesdk.ContextConfigResponse,
 // from a specific directory, using default file names. This is used
 // by the CLI chat context commands to read context from an arbitrary
 // directory without consulting agent env vars.
-func ContextPartsFromDir(dir string) []codersdk.ChatMessagePart {
-	var parts []codersdk.ChatMessagePart
+func ContextPartsFromDir(dir string) []nicloudsdk.ChatMessagePart {
+	var parts []nicloudsdk.ChatMessagePart
 
 	if entry, found := readInstructionFileFromDir(dir, DefaultInstructionsFile); found {
 		parts = append(parts, entry)
@@ -192,7 +192,7 @@ func ContextPartsFromDir(dir string) []codersdk.ChatMessagePart {
 
 	// Guarantee non-nil slice.
 	if parts == nil {
-		parts = []codersdk.ChatMessagePart{}
+		parts = []nicloudsdk.ChatMessagePart{}
 	}
 
 	return parts
@@ -221,8 +221,8 @@ func (api *API) handleGet(rw http.ResponseWriter, r *http.Request) {
 // readInstructionFiles reads instruction files from each given
 // directory. Missing directories are silently skipped. Duplicate
 // directories are deduplicated.
-func readInstructionFiles(dirs []string, fileName string) []codersdk.ChatMessagePart {
-	var parts []codersdk.ChatMessagePart
+func readInstructionFiles(dirs []string, fileName string) []nicloudsdk.ChatMessagePart {
+	var parts []nicloudsdk.ChatMessagePart
 	seen := make(map[string]struct{}, len(dirs))
 	for _, dir := range dirs {
 		if _, ok := seen[dir]; ok {
@@ -238,10 +238,10 @@ func readInstructionFiles(dirs []string, fileName string) []codersdk.ChatMessage
 
 // readInstructionFileFromDir scans a directory for a file matching
 // fileName (case-insensitive) and reads its contents.
-func readInstructionFileFromDir(dir, fileName string) (codersdk.ChatMessagePart, bool) {
+func readInstructionFileFromDir(dir, fileName string) (nicloudsdk.ChatMessagePart, bool) {
 	dirEntries, err := os.ReadDir(dir)
 	if err != nil {
-		return codersdk.ChatMessagePart{}, false
+		return nicloudsdk.ChatMessagePart{}, false
 	}
 
 	for _, e := range dirEntries {
@@ -252,20 +252,20 @@ func readInstructionFileFromDir(dir, fileName string) (codersdk.ChatMessagePart,
 			filePath := filepath.Join(dir, e.Name())
 			content, truncated, ok := readAndSanitizeFile(filePath, maxInstructionFileBytes)
 			if !ok {
-				return codersdk.ChatMessagePart{}, false
+				return nicloudsdk.ChatMessagePart{}, false
 			}
 			if content == "" {
-				return codersdk.ChatMessagePart{}, false
+				return nicloudsdk.ChatMessagePart{}, false
 			}
-			return codersdk.ChatMessagePart{
-				Type:                 codersdk.ChatMessagePartTypeContextFile,
+			return nicloudsdk.ChatMessagePart{
+				Type:                 nicloudsdk.ChatMessagePartTypeContextFile,
 				ContextFilePath:      filePath,
 				ContextFileContent:   content,
 				ContextFileTruncated: truncated,
 			}, true
 		}
 	}
-	return codersdk.ChatMessagePart{}, false
+	return nicloudsdk.ChatMessagePart{}, false
 }
 
 // readAndSanitizeFile reads the file at path, capping the read
@@ -314,9 +314,9 @@ func sanitizeInstructionMarkdown(content string) string {
 // file lists are NOT included; chatd fetches those on demand
 // via read_skill. Missing directories or individual errors are
 // silently skipped.
-func discoverSkills(skillsDirs []string, metaFile string) []codersdk.ChatMessagePart {
+func discoverSkills(skillsDirs []string, metaFile string) []nicloudsdk.ChatMessagePart {
 	seen := make(map[string]struct{})
-	var parts []codersdk.ChatMessagePart
+	var parts []nicloudsdk.ChatMessagePart
 
 	for _, skillsDir := range skillsDirs {
 		entries, err := os.ReadDir(skillsDir)
@@ -363,8 +363,8 @@ func discoverSkills(skillsDirs []string, metaFile string) []codersdk.ChatMessage
 			seen[name] = struct{}{}
 
 			skillDir := filepath.Join(skillsDir, entry.Name())
-			parts = append(parts, codersdk.ChatMessagePart{
-				Type:                     codersdk.ChatMessagePartTypeSkill,
+			parts = append(parts, nicloudsdk.ChatMessagePart{
+				Type:                     nicloudsdk.ChatMessagePartTypeSkill,
 				SkillName:                name,
 				SkillDescription:         description,
 				SkillDir:                 skillDir,

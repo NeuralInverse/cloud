@@ -35,7 +35,7 @@ provider "nomad" {
   }
 }
 
-data "coder_parameter" "cpu" {
+data "ni_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU"
   description  = "The number of CPU cores"
@@ -60,7 +60,7 @@ data "coder_parameter" "cpu" {
   }
 }
 
-data "coder_parameter" "memory" {
+data "ni_parameter" "memory" {
   name         = "memory"
   display_name = "Memory"
   description  = "The amount of memory in GB"
@@ -85,10 +85,10 @@ data "coder_parameter" "memory" {
   }
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os             = "linux"
   arch           = "amd64"
   startup_script = <<-EOT
@@ -112,26 +112,26 @@ resource "coder_agent" "main" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 locals {
-  workspace_tag    = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
-  home_volume_name = "coder_${data.coder_workspace.me.id}_home"
+  workspace_tag    = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
+  home_volume_name = "coder_${data.ni_workspace.me.id}_home"
 }
 
-resource "nomad_namespace" "coder_workspace" {
+resource "nomad_namespace" "ni_workspace" {
   name        = local.workspace_tag
   description = "Coder workspace"
   meta = {
-    owner = data.coder_workspace_owner.me.name
+    owner = data.ni_workspace_owner.me.name
   }
 }
 
@@ -149,7 +149,7 @@ resource "nomad_csi_volume" "home_volume" {
   plugin_id = "hostpath"
   volume_id = local.home_volume_name
   name      = local.home_volume_name
-  namespace = nomad_namespace.coder_workspace.name
+  namespace = nomad_namespace.ni_workspace.name
 
   capability {
     access_mode     = "single-node-writer"
@@ -162,17 +162,17 @@ resource "nomad_csi_volume" "home_volume" {
 }
 
 resource "nomad_job" "workspace" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   depends_on = [nomad_csi_volume.home_volume]
   jobspec = templatefile("${path.module}/workspace.nomad.tpl", {
-    coder_workspace_owner = data.coder_workspace_owner.me.name
-    coder_workspace_name  = data.coder_workspace.me.name
+    ni_workspace_owner = data.ni_workspace_owner.me.name
+    ni_workspace_name  = data.ni_workspace.me.name
     workspace_tag         = local.workspace_tag
-    cores                 = tonumber(data.coder_parameter.cpu.value)
-    memory_mb             = tonumber(data.coder_parameter.memory.value * 1024)
-    coder_init_script     = coder_agent.main.init_script
-    coder_agent_token     = coder_agent.main.token
-    workspace_name        = data.coder_workspace.me.name
+    cores                 = tonumber(data.ni_parameter.cpu.value)
+    memory_mb             = tonumber(data.ni_parameter.memory.value * 1024)
+    coder_init_script     = ni_agent.main.init_script
+    ni_agent_token     = ni_agent.main.token
+    workspace_name        = data.ni_workspace.me.name
     home_volume_name      = local.home_volume_name
   })
   deregister_on_destroy = true
@@ -180,14 +180,14 @@ resource "nomad_job" "workspace" {
 }
 
 resource "coder_metadata" "workspace_info" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = nomad_job.workspace[0].id
   item {
     key   = "CPU (Cores)"
-    value = data.coder_parameter.cpu.value
+    value = data.ni_parameter.cpu.value
   }
   item {
     key   = "Memory (GiB)"
-    value = data.coder_parameter.memory.value
+    value = data.ni_parameter.memory.value
   }
 }

@@ -12,20 +12,20 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/createworkspaces"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/scaletest/agentconn"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createworkspaces"
+	"github.com/NeuralInverse/cloud/v2/scaletest/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func Test_Runner(t *testing.T) {
@@ -41,7 +41,7 @@ func Test_Runner(t *testing.T) {
 			DefaultValue: "baz",
 		},
 	}
-	testParameterValues := []codersdk.WorkspaceBuildParameter{
+	testParameterValues := []nicloudsdk.WorkspaceBuildParameter{
 		{
 			Name:  "foo",
 			Value: "baz",
@@ -51,13 +51,13 @@ func Test_Runner(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := nicloudtest.CreateFirstUser(t, client)
 
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionGraph: []*proto.Response{
 				{
@@ -101,8 +101,8 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 
@@ -110,7 +110,7 @@ func Test_Runner(t *testing.T) {
 
 		const (
 			username = "scaletest-user"
-			email    = "scaletest@test.coder.com"
+			email    = "scaletest@test.cloud.neuralinverse.com"
 		)
 		runner := createworkspaces.NewRunner(client, createworkspaces.Config{
 			User: createworkspaces.UserConfig{
@@ -120,7 +120,7 @@ func Test_Runner(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: nicloudsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -150,10 +150,10 @@ func Test_Runner(t *testing.T) {
 		t.Cleanup(func() { _ = closer.Close() })
 
 		// Ensure a user and workspace were created.
-		users, err := client.Users(ctx, codersdk.UsersRequest{})
+		users, err := client.Users(ctx, nicloudsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 2) // 1 user already exists
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 1)
 
@@ -185,10 +185,10 @@ func Test_Runner(t *testing.T) {
 		require.Contains(t, cleanupLogsStr, "Build succeeded!")
 
 		// Ensure the user and workspace were deleted.
-		users, err = client.Users(ctx, codersdk.UsersRequest{})
+		users, err = client.Users(ctx, nicloudsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 1) // 1 user already exists
-		workspaces, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err = client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 0)
 	})
@@ -199,13 +199,13 @@ func Test_Runner(t *testing.T) {
 		// need to include our own logger because the provisioner (rightly) drops error logs when we shut down the
 		// test with a build in progress.
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: true,
 			Logger:                   &logger,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := nicloudtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionGraph: []*proto.Response{
 				{
@@ -223,14 +223,14 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+		version = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(request *nicloudsdk.CreateTemplateRequest) {
 			request.AllowUserCancelWorkspaceJobs = ptr.Ref(true)
 		})
 
 		const (
 			username = "scaletest-user"
-			email    = "scaletest@test.coder.com"
+			email    = "scaletest@test.cloud.neuralinverse.com"
 		)
 		runner := createworkspaces.NewRunner(client, createworkspaces.Config{
 			User: createworkspaces.UserConfig{
@@ -240,7 +240,7 @@ func Test_Runner(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: nicloudsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -261,9 +261,9 @@ func Test_Runner(t *testing.T) {
 
 		// Wait for the workspace build job to be picked up.
 		checkJobStartedCtx := testutil.Context(t, testutil.WaitLong)
-		jobCh := make(chan codersdk.ProvisionerJob, 1)
+		jobCh := make(chan nicloudsdk.ProvisionerJob, 1)
 		testutil.Eventually(checkJobStartedCtx, t, func(ctx context.Context) bool {
-			workspaces, err := client.Workspaces(checkJobStartedCtx, codersdk.WorkspaceFilter{})
+			workspaces, err := client.Workspaces(checkJobStartedCtx, nicloudsdk.WorkspaceFilter{})
 			if err != nil {
 				return false
 			}
@@ -274,12 +274,12 @@ func Test_Runner(t *testing.T) {
 			ws := workspaces.Workspaces[0]
 			t.Logf("checking build: %s | %s | %s", ws.ID, ws.LatestBuild.Transition, ws.LatestBuild.Job.Status)
 			// There should be only one build at present.
-			if ws.LatestBuild.Transition != codersdk.WorkspaceTransitionStart {
-				t.Errorf("expected build transition %s, got %s", codersdk.WorkspaceTransitionStart, ws.LatestBuild.Transition)
+			if ws.LatestBuild.Transition != nicloudsdk.WorkspaceTransitionStart {
+				t.Errorf("expected build transition %s, got %s", nicloudsdk.WorkspaceTransitionStart, ws.LatestBuild.Transition)
 				return false
 			}
 
-			if ws.LatestBuild.Job.Status != codersdk.ProvisionerJobRunning {
+			if ws.LatestBuild.Job.Status != nicloudsdk.ProvisionerJobRunning {
 				return false
 			}
 			jobCh <- ws.LatestBuild.Job
@@ -314,9 +314,9 @@ func Test_Runner(t *testing.T) {
 
 			t.Logf("provisioner job id:%s status:%s", pj.ID, pj.Status)
 
-			if pj.Status != codersdk.ProvisionerJobFailed &&
-				pj.Status != codersdk.ProvisionerJobCanceling &&
-				pj.Status != codersdk.ProvisionerJobCanceled {
+			if pj.Status != nicloudsdk.ProvisionerJobFailed &&
+				pj.Status != nicloudsdk.ProvisionerJobCanceling &&
+				pj.Status != nicloudsdk.ProvisionerJobCanceled {
 				return false
 			}
 
@@ -331,13 +331,13 @@ func Test_Runner(t *testing.T) {
 	t.Run("NoCleanup", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := nicloudtest.CreateFirstUser(t, client)
 
 		authToken := uuid.NewString()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionGraph: []*proto.Response{
 				{
@@ -381,15 +381,15 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		ctx := testutil.Context(t, testutil.WaitLong)
 		closeCh := goEventuallyStartFakeAgent(ctx, t, client, authToken)
 
 		const (
 			username = "scaletest-user"
-			email    = "scaletest@test.coder.com"
+			email    = "scaletest@test.cloud.neuralinverse.com"
 		)
 		runner := createworkspaces.NewRunner(client, createworkspaces.Config{
 			NoCleanup: true,
@@ -400,7 +400,7 @@ func Test_Runner(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: nicloudsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -430,10 +430,10 @@ func Test_Runner(t *testing.T) {
 		t.Cleanup(func() { _ = closer.Close() })
 
 		// Ensure a user and workspace were created.
-		users, err := client.Users(ctx, codersdk.UsersRequest{})
+		users, err := client.Users(ctx, nicloudsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 2) // 1 user already exists
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 1)
 
@@ -461,10 +461,10 @@ func Test_Runner(t *testing.T) {
 		require.NoError(t, err)
 
 		// Ensure the user and workspace were not deleted.
-		users, err = client.Users(ctx, codersdk.UsersRequest{})
+		users, err = client.Users(ctx, nicloudsdk.UsersRequest{})
 		require.NoError(t, err)
 		require.Len(t, users.Users, 2)
-		workspaces, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+		workspaces, err = client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 		require.NoError(t, err)
 		require.Len(t, workspaces.Workspaces, 1)
 	})
@@ -473,13 +473,13 @@ func Test_Runner(t *testing.T) {
 		t.Parallel()
 
 		logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: true,
 			Logger:                   &logger,
 		})
-		user := coderdtest.CreateFirstUser(t, client)
+		user := nicloudtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 			Parse: echo.ParseComplete,
 			ProvisionGraph: []*proto.Response{
 				{
@@ -501,18 +501,18 @@ func Test_Runner(t *testing.T) {
 			},
 		})
 
-		version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+		version = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 		runner := createworkspaces.NewRunner(client, createworkspaces.Config{
 			User: createworkspaces.UserConfig{
 				OrganizationID: user.OrganizationID,
 				Username:       "scaletest-user",
-				Email:          "scaletest@test.coder.com",
+				Email:          "scaletest@test.cloud.neuralinverse.com",
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: nicloudsdk.CreateWorkspaceRequest{
 					TemplateID:          template.ID,
 					RichParameterValues: testParameterValues,
 				},
@@ -534,14 +534,14 @@ func Test_Runner(t *testing.T) {
 // listing workspaces until we find it, then wait for the build to
 // finish, then start the agents. It is the caller's responsibility to
 // call the returned function to stop the agents.
-func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *codersdk.Client, agentToken string) chan io.Closer {
+func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *nicloudsdk.Client, agentToken string) chan io.Closer {
 	t.Helper()
 	ch := make(chan io.Closer, 1) // Don't block.
 	go func() {
 		defer close(ch)
-		var workspace codersdk.Workspace
+		var workspace nicloudsdk.Workspace
 		if !assert.Eventually(t, func() bool {
-			res, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+			res, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 			if err != nil {
 				return false
 			}
@@ -554,7 +554,7 @@ func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *coder
 			return
 		}
 
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		agentClient := agentsdk.New(client.URL, agentsdk.WithFixedToken(agentToken))
 		agentCloser := agent.New(agent.Options{
@@ -562,7 +562,7 @@ func goEventuallyStartFakeAgent(ctx context.Context, t *testing.T, client *coder
 			Logger: slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).
 				Named("agent").Leveled(slog.LevelWarn),
 		})
-		resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		resources := nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 		assert.GreaterOrEqual(t, len(resources), 1, "workspace %s has no resources", workspace.ID.String())
 		assert.NotEmpty(t, resources[0].Agents, "workspace %s has no agents", workspace.ID.String())
 		agentID := resources[0].Agents[0].ID

@@ -8,16 +8,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestCreateOrganizationRoles(t *testing.T) {
@@ -28,10 +28,10 @@ func TestCreateOrganizationRoles(t *testing.T) {
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					nicloudsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -66,10 +66,10 @@ func TestCreateOrganizationRoles(t *testing.T) {
 	t.Run("InvalidRole", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					nicloudsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
@@ -112,25 +112,25 @@ func TestShowOrganizations(t *testing.T) {
 	t.Run("OnlyID", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, first := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
 
 		// Owner is required to make orgs
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		orgs := []string{"foo", "bar"}
 		for _, orgName := range orgs {
-			_, err := client.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{
+			_, err := client.CreateOrganization(ctx, nicloudsdk.CreateOrganizationRequest{
 				Name: orgName,
 			})
 			require.NoError(t, err)
@@ -149,28 +149,28 @@ func TestShowOrganizations(t *testing.T) {
 
 	t.Run("UsingFlag", func(t *testing.T) {
 		t.Parallel()
-		ownerClient, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, first := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
 
 		// Owner is required to make orgs
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.RoleOwner())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		orgs := map[string]codersdk.Organization{
+		orgs := map[string]nicloudsdk.Organization{
 			"foo": {},
 			"bar": {},
 		}
 		for orgName := range orgs {
-			org, err := client.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{
+			org, err := client.CreateOrganization(ctx, nicloudsdk.CreateOrganizationRequest{
 				Name: orgName,
 			})
 			require.NoError(t, err)
@@ -195,14 +195,14 @@ func TestUpdateOrganizationRoles(t *testing.T) {
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, db, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					nicloudsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleOwner())
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleOwner())
 
 		// Create a role in the DB with no permissions
 		const expectedRole = "test-role"
@@ -251,14 +251,14 @@ func TestUpdateOrganizationRoles(t *testing.T) {
 	t.Run("InvalidRole", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, _, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, _, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureCustomRoles: 1,
+					nicloudsdk.FeatureCustomRoles: 1,
 				},
 			},
 		})
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleOwner())
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleOwner())
 
 		// Update the new role via JSON
 		ctx := testutil.Context(t, testutil.WaitMedium)

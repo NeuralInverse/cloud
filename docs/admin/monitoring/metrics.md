@@ -1,7 +1,7 @@
 # Deployment Metrics
 
-Coder exposes many metrics which give insight into the current state of a live
-Coder deployment. Our metrics are designed to be consumed by a
+Neural Inverse Cloud exposes many metrics which give insight into the current state of a live
+Neural Inverse Cloud deployment. Our metrics are designed to be consumed by a
 [Prometheus server](https://prometheus.io/).
 
 If you don't have an Prometheus server installed, you can follow the Prometheus
@@ -18,5 +18,5 @@ links point to relevant sections there.
   in the control plane
 - [Enable the Prometheus endpoint in Helm](../integrations/prometheus.md#kubernetes-deployment)
   (Kubernetes users only)
-- [Configure Prometheus to scrape Coder metrics](../integrations/prometheus.md#prometheus-configuration)
+- [Configure Prometheus to scrape Neural Inverse Cloud metrics](../integrations/prometheus.md#prometheus-configuration)
 - [See the list of available metrics](../integrations/prometheus.md#available-metrics)

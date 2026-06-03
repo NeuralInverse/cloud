@@ -1,6 +1,6 @@
 # User secrets (Beta)
 
-User secrets let you store secret values in Coder and make them available in
+User secrets let you store secret values in Neural Inverse Cloud and make them available in
 every workspace you own.
 
 > [!NOTE]
@@ -31,14 +31,14 @@ create or update them.
 
 ## How your secrets reach a workspace
 
-Coder applies your secrets when your workspace starts. The same applies any
-time the workspace agent reconnects to Coder, for example after the workspace
+Neural Inverse Cloud applies your secrets when your workspace starts. The same applies any
+time the workspace agent reconnects to Neural Inverse Cloud, for example after the workspace
 or the agent restarts. To pick up a change to a secret while a workspace is
 running, restart the workspace.
 
 ### Environment variable secrets
 
-Coder injects environment variable secrets into every new shell, terminal,
+Neural Inverse Cloud injects environment variable secrets into every new shell, terminal,
 app, SSH session, and startup script that you start in your workspace.
 Existing shells and processes keep the environment they were given when they
 started.
@@ -54,9 +54,9 @@ restart that shell or app.
 
 ### File secrets
 
-Coder writes file secrets to your workspace filesystem when the workspace
+Neural Inverse Cloud writes file secrets to your workspace filesystem when the workspace
 starts, before any startup scripts run. New parent directories are created as
-needed. If the file already exists, Coder overwrites the contents and leaves
+needed. If the file already exists, Neural Inverse Cloud overwrites the contents and leaves
 the existing permissions alone.
 
 | If you...                                                | ...then in your workspace                                                                                                         |
@@ -66,7 +66,7 @@ the existing permissions alone.
 | Clear the file target (`--file ""`) or delete the secret | **The previously-written file stays on disk with its last value.**                                                                |
 
 > [!IMPORTANT]
-> Coder never deletes secret files it has written for you. If you remove a
+> Neural Inverse Cloud never deletes secret files it has written for you. If you remove a
 > secret, change its file path, or clear the file target, the previous file
 > stays in your workspace until you delete it. To remove a stale file, open
 > a terminal in your workspace and run `rm <path>`. Rebuilding the workspace
@@ -79,7 +79,7 @@ distinct paths to avoid the collision.
 
 ## Limits
 
-User secrets are subject to the following limits. Coder enforces these when you
+User secrets are subject to the following limits. Neural Inverse Cloud enforces these when you
 create or update a secret and rejects the request with an explanatory 400 when
 you exceed one. Delete or shrink an existing secret to make room.
 
@@ -91,10 +91,10 @@ you exceed one. Delete or shrink an existing secret to make room.
 | Per-secret value bytes                   | 24 KiB    |
 | Env var name length                      | 256 bytes |
 
-Only secrets created with `--env` count against the env-injected budget. Coder
+Only secrets created with `--env` count against the env-injected budget. Neural Inverse Cloud
 injects these into the workspace agent's process environment, which on Windows
-has a ~32 KiB total budget. The 24 KiB ceiling leaves room for Coder's own
-variables (`CODER_*`, `PATH`, `HOME`, ...) plus any template-defined env. To
+has a ~32 KiB total budget. The 24 KiB ceiling leaves room for Neural Inverse Cloud's own
+variables (`NEURALINVERSE_*`, `PATH`, `HOME`, ...) plus any template-defined env. To
 inject a value larger than this budget, use `--file` instead; file secrets do
 not count against the env budget.
 
@@ -102,13 +102,13 @@ The per-secret cap matches the env aggregate cap because a value larger than
 the env aggregate could never be injected successfully as an environment
 variable.
 
-These caps measure stored bytes, which is what Coder writes to the database.
+These caps measure stored bytes, which is what Neural Inverse Cloud writes to the database.
 In deployments with secret encryption enabled, stored bytes exceed the raw
 value.
 
 ## Manage secrets from the dashboard
 
-You can create, edit, and delete user secrets from the Coder dashboard:
+You can create, edit, and delete user secrets from the Neural Inverse Cloud dashboard:
 
 1. Click your avatar in the top right.
 1. Select **Account**.
@@ -182,7 +182,7 @@ coder secret create api-key \
 For sensitive values, prefer stdin because `--value` can expose the secret in
 shell history or process arguments.
 
-Stdin is read verbatim. If the source file ends with a trailing newline, Coder
+Stdin is read verbatim. If the source file ends with a trailing newline, Neural Inverse Cloud
 stores that newline as part of the secret value. Use `echo -n` when you do not
 want to store a trailing newline:
 

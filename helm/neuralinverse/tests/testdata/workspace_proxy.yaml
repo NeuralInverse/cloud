@@ -1,0 +1,14 @@
+coder:
+  workspaceProxy: true
+
+  image:
+    tag: latest
+
+  env:
+    - name: NEURALINVERSE_PRIMARY_ACCESS_URL
+      value: "https://dev.coder.com"
+    - name: NEURALINVERSE_PROXY_SESSION_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: coder-workspace-proxy-session-token
+          key: token

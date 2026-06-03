@@ -1,6 +1,6 @@
 # Architecture
 
-The Coder deployment model is flexible and offers various components that
+The Neural Inverse Cloud deployment model is flexible and offers various components that
 platform administrators can deploy and scale depending on their use case. This
 page describes possible deployments, challenges, and risks associated with them.
 
@@ -18,10 +18,10 @@ page describes possible deployments, challenges, and risks associated with them.
 
 ## Primary components
 
-### coderd
+### nicloud
 
-_coderd_ is the service created by running `coder server`. It is a thin API that
-connects workspaces, provisioners and users. _coderd_ stores its state in
+_nicloud_ is the service created by running `coder server`. It is a thin API that
+connects workspaces, provisioners and users. _nicloud_ stores its state in
 Postgres and is the only service that communicates with Postgres.
 
 It offers:
@@ -37,7 +37,7 @@ It offers:
 _provisionerd_ is the execution context for infrastructure modifying providers.
 At the moment, the only provider is Terraform (running `terraform`).
 
-By default, the Coder server runs multiple provisioner daemons.
+By default, the Neural Inverse Cloud server runs multiple provisioner daemons.
 [External provisioners](../provisioners/index.md) can be added for security or
 scalability purposes.
 
@@ -55,8 +55,8 @@ they're destroyed on workspace stop.
 
 ### Agents
 
-An agent is the Coder service that runs within a user's remote workspace. It
-provides a consistent interface for coderd and clients to communicate with
+An agent is the Neural Inverse Cloud service that runs within a user's remote workspace. It
+provides a consistent interface for nicloud and clients to communicate with
 workspaces regardless of operating system, architecture, or cloud.
 
 It offers the following services along with much more:
@@ -72,12 +72,12 @@ within workspaces.
 
 ## Service Bundling
 
-While _coderd_ and Postgres can be orchestrated independently, our default
+While _nicloud_ and Postgres can be orchestrated independently, our default
 installation paths bundle them all together into one system service. It's
 perfectly fine to run a production deployment this way, but there are certain
 situations that necessitate decomposition:
 
-- Reducing global client latency (distribute coderd and centralize database)
+- Reducing global client latency (distribute nicloud and centralize database)
 - Achieving greater availability and efficiency (horizontally scale individual
   services)
 
@@ -85,7 +85,7 @@ situations that necessitate decomposition:
 
 ### PostgreSQL (Recommended)
 
-While `coderd` runs a bundled version of PostgreSQL, we recommend running an
+While `nicloud` runs a bundled version of PostgreSQL, we recommend running an
 external PostgreSQL 13+ database for production deployments.
 
 A managed PostgreSQL database, with daily backups, is recommended:
@@ -101,7 +101,7 @@ Learn more about database requirements:
 ### Git Providers (Recommended)
 
 Users will likely need to pull source code and other artifacts from a git
-provider. The Coder control plane and workspaces will need network connectivity
+provider. The Neural Inverse Cloud control plane and workspaces will need network connectivity
 to the git provider.
 
 - [GitHub Enterprise](../external-auth/index.md#github-enterprise)
@@ -113,15 +113,15 @@ to the git provider.
 
 Workspaces and templates can pull artifacts from an artifact manager, such as
 JFrog Artifactory. This can be configured on the infrastructure level, or in
-some cases within Coder:
+some cases within Neural Inverse Cloud:
 
-- Tutorial: [JFrog Artifactory and Coder](../integrations/jfrog-artifactory.md)
+- Tutorial: [JFrog Artifactory and Neural Inverse Cloud](../integrations/jfrog-artifactory.md)
 
 ### Container Registry (Optional)
 
-If you prefer not to pull container images for the control plane (`coderd`,
+If you prefer not to pull container images for the control plane (`nicloud`,
 `provisionerd`) and workspaces from public container registry (Docker Hub,
-GitHub Container Registry) you can run your own container registry with Coder.
+GitHub Container Registry) you can run your own container registry with Neural Inverse Cloud.
 
 To shorten the provisioning time, it is recommended to deploy registry mirrors
 in the same region as the workspace nodes.
@@ -129,12 +129,12 @@ in the same region as the workspace nodes.
 ## Governance Layer
 
 The governance layer provides centralized oversight and policy enforcement for
-AI-powered development within Coder workspaces.
+AI-powered development within Neural Inverse Cloud workspaces.
 
 ### AI Gateway
 
 AI Gateway is a centralized gateway that sits between coding agents and LLM providers such
-as OpenAI and Anthropic. Users authenticate through Coder instead of managing separate
+as OpenAI and Anthropic. Users authenticate through Neural Inverse Cloud instead of managing separate
 provider API keys. All prompts, token usage, and tool invocations are recorded
 for compliance and cost tracking.
 
@@ -145,6 +145,6 @@ Learn more: [AI Gateway](../../ai-coder/ai-gateway/index.md)
 Agent Firewall is a process-level firewall that restricts and audits network
 access for AI agents running in workspaces. It enforces allowlist-based policies
 controlling which domains, HTTP methods, and URL paths agents can reach, while
-streaming audit logs to the Coder control plane for centralized monitoring.
+streaming audit logs to the Neural Inverse Cloud control plane for centralized monitoring.
 
 Learn more: [Agent Firewall](../../ai-coder/agent-firewall/index.md)

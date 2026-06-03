@@ -14,8 +14,8 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -212,26 +212,26 @@ func TestRedirectHTTPToHTTPSDeprecation(t *testing.T) {
 			expected: false,
 		},
 		{
-			name:     "CODER_TLS_REDIRECT_HTTP=true",
-			environ:  serpent.Environ{{Name: "CODER_TLS_REDIRECT_HTTP", Value: "true"}},
+			name:     "NEURALINVERSE_TLS_REDIRECT_HTTP=true",
+			environ:  serpent.Environ{{Name: "NEURALINVERSE_TLS_REDIRECT_HTTP", Value: "true"}},
 			flags:    []string{},
 			expected: true,
 		},
 		{
-			name:     "CODER_TLS_REDIRECT_HTTP_TO_HTTPS=true",
-			environ:  serpent.Environ{{Name: "CODER_TLS_REDIRECT_HTTP_TO_HTTPS", Value: "true"}},
+			name:     "NEURALINVERSE_TLS_REDIRECT_HTTP_TO_HTTPS=true",
+			environ:  serpent.Environ{{Name: "NEURALINVERSE_TLS_REDIRECT_HTTP_TO_HTTPS", Value: "true"}},
 			flags:    []string{},
 			expected: true,
 		},
 		{
-			name:     "CODER_TLS_REDIRECT_HTTP=false",
-			environ:  serpent.Environ{{Name: "CODER_TLS_REDIRECT_HTTP", Value: "false"}},
+			name:     "NEURALINVERSE_TLS_REDIRECT_HTTP=false",
+			environ:  serpent.Environ{{Name: "NEURALINVERSE_TLS_REDIRECT_HTTP", Value: "false"}},
 			flags:    []string{},
 			expected: false,
 		},
 		{
-			name:     "CODER_TLS_REDIRECT_HTTP_TO_HTTPS=false",
-			environ:  serpent.Environ{{Name: "CODER_TLS_REDIRECT_HTTP_TO_HTTPS", Value: "false"}},
+			name:     "NEURALINVERSE_TLS_REDIRECT_HTTP_TO_HTTPS=false",
+			environ:  serpent.Environ{{Name: "NEURALINVERSE_TLS_REDIRECT_HTTP_TO_HTTPS", Value: "false"}},
 			flags:    []string{},
 			expected: false,
 		},
@@ -253,7 +253,7 @@ func TestRedirectHTTPToHTTPSDeprecation(t *testing.T) {
 			err := flags.Parse(tc.flags)
 			require.NoError(t, err)
 			inv := (&serpent.Invocation{Environ: tc.environ}).WithTestParsedFlags(t, flags)
-			cfg := &codersdk.DeploymentValues{}
+			cfg := &nicloudsdk.DeploymentValues{}
 			opts := cfg.Options()
 			err = opts.SetDefaults()
 			require.NoError(t, err)

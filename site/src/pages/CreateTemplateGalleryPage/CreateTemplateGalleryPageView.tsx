@@ -33,7 +33,7 @@ export const CreateTemplateGalleryPageView: FC<
 					<div className="flex flex-col items-end gap-2">
 						<Button asChild size="sm" variant="outline">
 							<a
-								href="https://registry.coder.com/templates"
+								href="https://registry.cloud.neuralinverse.com/templates"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="flex items-center"
@@ -44,7 +44,7 @@ export const CreateTemplateGalleryPageView: FC<
 						</Button>
 						<Button asChild size="sm" variant="outline">
 							<a
-								href="https://registry.coder.com/skills/coder-templates"
+								href="https://registry.cloud.neuralinverse.com/skills/coder-templates"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="flex items-center"

@@ -28,7 +28,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	agplaibridge "github.com/coder/coder/v2/coderd/aibridge"
+	agplaibridge "github.com/NeuralInverse/cloud/v2/nicloud/aibridge"
 )
 
 // Known AI provider hosts.
@@ -48,7 +48,7 @@ type RoundTripDumper interface {
 const (
 	// ProxyAuthRealm is the realm used in Proxy-Authenticate challenges.
 	// The realm helps clients identify which credentials to use.
-	ProxyAuthRealm = `"Coder AI Bridge Proxy"`
+	ProxyAuthRealm = `"Neural Inverse Cloud AI Bridge Proxy"`
 )
 
 // proxyAuthRequiredMsg is the response body for 407 responses.
@@ -126,7 +126,7 @@ type Server struct {
 	httpServer     *http.Server
 	listener       net.Listener
 	tlsEnabled     bool
-	coderAccessURL *url.URL
+	niAccessURL *url.URL
 	// refreshProviders fetches the live provider snapshot on Reload.
 	// Nil disables hot-reload.
 	refreshProviders RefreshProvidersFunc
@@ -170,9 +170,9 @@ type requestContext struct {
 	// Set in authMiddleware during the CONNECT handshake.
 	// Used to correlate requests/responses with their originating CONNECT.
 	ConnectSessionID uuid.UUID
-	// CoderToken is the authentication token extracted from Proxy-Authorization.
+	// Neural Inverse CloudToken is the authentication token extracted from Proxy-Authorization.
 	// Set in authMiddleware during the CONNECT handshake.
-	CoderToken string
+	NIToken string
 	// Provider is the aibridge provider name.
 	// Set in authMiddleware during the CONNECT handshake.
 	Provider string
@@ -193,9 +193,9 @@ type Options struct {
 	TLSCertFile string
 	// TLSKeyFile is the path to the TLS private key file for the proxy listener.
 	TLSKeyFile string
-	// CoderAccessURL is the URL of the Coder deployment where aibridged is running.
+	// NIAccessURL is the URL of the Neural Inverse Cloud deployment where aibridged is running.
 	// Requests to supported AI providers are forwarded here.
-	CoderAccessURL string
+	NIAccessURL string
 	// MITMCertFile is the path to the CA certificate file used for MITM.
 	MITMCertFile string
 	// MITMKeyFile is the path to the CA private key file used for MITM.
@@ -248,24 +248,24 @@ func New(ctx context.Context, logger slog.Logger, opts Options) (*Server, error)
 		return nil, xerrors.New("tls cert file and tls key file must both be set")
 	}
 
-	if strings.TrimSpace(opts.CoderAccessURL) == "" {
-		return nil, xerrors.New("coder access URL is required")
+	if strings.TrimSpace(opts.NIAccessURL) == "" {
+		return nil, xerrors.New("neuralinverse access URL is required")
 	}
-	coderAccessURL, err := url.Parse(opts.CoderAccessURL)
+	niAccessURL, err := url.Parse(opts.NIAccessURL)
 	if err != nil {
-		return nil, xerrors.Errorf("invalid coder access URL %q: %w", opts.CoderAccessURL, err)
+		return nil, xerrors.Errorf("invalid neuralinverse access URL %q: %w", opts.NIAccessURL, err)
 	}
 	// Resolve the default port when not explicitly specified in the URL.
-	coderAccessPort := coderAccessURL.Port()
-	if coderAccessPort == "" {
-		switch coderAccessURL.Scheme {
+	niAccessPort := niAccessURL.Port()
+	if niAccessPort == "" {
+		switch niAccessURL.Scheme {
 		case "https":
-			coderAccessPort = "443"
+			niAccessPort = "443"
 		default:
-			coderAccessPort = "80"
+			niAccessPort = "80"
 		}
 	}
-	coderAccessURL.Host = net.JoinHostPort(coderAccessURL.Hostname(), coderAccessPort)
+	niAccessURL.Host = net.JoinHostPort(niAccessURL.Hostname(), niAccessPort)
 
 	// MITM cert and key are required to intercept and decrypt HTTPS traffic.
 	if opts.MITMCertFile == "" || opts.MITMKeyFile == "" {
@@ -317,7 +317,7 @@ func New(ctx context.Context, logger slog.Logger, opts Options) (*Server, error)
 		logger:               logger,
 		proxy:                proxy,
 		tlsEnabled:           opts.TLSCertFile != "",
-		coderAccessURL:       coderAccessURL,
+		niAccessURL:       niAccessURL,
 		refreshProviders:     opts.RefreshProviders,
 		allowedPorts:         allowedPorts,
 		caCert:               certPEM,
@@ -421,7 +421,7 @@ func New(ctx context.Context, logger slog.Logger, opts Options) (*Server, error)
 	// Reload while inflight requests are in progress takes effect on
 	// the next CONNECT without touching the already-MITM'd ones.
 	proxy.OnRequest(srv.mitmHostsCondition()).HandleConnectFunc(
-		// Extract Coder token from proxy authentication to forward to aibridged.
+		// Extract Neural Inverse Cloud token from proxy authentication to forward to aibridged.
 		srv.authMiddleware,
 	)
 
@@ -467,7 +467,7 @@ func New(ctx context.Context, logger slog.Logger, opts Options) (*Server, error)
 	logger.Info(ctx, "aibridgeproxyd configured",
 		slog.F("listen_addr", listener.Addr().String()),
 		slog.F("tls_listener_enabled", srv.tlsEnabled),
-		slog.F("coder_access_url", coderAccessURL.String()),
+		slog.F("coder_access_url", niAccessURL.String()),
 		slog.F("upstream_proxy", opts.UpstreamProxy),
 		slog.F("allowed_private_cidrs", opts.AllowedPrivateCIDRs),
 		slog.F("api_dump_enabled", opts.NewDumper != nil),
@@ -497,9 +497,9 @@ func (s *Server) IsTLSListener() bool {
 	return s.tlsEnabled
 }
 
-// CoderAccessURL returns the parsed Coder access URL with a normalized port.
-func (s *Server) CoderAccessURL() *url.URL {
-	return s.coderAccessURL
+// NIAccessURL returns the parsed Neural Inverse Cloud access URL with a normalized port.
+func (s *Server) NIAccessURL() *url.URL {
+	return s.niAccessURL
 }
 
 // Close gracefully shuts down the proxy server.
@@ -624,7 +624,7 @@ func convertDomainsToHosts(domains []string, allowedPorts []string) ([]string, e
 	return hosts, nil
 }
 
-// authMiddleware is a CONNECT middleware that extracts the Coder token from
+// authMiddleware is a CONNECT middleware that extracts the Neural Inverse Cloud token from
 // the Proxy-Authorization header and stores it in a requestContext in ctx.UserData
 // for use by downstream handlers.
 // Requests without valid credentials receive a 407 Proxy Authentication
@@ -633,7 +633,7 @@ func convertDomainsToHosts(domains []string, allowedPorts []string) ([]string, e
 //
 // Clients provide credentials by setting their HTTP Proxy as:
 //
-//	HTTPS_PROXY=http://ignored:<coder-token>@host:port
+//	HTTPS_PROXY=http://ignored:<ni-token>@host:port
 //
 // The token is extracted from the password field of basic auth.
 func (s *Server) authMiddleware(host string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {
@@ -661,10 +661,10 @@ func (s *Server) authMiddleware(host string, ctx *goproxy.ProxyCtx) (*goproxy.Co
 	)
 
 	proxyAuth := ctx.Req.Header.Get("Proxy-Authorization")
-	coderToken := extractCoderTokenFromProxyAuth(proxyAuth)
+	niToken := extractNITokenFromProxyAuth(proxyAuth)
 
 	// Reject requests for both missing and invalid credentials
-	if coderToken == "" {
+	if niToken == "" {
 		hasAuth := proxyAuth != ""
 		logger.Warn(s.ctx, "rejecting CONNECT request",
 			slog.F("reason", map[bool]string{true: "invalid_credentials", false: "missing_credentials"}[hasAuth]),
@@ -680,7 +680,7 @@ func (s *Server) authMiddleware(host string, ctx *goproxy.ProxyCtx) (*goproxy.Co
 	// for decrypted requests within this MITM session.
 	ctx.UserData = &requestContext{
 		ConnectSessionID: connectSessionID,
-		CoderToken:       coderToken,
+		NIToken:       niToken,
 		Provider:         provider,
 	}
 
@@ -718,12 +718,12 @@ func makeProxyAuthHeader(userInfo *url.Userinfo) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(userInfo.String()))
 }
 
-// extractCoderTokenFromProxyAuth extracts the Coder token from the
+// extractNITokenFromProxyAuth extracts the Neural Inverse Cloud token from the
 // Proxy-Authorization header. The token is expected to be in the password
 // field of basic auth: "Basic base64(username:token)".
 //
 // Returns empty string if no valid token is found.
-func extractCoderTokenFromProxyAuth(proxyAuth string) string {
+func extractNITokenFromProxyAuth(proxyAuth string) string {
 	if proxyAuth == "" {
 		return ""
 	}
@@ -740,7 +740,7 @@ func extractCoderTokenFromProxyAuth(proxyAuth string) string {
 		return ""
 	}
 
-	// Format: "username:password", password is the Coder token.
+	// Format: "username:password", password is the Neural Inverse Cloud token.
 	// Username is ignored and can be any value.
 	credentials := strings.SplitN(string(decoded), ":", 2)
 	if len(credentials) != 2 {
@@ -750,10 +750,10 @@ func extractCoderTokenFromProxyAuth(proxyAuth string) string {
 	return credentials[1]
 }
 
-// extractCoderTokenFromBearerAuth extracts the bearer token from an
+// extractNeural Inverse CloudTokenFromBearerAuth extracts the bearer token from an
 // Authorization header. Returns empty string if the header is not a
 // valid "Bearer <token>" value.
-func extractCoderTokenFromBearerAuth(auth string) string {
+func extractNITokenFromBearerAuth(auth string) string {
 	parts := strings.Fields(auth)
 	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
 		return ""
@@ -797,13 +797,13 @@ func (s *Server) tunneledMiddleware(host string, _ *goproxy.ProxyCtx) (*goproxy.
 }
 
 // isBlockedIP reports whether the given IP is in a blocked private/reserved range
-// and not exempted by AllowedPrivateCIDRs or the Coder access URL hostname.
+// and not exempted by AllowedPrivateCIDRs or the Neural Inverse Cloud access URL hostname.
 func (s *Server) isBlockedIP(ip net.IP, hostname string, port string) bool {
-	// Always allow the Coder access URL hostname+port so the proxy doesn't
+	// Always allow the Neural Inverse Cloud access URL hostname+port so the proxy doesn't
 	// block connections to its own deployment. Hostname-based (not IP-based)
 	// to handle dynamic IPs (DNS changes, load balancers, k8s rescheduling).
 	// The port is normalized at startup to handle URLs without explicit ports.
-	if strings.EqualFold(hostname, s.coderAccessURL.Hostname()) && port == s.coderAccessURL.Port() {
+	if strings.EqualFold(hostname, s.niAccessURL.Hostname()) && port == s.niAccessURL.Port() {
 		return false
 	}
 
@@ -897,7 +897,7 @@ func (s *Server) checkBlockedIPAndDial(ctx context.Context, network, addr string
 
 // handleRequest intercepts HTTP requests after MITM decryption.
 //   - Requests to known AI providers are rewritten to point at aibridged.
-//     In centralized mode the Coder token is already in the
+//     In centralized mode the Neural Inverse Cloud token is already in the
 //     Authorization header. For BYOK clients that cannot set custom
 //     headers, the proxy injects the BYOK header.
 //   - Unknown hosts are passed through to the original upstream.
@@ -914,7 +914,7 @@ func (s *Server) handleRequest(req *http.Request, ctx *goproxy.ProxyCtx) (*http.
 		)
 
 		resp := goproxy.NewResponse(req, goproxy.ContentTypeText, http.StatusProxyAuthRequired, "Proxy authentication required")
-		resp.Header.Set("Proxy-Authenticate", `Basic realm="Coder AI Bridge Proxy"`)
+		resp.Header.Set("Proxy-Authenticate", `Basic realm="Neural Inverse Cloud AI Bridge Proxy"`)
 		return req, resp
 	}
 
@@ -958,19 +958,19 @@ func (s *Server) handleRequest(req *http.Request, ctx *goproxy.ProxyCtx) (*http.
 	)
 
 	// Reject unauthenticated requests to AI providers.
-	if reqCtx.CoderToken == "" {
+	if reqCtx.NIToken == "" {
 		logger.Warn(s.ctx, "rejecting unauthenticated request to AI provider")
 		// Describe to the client how to authenticate with the proxy.
 		return req, newProxyAuthRequiredResponse(req)
 	}
 
 	// Rewrite the request to point to aibridged.
-	if s.coderAccessURL == nil || s.coderAccessURL.String() == "" {
-		logger.Error(s.ctx, "coderAccessURL is not configured")
+	if s.niAccessURL == nil || s.niAccessURL.String() == "" {
+		logger.Error(s.ctx, "niAccessURL is not configured")
 		return req, goproxy.NewResponse(req, goproxy.ContentTypeText, http.StatusInternalServerError, "Proxy misconfigured")
 	}
 
-	aiBridgeURL, err := url.JoinPath(s.coderAccessURL.String(), "api/v2/aibridge", reqCtx.Provider, originalPath)
+	aiBridgeURL, err := url.JoinPath(s.niAccessURL.String(), "api/v2/aibridge", reqCtx.Provider, originalPath)
 	if err != nil {
 		logger.Error(s.ctx, "failed to build aibridged URL", slog.Error(err))
 		return req, goproxy.NewResponse(req, goproxy.ContentTypeText, http.StatusInternalServerError, "Failed to build AI Bridge URL")
@@ -988,10 +988,10 @@ func (s *Server) handleRequest(req *http.Request, ctx *goproxy.ProxyCtx) (*http.
 	req.URL = aiBridgeParsedURL
 	req.Host = aiBridgeParsedURL.Host
 
-	injectBYOKHeaderIfNeeded(req.Header, reqCtx.CoderToken)
+	injectBYOKHeaderIfNeeded(req.Header, reqCtx.NIToken)
 
 	// Set request ID header to correlate requests between aibridgeproxyd and aibridged.
-	req.Header.Set(agplaibridge.HeaderCoderRequestID, reqCtx.RequestID.String())
+	req.Header.Set(agplaibridge.HeaderNIRequestID, reqCtx.RequestID.String())
 
 	logger.Info(s.ctx, "routing MITM request to aibridged",
 		slog.F("aibridged_url", aiBridgeParsedURL.String()),
@@ -1015,24 +1015,24 @@ func (s *Server) handleRequest(req *http.Request, ctx *goproxy.ProxyCtx) (*http.
 	return req, nil
 }
 
-// injectBYOKHeaderIfNeeded sets HeaderCoderToken when the
+// injectBYOKHeaderIfNeeded sets HeaderNeural Inverse CloudToken when the
 // Authorization header carries a bearer token that differs from the
-// Coder token, indicating the client is using its own LLM
+// Neural Inverse Cloud token, indicating the client is using its own LLM
 // credentials. Clients that can set custom headers
 // do this themselves; this handles clients that cannot.
 //
-// In centralized mode, Authorization carries the Coder token
+// In centralized mode, Authorization carries the Neural Inverse Cloud token
 // itself, so aibridged discovers it via ExtractAuthToken
 // without any extra header.
-func injectBYOKHeaderIfNeeded(header http.Header, coderToken string) {
+func injectBYOKHeaderIfNeeded(header http.Header, niToken string) {
 	// Don’t overwrite the header if it’s already set.
-	if header.Get(agplaibridge.HeaderCoderToken) != "" {
+	if header.Get(agplaibridge.HeaderNIToken) != "" {
 		return
 	}
 
-	bearer := extractCoderTokenFromBearerAuth(header.Get("Authorization"))
-	if bearer != "" && bearer != coderToken {
-		header.Set(agplaibridge.HeaderCoderToken, coderToken)
+	bearer := extractNITokenFromBearerAuth(header.Get("Authorization"))
+	if bearer != "" && bearer != niToken {
+		header.Set(agplaibridge.HeaderNIToken, niToken)
 	}
 }
 
@@ -1133,7 +1133,7 @@ func (s *Server) readErrorBodyForLog(resp *http.Response, logger slog.Logger) st
 }
 
 // Handler returns an HTTP handler for the AI Bridge Proxy's HTTP endpoints.
-// This is separate from the proxy server itself and is used by coderd to
+// This is separate from the proxy server itself and is used by nicloud to
 // serve endpoints like the CA certificate.
 func (s *Server) Handler() http.Handler {
 	r := chi.NewRouter()

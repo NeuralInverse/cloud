@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestWriteSecretFiles(t *testing.T) {

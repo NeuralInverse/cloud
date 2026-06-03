@@ -4,13 +4,13 @@ import (
 	"net"
 	"testing"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/workspaceapps/apptest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspaceapps/apptest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
 	"github.com/coder/serpent"
 )
 
@@ -18,7 +18,7 @@ func TestWorkspaceApps(t *testing.T) {
 	t.Parallel()
 
 	apptest.Run(t, true, func(t *testing.T, opts *apptest.DeploymentOptions) *apptest.Deployment {
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := nicloudtest.DeploymentValues(t)
 		deploymentValues.DisablePathApps = serpent.Bool(opts.DisablePathApps)
 		deploymentValues.Dangerous.AllowPathAppSharing = serpent.Bool(opts.DangerousAllowPathAppSharing)
 		deploymentValues.Dangerous.AllowPathAppSiteOwnerAccess = serpent.Bool(opts.DangerousAllowPathAppSiteOwnerAccess)
@@ -40,8 +40,8 @@ func TestWorkspaceApps(t *testing.T) {
 
 		db, pubsub := dbtestutil.NewDB(t)
 
-		client, _, _, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, _, _, user := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              opts.AppHost,
 				IncludeProvisionerDaemon: true,
@@ -58,9 +58,9 @@ func TestWorkspaceApps(t *testing.T) {
 				Database:                           db,
 				Pubsub:                             pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})

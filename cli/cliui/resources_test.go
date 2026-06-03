@@ -6,10 +6,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/pty/ptytest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/pty/ptytest"
 )
 
 func TestWorkspaceResources(t *testing.T) {
@@ -19,17 +19,17 @@ func TestWorkspaceResources(t *testing.T) {
 		ptty := ptytest.New(t)
 		done := make(chan struct{})
 		go func() {
-			err := cliui.WorkspaceResources(ptty.Output(), []codersdk.WorkspaceResource{{
+			err := cliui.WorkspaceResources(ptty.Output(), []nicloudsdk.WorkspaceResource{{
 				Type:       "google_compute_instance",
 				Name:       "dev",
-				Transition: codersdk.WorkspaceTransitionStart,
-				Agents: []codersdk.WorkspaceAgent{{
+				Transition: nicloudsdk.WorkspaceTransitionStart,
+				Agents: []nicloudsdk.WorkspaceAgent{{
 					Name:            "dev",
-					Status:          codersdk.WorkspaceAgentConnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleCreated,
+					Status:          nicloudsdk.WorkspaceAgentConnected,
+					LifecycleState:  nicloudsdk.WorkspaceAgentLifecycleCreated,
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
-					Health:          codersdk.WorkspaceAgentHealth{Healthy: true},
+					Health:          nicloudsdk.WorkspaceAgentHealth{Healthy: true},
 				}},
 			}}, cliui.WorkspaceResourcesOptions{
 				WorkspaceName: "example",
@@ -37,7 +37,7 @@ func TestWorkspaceResources(t *testing.T) {
 			assert.NoError(t, err)
 			close(done)
 		}()
-		ptty.ExpectMatch("coder ssh example")
+		ptty.ExpectMatch("neuralinverse ssh example")
 		<-done
 	})
 
@@ -47,46 +47,46 @@ func TestWorkspaceResources(t *testing.T) {
 		disconnected := dbtime.Now().Add(-4 * time.Second)
 		done := make(chan struct{})
 		go func() {
-			err := cliui.WorkspaceResources(ptty.Output(), []codersdk.WorkspaceResource{{
-				Transition: codersdk.WorkspaceTransitionStart,
+			err := cliui.WorkspaceResources(ptty.Output(), []nicloudsdk.WorkspaceResource{{
+				Transition: nicloudsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStop,
+				Transition: nicloudsdk.WorkspaceTransitionStop,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: nicloudsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_instance",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
+				Agents: []nicloudsdk.WorkspaceAgent{{
 					CreatedAt:       dbtime.Now().Add(-10 * time.Second),
-					Status:          codersdk.WorkspaceAgentConnecting,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleCreated,
+					Status:          nicloudsdk.WorkspaceAgentConnecting,
+					LifecycleState:  nicloudsdk.WorkspaceAgentLifecycleCreated,
 					Name:            "dev",
 					OperatingSystem: "linux",
 					Architecture:    "amd64",
-					Health:          codersdk.WorkspaceAgentHealth{Healthy: true},
+					Health:          nicloudsdk.WorkspaceAgentHealth{Healthy: true},
 				}},
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: nicloudsdk.WorkspaceTransitionStart,
 				Type:       "kubernetes_pod",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
-					Status:          codersdk.WorkspaceAgentConnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+				Agents: []nicloudsdk.WorkspaceAgent{{
+					Status:          nicloudsdk.WorkspaceAgentConnected,
+					LifecycleState:  nicloudsdk.WorkspaceAgentLifecycleReady,
 					Name:            "go",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
-					Health:          codersdk.WorkspaceAgentHealth{Healthy: true},
+					Health:          nicloudsdk.WorkspaceAgentHealth{Healthy: true},
 				}, {
 					DisconnectedAt:  &disconnected,
-					Status:          codersdk.WorkspaceAgentDisconnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+					Status:          nicloudsdk.WorkspaceAgentDisconnected,
+					LifecycleState:  nicloudsdk.WorkspaceAgentLifecycleReady,
 					Name:            "postgres",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
-					Health: codersdk.WorkspaceAgentHealth{
+					Health: nicloudsdk.WorkspaceAgentHealth{
 						Healthy: false,
 						Reason:  "agent has lost connection",
 					},
@@ -102,12 +102,12 @@ func TestWorkspaceResources(t *testing.T) {
 		ptty.ExpectMatch("google_compute_disk.root")
 		ptty.ExpectMatch("google_compute_instance.dev")
 		ptty.ExpectMatch("healthy")
-		ptty.ExpectMatch("coder ssh dev.dev")
+		ptty.ExpectMatch("neuralinverse ssh dev.dev")
 		ptty.ExpectMatch("kubernetes_pod.dev")
 		ptty.ExpectMatch("healthy")
-		ptty.ExpectMatch("coder ssh dev.go")
+		ptty.ExpectMatch("neuralinverse ssh dev.go")
 		ptty.ExpectMatch("agent has lost connection")
-		ptty.ExpectMatch("coder ssh dev.postgres")
+		ptty.ExpectMatch("neuralinverse ssh dev.postgres")
 		<-done
 	})
 }

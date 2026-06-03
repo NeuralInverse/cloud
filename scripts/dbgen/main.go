@@ -18,7 +18,7 @@ import (
 	"golang.org/x/tools/imports"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/scripts/atomicwrite"
+	"github.com/NeuralInverse/cloud/v2/scripts/atomicwrite"
 )
 
 var (
@@ -51,7 +51,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	databasePath := filepath.Join(localPath, "..", "..", "..", "coderd", "database")
+	databasePath := filepath.Join(localPath, "..", "..", "..", "nicloud", "database")
 	err = orderAndStubDatabaseFunctions(filepath.Join(databasePath, "dbmetrics", "querymetrics.go"), "m", "queryMetricsStore", func(params stubParams) string {
 		return fmt.Sprintf(`
 start := time.Now()
@@ -289,7 +289,7 @@ type querierFunction struct {
 	Func *dst.FuncType
 }
 
-// readQuerierFunctions reads the functions from coderd/database/querier.go
+// readQuerierFunctions reads the functions from nicloud/database/querier.go
 func readQuerierFunctions() ([]querierFunction, error) {
 	f, err := parseDBFile("querier.go")
 	if err != nil {
@@ -319,7 +319,7 @@ func parseDBFile(filename string) (*dst.File, error) {
 		return nil, err
 	}
 
-	querierPath := filepath.Join(localPath, "..", "..", "..", "coderd", "database", filename)
+	querierPath := filepath.Join(localPath, "..", "..", "..", "nicloud", "database", filename)
 	querierData, err := os.ReadFile(querierPath)
 	if err != nil {
 		return nil, xerrors.Errorf("read %s: %w", filename, err)
@@ -448,7 +448,7 @@ func loadInterfaceFuncs(f *dst.File, interfaceName string) ([]querierFunction, e
 				if !ident.IsExported() {
 					continue
 				}
-				ident.Path = "github.com/coder/coder/v2/coderd/database"
+				ident.Path = "github.com/NeuralInverse/cloud/v2/nicloud/database"
 			}
 		}
 

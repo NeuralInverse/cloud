@@ -13,9 +13,9 @@ import (
 var CurrentSupportedVersions = RPCVersionList{
 	Versions: []RPCVersion{
 		// 1.1 adds telemetry fields to StartRequest:
-		// - device_id: Coder Desktop device ID
-		// - device_os: Coder Desktop OS information
-		// - coder_desktop_version: Coder Desktop version
+		// - device_id: Neural Inverse Cloud Desktop device ID
+		// - device_os: Neural Inverse Cloud Desktop OS information
+		// - coder_desktop_version: Neural Inverse Cloud Desktop version
 		// 1.2 adds network related information to Agent:
 		// - last_ping:
 		//   - latency: RTT of the most recently sent ping

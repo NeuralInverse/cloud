@@ -1,14 +1,14 @@
 # Upgrading Best Practices
 
-This guide provides best practices for upgrading Coder, along with
+This guide provides best practices for upgrading Neural Inverse Cloud, along with
 troubleshooting steps for common issues encountered during upgrades,
 particularly with database migrations in high availability (HA) deployments.
 
 ## Before you upgrade
 
 > [!TIP]
-> To check your current Coder version, use `coder version` from the CLI, check
-> the bottom-right of the Coder dashboard, or query the `/api/v2/buildinfo`
+> To check your current Neural Inverse Cloud version, use `coder version` from the CLI, check
+> the bottom-right of the Neural Inverse Cloud dashboard, or query the `/api/v2/buildinfo`
 > endpoint. See the [version command](../reference/cli/version.md) for details.
 
 - **Schedule upgrades during off-peak hours.** Upgrades can cause a noticeable
@@ -23,7 +23,7 @@ particularly with database migrations in high availability (HA) deployments.
   have known issues that may require a larger maintenance window or additional
   steps. For example, upgrades from v2.26.0 to v2.27.8 may encounter issues with
   the `api_keys` table—upgrading to v2.26.6 first can help mitigate this.
-  Contact [Coder support](../support/index.md) for guidance on your specific
+  Contact [Neural Inverse Cloud support](../support/index.md) for guidance on your specific
   upgrade path.
 
 ## Pre-upgrade strategy for Kubernetes HA deployments
@@ -36,7 +36,7 @@ prevent the new pod from acquiring necessary locks.
 ### Recommended strategy for major upgrades
 
 1. **Scale down before upgrading:** Before running `helm upgrade`, scale your
-   Coder deployment down to eliminate database connection contention from
+   Neural Inverse Cloud deployment down to eliminate database connection contention from
    existing pods.
 
    - **Scale to zero** for a clean cutover with no active database connections
@@ -64,13 +64,13 @@ prevent the new pod from acquiring necessary locks.
 ## Kubernetes liveness probes and long-running migrations
 
 Liveness probes can cause pods to be killed during long-running database
-migrations. Starting with Coder v2.30.0, liveness probes are *disabled by
+migrations. Starting with Neural Inverse Cloud v2.30.0, liveness probes are *disabled by
 default* in the Helm chart.
 
 This change was made because:
 
 - Liveness probes can kill pods during legitimate long-running migrations
-- If a Coder pod becomes unresponsive (due to a deadlock, etc.), it's better to
+- If a Neural Inverse Cloud pod becomes unresponsive (due to a deadlock, etc.), it's better to
   investigate the issue rather than have Kubernetes silently restart the pod
 
 If you have enabled liveness probes in your deployment and observe pods
@@ -83,7 +83,7 @@ To confirm whether Kubernetes is killing pods due to liveness probe failures,
 check the Kubernetes events and pod logs:
 
 ```shell
-# Check events for the Coder deployment
+# Check events for the Neural Inverse Cloud deployment
 kubectl get events --field-selector involvedObject.name=coder -n <namespace>
 
 # Check pod logs for migration progress
@@ -108,7 +108,7 @@ Remove the `livenessProbe` section entirely, then proceed with the upgrade.
 > For versions prior to v2.30.0, liveness probes were enabled by default. You
 > can disable them by editing the Deployment directly with `kubectl edit
 > deployment coder` or by using a ConfigMap override. See the
-> [Helm chart values](https://artifacthub.io/packages/helm/coder-v2/coder?modal=values&path=coder.livenessProbe)
+> [Helm chart values](https://artifacthub.io/packages/helm/neuralinverse-v2/coder?modal=values&path=coder.livenessProbe)
 > for configuration options available in v2.30.0+.
 
 ### Workaround steps
@@ -132,20 +132,20 @@ Remove the `livenessProbe` section entirely, then proceed with the upgrade.
 
 If an upgrade gets stuck in a restart loop due to database locks:
 
-1. **Scale to zero:** Scale the Coder deployment to 0 to stop all application
+1. **Scale to zero:** Scale the Neural Inverse Cloud deployment to 0 to stop all application
    activity.
 
    ```shell
    kubectl scale deployment coder --replicas=0
    ```
 
-1. **Clear connections:** Terminate existing connections to the Coder database
+1. **Clear connections:** Terminate existing connections to the Neural Inverse Cloud database
    to release any lingering locks. This PostgreSQL command drops all active
    connections to the database:
 
    > [!CAUTION]
    > This command is intrusive and should be used as a last resort. Contact
-   > [Coder support](../support/index.md) before running destructive database
+   > [Neural Inverse Cloud support](../support/index.md) before running destructive database
    > commands in production. SQL commands may vary depending on your PostgreSQL
    > version and configuration.
 
@@ -157,13 +157,13 @@ If an upgrade gets stuck in a restart loop due to database locks:
    ```
 
 1. **Check schema migrations:** Verify the level of upgrade and check if `dirty`
-   is true. If this has progressed, this now indicates your current Coder
+   is true. If this has progressed, this now indicates your current Neural Inverse Cloud
    installation state.
 
    > [!NOTE]
    > The SQL commands below are for informational purposes. If you are unsure
    > about querying your database directly, contact
-   > [Coder support](../support/index.md) for assistance.
+   > [Neural Inverse Cloud support](../support/index.md) for assistance.
 
    ```sql
    SELECT * FROM schema_migrations;
@@ -172,7 +172,7 @@ If an upgrade gets stuck in a restart loop due to database locks:
 1. **Ensure image version:** Confirm the Deployment image is set to the
    appropriate version (old or new, depending on the database migration state
    found in step 3). Match your tag in the
-   [migrations directory](https://github.com/coder/coder/tree/main/coderd/database/migrations)
+   [migrations directory](https://github.com/NeuralInverse/cloud/tree/main/nicloud/database/migrations)
    to the value in the `schema_migrations` output.
 
 1. **Resume the upgrade:** Follow the
@@ -182,7 +182,7 @@ If an upgrade gets stuck in a restart loop due to database locks:
 ## When to contact support
 
 If you encounter any of the following issues, contact
-[Coder support](../support/index.md):
+[Neural Inverse Cloud support](../support/index.md):
 
 - Locking issues that cannot be mitigated by the steps in this guide
 - Migrations taking significantly longer than expected (more than 15 minutes)
@@ -194,7 +194,7 @@ If you encounter any of the following issues, contact
 
 When contacting support, please collect and provide:
 
-- `coderd` logs with details on the stages where the upgrade stalled
+- `nicloud` logs with details on the stages where the upgrade stalled
 - PostgreSQL logs if available
-- The Coder versions involved (source and target)
+- The Neural Inverse Cloud versions involved (source and target)
 - Your deployment configuration (number of replicas, resource limits)

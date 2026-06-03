@@ -5,8 +5,8 @@ import (
 
 	"github.com/fatih/color"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -25,7 +25,7 @@ func (r *RootCmd) templateList() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			templates, err := client.Templates(inv.Context(), codersdk.TemplateFilter{})
+			templates, err := client.Templates(inv.Context(), nicloudsdk.TemplateFilter{})
 			if err != nil {
 				return err
 			}
@@ -38,7 +38,7 @@ func (r *RootCmd) templateList() *serpent.Command {
 
 			if out == "" {
 				_, _ = fmt.Fprintf(inv.Stderr, "%s No templates found! Create one:\n\n", Caret)
-				_, _ = fmt.Fprintln(inv.Stderr, color.HiMagentaString("  $ coder templates push <directory>\n"))
+				_, _ = fmt.Fprintln(inv.Stderr, color.HiMagentaString("  $ neuralinverse templates push <directory>\n"))
 				return nil
 			}
 

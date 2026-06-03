@@ -8,8 +8,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // SubAgent represents an agent running in a dev container.
@@ -21,13 +21,13 @@ type SubAgent struct {
 	Architecture    string
 	OperatingSystem string
 	Apps            []SubAgentApp
-	DisplayApps     []codersdk.DisplayApp
+	DisplayApps     []nicloudsdk.DisplayApp
 }
 
 // CloneConfig makes a copy of SubAgent using configuration from the
 // devcontainer. The ID is inherited from dc.SubagentID if present, and
 // the name is inherited from the devcontainer. AuthToken is not copied.
-func (s SubAgent) CloneConfig(dc codersdk.WorkspaceAgentDevcontainer) SubAgent {
+func (s SubAgent) CloneConfig(dc nicloudsdk.WorkspaceAgentDevcontainer) SubAgent {
 	return SubAgent{
 		ID:              dc.SubagentID.UUID,
 		Name:            dc.Name,
@@ -57,9 +57,9 @@ type SubAgentApp struct {
 	HealthCheck SubAgentHealthCheck               `json:"healthCheck"`
 	Hidden      bool                              `json:"hidden"`
 	Icon        string                            `json:"icon"`
-	OpenIn      codersdk.WorkspaceAppOpenIn       `json:"openIn"`
+	OpenIn      nicloudsdk.WorkspaceAppOpenIn       `json:"openIn"`
 	Order       int32                             `json:"order"`
-	Share       codersdk.WorkspaceAppSharingLevel `json:"share"`
+	Share       nicloudsdk.WorkspaceAppSharingLevel `json:"share"`
 	Subdomain   bool                              `json:"subdomain"`
 	URL         string                            `json:"url"`
 }
@@ -99,27 +99,27 @@ func (app SubAgentApp) ToProtoApp() (*agentproto.CreateSubAgentRequest_App, erro
 
 	if app.OpenIn != "" {
 		switch app.OpenIn {
-		case codersdk.WorkspaceAppOpenInSlimWindow:
+		case nicloudsdk.WorkspaceAppOpenInSlimWindow:
 			proto.OpenIn = agentproto.CreateSubAgentRequest_App_SLIM_WINDOW.Enum()
-		case codersdk.WorkspaceAppOpenInTab:
+		case nicloudsdk.WorkspaceAppOpenInTab:
 			proto.OpenIn = agentproto.CreateSubAgentRequest_App_TAB.Enum()
 		default:
-			return nil, xerrors.Errorf("unexpected codersdk.WorkspaceAppOpenIn: %#v", app.OpenIn)
+			return nil, xerrors.Errorf("unexpected nicloudsdk.WorkspaceAppOpenIn: %#v", app.OpenIn)
 		}
 	}
 
 	if app.Share != "" {
 		switch app.Share {
-		case codersdk.WorkspaceAppSharingLevelAuthenticated:
+		case nicloudsdk.WorkspaceAppSharingLevelAuthenticated:
 			proto.Share = agentproto.CreateSubAgentRequest_App_AUTHENTICATED.Enum()
-		case codersdk.WorkspaceAppSharingLevelOwner:
+		case nicloudsdk.WorkspaceAppSharingLevelOwner:
 			proto.Share = agentproto.CreateSubAgentRequest_App_OWNER.Enum()
-		case codersdk.WorkspaceAppSharingLevelPublic:
+		case nicloudsdk.WorkspaceAppSharingLevelPublic:
 			proto.Share = agentproto.CreateSubAgentRequest_App_PUBLIC.Enum()
-		case codersdk.WorkspaceAppSharingLevelOrganization:
+		case nicloudsdk.WorkspaceAppSharingLevelOrganization:
 			proto.Share = agentproto.CreateSubAgentRequest_App_ORGANIZATION.Enum()
 		default:
-			return nil, xerrors.Errorf("unexpected codersdk.WorkspaceAppSharingLevel: %#v", app.Share)
+			return nil, xerrors.Errorf("unexpected nicloudsdk.WorkspaceAppSharingLevel: %#v", app.Share)
 		}
 	}
 
@@ -201,18 +201,18 @@ func (a *subAgentAPIClient) Create(ctx context.Context, agent SubAgent) (_ SubAg
 	for _, displayApp := range agent.DisplayApps {
 		var app agentproto.CreateSubAgentRequest_DisplayApp
 		switch displayApp {
-		case codersdk.DisplayAppPortForward:
+		case nicloudsdk.DisplayAppPortForward:
 			app = agentproto.CreateSubAgentRequest_PORT_FORWARDING_HELPER
-		case codersdk.DisplayAppSSH:
+		case nicloudsdk.DisplayAppSSH:
 			app = agentproto.CreateSubAgentRequest_SSH_HELPER
-		case codersdk.DisplayAppVSCodeDesktop:
+		case nicloudsdk.DisplayAppVSCodeDesktop:
 			app = agentproto.CreateSubAgentRequest_VSCODE
-		case codersdk.DisplayAppVSCodeInsiders:
+		case nicloudsdk.DisplayAppVSCodeInsiders:
 			app = agentproto.CreateSubAgentRequest_VSCODE_INSIDERS
-		case codersdk.DisplayAppWebTerminal:
+		case nicloudsdk.DisplayAppWebTerminal:
 			app = agentproto.CreateSubAgentRequest_WEB_TERMINAL
 		default:
-			return SubAgent{}, xerrors.Errorf("unexpected codersdk.DisplayApp: %#v", displayApp)
+			return SubAgent{}, xerrors.Errorf("unexpected nicloudsdk.DisplayApp: %#v", displayApp)
 		}
 
 		displayApps = append(displayApps, app)

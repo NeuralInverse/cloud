@@ -1,11 +1,11 @@
 # Deployment Health
 
-Coder includes an operator-friendly deployment health page that provides a
-number of details about the health of your Coder deployment.
+Neural Inverse Cloud includes an operator-friendly deployment health page that provides a
+number of details about the health of your Neural Inverse Cloud deployment.
 
-![Health check in Coder Dashboard](../../images/admin/monitoring/health-check.png)
+![Health check in Neural Inverse Cloud Dashboard](../../images/admin/monitoring/health-check.png)
 
-You can view it at `https://${CODER_URL}/health`, or you can alternatively view
+You can view it at `https://${NEURALINVERSE_URL}/health`, or you can alternatively view
 the
 [JSON response directly](../../reference/api/debug.md#debug-info-deployment-health).
 
@@ -13,10 +13,10 @@ The deployment health page is broken up into the following sections:
 
 ## Access URL
 
-The Access URL section shows checks related to Coder's
+The Access URL section shows checks related to Neural Inverse Cloud's
 [access URL](../setup/index.md#access-url).
 
-Coder will periodically send a GET request to `${CODER_ACCESS_URL}/healthz` and
+Neural Inverse Cloud will periodically send a GET request to `${NEURALINVERSE_ACCESS_URL}/healthz` and
 validate that the response is `200 OK`. The expected response body is also the
 string `OK`.
 
@@ -28,17 +28,17 @@ If there is an issue, you may see one of the following errors reported:
 
 **Problem:** no access URL has been configured.
 
-**Solution:** configure an [access URL](../setup/index.md#access-url) for Coder.
+**Solution:** configure an [access URL](../setup/index.md#access-url) for Neural Inverse Cloud.
 
 ### EACS02
 
 #### Access URL invalid
 
-**Problem:** `${CODER_ACCESS_URL}/healthz` is not a valid URL.
+**Problem:** `${NEURALINVERSE_ACCESS_URL}/healthz` is not a valid URL.
 
 **Solution:** Ensure that the access URL is a valid URL accepted by
 [`url.Parse`](https://pkg.go.dev/net/url#Parse). Example:
-`https://dev.coder.com/`.
+`https://dev.cloud.neuralinverse.com/`.
 
 You can use [the Go playground](https://go.dev/play/p/CabcJZyTwt9) for additional testing.
 
@@ -46,8 +46,8 @@ You can use [the Go playground](https://go.dev/play/p/CabcJZyTwt9) for additiona
 
 #### Failed to fetch `/healthz`
 
-**Problem:** Coder was unable to execute a GET request to
-`${CODER_ACCESS_URL}/healthz`.
+**Problem:** Neural Inverse Cloud was unable to execute a GET request to
+`${NEURALINVERSE_ACCESS_URL}/healthz`.
 
 This could be due to a number of reasons, including but not limited to:
 
@@ -58,14 +58,14 @@ This could be due to a number of reasons, including but not limited to:
 
 **Solution:** Investigate and resolve the root cause of the connection issue.
 
-To troubleshoot further, you can log into the machine running Coder and attempt
+To troubleshoot further, you can log into the machine running Neural Inverse Cloud and attempt
 to run the following command:
 
 ```shell
-curl -v ${CODER_ACCESS_URL}/healthz
+curl -v ${NEURALINVERSE_ACCESS_URL}/healthz
 # Expected output:
 # *   Trying XXX.XXX.XXX.XXX:443
-# * Connected to https://coder.company.com (XXX.XXX.XXX.XXX) port 443 (#0)
+# * Connected to https://cloud.neuralinverse.company.com (XXX.XXX.XXX.XXX) port 443 (#0)
 # [...]
 # OK
 ```
@@ -76,15 +76,15 @@ The output of this command should aid further diagnosis.
 
 #### /healthz did not return 200 OK
 
-**Problem:** Coder was able to execute a GET request to
-`${CODER_ACCESS_URL}/healthz`, but the response code was not `200 OK` as
+**Problem:** Neural Inverse Cloud was able to execute a GET request to
+`${NEURALINVERSE_ACCESS_URL}/healthz`, but the response code was not `200 OK` as
 expected.
 
 This could mean, for instance, that:
 
-- The request did not actually hit your Coder instance (potentially an incorrect
+- The request did not actually hit your Neural Inverse Cloud instance (potentially an incorrect
   DNS entry)
-- The request hit your Coder instance, but on an unexpected path (potentially a
+- The request hit your Neural Inverse Cloud instance, but on an unexpected path (potentially a
   misconfigured reverse proxy)
 
 **Solution:** Inspect the `HealthzResponse` in the health check output. This
@@ -92,7 +92,7 @@ should give you a good indication of the root cause.
 
 ## Database
 
-Coder continuously executes a short database query to validate that it can reach
+Neural Inverse Cloud continuously executes a short database query to validate that it can reach
 its configured database, and also measures the median latency over 5 attempts.
 
 ### EDB01
@@ -113,24 +113,24 @@ query fails.
 This may not be an error as such, but is an indication of a potential issue.
 
 **Solution:** Investigate the sizing of the configured database with regard to
-Coder's current activity and usage. It may be necessary to increase the
-resources allocated to Coder's database. Alternatively, you can raise the
+Neural Inverse Cloud's current activity and usage. It may be necessary to increase the
+resources allocated to Neural Inverse Cloud's database. Alternatively, you can raise the
 configured threshold to a higher value (this will not address the root cause).
 
 > [!TIP]
 > You can enable
 > [detailed database metrics](../../reference/cli/server.md#--prometheus-collect-db-metrics)
-> in Coder's Prometheus endpoint. If you have
+> in Neural Inverse Cloud's Prometheus endpoint. If you have
 > [tracing enabled](../../reference/cli/server.md#--trace), these traces may also
-> contain useful information regarding Coder's database activity.
+> contain useful information regarding Neural Inverse Cloud's database activity.
 
 ## DERP
 
-Coder workspace agents may use
+Neural Inverse Cloud workspace agents may use
 [DERP (Designated Encrypted Relay for Packets)](https://tailscale.com/blog/how-tailscale-works/#encrypted-tcp-relays-derp)
-to communicate with Coder. This requires connectivity to a number of configured
+to communicate with Neural Inverse Cloud. This requires connectivity to a number of configured
 [DERP servers](../../reference/cli/server.md#--derp-config-path) which are used
-to relay traffic between Coder and workspace agents. Coder periodically queries
+to relay traffic between Neural Inverse Cloud and workspace agents. Neural Inverse Cloud periodically queries
 the health of its configured DERP servers and may return one or more of the
 following:
 
@@ -138,9 +138,9 @@ following:
 
 #### DERP Node Uses Websocket
 
-**Problem:** When Coder attempts to establish a connection to one or more DERP
+**Problem:** When Neural Inverse Cloud attempts to establish a connection to one or more DERP
 servers, it sends a specific `Upgrade: derp` HTTP header. Some load balancers
-may block this header, in which case Coder will fall back to
+may block this header, in which case Neural Inverse Cloud will fall back to
 `Upgrade: websocket`.
 
 This is not necessarily a fatal error, but a possible indication of a
@@ -158,7 +158,7 @@ still be able to reach their workspaces, connection performance may be degraded.
 
 #### One or more DERP nodes are unhealthy
 
-**Problem:** This is shown if Coder is unable to reach one or more configured
+**Problem:** This is shown if Neural Inverse Cloud is unable to reach one or more configured
 DERP servers. Clients will fall back to use the remaining DERP servers, but
 performance may be impacted for clients closest to the unhealthy DERP server.
 
@@ -166,10 +166,10 @@ performance may be impacted for clients closest to the unhealthy DERP server.
 network, for example:
 
 ```shell
-curl -v "https://coder.company.com/derp"
+curl -v "https://cloud.neuralinverse.company.com/derp"
 # Expected output:
 # *   Trying XXX.XXX.XXX.XXX
-# * Connected to https://coder.company.com (XXX.XXX.XXX.XXX) port 443 (#0)
+# * Connected to https://cloud.neuralinverse.company.com (XXX.XXX.XXX.XXX) port 443 (#0)
 # DERP requires connection upgrade
 ```
 
@@ -177,7 +177,7 @@ curl -v "https://coder.company.com/derp"
 
 #### No DERP servers available
 
-**Problem:** This is shown when Coder's effective DERP map does not contain
+**Problem:** This is shown when Neural Inverse Cloud's effective DERP map does not contain
 any DERP servers. Without at least one working DERP server, workspace
 networking may not work.
 
@@ -188,21 +188,21 @@ healthy DERP-enabled proxy is currently available.
 **Solution:** Ensure that at least one DERP server is available to the
 deployment. For example:
 
-- Restart `coderd` with the built-in DERP server enabled
-- Restart `coderd` with an external DERP map configured
+- Restart `nicloud` with the built-in DERP server enabled
+- Restart `nicloud` with an external DERP map configured
 - Make sure a workspace proxy with DERP server enabled is running and healthy
 
 ### ESTUN01
 
 #### No STUN servers available
 
-**Problem:** This is shown if no STUN servers are available. Coder will use STUN
+**Problem:** This is shown if no STUN servers are available. Neural Inverse Cloud will use STUN
 to establish [direct connections](../networking/stun.md). Without at least one
 working STUN server, direct connections may not be possible.
 
 **Solution:** Ensure that the
 [configured STUN severs](../../reference/cli/server.md#--derp-server-stun-addresses)
-are reachable from Coder and that UDP traffic can be sent/received on the
+are reachable from Neural Inverse Cloud and that UDP traffic can be sent/received on the
 configured port.
 
 ### ESTUN02
@@ -219,18 +219,18 @@ connections are impossible.
 
 ## Websocket
 
-Coder makes heavy use of [WebSockets](https://datatracker.ietf.org/doc/rfc6455/)
+Neural Inverse Cloud makes heavy use of [WebSockets](https://datatracker.ietf.org/doc/rfc6455/)
 for long-lived connections:
 
-- Between users interacting with Coder's Web UI (for example, the built-in
+- Between users interacting with Neural Inverse Cloud's Web UI (for example, the built-in
   terminal, or VSCode Web),
-- Between workspace agents and `coderd`,
-- Between Coder [workspace proxies](../networking/workspace-proxies.md) and
-  `coderd`.
+- Between workspace agents and `nicloud`,
+- Between Neural Inverse Cloud [workspace proxies](../networking/workspace-proxies.md) and
+  `nicloud`.
 
 Any issues causing failures to establish WebSocket connections will result in
 **severe** impairment of functionality for users. To validate this
-functionality, Coder will periodically attempt to establish a WebSocket
+functionality, Neural Inverse Cloud will periodically attempt to establish a WebSocket
 connection with itself using the configured [Access URL](#access-url), send a
 message over the connection, and attempt to read back that same message.
 
@@ -238,33 +238,33 @@ message over the connection, and attempt to read back that same message.
 
 #### Failed to establish a WebSocket connection
 
-**Problem:** Coder was unable to establish a WebSocket connection over its own
+**Problem:** Neural Inverse Cloud was unable to establish a WebSocket connection over its own
 Access URL.
 
 **Solution:** There are multiple possible causes of this problem:
 
-1. Ensure that Coder's configured Access URL can be reached from the server
-   running Coder, using standard troubleshooting tools like `curl`:
+1. Ensure that Neural Inverse Cloud's configured Access URL can be reached from the server
+   running Neural Inverse Cloud, using standard troubleshooting tools like `curl`:
 
    ```shell
-   curl -v "https://coder.company.com"
+   curl -v "https://cloud.neuralinverse.company.com"
    ```
 
-2. Ensure that any reverse proxy that is serving Coder's configured access URL
+2. Ensure that any reverse proxy that is serving Neural Inverse Cloud's configured access URL
    allows connection upgrade with the header `Upgrade: websocket`.
 
 ### EWS02
 
 #### Failed to echo a WebSocket message
 
-**Problem:** Coder was able to establish a WebSocket connection, but was unable
+**Problem:** Neural Inverse Cloud was able to establish a WebSocket connection, but was unable
 to write a message.
 
 **Solution:** There are multiple possible causes of this problem:
 
-1. Validate that any reverse proxy servers in front of Coder's configured access
+1. Validate that any reverse proxy servers in front of Neural Inverse Cloud's configured access
    URL are not prematurely closing the connection.
-2. Validate that the network link between Coder and the workspace proxy is
+2. Validate that the network link between Neural Inverse Cloud and the workspace proxy is
    stable, e.g. by using `ping`.
 3. Validate that any internal network infrastructure (for example, firewalls,
    proxies, VPNs) do not interfere with WebSocket connections.
@@ -272,13 +272,13 @@ to write a message.
 ## Workspace Proxy
 
 If you have configured [Workspace Proxies](../networking/workspace-proxies.md),
-Coder will periodically query their availability and show their status here.
+Neural Inverse Cloud will periodically query their availability and show their status here.
 
 ### EWP01
 
 #### Error Updating Workspace Proxy Health
 
-**Problem:** Coder was unable to query the connected workspace proxies for their
+**Problem:** Neural Inverse Cloud was unable to query the connected workspace proxies for their
 health status.
 
 **Solution:** This may be a transient issue. If it persists, it could signify a
@@ -288,11 +288,11 @@ connectivity issue.
 
 #### Error Fetching Workspace Proxies
 
-**Problem:** Coder was unable to fetch the stored workspace proxy health data
+**Problem:** Neural Inverse Cloud was unable to fetch the stored workspace proxy health data
 from the database.
 
 **Solution:** This may be a transient issue. If it persists, it could signify an
-issue with Coder's configured database.
+issue with Neural Inverse Cloud's configured database.
 
 ### EWP04
 
@@ -300,21 +300,21 @@ issue with Coder's configured database.
 
 **Problem:** One or more workspace proxies are not reachable.
 
-**Solution:** Ensure that Coder can establish a connection to the configured
+**Solution:** Ensure that Neural Inverse Cloud can establish a connection to the configured
 workspace proxies.
 
 ### EPD01
 
 #### No Provisioner Daemons Available
 
-**Problem:** No provisioner daemons are registered with Coder. No workspaces can
+**Problem:** No provisioner daemons are registered with Neural Inverse Cloud. No workspaces can
 be built until there is at least one provisioner daemon running.
 
 **Solution:**
 
 If you are using
 [External Provisioner Daemons](../provisioners/index.md#external-provisioners), ensure
-that they are able to successfully connect to Coder. Otherwise, ensure
+that they are able to successfully connect to Neural Inverse Cloud. Otherwise, ensure
 [`--provisioner-daemons`](../../reference/cli/server.md#--provisioner-daemons)
 is set to a value greater than 0.
 
@@ -331,7 +331,7 @@ daemons are updated at the same time as the main deployment to minimize the risk
 of API incompatibility.
 
 **Solution:** Update the provisioner daemon to match the currently running
-version of Coder.
+version of Neural Inverse Cloud.
 
 > [!NOTE]
 > This may be a transient issue if you are currently in the process of updating your deployment.
@@ -341,12 +341,12 @@ version of Coder.
 #### Provisioner Daemon API Version Mismatch
 
 **Problem:** One or more provisioner daemons are using APIs that are marked as
-deprecated. These deprecated APIs may be removed in a future release of Coder,
+deprecated. These deprecated APIs may be removed in a future release of Neural Inverse Cloud,
 at which point the affected provisioner daemons will no longer be able to
-connect to Coder.
+connect to Neural Inverse Cloud.
 
 **Solution:** Update the provisioner daemon to match the currently running
-version of Coder.
+version of Neural Inverse Cloud.
 
 > [!NOTE]
 > This may be a transient issue if you are currently in the process of updating your deployment.
@@ -359,4 +359,4 @@ version of Coder.
 deployment health. It may resolve on its own.
 
 **Solution:** This may be a bug.
-[File a GitHub issue](https://github.com/coder/coder/issues/new)!
+[File a GitHub issue](https://github.com/NeuralInverse/cloud/issues/new)!

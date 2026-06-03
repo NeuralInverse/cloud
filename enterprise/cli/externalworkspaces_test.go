@@ -9,15 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 // completeWithExternalAgent creates a template version with an external agent resource
@@ -30,7 +30,7 @@ func completeWithExternalAgent() *echo.Responses {
 					Graph: &proto.GraphComplete{
 						Resources: []*proto.Resource{
 							{
-								Type: "coder_external_agent",
+								Type: "ni_external_agent",
 								Name: "main",
 								Agents: []*proto.Agent{
 									{
@@ -83,20 +83,20 @@ func TestExternalWorkspaces(t *testing.T) {
 	t.Run("Create", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -117,36 +117,36 @@ func TestExternalWorkspaces(t *testing.T) {
 		}()
 
 		// Expect the workspace creation confirmation
-		stdout.ExpectMatchContext(ctx, "coder_external_agent.main")
+		stdout.ExpectMatchContext(ctx, "ni_external_agent.main")
 		stdout.ExpectMatchContext(ctx, "external-agent (linux, amd64)")
 		stdout.ExpectMatchContext(ctx, "Confirm create")
 		stdin.WriteLine("yes")
 
 		// Expect the external agent instructions
 		stdout.ExpectMatchContext(ctx, "Please run the following command to attach external agent")
-		stdout.ExpectRegexMatchContext(ctx, "curl -fsSL .* | CODER_AGENT_TOKEN=.* sh")
+		stdout.ExpectRegexMatchContext(ctx, "curl -fsSL .* | NEURALINVERSE_AGENT_TOKEN=.* sh")
 
 		testutil.TryReceive(ctx, t, doneChan)
 
 		// Verify the workspace was created
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-external-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), nicloudsdk.Me, "my-external-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		assert.Equal(t, template.Name, ws.TemplateName)
 	})
 
 	t.Run("CreateWithoutTemplate", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		args := []string{
 			"external-workspaces",
@@ -163,20 +163,20 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("CreateWithRegularTemplate", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithRegularAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithRegularAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -194,24 +194,24 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Create an external workspace
-		ws := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -237,24 +237,24 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("ListJSON", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Create an external workspace
-		ws := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -272,7 +272,7 @@ func TestExternalWorkspaces(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var workspaces []codersdk.Workspace
+		var workspaces []nicloudsdk.Workspace
 		require.NoError(t, json.Unmarshal(out.Bytes(), &workspaces))
 		require.Len(t, workspaces, 1)
 		assert.Equal(t, ws.Name, workspaces[0].Name)
@@ -280,17 +280,17 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("ListNoWorkspaces", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		args := []string{
 			"external-workspaces",
@@ -309,31 +309,31 @@ func TestExternalWorkspaces(t *testing.T) {
 			close(done)
 		}()
 		stdout.ExpectMatchContext(ctx, "No workspaces found!")
-		stdout.ExpectMatchContext(ctx, "coder external-workspaces create")
+		stdout.ExpectMatchContext(ctx, "neuralinverse external-workspaces create")
 		cancelFunc()
 		<-done
 	})
 
 	t.Run("AgentInstructions", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Create an external workspace
-		ws := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -353,7 +353,7 @@ func TestExternalWorkspaces(t *testing.T) {
 			close(done)
 		}()
 		stdout.ExpectMatchContext(ctx, "Please run the following command to attach external agent to the workspace")
-		stdout.ExpectRegexMatchContext(ctx, "curl -fsSL .* | CODER_AGENT_TOKEN=.* sh")
+		stdout.ExpectRegexMatchContext(ctx, "curl -fsSL .* | NEURALINVERSE_AGENT_TOKEN=.* sh")
 		cancelFunc()
 
 		ctx = testutil.Context(t, testutil.WaitLong)
@@ -362,24 +362,24 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("AgentInstructionsJSON", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Create an external workspace
-		ws := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -407,17 +407,17 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("AgentInstructionsNonExistentWorkspace", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		args := []string{
 			"external-workspaces",
@@ -434,24 +434,24 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("AgentInstructionsNonExistentAgent", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Create an external workspace
-		ws := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -468,20 +468,20 @@ func TestExternalWorkspaces(t *testing.T) {
 
 	t.Run("CreateWithTemplateVersion", func(t *testing.T) {
 		t.Parallel()
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceExternalAgent: 1,
+					nicloudsdk.FeatureWorkspaceExternalAgent: 1,
 				},
 			},
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithExternalAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		args := []string{
 			"external-workspaces",
@@ -503,17 +503,17 @@ func TestExternalWorkspaces(t *testing.T) {
 		}()
 
 		// Expect the workspace creation confirmation
-		stdout.ExpectMatchContext(ctx, "coder_external_agent.main")
+		stdout.ExpectMatchContext(ctx, "ni_external_agent.main")
 		stdout.ExpectMatchContext(ctx, "external-agent (linux, amd64)")
 
 		// Expect the external agent instructions
 		stdout.ExpectMatchContext(ctx, "Please run the following command to attach external agent")
-		stdout.ExpectRegexMatchContext(ctx, "curl -fsSL .* | CODER_AGENT_TOKEN=.* sh")
+		stdout.ExpectRegexMatchContext(ctx, "curl -fsSL .* | NEURALINVERSE_AGENT_TOKEN=.* sh")
 
 		testutil.TryReceive(ctx, t, doneChan)
 
 		// Verify the workspace was created
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-external-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), nicloudsdk.Me, "my-external-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		assert.Equal(t, template.Name, ws.TemplateName)
 	})

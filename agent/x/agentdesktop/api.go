@@ -16,11 +16,11 @@ import (
 	"github.com/google/uuid"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/quartz"
 	"github.com/coder/websocket"
 )
@@ -91,7 +91,7 @@ func (a *API) handleDesktopVNC(rw http.ResponseWriter, r *http.Request) {
 	// Start the desktop session (idempotent).
 	_, err := a.desktop.Start(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to start desktop session.",
 			Detail:  err.Error(),
 		})
@@ -101,7 +101,7 @@ func (a *API) handleDesktopVNC(rw http.ResponseWriter, r *http.Request) {
 	// Get a VNC connection.
 	vncConn, err := a.desktop.VNCConn(ctx)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to connect to VNC server.",
 			Detail:  err.Error(),
 		})
@@ -109,7 +109,7 @@ func (a *API) handleDesktopVNC(rw http.ResponseWriter, r *http.Request) {
 	}
 	defer vncConn.Close()
 
-	// Accept WebSocket from coderd.
+	// Accept WebSocket from nicloud.
 	conn, err := websocket.Accept(rw, r, &websocket.AcceptOptions{
 		CompressionMode: websocket.CompressionDisabled,
 	})
@@ -121,7 +121,7 @@ func (a *API) handleDesktopVNC(rw http.ResponseWriter, r *http.Request) {
 	// No read limit — RFB framebuffer updates can be large.
 	conn.SetReadLimit(-1)
 
-	wsCtx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
+	wsCtx, wsNetConn := nicloudsdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
 	defer wsNetConn.Close()
 
 	// Bicopy raw bytes between WebSocket and VNC TCP.
@@ -143,7 +143,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 			slog.Error(err),
 			slog.F("elapsed_ms", a.clock.Since(handlerStart).Milliseconds()),
 		)
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to start desktop session.",
 			Detail:  err.Error(),
 		})
@@ -152,7 +152,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	var action DesktopAction
 	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Failed to decode request body.",
 			Detail:  err.Error(),
 		})
@@ -172,13 +172,13 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	switch action.Action {
 	case "key":
 		if action.Text == nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Missing \"text\" for key action.",
 			})
 			return
 		}
 		if err := a.desktop.KeyPress(ctx, *action.Text); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Key press failed.",
 				Detail:  err.Error(),
 			})
@@ -188,13 +188,13 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	case "key_down":
 		if action.Text == nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Missing \"text\" for key_down action.",
 			})
 			return
 		}
 		if err := a.desktop.KeyDown(ctx, *action.Text); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Key down failed.",
 				Detail:  err.Error(),
 			})
@@ -204,13 +204,13 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	case "key_up":
 		if action.Text == nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Missing \"text\" for key_up action.",
 			})
 			return
 		}
 		if err := a.desktop.KeyUp(ctx, *action.Text); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Key up failed.",
 				Detail:  err.Error(),
 			})
@@ -220,13 +220,13 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	case "type":
 		if action.Text == nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Missing \"text\" for type action.",
 			})
 			return
 		}
 		if err := a.desktop.Type(ctx, *action.Text); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Type action failed.",
 				Detail:  err.Error(),
 			})
@@ -237,7 +237,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "cursor_position":
 		nativeX, nativeY, err := a.desktop.CursorPosition(ctx)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Cursor position failed.",
 				Detail:  err.Error(),
 			})
@@ -249,14 +249,14 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "mouse_move":
 		x, y, err := coordFromAction(action)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return
 		}
 		x, y = scaleXY(x, y)
 		if err := a.desktop.Move(ctx, x, y); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Mouse move failed.",
 				Detail:  err.Error(),
 			})
@@ -267,7 +267,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "left_click":
 		x, y, err := coordFromAction(action)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return
@@ -282,7 +282,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 				slog.F("elapsed_ms", a.clock.Since(handlerStart).Milliseconds()),
 				slog.Error(err),
 			)
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Left click failed.",
 				Detail:  err.Error(),
 			})
@@ -297,7 +297,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	case "left_click_drag":
 		if action.Coordinate == nil || action.StartCoordinate == nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Missing \"coordinate\" or \"start_coordinate\" for left_click_drag.",
 			})
 			return
@@ -305,7 +305,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 		sx, sy := scaleXY(action.StartCoordinate[0], action.StartCoordinate[1])
 		ex, ey := scaleXY(action.Coordinate[0], action.Coordinate[1])
 		if err := a.desktop.Drag(ctx, sx, sy, ex, ey); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Left click drag failed.",
 				Detail:  err.Error(),
 			})
@@ -315,7 +315,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	case "left_mouse_down":
 		if err := a.desktop.ButtonDown(ctx, MouseButtonLeft); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Left mouse down failed.",
 				Detail:  err.Error(),
 			})
@@ -325,7 +325,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	case "left_mouse_up":
 		if err := a.desktop.ButtonUp(ctx, MouseButtonLeft); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Left mouse up failed.",
 				Detail:  err.Error(),
 			})
@@ -336,14 +336,14 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "right_click":
 		x, y, err := coordFromAction(action)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return
 		}
 		x, y = scaleXY(x, y)
 		if err := a.desktop.Click(ctx, x, y, MouseButtonRight); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Right click failed.",
 				Detail:  err.Error(),
 			})
@@ -354,14 +354,14 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "middle_click":
 		x, y, err := coordFromAction(action)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return
 		}
 		x, y = scaleXY(x, y)
 		if err := a.desktop.Click(ctx, x, y, MouseButtonMiddle); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Middle click failed.",
 				Detail:  err.Error(),
 			})
@@ -372,14 +372,14 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "double_click":
 		x, y, err := coordFromAction(action)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return
 		}
 		x, y = scaleXY(x, y)
 		if err := a.desktop.DoubleClick(ctx, x, y, MouseButtonLeft); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Double click failed.",
 				Detail:  err.Error(),
 			})
@@ -390,7 +390,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "triple_click":
 		x, y, err := coordFromAction(action)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return
@@ -398,7 +398,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 		x, y = scaleXY(x, y)
 		for range 3 {
 			if err := a.desktop.Click(ctx, x, y, MouseButtonLeft); err != nil {
-				httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+				httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 					Message: "Triple click failed.",
 					Detail:  err.Error(),
 				})
@@ -410,7 +410,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 	case "scroll":
 		x, y, err := coordFromAction(action)
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return
@@ -437,14 +437,14 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 		case "right":
 			dx = amount
 		default:
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Invalid scroll direction: " + direction,
 			})
 			return
 		}
 
 		if err := a.desktop.Scroll(ctx, x, y, dx, dy); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Scroll failed.",
 				Detail:  err.Error(),
 			})
@@ -454,7 +454,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 
 	case "hold_key":
 		if action.Text == nil {
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Missing \"text\" for hold_key action.",
 			})
 			return
@@ -464,7 +464,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 			dur = *action.Duration
 		}
 		if err := a.desktop.KeyDown(ctx, *action.Text); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Key down failed.",
 				Detail:  err.Error(),
 			})
@@ -482,7 +482,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 		case <-timer.C:
 		}
 		if err := a.desktop.KeyUp(ctx, *action.Text); err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Key up failed.",
 				Detail:  err.Error(),
 			})
@@ -496,7 +496,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 			TargetHeight: geometry.DeclaredHeight,
 		})
 		if err != nil {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Screenshot failed.",
 				Detail:  err.Error(),
 			})
@@ -508,7 +508,7 @@ func (a *API) handleAction(rw http.ResponseWriter, r *http.Request) {
 		resp.ScreenshotHeight = geometry.DeclaredHeight
 
 	default:
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Unknown action: " + action.Action,
 		})
 		return
@@ -552,20 +552,20 @@ func (*API) decodeRecordingRequest(rw http.ResponseWriter, r *http.Request) (str
 		RecordingID string `json:"recording_id"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Failed to decode request body.",
 			Detail:  err.Error(),
 		})
 		return "", false
 	}
 	if req.RecordingID == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Missing recording_id.",
 		})
 		return "", false
 	}
 	if _, err := uuid.Parse(req.RecordingID); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Invalid recording_id format.",
 			Detail:  "recording_id must be a valid UUID.",
 		})
@@ -584,7 +584,7 @@ func (a *API) handleRecordingStart(rw http.ResponseWriter, r *http.Request) {
 	a.closeMu.Lock()
 	if a.closed {
 		a.closeMu.Unlock()
-		httpapi.Write(ctx, rw, http.StatusServiceUnavailable, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusServiceUnavailable, nicloudsdk.Response{
 			Message: "Desktop API is shutting down.",
 		})
 		return
@@ -593,19 +593,19 @@ func (a *API) handleRecordingStart(rw http.ResponseWriter, r *http.Request) {
 
 	if err := a.desktop.StartRecording(ctx, recordingID); err != nil {
 		if errors.Is(err, ErrDesktopClosed) {
-			httpapi.Write(ctx, rw, http.StatusServiceUnavailable, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusServiceUnavailable, nicloudsdk.Response{
 				Message: "Desktop API is shutting down.",
 			})
 			return
 		}
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to start recording.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, nicloudsdk.Response{
 		Message: "Recording started.",
 	})
 }
@@ -622,7 +622,7 @@ func (a *API) handleRecordingStop(rw http.ResponseWriter, r *http.Request) {
 	a.closeMu.Lock()
 	if a.closed {
 		a.closeMu.Unlock()
-		httpapi.Write(ctx, rw, http.StatusServiceUnavailable, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusServiceUnavailable, nicloudsdk.Response{
 			Message: "Desktop API is shutting down.",
 		})
 		return
@@ -638,20 +638,20 @@ func (a *API) handleRecordingStop(rw http.ResponseWriter, r *http.Request) {
 	artifact, err := a.desktop.StopRecording(stopCtx, recordingID)
 	if err != nil {
 		if errors.Is(err, ErrUnknownRecording) {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, nicloudsdk.Response{
 				Message: "Recording not found.",
 				Detail:  err.Error(),
 			})
 			return
 		}
 		if errors.Is(err, ErrRecordingCorrupted) {
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Recording is corrupted.",
 				Detail:  err.Error(),
 			})
 			return
 		}
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to stop recording.",
 			Detail:  err.Error(),
 		})
@@ -670,7 +670,7 @@ func (a *API) handleRecordingStop(rw http.ResponseWriter, r *http.Request) {
 			slog.F("size", artifact.Size),
 			slog.F("max_size", workspacesdk.MaxRecordingSize),
 		)
-		httpapi.Write(ctx, rw, http.StatusRequestEntityTooLarge, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusRequestEntityTooLarge, nicloudsdk.Response{
 			Message: "Recording file exceeds maximum allowed size.",
 		})
 		return

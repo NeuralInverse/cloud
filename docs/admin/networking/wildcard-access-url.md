@@ -1,13 +1,13 @@
 # Wildcard Access URLs
 
-Wildcard access URLs unlock Coder's full potential for modern development workflows. While optional for basic SSH usage, this feature becomes essential when teams need web applications, development previews, or browser-based tools. **Wildcard access URLs are essential for many development workflows in Coder** - Web IDEs (code-server, VS Code Web, JupyterLab) and some development frameworks work significantly better with subdomain-based access rather than path-based URLs.
+Wildcard access URLs unlock Neural Inverse Cloud's full potential for modern development workflows. While optional for basic SSH usage, this feature becomes essential when teams need web applications, development previews, or browser-based tools. **Wildcard access URLs are essential for many development workflows in Neural Inverse Cloud** - Web IDEs (code-server, VS Code Web, JupyterLab) and some development frameworks work significantly better with subdomain-based access rather than path-based URLs.
 
 ## Why configure wildcard access URLs?
 
 ### Key benefits
 
-- **Enables port access**: Each application gets a unique subdomain with [port support](https://coder.com/docs/user-guides/workspace-access/port-forwarding#dashboard) (e.g. `8080--main--myworkspace--john.coder.example.com`).
-- **Enhanced security**: Applications run in isolated subdomains with separate browser security contexts and prevents access to the Coder API from malicious JavaScript
+- **Enables port access**: Each application gets a unique subdomain with [port support](https://cloud.neuralinverse.com/docs/user-guides/workspace-access/port-forwarding#dashboard) (e.g. `8080--main--myworkspace--john.coder.example.com`).
+- **Enhanced security**: Applications run in isolated subdomains with separate browser security contexts and prevents access to the Neural Inverse Cloud API from malicious JavaScript
 - **Better compatibility**: Most applications are designed to work at the root of a hostname rather than at a subpath, making subdomain access more reliable
 
 ### Applications that require subdomain access
@@ -22,10 +22,10 @@ The following tools require wildcard access URL:
 
 ## Configuration
 
-`CODER_WILDCARD_ACCESS_URL` is necessary for [port forwarding](port-forwarding.md#dashboard) via the dashboard or running [coder_apps](../templates/index.md) on an absolute path. Set this to a wildcard subdomain that resolves to Coder (e.g. `*.coder.example.com`).
+`NEURALINVERSE_WILDCARD_ACCESS_URL` is necessary for [port forwarding](port-forwarding.md#dashboard) via the dashboard or running [ni_apps](../templates/index.md) on an absolute path. Set this to a wildcard subdomain that resolves to Neural Inverse Cloud (e.g. `*.coder.example.com`).
 
 ```bash
-export CODER_WILDCARD_ACCESS_URL="*.coder.example.com"
+export NEURALINVERSE_WILDCARD_ACCESS_URL="*.coder.example.com"
 coder server
 ```
 
@@ -38,12 +38,12 @@ Wildcard access URLs require a TLS certificate that covers the wildcard domain. 
 
 #### Direct TLS Configuration
 
-Configure Coder to handle TLS directly using the wildcard certificate:
+Configure Neural Inverse Cloud to handle TLS directly using the wildcard certificate:
 
 ```bash
-export CODER_TLS_ENABLE=true
-export CODER_TLS_CERT_FILE=/path/to/wildcard.crt
-export CODER_TLS_KEY_FILE=/path/to/wildcard.key
+export NEURALINVERSE_TLS_ENABLE=true
+export NEURALINVERSE_TLS_CERT_FILE=/path/to/wildcard.crt
+export NEURALINVERSE_TLS_KEY_FILE=/path/to/wildcard.key
 ```
 
 See [TLS & Reverse Proxy](../setup/index.md#tls--reverse-proxy) for detailed configuration options.
@@ -58,12 +58,12 @@ Use a reverse proxy to handle TLS termination with automatic certificate managem
 
 ### DNS Setup
 
-You'll need to configure DNS to point wildcard subdomains to your Coder server:
+You'll need to configure DNS to point wildcard subdomains to your Neural Inverse Cloud server:
 
 > [!NOTE]
-> We do not recommend using a top-level-domain for Coder wildcard access
+> We do not recommend using a top-level-domain for Neural Inverse Cloud wildcard access
 > (for example `*.workspaces`), even on private networks with split-DNS. Some
-> browsers consider these "public" domains and will refuse Coder's cookies,
+> browsers consider these "public" domains and will refuse Neural Inverse Cloud's cookies,
 > which are vital to the proper operation of this feature.
 
 ```text
@@ -81,14 +81,14 @@ Or alternatively, using a CNAME record:
 If you're using [workspace proxies](workspace-proxies.md) for geo-distributed teams, each proxy requires its own wildcard access URL configuration:
 
 ```bash
-# Main Coder server
-export CODER_WILDCARD_ACCESS_URL="*.coder.example.com"
+# Main Neural Inverse Cloud server
+export NEURALINVERSE_WILDCARD_ACCESS_URL="*.coder.example.com"
 
 # Sydney workspace proxy
-export CODER_WILDCARD_ACCESS_URL="*.sydney.coder.example.com"
+export NEURALINVERSE_WILDCARD_ACCESS_URL="*.sydney.coder.example.com"
 
 # London workspace proxy
-export CODER_WILDCARD_ACCESS_URL="*.london.coder.example.com"
+export NEURALINVERSE_WILDCARD_ACCESS_URL="*.london.coder.example.com"
 ```
 
 Each proxy's wildcard domain must have corresponding DNS records:
@@ -100,11 +100,11 @@ Each proxy's wildcard domain must have corresponding DNS records:
 
 ## Template Configuration
 
-In your Coder templates, enable subdomain applications using the `subdomain` parameter:
+In your Neural Inverse Cloud templates, enable subdomain applications using the `subdomain` parameter:
 
 ```hcl
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id     = ni_agent.main.id
   slug         = "code-server"
   display_name = "VS Code"
   url          = "http://localhost:8080"
@@ -120,10 +120,10 @@ resource "coder_app" "code-server" {
 
 If workspace applications are not working:
 
-1. Verify the `CODER_WILDCARD_ACCESS_URL` environment variable is configured correctly:
-   - Check the deployment settings in the Coder dashboard (Settings > Deployment)
+1. Verify the `NEURALINVERSE_WILDCARD_ACCESS_URL` environment variable is configured correctly:
+   - Check the deployment settings in the Neural Inverse Cloud dashboard (Settings > Deployment)
    - Ensure it matches your wildcard domain (e.g., `*.coder.example.com`)
-   - Restart the Coder server if you made changes to the environment variable
+   - Restart the Neural Inverse Cloud server if you made changes to the environment variable
 2. Check DNS resolution for wildcard subdomains:
 
    ```bash
@@ -132,7 +132,7 @@ If workspace applications are not working:
    ```
 
 3. Ensure TLS certificates cover the wildcard domain
-4. Confirm template `coder_app` resources have `subdomain = true`
+4. Confirm template `ni_app` resources have `subdomain = true`
 
 ## See also
 

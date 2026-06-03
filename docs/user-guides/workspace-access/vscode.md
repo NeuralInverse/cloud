@@ -1,6 +1,6 @@
 # Visual Studio Code
 
-You can develop in your Coder workspace remotely with
+You can develop in your Neural Inverse Cloud workspace remotely with
 [VS Code](https://code.visualstudio.com/download).
 We support connecting with the desktop client and VS Code in the browser with
 [code-server](https://github.com/coder/code-server).
@@ -12,8 +12,8 @@ Learn more about how VS Code Web and code-server compare in the
 VS Code desktop is a default app for workspaces.
 
 Click `VS Code Desktop` in the dashboard to one-click enter a workspace. This
-automatically installs the [Coder Remote](https://github.com/coder/vscode-coder)
-extension, authenticates with Coder, and connects to the workspace.
+automatically installs the [Neural Inverse Cloud Remote](https://github.com/coder/vscode-coder)
+extension, authenticates with Neural Inverse Cloud, and connects to the workspace.
 
 ![Demo](https://github.com/coder/vscode-coder/raw/main/demo.gif?raw=true)
 
@@ -50,7 +50,7 @@ There are multiple ways to add extensions to VS Code Desktop:
 ### Using the public extensions marketplaces
 
 You can manually add an extension while you're working in the Code Web IDE. The
-extensions can be from Coder's public marketplace, Eclipse Open VSX's public
+extensions can be from Neural Inverse Cloud's public marketplace, Eclipse Open VSX's public
 marketplace, or the Eclipse Open VSX _local_ marketplace.
 
 ![Code Web Extensions](../../images/ides/code-web-extensions.png)
@@ -101,7 +101,7 @@ Web or using the workspace's terminal.
    **Startup Script**
 
    ```tf
-   resource "coder_agent" "main" {
+   resource "ni_agent" "main" {
      ...
      startup_script = "code-server --install-extension /vsix/GitHub.copilot.vsix"
    }
@@ -144,7 +144,7 @@ server), run the following to install an extension (be sure to update the
 snippets with the name of the extension you want to install):
 
 ```console
-SERVICE_URL=https://extensions.coder.com/api ITEM_URL=https://extensions.coder.com/item /path/to/code-server --install-extension GitHub.copilot
+SERVICE_URL=https://extensions.cloud.neuralinverse.com/api ITEM_URL=https://extensions.cloud.neuralinverse.com/item /path/to/code-server --install-extension GitHub.copilot
 ```
 
 Alternatively, you can install an extension from Open VSX's public marketplace:
@@ -155,7 +155,7 @@ SERVICE_URL=https://open-vsx.org/vscode/gallery ITEM_URL=https://open-vsx.org/vs
 
 ### Using VS Code Desktop
 
-For your local VS Code to pickup extension files in your Coder workspace,
+For your local VS Code to pickup extension files in your Neural Inverse Cloud workspace,
 include this command in your `startup_script`, or run in manually in your
 workspace terminal:
 

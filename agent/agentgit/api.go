@@ -8,10 +8,10 @@ import (
 	"github.com/google/uuid"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/wsjson"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/wsjson"
 	"github.com/coder/quartz"
 	"github.com/coder/websocket"
 )
@@ -67,7 +67,7 @@ func (a *API) handleWatch(rw http.ResponseWriter, r *http.Request) {
 		CompressionMode: websocket.CompressionNoContextTakeover,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to accept WebSocket.",
 			Detail:  err.Error(),
 		})
@@ -79,8 +79,8 @@ func (a *API) handleWatch(rw http.ResponseWriter, r *http.Request) {
 	conn.SetReadLimit(1 << 22)
 
 	stream := wsjson.NewStream[
-		codersdk.WorkspaceAgentGitClientMessage,
-		codersdk.WorkspaceAgentGitServerMessage,
+		nicloudsdk.WorkspaceAgentGitClientMessage,
+		nicloudsdk.WorkspaceAgentGitServerMessage,
 	](conn, websocket.MessageText, websocket.MessageText, logger)
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -150,11 +150,11 @@ func (a *API) handleWatch(rw http.ResponseWriter, r *http.Request) {
 			}
 
 			switch msg.Type {
-			case codersdk.WorkspaceAgentGitClientMessageTypeRefresh:
+			case nicloudsdk.WorkspaceAgentGitClientMessageTypeRefresh:
 				handler.RequestScan()
 			default:
-				if err := stream.Send(codersdk.WorkspaceAgentGitServerMessage{
-					Type:    codersdk.WorkspaceAgentGitServerMessageTypeError,
+				if err := stream.Send(nicloudsdk.WorkspaceAgentGitServerMessage{
+					Type:    nicloudsdk.WorkspaceAgentGitServerMessageTypeError,
 					Message: "unknown message type",
 				}); err != nil {
 					return

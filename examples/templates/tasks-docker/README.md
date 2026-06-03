@@ -9,7 +9,7 @@ maintainer_github: coder
 
 # Run Coder Tasks on Docker
 
-This is an example template for running [Coder Tasks](https://coder.com/docs/ai-coder/tasks), Claude Code, along with a [real world application](https://realworld-docs.netlify.app/).
+This is an example template for running [Coder Tasks](https://coder.com/docs/ai-nicloud/tasks), Claude Code, along with a [real world application](https://realworld-docs.netlify.app/).
 
 ![Tasks](../../.images/tasks-screenshot.png)
 
@@ -23,7 +23,7 @@ This is a fantastic starting point for working with AI agents with Coder Tasks. 
 
 This template is designed to be an example and a reference for building other templates with Coder Tasks. You can always run Coder Tasks on different infrastructure (e.g. as on Kubernetes, VMs) and with your own GitHub repositories, MCP servers, images, etc.
 
-Additionally, this template uses our [Claude Code](https://registry.coder.com/modules/coder/claude-code) module, but [other agents](https://registry.coder.com/modules?search=tag%3Aagent) or even [custom agents](https://coder.com/docs/ai-coder/custom-agents) can be used in its place.
+Additionally, this template uses our [Claude Code](https://registry.coder.com/modules/coder/claude-code) module, but [other agents](https://registry.coder.com/modules?search=tag%3Aagent) or even [custom agents](https://coder.com/docs/ai-nicloud/custom-agents) can be used in its place.
 
 This template uses a [Workspace Preset](https://coder.com/docs/admin/templates/extending-templates/parameters#workspace-presets) that pre-defines:
 

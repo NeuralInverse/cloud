@@ -13,12 +13,12 @@ import (
 	"github.com/google/uuid"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/agentgit"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/agentgit"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 const (
@@ -66,7 +66,7 @@ func (api *API) handleStartProcess(rw http.ResponseWriter, r *http.Request) {
 
 	var req workspacesdk.StartProcessRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Request body must be valid JSON.",
 			Detail:  err.Error(),
 		})
@@ -74,7 +74,7 @@ func (api *API) handleStartProcess(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Command == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Command is required.",
 		})
 		return
@@ -87,7 +87,7 @@ func (api *API) handleStartProcess(rw http.ResponseWriter, r *http.Request) {
 
 	proc, err := api.manager.start(req, chatID)
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to start process.",
 			Detail:  err.Error(),
 		})
@@ -156,7 +156,7 @@ func (api *API) handleProcessOutput(rw http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	proc, ok := api.manager.get(id)
 	if !ok {
-		httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusNotFound, nicloudsdk.Response{
 			Message: fmt.Sprintf("Process %q not found.", id),
 		})
 		return
@@ -167,7 +167,7 @@ func (api *API) handleProcessOutput(rw http.ResponseWriter, r *http.Request) {
 	// belonging to that chat.
 	if chatContext, ok := agentchat.FromContext(ctx); ok {
 		if proc.chatID != "" && proc.chatID != chatContext.ID.String() {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, nicloudsdk.Response{
 				Message: fmt.Sprintf("Process %q not found.", id),
 			})
 			return
@@ -226,7 +226,7 @@ func (api *API) handleSignalProcess(rw http.ResponseWriter, r *http.Request) {
 	if chatContext, ok := agentchat.FromContext(ctx); ok {
 		proc, procOK := api.manager.get(id)
 		if procOK && proc.chatID != "" && proc.chatID != chatContext.ID.String() {
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, nicloudsdk.Response{
 				Message: fmt.Sprintf("Process %q not found.", id),
 			})
 			return
@@ -235,7 +235,7 @@ func (api *API) handleSignalProcess(rw http.ResponseWriter, r *http.Request) {
 
 	var req workspacesdk.SignalProcessRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Request body must be valid JSON.",
 			Detail:  err.Error(),
 		})
@@ -243,14 +243,14 @@ func (api *API) handleSignalProcess(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Signal == "" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Signal is required.",
 		})
 		return
 	}
 
 	if req.Signal != "kill" && req.Signal != "terminate" {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: fmt.Sprintf(
 				"Unsupported signal %q. Use \"kill\" or \"terminate\".",
 				req.Signal,
@@ -262,17 +262,17 @@ func (api *API) handleSignalProcess(rw http.ResponseWriter, r *http.Request) {
 	if err := api.manager.signal(id, req.Signal); err != nil {
 		switch {
 		case errors.Is(err, errProcessNotFound):
-			httpapi.Write(ctx, rw, http.StatusNotFound, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusNotFound, nicloudsdk.Response{
 				Message: fmt.Sprintf("Process %q not found.", id),
 			})
 		case errors.Is(err, errProcessNotRunning):
-			httpapi.Write(ctx, rw, http.StatusConflict, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusConflict, nicloudsdk.Response{
 				Message: fmt.Sprintf(
 					"Process %q is not running.", id,
 				),
 			})
 		default:
-			httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "Failed to signal process.",
 				Detail:  err.Error(),
 			})
@@ -280,7 +280,7 @@ func (api *API) handleSignalProcess(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, nicloudsdk.Response{
 		Message: fmt.Sprintf(
 			"Signal %q sent to process %q.", req.Signal, id,
 		),

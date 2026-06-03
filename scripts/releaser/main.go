@@ -8,21 +8,21 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
 
 const (
-	owner = "coder"
-	repo  = "coder"
+	owner = "neuralinverse"
+	repo  = "neuralinverse"
 )
 
 func main() {
 	var dryRun bool
 	cmd := &serpent.Command{
 		Use:   "releaser",
-		Short: "Interactive release tagging for coder/coder.",
+		Short: "Interactive release tagging for NeuralInverse/cloud.",
 		Long:  "Tag RCs from main, releases/patches from release/X.Y. The tool detects the branch, infers the next version, and walks you through tagging, pushing, and triggering the release workflow.",
 		Options: serpent.OptionSet{
 			{

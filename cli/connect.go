@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/serpent"
 )
 
@@ -31,7 +31,7 @@ func (*RootCmd) existsCmd() *serpent.Command {
 		),
 		Handler: func(inv *serpent.Invocation) error {
 			hostname := inv.Args[0]
-			exists, err := workspacesdk.ExistsViaCoderConnect(inv.Context(), hostname)
+			exists, err := workspacesdk.ExistsViaNIConnect(inv.Context(), hostname)
 			if err != nil {
 				return err
 			}

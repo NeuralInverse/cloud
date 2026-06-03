@@ -10,8 +10,8 @@ import (
 	"golang.org/x/xerrors"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 type PeerStatus struct {

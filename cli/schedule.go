@@ -8,11 +8,11 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/schedule/cron"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/tz"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/schedule/cron"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/tz"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -109,7 +109,7 @@ func (r *RootCmd) scheduleShow() *serpent.Command {
 			if len(inv.Args) == 1 {
 				// If the argument contains a slash, we assume it's a full owner/name reference
 				if strings.Contains(inv.Args[0], "/") {
-					_, workspaceName, err := codersdk.SplitWorkspaceIdentifier(inv.Args[0])
+					_, workspaceName, err := nicloudsdk.SplitWorkspaceIdentifier(inv.Args[0])
 					if err != nil {
 						return err
 					}
@@ -149,7 +149,7 @@ func (r *RootCmd) scheduleStart() *serpent.Command {
 		Long: scheduleStartDescriptionLong + "\n" + FormatExamples(
 			Example{
 				Description: "Set the workspace to start at 9:30am (in Dublin) from Monday to Friday",
-				Command:     "coder schedule start my-workspace 9:30AM Mon-Fri Europe/Dublin",
+				Command:     "neuralinverse schedule start my-workspace 9:30AM Mon-Fri Europe/Dublin",
 			},
 		),
 		Short: "Edit workspace start schedule",
@@ -199,7 +199,7 @@ func (r *RootCmd) scheduleStart() *serpent.Command {
 				}
 			}
 
-			err = client.UpdateWorkspaceAutostart(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceAutostartRequest{
+			err = client.UpdateWorkspaceAutostart(inv.Context(), workspace.ID, nicloudsdk.UpdateWorkspaceAutostartRequest{
 				Schedule: schedStr,
 			})
 			if err != nil {
@@ -222,7 +222,7 @@ func (r *RootCmd) scheduleStop() *serpent.Command {
 		Use: "stop <workspace-name> { <duration> | manual }",
 		Long: scheduleStopDescriptionLong + "\n" + FormatExamples(
 			Example{
-				Command: "coder schedule stop my-workspace 2h30m",
+				Command: "neuralinverse schedule stop my-workspace 2h30m",
 			},
 		),
 		Short: "Edit workspace stop schedule",
@@ -255,7 +255,7 @@ func (r *RootCmd) scheduleStop() *serpent.Command {
 				durMillis = ptr.Ref(dur.Milliseconds())
 			}
 
-			if err := client.UpdateWorkspaceTTL(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceTTLRequest{
+			if err := client.UpdateWorkspaceTTL(inv.Context(), workspace.ID, nicloudsdk.UpdateWorkspaceTTLRequest{
 				TTLMillis: durMillis,
 			}); err != nil {
 				return err
@@ -277,7 +277,7 @@ func (r *RootCmd) scheduleExtend() *serpent.Command {
 		Short:   "Extend the stop time of a currently running workspace instance.",
 		Long: scheduleExtendDescriptionLong + "\n" + FormatExamples(
 			Example{
-				Command: "coder schedule extend my-workspace 90m",
+				Command: "neuralinverse schedule extend my-workspace 90m",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -319,7 +319,7 @@ func (r *RootCmd) scheduleExtend() *serpent.Command {
 			}
 
 			newDeadline := time.Now().In(loc).Add(extendDuration)
-			if err := client.PutExtendWorkspace(inv.Context(), workspace.ID, codersdk.PutExtendWorkspaceRequest{
+			if err := client.PutExtendWorkspace(inv.Context(), workspace.ID, nicloudsdk.PutExtendWorkspaceRequest{
 				Deadline: newDeadline,
 			}); err != nil {
 				return err
@@ -335,7 +335,7 @@ func (r *RootCmd) scheduleExtend() *serpent.Command {
 	return extendCmd
 }
 
-func displaySchedule(ws codersdk.Workspace, out io.Writer) error {
+func displaySchedule(ws nicloudsdk.Workspace, out io.Writer) error {
 	rows := []WorkspaceListRow{WorkspaceListRowFromWorkspace(time.Now(), ws)}
 	rendered, err := cliui.DisplayTable(rows, "workspace", []string{
 		"workspace", "starts at", "starts next", "stops after", "stops next",
@@ -357,7 +357,7 @@ type scheduleListRow struct {
 	StopsNext     string `json:"stops_next" table:"stops next"`
 }
 
-func scheduleListRowFromWorkspace(now time.Time, workspace codersdk.Workspace) scheduleListRow {
+func scheduleListRowFromWorkspace(now time.Time, workspace nicloudsdk.Workspace) scheduleListRow {
 	autostartDisplay := ""
 	nextStartDisplay := ""
 	if !ptr.NilOrEmpty(workspace.AutostartSchedule) {
@@ -372,7 +372,7 @@ func scheduleListRowFromWorkspace(now time.Time, workspace codersdk.Workspace) s
 	if !ptr.NilOrZero(workspace.TTLMillis) {
 		dur := time.Duration(*workspace.TTLMillis) * time.Millisecond
 		autostopDisplay = durationDisplay(dur)
-		if !workspace.LatestBuild.Deadline.IsZero() && workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+		if !workspace.LatestBuild.Deadline.IsZero() && workspace.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionStart {
 			nextStopDisplay = timeDisplay(workspace.LatestBuild.Deadline.Time)
 		}
 	}

@@ -20,11 +20,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/provisioner/terraform"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func ctxAndLogger(t *testing.T) (context.Context, slog.Logger) {
@@ -172,7 +172,7 @@ func TestConvertResources(t *testing.T) {
 					Auth:                     &proto.Agent_Token{},
 					ApiKeyScope:              "all",
 					ConnectionTimeoutSeconds: 120,
-					TroubleshootingUrl:       "https://coder.com/troubleshoot",
+					TroubleshootingUrl:       "https://cloud.neuralinverse.com/troubleshoot",
 					DisplayApps:              &displayApps,
 					ResourcesMonitoring:      &proto.ResourcesMonitoring{},
 				}, {
@@ -582,19 +582,19 @@ func TestConvertResources(t *testing.T) {
 		"kubernetes-metadata": {
 			resources: []*proto.Resource{
 				{
-					Name: "coder_workspace",
+					Name: "ni_workspace",
 					Type: "kubernetes_config_map",
 				}, {
-					Name: "coder_workspace",
+					Name: "ni_workspace",
 					Type: "kubernetes_role",
 				}, {
-					Name: "coder_workspace",
+					Name: "ni_workspace",
 					Type: "kubernetes_role_binding",
 				}, {
-					Name: "coder_workspace",
+					Name: "ni_workspace",
 					Type: "kubernetes_secret",
 				}, {
-					Name: "coder_workspace",
+					Name: "ni_workspace",
 					Type: "kubernetes_service_account",
 				}, {
 					Name: "main",
@@ -1284,7 +1284,7 @@ func TestAppSlugValidation(t *testing.T) {
 		t.Run(fmt.Sprintf("case-%d", i), func(t *testing.T) {
 			// Change the first app slug to match the current case.
 			for _, resource := range tfPlan.PlannedValues.RootModule.Resources {
-				if resource.Type == "coder_app" {
+				if resource.Type == "ni_app" {
 					resource.AttributeValues["slug"] = c.slug
 					break
 				}
@@ -1317,7 +1317,7 @@ func TestAppSlugDuplicate(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, resource := range tfPlan.PlannedValues.RootModule.Resources {
-		if resource.Type == "coder_app" {
+		if resource.Type == "ni_app" {
 			resource.AttributeValues["slug"] = "dev"
 		}
 	}
@@ -1360,7 +1360,7 @@ func TestAgentNameInvalid(t *testing.T) {
 		t.Run(fmt.Sprintf("case-%d", i), func(t *testing.T) {
 			// Change the first agent name to match the current case.
 			for _, resource := range tfPlan.PlannedValues.RootModule.Resources {
-				if resource.Type == "coder_agent" {
+				if resource.Type == "ni_agent" {
 					resource.Name = c.name
 					break
 				}
@@ -1393,7 +1393,7 @@ func TestAgentNameDuplicate(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, resource := range tfPlan.PlannedValues.RootModule.Resources {
-		if resource.Type == "coder_agent" {
+		if resource.Type == "ni_agent" {
 			switch resource.Name {
 			case "dev1":
 				resource.Name = "dev"
@@ -1447,7 +1447,7 @@ func TestParameterValidation(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, resource := range tfPlan.PriorState.Values.RootModule.Resources {
-		if resource.Type == "coder_parameter" {
+		if resource.Type == "ni_parameter" {
 			resource.AttributeValues["name"] = "identical"
 		}
 	}
@@ -1455,12 +1455,12 @@ func TestParameterValidation(t *testing.T) {
 	state, err := terraform.ConvertState(ctx, []*tfjson.StateModule{tfPlan.PriorState.Values.RootModule}, string(tfPlanGraph), logger)
 	require.Nil(t, state)
 	require.Error(t, err)
-	require.ErrorContains(t, err, "coder_parameter names must be unique but \"identical\" appears multiple times")
+	require.ErrorContains(t, err, "ni_parameter names must be unique but \"identical\" appears multiple times")
 
 	// Make two sets of identical names.
 	count := 0
 	for _, resource := range tfPlan.PriorState.Values.RootModule.Resources {
-		if resource.Type == "coder_parameter" {
+		if resource.Type == "ni_parameter" {
 			resource.AttributeValues["name"] = fmt.Sprintf("identical-%d", count%2)
 			count++
 		}
@@ -1469,12 +1469,12 @@ func TestParameterValidation(t *testing.T) {
 	state, err = terraform.ConvertState(ctx, []*tfjson.StateModule{tfPlan.PriorState.Values.RootModule}, string(tfPlanGraph), logger)
 	require.Nil(t, state)
 	require.Error(t, err)
-	require.ErrorContains(t, err, "coder_parameter names must be unique but \"identical-0\" and \"identical-1\" appear multiple times")
+	require.ErrorContains(t, err, "ni_parameter names must be unique but \"identical-0\" and \"identical-1\" appear multiple times")
 
 	// Once more with three sets.
 	count = 0
 	for _, resource := range tfPlan.PriorState.Values.RootModule.Resources {
-		if resource.Type == "coder_parameter" {
+		if resource.Type == "ni_parameter" {
 			resource.AttributeValues["name"] = fmt.Sprintf("identical-%d", count%3)
 			count++
 		}
@@ -1483,7 +1483,7 @@ func TestParameterValidation(t *testing.T) {
 	state, err = terraform.ConvertState(ctx, []*tfjson.StateModule{tfPlan.PriorState.Values.RootModule}, string(tfPlanGraph), logger)
 	require.Nil(t, state)
 	require.Error(t, err)
-	require.ErrorContains(t, err, "coder_parameter names must be unique but \"identical-0\", \"identical-1\" and \"identical-2\" appear multiple times")
+	require.ErrorContains(t, err, "ni_parameter names must be unique but \"identical-0\", \"identical-1\" and \"identical-2\" appear multiple times")
 }
 
 func TestDefaultPresets(t *testing.T) {
@@ -1502,7 +1502,7 @@ func TestDefaultPresets(t *testing.T) {
 		"multiple defaults should fail": {
 			fixtureFile: "presets-multiple-defaults",
 			expectError: true,
-			errorMsg:    "a maximum of 1 coder_workspace_preset can be marked as default, but 2 are set",
+			errorMsg:    "a maximum of 1 ni_workspace_preset can be marked as default, but 2 are set",
 		},
 		"single default should succeed": {
 			fixtureFile: "presets-single-default",
@@ -1646,8 +1646,8 @@ func TestInstanceIDAssociation(t *testing.T) {
 			require.NoError(t, err)
 			state, err := terraform.ConvertState(ctx, []*tfjson.StateModule{{
 				Resources: []*tfjson.StateResource{{
-					Address: "coder_agent.dev",
-					Type:    "coder_agent",
+					Address: "ni_agent.dev",
+					Type:    "ni_agent",
 					Name:    "dev",
 					Mode:    tfjson.ManagedResourceMode,
 					AttributeValues: map[string]interface{}{
@@ -1659,7 +1659,7 @@ func TestInstanceIDAssociation(t *testing.T) {
 					Type:      tc.ResourceType,
 					Name:      "dev",
 					Mode:      tfjson.ManagedResourceMode,
-					DependsOn: []string{"coder_agent.dev"},
+					DependsOn: []string{"ni_agent.dev"},
 					AttributeValues: map[string]interface{}{
 						tc.InstanceIDKey: instanceID,
 					},
@@ -1669,9 +1669,9 @@ func TestInstanceIDAssociation(t *testing.T) {
 	compound = "true"
 	newrank = "true"
 	subgraph "root" {
-		"[root] coder_agent.dev" [label = "coder_agent.dev", shape = "box"]
+		"[root] ni_agent.dev" [label = "ni_agent.dev", shape = "box"]
 		"[root] `+tc.ResourceType+`.dev" [label = "`+tc.ResourceType+`.dev", shape = "box"]
-		"[root] `+tc.ResourceType+`.dev" -> "[root] coder_agent.dev"
+		"[root] `+tc.ResourceType+`.dev" -> "[root] ni_agent.dev"
 	}
 }
 `, logger)

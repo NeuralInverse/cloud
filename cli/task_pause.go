@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -19,15 +19,15 @@ func (r *RootCmd) taskPause() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Pause a task by name",
-				Command:     "coder task pause my-task",
+				Command:     "neuralinverse task pause my-task",
 			},
 			Example{
 				Description: "Pause another user's task",
-				Command:     "coder task pause alice/my-task",
+				Command:     "neuralinverse task pause alice/my-task",
 			},
 			Example{
 				Description: "Pause a task without confirmation",
-				Command:     "coder task pause my-task --yes",
+				Command:     "neuralinverse task pause my-task --yes",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -50,7 +50,7 @@ func (r *RootCmd) taskPause() *serpent.Command {
 
 			display := fmt.Sprintf("%s/%s", task.OwnerName, task.Name)
 
-			if task.Status == codersdk.TaskStatusPaused {
+			if task.Status == nicloudsdk.TaskStatusPaused {
 				return xerrors.Errorf("task %q is already paused", display)
 			}
 

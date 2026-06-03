@@ -102,11 +102,11 @@ func TestCredentialsMap_RoundTrip(t *testing.T) {
 
 	creds := credentialsMap{
 		"coder1.example.com": {
-			CoderURL: "coder1.example.com",
+			NIURL: "coder1.example.com",
 			APIToken: "token1",
 		},
 		"coder2.example.com:8080": {
-			CoderURL: "coder2.example.com:8080",
+			NIURL: "coder2.example.com:8080",
 			APIToken: "token2",
 		},
 	}

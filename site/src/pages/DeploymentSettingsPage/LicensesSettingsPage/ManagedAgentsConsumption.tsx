@@ -29,7 +29,7 @@ export const ManagedAgentsConsumption: FC<ManagedAgentsConsumptionProps> = ({
 						<span className="text-base">Agent Workspace Builds Disabled</span>
 						<span className="text-content-secondary text-center max-w-[464px] mt-2">
 							Agent Workspace Builds are not included in your current license.
-							Contact <Link href="mailto:sales@coder.com">sales</Link> to
+							Contact <Link href="mailto:sales@cloud.neuralinverse.com">sales</Link> to
 							upgrade your license and unlock this feature.
 						</span>
 					</div>

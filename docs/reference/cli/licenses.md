@@ -17,6 +17,6 @@ coder licenses
 
 | Name                                        | Purpose                           |
 |---------------------------------------------|-----------------------------------|
-| [<code>add</code>](./licenses_add.md)       | Add license to Coder deployment   |
+| [<code>add</code>](./licenses_add.md)       | Add license to Neural Inverse Cloud deployment   |
 | [<code>list</code>](./licenses_list.md)     | List licenses (including expired) |
 | [<code>delete</code>](./licenses_delete.md) | Delete license by ID              |

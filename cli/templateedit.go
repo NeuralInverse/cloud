@@ -7,9 +7,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -62,18 +62,18 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 			requiresEntitlement := requiresScheduling || requireActiveVersion
 			if requiresEntitlement {
 				entitlements, err := client.Entitlements(inv.Context())
-				if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
+				if cerr, ok := nicloudsdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
 					return xerrors.Errorf("your deployment appears to be an AGPL deployment, so you cannot set enterprise-only flags")
 				} else if err != nil {
 					return xerrors.Errorf("get entitlements: %w", err)
 				}
 
-				if requiresScheduling && !entitlements.Features[codersdk.FeatureAdvancedTemplateScheduling].Enabled {
+				if requiresScheduling && !entitlements.Features[nicloudsdk.FeatureAdvancedTemplateScheduling].Enabled {
 					return xerrors.Errorf("your license is not entitled to use advanced template scheduling, so you cannot set --failure-ttl, --inactivityTTL, --allow-user-autostart=false or --allow-user-autostop=false")
 				}
 
 				if requireActiveVersion {
-					if !entitlements.Features[codersdk.FeatureAccessControl].Enabled {
+					if !entitlements.Features[nicloudsdk.FeatureAccessControl].Enabled {
 						return xerrors.Errorf("your license is not entitled to use enterprise access control, so you cannot set --require-active-version")
 					}
 				}
@@ -173,18 +173,18 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 				disableEveryoneGroup = disableEveryone
 			}
 
-			req := codersdk.UpdateTemplateMeta{
+			req := nicloudsdk.UpdateTemplateMeta{
 				Name:               &name,
 				DisplayName:        &displayName,
 				Description:        &description,
 				Icon:               &icon,
 				DefaultTTLMillis:   ptr.Ref(defaultTTL.Milliseconds()),
 				ActivityBumpMillis: ptr.Ref(activityBump.Milliseconds()),
-				AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+				AutostopRequirement: &nicloudsdk.TemplateAutostopRequirement{
 					DaysOfWeek: autostopRequirementDaysOfWeek,
 					Weeks:      autostopRequirementWeeks,
 				},
-				AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+				AutostartRequirement: &nicloudsdk.TemplateAutostartRequirement{
 					DaysOfWeek: autostartRequirementDaysOfWeek,
 				},
 				FailureTTLMillis:               ptr.Ref(failureTTL.Milliseconds()),
@@ -251,12 +251,12 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 		{
 			Flag:        "autostart-requirement-weekdays",
 			Description: "Edit the template autostart requirement weekdays - workspaces created from this template can only autostart on the given weekdays. To unset this value for the template (and allow autostart on all days), pass 'all'.",
-			Value:       serpent.EnumArrayOf(&autostartRequirementDaysOfWeek, append(codersdk.AllDaysOfWeek, "all")...),
+			Value:       serpent.EnumArrayOf(&autostartRequirementDaysOfWeek, append(nicloudsdk.AllDaysOfWeek, "all")...),
 		},
 		{
 			Flag:        "autostop-requirement-weekdays",
 			Description: "Edit the template autostop requirement weekdays - workspaces created from this template must be restarted on the given weekdays. To unset this value for the template (and disable the autostop requirement for the template), pass 'none'.",
-			Value:       serpent.EnumArrayOf(&autostopRequirementDaysOfWeek, append(codersdk.AllDaysOfWeek, "none")...),
+			Value:       serpent.EnumArrayOf(&autostopRequirementDaysOfWeek, append(nicloudsdk.AllDaysOfWeek, "none")...),
 		},
 		{
 			Flag:        "autostop-requirement-weeks",
@@ -265,7 +265,7 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 		},
 		{
 			Flag:        "failure-ttl",
-			Description: "Specify a failure TTL for workspaces created from this template. It is the amount of time after a failed \"start\" build before coder automatically schedules a \"stop\" build to cleanup.This licensed feature's default is 0h (off). Maps to \"Failure cleanup\" in the UI.",
+			Description: "Specify a failure TTL for workspaces created from this template. It is the amount of time after a failed \"start\" build before neuralinverse automatically schedules a \"stop\" build to cleanup.This licensed feature's default is 0h (off). Maps to \"Failure cleanup\" in the UI.",
 			Default:     "0h",
 			Value:       serpent.DurationOf(&failureTTL),
 		},
@@ -301,7 +301,7 @@ func (r *RootCmd) templateEdit() *serpent.Command {
 		},
 		{
 			Flag:        "require-active-version",
-			Description: "Requires workspace builds to use the active template version. This setting does not apply to template admins. This is an enterprise-only feature. See https://coder.com/docs/admin/templates/managing-templates#require-automatic-updates-enterprise for more details.",
+			Description: "Requires workspace builds to use the active template version. This setting does not apply to template admins. This is an enterprise-only feature. See https://cloud.neuralinverse.com/docs/admin/templates/managing-templates#require-automatic-updates-enterprise for more details.",
 			Value:       serpent.BoolOf(&requireActiveVersion),
 			Default:     "false",
 		},

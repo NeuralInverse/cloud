@@ -17,12 +17,12 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -186,7 +186,7 @@ func (r *RootCmd) ping() *serpent.Command {
 				connDiags.AgentNetcheck = &agentNetcheck
 				connDiags.AgentIPIsAWS = isAWSIP(awsRanges, agentNetcheck.NetInfo)
 			} else {
-				var sdkErr *codersdk.Error
+				var sdkErr *nicloudsdk.Error
 				if errors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound {
 					_, _ = fmt.Fprint(inv.Stdout, "Could not generate full connection report as the workspace agent is outdated\n")
 				} else {

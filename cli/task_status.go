@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -47,11 +47,11 @@ func (r *RootCmd) taskStatus() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Show the status of a given task.",
-				Command:     "coder task status task1",
+				Command:     "neuralinverse task status task1",
 			},
 			Example{
 				Description: "Watch the status of a given task until it completes (idle or stopped).",
-				Command:     "coder task status task1 --watch",
+				Command:     "neuralinverse task status task1 --watch",
 			},
 		),
 		Use:     "status",
@@ -138,8 +138,8 @@ func (r *RootCmd) taskStatus() *serpent.Command {
 	return cmd
 }
 
-func taskWatchIsEnded(task codersdk.Task) bool {
-	if task.WorkspaceStatus == codersdk.WorkspaceStatusStopped {
+func taskWatchIsEnded(task nicloudsdk.Task) bool {
+	if task.WorkspaceStatus == nicloudsdk.WorkspaceStatusStopped {
 		return true
 	}
 	if task.WorkspaceAgentHealth == nil || !task.WorkspaceAgentHealth.Healthy {
@@ -148,14 +148,14 @@ func taskWatchIsEnded(task codersdk.Task) bool {
 	if task.WorkspaceAgentLifecycle == nil || task.WorkspaceAgentLifecycle.Starting() || task.WorkspaceAgentLifecycle.ShuttingDown() {
 		return false
 	}
-	if task.CurrentState == nil || task.CurrentState.State == codersdk.TaskStateWorking {
+	if task.CurrentState == nil || task.CurrentState.State == nicloudsdk.TaskStateWorking {
 		return false
 	}
 	return true
 }
 
 type taskStatusRow struct {
-	codersdk.Task `table:"r,recursive_inline"`
+	nicloudsdk.Task `table:"r,recursive_inline"`
 	ChangedAgo    string `json:"-" table:"state changed"`
 	Healthy       bool   `json:"-" table:"healthy"`
 }
@@ -166,7 +166,7 @@ func taskStatusRowEqual(r1, r2 taskStatusRow) bool {
 		taskStateEqual(r1.CurrentState, r2.CurrentState)
 }
 
-func toStatusRow(task codersdk.Task, now time.Time) taskStatusRow {
+func toStatusRow(task nicloudsdk.Task, now time.Time) taskStatusRow {
 	tsr := taskStatusRow{
 		Task:       task,
 		ChangedAgo: now.Sub(task.UpdatedAt).Truncate(time.Second).String() + " ago",
@@ -183,7 +183,7 @@ func toStatusRow(task codersdk.Task, now time.Time) taskStatusRow {
 	return tsr
 }
 
-func taskStateEqual(se1, se2 *codersdk.TaskStateEntry) bool {
+func taskStateEqual(se1, se2 *nicloudsdk.TaskStateEntry) bool {
 	var s1, m1, s2, m2 string
 	if se1 != nil {
 		s1 = string(se1.State)

@@ -16,17 +16,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	notificationsLib "github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/notifications/dispatch"
-	"github.com/coder/coder/v2/coderd/notifications/types"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/notifications"
-	"github.com/coder/coder/v2/scaletest/smtpmock"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	notificationsLib "github.com/NeuralInverse/cloud/v2/nicloud/notifications"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications/dispatch"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications/types"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/notifications"
+	"github.com/NeuralInverse/cloud/v2/scaletest/smtpmock"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -39,11 +39,11 @@ func TestRun(t *testing.T) {
 
 	inboxHandler := dispatch.NewInboxHandler(logger.Named("inbox"), db, ps)
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		Database: db,
 		Pubsub:   ps,
 	})
-	firstUser := coderdtest.CreateFirstUser(t, client)
+	firstUser := nicloudtest.CreateFirstUser(t, client)
 
 	const numReceivingUsers = 2
 	const numRegularUsers = 2
@@ -68,7 +68,7 @@ func TestRun(t *testing.T) {
 				OrganizationID: firstUser.OrganizationID,
 				Username:       "receiving-user-" + strconv.Itoa(i),
 			},
-			Roles:                    []string{codersdk.RoleOwner},
+			Roles:                    []string{nicloudsdk.RoleOwner},
 			NotificationTimeout:      testutil.WaitLong,
 			DialTimeout:              testutil.WaitLong,
 			Metrics:                  metrics,
@@ -142,7 +142,7 @@ func TestRun(t *testing.T) {
 	err = cleanupEg.Wait()
 	require.NoError(t, err)
 
-	users, err := client.Users(ctx, codersdk.UsersRequest{})
+	users, err := client.Users(ctx, nicloudsdk.UsersRequest{})
 	require.NoError(t, err)
 	require.Len(t, users.Users, 1)
 	require.Equal(t, firstUser.UserID, users.Users[0].ID)
@@ -165,11 +165,11 @@ func TestRunWithSMTP(t *testing.T) {
 
 	inboxHandler := dispatch.NewInboxHandler(logger.Named("inbox"), db, ps)
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		Database: db,
 		Pubsub:   ps,
 	})
-	firstUser := coderdtest.CreateFirstUser(t, client)
+	firstUser := nicloudtest.CreateFirstUser(t, client)
 
 	smtpAPIMux := http.NewServeMux()
 	smtpAPIMux.HandleFunc("/messages", func(w http.ResponseWriter, r *http.Request) {
@@ -222,7 +222,7 @@ func TestRunWithSMTP(t *testing.T) {
 				OrganizationID: firstUser.OrganizationID,
 				Username:       "receiving-user-" + strconv.Itoa(i),
 			},
-			Roles:                    []string{codersdk.RoleOwner},
+			Roles:                    []string{nicloudsdk.RoleOwner},
 			NotificationTimeout:      testutil.WaitLong,
 			DialTimeout:              testutil.WaitLong,
 			Metrics:                  metrics,
@@ -306,7 +306,7 @@ func TestRunWithSMTP(t *testing.T) {
 	err = cleanupEg.Wait()
 	require.NoError(t, err)
 
-	users, err := client.Users(ctx, codersdk.UsersRequest{})
+	users, err := client.Users(ctx, nicloudsdk.UsersRequest{})
 	require.NoError(t, err)
 	require.Len(t, users.Users, 1)
 	require.Equal(t, firstUser.UserID, users.Users[0].ID)

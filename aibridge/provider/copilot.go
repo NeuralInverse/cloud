@@ -13,13 +13,13 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/intercept"
-	"github.com/coder/coder/v2/aibridge/intercept/chatcompletions"
-	"github.com/coder/coder/v2/aibridge/intercept/responses"
-	"github.com/coder/coder/v2/aibridge/keypool"
-	"github.com/coder/coder/v2/aibridge/tracing"
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept/chatcompletions"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept/responses"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 const (

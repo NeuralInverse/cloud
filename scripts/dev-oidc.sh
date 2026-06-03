@@ -87,12 +87,12 @@ wait $!
 
 echo '== Starting Coder'
 hostname=$(hostname -f)
-export CODER_OIDC_ISSUER_URL="http://${hostname}:9080/realms/coder"
-export CODER_OIDC_CLIENT_ID=coder
-export CODER_OIDC_CLIENT_SECRET=coder
+export NEURALINVERSE_OIDC_ISSUER_URL="http://${hostname}:9080/realms/coder"
+export NEURALINVERSE_OIDC_CLIENT_ID=coder
+export NEURALINVERSE_OIDC_CLIENT_SECRET=coder
 # Comment out the two lines above, and comment in the line below,
 # to configure OIDC auth using a public client.
-# export CODER_OIDC_CLIENT_ID=coder-public
-export CODER_DEV_ACCESS_URL="http://${hostname}:8080"
+# export NEURALINVERSE_OIDC_CLIENT_ID=coder-public
+export NEURALINVERSE_DEV_ACCESS_URL="http://${hostname}:8080"
 
 exec "${SCRIPT_DIR}/develop.sh" "$@"

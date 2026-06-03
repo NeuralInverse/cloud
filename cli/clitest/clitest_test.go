@@ -5,10 +5,10 @@ import (
 
 	"go.uber.org/goleak"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestMain(m *testing.M) {
@@ -19,7 +19,7 @@ func TestCli(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitMedium)
 	clitest.CreateTemplateVersionSource(t, nil)
-	client := coderdtest.New(t, nil)
+	client := nicloudtest.New(t, nil)
 	i, config := clitest.New(t)
 	clitest.SetupConfig(t, client, config)
 	stdout := expecter.NewAttachedToInvocation(t, i)

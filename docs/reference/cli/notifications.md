@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # notifications
 
-Manage Coder notifications
+Manage Neural Inverse Cloud notifications
 
 Aliases:
 
@@ -17,13 +17,13 @@ coder notifications
 
 ```console
 Administrators can use these commands to change notification settings.
-  - Pause Coder notifications. Administrators can temporarily stop notifiers from
+  - Pause Neural Inverse Cloud notifications. Administrators can temporarily stop notifiers from
 dispatching messages in case of the target outage (for example: unavailable SMTP
 server or Webhook not responding):
 
      $ coder notifications pause
 
-  - Resume Coder notifications:
+  - Resume Neural Inverse Cloud notifications:
 
      $ coder notifications resume
 

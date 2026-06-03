@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	"github.com/coder/coder/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
 )
 
 const (

@@ -3,14 +3,14 @@ package autostart
 import (
 	"context"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // WorkspaceDispatcher manages the distribution of workspace build updates from
 // a single source channel to multiple per-workspace channels.
 type WorkspaceDispatcher struct {
 	// Channels maps workspace names to their respective update channels.
-	Channels map[string]chan codersdk.WorkspaceBuildUpdate
+	Channels map[string]chan nicloudsdk.WorkspaceBuildUpdate
 }
 
 // NewWorkspaceDispatcher creates a new dispatcher for the given workspace names.
@@ -21,9 +21,9 @@ type WorkspaceDispatcher struct {
 // - autostart build (~3 updates: pending, running, succeeded)
 // Total: ~9 updates. We use a buffer of 16 to provide headroom for timing variations.
 func NewWorkspaceDispatcher(workspaceNames []string) *WorkspaceDispatcher {
-	channels := make(map[string]chan codersdk.WorkspaceBuildUpdate, len(workspaceNames))
+	channels := make(map[string]chan nicloudsdk.WorkspaceBuildUpdate, len(workspaceNames))
 	for _, name := range workspaceNames {
-		channels[name] = make(chan codersdk.WorkspaceBuildUpdate, 16)
+		channels[name] = make(chan nicloudsdk.WorkspaceBuildUpdate, 16)
 	}
 	return &WorkspaceDispatcher{
 		Channels: channels,
@@ -34,7 +34,7 @@ func NewWorkspaceDispatcher(workspaceNames []string) *WorkspaceDispatcher {
 // the appropriate workspace channels. It runs in a goroutine and returns
 // immediately. When the source channel closes, all workspace channels are
 // closed automatically.
-func (d *WorkspaceDispatcher) Start(ctx context.Context, source <-chan codersdk.WorkspaceBuildUpdate) {
+func (d *WorkspaceDispatcher) Start(ctx context.Context, source <-chan nicloudsdk.WorkspaceBuildUpdate) {
 	go func() {
 		for update := range source {
 			if ch, ok := d.Channels[update.WorkspaceName]; ok {

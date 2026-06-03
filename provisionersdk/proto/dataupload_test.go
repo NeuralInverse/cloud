@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 func TestNewDataBuilderValidation(t *testing.T) {

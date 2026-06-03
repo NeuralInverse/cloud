@@ -17,15 +17,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func sshConfigFileName(t *testing.T) (sshConfig string) {
@@ -69,8 +69,8 @@ func TestConfigSSH(t *testing.T) {
 	const hostname = "test-coder."
 	const expectedKey = "ConnectionAttempts"
 	const removeKey = "ConnectTimeout"
-	client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
-		ConfigSSH: codersdk.SSHConfigResponse{
+	client, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{
+		ConfigSSH: nicloudsdk.SSHConfigResponse{
 			HostnamePrefix: hostname,
 			SSHConfigOptions: map[string]string{
 				// Something we can test for
@@ -79,14 +79,14 @@ func TestConfigSSH(t *testing.T) {
 			},
 		},
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	owner := nicloudtest.CreateFirstUser(t, client)
+	member, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OrganizationID: owner.OrganizationID,
 		OwnerID:        memberUser.ID,
 	}).WithAgent().Do()
 	_ = agenttest.New(t, client.URL, r.AgentToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	resources := nicloudtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 	agentConn, err := workspacesdk.New(client).
 		DialAgent(context.Background(), resources[0].Agents[0].ID, nil)
 	require.NoError(t, err)
@@ -158,7 +158,7 @@ func TestConfigSSH(t *testing.T) {
 	home := filepath.Dir(filepath.Dir(sshConfigFile))
 	// #nosec
 	sshCmd := exec.Command("ssh", "-F", sshConfigFile, hostname+r.Workspace.Name, "echo", "test")
-	// Set HOME because coder config is included from ~/.ssh/coder.
+	// Set HOME because neuralinverse config is included from ~/.ssh/coder.
 	sshCmd.Env = append(sshCmd.Env, fmt.Sprintf("HOME=%s", home))
 	data, err := sshCmd.Output()
 	require.NoError(t, err)
@@ -175,8 +175,8 @@ func TestConfigSSH_MissingDirectory(t *testing.T) {
 		t.Skip("See coder/internal#117")
 	}
 
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := nicloudtest.New(t, nil)
+	_ = nicloudtest.CreateFirstUser(t, client)
 
 	// Create a temporary directory but don't create .ssh subdirectory
 	tmpdir := t.TempDir()
@@ -218,7 +218,7 @@ func TestConfigSSH_FileWriteAndOptionsFlow(t *testing.T) {
 		"# This section is managed by coder. DO NOT EDIT.",
 		"#",
 		"# You should not hand-edit this section unless you are removing it, all",
-		"# changes will be lost when running \"coder config-ssh\".",
+		"# changes will be lost when running \"neuralinverse config-ssh\".",
 		"#",
 	}, "\n")
 	headerEnd := "# ------------END-CODER------------"
@@ -558,10 +558,10 @@ func TestConfigSSH_FileWriteAndOptionsFlow(t *testing.T) {
 			},
 			writeConfig: writeConfig{
 				ssh: strings.Join([]string{
-					"# Content before coder block",
+					"# Content before neuralinverse block",
 					headerEnd,
 					headerStart,
-					"# Content after coder block",
+					"# Content after neuralinverse block",
 				}, "\n"),
 			},
 			wantErr: true,
@@ -695,8 +695,8 @@ func TestConfigSSH_FileWriteAndOptionsFlow(t *testing.T) {
 			logger := testutil.Logger(t)
 			ctx := testutil.Context(t, testutil.WaitMedium)
 
-			client, db := coderdtest.NewWithDatabase(t, nil)
-			user := coderdtest.CreateFirstUser(t, client)
+			client, db := nicloudtest.NewWithDatabase(t, nil)
+			user := nicloudtest.CreateFirstUser(t, client)
 			if tt.hasAgent {
 				_ = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 					OrganizationID: user.OrganizationID,

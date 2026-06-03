@@ -12,9 +12,9 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	tailnetproto "github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/quartz"
 )
 
@@ -48,13 +48,13 @@ const (
 	metadataMinInterval = 1 * time.Second
 )
 
-// Agent is a single fake agent. It owns one workspace-agent auth token and one dRPC connection to coderd.
+// Agent is a single fake agent. It owns one workspace-agent auth token and one dRPC connection to nicloud.
 type Agent struct {
-	coderURL *url.URL
+	niURL *url.URL
 	token    string
 	logger   slog.Logger
 	clock    quartz.Clock
-	dialer   rpcDialer // nil → built from coderURL+token in Run
+	dialer   rpcDialer // nil → built from niURL+token in Run
 
 	cancel context.CancelFunc
 }
@@ -73,18 +73,18 @@ func WithClock(c quartz.Clock) Option {
 }
 
 // WithDialer injects a custom RPC dialer. Defaults to a real
-// agentsdk.Client built from coderURL + token. Tests use this to
+// agentsdk.Client built from niURL + token. Tests use this to
 // substitute *agent/agenttest.Client and avoid standing up a real
-// coderd.
+// nicloud.
 func WithDialer(d rpcDialer) Option {
 	return func(a *Agent) {
 		a.dialer = d
 	}
 }
 
-func NewAgent(coderURL *url.URL, token string, logger slog.Logger, opts ...Option) *Agent {
+func NewAgent(niURL *url.URL, token string, logger slog.Logger, opts ...Option) *Agent {
 	a := &Agent{
-		coderURL: coderURL,
+		niURL: niURL,
 		token:    token,
 		logger:   logger,
 		clock:    quartz.NewReal(),
@@ -95,8 +95,8 @@ func NewAgent(coderURL *url.URL, token string, logger slog.Logger, opts ...Optio
 	return a
 }
 
-// Run opens a dRPC websocket to coderd as the "agent" role and keeps it open until ctx is canceled or Close is called.
-// On transient failures (e.g., coderd restart, brief auth churn while the workspace build is finalizing) Run reconnects
+// Run opens a dRPC websocket to nicloud as the "agent" role and keeps it open until ctx is canceled or Close is called.
+// On transient failures (e.g., nicloud restart, brief auth churn while the workspace build is finalizing) Run reconnects
 // with a small backoff.
 // Returns nil when ctx is canceled or Close is called, and a non-nil error only if ctx returns a non-context error.
 func (a *Agent) Run(ctx context.Context) error {
@@ -107,7 +107,7 @@ func (a *Agent) Run(ctx context.Context) error {
 
 	client := a.dialer
 	if client == nil {
-		client = agentsdk.New(a.coderURL, agentsdk.WithFixedToken(a.token))
+		client = agentsdk.New(a.niURL, agentsdk.WithFixedToken(a.token))
 	}
 	for {
 		if err := runCtx.Err(); err != nil {
@@ -141,7 +141,7 @@ func (a *Agent) connectAndServe(ctx context.Context, client rpcDialer) error {
 	}()
 
 	// Real agents transition to READY once their startup script finishes. Fakes have no startup script, so they're
-	// "ready" the moment the dRPC stream is open. We send this once per (re)connect because coderd's per-connection
+	// "ready" the moment the dRPC stream is open. We send this once per (re)connect because nicloud's per-connection
 	// lifecycle state is reset each time.
 	// Failure here is logged but not treated as fatal: the connection itself is what flips Connected, and a transient
 	// failure to update lifecycle shouldn't tear the whole agent down.
@@ -214,7 +214,7 @@ func (a *Agent) runMetadata(ctx context.Context, rpc proto.DRPCAgentClient29, wo
 	for i, d := range descs {
 		// The Interval field on the proto is a durationpb.Duration but
 		// carries the raw int64 seconds value cast through time.Duration
-		// (see coderd/agentapi/manifest.go and agent/agent.go). Mirror the
+		// (see nicloud/agentapi/manifest.go and agent/agent.go). Mirror the
 		// same recovery the real agent does so manifest-declared intervals
 		// of e.g. 10s are honored as 10s, not 10ns.
 		intervalSeconds := int64(d.GetInterval().AsDuration())
@@ -231,8 +231,8 @@ func (a *Agent) runMetadata(ctx context.Context, rpc proto.DRPCAgentClient29, wo
 	// emitting agent, then pad out to metadataValueBytes so the wire
 	// shape (base64-encoded ~4096 chars) mirrors the real scaletest
 	// template's `dd if=/dev/urandom bs=3072 count=1 | base64` output.
-	// coderd truncates the stored value to 2048 chars (see
-	// coderd/agentapi/metadata.go maxValueLen), and the workspace ID
+	// nicloud truncates the stored value to 2048 chars (see
+	// nicloud/agentapi/metadata.go maxValueLen), and the workspace ID
 	// lives in the first ~50 chars of the base64 output, so it
 	// survives truncation.
 	const tag = "fake-agent-metadata workspace="

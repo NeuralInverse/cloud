@@ -3,14 +3,14 @@ package cli
 import (
 	"fmt"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) listOrganizations() *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
-		cliui.TableFormat([]codersdk.Organization{}, []string{"name", "display name", "id", "default"}),
+		cliui.TableFormat([]nicloudsdk.Organization{}, []string{"name", "display name", "id", "default"}),
 		cliui.JSONFormat(),
 	)
 

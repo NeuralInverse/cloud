@@ -254,7 +254,7 @@ export const TemplateVersionEditor: FC<TemplateVersionEditorProps> = ({
 						<span className="mr-2">
 							<Button asChild size="sm" variant="outline">
 								<a
-									href="https://registry.coder.com"
+									href="https://registry.cloud.neuralinverse.com"
 									target="_blank"
 									rel="noopener noreferrer"
 									className="flex items-center"

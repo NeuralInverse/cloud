@@ -22,14 +22,14 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/wsproxy"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clilog"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspaceapps/appurl"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/wsproxy"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -48,9 +48,9 @@ func (c *closerFuncs) Add(f func()) {
 
 func (r *RootCmd) proxyServer() *serpent.Command {
 	var (
-		cfg = new(codersdk.DeploymentValues)
+		cfg = new(nicloudsdk.DeploymentValues)
 		// Filter options for only relevant ones.
-		opts = cfg.Options().Filter(codersdk.IsWorkspaceProxies)
+		opts = cfg.Options().Filter(nicloudsdk.IsWorkspaceProxies)
 
 		externalProxyOptionGroup = serpent.Group{
 			Name: "External Workspace Proxy",
@@ -65,9 +65,9 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 		serpent.Option{
 			Name:        "Proxy Session Token",
-			Description: "Authentication token for the workspace proxy to communicate with coderd.",
+			Description: "Authentication token for the workspace proxy to communicate with nicloud.",
 			Flag:        "proxy-session-token",
-			Env:         "CODER_PROXY_SESSION_TOKEN",
+			Env:         "NEURALINVERSE_PROXY_SESSION_TOKEN",
 			YAML:        "proxySessionToken",
 			Required:    true,
 			Value:       &proxySessionToken,
@@ -77,9 +77,9 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 		serpent.Option{
 			Name:        "Coderd (Primary) Access URL",
-			Description: "URL to communicate with coderd. This should match the access URL of the Coder deployment.",
+			Description: "URL to communicate with nicloud. This should match the access URL of the Coder deployment.",
 			Flag:        "primary-access-url",
-			Env:         "CODER_PRIMARY_ACCESS_URL",
+			Env:         "NEURALINVERSE_PRIMARY_ACCESS_URL",
 			YAML:        "primaryAccessURL",
 			Required:    true,
 			Value: serpent.Validate(&primaryAccessURL, func(value *serpent.URL) error {
@@ -95,7 +95,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 			Name:        "DERP-only proxy",
 			Description: "Run a proxy server that only supports DERP connections and does not proxy workspace app/terminal traffic.",
 			Flag:        "derp-only",
-			Env:         "CODER_PROXY_DERP_ONLY",
+			Env:         "NEURALINVERSE_PROXY_DERP_ONLY",
 			YAML:        "derpOnly",
 			Required:    false,
 			Value:       &derpOnly,
@@ -254,7 +254,7 @@ func (r *RootCmd) proxyServer() *serpent.Command {
 
 			options := &wsproxy.Options{
 				Logger:                 logger,
-				Experiments:            coderd.ReadExperiments(logger, cfg.Experiments.Value()),
+				Experiments:            nicloud.ReadExperiments(logger, cfg.Experiments.Value()),
 				HTTPClient:             httpClient,
 				DashboardURL:           primaryAccessURL.Value(),
 				AccessURL:              cfg.AccessURL.Value(),

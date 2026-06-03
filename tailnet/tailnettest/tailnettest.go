@@ -19,15 +19,15 @@ import (
 	tslogger "tailscale.com/types/logger"
 	"tailscale.com/types/nettype"
 
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
-//go:generate go tool mockgen -destination ./coordinatormock.go -package tailnettest github.com/coder/coder/v2/tailnet Coordinator
-//go:generate go tool mockgen -destination ./coordinateemock.go -package tailnettest github.com/coder/coder/v2/tailnet Coordinatee
-//go:generate go tool mockgen -destination ./workspaceupdatesprovidermock.go -package tailnettest github.com/coder/coder/v2/tailnet WorkspaceUpdatesProvider
-//go:generate go tool mockgen -destination ./subscriptionmock.go -package tailnettest github.com/coder/coder/v2/tailnet Subscription
+//go:generate go tool mockgen -destination ./coordinatormock.go -package tailnettest github.com/NeuralInverse/cloud/v2/tailnet Coordinator
+//go:generate go tool mockgen -destination ./coordinateemock.go -package tailnettest github.com/NeuralInverse/cloud/v2/tailnet Coordinatee
+//go:generate go tool mockgen -destination ./workspaceupdatesprovidermock.go -package tailnettest github.com/NeuralInverse/cloud/v2/tailnet WorkspaceUpdatesProvider
+//go:generate go tool mockgen -destination ./subscriptionmock.go -package tailnettest github.com/NeuralInverse/cloud/v2/tailnet Subscription
 
 type derpAndSTUNCfg struct {
 	DisableSTUN    bool

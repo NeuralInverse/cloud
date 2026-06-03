@@ -2,9 +2,9 @@
 
 > [!NOTE]
 > Template permissions are a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
-Licensed Coder administrators can control who can use and modify the template.
+Licensed Neural Inverse Cloud administrators can control who can use and modify the template.
 
 ![Template Permissions](../../images/templates/permissions.png)
 
@@ -16,6 +16,6 @@ all aspects of the template. This offers a way to elevate the privileges of
 ordinary users for specific templates without granting them the site-wide role
 of `Template Admin`.
 
-By default the `Everyone` group is assigned to each template meaning any Coder
+By default the `Everyone` group is assigned to each template meaning any Neural Inverse Cloud
 user can use the template to create a workspace. This access can be revoked
 via the actions menu button to the right hand side of each group entry.

@@ -3,8 +3,8 @@ package cli
 import (
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent/agentsocket"
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/agent/agentsocket"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/serpent"
 )
 

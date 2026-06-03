@@ -1,19 +1,19 @@
 #!/bin/sh
 set -e
 
-CODER="go run ./cmd/coder"
-PASSWORD="${CODER_DEV_MEMBER_PASSWORD:-SomeSecurePassword!}"
+CODER="go run ./cmd/neuralinverse"
+PASSWORD="${NEURALINVERSE_DEV_MEMBER_PASSWORD:-SomeSecurePassword!}"
 TOKEN_FILE="/bootstrap/token"
 
 echo "=== Setting up users ==="
 
 # Load bootstrap token
-CODER_SESSION_TOKEN=$(cat "$TOKEN_FILE")
-if [ -z "${CODER_SESSION_TOKEN}" ]; then
+NEURALINVERSE_SESSION_TOKEN=$(cat "$TOKEN_FILE")
+if [ -z "${NEURALINVERSE_SESSION_TOKEN}" ]; then
 	echo "Bootstrap token not found in ${TOKEN_FILE}"
 	exit 1
 fi
-export CODER_SESSION_TOKEN
+export NEURALINVERSE_SESSION_TOKEN
 
 # Create member user (idempotent)
 echo "Creating member user..."

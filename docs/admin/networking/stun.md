@@ -15,19 +15,19 @@ In order for one application to connect to another across a network, the
 connecting application needs to know the IP address and port under which the
 target application is reachable. If both applications reside on the same
 network, then they can most likely connect directly to each other. In the
-context of a Coder workspace agent and client, this is generally not the case,
+context of a Neural Inverse Cloud workspace agent and client, this is generally not the case,
 as both agent and client will most likely be running in different _private_
 networks (e.g. `192.168.1.0/24`). In this case, at least one of the two will
 need to know an IP address and port under which they can reach their
 counterpart.
 
-This problem is often referred to as NAT traversal, and Coder uses a standard
+This problem is often referred to as NAT traversal, and Neural Inverse Cloud uses a standard
 protocol named STUN to address this.
 
 Inside of that network, packets from the agent or client will show up as having
 source address `192.168.1.X:12345`. However, outside of this private network,
 the source address will show up differently (for example, `12.3.4.56:54321`). In
-order for the Coder client and agent to establish a direct connection with each
+order for the Neural Inverse Cloud client and agent to establish a direct connection with each
 other, one of them needs to know the `ip:port` pair under which their
 counterpart can be reached. Once communication succeeds in one direction, we can
 inspect the source address of the received packet to determine the return
@@ -45,7 +45,7 @@ At a high level, STUN works like this:
   public internet, and respond with the public IP address and port from which
   the request came.
 - **Coordination:** The client and agent then exchange this information through
-  the Coder server. They will then construct packets that should be able to
+  the Neural Inverse Cloud server. They will then construct packets that should be able to
   successfully traverse their counterpart's NATs successfully.
 - **NAT Traversal:** The client and agent then send these crafted packets to
   their counterpart's public addresses. If all goes well, the NATs on the other
@@ -78,7 +78,7 @@ address and port on which they can be reached.
 
 ![Diagram of a workspace agent and client in separate networks](../../images/networking/stun2.1.png)
 
-They then exchange this information through Coder server, and can then
+They then exchange this information through Neural Inverse Cloud server, and can then
 communicate directly with each other through their respective NATs.
 
 ![Diagram of a workspace agent and client in separate networks](../../images/networking/stun2.2.png)

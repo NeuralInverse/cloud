@@ -6,7 +6,7 @@ You can show live operational metrics to workspace users with agent metadata. It
 is the dynamic complement of [resource metadata](./resource-metadata.md).
 
 You specify agent metadata in the
-[`coder_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent).
+[`ni_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent).
 
 ## Examples
 
@@ -23,7 +23,7 @@ usage about the workspace's host.
 Here's a standard set of metadata snippets for Linux agents:
 
 ```tf
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os             = "linux"
   ...
   metadata {
@@ -123,7 +123,7 @@ usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw
 
 ## Managing the database load
 
-Agent metadata can generate a significant write load and overwhelm your Coder
+Agent metadata can generate a significant write load and overwhelm your Neural Inverse Cloud
 database if you're not careful. The approximate writes per second can be
 calculated using the formula:
 

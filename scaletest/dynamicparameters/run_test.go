@@ -8,25 +8,25 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/scaletest/dynamicparameters"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/scaletest/dynamicparameters"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestRun(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitLong)
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
+	client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
 	client.SetLogger(testutil.Logger(t).Leveled(slog.LevelDebug))
-	first := coderdtest.CreateFirstUser(t, client)
-	userClient, _ := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
+	first := nicloudtest.CreateFirstUser(t, client)
+	userClient, _ := nicloudtest.CreateAnotherUser(t, client, first.OrganizationID)
 	orgID := first.OrganizationID
 
 	dynamicParametersTerraformSource, err := dynamicparameters.TemplateContent()
 	require.NoError(t, err)
 
-	template, version := coderdtest.DynamicParameterTemplate(t, client, orgID, coderdtest.DynamicParameterTemplateParams{
+	template, version := nicloudtest.DynamicParameterTemplate(t, client, orgID, nicloudtest.DynamicParameterTemplateParams{
 		MainTF:         dynamicParametersTerraformSource,
 		Plan:           nil,
 		ModulesArchive: nil,

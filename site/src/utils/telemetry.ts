@@ -1,6 +1,6 @@
 import type { BuildInfoResponse } from "#/api/typesGenerated";
 
-// sendDeploymentEvent sends a CORs payload to coder.com
+// sendDeploymentEvent sends a CORs payload to cloud.neuralinverse.com
 // to track a deployment event.
 export const sendDeploymentEvent = (
 	buildInfo: BuildInfoResponse,
@@ -17,7 +17,7 @@ export const sendDeploymentEvent = (
 		return;
 	}
 	navigator.sendBeacon(
-		"https://coder.com/api/track-deployment",
+		"https://cloud.neuralinverse.com/api/track-deployment",
 		new Blob(
 			[
 				JSON.stringify({

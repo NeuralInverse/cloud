@@ -15,11 +15,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 )
 
 const defaultRequestTimeout = 5 * time.Second
@@ -31,13 +31,13 @@ func (holdDurationEndedError) Error() string {
 }
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 }
 
 var _ harness.Runnable = &Runner{}
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -60,7 +60,7 @@ func (r *Runner) Run(ctx context.Context, _ string, w io.Writer) error {
 	case ConnectionModeDirect:
 		_, _ = fmt.Fprintln(logs, "\tUsing direct connection...")
 	case ConnectionModeDerp:
-		_, _ = fmt.Fprintln(logs, "\tUsing proxied DERP connection through coder server...")
+		_, _ = fmt.Fprintln(logs, "\tUsing proxied DERP connection through neuralinverse server...")
 	}
 
 	conn, err := workspacesdk.New(r.client).

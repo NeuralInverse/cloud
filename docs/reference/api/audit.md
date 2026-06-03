@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/audit?limit=0 \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/audit`
@@ -99,6 +99,6 @@ curl -X GET http://coder-server:8080/api/v2/audit?limit=0 \
 
 | Status | Meaning                                                 | Description | Schema                                                           |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.AuditLogResponse](schemas.md#codersdkauditlogresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.AuditLogResponse](schemas.md#nicloudsdkauditlogresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

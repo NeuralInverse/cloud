@@ -12,11 +12,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -40,29 +40,29 @@ func TestTaskCreate(t *testing.T) {
 		return func(w http.ResponseWriter, r *http.Request) {
 			switch r.URL.Path {
 			case "/api/v2/users/me/organizations":
-				httpapi.Write(ctx, w, http.StatusOK, []codersdk.Organization{
-					{MinimalOrganization: codersdk.MinimalOrganization{
+				httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Organization{
+					{MinimalOrganization: nicloudsdk.MinimalOrganization{
 						ID: orgID,
 					}},
 				})
 			case fmt.Sprintf("/api/v2/organizations/%s/templates/%s/versions/%s", orgID, templateName, templateVersionName):
-				httpapi.Write(ctx, w, http.StatusOK, codersdk.TemplateVersion{
+				httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.TemplateVersion{
 					ID: templateVersionID,
 				})
 			case fmt.Sprintf("/api/v2/organizations/%s/templates/%s", orgID, templateName):
-				httpapi.Write(ctx, w, http.StatusOK, codersdk.Template{
+				httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Template{
 					ID:              templateID,
 					ActiveVersionID: templateVersionID,
 				})
 			case fmt.Sprintf("/api/v2/templateversions/%s/presets", templateVersionID):
-				httpapi.Write(ctx, w, http.StatusOK, []codersdk.Preset{
+				httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Preset{
 					{
 						ID:   templateVersionPresetID,
 						Name: presetName,
 					},
 				})
 			case "/api/v2/templates":
-				httpapi.Write(ctx, w, http.StatusOK, []codersdk.Template{
+				httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Template{
 					{
 						ID:              templateID,
 						Name:            templateName,
@@ -70,7 +70,7 @@ func TestTaskCreate(t *testing.T) {
 					},
 				})
 			case fmt.Sprintf("/api/v2/tasks/%s", username):
-				var req codersdk.CreateTaskRequest
+				var req nicloudsdk.CreateTaskRequest
 				if !httpapi.Read(ctx, w, r, &req) {
 					return
 				}
@@ -84,7 +84,7 @@ func TestTaskCreate(t *testing.T) {
 					assert.Equal(t, templateVersionPresetID, req.TemplateVersionPresetID, "template version preset id mismatch")
 				}
 
-				created := codersdk.Task{
+				created := nicloudsdk.Task{
 					ID:        taskID,
 					Name:      taskName,
 					CreatedAt: taskCreatedAt,
@@ -114,14 +114,14 @@ func TestTaskCreate(t *testing.T) {
 			stdin:        "reads prompt from stdin",
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "reads prompt from stdin", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "reads prompt from stdin", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt"},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
@@ -135,66 +135,66 @@ func TestTaskCreate(t *testing.T) {
 			args:         []string{"--name", "abc123", "my custom prompt"},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("abc123"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "abc123", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "abc123", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt", "--template", "my-template", "--template-version", "my-template-version", "--org", organizationID.String()},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt", "--template", "my-template", "--org", organizationID.String()},
-			env:          []string{"CODER_TASK_TEMPLATE_VERSION=my-template-version"},
+			env:          []string{"NEURALINVERSE_TASK_TEMPLATE_VERSION=my-template-version"},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt", "--org", organizationID.String()},
-			env:          []string{"CODER_TASK_TEMPLATE_NAME=my-template", "CODER_TASK_TEMPLATE_VERSION=my-template-version"},
+			env:          []string{"NEURALINVERSE_TASK_TEMPLATE_NAME=my-template", "NEURALINVERSE_TASK_TEMPLATE_VERSION=my-template-version"},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt", "--template", "my-template", "--org", organizationID.String()},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt", "--template", "my-template", "--preset", "my-preset", "--org", organizationID.String()},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "my-preset", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "my-preset", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt", "--template", "my-template"},
-			env:          []string{"CODER_TASK_PRESET_NAME=my-preset"},
+			env:          []string{"NEURALINVERSE_TASK_PRESET_NAME=my-preset"},
 			expectOutput: fmt.Sprintf("The task %s has been created at %s!", cliui.Keyword("task-wild-goldfish-27"), cliui.Timestamp(taskCreatedAt)),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "my-preset", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "my-preset", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:         []string{"my custom prompt", "-q"},
 			expectOutput: taskID.String(),
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "my-template-version", "", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
 			args:        []string{"my custom prompt", "--template", "my-template", "--preset", "not-real-preset"},
 			expectError: `preset "not-real-preset" not found`,
 			handler: func(t *testing.T, ctx context.Context) http.HandlerFunc {
-				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "my-preset", "my custom prompt", "task-wild-goldfish-27", codersdk.Me)
+				return templateAndVersionFoundHandler(t, ctx, organizationID, "my-template", "", "my-preset", "my custom prompt", "task-wild-goldfish-27", nicloudsdk.Me)
 			},
 		},
 		{
@@ -204,13 +204,13 @@ func TestTaskCreate(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/users/me/organizations":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Organization{
-							{MinimalOrganization: codersdk.MinimalOrganization{
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Organization{
+							{MinimalOrganization: nicloudsdk.MinimalOrganization{
 								ID: organizationID,
 							}},
 						})
 					case fmt.Sprintf("/api/v2/organizations/%s/templates/my-template", organizationID):
-						httpapi.Write(ctx, w, http.StatusOK, codersdk.Template{
+						httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Template{
 							ID:              templateID,
 							ActiveVersionID: templateVersionID,
 						})
@@ -229,8 +229,8 @@ func TestTaskCreate(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/users/me/organizations":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Organization{
-							{MinimalOrganization: codersdk.MinimalOrganization{
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Organization{
+							{MinimalOrganization: nicloudsdk.MinimalOrganization{
 								ID: organizationID,
 							}},
 						})
@@ -249,8 +249,8 @@ func TestTaskCreate(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/users/me/organizations":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Organization{
-							{MinimalOrganization: codersdk.MinimalOrganization{
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Organization{
+							{MinimalOrganization: nicloudsdk.MinimalOrganization{
 								ID: anotherOrganizationID,
 							}},
 						})
@@ -269,7 +269,7 @@ func TestTaskCreate(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/users/me/organizations":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Organization{})
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Organization{})
 					default:
 						t.Errorf("unexpected path: %s", r.URL.Path)
 					}
@@ -283,13 +283,13 @@ func TestTaskCreate(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/users/me/organizations":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Organization{
-							{MinimalOrganization: codersdk.MinimalOrganization{
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Organization{
+							{MinimalOrganization: nicloudsdk.MinimalOrganization{
 								ID: organizationID,
 							}},
 						})
 					case "/api/v2/templates":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Template{})
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Template{})
 					default:
 						t.Errorf("unexpected path: %s", r.URL.Path)
 					}
@@ -303,13 +303,13 @@ func TestTaskCreate(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/users/me/organizations":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Organization{
-							{MinimalOrganization: codersdk.MinimalOrganization{
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Organization{
+							{MinimalOrganization: nicloudsdk.MinimalOrganization{
 								ID: organizationID,
 							}},
 						})
 					case "/api/v2/templates":
-						httpapi.Write(ctx, w, http.StatusOK, []codersdk.Template{
+						httpapi.Write(ctx, w, http.StatusOK, []nicloudsdk.Template{
 							{Name: "wibble"},
 							{Name: "wobble"},
 						})
@@ -328,7 +328,7 @@ func TestTaskCreate(t *testing.T) {
 			var (
 				ctx    = testutil.Context(t, testutil.WaitShort)
 				srv    = httptest.NewServer(tt.handler(t, ctx))
-				client = codersdk.New(testutil.MustURL(t, srv.URL))
+				client = nicloudsdk.New(testutil.MustURL(t, srv.URL))
 				args   = []string{"task", "create"}
 				sb     strings.Builder
 				err    error

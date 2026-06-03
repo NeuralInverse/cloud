@@ -10,17 +10,17 @@
 >
 > Use this feature for development and testing purposes only.
 
-Coder can act as an OAuth2 authorization server, allowing third-party applications to authenticate users through Coder and access the Coder API on their behalf. This enables integrations where external applications can leverage Coder's authentication and user management.
+Neural Inverse Cloud can act as an OAuth2 authorization server, allowing third-party applications to authenticate users through Neural Inverse Cloud and access the Neural Inverse Cloud API on their behalf. This enables integrations where external applications can leverage Neural Inverse Cloud's authentication and user management.
 
 ## Requirements
 
-- Admin privileges in Coder
+- Admin privileges in Neural Inverse Cloud
 - OAuth2 experiment flag enabled
 - HTTPS recommended for production deployments
 
 ## Enable OAuth2 Provider
 
-Add the `oauth2` experiment flag to your Coder server:
+Add the `oauth2` experiment flag to your Neural Inverse Cloud server:
 
 ```bash
 coder server --experiments oauth2
@@ -29,7 +29,7 @@ coder server --experiments oauth2
 Or set the environment variable:
 
 ```env
-CODER_EXPERIMENTS=oauth2
+NEURALINVERSE_EXPERIMENTS=oauth2
 ```
 
 ## Creating OAuth2 Applications
@@ -45,38 +45,38 @@ CODER_EXPERIMENTS=oauth2
 
 ### Method 2: Management API
 
-Create an application using the Coder API:
+Create an application using the Neural Inverse Cloud API:
 
 ```bash
 curl -X POST \
-  -H "Authorization: Bearer $CODER_SESSION_TOKEN" \
+  -H "Authorization: Bearer $NEURALINVERSE_SESSION_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "My Application",
     "callback_url": "https://myapp.example.com/callback",
     "icon": "https://myapp.example.com/icon.png"
   }' \
-  "$CODER_URL/api/v2/oauth2-provider/apps"
+  "$NEURALINVERSE_URL/api/v2/oauth2-provider/apps"
 ```
 
 Generate a client secret:
 
 ```bash
 curl -X POST \
-  -H "Authorization: Bearer $CODER_SESSION_TOKEN" \
-  "$CODER_URL/api/v2/oauth2-provider/apps/$APP_ID/secrets"
+  -H "Authorization: Bearer $NEURALINVERSE_SESSION_TOKEN" \
+  "$NEURALINVERSE_URL/api/v2/oauth2-provider/apps/$APP_ID/secrets"
 ```
 
 ## Integration Patterns
 
 ### Client Authentication Methods
 
-Coder supports the following OAuth2 client authentication methods at the token endpoint (`/oauth2/tokens`):
+Neural Inverse Cloud supports the following OAuth2 client authentication methods at the token endpoint (`/oauth2/tokens`):
 
 - `client_secret_basic` (recommended): HTTP Basic authentication (RFC 6749 §2.3.1). The username is `client_id` and the password is `client_secret`.
 - `client_secret_post`: Form-based authentication where `client_id` and `client_secret` are sent in the request body.
 
-Coder supports both methods for compatibility; existing integrations using `client_secret_post` do not need to change.
+Neural Inverse Cloud supports both methods for compatibility; existing integrations using `client_secret_post` do not need to change.
 
 If you use Dynamic Client Registration (RFC 7591) and omit `token_endpoint_auth_method`, clients default to `client_secret_basic`. To request `client_secret_post`, set `token_endpoint_auth_method` to `client_secret_post` in the registration request.
 
@@ -84,7 +84,7 @@ If client authentication fails, the token endpoint returns **HTTP 401** with an 
 
 ### Standard OAuth2 Flow
 
-1. **Authorization Request**: Redirect users to Coder's authorization endpoint:
+1. **Authorization Request**: Redirect users to Neural Inverse Cloud's authorization endpoint:
 
    ```url
    https://coder.example.com/oauth2/authorize?
@@ -105,7 +105,7 @@ If client authentication fails, the token endpoint returns **HTTP 401** with an 
      -d "grant_type=authorization_code" \
      -d "code=$AUTH_CODE" \
      -d "redirect_uri=https://yourapp.example.com/callback" \
-     "$CODER_URL/oauth2/tokens"
+     "$NEURALINVERSE_URL/oauth2/tokens"
    ```
 
    **Option B: Form parameters (`client_secret_post`)**
@@ -118,14 +118,14 @@ If client authentication fails, the token endpoint returns **HTTP 401** with an 
      -d "client_id=$CLIENT_ID" \
      -d "client_secret=$CLIENT_SECRET" \
      -d "redirect_uri=https://yourapp.example.com/callback" \
-     "$CODER_URL/oauth2/tokens"
+     "$NEURALINVERSE_URL/oauth2/tokens"
    ```
 
-3. **API Access**: Use the access token to call Coder's API:
+3. **API Access**: Use the access token to call Neural Inverse Cloud's API:
 
    ```bash
    curl -H "Authorization: Bearer $ACCESS_TOKEN" \
-     "$CODER_URL/api/v2/users/me"
+     "$NEURALINVERSE_URL/api/v2/users/me"
    ```
 
 > [!NOTE]
@@ -135,7 +135,7 @@ If client authentication fails, the token endpoint returns **HTTP 401** with an 
 
 ### PKCE Flow (Required)
 
-PKCE is **required** for all OAuth2 authorization code flows. Coder enforces
+PKCE is **required** for all OAuth2 authorization code flows. Neural Inverse Cloud enforces
 PKCE in compliance with the OAuth 2.1 specification. Both public and
 confidential clients must include PKCE parameters:
 
@@ -167,12 +167,12 @@ confidential clients must include PKCE parameters:
      -d "code=$AUTH_CODE" \
      -d "code_verifier=$CODE_VERIFIER" \
      -d "redirect_uri=https://yourapp.example.com/callback" \
-     "$CODER_URL/oauth2/tokens"
+     "$NEURALINVERSE_URL/oauth2/tokens"
    ```
 
 ## Discovery Endpoints
 
-Coder provides OAuth2 discovery endpoints for programmatic integration:
+Neural Inverse Cloud provides OAuth2 discovery endpoints for programmatic integration:
 
 - **Authorization Server Metadata**: `GET /.well-known/oauth-authorization-server`
 - **Protected Resource Metadata**: `GET /.well-known/oauth-protected-resource`
@@ -193,7 +193,7 @@ curl -X POST \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=refresh_token" \
   -d "refresh_token=$REFRESH_TOKEN" \
-  "$CODER_URL/oauth2/tokens"
+  "$NEURALINVERSE_URL/oauth2/tokens"
 ```
 
 **Option B: Form parameters (`client_secret_post`)**
@@ -205,7 +205,7 @@ curl -X POST \
   -d "refresh_token=$REFRESH_TOKEN" \
   -d "client_id=$CLIENT_ID" \
   -d "client_secret=$CLIENT_SECRET" \
-  "$CODER_URL/oauth2/tokens"
+  "$NEURALINVERSE_URL/oauth2/tokens"
 ```
 
 ### Revoke Access
@@ -214,13 +214,13 @@ Revoke all tokens for an application:
 
 ```bash
 curl -X DELETE \
-  -H "Authorization: Bearer $CODER_SESSION_TOKEN" \
-  "$CODER_URL/oauth2/tokens?client_id=$CLIENT_ID"
+  -H "Authorization: Bearer $NEURALINVERSE_SESSION_TOKEN" \
+  "$NEURALINVERSE_URL/oauth2/tokens?client_id=$CLIENT_ID"
 ```
 
 ## Testing and Development
 
-Coder provides comprehensive test scripts for OAuth2 development:
+Neural Inverse Cloud provides comprehensive test scripts for OAuth2 development:
 
 ```bash
 # Navigate to the OAuth2 test scripts
@@ -239,7 +239,7 @@ eval $(./setup-test-app.sh)
 ./cleanup-test-app.sh
 ```
 
-For more details on testing, see the [OAuth2 test scripts README](https://github.com/coder/coder/blob/main/scripts/oauth2/README.md).
+For more details on testing, see the [OAuth2 test scripts README](https://github.com/NeuralInverse/cloud/blob/main/scripts/oauth2/README.md).
 
 ## Common Issues
 
@@ -295,16 +295,16 @@ This implementation follows established OAuth2 standards including
 [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749) (OAuth2 core),
 [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636) (PKCE), and the
 [OAuth 2.1 draft](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-12).
-Coder enforces OAuth 2.1 requirements including mandatory PKCE for all
+Neural Inverse Cloud enforces OAuth 2.1 requirements including mandatory PKCE for all
 authorization code grants, exact redirect URI string matching, rejection
 of the implicit grant, and CSRF protections on consent pages.
 
 ## Next Steps
 
 - Review the [API Reference](../../reference/api/index.md) for complete endpoint documentation
-- Check [External Authentication](../external-auth/index.md) for configuring Coder as an OAuth2 client
+- Check [External Authentication](../external-auth/index.md) for configuring Neural Inverse Cloud as an OAuth2 client
 - See [Security Best Practices](../security/index.md) for deployment security guidance
 
 ## Feedback
 
-This is an experimental feature under active development. Please report issues and feedback through [GitHub Issues](https://github.com/coder/coder/issues) with the `oauth2` label.
+This is an experimental feature under active development. Please report issues and feedback through [GitHub Issues](https://github.com/NeuralInverse/cloud/issues) with the `oauth2` label.

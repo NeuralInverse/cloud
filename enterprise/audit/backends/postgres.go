@@ -5,15 +5,15 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/enterprise/audit"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit"
 )
 
 type postgresBackend struct {
 	// internal indicates if the exporter is exporting to the Postgres database
-	// that the rest of Coderd uses. Since this is a generic Postgres exporter,
+	// that the rest of Neural Inverse Cloudd uses. Since this is a generic Postgres exporter,
 	// we make different decisions to store the audit log based on if it's
-	// pointing to the Coderd database.
+	// pointing to the Neural Inverse Cloudd database.
 	internal bool
 	db       database.Store
 }

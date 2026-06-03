@@ -35,13 +35,13 @@ import (
 	"tailscale.com/wgengine/capture"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw/loggermw"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/tailnet"
-	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw/loggermw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	tailnetproto "github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/websocket"
 )
 
@@ -277,7 +277,7 @@ func (o SimpleServerOptions) Router(t *testing.T, logger slog.Logger) *chi.Mux {
 		id, err := uuid.Parse(idStr)
 		if err != nil {
 			logger.Warn(ctx, "bad agent ID passed in URL params", slog.F("id_str", idStr), slog.Error(err))
-			httpapi.Write(ctx, w, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Bad agent id.",
 				Detail:  err.Error(),
 			})
@@ -287,14 +287,14 @@ func (o SimpleServerOptions) Router(t *testing.T, logger slog.Logger) *chi.Mux {
 		conn, err := websocket.Accept(w, r, nil)
 		if err != nil {
 			logger.Warn(ctx, "failed to accept websocket", slog.Error(err))
-			httpapi.Write(ctx, w, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusBadRequest, nicloudsdk.Response{
 				Message: "Failed to accept websocket.",
 				Detail:  err.Error(),
 			})
 			return
 		}
 
-		ctx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
+		ctx, wsNetConn := nicloudsdk.WebsocketNetConn(ctx, conn, websocket.MessageBinary)
 		defer wsNetConn.Close()
 
 		cleanFn := cm.Add(id, wsNetConn)

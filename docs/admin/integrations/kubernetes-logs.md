@@ -1,7 +1,7 @@
 # Kubernetes event logs
 
 To stream Kubernetes events into your workspace startup logs, you can use
-Coder's [`coder-logstream-kube`](https://github.com/coder/coder-logstream-kube)
+Neural Inverse Cloud's [`coder-logstream-kube`](https://github.com/NeuralInverse/cloud-logstream-kube)
 tool. `coder-logstream-kube` provides useful information about the workspace pod
 or deployment, such as:
 
@@ -14,7 +14,7 @@ Install the `coder-logstream-kube` helm chart on the cluster where the
 deployment is running.
 
 ```shell
-helm repo add coder-logstream-kube https://helm.coder.com/logstream-kube
+helm repo add coder-logstream-kube https://helm.cloud.neuralinverse.com/logstream-kube
 helm install coder-logstream-kube coder-logstream-kube/coder-logstream-kube \
     --namespace coder \
     --set url=<your-coder-url-including-http-or-https>
@@ -48,8 +48,8 @@ Kubernetes provides an
 and event data from the API server.
 
 coder-logstream-kube listens for pod creation events with containers that have
-the CODER_AGENT_TOKEN environment variable set. All pod events are streamed as
-logs to the Coder API using the agent token for authentication. For more
+the NEURALINVERSE_AGENT_TOKEN environment variable set. All pod events are streamed as
+logs to the Neural Inverse Cloud API using the agent token for authentication. For more
 details, see the
-[coder-logstream-kube](https://github.com/coder/coder-logstream-kube)
+[coder-logstream-kube](https://github.com/NeuralInverse/cloud-logstream-kube)
 repository.

@@ -13,11 +13,11 @@ resources.
 
 This guide will use the Docker template from the
 [previous step](../tutorials/template-from-scratch.md) to create and connect to
-a Coder workspace.
+a Neural Inverse Cloud workspace.
 
 ## 1. Create a workspace from your template through the GUI
 
-You can create a workspace in the UI. Log in to your Coder instance, go to the
+You can create a workspace in the UI. Log in to your Neural Inverse Cloud instance, go to the
 **Templates** tab, find the template you need, and select **Create Workspace**.
 
 ![Template Preview](../images/start/template-preview.png)
@@ -27,7 +27,7 @@ Workspace**.
 
 ![Create Workspace](../images/start/create-workspace.png)
 
-Coder starts your new workspace from your template.
+Neural Inverse Cloud starts your new workspace from your template.
 
 After a few seconds, your workspace is ready to use.
 
@@ -47,7 +47,7 @@ The Docker starter template lets you connect to your workspace in a few ways:
   Docker instance.
 - JetBrains Gateway: Opens JetBrains IDEs via JetBrains Gateway.
 - SSH: Use SSH to log in to the workspace from your local machine. If you
-  haven't already, you'll have to install Coder on your local machine to
+  haven't already, you'll have to install Neural Inverse Cloud on your local machine to
   configure your SSH client.
 
 > [!TIP]

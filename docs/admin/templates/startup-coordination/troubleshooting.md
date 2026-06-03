@@ -63,7 +63,7 @@ If the workspace startup scripts appear to 'hang', one or more of your startup s
 If the workspace startup scripts fail:
 
 * Review `/tmp/coder-script-*.log` inside the workspace for script errors.
-* Verify the Coder CLI is available in `$PATH` inside the workspace:
+* Verify the Neural Inverse Cloud CLI is available in `$PATH` inside the workspace:
 
     ```bash
     command -v coder

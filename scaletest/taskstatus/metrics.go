@@ -11,19 +11,19 @@ type Metrics struct {
 func NewMetrics(reg prometheus.Registerer, labelNames ...string) *Metrics {
 	m := &Metrics{
 		TaskStatusToWorkspaceUpdateLatencySeconds: *prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Namespace: "coderd",
+			Namespace: "nicloud",
 			Subsystem: "scaletest",
 			Name:      "task_status_to_workspace_update_latency_seconds",
 			Help:      "Time in seconds between reporting a task status and receiving the workspace update.",
 		}, labelNames),
 		MissingStatusUpdatesTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "nicloud",
 			Subsystem: "scaletest",
 			Name:      "missing_status_updates_total",
 			Help:      "Total number of missing status updates.",
 		}, labelNames),
 		ReportTaskStatusErrorsTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "nicloud",
 			Subsystem: "scaletest",
 			Name:      "report_task_status_errors_total",
 			Help:      "Total number of errors when reporting task status.",

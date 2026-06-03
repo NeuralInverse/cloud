@@ -18,7 +18,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/quartz"
 )
 
@@ -148,7 +148,7 @@ func (h *Handler) RequestScan() {
 
 // Scan performs a scan of all subscribed repos and computes deltas
 // against the previously emitted snapshots.
-func (h *Handler) Scan(ctx context.Context) *codersdk.WorkspaceAgentGitServerMessage {
+func (h *Handler) Scan(ctx context.Context) *nicloudsdk.WorkspaceAgentGitServerMessage {
 	if !h.gitAvailable() {
 		return nil
 	}
@@ -165,13 +165,13 @@ func (h *Handler) Scan(ctx context.Context) *codersdk.WorkspaceAgentGitServerMes
 	}
 
 	now := h.clock.Now().UTC()
-	var repos []codersdk.WorkspaceAgentRepoChanges
+	var repos []nicloudsdk.WorkspaceAgentRepoChanges
 
 	// Perform all I/O outside the lock to avoid blocking
 	// AddPaths/GetPaths/Subscribe callers during disk-heavy scans.
 	type scanResult struct {
 		root    string
-		changes codersdk.WorkspaceAgentRepoChanges
+		changes nicloudsdk.WorkspaceAgentRepoChanges
 		err     error
 	}
 	results := make([]scanResult, 0, len(roots))
@@ -189,7 +189,7 @@ func (h *Handler) Scan(ctx context.Context) *codersdk.WorkspaceAgentGitServerMes
 			if isRepoDeleted(h.gitBin, res.root) {
 				// Repo root or .git directory was removed.
 				// Emit a removal entry, then evict from watch set.
-				removal := codersdk.WorkspaceAgentRepoChanges{
+				removal := nicloudsdk.WorkspaceAgentRepoChanges{
 					RepoRoot: res.root,
 					Removed:  true,
 				}
@@ -231,8 +231,8 @@ func (h *Handler) Scan(ctx context.Context) *codersdk.WorkspaceAgentGitServerMes
 	// Always emit when any root is subscribed. A no-delta scan sends
 	// ScannedAt + empty Repositories (omitted via omitempty) so the
 	// client's "checked Ns ago" label stays honest on idle repos.
-	return &codersdk.WorkspaceAgentGitServerMessage{
-		Type:         codersdk.WorkspaceAgentGitServerMessageTypeChanges,
+	return &nicloudsdk.WorkspaceAgentGitServerMessage{
+		Type:         nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges,
 		ScannedAt:    &now,
 		Repositories: repos,
 	}
@@ -350,8 +350,8 @@ func findRepoRoot(gitBin string, p string) (string, error) {
 
 // getRepoChanges reads the current state of a git repository using
 // the git CLI. It returns branch, remote origin, and a unified diff.
-func getRepoChanges(ctx context.Context, logger slog.Logger, gitBin string, repoRoot string) (codersdk.WorkspaceAgentRepoChanges, error) {
-	result := codersdk.WorkspaceAgentRepoChanges{
+func getRepoChanges(ctx context.Context, logger slog.Logger, gitBin string, repoRoot string) (nicloudsdk.WorkspaceAgentRepoChanges, error) {
+	result := nicloudsdk.WorkspaceAgentRepoChanges{
 		RepoRoot: repoRoot,
 	}
 

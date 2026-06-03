@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-data "coder_parameter" "sample" {
+data "ni_parameter" "sample" {
   name        = "Sample"
   type        = "string"
   description = "blah blah"
@@ -15,17 +15,17 @@ data "coder_parameter" "sample" {
   order       = 99
 }
 
-data "coder_parameter" "example" {
+data "ni_parameter" "example" {
   name  = "Example"
   type  = "string"
   order = 55
 }
 
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
   os   = "windows"
   arch = "arm64"
 }
 
 resource "null_resource" "dev" {
-  depends_on = [coder_agent.dev]
+  depends_on = [ni_agent.dev]
 }

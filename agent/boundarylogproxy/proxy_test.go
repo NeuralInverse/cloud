@@ -15,10 +15,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/coder/coder/v2/agent/boundarylogproxy"
-	"github.com/coder/coder/v2/agent/boundarylogproxy/codec"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy/codec"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // sendLogsV1 writes a bare ReportBoundaryLogsRequest using TagV1, the

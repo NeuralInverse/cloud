@@ -2,7 +2,7 @@
 
 export type Comparable = string | number | boolean;
 
-// From codersdk/generics.go
+// From nicloudsdk/generics.go
 export interface Complex<C extends Comparable, S extends Single, T extends Custom> {
     readonly dynamic: Fields<C, boolean, string, S>;
     readonly order: FieldsDiffOrder<C, string, S, T>;
@@ -11,17 +11,17 @@ export interface Complex<C extends Comparable, S extends Single, T extends Custo
     readonly static: Static;
 }
 
-// From codersdk/generics.go
+// From nicloudsdk/generics.go
 export type Custom = string | boolean | number | number | string[] | (number | null);
 
-// From codersdk/generics.go
+// From nicloudsdk/generics.go
 // biome-ignore lint lint/complexity/noUselessTypeConstraint: golang does 'any' for generics, typescript does not like it
 export interface Dynamic<A extends any, S extends Single> {
     readonly dynamic: Fields<boolean, A, string, S>;
     readonly comparable: boolean;
 }
 
-// From codersdk/generics.go
+// From nicloudsdk/generics.go
 // biome-ignore lint lint/complexity/noUselessTypeConstraint: golang does 'any' for generics, typescript does not like it
 export interface Fields<C extends Comparable, A extends any, T extends Custom, S extends Single> {
     readonly comparable: C;
@@ -31,16 +31,16 @@ export interface Fields<C extends Comparable, A extends any, T extends Custom, S
     readonly single_constraint: S;
 }
 
-// From codersdk/generics.go
+// From nicloudsdk/generics.go
 // biome-ignore lint lint/complexity/noUselessTypeConstraint: golang does 'any' for generics, typescript does not like it
 export interface FieldsDiffOrder<A extends any, C extends Comparable, S extends Single, T extends Custom> {
     readonly Fields: Fields<C, A, T, S>;
 }
 
-// From codersdk/generics.go
+// From nicloudsdk/generics.go
 export type Single = string;
 
-// From codersdk/generics.go
+// From nicloudsdk/generics.go
 export interface Static {
     readonly static: Fields<string, number, number, string>;
 }

@@ -38,7 +38,7 @@ export const getDisplayWorkspaceBuildInitiatedBy = (
 		case "autostop":
 		case "dormancy":
 		case "task_auto_pause":
-			return "Coder";
+			return "Neural Inverse Cloud";
 	}
 	return undefined;
 };

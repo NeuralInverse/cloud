@@ -5,12 +5,12 @@ ready-to-use workspaces for specific parameter presets.
 
 The template administrator defines the prebuilt workspace's parameters and number of instances to keep provisioned.
 The desired number of workspaces are then provisioned transparently.
-When a developer creates a new workspace that matches the definition, Coder assigns them an existing prebuilt workspace.
+When a developer creates a new workspace that matches the definition, Neural Inverse Cloud assigns them an existing prebuilt workspace.
 This significantly reduces wait times, especially for templates with complex provisioning or lengthy startup procedures.
 
 Prebuilt workspaces are:
 
-- Created and maintained automatically by Coder to match your specified preset configurations.
+- Created and maintained automatically by Neural Inverse Cloud to match your specified preset configurations.
 - Claimed transparently when developers create workspaces.
 - Monitored and replaced automatically to maintain your desired pool size.
 - Automatically scaled based on time-based schedules to optimize resource usage.
@@ -26,7 +26,7 @@ Prebuilt workspaces are tightly integrated with [workspace presets](./parameters
 1. The preset must define all required parameters needed to build the workspace.
 1. The preset parameters define the base configuration and are immutable once a prebuilt workspace is provisioned.
 1. Parameters that are not defined in the preset can still be customized by users when they claim a workspace.
-1. If a user does not select a preset but provides parameters that match one or more presets, Coder will automatically select the most specific matching preset and assign a prebuilt workspace if one is available.
+1. If a user does not select a preset but provides parameters that match one or more presets, Neural Inverse Cloud will automatically select the most specific matching preset and assign a prebuilt workspace if one is available.
 
 ## Prerequisites
 
@@ -35,12 +35,12 @@ Prebuilt workspaces are tightly integrated with [workspace presets](./parameters
 
 ## Enable prebuilt workspaces for template presets
 
-In your template, add a `prebuilds` block within a `coder_workspace_preset` definition to identify the number of prebuilt
-instances your Coder deployment should maintain, and optionally configure a `expiration_policy` block to set a TTL
+In your template, add a `prebuilds` block within a `ni_workspace_preset` definition to identify the number of prebuilt
+instances your Neural Inverse Cloud deployment should maintain, and optionally configure a `expiration_policy` block to set a TTL
 (Time To Live) for unclaimed prebuilt workspaces to ensure stale resources are automatically cleaned up.
 
    ```hcl
-   data "coder_workspace_preset" "goland" {
+   data "ni_workspace_preset" "goland" {
      name = "GoLand: Large"
      parameters = {
        jetbrains_ide = "GO"
@@ -56,7 +56,7 @@ instances your Coder deployment should maintain, and optionally configure a `exp
    }
    ```
 
-After you publish a new template version, Coder will automatically provision and maintain prebuilt workspaces through an
+After you publish a new template version, Neural Inverse Cloud will automatically provision and maintain prebuilt workspaces through an
 internal reconciliation loop (similar to Kubernetes) to ensure the defined `instances` count are running.
 
 The `expiration_policy` block ensures that any prebuilt workspaces left unclaimed for more than `ttl` seconds is considered
@@ -66,9 +66,9 @@ expired and automatically cleaned up.
 
 Prebuilt workspaces follow a specific lifecycle from creation through eligibility to claiming.
 
-1. After you configure a preset with prebuilds and publish the template, Coder provisions the prebuilt workspace(s).
+1. After you configure a preset with prebuilds and publish the template, Neural Inverse Cloud provisions the prebuilt workspace(s).
 
-   1. Coder automatically creates the defined `instances` count of prebuilt workspaces.
+   1. Neural Inverse Cloud automatically creates the defined `instances` count of prebuilt workspaces.
    1. Each new prebuilt workspace is initially owned by an unprivileged system pseudo-user named `prebuilds`.
       - The `prebuilds` user belongs to the `Everyone` group (you can add it to additional groups if needed).
    1. Each prebuilt workspace receives a randomly generated name for identification.
@@ -79,7 +79,7 @@ Prebuilt workspaces follow a specific lifecycle from creation through eligibilit
    Before a prebuilt workspace is available to users:
 
    1. The workspace is provisioned.
-   1. The agent starts up and connects to coderd.
+   1. The agent starts up and connects to nicloud.
    1. The agent starts its bootstrap procedures and completes its startup scripts.
    1. The agent reports `ready` status.
 
@@ -92,13 +92,13 @@ Prebuilt workspaces follow a specific lifecycle from creation through eligibilit
    1. Developer selects a template and preset that has prebuilt workspaces configured.
    1. If an eligible prebuilt workspace exists, ownership transfers from the `prebuilds` user to the requesting user.
    1. The workspace name changes to the user's requested name.
-   1. `terraform apply` is executed using the new ownership details, which may affect the [`coder_workspace`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace) and
-      [`coder_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner)
+   1. `terraform apply` is executed using the new ownership details, which may affect the [`ni_workspace`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace) and
+      [`ni_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner)
       datasources (see [Preventing resource replacement](#preventing-resource-replacement) for further considerations).
 
    The claiming process is transparent to the developer — the workspace will just be ready faster than usual.
 
-You can view available prebuilt workspaces in the **Workspaces** view in the Coder dashboard:
+You can view available prebuilt workspaces in the **Workspaces** view in the Neural Inverse Cloud dashboard:
 
 ![A prebuilt workspace in the dashboard](../../../images/admin/templates/extend-templates/prebuilt/prebuilt-workspaces.png)
 _Note the search term `owner:prebuilds`._
@@ -124,7 +124,7 @@ This allows you to reduce resource costs during off-hours while maintaining avai
 Configure scheduling by adding a `scheduling` block within your `prebuilds` configuration:
 
 ```tf
-data "coder_workspace_preset" "goland" {
+data "ni_workspace_preset" "goland" {
    name = "GoLand: Large"
    parameters {
      jetbrains_ide = "GO"
@@ -163,7 +163,7 @@ data "coder_workspace_preset" "goland" {
 
 **How scheduling works:**
 
-1. The reconciliation loop evaluates all active schedules every reconciliation interval (`CODER_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL`).
+1. The reconciliation loop evaluates all active schedules every reconciliation interval (`NEURALINVERSE_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL`).
 1. The schedule that matches the current time becomes active. Overlapping schedules are disallowed by validation rules.
 1. If no schedules match the current time, the base `instances` count is used.
 1. The reconciliation loop automatically creates or destroys prebuilt workspaces to match the target count.
@@ -225,7 +225,7 @@ When a template's active version is updated:
 1. New prebuilt workspaces are created for the active template version.
 1. If dependencies change (e.g., an [AMI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) update) without a template version change:
    - You can delete the existing prebuilt workspaces manually.
-   - Coder will automatically create new prebuilt workspaces with the updated dependencies.
+   - Neural Inverse Cloud will automatically create new prebuilt workspaces with the updated dependencies.
 
 The system always maintains the desired number of prebuilt workspaces for the active template version.
 
@@ -248,7 +248,7 @@ To invalidate presets:
 1. Confirm the action in the dialog.
 
 Once presets are invalidated, the **next reconciliation loop** run will delete the old prebuilt workspaces and create new ones to maintain the desired instance count.
-The process typically completes within a few reconciliation cycles (the interval is controlled by `CODER_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL`, which defaults to 15 seconds).
+The process typically completes within a few reconciliation cycles (the interval is controlled by `NEURALINVERSE_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL`, which defaults to 15 seconds).
 
 > [!NOTE]
 > Preset invalidation only affects unclaimed prebuilt workspaces owned by the `prebuilds` system user.
@@ -265,7 +265,7 @@ Because unclaimed prebuilt workspaces are owned by the `prebuilds` user, you can
 1. Configure quotas for any group that includes this user.
 1. Set appropriate limits to balance prebuilt workspace availability with resource constraints.
 
-When prebuilt workspaces are configured for an organization, Coder creates a "prebuilds" group in that organization and adds the prebuilds user to it. This group has a default quota allowance of 0, which you should adjust based on your needs:
+When prebuilt workspaces are configured for an organization, Neural Inverse Cloud creates a "prebuilds" group in that organization and adds the prebuilds user to it. This group has a default quota allowance of 0, which you should adjust based on your needs:
 
 - **Set a quota allowance** on the "prebuilds" group to control how many prebuilt workspaces can be provisioned
 - **Monitor usage** to ensure the quota is appropriate for your desired number of prebuilt instances
@@ -275,9 +275,9 @@ If a quota is exceeded, the prebuilt workspace will fail provisioning the same w
 
 ### Managing prebuild provisioning queues
 
-Prebuilt workspaces can overwhelm a Coder deployment, causing significant delays when users and template administrators create new workspaces or manage their templates. Fundamentally, this happens when provisioners are not able to meet the demand for provisioner jobs. Prebuilds contribute to provisioner demand by scheduling many jobs in bursts whenever templates are updated. The solution is to either increase the number of provisioners or decrease the number of requested prebuilt workspaces across the entire system.
+Prebuilt workspaces can overwhelm a Neural Inverse Cloud deployment, causing significant delays when users and template administrators create new workspaces or manage their templates. Fundamentally, this happens when provisioners are not able to meet the demand for provisioner jobs. Prebuilds contribute to provisioner demand by scheduling many jobs in bursts whenever templates are updated. The solution is to either increase the number of provisioners or decrease the number of requested prebuilt workspaces across the entire system.
 
-To identify if prebuilt workspaces have overwhelmed the available provisioners in your Coder deployment, look for:
+To identify if prebuilt workspaces have overwhelmed the available provisioners in your Neural Inverse Cloud deployment, look for:
 
 - Large or growing queue of prebuild-related jobs
 - User workspace creation is slow
@@ -299,7 +299,7 @@ Run:
 coder prebuilds pause
 ```
 
-This prevents further pollution of your provisioner queues by stopping the prebuilt workspaces feature from scheduling new creation jobs. While the pause is in effect, no new prebuilt workspaces will be scheduled for any templates in any organizations across the entire Coder deployment.  Therefore, the command must be executed by a user with Owner level access. Existing prebuilt workspaces will remain in place.
+This prevents further pollution of your provisioner queues by stopping the prebuilt workspaces feature from scheduling new creation jobs. While the pause is in effect, no new prebuilt workspaces will be scheduled for any templates in any organizations across the entire Neural Inverse Cloud deployment.  Therefore, the command must be executed by a user with Owner level access. Existing prebuilt workspaces will remain in place.
 
 **Important**: Remember to run `coder prebuilds resume` once all impact has been mitigated (see the last step in this section).
 
@@ -311,7 +311,7 @@ Next, run:
 coder provisioner jobs list --status=pending --initiator=prebuilds
 ```
 
-This will show a list of all pending jobs that have been enqueued by the prebuilt workspace system. The length of this list indicates whether prebuilt workspaces have overwhelmed your Coder deployment.
+This will show a list of all pending jobs that have been enqueued by the prebuilt workspace system. The length of this list indicates whether prebuilt workspaces have overwhelmed your Neural Inverse Cloud deployment.
 
 Human-initiated jobs have priority over pending prebuild jobs, but running prebuild jobs cannot be preempted. A long list of pending prebuild jobs increases the likelihood that all provisioners are already occupied when a user wants to create a workspace or import a new template version. This increases the likelihood that users will experience delays waiting for the next available provisioner.
 
@@ -337,7 +337,7 @@ If you need to expedite the processing of human-related jobs at the cost of some
 coder provisioner jobs list --status=running --initiator=prebuilds | jq -r '.[].id' | xargs -n1 -P2 -I{} coder provisioner jobs cancel {}
 ```
 
-This should be done as a last resort. It will cancel running prebuild jobs (orphaning any resources that have already been deployed) and immediately make room for human-initiated jobs. Orphaned infrastructure will need to be manually cleaned up by a human operator. The process to identify and clear these orphaned resources will likely require administrative access to the infrastructure that hosts Coder workspaces. Furthermore, the ability to identify such orphaned resources will depend on metadata that should be included in the workspace template.
+This should be done as a last resort. It will cancel running prebuild jobs (orphaning any resources that have already been deployed) and immediately make room for human-initiated jobs. Orphaned infrastructure will need to be manually cleaned up by a human operator. The process to identify and clear these orphaned resources will likely require administrative access to the infrastructure that hosts Neural Inverse Cloud workspaces. Furthermore, the ability to identify such orphaned resources will depend on metadata that should be included in the workspace template.
 
 Once the provisioner queue has been cleared and all templates have been fixed, resume prebuild reconciliation by running:
 
@@ -373,8 +373,8 @@ resource "docker_container" "workspace" {
     ignore_changes = [env, image] # include all fields which caused drift
   }
 
-  count = data.coder_workspace.me.start_count
-  name  = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
+  count = data.ni_workspace.me.start_count
+  name  = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
   ...
 }
 ```
@@ -396,7 +396,7 @@ The section [Managing prebuild provisioning queues](#managing-prebuild-provision
 This section outlines a **best-practice configuration** to prevent that situation by isolating prebuild jobs to a dedicated provisioner pool.
 This setup is optional and requires minor template changes.
 
-Coder supports [external provisioners and provisioner tags](../../provisioners/index.md), which allows you to route jobs to provisioners with matching tags.
+Neural Inverse Cloud supports [external provisioners and provisioner tags](../../provisioners/index.md), which allows you to route jobs to provisioners with matching tags.
 By creating external provisioners with a special tag (e.g., `is_prebuild=true`) and updating the template to conditionally add that tag for prebuild jobs,
 all prebuild work is handled by the prebuild pool.
 This keeps other provisioners available to handle user-initiated jobs.
@@ -405,18 +405,18 @@ This keeps other provisioners available to handle user-initiated jobs.
 
 1. Create a provisioner key with a prebuild tag (e.g., `is_prebuild=true`).
     Provisioner keys are org-scoped and their tags are inferred automatically by provisioner daemons that use the key.
-    **Note:** `coder_workspace_tags` are cumulative, so if your template already defines provisioner tags, you will need to create the provisioner key with the same tags plus the `is_prebuild=true` tag so that prebuild jobs correctly match the dedicated prebuild pool.
+    **Note:** `ni_workspace_tags` are cumulative, so if your template already defines provisioner tags, you will need to create the provisioner key with the same tags plus the `is_prebuild=true` tag so that prebuild jobs correctly match the dedicated prebuild pool.
     See [Scoped Key](../../provisioners/index.md#scoped-key-recommended) for instructions on how to create a provisioner key.
 
-1. Deploy a separate provisioner pool using that key (for example, via the [Helm coder-provisioner chart](https://github.com/coder/coder/pkgs/container/chart%2Fcoder-provisioner)).
+1. Deploy a separate provisioner pool using that key (for example, via the [Helm coder-provisioner chart](https://github.com/NeuralInverse/cloud/pkgs/container/chart%2Fcoder-provisioner)).
     Daemons in this pool will only execute jobs that include all of the tags specified in their provisioner key.
     See [External provisioners](../../provisioners/index.md) for environment-specific deployment examples.
 
 1. Update the template to conditionally add the prebuild tag for prebuild jobs.
 
     ```hcl
-    data "coder_workspace_tags" "prebuilds" {
-      count = data.coder_workspace_owner.me.name == "prebuilds" ? 1 : 0
+    data "ni_workspace_tags" "prebuilds" {
+      count = data.ni_workspace_owner.me.name == "prebuilds" ? 1 : 0
       tags = {
         "is_prebuild" = "true"
       }
@@ -424,7 +424,7 @@ This keeps other provisioners available to handle user-initiated jobs.
     ```
 
 Prebuild workspaces are a special type of workspace owned by the system user `prebuilds`.
-The value `data.coder_workspace_owner.me.name` returns the name of the workspace owner, for prebuild workspaces, this value is `"prebuilds"`.
+The value `data.ni_workspace_owner.me.name` returns the name of the workspace owner, for prebuild workspaces, this value is `"prebuilds"`.
 Because the condition evaluates based on the workspace owner, provisioning or deprovisioning prebuilds automatically applies the prebuild tag, whereas regular jobs (like workspace creation or template import) do not.
 
 > [!NOTE]
@@ -440,10 +440,10 @@ Follow these steps:
 1. Publish the new template version.
 
 1. Validate the status of the prebuild provisioners.
-    Check the Provisioners page in the Coder dashboard or run the [`coder provisioner list`](../../../reference/cli/provisioner_list.md) CLI command to ensure all prebuild provisioners are up to date and the tags are properly set.
+    Check the Provisioners page in the Neural Inverse Cloud dashboard or run the [`coder provisioner list`](../../../reference/cli/provisioner_list.md) CLI command to ensure all prebuild provisioners are up to date and the tags are properly set.
 
 1. Wait for the prebuilds reconciliation loop to run.
-    The loop frequency is controlled by the configuration value [`CODER_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL`](../../../reference/cli/server.md#--workspace-prebuilds-reconciliation-interval).
+    The loop frequency is controlled by the configuration value [`NEURALINVERSE_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL`](../../../reference/cli/server.md#--workspace-prebuilds-reconciliation-interval).
     When the loop runs, it will provision prebuilds for the new template version and deprovision prebuilds for the previous version.
     Both provisioning and deprovisioning jobs for prebuilds should display the tag `is_prebuild=true`.
 
@@ -455,19 +455,19 @@ Follow these steps:
 
 #### Available metrics
 
-Coder provides several metrics to monitor your prebuilt workspaces:
+Neural Inverse Cloud provides several metrics to monitor your prebuilt workspaces:
 
-- `coderd_prebuilt_workspaces_created_total` (counter): Total number of prebuilt workspaces created to meet the desired instance count.
-- `coderd_prebuilt_workspaces_failed_total` (counter): Total number of prebuilt workspaces that failed to build.
-- `coderd_prebuilt_workspaces_claimed_total` (counter): Total number of prebuilt workspaces claimed by users.
-- `coderd_prebuilt_workspaces_desired` (gauge): Target number of prebuilt workspaces that should be available.
-- `coderd_prebuilt_workspaces_running` (gauge): Current number of prebuilt workspaces in a `running` state.
-- `coderd_prebuilt_workspaces_eligible` (gauge): Current number of prebuilt workspaces eligible to be claimed.
-- `coderd_prebuilt_workspace_claim_duration_seconds` ([_native histogram_](https://prometheus.io/docs/specs/native_histograms) support): Time to claim a prebuilt workspace from the prebuild pool.
+- `nicloud_prebuilt_workspaces_created_total` (counter): Total number of prebuilt workspaces created to meet the desired instance count.
+- `nicloud_prebuilt_workspaces_failed_total` (counter): Total number of prebuilt workspaces that failed to build.
+- `nicloud_prebuilt_workspaces_claimed_total` (counter): Total number of prebuilt workspaces claimed by users.
+- `nicloud_prebuilt_workspaces_desired` (gauge): Target number of prebuilt workspaces that should be available.
+- `nicloud_prebuilt_workspaces_running` (gauge): Current number of prebuilt workspaces in a `running` state.
+- `nicloud_prebuilt_workspaces_eligible` (gauge): Current number of prebuilt workspaces eligible to be claimed.
+- `nicloud_prebuilt_workspace_claim_duration_seconds` ([_native histogram_](https://prometheus.io/docs/specs/native_histograms) support): Time to claim a prebuilt workspace from the prebuild pool.
 
 #### Logs
 
-Search for `coderd.prebuilds:` in your logs to track the reconciliation loop's behavior.
+Search for `nicloud.prebuilds:` in your logs to track the reconciliation loop's behavior.
 
 These logs provide information about:
 

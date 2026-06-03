@@ -2115,7 +2115,7 @@ type Env struct {
 	Name  string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 	// merge_strategy controls how this env var is merged when multiple
-	// coder_env resources define the same name. Valid values: "replace"
+	// ni_env resources define the same name. Valid values: "replace"
 	// (default), "append", "prepend", "error".
 	MergeStrategy string `protobuf:"bytes,3,opt,name=merge_strategy,json=mergeStrategy,proto3" json:"merge_strategy,omitempty"`
 }
@@ -3023,7 +3023,7 @@ type Metadata struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CoderUrl                      string                      `protobuf:"bytes,1,opt,name=coder_url,json=coderUrl,proto3" json:"coder_url,omitempty"`
+	NIUrl                      string                      `protobuf:"bytes,1,opt,name=ni_url,json=niUrl,proto3" json:"ni_url,omitempty"`
 	WorkspaceTransition           WorkspaceTransition         `protobuf:"varint,2,opt,name=workspace_transition,json=workspaceTransition,proto3,enum=provisioner.WorkspaceTransition" json:"workspace_transition,omitempty"`
 	WorkspaceName                 string                      `protobuf:"bytes,3,opt,name=workspace_name,json=workspaceName,proto3" json:"workspace_name,omitempty"`
 	WorkspaceOwner                string                      `protobuf:"bytes,4,opt,name=workspace_owner,json=workspaceOwner,proto3" json:"workspace_owner,omitempty"`
@@ -3082,9 +3082,9 @@ func (*Metadata) Descriptor() ([]byte, []int) {
 	return file_provisionersdk_proto_provisioner_proto_rawDescGZIP(), []int{33}
 }
 
-func (x *Metadata) GetCoderUrl() string {
+func (x *Metadata) GetNIUrl() string {
 	if x != nil {
-		return x.CoderUrl
+		return x.NIUrl
 	}
 	return ""
 }
@@ -3938,7 +3938,7 @@ type GraphComplete struct {
 	Parameters            []*RichParameter                `protobuf:"bytes,4,rep,name=parameters,proto3" json:"parameters,omitempty"`
 	ExternalAuthProviders []*ExternalAuthProviderResource `protobuf:"bytes,5,rep,name=external_auth_providers,json=externalAuthProviders,proto3" json:"external_auth_providers,omitempty"`
 	Presets               []*Preset                       `protobuf:"bytes,6,rep,name=presets,proto3" json:"presets,omitempty"`
-	// Whether actual `coder_ai_task` resource instances exist.
+	// Whether actual `ni_ai_task` resource instances exist.
 	// Resources defined with count = 0 do not set this flag.
 	HasAiTasks        bool      `protobuf:"varint,7,opt,name=has_ai_tasks,json=hasAiTasks,proto3" json:"has_ai_tasks,omitempty"`
 	AiTasks           []*AITask `protobuf:"bytes,8,rep,name=ai_tasks,json=aiTasks,proto3" json:"ai_tasks,omitempty"`

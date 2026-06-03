@@ -1,10 +1,10 @@
 # Appearance
 
 > [!NOTE]
-> Customizing Coder's appearance is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> Customizing Neural Inverse Cloud's appearance is a Premium feature.
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
-Customize the look of your Coder deployment to meet your enterprise
+Customize the look of your Neural Inverse Cloud deployment to meet your enterprise
 requirements.
 
 You can access the Appearance settings by navigating to
@@ -15,12 +15,12 @@ You can access the Appearance settings by navigating to
 ## Application Name
 
 Specify a custom application name to be displayed on the login page. The default
-is Coder.
+is Neural Inverse Cloud.
 
 ## Logo URL
 
 Specify a custom URL for your enterprise's logo to be displayed on the sign in
-page and in the top left corner of the dashboard. The default is the Coder logo.
+page and in the top left corner of the dashboard. The default is the Neural Inverse Cloud logo.
 
 ## Announcement Banners
 
@@ -35,7 +35,7 @@ updates, such as maintenance or new feature rollout.
 ![Multiple announcements](../../images/admin/setup/appearance/multiple-banners.PNG)
 
 Example: Adhere to government network classification requirements and notify
-users of which network their Coder deployment is on.
+users of which network their Neural Inverse Cloud deployment is on.
 
 ![service banner secret](../../images/admin/setup/appearance/service-banner-secret.png)
 
@@ -74,15 +74,15 @@ user dropdown menu.
 
 #### Kubernetes
 
-To configure support links in your Coder Kubernetes deployment, update your Helm
+To configure support links in your Neural Inverse Cloud Kubernetes deployment, update your Helm
 chart values as follows:
 
 ```yaml
 coder:
   env:
-    - name: CODER_SUPPORT_LINKS
+    - name: NEURALINVERSE_SUPPORT_LINKS
       value: >
-        [{"name": "Hello GitHub", "target": "https://github.com/coder/coder",
+        [{"name": "Hello GitHub", "target": "https://github.com/NeuralInverse/cloud",
         "icon": "bug"},
          {"name": "Hello Slack", "target":
         "https://codercom.slack.com/archives/C014JH42DBJ", "icon":
@@ -96,15 +96,15 @@ coder:
 #### System package
 
 if running as a system service, set an environment variable
-`CODER_SUPPORT_LINKS` in `/etc/coder.d/coder.env` as follows,
+`NEURALINVERSE_SUPPORT_LINKS` in `/etc/coder.d/coder.env` as follows,
 
 ```env
-CODER_SUPPORT_LINKS='[{"name": "Hello GitHub", "target": "https://github.com/coder/coder", "icon": "bug"}, {"name": "Hello Slack", "target": "https://codercom.slack.com/archives/C014JH42DBJ", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/slack.svg"}, {"name": "Hello Discord", "target": "https://discord.gg/coder", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/discord.svg", "location": "navbar"}, {"name": "Hello Foobar", "target": "https://discord.gg/coder", "icon": "/emojis/1f3e1.png"}]'
+NEURALINVERSE_SUPPORT_LINKS='[{"name": "Hello GitHub", "target": "https://github.com/NeuralInverse/cloud", "icon": "bug"}, {"name": "Hello Slack", "target": "https://codercom.slack.com/archives/C014JH42DBJ", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/slack.svg"}, {"name": "Hello Discord", "target": "https://discord.gg/coder", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/discord.svg", "location": "navbar"}, {"name": "Hello Foobar", "target": "https://discord.gg/coder", "icon": "/emojis/1f3e1.png"}]'
 ```
 
 For CLI, use,
 
 ```shell
-export CODER_SUPPORT_LINKS='[{"name": "Hello GitHub", "target": "https://github.com/coder/coder", "icon": "bug"}, {"name": "Hello Slack", "target": "https://codercom.slack.com/archives/C014JH42DBJ", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/slack.svg"}, {"name": "Hello Discord", "target": "https://discord.gg/coder", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/discord.svg", "location": "navbar"}, {"name": "Hello Foobar", "target": "https://discord.gg/coder", "icon": "/emojis/1f3e1.png"}]'
+export NEURALINVERSE_SUPPORT_LINKS='[{"name": "Hello GitHub", "target": "https://github.com/NeuralInverse/cloud", "icon": "bug"}, {"name": "Hello Slack", "target": "https://codercom.slack.com/archives/C014JH42DBJ", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/slack.svg"}, {"name": "Hello Discord", "target": "https://discord.gg/coder", "icon": "https://raw.githubusercontent.com/coder/coder/main/site/static/icon/discord.svg", "location": "navbar"}, {"name": "Hello Foobar", "target": "https://discord.gg/coder", "icon": "/emojis/1f3e1.png"}]'
 coder-server
 ```

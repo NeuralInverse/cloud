@@ -21,15 +21,15 @@ repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
 paths=(
-	"dogfood/coder/ubuntu-${distro}/Dockerfile.base"
-	"dogfood/coder/ubuntu-${distro}/files"
+	"dogfood/neuralinverse/ubuntu-${distro}/Dockerfile.base"
+	"dogfood/neuralinverse/ubuntu-${distro}/files"
 )
 if [ "$distro" = "22.04" ]; then
-	paths+=("dogfood/coder/ubuntu-${distro}/configure-chrome-flags.sh")
+	paths+=("dogfood/neuralinverse/ubuntu-${distro}/configure-chrome-flags.sh")
 fi
 
 # Skip editor turds; .swp / ~-files / dotfiles are noise for a build
-# hash. Include symlinks too: `COPY dogfood/coder/ubuntu-*/files /`
+# hash. Include symlinks too: `COPY dogfood/neuralinverse/ubuntu-*/files /`
 # bakes their target paths into the image, so swapping a symlink
 # changes base content and must invalidate the cache key.
 find "${paths[@]}" \( -type f -o -type l \) \

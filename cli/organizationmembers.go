@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -116,7 +116,7 @@ func (r *RootCmd) assignOrganizationRoles(orgContext *OrganizationContext) *serp
 			userIdentifier := inv.Args[0]
 			roles := inv.Args[1:]
 
-			member, err := client.UpdateOrganizationMemberRoles(ctx, organization.ID, userIdentifier, codersdk.UpdateRoles{
+			member, err := client.UpdateOrganizationMemberRoles(ctx, organization.ID, userIdentifier, nicloudsdk.UpdateRoles{
 				Roles: roles,
 			})
 			if err != nil {
@@ -138,7 +138,7 @@ func (r *RootCmd) assignOrganizationRoles(orgContext *OrganizationContext) *serp
 
 func (r *RootCmd) listOrganizationMembers(orgContext *OrganizationContext) *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
-		cliui.TableFormat([]codersdk.OrganizationMemberWithUserData{}, []string{"username", "organization roles"}),
+		cliui.TableFormat([]nicloudsdk.OrganizationMemberWithUserData{}, []string{"username", "organization roles"}),
 		cliui.JSONFormat(),
 	)
 

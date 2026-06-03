@@ -1,6 +1,6 @@
 # Users
 
-By default, Coder is accessible via password authentication. For production
+By default, Neural Inverse Cloud is accessible via password authentication. For production
 deployments, we recommend using an SSO authentication provider with multi-factor
 authentication (MFA). It is your responsibility to ensure the auth provider
 enforces MFA correctly.
@@ -13,7 +13,7 @@ enforces MFA correctly.
 ## Groups
 
 Multiple users can be organized into logical groups to control which templates
-they can use. While groups can be manually created in Coder, we recommend
+they can use. While groups can be manually created in Neural Inverse Cloud, we recommend
 syncing them from your identity provider.
 
 - [Learn more about Groups](./groups-roles.md)
@@ -31,35 +31,35 @@ auditing, managing users, and managing templates.
 
 ## User status
 
-Coder user accounts can have different status types: active, dormant, and
+Neural Inverse Cloud user accounts can have different status types: active, dormant, and
 suspended.
 
 ### Active user
 
-An _active_ user account in Coder is the default and desired state for all
+An _active_ user account in Neural Inverse Cloud is the default and desired state for all
 users. When a user's account is marked as _active_, they have complete access to
-the Coder platform and can utilize all of its features and functionalities
+the Neural Inverse Cloud platform and can utilize all of its features and functionalities
 without any limitations. Active users can access workspaces, templates, and
-interact with Coder using CLI.
+interact with Neural Inverse Cloud using CLI.
 
 ### Dormant user
 
 A user account is set to _dormant_ status when they have not yet logged in, or
-have not logged into the Coder platform for the past 90 days. Once the user logs
+have not logged into the Neural Inverse Cloud platform for the past 90 days. Once the user logs
 in to the platform, the account status will switch to _active_.
 
 Dormant accounts do not count towards the total number of licensed seats in a
-Coder subscription, allowing organizations to optimize their license usage.
+Neural Inverse Cloud subscription, allowing organizations to optimize their license usage.
 
 ### Suspended user
 
-When a user's account is marked as _suspended_ in Coder, it means that the
+When a user's account is marked as _suspended_ in Neural Inverse Cloud, it means that the
 account has been temporarily deactivated, and the user is unable to access the
 platform.
 
 Only user administrators or owners have the necessary permissions to manage
 suspended accounts and decide whether to lift the suspension and allow the user
-back into the Coder environment. This level of control ensures that
+back into the Neural Inverse Cloud environment. This level of control ensures that
 administrators can enforce security measures and handle any compliance-related
 issues promptly.
 
@@ -80,7 +80,7 @@ To create a user with the web UI:
 The new user will appear in the **Users** list. Use the toggle to change their
 **Roles** if desired.
 
-To create a user via the Coder CLI, run:
+To create a user via the Neural Inverse Cloud CLI, run:
 
 ```shell
 coder users create
@@ -89,11 +89,11 @@ coder users create
 When prompted, provide the **username** and **email** for the new user.
 
 You'll receive a response that includes the following; share the instructions
-with the user so that they can log into Coder:
+with the user so that they can log into Neural Inverse Cloud:
 
 ```console
-Download the Coder command line for your operating system:
-https://github.com/coder/coder/releases/latest
+Download the Neural Inverse Cloud command line for your operating system:
+https://github.com/NeuralInverse/cloud/releases/latest
 
 Run  coder login https://<accessURL>.coder.app  to authenticate.
 
@@ -105,7 +105,7 @@ Create a workspace   coder create !
 
 ## Suspend a user
 
-User admins can suspend a user, removing the user's access to Coder.
+User admins can suspend a user, removing the user's access to Neural Inverse Cloud.
 
 To suspend a user via the web UI:
 
@@ -124,7 +124,7 @@ Confirm the user suspension by typing **yes** and pressing **enter**.
 
 ## Activate a suspended user
 
-User admins can activate a suspended user, restoring their access to Coder.
+User admins can activate a suspended user, restoring their access to Neural Inverse Cloud.
 
 To activate a user via the web UI:
 
@@ -153,10 +153,10 @@ To reset a user's password as an administrator via the web UI:
 1. Go to **Users**.
 2. Find the user whose password you want to reset, click the vertical ellipsis
    to the right, and select **Reset password**.
-3. Coder displays a temporary password that you can send to the user; copy the
+3. Neural Inverse Cloud displays a temporary password that you can send to the user; copy the
    password and click **Reset password**.
 
-Coder will prompt the user to change their temporary password immediately after
+Neural Inverse Cloud will prompt the user to change their temporary password immediately after
 logging in.
 
 You can also reset a password via the CLI:
@@ -168,7 +168,7 @@ coder reset-password <username>
 
 > [!NOTE]
 > Resetting a user's password, e.g., the initial `owner` role-based user, only
-> works when run on the host running the Coder control plane.
+> works when run on the host running the Neural Inverse Cloud control plane.
 
 ### Resetting a password on Kubernetes
 
@@ -180,9 +180,9 @@ coder reset-password <username>
 
 ## User filtering
 
-In the Coder UI, you can filter your users using pre-defined filters or by
-utilizing the Coder's filter query. The examples provided below demonstrate how
-to use the Coder's filter query:
+In the Neural Inverse Cloud UI, you can filter your users using pre-defined filters or by
+utilizing the Neural Inverse Cloud's filter query. The examples provided below demonstrate how
+to use the Neural Inverse Cloud's filter query:
 
 - To find active users, use the filter `status:active`.
 - To find admin users, use the filter `role:admin`.
@@ -199,14 +199,14 @@ The following filters are supported:
 - `status` - Indicates the status of the user. It can be either `active`,
   `dormant` or `suspended`.
 - `role` - Represents the role of the user. You can refer to the
-  [TemplateRole documentation](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#TemplateRole)
+  [TemplateRole documentation](https://pkg.go.dev/github.com/NeuralInverse/cloud/v2/nicloudsdk#TemplateRole)
   for a list of supported user roles.
 - `last_seen_before` and `last_seen_after` - The last time a user has used the
   platform (e.g. logging in, any API requests, connecting to workspaces). Uses
   the RFC3339Nano format.
 - `created_before` and `created_after` - The time a user was created. Uses the
   RFC3339Nano format.
-- `login_type` - Represents the login type of the user. Refer to the [LoginType documentation](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#LoginType) for a list of supported values
+- `login_type` - Represents the login type of the user. Refer to the [LoginType documentation](https://pkg.go.dev/github.com/NeuralInverse/cloud/v2/nicloudsdk#LoginType) for a list of supported values
 - `service_account` - Can be either `true` to only include service accounts or
   `false` to filter them out. If omitted, both service and regular accounts and
   are returned.
@@ -222,11 +222,11 @@ To edit a user's display name or username with the web UI:
 5. Make any desired changes
 6. Click **Save**
 
-## Retrieve your list of Coder users
+## Retrieve your list of Neural Inverse Cloud users
 
 <div class="tabs">
 
-You can use the Coder CLI or API to retrieve your list of users.
+You can use the Neural Inverse Cloud CLI or API to retrieve your list of users.
 
 ### CLI
 
@@ -245,7 +245,7 @@ Use [get users](../../reference/api/users.md#get-users):
 ```shell
 curl -X GET http://coder-server:8080/api/v2/users \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 To export the results to a CSV file, you can use [`jq`](https://jqlang.org/) to process the JSON response:
@@ -253,7 +253,7 @@ To export the results to a CSV file, you can use [`jq`](https://jqlang.org/) to 
 ```shell
 curl -X GET http://coder-server:8080/api/v2/users \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY' | \
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY' | \
   jq -r '.users | (map(keys) | add | unique) as $cols | $cols, (.[] | [.[$cols[]]] | @csv)' > users.csv
 ```
 

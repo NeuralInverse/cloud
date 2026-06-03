@@ -8,13 +8,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/pretty"
 )
 
@@ -26,12 +26,12 @@ func TestTemplateDelete(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "delete", template.Name)
 
@@ -56,15 +56,15 @@ func TestTemplateDelete(t *testing.T) {
 	t.Run("Multiple --yes", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		templates := []codersdk.Template{}
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templates := []nicloudsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 			templates = append(templates, template)
 			templateNames = append(templateNames, template.Name)
 		}
@@ -84,15 +84,15 @@ func TestTemplateDelete(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		templates := []codersdk.Template{}
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templates := []nicloudsdk.Template{}
 		templateNames := []string{}
 		for i := 0; i < 3; i++ {
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 			templates = append(templates, template)
 			templateNames = append(templateNames, template.Name)
 		}
@@ -124,12 +124,12 @@ func TestTemplateDelete(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "delete")
 		clitest.SetupConfig(t, templateAdmin, root)

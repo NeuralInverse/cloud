@@ -1,15 +1,15 @@
 # Web IDEs
 
-In Coder, web IDEs are defined as
-[coder_app](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
+In Neural Inverse Cloud, web IDEs are defined as
+[ni_app](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
 resources in the template. With our generic model, any web application can be
-used as a Coder application. For example:
+used as a Neural Inverse Cloud application. For example:
 
 ```tf
 # Add button to open Portainer in the workspace dashboard
 # Note: Portainer must be already running in the workspace
-resource "coder_app" "portainer" {
-  agent_id      = coder_agent.main.id
+resource "ni_app" "portainer" {
+  agent_id      = ni_agent.main.id
   slug          = "portainer"
   display_name  = "Portainer"
   icon          = "https://simpleicons.org/icons/portainer.svg"
@@ -27,7 +27,7 @@ resource "coder_app" "portainer" {
 
 [code-server](https://github.com/coder/code-server) is our supported method of running
 VS Code in the web browser. A simple way to install code-server in Linux/macOS
-workspaces is via the Coder agent in your template:
+workspaces is via the Neural Inverse Cloud agent in your template:
 
 ```console
 # edit your template
@@ -36,7 +36,7 @@ vim main.tf
 ```
 
 ```tf
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
     arch           = "amd64"
     os             = "linux"
     startup_script = <<EOF
@@ -55,7 +55,7 @@ resource "coder_agent" "main" {
 
 For advanced use, we recommend installing code-server in your VM snapshot or
 container image. Here's a Dockerfile which leverages some special
-[code-server features](https://coder.com/docs/code-server):
+[code-server features](https://cloud.neuralinverse.com/docs/code-server):
 
 ```Dockerfile
 FROM codercom/enterprise-base:ubuntu
@@ -72,12 +72,12 @@ RUN code-server --install-extension eamodio.gitlens
 # or use a process manager like supervisord
 ```
 
-You'll also need to specify a `coder_app` resource related to the agent. This is
+You'll also need to specify a `ni_app` resource related to the agent. This is
 how code-server is displayed on the workspace page.
 
 ```tf
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id     = ni_agent.main.id
   slug         = "code-server"
   display_name = "code-server"
   url          = "http://localhost:13337/?folder=/home/coder"
@@ -101,23 +101,23 @@ VS Code supports launching a local web client using the `code serve-web`
 command. To add VS Code web as a web IDE, you have two options.
 
 1. Install using the
-   [vscode-web module](https://registry.coder.com/modules/vscode-web) from the
+   [vscode-web module](https://registry.cloud.neuralinverse.com/modules/vscode-web) from the
    coder registry.
 
    ```tf
    module "vscode-web" {
-     source         = "registry.coder.com/modules/vscode-web/coder"
+     source         = "registry.cloud.neuralinverse.com/modules/vscode-web/coder"
      version        = "1.0.14"
-     agent_id       = coder_agent.main.id
+     agent_id       = ni_agent.main.id
      accept_license = true
    }
    ```
 
 2. Install and start in your `startup_script` and create a corresponding
-   `coder_app`
+   `ni_app`
 
    ```tf
-   resource "coder_agent" "main" {
+   resource "ni_agent" "main" {
        arch           = "amd64"
        os             = "linux"
        startup_script = <<EOF
@@ -135,12 +135,12 @@ command. To add VS Code web as a web IDE, you have two options.
 
    > `code serve-web` was introduced in version 1.82.0 (August 2023).
 
-   You also need to add a `coder_app` resource for this.
+   You also need to add a `ni_app` resource for this.
 
    ```tf
    # VS Code Web
-   resource "coder_app" "vscode-web" {
-     agent_id     = coder_agent.coder.id
+   resource "ni_app" "vscode-web" {
+     agent_id     = ni_agent.coder.id
      slug         = "vscode-web"
      display_name = "VS Code Web"
      icon         = "/icon/code.svg"
@@ -153,28 +153,28 @@ command. To add VS Code web as a web IDE, you have two options.
 ## Jupyter Notebook
 
 To use Jupyter Notebook in your workspace, you can install it by using the
-[Jupyter Notebook module](https://registry.coder.com/modules/jupyter-notebook)
-from the Coder registry:
+[Jupyter Notebook module](https://registry.cloud.neuralinverse.com/modules/jupyter-notebook)
+from the Neural Inverse Cloud registry:
 
 ```tf
 module "jupyter-notebook" {
-  source   = "registry.coder.com/modules/jupyter-notebook/coder"
+  source   = "registry.cloud.neuralinverse.com/modules/jupyter-notebook/coder"
   version  = "1.0.19"
-  agent_id = coder_agent.example.id
+  agent_id = ni_agent.example.id
 }
 ```
 
-![Jupyter Notebook in Coder](../../../images/jupyter-notebook.png)
+![Jupyter Notebook in Neural Inverse Cloud](../../../images/jupyter-notebook.png)
 
 ## JupyterLab
 
-Configure your agent and `coder_app` like so to use Jupyter. Notice the
+Configure your agent and `ni_app` like so to use Jupyter. Notice the
 `subdomain=true` configuration:
 
 ```tf
-data "coder_workspace" "me" {}
+data "ni_workspace" "me" {}
 
-resource "coder_agent" "coder" {
+resource "ni_agent" "coder" {
   os             = "linux"
   arch           = "amd64"
   dir            = "/home/coder"
@@ -184,8 +184,8 @@ $HOME/.local/bin/jupyter lab --ServerApp.token='' --ip='*'
 EOF
 }
 
-resource "coder_app" "jupyter" {
-  agent_id     = coder_agent.coder.id
+resource "ni_app" "jupyter" {
+  agent_id     = ni_agent.coder.id
   slug         = "jupyter"
   display_name = "JupyterLab"
   url          = "http://localhost:8888"
@@ -201,13 +201,13 @@ resource "coder_app" "jupyter" {
 }
 ```
 
-Or Alternatively, you can use the JupyterLab module from the Coder registry:
+Or Alternatively, you can use the JupyterLab module from the Neural Inverse Cloud registry:
 
 ```tf
 module "jupyter" {
-  source   = "registry.coder.com/modules/jupyter-lab/coder"
+  source   = "registry.cloud.neuralinverse.com/modules/jupyter-lab/coder"
   version  = "1.0.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
 }
 ```
 
@@ -218,15 +218,15 @@ configure the template to run Jupyter on a path. There is however
 running an app on a path and the template code is more complicated with coder
 value substitution to recreate the path structure.
 
-![JupyterLab in Coder](../../../images/jupyter.png)
+![JupyterLab in Neural Inverse Cloud](../../../images/jupyter.png)
 
 ## RStudio
 
-Configure your agent and `coder_app` like so to use RStudio. Notice the
+Configure your agent and `ni_app` like so to use RStudio. Notice the
 `subdomain=true` configuration:
 
 ```tf
-resource "coder_agent" "coder" {
+resource "ni_agent" "coder" {
   os             = "linux"
   arch           = "amd64"
   dir            = "/home/coder"
@@ -237,8 +237,8 @@ resource "coder_agent" "coder" {
 EOT
 }
 
-resource "coder_app" "rstudio" {
-  agent_id      = coder_agent.coder.id
+resource "ni_app" "rstudio" {
+  agent_id      = ni_agent.coder.id
   slug          = "rstudio"
   display_name  = "R Studio"
   icon          = "https://upload.wikimedia.org/wikipedia/commons/d/d0/RStudio_logo_flat.svg"
@@ -255,25 +255,25 @@ resource "coder_app" "rstudio" {
 ```
 
 If you cannot enable a
-[wildcard subdomain](https://coder.com/docs/admin/setup#wildcard-access-url),
+[wildcard subdomain](https://cloud.neuralinverse.com/docs/admin/setup#wildcard-access-url),
 you can configure the template to run RStudio on a path using an NGINX reverse
 proxy in the template. There is however
-[security risk](https://coder.com/docs/reference/cli/server#--dangerous-allow-path-app-sharing)
+[security risk](https://cloud.neuralinverse.com/docs/reference/cli/server#--dangerous-allow-path-app-sharing)
 running an app on a path and the template code is more complicated with coder
 value substitution to recreate the path structure.
 
 [This](https://github.com/sempie/coder-templates/tree/main/rstudio) is a
 community template example.
 
-![RStudio in Coder](../../../images/rstudio-port-forward.png)
+![RStudio in Neural Inverse Cloud](../../../images/rstudio-port-forward.png)
 
 ## Airflow
 
-Configure your agent and `coder_app` like so to use Airflow. Notice the
+Configure your agent and `ni_app` like so to use Airflow. Notice the
 `subdomain=true` configuration:
 
 ```tf
-resource "coder_agent" "coder" {
+resource "ni_agent" "coder" {
   os   = "linux"
   arch = "amd64"
   dir  = "/home/coder"
@@ -285,8 +285,8 @@ pip3 install apache-airflow
 EOT
 }
 
-resource "coder_app" "airflow" {
-  agent_id      = coder_agent.coder.id
+resource "ni_app" "airflow" {
+  agent_id      = ni_agent.coder.id
   slug          = "airflow"
   display_name  = "Airflow"
   icon          = "/icon/airflow.svg"
@@ -302,18 +302,18 @@ resource "coder_app" "airflow" {
 }
 ```
 
-or use the [Airflow module](https://registry.coder.com/modules/apache-airflow)
-from the Coder registry:
+or use the [Airflow module](https://registry.cloud.neuralinverse.com/modules/apache-airflow)
+from the Neural Inverse Cloud registry:
 
 ```tf
 module "airflow" {
-  source   = "registry.coder.com/modules/airflow/coder"
+  source   = "registry.cloud.neuralinverse.com/modules/airflow/coder"
   version  = "1.0.13"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
 }
 ```
 
-![Airflow in Coder](../../../images/airflow-port-forward.png)
+![Airflow in Neural Inverse Cloud](../../../images/airflow-port-forward.png)
 
 ## File Browser
 
@@ -324,7 +324,7 @@ manipulate files in a web browser.
 Show and manipulate the contents of the `/home/coder` directory in a browser.
 
 ```tf
-resource "coder_agent" "coder" {
+resource "ni_agent" "coder" {
   os   = "linux"
   arch = "amd64"
   dir  = "/home/coder"
@@ -337,8 +337,8 @@ filebrowser --noauth --root /home/coder --port 13339 >/tmp/filebrowser.log 2>&1 
 EOT
 }
 
-resource "coder_app" "filebrowser" {
-  agent_id     = coder_agent.coder.id
+resource "ni_app" "filebrowser" {
+  agent_id     = ni_agent.coder.id
   display_name = "file browser"
   slug         = "filebrowser"
   url          = "http://localhost:13339"
@@ -355,14 +355,14 @@ resource "coder_app" "filebrowser" {
 ```
 
 Or alternatively, you can use the
-[`filebrowser`](https://registry.coder.com/modules/filebrowser) module from the
-Coder registry:
+[`filebrowser`](https://registry.cloud.neuralinverse.com/modules/filebrowser) module from the
+Neural Inverse Cloud registry:
 
 ```tf
 module "filebrowser" {
-  source   = "registry.coder.com/modules/filebrowser/coder"
+  source   = "registry.cloud.neuralinverse.com/modules/filebrowser/coder"
   version  = "1.0.8"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
 }
 ```
 
@@ -371,6 +371,6 @@ module "filebrowser" {
 ## SSH Fallback
 
 If you prefer to run web IDEs in localhost, you can port forward using
-[SSH](../../../user-guides/workspace-access/index.md#ssh) or the Coder CLI
+[SSH](../../../user-guides/workspace-access/index.md#ssh) or the Neural Inverse Cloud CLI
 `port-forward` sub-command. Some web IDEs may not support URL base path
 adjustment so port forwarding is the only approach.

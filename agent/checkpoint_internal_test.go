@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestCheckpoint_CompleteWait(t *testing.T) {

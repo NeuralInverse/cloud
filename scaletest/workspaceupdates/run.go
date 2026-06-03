@@ -11,20 +11,20 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
-	"github.com/coder/coder/v2/tailnet"
-	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	tailnetproto "github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/websocket"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 
 	createUserRunner      *createusers.Runner
@@ -45,7 +45,7 @@ var (
 	_ harness.Collectable = &Runner{}
 )
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client:     client,
 		cfg:        cfg,
@@ -76,10 +76,10 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 	}
 	newUser := newUserAndToken.User
 	// Create a user client with an independent HTTP transport cloned from the
-	// runner's client. Using codersdk.New directly would inherit
+	// runner's client. Using nicloudsdk.New directly would inherit
 	// http.DefaultTransport, which is shared across all runners. That causes
 	// all user WebSocket connections to reuse the same TCP connection pool and
-	// land on the same coderd replica, concentrating load.
+	// land on the same nicloud replica, concentrating load.
 	newUserClient, err := loadtestutil.DupClientCopyingHeaders(r.client, nil)
 	if err != nil {
 		return xerrors.Errorf("create user client: %w", err)
@@ -166,7 +166,7 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 	}
 }
 
-func (r *Runner) dialTailnet(ctx context.Context, client *codersdk.Client, user codersdk.User, logger slog.Logger) (*tailnet.ControlProtocolClients, error) {
+func (r *Runner) dialTailnet(ctx context.Context, client *nicloudsdk.Client, user nicloudsdk.User, logger slog.Logger) (*tailnet.ControlProtocolClients, error) {
 	u, err := client.URL.Parse("/api/v2/tailnet")
 	if err != nil {
 		logger.Error(ctx, "failed to parse tailnet URL", slog.Error(err))
@@ -179,7 +179,7 @@ func (r *Runner) dialTailnet(ctx context.Context, client *codersdk.Client, user 
 		u,
 		&websocket.DialOptions{
 			HTTPHeader: http.Header{
-				"Coder-Session-Token": []string{client.SessionToken()},
+				"NI-Session-Token": []string{client.SessionToken()},
 			},
 		},
 		workspacesdk.WithWorkspaceUpdates(&tailnetproto.WorkspaceUpdatesRequest{
@@ -199,7 +199,7 @@ func (r *Runner) dialTailnet(ctx context.Context, client *codersdk.Client, user 
 
 // watchWorkspaceUpdates processes workspace updates and returns error or nil
 // once all expected workspaces and agents are seen.
-func (r *Runner) watchWorkspaceUpdates(ctx context.Context, clients *tailnet.ControlProtocolClients, user codersdk.User, logger slog.Logger) error {
+func (r *Runner) watchWorkspaceUpdates(ctx context.Context, clients *tailnet.ControlProtocolClients, user nicloudsdk.User, logger slog.Logger) error {
 	expectedWorkspaces := r.cfg.WorkspaceCount
 	// workspace name to time the update was seen
 	seenWorkspaces := make(map[string]time.Time)

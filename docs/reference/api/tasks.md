@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/tasks \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/tasks`
@@ -79,7 +79,7 @@ curl -X GET http://coder-server:8080/api/v2/tasks \
 
 | Status | Meaning                                                 | Description | Schema                                                             |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.TasksListResponse](schemas.md#codersdktaskslistresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.TasksListResponse](schemas.md#nicloudsdktaskslistresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -92,7 +92,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/tasks/{user} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/tasks/{user}`
@@ -114,7 +114,7 @@ curl -X POST http://coder-server:8080/api/v2/tasks/{user} \
 | Name   | In   | Type                                                               | Required | Description                                           |
 |--------|------|--------------------------------------------------------------------|----------|-------------------------------------------------------|
 | `user` | path | string                                                             | true     | Username, user ID, or 'me' for the authenticated user |
-| `body` | body | [codersdk.CreateTaskRequest](schemas.md#codersdkcreatetaskrequest) | true     | Create task request                                   |
+| `body` | body | [nicloudsdk.CreateTaskRequest](schemas.md#nicloudsdkcreatetaskrequest) | true     | Create task request                                   |
 
 ### Example responses
 
@@ -171,7 +171,7 @@ curl -X POST http://coder-server:8080/api/v2/tasks/{user} \
 
 | Status | Meaning                                                      | Description | Schema                                   |
 |--------|--------------------------------------------------------------|-------------|------------------------------------------|
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [codersdk.Task](schemas.md#codersdktask) |
+| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [nicloudsdk.Task](schemas.md#nicloudsdktask) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -183,7 +183,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/tasks/{user}/{task} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/tasks/{user}/{task}`
@@ -250,7 +250,7 @@ curl -X GET http://coder-server:8080/api/v2/tasks/{user}/{task} \
 
 | Status | Meaning                                                 | Description | Schema                                   |
 |--------|---------------------------------------------------------|-------------|------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Task](schemas.md#codersdktask) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Task](schemas.md#nicloudsdktask) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -261,7 +261,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/tasks/{user}/{task} \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/tasks/{user}/{task}`
@@ -289,7 +289,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PATCH http://coder-server:8080/api/v2/tasks/{user}/{task}/input \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/tasks/{user}/{task}/input`
@@ -308,7 +308,7 @@ curl -X PATCH http://coder-server:8080/api/v2/tasks/{user}/{task}/input \
 |--------|------|------------------------------------------------------------------------------|----------|-------------------------------------------------------|
 | `user` | path | string                                                                       | true     | Username, user ID, or 'me' for the authenticated user |
 | `task` | path | string                                                                       | true     | Task ID, or task name                                 |
-| `body` | body | [codersdk.UpdateTaskInputRequest](schemas.md#codersdkupdatetaskinputrequest) | true     | Update task input request                             |
+| `body` | body | [nicloudsdk.UpdateTaskInputRequest](schemas.md#nicloudsdkupdatetaskinputrequest) | true     | Update task input request                             |
 
 ### Responses
 
@@ -326,7 +326,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/tasks/{user}/{task}/logs \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/tasks/{user}/{task}/logs`
@@ -361,7 +361,7 @@ curl -X GET http://coder-server:8080/api/v2/tasks/{user}/{task}/logs \
 
 | Status | Meaning                                                 | Description | Schema                                                           |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.TaskLogsResponse](schemas.md#codersdktasklogsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.TaskLogsResponse](schemas.md#nicloudsdktasklogsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -373,7 +373,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/tasks/{user}/{task}/pause \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/tasks/{user}/{task}/pause`
@@ -607,7 +607,7 @@ curl -X POST http://coder-server:8080/api/v2/tasks/{user}/{task}/pause \
 
 | Status | Meaning                                                       | Description | Schema                                                             |
 |--------|---------------------------------------------------------------|-------------|--------------------------------------------------------------------|
-| 202    | [Accepted](https://tools.ietf.org/html/rfc7231#section-6.3.3) | Accepted    | [codersdk.PauseTaskResponse](schemas.md#codersdkpausetaskresponse) |
+| 202    | [Accepted](https://tools.ietf.org/html/rfc7231#section-6.3.3) | Accepted    | [nicloudsdk.PauseTaskResponse](schemas.md#nicloudsdkpausetaskresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -619,7 +619,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/tasks/{user}/{task}/resume \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/tasks/{user}/{task}/resume`
@@ -853,7 +853,7 @@ curl -X POST http://coder-server:8080/api/v2/tasks/{user}/{task}/resume \
 
 | Status | Meaning                                                       | Description | Schema                                                               |
 |--------|---------------------------------------------------------------|-------------|----------------------------------------------------------------------|
-| 202    | [Accepted](https://tools.ietf.org/html/rfc7231#section-6.3.3) | Accepted    | [codersdk.ResumeTaskResponse](schemas.md#codersdkresumetaskresponse) |
+| 202    | [Accepted](https://tools.ietf.org/html/rfc7231#section-6.3.3) | Accepted    | [nicloudsdk.ResumeTaskResponse](schemas.md#nicloudsdkresumetaskresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -865,7 +865,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/tasks/{user}/{task}/send \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/tasks/{user}/{task}/send`
@@ -884,7 +884,7 @@ curl -X POST http://coder-server:8080/api/v2/tasks/{user}/{task}/send \
 |--------|------|----------------------------------------------------------------|----------|-------------------------------------------------------|
 | `user` | path | string                                                         | true     | Username, user ID, or 'me' for the authenticated user |
 | `task` | path | string                                                         | true     | Task ID, or task name                                 |
-| `body` | body | [codersdk.TaskSendRequest](schemas.md#codersdktasksendrequest) | true     | Task input request                                    |
+| `body` | body | [nicloudsdk.TaskSendRequest](schemas.md#nicloudsdktasksendrequest) | true     | Task input request                                    |
 
 ### Responses
 
@@ -902,7 +902,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/workspaceagents/me/tasks/{task}/log-snapshot?format=agentapi \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaceagents/me/tasks/{task}/log-snapshot`

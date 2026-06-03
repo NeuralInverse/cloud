@@ -19,7 +19,7 @@ func main() {
 	flag.StringVar(&cachePath, "cache", "", "Optional custom path for embedded postgres binaries")
 	flag.Parse()
 
-	postgresPath := filepath.Join(os.TempDir(), "coder-test-postgres")
+	postgresPath := filepath.Join(os.TempDir(), "neuralinverse-test-postgres")
 	if customPath != "" {
 		postgresPath = customPath
 	}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
 )
 
 const (

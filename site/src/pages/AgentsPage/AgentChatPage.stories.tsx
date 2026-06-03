@@ -309,7 +309,7 @@ const EVERY_TOOL_ASSISTANT_TURN = {
 			type: "tool-call",
 			tool_call_id: "every-execute",
 			tool_name: "execute",
-			args: { command: "go test ./coderd/httpmw/..." },
+			args: { command: "go test ./nicloud/httpmw/..." },
 		},
 		{
 			type: "tool-result",
@@ -317,8 +317,8 @@ const EVERY_TOOL_ASSISTANT_TURN = {
 			tool_name: "execute",
 			result: {
 				output: [
-					"ok  \tgithub.com/coder/coder/coderd/httpmw\t1.842s",
-					"ok  \tgithub.com/coder/coder/coderd/httpmw/auth\t0.612s",
+					"ok  \tgithub.com/coder/coder/nicloud/httpmw\t1.842s",
+					"ok  \tgithub.com/coder/coder/nicloud/httpmw/auth\t0.612s",
 				].join("\n"),
 				exit_code: 0,
 			},
@@ -364,7 +364,7 @@ const EVERY_TOOL_ASSISTANT_TURN = {
 			type: "tool-call",
 			tool_call_id: "every-read-file",
 			tool_name: "read_file",
-			args: { path: "coderd/httpmw/apikey.go" },
+			args: { path: "nicloud/httpmw/apikey.go" },
 		},
 		{
 			type: "tool-result",
@@ -387,7 +387,7 @@ const EVERY_TOOL_ASSISTANT_TURN = {
 			tool_call_id: "every-write-file",
 			tool_name: "write_file",
 			args: {
-				path: "coderd/httpmw/auth/transport.go",
+				path: "nicloud/httpmw/auth/transport.go",
 				content: [
 					"package auth",
 					"",
@@ -413,7 +413,7 @@ const EVERY_TOOL_ASSISTANT_TURN = {
 			args: {
 				files: [
 					{
-						path: "coderd/coderd.go",
+						path: "nicloud/nicloud.go",
 						edits: [
 							{
 								search: "httpmw.ExtractAPIKeyMW(opts)",
@@ -591,7 +591,7 @@ const EVERY_TOOL_ASSISTANT_TURN = {
 					"# Auth Split Plan",
 					"",
 					"1. Carve transport, validation, and authz packages.",
-					"2. Update call sites in coderd and enterprise/coderd.",
+					"2. Update call sites in nicloud and enterprise/nicloud.",
 					"3. Add an incremental migration for session lookups.",
 					"4. Refresh the changelog and run the suite.",
 				].join("\n"),
@@ -942,17 +942,17 @@ export const WithMessageHistory: Story = {
 									"I have a lot of context I want to share so you can give me the best possible answer.",
 									"The current token validation is scattered across multiple files and it is really hard",
 									"to follow the flow from HTTP request to database lookup to response. The middleware in",
-									"coderd/httpmw/apikey.go does way too much - it parses the token, validates the signature,",
+									"nicloud/httpmw/apikey.go does way too much - it parses the token, validates the signature,",
 									"checks expiration, looks up the user, checks if the user is suspended, and then sets up",
 									"the context. That is at least 6 different responsibilities in a single middleware function.",
 									"",
 									"Here are the specific files I have been looking at:",
-									"- coderd/httpmw/apikey.go (main middleware, ~400 lines)",
-									"- coderd/httpmw/oauth2.go (OAuth2 token handling)",
-									"- coderd/httpmw/session.go (session cookie management)",
-									"- coderd/userauth.go (login/logout handlers)",
-									"- coderd/apikey.go (API key CRUD operations)",
-									"- enterprise/coderd/proxyhealth.go (proxy authentication)",
+									"- nicloud/httpmw/apikey.go (main middleware, ~400 lines)",
+									"- nicloud/httpmw/oauth2.go (OAuth2 token handling)",
+									"- nicloud/httpmw/session.go (session cookie management)",
+									"- nicloud/userauth.go (login/logout handlers)",
+									"- nicloud/apikey.go (API key CRUD operations)",
+									"- enterprise/nicloud/proxyhealth.go (proxy authentication)",
 									"",
 									"The problem is that ExtractAPIKeyMW is doing too many things at once:",
 									"1. Extracting the token from the request (cookie or header)",
@@ -1033,7 +1033,7 @@ export const WithMessageHistory: Story = {
 									"- [x] Extract `parseToken()` helper",
 									"- [x] Define sentinel error types",
 									"- [x] Add context parameter",
-									"- [ ] Update all callers in `coderd/`",
+									"- [ ] Update all callers in `nicloud/`",
 									"- [ ] Add table-driven unit tests",
 									"- [ ] Remove deprecated `ValidateAndRefresh`",
 								].join("\n"),
@@ -2192,7 +2192,7 @@ export const WithEveryTool: Story = {
 								type: "tool-call",
 								tool_call_id: "call-read-apikey",
 								tool_name: "read_file",
-								args: { path: "coderd/httpmw/apikey.go" },
+								args: { path: "nicloud/httpmw/apikey.go" },
 							},
 							{
 								type: "tool-result",
@@ -2215,7 +2215,7 @@ export const WithEveryTool: Story = {
 								tool_call_id: "call-write-transport",
 								tool_name: "write_file",
 								args: {
-									path: "coderd/httpmw/auth/transport.go",
+									path: "nicloud/httpmw/auth/transport.go",
 									content: [
 										"package auth",
 										"",
@@ -2317,7 +2317,7 @@ export const WithEveryTool: Story = {
 									tool_call_id: "stream-read-validate",
 									tool_name: "read_file",
 									args_delta: JSON.stringify({
-										path: "coderd/httpmw/validate.go",
+										path: "nicloud/httpmw/validate.go",
 									}),
 								},
 							},
@@ -2332,7 +2332,7 @@ export const WithEveryTool: Story = {
 									tool_call_id: "stream-write-validation",
 									tool_name: "write_file",
 									args_delta: JSON.stringify({
-										path: "coderd/httpmw/auth/validation.go",
+										path: "nicloud/httpmw/auth/validation.go",
 										content: [
 											"package auth",
 											"",
@@ -2366,7 +2366,7 @@ export const WithEveryTool: Story = {
 									args_delta: JSON.stringify({
 										files: [
 											{
-												path: "coderd/coderd.go",
+												path: "nicloud/nicloud.go",
 												edits: [
 													{
 														search: "httpmw.ExtractAPIKeyMW(opts)",
@@ -2375,7 +2375,7 @@ export const WithEveryTool: Story = {
 												],
 											},
 											{
-												path: "enterprise/coderd/coderd.go",
+												path: "enterprise/nicloud/nicloud.go",
 												edits: [
 													{
 														search: "httpmw.ExtractAPIKeyMW(opts)",
@@ -2420,7 +2420,7 @@ export const WithEveryTool: Story = {
 											"## Unreleased",
 											"",
 											"- Split the auth middleware into transport, validation,",
-											"  and authorization layers under coderd/httpmw/auth.",
+											"  and authorization layers under nicloud/httpmw/auth.",
 										].join("\n"),
 									}),
 								},

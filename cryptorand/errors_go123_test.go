@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
 )
 
 // TestRandError_pre_Go1_24 checks that the code handles errors when

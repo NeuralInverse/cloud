@@ -74,7 +74,7 @@ jobs:
               - "examples/lima/**"
             db:
               - "**.sql"
-              - "coderd/database/**"
+              - "nicloud/database/**"
             go:
               - "**.sql"
               - "**.go"
@@ -98,7 +98,7 @@ jobs:
               - "aibridge/**"
               - "cli/**"
               - "cmd/**"
-              - "coderd/**"
+              - "nicloud/**"
               - "enterprise/**"
               - "examples/**"
               - "helm/**"
@@ -349,7 +349,7 @@ jobs:
           make clean/golden-files
           # Notifications require DB, we could start a DB instance here but
           # let's just restore for now.
-          git checkout -- coderd/notifications/testdata/rendered-templates
+          git checkout -- nicloud/notifications/testdata/rendered-templates
           make -j --output-sync -B gen
 
       - name: Check for unstaged files
@@ -877,7 +877,7 @@ jobs:
       - run: make gen/mark-fresh
         name: make gen
 
-      - run: make site/e2e/bin/coder
+      - run: make site/e2e/bin/neuralinverse
         name: make coder
 
       - run: pnpm build
@@ -900,8 +900,8 @@ jobs:
         if: ${{ matrix.variant.premium }}
         env:
           DEBUG: pw:api
-          CODER_E2E_LICENSE: ${{ secrets.CODER_E2E_LICENSE }}
-          CODER_E2E_REQUIRE_PREMIUM_TESTS: "1"
+          NEURALINVERSE_E2E_LICENSE: ${{ secrets.NEURALINVERSE_E2E_LICENSE }}
+          NEURALINVERSE_E2E_REQUIRE_PREMIUM_TESTS: "1"
         working-directory: site
 
       - name: Upload Playwright failure artifacts
@@ -925,7 +925,7 @@ jobs:
         if: failure() && github.actor != 'dependabot[bot]' && runner.os == 'Linux' && !github.event.pull_request.head.repo.fork
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: coderd-debug-logs-${{ matrix.variant.name }}-${{ github.sha }}
+          name: nicloud-debug-logs-${{ matrix.variant.name }}-${{ github.sha }}
           path: ./site/e2e/test-results/debug.log
           retention-days: 7
 
@@ -1071,7 +1071,7 @@ jobs:
 
       - name: Build
         # no `-j` flag as `make` fails with:
-        # coderd/rbac/object_gen.go:1:1: syntax error: package statement must be first
+        # nicloud/rbac/object_gen.go:1:1: syntax error: package statement must be first
         run: |
           make build/coder_docs_"$(./scripts/version.sh)".tgz
 
@@ -1296,11 +1296,11 @@ jobs:
         env:
           # The Windows and Darwin slim binaries must be signed for Coder
           # Desktop to accept them.
-          CODER_SIGN_WINDOWS: "1"
-          CODER_WINDOWS_RESOURCES: "1"
-          CODER_SIGN_GPG: "1"
-          CODER_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
-          CODER_SIGN_DARWIN: "1"
+          NEURALINVERSE_SIGN_WINDOWS: "1"
+          NEURALINVERSE_WINDOWS_RESOURCES: "1"
+          NEURALINVERSE_SIGN_GPG: "1"
+          NEURALINVERSE_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
+          NEURALINVERSE_SIGN_DARWIN: "1"
           AC_CERTIFICATE_FILE: /tmp/apple_cert.p12
           AC_CERTIFICATE_PASSWORD_FILE: /tmp/apple_cert_password.txt
           EV_KEY: ${{ secrets.EV_KEY }}
@@ -1314,7 +1314,7 @@ jobs:
           # applies to release/* branch builds, but those still
           # produce coder-preview images, not release images.
           # Release images are built by release.yaml (no profiling).
-          CODER_REACT_PROFILING: "true"
+          NEURALINVERSE_REACT_PROFILING: "true"
 
       # Free up disk space before building Docker images. The preceding
       # Build step produces ~2 GB of binaries and packages, the Go build
@@ -1333,7 +1333,7 @@ jobs:
       - name: Build Linux Docker images
         id: build-docker
         env:
-          CODER_IMAGE_BASE: ghcr.io/coder/coder-preview
+          NEURALINVERSE_IMAGE_BASE: ghcr.io/coder/coder-preview
           DOCKER_CLI_EXPERIMENTAL: "enabled"
           # Skip building .deb/.rpm/.apk/.tar.gz as prerequisites for
           # the Docker image targets — they were already built above.

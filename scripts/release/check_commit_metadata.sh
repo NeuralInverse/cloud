@@ -37,7 +37,7 @@ declare -A COMMIT_METADATA_TITLE COMMIT_METADATA_HUMAN_TITLE COMMIT_METADATA_CAT
 
 # This environment variable can be set to 1 to ignore missing commit metadata,
 # useful for dry-runs.
-ignore_missing_metadata=${CODER_IGNORE_MISSING_COMMIT_METADATA:-0}
+ignore_missing_metadata=${NEURALINVERSE_IGNORE_MISSING_COMMIT_METADATA:-0}
 
 main() {
 	log "Checking commit metadata for changes between ${from_ref} and ${to_ref}..."
@@ -61,10 +61,10 @@ main() {
 	# Order is important here, first partial match wins.
 	declare -A humanized_areas=(
 		["agent/agentssh"]="Agent SSH"
-		["coderd/database"]="Database"
+		["nicloud/database"]="Database"
 		["enterprise/audit"]="Auditing"
 		["enterprise/cli"]="CLI"
-		["enterprise/coderd"]="Server"
+		["enterprise/nicloud"]="Server"
 		["enterprise/dbcrypt"]="Database"
 		["enterprise/derpmesh"]="Networking"
 		["enterprise/provisionerd"]="Provisioner"
@@ -72,8 +72,8 @@ main() {
 		["enterprise/wsproxy"]="Workspace Proxy"
 		[agent]="Agent"
 		[cli]="CLI"
-		[coderd]="Server"
-		[codersdk]="SDK"
+		[nicloud]="Server"
+		[nicloudsdk]="SDK"
 		[docs]="Documentation"
 		[enterprise]="Enterprise"
 		[examples]="Examples"
@@ -160,8 +160,8 @@ main() {
 	for commit in "${renamed_cherry_pick_commits_pending[@]}"; do
 		log "Checking if pending commit ${commit} has a corresponding cherry-pick..."
 		if [[ ! -v renamed_cherry_pick_commits[${commit}] ]]; then
-			if [[ ${CODER_IGNORE_MISSING_COMMIT_METADATA:-0} == 1 ]]; then
-				log "WARNING: Missing original commit for cherry-picked commit ${commit}, but continuing due to CODER_IGNORE_MISSING_COMMIT_METADATA being set."
+			if [[ ${NEURALINVERSE_IGNORE_MISSING_COMMIT_METADATA:-0} == 1 ]]; then
+				log "WARNING: Missing original commit for cherry-picked commit ${commit}, but continuing due to NEURALINVERSE_IGNORE_MISSING_COMMIT_METADATA being set."
 				continue
 			else
 				error "Invariant failed, cherry-picked commit ${commit} has no corresponding original commit"

@@ -10,12 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/pretty"
 )
 
@@ -23,7 +23,7 @@ func TestLogin(t *testing.T) {
 	t.Parallel()
 	t.Run("InitialUserNoTTY", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		root, _ := clitest.New(t, "login", client.URL.String())
 		err := root.Run()
 		require.Error(t, err)
@@ -34,11 +34,11 @@ func TestLogin(t *testing.T) {
 		badLoginURL := "https://fcca2077f06e68aaf9"
 		root, _ := clitest.New(t, "login", badLoginURL)
 		err := root.Run()
-		errMsg := fmt.Sprintf("Failed to check server %q for first user, is the URL correct and is coder accessible from your browser?", badLoginURL)
+		errMsg := fmt.Sprintf("Failed to check server %q for first user, is the URL correct and is neuralinverse accessible from your browser?", badLoginURL)
 		require.ErrorContains(t, err, errMsg)
 	})
 
-	t.Run("InitialUserNonCoderURLFail", func(t *testing.T) {
+	t.Run("InitialUserNonNIURLFail", func(t *testing.T) {
 		t.Parallel()
 
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -50,15 +50,15 @@ func TestLogin(t *testing.T) {
 		badLoginURL := ts.URL
 		root, _ := clitest.New(t, "login", badLoginURL)
 		err := root.Run()
-		errMsg := fmt.Sprintf("Failed to check server %q for first user, is the URL correct and is coder accessible from your browser?", badLoginURL)
+		errMsg := fmt.Sprintf("Failed to check server %q for first user, is the URL correct and is neuralinverse accessible from your browser?", badLoginURL)
 		require.ErrorContains(t, err, errMsg)
 	})
 
-	t.Run("InitialUserNonCoderURLSuccess", func(t *testing.T) {
+	t.Run("InitialUserNonNIURLSuccess", func(t *testing.T) {
 		t.Parallel()
 
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set(codersdk.BuildVersionHeader, "something")
+			w.Header().Set(nicloudsdk.BuildVersionHeader, "something")
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("Not Found"))
 		}))
@@ -67,14 +67,14 @@ func TestLogin(t *testing.T) {
 		badLoginURL := ts.URL
 		root, _ := clitest.New(t, "login", badLoginURL)
 		err := root.Run()
-		// this means we passed the check for a valid coder server
+		// this means we passed the check for a valid neuralinverse server
 		require.ErrorContains(t, err, "the initial user cannot be created in non-interactive mode")
 	})
 
 	t.Run("InitialUserTTY", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -91,17 +91,17 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"username", nicloudtest.FirstUserParams.Username,
+			"name", nicloudtest.FirstUserParams.Name,
+			"email", nicloudtest.FirstUserParams.Email,
+			"password", nicloudtest.FirstUserParams.Password,
+			"password", nicloudtest.FirstUserParams.Password, // confirm
 			"trial", "yes",
-			"firstName", coderdtest.TrialUserParams.FirstName,
-			"lastName", coderdtest.TrialUserParams.LastName,
-			"phoneNumber", coderdtest.TrialUserParams.PhoneNumber,
-			"jobTitle", coderdtest.TrialUserParams.JobTitle,
-			"companyName", coderdtest.TrialUserParams.CompanyName,
+			"firstName", nicloudtest.TrialUserParams.FirstName,
+			"lastName", nicloudtest.TrialUserParams.LastName,
+			"phoneNumber", nicloudtest.TrialUserParams.PhoneNumber,
+			"jobTitle", nicloudtest.TrialUserParams.JobTitle,
+			"companyName", nicloudtest.TrialUserParams.CompanyName,
 			// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -112,23 +112,23 @@ func TestLogin(t *testing.T) {
 		}
 		stdout.ExpectMatchContext(ctx, "Welcome to Coder")
 		<-doneChan
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+		resp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+			Email:    nicloudtest.FirstUserParams.Email,
+			Password: nicloudtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, nicloudtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, nicloudtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, nicloudtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserTTYWithNoTrial", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -145,11 +145,11 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"username", nicloudtest.FirstUserParams.Username,
+			"name", nicloudtest.FirstUserParams.Name,
+			"email", nicloudtest.FirstUserParams.Email,
+			"password", nicloudtest.FirstUserParams.Password,
+			"password", nicloudtest.FirstUserParams.Password, // confirm
 			"trial", "no",
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -160,23 +160,23 @@ func TestLogin(t *testing.T) {
 		}
 		stdout.ExpectMatchContext(ctx, "Welcome to Coder")
 		<-doneChan
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+		resp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+			Email:    nicloudtest.FirstUserParams.Email,
+			Password: nicloudtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, nicloudtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, nicloudtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, nicloudtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserTTYNameOptional", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -193,17 +193,17 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
+			"username", nicloudtest.FirstUserParams.Username,
 			"name", "",
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"email", nicloudtest.FirstUserParams.Email,
+			"password", nicloudtest.FirstUserParams.Password,
+			"password", nicloudtest.FirstUserParams.Password, // confirm
 			"trial", "yes",
-			"firstName", coderdtest.TrialUserParams.FirstName,
-			"lastName", coderdtest.TrialUserParams.LastName,
-			"phoneNumber", coderdtest.TrialUserParams.PhoneNumber,
-			"jobTitle", coderdtest.TrialUserParams.JobTitle,
-			"companyName", coderdtest.TrialUserParams.CompanyName,
+			"firstName", nicloudtest.TrialUserParams.FirstName,
+			"lastName", nicloudtest.TrialUserParams.LastName,
+			"phoneNumber", nicloudtest.TrialUserParams.PhoneNumber,
+			"jobTitle", nicloudtest.TrialUserParams.JobTitle,
+			"companyName", nicloudtest.TrialUserParams.CompanyName,
 			// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -214,23 +214,23 @@ func TestLogin(t *testing.T) {
 		}
 		stdout.ExpectMatchContext(ctx, "Welcome to Coder")
 		<-doneChan
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+		resp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+			Email:    nicloudtest.FirstUserParams.Email,
+			Password: nicloudtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, nicloudtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, nicloudtest.FirstUserParams.Email, me.Email)
 		assert.Empty(t, me.Name)
 	})
 
 	t.Run("InitialUserTTYFlag", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -244,17 +244,17 @@ func TestLogin(t *testing.T) {
 		stdout.ExpectMatchContext(ctx, fmt.Sprintf("Attempting to authenticate with flag URL: '%s'", client.URL.String()))
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
-			"password", coderdtest.FirstUserParams.Password, // confirm
+			"username", nicloudtest.FirstUserParams.Username,
+			"name", nicloudtest.FirstUserParams.Name,
+			"email", nicloudtest.FirstUserParams.Email,
+			"password", nicloudtest.FirstUserParams.Password,
+			"password", nicloudtest.FirstUserParams.Password, // confirm
 			"trial", "yes",
-			"firstName", coderdtest.TrialUserParams.FirstName,
-			"lastName", coderdtest.TrialUserParams.LastName,
-			"phoneNumber", coderdtest.TrialUserParams.PhoneNumber,
-			"jobTitle", coderdtest.TrialUserParams.JobTitle,
-			"companyName", coderdtest.TrialUserParams.CompanyName,
+			"firstName", nicloudtest.TrialUserParams.FirstName,
+			"lastName", nicloudtest.TrialUserParams.LastName,
+			"phoneNumber", nicloudtest.TrialUserParams.PhoneNumber,
+			"jobTitle", nicloudtest.TrialUserParams.JobTitle,
+			"companyName", nicloudtest.TrialUserParams.CompanyName,
 			// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -264,29 +264,29 @@ func TestLogin(t *testing.T) {
 			stdin.WriteLine(value)
 		}
 		stdout.ExpectMatchContext(ctx, "Welcome to Coder")
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+		resp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+			Email:    nicloudtest.FirstUserParams.Email,
+			Password: nicloudtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, nicloudtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, nicloudtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, nicloudtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserFlags", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		inv, _ := clitest.New(
 			t, "login", client.URL.String(),
-			"--first-user-username", coderdtest.FirstUserParams.Username,
-			"--first-user-full-name", coderdtest.FirstUserParams.Name,
-			"--first-user-email", coderdtest.FirstUserParams.Email,
-			"--first-user-password", coderdtest.FirstUserParams.Password,
+			"--first-user-username", nicloudtest.FirstUserParams.Username,
+			"--first-user-full-name", nicloudtest.FirstUserParams.Name,
+			"--first-user-email", nicloudtest.FirstUserParams.Email,
+			"--first-user-password", nicloudtest.FirstUserParams.Password,
 			"--first-user-trial",
 		)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -294,40 +294,40 @@ func TestLogin(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		w := clitest.StartWithWaiter(t, inv)
 		stdout.ExpectMatchContext(ctx, "firstName")
-		stdin.WriteLine(coderdtest.TrialUserParams.FirstName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.FirstName)
 		stdout.ExpectMatchContext(ctx, "lastName")
-		stdin.WriteLine(coderdtest.TrialUserParams.LastName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.LastName)
 		stdout.ExpectMatchContext(ctx, "phoneNumber")
-		stdin.WriteLine(coderdtest.TrialUserParams.PhoneNumber)
+		stdin.WriteLine(nicloudtest.TrialUserParams.PhoneNumber)
 		stdout.ExpectMatchContext(ctx, "jobTitle")
-		stdin.WriteLine(coderdtest.TrialUserParams.JobTitle)
+		stdin.WriteLine(nicloudtest.TrialUserParams.JobTitle)
 		stdout.ExpectMatchContext(ctx, "companyName")
-		stdin.WriteLine(coderdtest.TrialUserParams.CompanyName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.CompanyName)
 		// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		stdout.ExpectMatchContext(ctx, "Welcome to Coder")
 		w.RequireSuccess()
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+		resp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+			Email:    nicloudtest.FirstUserParams.Email,
+			Password: nicloudtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Name, me.Name)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, nicloudtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, nicloudtest.FirstUserParams.Name, me.Name)
+		assert.Equal(t, nicloudtest.FirstUserParams.Email, me.Email)
 	})
 
 	t.Run("InitialUserFlagsNameOptional", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		inv, _ := clitest.New(
 			t, "login", client.URL.String(),
-			"--first-user-username", coderdtest.FirstUserParams.Username,
-			"--first-user-email", coderdtest.FirstUserParams.Email,
-			"--first-user-password", coderdtest.FirstUserParams.Password,
+			"--first-user-username", nicloudtest.FirstUserParams.Username,
+			"--first-user-email", nicloudtest.FirstUserParams.Email,
+			"--first-user-password", nicloudtest.FirstUserParams.Password,
 			"--first-user-trial",
 		)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -335,28 +335,28 @@ func TestLogin(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		w := clitest.StartWithWaiter(t, inv)
 		stdout.ExpectMatchContext(ctx, "firstName")
-		stdin.WriteLine(coderdtest.TrialUserParams.FirstName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.FirstName)
 		stdout.ExpectMatchContext(ctx, "lastName")
-		stdin.WriteLine(coderdtest.TrialUserParams.LastName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.LastName)
 		stdout.ExpectMatchContext(ctx, "phoneNumber")
-		stdin.WriteLine(coderdtest.TrialUserParams.PhoneNumber)
+		stdin.WriteLine(nicloudtest.TrialUserParams.PhoneNumber)
 		stdout.ExpectMatchContext(ctx, "jobTitle")
-		stdin.WriteLine(coderdtest.TrialUserParams.JobTitle)
+		stdin.WriteLine(nicloudtest.TrialUserParams.JobTitle)
 		stdout.ExpectMatchContext(ctx, "companyName")
-		stdin.WriteLine(coderdtest.TrialUserParams.CompanyName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.CompanyName)
 		// `developers` and `country` `cliui.Select` automatically selects the first option during tests.
 		stdout.ExpectMatchContext(ctx, "Welcome to Coder")
 		w.RequireSuccess()
-		resp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-			Email:    coderdtest.FirstUserParams.Email,
-			Password: coderdtest.FirstUserParams.Password,
+		resp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+			Email:    nicloudtest.FirstUserParams.Email,
+			Password: nicloudtest.FirstUserParams.Password,
 		})
 		require.NoError(t, err)
 		client.SetSessionToken(resp.SessionToken)
-		me, err := client.User(ctx, codersdk.Me)
+		me, err := client.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err)
-		assert.Equal(t, coderdtest.FirstUserParams.Username, me.Username)
-		assert.Equal(t, coderdtest.FirstUserParams.Email, me.Email)
+		assert.Equal(t, nicloudtest.FirstUserParams.Username, me.Username)
+		assert.Equal(t, nicloudtest.FirstUserParams.Email, me.Email)
 		assert.Empty(t, me.Name)
 	})
 
@@ -365,7 +365,7 @@ func TestLogin(t *testing.T) {
 		logger := testutil.Logger(t)
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		// The --force-tty flag is required on Windows, because the `isatty` library does not
 		// accurately detect Windows ptys when they are not attached to a process:
 		// https://github.com/mattn/go-isatty/issues/59
@@ -381,10 +381,10 @@ func TestLogin(t *testing.T) {
 
 		matches := []string{
 			"first user?", "yes",
-			"username", coderdtest.FirstUserParams.Username,
-			"name", coderdtest.FirstUserParams.Name,
-			"email", coderdtest.FirstUserParams.Email,
-			"password", coderdtest.FirstUserParams.Password,
+			"username", nicloudtest.FirstUserParams.Username,
+			"name", nicloudtest.FirstUserParams.Name,
+			"email", nicloudtest.FirstUserParams.Email,
+			"password", nicloudtest.FirstUserParams.Password,
 			"password", "something completely different",
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -397,21 +397,21 @@ func TestLogin(t *testing.T) {
 		// Validate that we reprompt for matching passwords.
 		stdout.ExpectMatchContext(ctx, "Passwords do not match")
 		stdout.ExpectMatchContext(ctx, "Enter a "+pretty.Sprint(cliui.DefaultStyles.Field, "password"))
-		stdin.WriteLine(coderdtest.FirstUserParams.Password)
+		stdin.WriteLine(nicloudtest.FirstUserParams.Password)
 		stdout.ExpectMatchContext(ctx, "Confirm")
-		stdin.WriteLine(coderdtest.FirstUserParams.Password)
+		stdin.WriteLine(nicloudtest.FirstUserParams.Password)
 		stdout.ExpectMatchContext(ctx, "trial")
 		stdin.WriteLine("yes")
 		stdout.ExpectMatchContext(ctx, "firstName")
-		stdin.WriteLine(coderdtest.TrialUserParams.FirstName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.FirstName)
 		stdout.ExpectMatchContext(ctx, "lastName")
-		stdin.WriteLine(coderdtest.TrialUserParams.LastName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.LastName)
 		stdout.ExpectMatchContext(ctx, "phoneNumber")
-		stdin.WriteLine(coderdtest.TrialUserParams.PhoneNumber)
+		stdin.WriteLine(nicloudtest.TrialUserParams.PhoneNumber)
 		stdout.ExpectMatchContext(ctx, "jobTitle")
-		stdin.WriteLine(coderdtest.TrialUserParams.JobTitle)
+		stdin.WriteLine(nicloudtest.TrialUserParams.JobTitle)
 		stdout.ExpectMatchContext(ctx, "companyName")
-		stdin.WriteLine(coderdtest.TrialUserParams.CompanyName)
+		stdin.WriteLine(nicloudtest.TrialUserParams.CompanyName)
 		stdout.ExpectMatchContext(ctx, "Welcome to Coder")
 		<-doneChan
 	})
@@ -419,8 +419,8 @@ func TestLogin(t *testing.T) {
 	t.Run("ExistingUserValidTokenTTY", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		doneChan := make(chan struct{})
@@ -444,9 +444,9 @@ func TestLogin(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		url := client.URL.String()
-		coderdtest.CreateFirstUser(t, client)
+		nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "login", "--no-open")
 		clitest.SetupConfig(t, client, root)
@@ -470,12 +470,12 @@ func TestLogin(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		url := client.URL.String()
-		coderdtest.CreateFirstUser(t, client)
+		nicloudtest.CreateFirstUser(t, client)
 
 		inv, _ := clitest.New(t, "login", "--no-open")
-		inv.Environ.Set("CODER_URL", url)
+		inv.Environ.Set("NEURALINVERSE_URL", url)
 
 		doneChan := make(chan struct{})
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -495,8 +495,8 @@ func TestLogin(t *testing.T) {
 	t.Run("ExistingUserInvalidTokenTTY", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		ctx, cancelFunc := context.WithCancel(context.Background())
 		defer cancelFunc()
@@ -521,8 +521,8 @@ func TestLogin(t *testing.T) {
 	// TokenFlag should generate a new session token and store it in the session file.
 	t.Run("TokenFlag", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		root, cfg := clitest.New(t, "login", client.URL.String(), "--token", client.SessionToken())
 		err := root.Run()
 		require.NoError(t, err)
@@ -534,42 +534,42 @@ func TestLogin(t *testing.T) {
 
 	t.Run("SessionTokenEnvVar", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		root, _ := clitest.New(t, "login", client.URL.String())
-		root.Environ.Set("CODER_SESSION_TOKEN", "invalid-token")
+		root.Environ.Set("NEURALINVERSE_SESSION_TOKEN", "invalid-token")
 		err := root.Run()
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "CODER_SESSION_TOKEN is set")
-		require.Contains(t, err.Error(), "unset CODER_SESSION_TOKEN")
+		require.Contains(t, err.Error(), "NEURALINVERSE_SESSION_TOKEN is set")
+		require.Contains(t, err.Error(), "unset NEURALINVERSE_SESSION_TOKEN")
 	})
 
 	t.Run("SessionTokenEnvVarWithUseTokenAsSession", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		root, _ := clitest.New(t, "login", client.URL.String(), "--use-token-as-session")
-		root.Environ.Set("CODER_SESSION_TOKEN", client.SessionToken())
+		root.Environ.Set("NEURALINVERSE_SESSION_TOKEN", client.SessionToken())
 		err := root.Run()
 		require.NoError(t, err)
 	})
 
 	t.Run("SessionTokenEnvVarWithTokenFlag", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
-		// Using --token with CODER_SESSION_TOKEN set should succeed.
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
+		// Using --token with NEURALINVERSE_SESSION_TOKEN set should succeed.
 		// This is the standard pattern used by coder/setup-action.
 		root, _ := clitest.New(t, "login", client.URL.String(), "--token", client.SessionToken())
-		root.Environ.Set("CODER_SESSION_TOKEN", client.SessionToken())
+		root.Environ.Set("NEURALINVERSE_SESSION_TOKEN", client.SessionToken())
 		err := root.Run()
 		require.NoError(t, err)
 	})
 
 	t.Run("KeepOrganizationContext", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		first := coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		first := nicloudtest.CreateFirstUser(t, client)
 		root, cfg := clitest.New(t, "login", client.URL.String(), "--token", client.SessionToken())
 
 		err := cfg.Organization().Write(first.OrganizationID.String())
@@ -593,8 +593,8 @@ func TestLoginToken(t *testing.T) {
 
 	t.Run("PrintsToken", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "login", "token", "--url", client.URL.String())
 		clitest.SetupConfig(t, client, root)
@@ -608,7 +608,7 @@ func TestLoginToken(t *testing.T) {
 
 	t.Run("NoTokenStored", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		inv, _ := clitest.New(t, "login", "token", "--url", client.URL.String())
 		ctx := testutil.Context(t, testutil.WaitShort)
 		err := inv.WithContext(ctx).Run()
@@ -627,8 +627,8 @@ func TestLoginToken(t *testing.T) {
 
 	t.Run("URLMismatchFileBackend", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "login", "token", "--url", "https://other.example.com")
 		clitest.SetupConfig(t, client, root)

@@ -8,8 +8,8 @@ import (
 	"github.com/sqlc-dev/pqtype"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/enterprise/audit"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit"
 )
 
 type SlogExporter struct {

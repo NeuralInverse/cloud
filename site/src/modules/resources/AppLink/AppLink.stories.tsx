@@ -215,7 +215,7 @@ export const WithTooltip: Story = {
 		app: {
 			...MockWorkspaceApp,
 			tooltip:
-				"This is a tooltip with Markdown: **bold**, _italic_, and [link](https://coder.com/docs)",
+				"This is a tooltip with Markdown: **bold**, _italic_, and [link](https://cloud.neuralinverse.com/docs)",
 		},
 		agent: MockWorkspaceAgent,
 	},

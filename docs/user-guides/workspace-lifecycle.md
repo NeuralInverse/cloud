@@ -1,8 +1,8 @@
 # Workspace lifecycle
 
 Workspaces are flexible, reproducible, and isolated units of compute. Workspaces
-are created via Terraform, managed through the Coder control plane, accessed
-through the Coder agent, then stopped and deleted again by Terraform.
+are created via Terraform, managed through the Neural Inverse Cloud control plane, accessed
+through the Neural Inverse Cloud agent, then stopped and deleted again by Terraform.
 
 This page covers how workspaces move through this lifecycle. To learn about
 automating workspace schedules for cost control, read the
@@ -45,20 +45,20 @@ limit the number of workspaces per template, group, and organization using
 costs.
 
 When a user creates a workspace, they're sending a build request to the control
-plane. Coder takes this and uses [Terraform](https://www.terraform.io/) to
+plane. Neural Inverse Cloud takes this and uses [Terraform](https://www.terraform.io/) to
 provision a workspace defined by your [template](../admin/templates/index.md).
 Generally, templates define the resources and environment of a workspace.
 
 The resources that run the agent are described as _computational resources_,
 while those that don't are called _peripheral resources_. A workspace must
-contain some computational resource to run the Coder agent process.
+contain some computational resource to run the Neural Inverse Cloud agent process.
 
 The provisioned workspace's computational resources start the agent process,
 which opens connections to your workspace via SSH, the terminal, and IDES such
 as [JetBrains](./workspace-access/jetbrains/index.md) or
 [VSCode](./workspace-access/vscode.md).
 
-Once started, the Coder agent is responsible for running your workspace startup
+Once started, the Neural Inverse Cloud agent is responsible for running your workspace startup
 scripts. These may configure tools, service connections, or personalization with
 [dotfiles](./workspace-dotfiles.md). For complex initialization with multiple
 dependent scripts, see
@@ -80,7 +80,7 @@ user connection if automatic start is enabled.
 ## Deleting workspaces
 
 Similarly to stopping, workspaces may be deleted manually or automatically by
-Coder through workspace dormancy.
+Neural Inverse Cloud through workspace dormancy.
 
 A delete workspace build runs `terraform destroy`, destroying both persistent
 and ephemeral resources. This action can not be reverted.
@@ -119,7 +119,7 @@ both time taken to provision the workspace's compute and agent startup steps.
 These include any
 [`coder_script`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/script)s
 such as [dotfiles](./workspace-dotfiles.md) or
-[`coder_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
+[`ni_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
 startups.
 
 ![Workspace build timings UI](../images/admin/templates/troubleshooting/workspace-build-timings-ui.png)

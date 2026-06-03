@@ -34,7 +34,7 @@ export const Default: Story = {
 			<SidebarHeader
 				avatar={<Avatar fallback="Jon" />}
 				title="Jon"
-				subtitle="jon@coder.com"
+				subtitle="jon@cloud.neuralinverse.com"
 			/>
 			<SidebarNavItem href="account" icon={UserIcon}>
 				Account

@@ -9,7 +9,7 @@ import (
 
 	"github.com/tidwall/gjson"
 
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 var claudeCodePattern = regexp.MustCompile(`_session_(.+)$`) // Legacy format: save compilation on each call.
@@ -73,7 +73,7 @@ func GuessSessionID(client Client, r *http.Request) *string {
 		return cleanRef(r.Header.Get("X-Client-Session-Id"))
 	case ClientKilo:
 		return cleanRef(r.Header.Get("X-KILOCODE-TASKID"))
-	case ClientCoderAgents:
+	case ClientNIAgents:
 		return cleanRef(r.Header.Get("X-Coder-Chat-Id"))
 	case ClientCrush:
 		return nil // Crush does not send a session ID header.

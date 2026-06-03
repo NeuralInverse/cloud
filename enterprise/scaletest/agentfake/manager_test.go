@@ -14,9 +14,9 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/scaletest/agentfake"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/scaletest/agentfake"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // fakeExternalAgentClient is an in-package fake for the
@@ -26,19 +26,19 @@ import (
 type fakeExternalAgentClient struct {
 	// workspaces, in the order Workspaces() should return them. Each
 	// call returns up to filter.Limit entries starting at filter.Offset
-	// to model pagination, matching real coderd behavior.
-	workspaces []codersdk.Workspace
+	// to model pagination, matching real nicloud behavior.
+	workspaces []nicloudsdk.Workspace
 	// credentials, keyed by "{workspaceID}/{agentName}". A nil entry
 	// causes WorkspaceExternalAgentCredentials to error with notFoundErr.
-	credentials map[string]codersdk.ExternalAgentCredentials
+	credentials map[string]nicloudsdk.ExternalAgentCredentials
 
 	// workspacesErr, if non-nil, is returned from every Workspaces call.
 	workspacesErr error
 }
 
-func (f *fakeExternalAgentClient) Workspaces(_ context.Context, filter codersdk.WorkspaceFilter) (codersdk.WorkspacesResponse, error) {
+func (f *fakeExternalAgentClient) Workspaces(_ context.Context, filter nicloudsdk.WorkspaceFilter) (nicloudsdk.WorkspacesResponse, error) {
 	if f.workspacesErr != nil {
-		return codersdk.WorkspacesResponse{}, f.workspacesErr
+		return nicloudsdk.WorkspacesResponse{}, f.workspacesErr
 	}
 	start := filter.Offset
 	if start > len(f.workspaces) {
@@ -49,37 +49,37 @@ func (f *fakeExternalAgentClient) Workspaces(_ context.Context, filter codersdk.
 		end = len(f.workspaces)
 	}
 	page := f.workspaces[start:end]
-	return codersdk.WorkspacesResponse{
+	return nicloudsdk.WorkspacesResponse{
 		Workspaces: page,
 		Count:      len(f.workspaces),
 	}, nil
 }
 
-func (f *fakeExternalAgentClient) WorkspaceExternalAgentCredentials(_ context.Context, wsID uuid.UUID, agentName string) (codersdk.ExternalAgentCredentials, error) {
+func (f *fakeExternalAgentClient) WorkspaceExternalAgentCredentials(_ context.Context, wsID uuid.UUID, agentName string) (nicloudsdk.ExternalAgentCredentials, error) {
 	key := wsID.String() + "/" + agentName
 	creds, ok := f.credentials[key]
 	if !ok {
-		return codersdk.ExternalAgentCredentials{}, xerrors.Errorf("no credentials for %s", key)
+		return nicloudsdk.ExternalAgentCredentials{}, xerrors.Errorf("no credentials for %s", key)
 	}
 	return creds, nil
 }
 
-// externalAgentWorkspace returns a codersdk.Workspace whose latest
+// externalAgentWorkspace returns a nicloudsdk.Workspace whose latest
 // build has HasExternalAgent=true and one agent with the given name.
-func externalAgentWorkspace(t *testing.T, name, agentName string) (codersdk.Workspace, uuid.UUID) {
+func externalAgentWorkspace(t *testing.T, name, agentName string) (nicloudsdk.Workspace, uuid.UUID) {
 	t.Helper()
 	wsID := uuid.New()
 	agentID := uuid.New()
 	hasExternal := true
-	return codersdk.Workspace{
+	return nicloudsdk.Workspace{
 		ID:   wsID,
 		Name: name,
-		LatestBuild: codersdk.WorkspaceBuild{
+		LatestBuild: nicloudsdk.WorkspaceBuild{
 			HasExternalAgent: &hasExternal,
-			Resources: []codersdk.WorkspaceResource{{
+			Resources: []nicloudsdk.WorkspaceResource{{
 				Name: "external",
-				Type: "coder_external_agent",
-				Agents: []codersdk.WorkspaceAgent{{
+				Type: "ni_external_agent",
+				Agents: []nicloudsdk.WorkspaceAgent{{
 					ID:   agentID,
 					Name: agentName,
 				}},
@@ -95,15 +95,15 @@ func Test_Manager_EnumerateExternalAgents_returnsAllTokens(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitShort)
 
 	const numWorkspaces = 3
-	workspaces := make([]codersdk.Workspace, 0, numWorkspaces)
-	credentials := map[string]codersdk.ExternalAgentCredentials{}
+	workspaces := make([]nicloudsdk.Workspace, 0, numWorkspaces)
+	credentials := map[string]nicloudsdk.ExternalAgentCredentials{}
 	want := make([]agentfake.TokenInfo, 0, numWorkspaces)
 	for i := 0; i < numWorkspaces; i++ {
 		agentName := "external"
 		ws, agentID := externalAgentWorkspace(t, "ws-"+uuid.NewString(), agentName)
 		workspaces = append(workspaces, ws)
 		token := uuid.NewString()
-		credentials[ws.ID.String()+"/"+agentName] = codersdk.ExternalAgentCredentials{
+		credentials[ws.ID.String()+"/"+agentName] = nicloudsdk.ExternalAgentCredentials{
 			AgentToken: token,
 		}
 		want = append(want, agentfake.TokenInfo{
@@ -116,9 +116,9 @@ func Test_Manager_EnumerateExternalAgents_returnsAllTokens(t *testing.T) {
 	}
 
 	client := &fakeExternalAgentClient{workspaces: workspaces, credentials: credentials}
-	coderURL, _ := url.Parse("http://fake")
+	niURL, _ := url.Parse("http://fake")
 	logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-	m := agentfake.NewManager(coderURL, client, logger, agentfake.ManagerOptions{Template: "tmpl"})
+	m := agentfake.NewManager(niURL, client, logger, agentfake.ManagerOptions{Template: "tmpl"})
 
 	got, err := m.EnumerateExternalAgents(ctx)
 	require.NoError(t, err)
@@ -144,11 +144,11 @@ func Test_Manager_EnumerateExternalAgents_invalidTokenIsFatal(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitShort)
 
 	client := &fakeExternalAgentClient{
-		workspacesErr: codersdk.NewError(http.StatusUnauthorized, codersdk.Response{Message: "unauthorized"}),
+		workspacesErr: nicloudsdk.NewError(http.StatusUnauthorized, nicloudsdk.Response{Message: "unauthorized"}),
 	}
-	coderURL, _ := url.Parse("http://fake")
+	niURL, _ := url.Parse("http://fake")
 	logger := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
-	m := agentfake.NewManager(coderURL, client, logger, agentfake.ManagerOptions{Template: "tmpl"})
+	m := agentfake.NewManager(niURL, client, logger, agentfake.ManagerOptions{Template: "tmpl"})
 
 	_, err := m.EnumerateExternalAgents(ctx)
 	require.Error(t, err, "expected enumeration to fail with an invalid session token")

@@ -55,7 +55,7 @@ export const Editable: Story = {
 			{
 				...MockUserOwner,
 				username: "John Doe",
-				email: "john.doe@coder.com",
+				email: "john.doe@cloud.neuralinverse.com",
 				roles: [
 					MockUserAdminRole,
 					MockTemplateAdminRole,
@@ -68,7 +68,7 @@ export const Editable: Story = {
 			{
 				...MockUserOwner,
 				username: "Roger Moore",
-				email: "roger.moore@coder.com",
+				email: "roger.moore@cloud.neuralinverse.com",
 				roles: [],
 				status: "suspended",
 				has_ai_seat: false,
@@ -76,7 +76,7 @@ export const Editable: Story = {
 			{
 				...MockUserOwner,
 				username: "OIDC User",
-				email: "oidc.user@coder.com",
+				email: "oidc.user@cloud.neuralinverse.com",
 				roles: [],
 				status: "active",
 				login_type: "oidc",
@@ -97,7 +97,7 @@ export const EditableWithAISeatColumn: Story = {
 			{
 				...MockUserOwner,
 				username: "John Doe",
-				email: "john.doe@coder.com",
+				email: "john.doe@cloud.neuralinverse.com",
 				roles: [
 					MockUserAdminRole,
 					MockTemplateAdminRole,
@@ -110,7 +110,7 @@ export const EditableWithAISeatColumn: Story = {
 			{
 				...MockUserOwner,
 				username: "Roger Moore",
-				email: "roger.moore@coder.com",
+				email: "roger.moore@cloud.neuralinverse.com",
 				roles: [],
 				status: "suspended",
 				has_ai_seat: false,
@@ -118,7 +118,7 @@ export const EditableWithAISeatColumn: Story = {
 			{
 				...MockUserOwner,
 				username: "OIDC User",
-				email: "oidc.user@coder.com",
+				email: "oidc.user@cloud.neuralinverse.com",
 				roles: [],
 				status: "active",
 				login_type: "oidc",

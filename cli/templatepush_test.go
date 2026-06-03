@@ -15,19 +15,19 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisioner/terraform/tfparse"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform/tfparse"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestTemplatePush(t *testing.T) {
@@ -36,13 +36,13 @@ func TestTemplatePush(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -72,7 +72,7 @@ func TestTemplatePush(t *testing.T) {
 		w.RequireSuccess()
 
 		// Assert that the template version changed.
-		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), nicloudsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -83,13 +83,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("Message less than or equal to 72 chars", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
@@ -111,7 +111,7 @@ func TestTemplatePush(t *testing.T) {
 
 		// Assert that the template version changed.
 		ctx = testutil.Context(t, testutil.WaitMedium)
-		templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -122,13 +122,13 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("Message too long, warn but continue", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
@@ -160,7 +160,7 @@ func TestTemplatePush(t *testing.T) {
 
 			// Assert that the template version changed.
 			ctx = testutil.Context(t, testutil.WaitMedium)
-			templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -173,13 +173,13 @@ func TestTemplatePush(t *testing.T) {
 	t.Run("NoLockfile", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -222,13 +222,13 @@ func TestTemplatePush(t *testing.T) {
 	t.Run("NoLockfileIgnored", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -265,13 +265,13 @@ func TestTemplatePush(t *testing.T) {
 	t.Run("PushInactiveTemplateVersion", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -306,7 +306,7 @@ func TestTemplatePush(t *testing.T) {
 
 		// Assert that the template version didn't change.
 		ctx = testutil.Context(t, testutil.WaitMedium)
-		templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -322,11 +322,11 @@ func TestTemplatePush(t *testing.T) {
 		}
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		// Test the cli command.
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -334,8 +334,8 @@ func TestTemplatePush(t *testing.T) {
 			ProvisionApply: echo.ApplyComplete,
 		})
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID,
-			func(r *codersdk.CreateTemplateRequest) {
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID,
+			func(r *nicloudsdk.CreateTemplateRequest) {
 				r.Name = filepath.Base(source)
 			})
 
@@ -369,7 +369,7 @@ func TestTemplatePush(t *testing.T) {
 
 		// Assert that the template version changed.
 		ctx = testutil.Context(t, testutil.WaitMedium)
-		templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -379,11 +379,11 @@ func TestTemplatePush(t *testing.T) {
 
 	t.Run("Stdin", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		source, err := echo.Tar(&echo.Responses{
 			Parse:          echo.ParseComplete,
@@ -391,7 +391,7 @@ func TestTemplatePush(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(
 			t, "templates", "push", "--directory", "-",
@@ -409,7 +409,7 @@ func TestTemplatePush(t *testing.T) {
 		require.NoError(t, <-execDone)
 
 		// Assert that the template version changed.
-		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+		templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), nicloudsdk.TemplateVersionsByTemplateRequest{
 			TemplateID: template.ID,
 		})
 		require.NoError(t, err)
@@ -425,19 +425,19 @@ func TestTemplatePush(t *testing.T) {
 
 			tests := []struct {
 				name         string
-				setupDaemon  func(ctx context.Context, store database.Store, owner codersdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error
+				setupDaemon  func(ctx context.Context, store database.Store, owner nicloudsdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error
 				expectOutput string
 			}{
 				{
 					name: "no provisioners available",
-					setupDaemon: func(_ context.Context, _ database.Store, _ codersdk.CreateFirstUserResponse, _ database.StringMap, _ time.Time) error {
+					setupDaemon: func(_ context.Context, _ database.Store, _ nicloudsdk.CreateFirstUserResponse, _ database.StringMap, _ time.Time) error {
 						return nil
 					},
 					expectOutput: "there are no provisioners that accept the required tags",
 				},
 				{
 					name: "provisioner stale",
-					setupDaemon: func(ctx context.Context, store database.Store, owner codersdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
+					setupDaemon: func(ctx context.Context, store database.Store, owner nicloudsdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
 						pk, err := store.InsertProvisionerKey(ctx, database.InsertProvisionerKeyParams{
 							ID:             uuid.New(),
 							CreatedAt:      now,
@@ -465,7 +465,7 @@ func TestTemplatePush(t *testing.T) {
 				},
 				{
 					name: "active provisioner",
-					setupDaemon: func(ctx context.Context, store database.Store, owner codersdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
+					setupDaemon: func(ctx context.Context, store database.Store, owner nicloudsdk.CreateFirstUserResponse, tags database.StringMap, now time.Time) error {
 						pk, err := store.InsertProvisionerKey(ctx, database.InsertProvisionerKeyParams{
 							ID:             uuid.New(),
 							CreatedAt:      now,
@@ -501,13 +501,13 @@ func TestTemplatePush(t *testing.T) {
 					// What we test is that a provisioner job is created with the expected
 					// tags based on the __content__ of the Terraform.
 					store, ps := dbtestutil.NewDB(t)
-					client := coderdtest.New(t, &coderdtest.Options{
+					client := nicloudtest.New(t, &nicloudtest.Options{
 						Database: store,
 						Pubsub:   ps,
 					})
 
-					owner := coderdtest.CreateFirstUser(t, client)
-					templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+					owner := nicloudtest.CreateFirstUser(t, client)
+					templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 					// Create a tar file with some pre-defined content
 					tarFile := testutil.CreateTar(t, map[string]string{
@@ -516,16 +516,16 @@ func TestTemplatePush(t *testing.T) {
 								type = string
 								default = "1"
 							}
-							data "coder_parameter" "b" {
+							data "ni_parameter" "b" {
 								name = "b"
 								type = string
 								default = "2"
 							}
 							resource "null_resource" "test" {}
-							data "coder_workspace_tags" "tags" {
+							data "ni_workspace_tags" "tags" {
 								tags = {
 									"a": var.a,
-									"b": data.coder_parameter.b.value,
+									"b": data.ni_parameter.b.value,
 									"test_name": "` + tt.name + `"
 								}
 							}`,
@@ -579,7 +579,7 @@ func TestTemplatePush(t *testing.T) {
 
 			logger := testutil.Logger(t)
 			// Start the first provisioner
-			client, provisionerDocker, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+			client, provisionerDocker, api := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 				ProvisionerDaemonTags: map[string]string{
 					"docker": "true",
@@ -588,22 +588,22 @@ func TestTemplatePush(t *testing.T) {
 			defer provisionerDocker.Close()
 
 			// Start the second provisioner
-			provisionerFoobar := coderdtest.NewTaggedProvisionerDaemon(t, api, "provisioner-foobar", map[string]string{
+			provisionerFoobar := nicloudtest.NewTaggedProvisionerDaemon(t, api, "provisioner-foobar", map[string]string{
 				"foobar": "foobaz",
 			})
 			defer provisionerFoobar.Close()
 
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create the template with initial tagged template version.
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			templateVersion := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 				ctvr.ProvisionerTags = map[string]string{
 					"docker": "true",
 				}
 			})
-			templateVersion = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Push new template version with different provisioner tags.
 			source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -647,29 +647,29 @@ func TestTemplatePush(t *testing.T) {
 
 			logger := testutil.Logger(t)
 			// Start the first provisioner with no tags.
-			client, provisionerDocker, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+			client, provisionerDocker, api := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 				ProvisionerDaemonTags:    map[string]string{},
 			})
 			defer provisionerDocker.Close()
 
 			// Start the second provisioner with a tag set.
-			provisionerFoobar := coderdtest.NewTaggedProvisionerDaemon(t, api, "provisioner-foobar", map[string]string{
+			provisionerFoobar := nicloudtest.NewTaggedProvisionerDaemon(t, api, "provisioner-foobar", map[string]string{
 				"foobar": "foobaz",
 			})
 			defer provisionerFoobar.Close()
 
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create the template with initial tagged template version.
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			templateVersion := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 				ctvr.ProvisionerTags = map[string]string{
 					"foobar": "foobaz",
 				}
 			})
-			templateVersion = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Stop the tagged provisioner daemon.
 			provisionerFoobar.Close()
@@ -715,23 +715,23 @@ func TestTemplatePush(t *testing.T) {
 
 			logger := testutil.Logger(t)
 			// Start the tagged provisioner
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := nicloudtest.New(t, &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 				ProvisionerDaemonTags: map[string]string{
 					"docker": "true",
 				},
 			})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create the template with initial tagged template version.
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			templateVersion := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 				ctvr.ProvisionerTags = map[string]string{
 					"docker": "true",
 				}
 			})
-			templateVersion = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Push new template version without provisioner tags. CLI should reuse tags from the previous version.
 			source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
@@ -787,13 +787,13 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("VariableIsRequired", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Test the cli command.
 			//nolint:gocritic
@@ -838,7 +838,7 @@ func TestTemplatePush(t *testing.T) {
 			w.RequireSuccess()
 
 			// Assert that the template version changed.
-			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), nicloudsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -856,13 +856,13 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("VariableIsOptionalButNotProvided", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Test the cli command.
 			//nolint:gocritic
@@ -903,7 +903,7 @@ func TestTemplatePush(t *testing.T) {
 			w.RequireSuccess()
 
 			// Assert that the template version changed.
-			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), nicloudsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -922,13 +922,13 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("WithVariableOption", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-			templateVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
+			templateVersion := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, createEchoResponsesWithTemplateVariables(initialTemplateVariables))
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, templateVersion.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, templateVersion.ID)
 
 			// Test the cli command.
 			//nolint:gocritic
@@ -970,7 +970,7 @@ func TestTemplatePush(t *testing.T) {
 			w.RequireSuccess()
 
 			// Assert that the template version changed.
-			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(context.Background(), nicloudsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -988,9 +988,9 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("CreateTemplate", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 			source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 
 			const templateName = "my-template"
@@ -1034,13 +1034,13 @@ func TestTemplatePush(t *testing.T) {
 
 		t.Run("NoStdinWithCurrentDirectory", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 			source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 				Parse:          echo.ParseComplete,
@@ -1061,7 +1061,7 @@ func TestTemplatePush(t *testing.T) {
 			err := inv.WithContext(ctx).Run()
 			require.NoError(t, err, "Should succeed without reading from stdin")
 
-			templateVersions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+			templateVersions, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 				TemplateID: template.ID,
 			})
 			require.NoError(t, err)
@@ -1072,9 +1072,9 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("PromptForDifferentRequiredTypes", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			templateVariables := []*proto.TemplateVariable{
 				{
@@ -1140,9 +1140,9 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("ValidateNumberInput", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			templateVariables := []*proto.TemplateVariable{
 				{
@@ -1180,9 +1180,9 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("DontPromptForDefaultValues", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			templateVariables := []*proto.TemplateVariable{
 				{
@@ -1221,9 +1221,9 @@ func TestTemplatePush(t *testing.T) {
 		t.Run("VariableSourcesPriority", func(t *testing.T) {
 			t.Parallel()
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			templateVariables := []*proto.TemplateVariable{
 				{

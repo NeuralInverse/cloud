@@ -10,7 +10,7 @@ import (
 	"tailscale.com/util/clientmetric"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
 )
 
 type agentMetrics struct {
@@ -39,7 +39,7 @@ func newAgentMetrics(registerer prometheus.Registerer) *agentMetrics {
 	registerer.MustRegister(reconnectingPTYErrors)
 
 	startupScriptSeconds := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "agentstats",
 		Name:      "startup_script_seconds",
 		Help:      "Amount of time taken to run the startup script in seconds.",
@@ -47,7 +47,7 @@ func newAgentMetrics(registerer prometheus.Registerer) *agentMetrics {
 	registerer.MustRegister(startupScriptSeconds)
 
 	currentConnections := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "agentstats",
 		Name:      "currently_reachable_peers",
 		Help:      "The number of peers (e.g. clients) that are currently reachable over the encrypted network.",
@@ -127,7 +127,7 @@ func toAgentMetricLabels(metricLabels []*prompb.LabelPair) []*proto.Stats_Metric
 	return labels
 }
 
-// isIgnoredMetric checks if the metric should be ignored, as Coder agent doesn't use related features.
+// isIgnoredMetric checks if the metric should be ignored, as Neural Inverse Cloud agent doesn't use related features.
 // Expected metric families: magicsock_*, derp_*, tstun_*, netcheck_*, portmap_*, etc.
 func isIgnoredMetric(metricName string) bool {
 	if strings.HasPrefix(metricName, "dns_") ||

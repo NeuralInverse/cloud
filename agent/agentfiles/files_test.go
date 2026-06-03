@@ -24,12 +24,12 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/agent/agentfiles"
-	"github.com/coder/coder/v2/agent/agentgit"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/agent/agentfiles"
+	"github.com/NeuralInverse/cloud/v2/agent/agentgit"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 type testFs struct {
@@ -273,7 +273,7 @@ func TestReadFile(t *testing.T) {
 			api.Routes().ServeHTTP(w, r)
 
 			if tt.errCode != 0 {
-				got := &codersdk.Error{}
+				got := &nicloudsdk.Error{}
 				err := json.NewDecoder(w.Body).Decode(got)
 				require.NoError(t, err)
 				require.ErrorContains(t, got, tt.error)
@@ -386,7 +386,7 @@ func TestWriteFile(t *testing.T) {
 			api.Routes().ServeHTTP(w, r)
 
 			if tt.errCode != 0 {
-				got := &codersdk.Error{}
+				got := &nicloudsdk.Error{}
 				err := json.NewDecoder(w.Body).Decode(got)
 				require.NoError(t, err)
 				require.ErrorContains(t, got, tt.error)
@@ -426,7 +426,7 @@ func TestWriteFile_ReportsIOError(t *testing.T) {
 	api.Routes().ServeHTTP(w, r)
 
 	require.Equal(t, http.StatusInternalServerError, w.Code)
-	got := &codersdk.Error{}
+	got := &nicloudsdk.Error{}
 	err = json.NewDecoder(w.Body).Decode(got)
 	require.NoError(t, err)
 	require.ErrorContains(t, got, "simulated I/O error")
@@ -1056,7 +1056,7 @@ func TestEditFiles(t *testing.T) {
 			api.Routes().ServeHTTP(w, r)
 
 			if tt.errCode != 0 {
-				got := &codersdk.Error{}
+				got := &nicloudsdk.Error{}
 				err := json.NewDecoder(w.Body).Decode(got)
 				require.NoError(t, err)
 				for _, error := range tt.errors {
@@ -1152,8 +1152,8 @@ func TestHandleWriteFile_ChatHeaders_UpdatesPathStore(t *testing.T) {
 
 	body := strings.NewReader("hello world")
 	req := httptest.NewRequest(http.MethodPost, "/write-file?path="+testPath, body)
-	req.Header.Set(workspacesdk.CoderChatIDHeader, chatID.String())
-	req.Header.Set(workspacesdk.CoderAncestorChatIDsHeader, string(ancestorJSON))
+	req.Header.Set(workspacesdk.NIChatIDHeader, chatID.String())
+	req.Header.Set(workspacesdk.NIAncestorChatIDsHeader, string(ancestorJSON))
 
 	rr := httptest.NewRecorder()
 	r := chi.NewRouter()
@@ -1207,7 +1207,7 @@ func TestHandleWriteFile_Failure_NoPathStoreUpdate(t *testing.T) {
 	// Write to a relative path (should fail with 400).
 	body := strings.NewReader("hello world")
 	req := httptest.NewRequest(http.MethodPost, "/write-file?path=relative/path.txt", body)
-	req.Header.Set(workspacesdk.CoderChatIDHeader, chatID.String())
+	req.Header.Set(workspacesdk.NIChatIDHeader, chatID.String())
 
 	rr := httptest.NewRecorder()
 	r := chi.NewRouter()
@@ -1248,7 +1248,7 @@ func TestHandleEditFiles_ChatHeaders_UpdatesPathStore(t *testing.T) {
 	body, _ := json.Marshal(editReq)
 	req := httptest.NewRequest(http.MethodPost, "/edit-files", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(workspacesdk.CoderChatIDHeader, chatID.String())
+	req.Header.Set(workspacesdk.NIChatIDHeader, chatID.String())
 
 	rr := httptest.NewRecorder()
 	r := chi.NewRouter()
@@ -1285,7 +1285,7 @@ func TestHandleEditFiles_Failure_NoPathStoreUpdate(t *testing.T) {
 	body, _ := json.Marshal(editReq)
 	req := httptest.NewRequest(http.MethodPost, "/edit-files", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(workspacesdk.CoderChatIDHeader, chatID.String())
+	req.Header.Set(workspacesdk.NIChatIDHeader, chatID.String())
 
 	rr := httptest.NewRecorder()
 	r := chi.NewRouter()
@@ -1347,7 +1347,7 @@ func TestReadFileLines(t *testing.T) {
 		expRead    int
 		expSize    int64
 		// useCodersdk is set for cases where the handler returns
-		// codersdk.Response (query param validation) instead of ReadFileLinesResponse.
+		// nicloudsdk.Response (query param validation) instead of ReadFileLinesResponse.
 		useCodersdk bool
 	}{
 		{
@@ -1458,7 +1458,7 @@ func TestReadFileLines(t *testing.T) {
 			api.Routes().ServeHTTP(w, r)
 
 			if tt.useCodersdk {
-				// Query param validation errors return codersdk.Response.
+				// Query param validation errors return nicloudsdk.Response.
 				require.Equal(t, http.StatusBadRequest, w.Code)
 				require.Contains(t, w.Body.String(), tt.expError)
 				return
@@ -2253,7 +2253,7 @@ func TestFuzzyReplace_FuzzyCollapse_PreservesNextLine(t *testing.T) {
 			expected: "\tONE\n\tTWO\n\tafter\n",
 		},
 		// The adversarial harness's reproduction from
-		// coderd/httpapi/httpapi.go, inline: the original had
+		// nicloud/httpapi/httpapi.go, inline: the original had
 		// `return valid == nil` on its own line after the
 		// matched region. The bug merged it onto the last
 		// replacement line with a tab separator.
@@ -2265,7 +2265,7 @@ func TestFuzzyReplace_FuzzyCollapse_PreservesNextLine(t *testing.T) {
 				"\t\tif !ok {\n" +
 				"\t\t\treturn false\n" +
 				"\t\t}\n" +
-				"\t\tvalid := codersdk.NameValid(str)\n" +
+				"\t\tvalid := nicloudsdk.NameValid(str)\n" +
 				"\t\treturn valid == nil\n" +
 				"\t}\n",
 			edits: []edit{{
@@ -2274,15 +2274,15 @@ func TestFuzzyReplace_FuzzyCollapse_PreservesNextLine(t *testing.T) {
 					"        if !ok {\n" +
 					"            return false\n" +
 					"        }\n" +
-					"        valid := codersdk.NameValid(str)",
+					"        valid := nicloudsdk.NameValid(str)",
 				replace: "        f := fl.Field().Interface()\n" +
 					"        str, _ := f.(string)\n" +
-					"        valid := codersdk.NameValid(str)",
+					"        valid := nicloudsdk.NameValid(str)",
 			}},
 			expected: "\tnameValidator := func(fl validator.FieldLevel) bool {\n" +
 				"\t\tf := fl.Field().Interface()\n" +
 				"\t\tstr, _ := f.(string)\n" +
-				"\t\tvalid := codersdk.NameValid(str)\n" +
+				"\t\tvalid := nicloudsdk.NameValid(str)\n" +
 				"\t\treturn valid == nil\n" +
 				"\t}\n",
 		},
@@ -2468,7 +2468,7 @@ func TestEditFiles_WhitespaceAndLineEndings(t *testing.T) {
 
 			if ct.errSub != "" {
 				require.Equal(t, http.StatusBadRequest, w.Code, "body: %s", w.Body.String())
-				got := &codersdk.Error{}
+				got := &nicloudsdk.Error{}
 				require.NoError(t, json.NewDecoder(w.Body).Decode(got))
 				require.ErrorContains(t, got, ct.errSub)
 				data, err := afero.ReadFile(fs, path)
@@ -2609,7 +2609,7 @@ func TestFuzzyReplace_Rejects(t *testing.T) {
 			api.Routes().ServeHTTP(w, r)
 
 			require.Equal(t, http.StatusBadRequest, w.Code, "body: %s", w.Body.String())
-			got := &codersdk.Error{}
+			got := &nicloudsdk.Error{}
 			require.NoError(t, json.NewDecoder(w.Body).Decode(got))
 			require.ErrorContains(t, got, tt.errSub)
 
@@ -2740,7 +2740,7 @@ func TestEditFiles_DuplicatePath_SymlinkAliasRejects(t *testing.T) {
 	api.Routes().ServeHTTP(w, r)
 
 	require.Equal(t, http.StatusBadRequest, w.Code, "body: %s", w.Body.String())
-	got := &codersdk.Error{}
+	got := &nicloudsdk.Error{}
 	require.NoError(t, json.NewDecoder(w.Body).Decode(got))
 	require.ErrorContains(t, got, "aliases")
 
@@ -3172,7 +3172,7 @@ func TestFuzzyReplace_Expansion_PreservesFileIndent(t *testing.T) {
 		"\t\tif !ok {\n" +
 		"\t\t\treturn false\n" +
 		"\t\t}\n" +
-		"\t\tvalid := codersdk.NameValid(str)\n" +
+		"\t\tvalid := nicloudsdk.NameValid(str)\n" +
 		"\t\treturn valid == nil\n" +
 		"\t}\n"
 	require.NoError(t, afero.WriteFile(fs, path, []byte(content), 0o644))
@@ -3186,14 +3186,14 @@ func TestFuzzyReplace_Expansion_PreservesFileIndent(t *testing.T) {
 					"        if !ok {\n" +
 					"            return false\n" +
 					"        }\n" +
-					"        valid := codersdk.NameValid(str)",
+					"        valid := nicloudsdk.NameValid(str)",
 				Replace: "        f := fl.Field().Interface()\n" +
 					"        str, ok := f.(string)\n" +
 					"        if !ok {\n" +
 					"            log.Println(\"type assertion failed\")\n" +
 					"            return false\n" +
 					"        }\n" +
-					"        valid := codersdk.NameValid(str)",
+					"        valid := nicloudsdk.NameValid(str)",
 			}},
 		}},
 	}
@@ -3211,7 +3211,7 @@ func TestFuzzyReplace_Expansion_PreservesFileIndent(t *testing.T) {
 		"\t\t\tlog.Println(\"type assertion failed\")\n" +
 		"\t\t\treturn false\n" +
 		"\t\t}\n" +
-		"\t\tvalid := codersdk.NameValid(str)\n" +
+		"\t\tvalid := nicloudsdk.NameValid(str)\n" +
 		"\t\treturn valid == nil\n" +
 		"\t}\n"
 	data, err := afero.ReadFile(fs, path)
@@ -3588,7 +3588,7 @@ func TestFuzzyReplace_Hints(t *testing.T) {
 			api.Routes().ServeHTTP(w, r)
 
 			require.Equal(t, http.StatusBadRequest, w.Code, "body: %s", w.Body.String())
-			got := &codersdk.Error{}
+			got := &nicloudsdk.Error{}
 			require.NoError(t, json.NewDecoder(w.Body).Decode(got))
 			msg := got.Message
 			for _, sub := range tt.wantSubs {

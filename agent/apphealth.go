@@ -10,8 +10,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
 	"github.com/coder/quartz"
 )
 
@@ -21,8 +21,8 @@ type PostWorkspaceAgentAppHealth func(context.Context, agentsdk.PostAppHealthsRe
 // WorkspaceAppHealthReporter is a function that checks and reports the health of the workspace apps until the passed context is canceled.
 type WorkspaceAppHealthReporter func(ctx context.Context)
 
-// NewWorkspaceAppHealthReporter creates a WorkspaceAppHealthReporter that reports app health to coderd.
-func NewWorkspaceAppHealthReporter(logger slog.Logger, apps []codersdk.WorkspaceApp, postWorkspaceAgentAppHealth PostWorkspaceAgentAppHealth) WorkspaceAppHealthReporter {
+// NewWorkspaceAppHealthReporter creates a WorkspaceAppHealthReporter that reports app health to nicloud.
+func NewWorkspaceAppHealthReporter(logger slog.Logger, apps []nicloudsdk.WorkspaceApp, postWorkspaceAgentAppHealth PostWorkspaceAgentAppHealth) WorkspaceAppHealthReporter {
 	return NewAppHealthReporterWithClock(logger, apps, postWorkspaceAgentAppHealth, quartz.NewReal())
 }
 
@@ -30,7 +30,7 @@ func NewWorkspaceAppHealthReporter(logger slog.Logger, apps []codersdk.Workspace
 // NewAppHealthReporter.
 func NewAppHealthReporterWithClock(
 	logger slog.Logger,
-	apps []codersdk.WorkspaceApp,
+	apps []nicloudsdk.WorkspaceApp,
 	postWorkspaceAgentAppHealth PostWorkspaceAgentAppHealth,
 	clk quartz.Clock,
 ) WorkspaceAppHealthReporter {
@@ -46,9 +46,9 @@ func NewAppHealthReporterWithClock(
 		}
 
 		hasHealthchecksEnabled := false
-		health := make(map[uuid.UUID]codersdk.WorkspaceAppHealth, 0)
+		health := make(map[uuid.UUID]nicloudsdk.WorkspaceAppHealth, 0)
 		for _, app := range apps {
-			if app.Health == codersdk.WorkspaceAppHealthDisabled {
+			if app.Health == nicloudsdk.WorkspaceAppHealthDisabled {
 				continue
 			}
 			health[app.ID] = app.Health
@@ -114,7 +114,7 @@ func NewAppHealthReporterWithClock(
 						} else {
 							// set to unhealthy if we hit the failure threshold.
 							// we stop incrementing at the threshold to prevent the failure value from increasing forever.
-							health[app.ID] = codersdk.WorkspaceAppHealthUnhealthy
+							health[app.ID] = nicloudsdk.WorkspaceAppHealthUnhealthy
 							nowUnhealthy = true
 						}
 						mu.Unlock()
@@ -126,7 +126,7 @@ func NewAppHealthReporterWithClock(
 					} else {
 						mu.Lock()
 						// we only need one successful health check to be considered healthy.
-						health[app.ID] = codersdk.WorkspaceAppHealthHealthy
+						health[app.ID] = nicloudsdk.WorkspaceAppHealthHealthy
 						failures[app.ID] = 0
 						mu.Unlock()
 						logger.Debug(ctx, "workspace app healthy", slog.F("id", app.ID.String()), slog.F("slug", app.Slug))
@@ -164,11 +164,11 @@ func NewAppHealthReporterWithClock(
 	}
 }
 
-func shouldStartTicker(app codersdk.WorkspaceApp) bool {
+func shouldStartTicker(app nicloudsdk.WorkspaceApp) bool {
 	return app.Healthcheck.URL != "" && app.Healthcheck.Interval > 0 && app.Healthcheck.Threshold > 0
 }
 
-func healthChanged(old map[uuid.UUID]codersdk.WorkspaceAppHealth, updated map[uuid.UUID]codersdk.WorkspaceAppHealth) bool {
+func healthChanged(old map[uuid.UUID]nicloudsdk.WorkspaceAppHealth, updated map[uuid.UUID]nicloudsdk.WorkspaceAppHealth) bool {
 	for name, newValue := range updated {
 		oldValue, found := old[name]
 		if !found {
@@ -182,8 +182,8 @@ func healthChanged(old map[uuid.UUID]codersdk.WorkspaceAppHealth, updated map[uu
 	return false
 }
 
-func copyHealth(h1 map[uuid.UUID]codersdk.WorkspaceAppHealth) map[uuid.UUID]codersdk.WorkspaceAppHealth {
-	h2 := make(map[uuid.UUID]codersdk.WorkspaceAppHealth, 0)
+func copyHealth(h1 map[uuid.UUID]nicloudsdk.WorkspaceAppHealth) map[uuid.UUID]nicloudsdk.WorkspaceAppHealth {
+	h2 := make(map[uuid.UUID]nicloudsdk.WorkspaceAppHealth, 0)
 	for k, v := range h1 {
 		h2[k] = v
 	}

@@ -22,11 +22,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/provisioner/terraform"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 type provisionerServeOptions struct {
@@ -509,20 +509,20 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = "0.6.20"
 					  }
 					}
 				  }
 
-				  data "coder_parameter" "sample" {
+				  data "ni_parameter" "sample" {
 					name = "Sample"
 					type = "string"
 					default = "foobaz"
 				  }
 
-				  data "coder_parameter" "example" {
+				  data "ni_parameter" "example" {
 					name = "Example"
 					type = "string"
 					default = "foobar"
@@ -530,7 +530,7 @@ func TestProvision(t *testing.T) {
 
 				  resource "null_resource" "example" {
 					triggers = {
-						misc = "${data.coder_parameter.example.value}"
+						misc = "${data.ni_parameter.example.value}"
 					}
 				  }`,
 			},
@@ -570,7 +570,7 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf.json": `{
 					"data": {
-						"coder_parameter": {
+						"ni_parameter": {
 							"example": [
 								{
 									"default": "foobar",
@@ -592,7 +592,7 @@ func TestProvision(t *testing.T) {
 							"example": [
 								{
 									"triggers": {
-										"misc": "${data.coder_parameter.example.value}"
+										"misc": "${data.ni_parameter.example.value}"
 									}
 								}
 							]
@@ -648,7 +648,7 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = "0.6.20"
 					  }
@@ -692,23 +692,23 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 					  }
 					}
 				}
 
 				resource "null_resource" "example" {}
-				data "coder_workspace_owner" "me" {}
+				data "ni_workspace_owner" "me" {}
 				resource "coder_metadata" "example" {
 					resource_id = null_resource.example.id
 					item {
 						key = "pubkey"
-						value = data.coder_workspace_owner.me.ssh_public_key
+						value = data.ni_workspace_owner.me.ssh_public_key
 					}
 					item {
 						key = "privkey"
-						value = data.coder_workspace_owner.me.ssh_private_key
+						value = data.ni_workspace_owner.me.ssh_private_key
 					}
 				}
 				`,
@@ -739,7 +739,7 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = "1.1.0"
 					  }
@@ -747,12 +747,12 @@ func TestProvision(t *testing.T) {
 				}
 
 				resource "null_resource" "example" {}
-				data "coder_workspace_owner" "me" {}
+				data "ni_workspace_owner" "me" {}
 				resource "coder_metadata" "example" {
 					resource_id = null_resource.example.id
 					item {
 						key = "login_type"
-						value = data.coder_workspace_owner.me.login_type
+						value = data.ni_workspace_owner.me.login_type
 					}
 				}
 				`,
@@ -820,7 +820,7 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = "2.2.0"
 					  }
@@ -828,16 +828,16 @@ func TestProvision(t *testing.T) {
 				}
 
 				resource "null_resource" "example" {}
-				data "coder_workspace_owner" "me" {}
+				data "ni_workspace_owner" "me" {}
 				resource "coder_metadata" "example" {
 					resource_id = null_resource.example.id
 					item {
 						key = "rbac_roles_name"
-						value = data.coder_workspace_owner.me.rbac_roles[0].name
+						value = data.ni_workspace_owner.me.rbac_roles[0].name
 					}
 					item {
 						key = "rbac_roles_org_id"
-						value = data.coder_workspace_owner.me.rbac_roles[0].org_id
+						value = data.ni_workspace_owner.me.rbac_roles[0].org_id
 					}
 				}
 				`,
@@ -866,19 +866,19 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = ">= 2.4.1"
 					  }
 					}
 				}
-				data "coder_workspace" "me" {}
+				data "ni_workspace" "me" {}
 				resource "null_resource" "example" {}
 				resource "coder_metadata" "example" {
 					resource_id = null_resource.example.id
 					item {
 						key = "is_prebuild"
-						value = data.coder_workspace.me.is_prebuild
+						value = data.ni_workspace.me.is_prebuild
 					}
 				}
 				`,
@@ -904,19 +904,19 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = ">= 2.4.1"
 					  }
 					}
 				}
-				data "coder_workspace" "me" {}
+				data "ni_workspace" "me" {}
 				resource "null_resource" "example" {}
 				resource "coder_metadata" "example" {
 					resource_id = null_resource.example.id
 					item {
 						key = "is_prebuild_claim"
-						value = data.coder_workspace.me.is_prebuild_claim
+						value = data.ni_workspace.me.is_prebuild_claim
 					}
 				}
 				`,
@@ -942,7 +942,7 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = ">= 2.13.0"
 					  }
@@ -995,13 +995,13 @@ func TestProvision(t *testing.T) {
 			Files: map[string]string{
 				"main.tf": `terraform {
 					required_providers {
-					  coder = {
+					  neuralinverse = {
 						source  = "coder/coder"
 						version = ">= 2.7.0"
 					  }
 					}
 				}
-				resource "coder_external_agent" "example" {
+				resource "ni_external_agent" "example" {
 					agent_id = "123"
 				}
 				`,
@@ -1009,7 +1009,7 @@ func TestProvision(t *testing.T) {
 			Response: &proto.GraphComplete{
 				Resources: []*proto.Resource{{
 					Name: "example",
-					Type: "coder_external_agent",
+					Type: "ni_external_agent",
 				}},
 				HasExternalAgents: true,
 			},
@@ -1265,9 +1265,9 @@ func TestProvision_SafeEnv(t *testing.T) {
 
 	t.Setenv("VALID_USER_ENV", passedValue)
 
-	// We ensure random CODER_ variables aren't passed through to avoid leaking
+	// We ensure random NEURALINVERSE_ variables aren't passed through to avoid leaking
 	// control plane secrets (e.g. PG URL).
-	t.Setenv("CODER_SECRET", secretValue)
+	t.Setenv("NEURALINVERSE_SECRET", secretValue)
 
 	const echoResource = `
 	resource "null_resource" "a" {
@@ -1295,7 +1295,7 @@ func TestProvision_SafeEnv(t *testing.T) {
 	log, applyComplete := readProvisionLog(t, sess)
 	require.Contains(t, log, passedValue)
 	require.NotContains(t, log, secretValue)
-	require.Contains(t, log, "CODER_")
+	require.Contains(t, log, "NEURALINVERSE_")
 	require.Contains(t, log, "AWS_SDK_UA_APP_ID=APN_1.1/pc_cdfmjwn8i6u8l9fwz8h82e4w3$")
 
 	apply := applyComplete.Type.(*proto.Response_Apply)

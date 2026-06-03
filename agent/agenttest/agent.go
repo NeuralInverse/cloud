@@ -6,20 +6,20 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentcontextconfig"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontextconfig"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // New starts a new agent for use in tests.
-// The agent will use the provided coder URL and session token.
+// The agent will use the provided neuralinverse URL and session token.
 // The options passed to agent.New() can be modified by passing an optional
 // variadic func(*agent.Options).
 // Returns the agent. Closing the agent is handled by the test cleanup.
-// It is the responsibility of the caller to call coderdtest.AwaitWorkspaceAgents
+// It is the responsibility of the caller to call nicloudtest.AwaitWorkspaceAgents
 // to ensure agent is connected.
-func New(t testing.TB, coderURL *url.URL, agentToken string, opts ...func(*agent.Options)) agent.Agent {
+func New(t testing.TB, niURL *url.URL, agentToken string, opts ...func(*agent.Options)) agent.Agent {
 	t.Helper()
 
 	var o agent.Options
@@ -32,7 +32,7 @@ func New(t testing.TB, coderURL *url.URL, agentToken string, opts ...func(*agent
 	}
 
 	if o.Client == nil {
-		agentClient := agentsdk.New(coderURL, agentsdk.WithFixedToken(agentToken))
+		agentClient := agentsdk.New(niURL, agentsdk.WithFixedToken(agentToken))
 		agentClient.SDK.SetLogger(log)
 		o.Client = agentClient
 	}

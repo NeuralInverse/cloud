@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # support
 
-Commands for troubleshooting issues with a Coder deployment.
+Commands for troubleshooting issues with a Neural Inverse Cloud deployment.
 
 ## Usage
 

@@ -28,12 +28,12 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/agentrsa"
-	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/agentrsa"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/pty"
 )
 
 const (
@@ -61,15 +61,15 @@ type MagicSessionType string
 const (
 	// MagicSessionTypeEnvironmentVariable is used to track the purpose behind an SSH connection.
 	// This is stripped from any commands being executed, and is counted towards connection stats.
-	MagicSessionTypeEnvironmentVariable = "CODER_SSH_SESSION_TYPE"
+	MagicSessionTypeEnvironmentVariable = "NEURALINVERSE_SSH_SESSION_TYPE"
 	// ContainerEnvironmentVariable is used to specify the target container for an SSH connection.
 	// This is stripped from any commands being executed.
-	// Only available if CODER_AGENT_DEVCONTAINERS_ENABLE=true.
-	ContainerEnvironmentVariable = "CODER_CONTAINER"
+	// Only available if NEURALINVERSE_AGENT_DEVCONTAINERS_ENABLE=true.
+	ContainerEnvironmentVariable = "NEURALINVERSE_CONTAINER"
 	// ContainerUserEnvironmentVariable is used to specify the container user for
 	// an SSH connection.
-	// Only available if CODER_AGENT_DEVCONTAINERS_ENABLE=true.
-	ContainerUserEnvironmentVariable = "CODER_CONTAINER_USER"
+	// Only available if NEURALINVERSE_AGENT_DEVCONTAINERS_ENABLE=true.
+	ContainerUserEnvironmentVariable = "NEURALINVERSE_CONTAINER_USER"
 )
 
 // MagicSessionType enums.
@@ -98,8 +98,8 @@ type Config struct {
 	// MOTDFile returns the path to the message of the day file. If set, the
 	// file will be displayed to the user upon login.
 	MOTDFile func() string
-	// ServiceBanner returns the configuration for the Coder service banner.
-	AnnouncementBanners func() *[]codersdk.BannerConfig
+	// ServiceBanner returns the configuration for the Neural Inverse Cloud service banner.
+	AnnouncementBanners func() *[]nicloudsdk.BannerConfig
 	// UpdateEnv updates the environment variables for the command to be
 	// executed. It can be used to add, modify or replace environment variables.
 	UpdateEnv func(current []string) (updated []string, err error)
@@ -178,7 +178,7 @@ func NewServer(ctx context.Context, logger slog.Logger, prometheusRegistry *prom
 		config.MOTDFile = func() string { return "" }
 	}
 	if config.AnnouncementBanners == nil {
-		config.AnnouncementBanners = func() *[]codersdk.BannerConfig { return &[]codersdk.BannerConfig{} }
+		config.AnnouncementBanners = func() *[]nicloudsdk.BannerConfig { return &[]nicloudsdk.BannerConfig{} }
 	}
 	if config.WorkingDirectory == nil {
 		config.WorkingDirectory = func() string {
@@ -464,8 +464,8 @@ func (s *Server) sessionHandler(session ssh.Session) {
 
 	closeCause := func(_ string) {}
 	if reportSession {
-		var reason codersdk.DisconnectReason
-		closeCause = func(r string) { reason = codersdk.DisconnectReason(r) }
+		var reason nicloudsdk.DisconnectReason
+		closeCause = func(r string) { reason = nicloudsdk.DisconnectReason(r) }
 
 		scr := &sessionCloseTracker{Session: session}
 		session = scr
@@ -473,7 +473,7 @@ func (s *Server) sessionHandler(session ssh.Session) {
 		disconnected := s.config.ReportConnection(id, magicType, remoteAddrString)
 		defer func() {
 			logger.Info(ctx, "ssh session closed",
-				codersdk.ConnectionDirectionAgentToClient.SlogField(),
+				nicloudsdk.ConnectionDirectionAgentToClient.SlogField(),
 				reason.SlogField(),
 				reason.SlogExpectedField(),
 				slog.F("exit_code", scr.exitCode()),
@@ -573,7 +573,7 @@ func (s *Server) sessionHandler(session ssh.Session) {
 		_ = session.Exit(MagicSessionErrorCode)
 		return
 	}
-	closeCause(string(codersdk.DisconnectReasonGraceful))
+	closeCause(string(nicloudsdk.DisconnectReasonGraceful))
 	logger.Info(ctx, "normal ssh session exit")
 	_ = session.Exit(0)
 }
@@ -1300,7 +1300,7 @@ func isQuietLogin(fs afero.Fs, rawCommand string) bool {
 
 // showAnnouncementBanner will write the service banner if enabled and not blank
 // along with a blank line for spacing.
-func showAnnouncementBanner(session io.Writer, banner codersdk.BannerConfig) error {
+func showAnnouncementBanner(session io.Writer, banner nicloudsdk.BannerConfig) error {
 	if banner.Enabled && banner.Message != "" {
 		// The banner supports Markdown so we might want to parse it but Markdown is
 		// still fairly readable in its raw form.
@@ -1368,7 +1368,7 @@ func userHomeDir() (string, error) {
 // UpdateHostSigner updates the host signer with a new key generated from the provided seed.
 // If an existing host key exists with the same algorithm, it is overwritten
 func (s *Server) UpdateHostSigner(seed int64) error {
-	key, err := CoderSigner(seed)
+	key, err := NISigner(seed)
 	if err != nil {
 		return err
 	}
@@ -1381,11 +1381,11 @@ func (s *Server) UpdateHostSigner(seed int64) error {
 	return nil
 }
 
-// CoderSigner generates a deterministic SSH signer based on the provided seed.
+// Neural Inverse CloudSigner generates a deterministic SSH signer based on the provided seed.
 // It uses RSA with a key size of 2048 bits.
-func CoderSigner(seed int64) (gossh.Signer, error) {
+func NISigner(seed int64) (gossh.Signer, error) {
 	// Clients should ignore the host key when connecting.
-	// The agent needs to authenticate with coderd to SSH,
+	// The agent needs to authenticate with nicloud to SSH,
 	// so SSH authentication doesn't improve security.
 	coderHostKey := agentrsa.GenerateDeterministicKey(seed)
 

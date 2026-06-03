@@ -2,32 +2,32 @@
 
 [Cursor](https://cursor.sh/) is a modern IDE built on top of VS Code with enhanced AI capabilities.
 
-Follow this guide to use Cursor to access your Coder workspaces.
+Follow this guide to use Cursor to access your Neural Inverse Cloud workspaces.
 
-If your team uses Cursor regularly, ask your Coder administrator to add a [Cursor module](https://registry.coder.com/modules/cursor) to your template.
+If your team uses Cursor regularly, ask your Neural Inverse Cloud administrator to add a [Cursor module](https://registry.cloud.neuralinverse.com/modules/cursor) to your template.
 
 ## Install Cursor
 
-Cursor can connect to a Coder workspace using the Coder extension:
+Cursor can connect to a Neural Inverse Cloud workspace using the Neural Inverse Cloud extension:
 
 1. [Install Cursor](https://docs.cursor.com/get-started/installation) on your local machine.
 
 1. Open Cursor and log in or [create a Cursor account](https://authenticator.cursor.sh/sign-up)
    if you don't have one already.
 
-## Install the Coder extension
+## Install the Neural Inverse Cloud extension
 
-1. You can install the Coder extension through the Marketplace built in to Cursor or manually.
+1. You can install the Neural Inverse Cloud extension through the Marketplace built in to Cursor or manually.
 
    <div class="tabs">
 
    ## Extension Marketplace
 
-   1. Search for Coder from the Extensions Pane and select **Install**.
+   1. Search for Neural Inverse Cloud from the Extensions Pane and select **Install**.
 
-   1. Coder Remote uses the **Remote - SSH extension** to connect.
+   1. Neural Inverse Cloud Remote uses the **Remote - SSH extension** to connect.
 
-      You can find it in the **Extension Pack** tab of the Coder extension.
+      You can find it in the **Extension Pack** tab of the Neural Inverse Cloud extension.
 
    ## Manually
 
@@ -45,18 +45,18 @@ Cursor can connect to a Coder workspace using the Coder extension:
 
    </div>
 
-1. Coder Remote uses the **Remote - SSH extension** to connect.
+1. Neural Inverse Cloud Remote uses the **Remote - SSH extension** to connect.
 
-   You can find it in the **Extension Pack** tab of the Coder extension.
+   You can find it in the **Extension Pack** tab of the Neural Inverse Cloud extension.
 
 ## Open a workspace in Cursor
 
 1. From the Cursor Command Palette
 (<kdb>Ctrl</kdb>+<kdb>Shift</kdb>+<kdb>P</kdb> or <kdb>Cmd</kdb>+<kdb>Shift</kdb>+<kdb>P</kdb>),
-enter `coder` and select **Coder: Login**.
+enter `coder` and select **Neural Inverse Cloud: Login**.
 
 1. Follow the prompts to login and copy your session token.
 
    Paste the session token in the **Paste your API key** box in Cursor.
 
-1. Select **Open Workspace** or use the Command Palette to run **Coder: Open Workspace**.
+1. Select **Open Workspace** or use the Command Palette to run **Neural Inverse Cloud: Open Workspace**.

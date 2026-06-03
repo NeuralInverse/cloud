@@ -14,11 +14,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbmock"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbmock"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
 )
 
 func TestUserLinks(t *testing.T) {

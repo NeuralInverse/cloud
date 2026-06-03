@@ -5,15 +5,15 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) taskLogs() *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
 		cliui.TableFormat(
-			[]codersdk.TaskLogEntry{},
+			[]nicloudsdk.TaskLogEntry{},
 			[]string{
 				"type",
 				"content",
@@ -28,7 +28,7 @@ func (r *RootCmd) taskLogs() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Show logs for a given task.",
-				Command:     "coder task logs task1",
+				Command:     "neuralinverse task logs task1",
 			}),
 		Middleware: serpent.Chain(
 			serpent.RequireNArgs(1),
@@ -49,7 +49,7 @@ func (r *RootCmd) taskLogs() *serpent.Command {
 				return xerrors.Errorf("resolve task %q: %w", identifier, err)
 			}
 
-			logs, err := client.TaskLogs(ctx, codersdk.Me, task.ID)
+			logs, err := client.TaskLogs(ctx, nicloudsdk.Me, task.ID)
 			if err != nil {
 				return xerrors.Errorf("get task logs: %w", err)
 			}

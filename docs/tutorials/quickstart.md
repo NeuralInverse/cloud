@@ -1,6 +1,6 @@
 # Quickstart
 
-Follow this guide to get your first Coder development environment
+Follow this guide to get your first Neural Inverse Cloud development environment
 running in under 10 minutes. This guide covers the essential concepts and shows
 you how to create your first workspace and open it in your preferred editor.
 This workspace includes a basic set of tools to edit most code bases.
@@ -9,14 +9,14 @@ This workspace includes a basic set of tools to edit most code bases.
 
 In this quickstart, you'll:
 
-- ✅ Install Coder server.
+- ✅ Install Neural Inverse Cloud server.
 - ✅ Create a **template** (blueprint for dev environments).
 - ✅ Launch a **workspace** (your actual dev environment).
 - ✅ Connect from your favorite IDE.
 
-## A 30-second metaphor for Coder
+## A 30-second metaphor for Neural Inverse Cloud
 
-Before diving in, the following table breaks down the core concepts that power Coder,
+Before diving in, the following table breaks down the core concepts that power Neural Inverse Cloud,
 explained through a cooking analogy:
 
 | Component      | What It Is                                                                           | Real-World Analogy             |
@@ -26,7 +26,7 @@ explained through a cooking analogy:
 | **Workspaces** | The actual running environment created from the template                             | The cooked meal                |
 | **Users**      | A developer who launches the workspace from a template and does their work inside it | The people eating the meal     |
 
-**Putting it Together:** Coder separates who _defines_ environments from who _uses_ them. Admins create and manage Templates, the recipes, while developers use those Templates to launch Workspaces, the meals.
+**Putting it Together:** Neural Inverse Cloud separates who _defines_ environments from who _uses_ them. Admins create and manage Templates, the recipes, while developers use those Templates to launch Workspaces, the meals.
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ explained through a cooking analogy:
 - 10 minutes of your time
 
 > [!TIP]
-> If you use a coding agent like Claude Code, the [coder/skills](https://github.com/coder/skills) `setup` skill can train the coding agent on the following steps (install Docker, install Coder, create your first template, and launch a workspace).
+> If you use a coding agent like Claude Code, the [coder/skills](https://github.com/coder/skills) `setup` skill can train the coding agent on the following steps (install Docker, install Neural Inverse Cloud, create your first template, and launch a workspace).
 
 ## Step 1: Install Docker and set up permissions
 
@@ -96,7 +96,7 @@ is installed.
 
 </div>
 
-## Step 2: Install and start Coder
+## Step 2: Install and start Neural Inverse Cloud
 
 Install the `coder` CLI to get started:
 
@@ -104,17 +104,17 @@ Install the `coder` CLI to get started:
 
 ### Linux/macOS
 
-1. Install Coder:
+1. Install Neural Inverse Cloud:
 
    ```shell
-   curl -L https://coder.com/install.sh | sh
+   curl -L https://cloud.neuralinverse.com/install.sh | sh
    ```
 
    - For standalone binaries, system packages, or other alternate installation
      methods, refer to the
-     [latest release on GitHub](https://github.com/coder/coder/releases/latest).
+     [latest release on GitHub](https://github.com/NeuralInverse/cloud/releases/latest).
 
-1. Start Coder:
+1. Start Neural Inverse Cloud:
 
    ```shell
    coder server
@@ -128,13 +128,13 @@ is installed.
 
 1. Use the
    [`winget`](https://learn.microsoft.com/en-us/windows/package-manager/winget/#use-winget)
-   package manager to install Coder:
+   package manager to install Neural Inverse Cloud:
 
    ```powershell
-   winget install Coder.Coder
+   winget install Neural Inverse Cloud.Neural Inverse Cloud
    ```
 
-1. Start Coder:
+1. Start Neural Inverse Cloud:
 
    ```shell
    coder server
@@ -142,14 +142,14 @@ is installed.
 
 </div>
 
-Coder will attempt to open the setup page in your browser. If it doesn't open
+Neural Inverse Cloud will attempt to open the setup page in your browser. If it doesn't open
 automatically, go to <http://localhost:3000>.
 
 - If you get a browser warning similar to `Secure Site Not Available`, you can
   ignore the warning and continue to the setup page.
 
-If your Coder server is on a network or cloud device, or you are having trouble
-viewing the page, locate the web UI URL in Coder logs in your terminal. It looks
+If your Neural Inverse Cloud server is on a network or cloud device, or you are having trouble
+viewing the page, locate the web UI URL in Neural Inverse Cloud logs in your terminal. It looks
 like `https://<CUSTOM-STRING>.<TUNNEL>.try.coder.app`. It's one of the first
 lines of output, so you might have to scroll up to find it.
 
@@ -160,9 +160,9 @@ lines of output, so you might have to scroll up to find it.
    - Password: Choose a strong password.
 
    You can also choose to **Continue with GitHub** instead of creating an admin
-   account. Coder automatically grants admin permissions to the first user that signs in.
+   account. Neural Inverse Cloud automatically grants admin permissions to the first user that signs in.
 
-   ![Welcome to Coder - Create admin user](../images/screenshots/welcome-create-admin-user.png)
+   ![Welcome to Neural Inverse Cloud - Create admin user](../images/screenshots/welcome-create-admin-user.png)
 
 ## Step 4: Create your first template and workspace
 
@@ -173,21 +173,21 @@ Templates define what's in your development environment. The following is a basi
 
 1. Select **Templates** → **New Template**.
 
-2. Select the **Coder Quickstart** template from the list of starter templates.
+2. Select the **Neural Inverse Cloud Quickstart** template from the list of starter templates.
 
    **Note:** running this template requires Docker to be running in the background, so make sure Docker is running!
 
 3. Name your template:
    - Name: `quickstart`
    - Display name: `quickstart doc template`
-   - Description: `Provision Docker containers as Coder workspaces`
+   - Description: `Provision Docker containers as Neural Inverse Cloud workspaces`
 
 4. Select **Save**.
 
    ![Create template](../images/screenshots/create-template.png)
 
 **What just happened?** You defined a template — a reusable blueprint for dev
-environments — in your Coder deployment. It's now stored in your organization's
+environments — in your Neural Inverse Cloud deployment. It's now stored in your organization's
 template list, where you and any teammates in the same org can create workspaces
 from it. Now it's time launch a workspace.
 
@@ -207,7 +207,7 @@ from it. Now it's time launch a workspace.
 
 4. Launch your workspace by selecting **Create workspace**.
 
-After a short wait (10-15 seconds on most modern computers), Coder will start your new workspace:
+After a short wait (10-15 seconds on most modern computers), Neural Inverse Cloud will start your new workspace:
 
 ![getting-started-workspace is running](../images/screenshots/workspace-running-with-topbar.png)_Workspace is running_
 
@@ -228,8 +228,8 @@ workspace, you can clone it manually if you want:
 
 1. Select **Clone Repository** and enter the repository URL.
 
-   For example, to clone the Coder repo, enter
-   `https://github.com/coder/coder.git`.
+   For example, to clone the Neural Inverse Cloud repo, enter
+   `https://github.com/NeuralInverse/cloud.git`.
 
    Learn more about how to find the repository URL in the
    [GitHub documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
@@ -241,13 +241,13 @@ workspace, you can clone it manually if you want:
 
 3. After VS Code completes the clone, select **Open** to open the directory.
 
-4. You are now using VS Code in your Coder environment!
+4. You are now using VS Code in your Neural Inverse Cloud environment!
 
-## Success! You're coding in Coder
+## Success! You're coding in Neural Inverse Cloud
 
 You now have:
 
-- A Coder server running locally.
+- A Neural Inverse Cloud server running locally.
 - A template defining your environment.
 - A workspace running that environment.
 - IDE access to code remotely.
@@ -255,15 +255,15 @@ You now have:
 ### What's next?
 
 Now that you have your own workspace running, you can start exploring more
-advanced capabilities that Coder offers.
+advanced capabilities that Neural Inverse Cloud offers.
 
-- [Try Coder Agents](../ai-coder/agents/getting-started.md), the chat
+- [Try Neural Inverse Cloud Agents](../ai-coder/agents/getting-started.md), the chat
   interface and API for delegating development work to coding agents in your
-  Coder deployment.
+  Neural Inverse Cloud deployment.
 
 - [Read about managing Workspaces for your team](../user-guides/workspace-management.md)
 
-- [Read about implementing monitoring tools for your Coder Deployment](../admin/monitoring/index.md)
+- [Read about implementing monitoring tools for your Neural Inverse Cloud Deployment](../admin/monitoring/index.md)
 
 ## Troubleshooting
 
@@ -276,7 +276,7 @@ Error: Error pinging Docker server: Cannot connect to the Docker daemon at unix:
 ```
 
 This means Docker is either not installed or not running on the machine where
-Coder is running. Docker must be running before you create a workspace from a
+Neural Inverse Cloud is running. Docker must be running before you create a workspace from a
 Docker-based template.
 
 <div class="tabs">
@@ -307,7 +307,7 @@ Docker-based template.
    sudo systemctl start docker
    ```
 
-1. Assign your user to the `docker` group so Coder can access the daemon
+1. Assign your user to the `docker` group so Neural Inverse Cloud can access the daemon
    without root:
 
    ```shell
@@ -331,7 +331,7 @@ Docker-based template.
 
 </div>
 
-### Can't start Coder server: Address already in use
+### Can't start Neural Inverse Cloud server: Address already in use
 
 ```shell
 Encountered an error running "coder server", see "coder server --help" for more information
@@ -349,7 +349,7 @@ then start the server again.
    sudo systemctl stop coder
    ```
 
-1. Start Coder:
+1. Start Neural Inverse Cloud:
 
    ```shell
    coder server
@@ -375,7 +375,7 @@ then start the server again.
    kill -9 <PID>
    ```
 
-1. Start Coder:
+1. Start Neural Inverse Cloud:
 
    ```shell
    coder server
@@ -395,7 +395,7 @@ then start the server again.
    Stop-Process -Id <PID>
    ```
 
-1. Start Coder:
+1. Start Neural Inverse Cloud:
 
    ```shell
    coder server

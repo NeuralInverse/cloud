@@ -11,8 +11,8 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/jwtutils"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/quartz"
 )
 

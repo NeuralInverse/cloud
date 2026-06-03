@@ -9,14 +9,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestUpdate(t *testing.T) {
@@ -35,35 +35,35 @@ func TestUpdate(t *testing.T) {
 		t.Parallel()
 
 		// Given: a workspace exists on the latest template version.
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-		ws := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
 			cwr.Name = "my-workspace"
 		})
 		require.False(t, ws.Outdated, "newly created workspace with active template version must not be outdated")
 
 		// Given: the template version is updated
-		version2 := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		version2 := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
 			ProvisionPlan:  echo.PlanComplete,
 		}, template.ID)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: version2.ID,
 		})
 		require.NoError(t, err, "failed to update active template version")
 
 		// Then: the workspace is marked as 'outdated'
-		ws, err = member.WorkspaceByOwnerAndName(ctx, codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err = member.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, "my-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err, "member failed to get workspace they themselves own")
 		require.True(t, ws.Outdated, "workspace must be outdated after template version update")
 
@@ -75,14 +75,14 @@ func TestUpdate(t *testing.T) {
 		require.NoError(t, err, "update command failed")
 
 		// Then: the workspace is no longer 'outdated'
-		ws, err = member.WorkspaceByOwnerAndName(ctx, codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err = member.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, "my-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err, "member failed to get workspace they themselves own after update")
 		require.Equal(t, version2.ID.String(), ws.LatestBuild.TemplateVersionID.String(), "workspace must have latest template version after update")
 		require.False(t, ws.Outdated, "workspace must not be outdated after update")
 
 		// Then: the workspace must have been started with the new template version
 		require.Equal(t, int32(3), ws.LatestBuild.BuildNumber, "workspace must have 3 builds after update")
-		require.Equal(t, codersdk.WorkspaceTransitionStart, ws.LatestBuild.Transition, "latest build must be a start transition")
+		require.Equal(t, nicloudsdk.WorkspaceTransitionStart, ws.LatestBuild.Transition, "latest build must be a start transition")
 
 		// Then: the previous workspace build must be a stop transition with the old
 		// template version.
@@ -91,9 +91,9 @@ func TestUpdate(t *testing.T) {
 		// version may not recreate resources that were changed in the new
 		// template version. This can happen, for example, if a user specifies
 		// ignore_changes in the template.
-		prevBuild, err := member.WorkspaceBuildByUsernameAndWorkspaceNameAndBuildNumber(ctx, codersdk.Me, ws.Name, "2")
+		prevBuild, err := member.WorkspaceBuildByUsernameAndWorkspaceNameAndBuildNumber(ctx, nicloudsdk.Me, ws.Name, "2")
 		require.NoError(t, err, "failed to get previous workspace build")
-		require.Equal(t, codersdk.WorkspaceTransitionStop, prevBuild.Transition, "previous build must be a stop transition")
+		require.Equal(t, nicloudsdk.WorkspaceTransitionStop, prevBuild.Transition, "previous build must be a stop transition")
 		require.Equal(t, version1.ID.String(), prevBuild.TemplateVersionID.String(), "previous build must have the old template version")
 	})
 
@@ -101,38 +101,38 @@ func TestUpdate(t *testing.T) {
 		t.Parallel()
 
 		// Given: a workspace exists on the latest template version.
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
 
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-		ws := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
 			cwr.Name = "my-workspace"
 		})
 		require.False(t, ws.Outdated, "newly created workspace with active template version must not be outdated")
 
 		// Given: the template version is updated
-		version2 := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		version2 := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyComplete,
 			ProvisionPlan:  echo.PlanComplete,
 		}, template.ID)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
 
 		ctx := testutil.Context(t, testutil.WaitShort)
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: version2.ID,
 		})
 		require.NoError(t, err, "failed to update active template version")
 
 		// Given: the workspace is in a stopped state.
-		coderdtest.MustTransitionWorkspace(t, member, ws.ID, codersdk.WorkspaceTransitionStart, codersdk.WorkspaceTransitionStop)
+		nicloudtest.MustTransitionWorkspace(t, member, ws.ID, nicloudsdk.WorkspaceTransitionStart, nicloudsdk.WorkspaceTransitionStop)
 
 		// Then: the workspace is marked as 'outdated'
-		ws, err = member.WorkspaceByOwnerAndName(ctx, codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err = member.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, "my-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err, "member failed to get workspace they themselves own")
 		require.True(t, ws.Outdated, "workspace must be outdated after template version update")
 
@@ -144,13 +144,13 @@ func TestUpdate(t *testing.T) {
 		require.NoError(t, err, "update command failed")
 
 		// Then: the workspace is no longer 'outdated'
-		ws, err = member.WorkspaceByOwnerAndName(ctx, codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err = member.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, "my-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err, "member failed to get workspace they themselves own after update")
 		require.Equal(t, version2.ID.String(), ws.LatestBuild.TemplateVersionID.String(), "workspace must have latest template version after update")
 		require.False(t, ws.Outdated, "workspace must not be outdated after update")
 
 		// Then: the workspace must have been started with the new template version
-		require.Equal(t, codersdk.WorkspaceTransitionStart, ws.LatestBuild.Transition, "latest build must be a start transition")
+		require.Equal(t, nicloudsdk.WorkspaceTransitionStart, ws.LatestBuild.Transition, "latest build must be a start transition")
 		// Then: we expect 3 builds, as we manually stopped the workspace.
 		require.Equal(t, int32(3), ws.LatestBuild.BuildNumber, "workspace must have 3 builds after update")
 	})
@@ -160,26 +160,26 @@ func TestUpdate(t *testing.T) {
 	t.Run("UseParameterDefaults", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-		ws := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+		ws := nicloudtest.CreateWorkspace(t, member, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
 			cwr.Name = "my-workspace"
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 
 		// Push a new template version that adds a parameter with a default.
-		version2 := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID,
+		version2 := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID,
 			prepareEchoResponses([]*proto.RichParameter{
 				{Name: "new_param", Type: "string", Mutable: true, DefaultValue: "foobar"},
 			}), template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
 		ctx := testutil.Context(t, testutil.WaitLong)
-		err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{ID: version2.ID})
+		err := client.UpdateActiveTemplateVersion(ctx, template.ID, nicloudsdk.UpdateActiveTemplateVersion{ID: version2.ID})
 		require.NoError(t, err)
 
 		inv, root := clitest.New(t, "update", "my-workspace", "--use-parameter-defaults")
@@ -187,13 +187,13 @@ func TestUpdate(t *testing.T) {
 		err = inv.Run()
 		require.NoError(t, err, "update with --use-parameter-defaults should not prompt")
 
-		ws, err = member.WorkspaceByOwnerAndName(ctx, codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err = member.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, "my-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		require.Equal(t, version2.ID.String(), ws.LatestBuild.TemplateVersionID.String())
 
 		buildParams, err := member.WorkspaceBuildParameters(ctx, ws.LatestBuild.ID)
 		require.NoError(t, err)
-		assert.Contains(t, buildParams, codersdk.WorkspaceBuildParameter{Name: "new_param", Value: "foobar"})
+		assert.Contains(t, buildParams, nicloudsdk.WorkspaceBuildParameter{Name: "new_param", Value: "foobar"})
 	})
 }
 
@@ -231,13 +231,13 @@ func TestUpdateWithRichParameters(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		tempDir := t.TempDir()
 		removeTmpDirUntilSuccessAfterTest(t, tempDir)
@@ -285,13 +285,13 @@ func TestUpdateWithRichParameters(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		tempDir := t.TempDir()
 		removeTmpDirUntilSuccessAfterTest(t, tempDir)
@@ -339,11 +339,11 @@ func TestUpdateWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, nicloudsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -352,13 +352,13 @@ func TestUpdateWithRichParameters(t *testing.T) {
 	t.Run("EphemeralParameterFlags", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		const workspaceName = "my-workspace"
 
@@ -390,11 +390,11 @@ func TestUpdateWithRichParameters(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 		defer cancel()
 
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), workspaceName, nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, nicloudsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -431,12 +431,12 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		tempDir := t.TempDir()
 		removeTmpDirUntilSuccessAfterTest(t, tempDir)
@@ -478,13 +478,13 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(numberRichParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(numberRichParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		tempDir := t.TempDir()
 		removeTmpDirUntilSuccessAfterTest(t, tempDir)
@@ -526,13 +526,13 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(boolRichParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(boolRichParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		tempDir := t.TempDir()
 		removeTmpDirUntilSuccessAfterTest(t, tempDir)
@@ -574,14 +574,14 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Upload the initial template
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		tempDir := t.TempDir()
 		removeTmpDirUntilSuccessAfterTest(t, tempDir)
@@ -606,9 +606,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 			Mutable:  true,
 			Required: true,
 		})
-		version = coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(modifiedParameters), template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		version = nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(modifiedParameters), template.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.NoError(t, err)
@@ -646,14 +646,14 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 	t.Run("OptionalParameterAdded", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Upload the initial template
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		tempDir := t.TempDir()
 		removeTmpDirUntilSuccessAfterTest(t, tempDir)
@@ -679,9 +679,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 			DefaultValue: "foobar",
 			Required:     false,
 		})
-		version = coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(modifiedParameters), template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		version = nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(modifiedParameters), template.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.NoError(t, err)
@@ -755,13 +755,13 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 				logger := testutil.Logger(t)
 
 				// Create template and workspace
-				client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-				user := coderdtest.CreateFirstUser(t, client)
-				member, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID)
+				client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+				user := nicloudtest.CreateFirstUser(t, client)
+				member, _ := nicloudtest.CreateAnotherUser(t, client, user.OrganizationID)
 
-				version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, prepareEchoResponses(tc.originalParameters))
-				coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-				template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+				version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, prepareEchoResponses(tc.originalParameters))
+				nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+				template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 				// Create new workspace
 				inv, root := clitest.New(t, "create", "my-workspace", "--yes", "--template", template.Name, "--parameter", fmt.Sprintf("%s=%s", stringParameterName, "2nd"))
@@ -770,9 +770,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 				require.NoError(t, err)
 
 				// Update template
-				updatedVersion := coderdtest.UpdateTemplateVersion(t, client, user.OrganizationID, prepareEchoResponses(tc.updatedParameters), template.ID)
-				coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-				err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+				updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, user.OrganizationID, prepareEchoResponses(tc.updatedParameters), template.ID)
+				nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+				err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 					ID: updatedVersion.ID,
 				})
 				require.NoError(t, err)
@@ -814,9 +814,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		t.Parallel()
 
 		// Create template and workspace
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		const tempVal = "2"
 
@@ -825,11 +825,11 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 				{Name: "First option", Description: "This is first option", Value: "1"},
 				{Name: "Second option", Description: "This is second option", Value: tempVal},
 				{Name: "Third option", Description: "This is third option", Value: "3"},
-			}, ValidationMonotonic: string(codersdk.MonotonicOrderIncreasing)},
+			}, ValidationMonotonic: string(nicloudsdk.MonotonicOrderIncreasing)},
 		}
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(request *nicloudsdk.CreateTemplateRequest) {
 			request.UseClassicParameterFlow = ptr.Ref(true) // TODO: Remove when dynamic parameters can pass this test
 		})
 
@@ -873,9 +873,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		// Create template and workspace
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		templateParameters := []*proto.RichParameter{
 			{Name: stringParameterName, Type: "string", Mutable: false, Required: true, Options: []*proto.RichParameterOption{
@@ -884,9 +884,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 				{Name: "Third option", Description: "This is third option", Value: "3rd"},
 			}},
 		}
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "create", "my-workspace", "--yes", "--template", template.Name, "--parameter", fmt.Sprintf("%s=%s", stringParameterName, "2nd"))
 		clitest.SetupConfig(t, member, root)
@@ -900,9 +900,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 			{Name: mutableParameterName, Type: "string", Mutable: true, Required: true},
 		}
 
-		updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: updatedVersion.ID,
 		})
 		require.NoError(t, err)
@@ -943,9 +943,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		// Create template and workspace
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		templateParameters := []*proto.RichParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true, Required: true, Options: []*proto.RichParameterOption{
@@ -954,9 +954,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 				{Name: "Third option", Description: "This is third option", Value: "3rd"},
 			}},
 		}
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "create", "my-workspace", "--yes", "--template", template.Name, "--parameter", fmt.Sprintf("%s=%s", stringParameterName, "2nd"))
 		clitest.SetupConfig(t, member, root)
@@ -974,9 +974,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 			}},
 		}
 
-		updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: updatedVersion.ID,
 		})
 		require.NoError(t, err)
@@ -1016,9 +1016,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		t.Parallel()
 
 		// Create template and workspace with only a mutable parameter.
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		templateParameters := []*proto.RichParameter{
 			{Name: stringParameterName, Type: "string", Mutable: true, Required: true, Options: []*proto.RichParameterOption{
@@ -1026,9 +1026,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 				{Name: "Second option", Description: "This is second option", Value: "2nd"},
 			}},
 		}
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(templateParameters))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "create", "my-workspace", "--yes", "--template", template.Name, "--parameter", fmt.Sprintf("%s=%s", stringParameterName, "1st"))
 		clitest.SetupConfig(t, member, root)
@@ -1044,9 +1044,9 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 			}},
 		}
 
-		updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(updatedTemplateParameters), template.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+		err = client.UpdateActiveTemplateVersion(context.Background(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: updatedVersion.ID,
 		})
 		require.NoError(t, err)
@@ -1072,11 +1072,11 @@ func TestUpdateValidateRichParameters(t *testing.T) {
 		_ = testutil.TryReceive(ctx, t, doneChan)
 
 		// Verify the immutable parameter was set correctly.
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), "my-workspace", codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, memberUser.ID.String(), "my-workspace", nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, nicloudsdk.WorkspaceBuildParameter{
 			Name:  immutableParameterName,
 			Value: "II",
 		})

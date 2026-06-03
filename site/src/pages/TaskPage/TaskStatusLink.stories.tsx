@@ -79,7 +79,7 @@ export const File: Story = {
 
 export const Long: Story = {
 	args: {
-		uri: "https://dev.coder.com/this-is-a/long-url/to-test/how-the-truncation/looks",
+		uri: "https://dev.cloud.neuralinverse.com/this-is-a/long-url/to-test/how-the-truncation/looks",
 	},
 };
 

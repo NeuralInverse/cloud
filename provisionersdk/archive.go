@@ -11,7 +11,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/util/xio"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/xio"
 )
 
 const (
@@ -100,7 +100,7 @@ func Tar(w io.Writer, logger slog.Logger, directory string, limit int64) error {
 			return nil
 		}
 		if rel == "terraform.tfvars" || rel == "terraform.tfvars.json" || strings.HasSuffix(rel, ".auto.tfvars") || strings.HasSuffix(rel, ".auto.tfvars.json") {
-			// Don't store .tfvars, as Coder uses their own variables file.
+			// Don't store .tfvars, as Neural Inverse Cloud uses their own variables file.
 			logger.Debug(context.Background(), "skip variable definitions", slog.F("name", rel))
 			return nil
 		}

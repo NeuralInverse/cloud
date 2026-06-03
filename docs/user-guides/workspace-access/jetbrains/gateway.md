@@ -1,38 +1,38 @@
 ## JetBrains Gateway
 
 > [! WARNING]
-> Using Coder through JetBrains Gateway is not recommended at this time. Instead, we suggest using [JetBrains Toolbox](https://coder.com/docs/user-guides/workspace-access/jetbrains/toolbox) for stability and performance benefits. If you are currently using Gateway, we recommend [migration](https://www.jetbrains.com/help/toolbox-app/jetbrains-gateway-migrations-guide.html).
+> Using Neural Inverse Cloud through JetBrains Gateway is not recommended at this time. Instead, we suggest using [JetBrains Toolbox](https://cloud.neuralinverse.com/docs/user-guides/workspace-access/jetbrains/toolbox) for stability and performance benefits. If you are currently using Gateway, we recommend [migration](https://www.jetbrains.com/help/toolbox-app/jetbrains-gateway-migrations-guide.html).
 
 JetBrains Gateway is a compact desktop app that allows you to work remotely with
 a JetBrains IDE without downloading one. Visit the
 [JetBrains Gateway website](https://www.jetbrains.com/remote-development/gateway/)
 to learn more about Gateway.
 
-Gateway can connect to a Coder workspace using Coder's Gateway plugin or through a
+Gateway can connect to a Neural Inverse Cloud workspace using Neural Inverse Cloud's Gateway plugin or through a
 manually configured SSH connection.
 
 ### How to use the plugin
 
 > [!NOTE]
 > If you experience problems, please
-> [create a GitHub issue](https://github.com/coder/coder/issues) or share in
+> [create a GitHub issue](https://github.com/NeuralInverse/cloud/issues) or share in
 > [our Discord channel](https://discord.gg/coder).
 
 1. [Install Gateway](https://www.jetbrains.com/help/idea/jetbrains-gateway.html)
    and open the application.
-1. Under **Install More Providers**, find the Coder icon and click **Install**
-   to install the Coder plugin.
+1. Under **Install More Providers**, find the Neural Inverse Cloud icon and click **Install**
+   to install the Neural Inverse Cloud plugin.
 1. After Gateway installs the plugin, it will appear in the **Run the IDE
    Remotely** section.
 
-   Click **Connect to Coder** to launch the plugin:
+   Click **Connect to Neural Inverse Cloud** to launch the plugin:
 
-   ![Gateway Connect to Coder](../../../images/gateway/plugin-connect-to-coder.png)
+   ![Gateway Connect to Neural Inverse Cloud](../../../images/gateway/plugin-connect-to-coder.png)
 
-1. Enter your Coder deployment's
+1. Enter your Neural Inverse Cloud deployment's
    [Access Url](../../../admin/setup/index.md#access-url) and click **Connect**.
 
-   Gateway opens your Coder deployment's `cli-auth` page with a session token.
+   Gateway opens your Neural Inverse Cloud deployment's `cli-auth` page with a session token.
    Click the copy button, paste the session token in the Gateway **Session
    Token** window, then click **OK**:
 
@@ -41,7 +41,7 @@ manually configured SSH connection.
 1. To create a new workspace:
 
    Click the <kbd>+</kbd> icon to open a browser and go to the templates page in
-   your Coder deployment to create a workspace.
+   your Neural Inverse Cloud deployment to create a workspace.
 
 1. If a workspace already exists but is stopped, select the workspace from the
    list, then click the green arrow to start the workspace.
@@ -61,27 +61,27 @@ manually configured SSH connection.
 
    The JetBrains IDE is remotely installed into `~/.cache/JetBrains/RemoteDev/dist`.
 
-### Update a Coder plugin version
+### Update a Neural Inverse Cloud plugin version
 
 1. Click the gear icon at the bottom left of the Gateway home screen, then
    **Settings**.
 
-1. In the **Marketplace** tab within Plugins, enter Coder and if a newer plugin
+1. In the **Marketplace** tab within Plugins, enter Neural Inverse Cloud and if a newer plugin
    release is available, click **Update** then **OK**:
 
    ![Gateway Settings and Marketplace](../../../images/gateway/plugin-settings-marketplace.png)
 
 ### Configuring the Gateway plugin to use internal certificates
 
-When you attempt to connect to a Coder deployment that uses internally signed
+When you attempt to connect to a Neural Inverse Cloud deployment that uses internally signed
 certificates, you might receive the following error in Gateway:
 
 ```console
 Failed to configure connection to https://coder.internal.enterprise/: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 ```
 
-To resolve this issue, you will need to add Coder's certificate to the Java
-trust store present on your local machine as well as to the Coder plugin settings.
+To resolve this issue, you will need to add Neural Inverse Cloud's certificate to the Java
+trust store present on your local machine as well as to the Neural Inverse Cloud plugin settings.
 
 1. Add the certificate to the Java trust store:
 
@@ -129,13 +129,13 @@ trust store present on your local machine as well as to the Coder plugin setting
 
    </div>
 
-1. In JetBrains, go to **Settings** > **Tools** > **Coder**.
+1. In JetBrains, go to **Settings** > **Tools** > **Neural Inverse Cloud**.
 
 1. Paste the path to the certificate in **CA Path**.
 
 ## Manually Configuring A JetBrains Gateway Connection
 
-This is in lieu of using Coder's Gateway plugin which automatically performs these steps.
+This is in lieu of using Neural Inverse Cloud's Gateway plugin which automatically performs these steps.
 
 1. [Install Gateway](https://www.jetbrains.com/help/idea/jetbrains-gateway.html).
 
@@ -157,7 +157,7 @@ This is in lieu of using Coder's Gateway plugin which automatically performs the
 
 1. For the Host, enter `coder.<workspace name>`
 
-1. For the Port, enter `22` (this is ignored by Coder)
+1. For the Port, enter `22` (this is ignored by Neural Inverse Cloud)
 
 1. For the Username, enter your workspace username.
 

@@ -10,8 +10,8 @@ terraform {
 }
 
 locals {
-  username               = data.coder_workspace_owner.me.name
-  chat_control_plane_url = replace(data.coder_workspace.me.access_url, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")
+  username               = data.ni_workspace_owner.me.name
+  chat_control_plane_url = replace(data.ni_workspace.me.access_url, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")
 }
 
 variable "docker_socket" {
@@ -25,13 +25,13 @@ provider "docker" {
 }
 
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 # -------------------------------------------------------------------
 # Agent 1: Regular dev agent (user-facing, appears in the dashboard)
 # -------------------------------------------------------------------
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   startup_script = <<-EOT
@@ -43,10 +43,10 @@ resource "coder_agent" "dev" {
   EOT
 
   env = {
-    GIT_AUTHOR_NAME     = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_AUTHOR_EMAIL    = "${data.coder_workspace_owner.me.email}"
-    GIT_COMMITTER_NAME  = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
+    GIT_AUTHOR_NAME     = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_AUTHOR_EMAIL    = "${data.ni_workspace_owner.me.email}"
+    GIT_COMMITTER_NAME  = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_COMMITTER_EMAIL = "${data.ni_workspace_owner.me.email}"
   }
 
   metadata {
@@ -76,10 +76,10 @@ resource "coder_agent" "dev" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count    = data.coder_workspace.me.start_count
+  count    = data.ni_workspace.me.start_count
   source   = "registry.coder.com/coder/code-server/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.dev.id
+  agent_id = ni_agent.dev.id
   order    = 1
 }
 
@@ -104,18 +104,18 @@ module "code-server" {
 # below.
 # -------------------------------------------------------------------
 
-# Terraform parses "coder_agent.dev-coderd-chat.X" as subtraction,
+# Terraform parses "ni_agent.dev-coderd-chat.X" as subtraction,
 # so we capture the agent attributes in locals for clean references.
 locals {
   # The resource block below uses a hyphenated label so the Coder
   # provisioner registers the agent name as "dev-coderd-chat".
   # These locals let the rest of the config reference its attributes
   # without Terraform misinterpreting the hyphens.
-  chat_agent_init  = replace(coder_agent.dev-coderd-chat.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")
-  chat_agent_token = coder_agent.dev-coderd-chat.token
+  chat_agent_init  = replace(ni_agent.dev-coderd-chat.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")
+  chat_agent_token = ni_agent.dev-coderd-chat.token
 }
 
-resource "coder_agent" "dev-coderd-chat" {
+resource "ni_agent" "dev-coderd-chat" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   order          = 99
@@ -128,10 +128,10 @@ resource "coder_agent" "dev-coderd-chat" {
   EOT
 
   env = {
-    GIT_AUTHOR_NAME     = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_AUTHOR_EMAIL    = "${data.coder_workspace_owner.me.email}"
-    GIT_COMMITTER_NAME  = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
+    GIT_AUTHOR_NAME     = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_AUTHOR_EMAIL    = "${data.ni_workspace_owner.me.email}"
+    GIT_COMMITTER_NAME  = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_COMMITTER_EMAIL = "${data.ni_workspace_owner.me.email}"
   }
 }
 
@@ -151,25 +151,25 @@ resource "docker_image" "chat_sandbox" {
 # Shared home volume
 # -------------------------------------------------------------------
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   lifecycle {
     ignore_changes = all
   }
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name_at_creation"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
@@ -177,15 +177,15 @@ resource "docker_volume" "home_volume" {
 # Container 1: Dev workspace (regular agent, no sandbox)
 # -------------------------------------------------------------------
 resource "docker_container" "dev" {
-  count    = data.coder_workspace.me.start_count
+  count    = data.ni_workspace.me.start_count
   image    = "codercom/enterprise-base:ubuntu"
-  name     = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
-  hostname = data.coder_workspace.me.name
+  name     = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
+  hostname = data.ni_workspace.me.name
   entrypoint = [
     "sh", "-c",
-    replace(coder_agent.dev.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")
+    replace(ni_agent.dev.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")
   ]
-  env = ["CODER_AGENT_TOKEN=${coder_agent.dev.token}"]
+  env = ["CODER_AGENT_TOKEN=${ni_agent.dev.token}"]
 
   host {
     host = "host.docker.internal"
@@ -200,19 +200,19 @@ resource "docker_container" "dev" {
 
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
@@ -235,10 +235,10 @@ resource "docker_container" "dev" {
 # other binary directly. All binaries are inside the same namespace.
 # -------------------------------------------------------------------
 resource "docker_container" "chat" {
-  count    = data.coder_workspace.me.start_count
+  count    = data.ni_workspace.me.start_count
   image    = docker_image.chat_sandbox.image_id
-  name     = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}-chat"
-  hostname = "${data.coder_workspace.me.name}-chat"
+  name     = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}-chat"
+  hostname = "${data.ni_workspace.me.name}-chat"
 
   # Capability budget:
   # - SYS_ADMIN: bwrap needs this to create mount namespaces.
@@ -281,18 +281,18 @@ resource "docker_container" "chat" {
 
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }

@@ -9,8 +9,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/metrics"
-	"github.com/coder/coder/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/aibridge/metrics"
+	"github.com/NeuralInverse/cloud/v2/aibridge/tracing"
 )
 
 var (

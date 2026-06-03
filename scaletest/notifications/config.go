@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
 )
 
 type Config struct {

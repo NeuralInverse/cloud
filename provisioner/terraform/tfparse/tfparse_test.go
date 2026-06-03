@@ -10,8 +10,8 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/provisioner/terraform/tfparse"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform/tfparse"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
@@ -48,12 +48,12 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "a"
@@ -72,20 +72,20 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "a"
 					}
-					data "coder_workspace_tags" "tags" {}`,
+					data "ni_workspace_tags" "tags" {}`,
 			},
 			expectTags:  map[string]string{},
-			expectError: `"tags" attribute is required by coder_workspace_tags`,
+			expectError: `"tags" attribute is required by ni_workspace_tags`,
 		},
 		{
 			name: "main.tf with valid workspace tags",
@@ -100,22 +100,22 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 					variable "unrelated" {
 						type = bool
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 					  name = "az"
 						type = "string"
 						default = "a"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform" = "kubernetes",
 							"cluster"  = "${"devel"}${"opers"}"
 							"region"   = var.region
-							"az"       = data.coder_parameter.az.value
+							"az"       = data.ni_parameter.az.value
 						}
 					}`,
 			},
@@ -136,22 +136,22 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "${""}${"a"}"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = var.az
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform" = "kubernetes",
 							"cluster"  = "${"devel"}${"opers"}"
 							"region"   = var.region
-							"az"       = data.coder_parameter.az.value
+							"az"       = data.ni_parameter.az.value
 						}
 					}`,
 			},
@@ -168,26 +168,26 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						type    = string
 						default = "${""}${"a"}"
 					}
-					data "coder_parameter" "az2" {
+					data "ni_parameter" "az2" {
 					  name = "az"
 						type = "string"
-						default = data.coder_parameter.az.value
+						default = data.ni_parameter.az.value
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform" = "kubernetes",
 							"cluster"  = "${"devel"}${"opers"}"
 							"region"   = var.region
-							"az"       = data.coder_parameter.az2.value
+							"az"       = data.ni_parameter.az2.value
 						}
 					}`,
 			},
@@ -207,30 +207,30 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "eu"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 					  name = "az"
 						type = "string"
 						default = "a"
 					}
-					data "coder_parameter" "az2" {
+					data "ni_parameter" "az2" {
 					  name = "az2"
 						type = "string"
 						default = "b"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform" = "kubernetes",
 							"cluster"  = "${"devel"}${"opers"}"
 							"region"   = var.region
-							"az"       = data.coder_parameter.az.value
+							"az"       = data.ni_parameter.az.value
 						}
 					}
-					data "coder_workspace_tags" "more_tags" {
+					data "ni_workspace_tags" "more_tags" {
 						tags = {
 							"foo" = "bar"
 						}
@@ -249,21 +249,21 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform" = "kubernetes",
 							"cluster"  = "${"devel"}${"opers"}"
 							"region"   = var.region
-							"az"       = data.coder_parameter.az.value
+							"az"       = data.ni_parameter.az.value
 						}
 					}`,
 			},
@@ -279,26 +279,26 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "a"
 					}
-					data "coder_parameter" "notaz" {
+					data "ni_parameter" "notaz" {
 						name = "notaz"
 						type = "string"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform" = "kubernetes",
 							"cluster"  = "${"devel"}${"opers"}"
 							"region"   = var.region
-							"az"       = data.coder_parameter.az.value
+							"az"       = data.ni_parameter.az.value
 						}
 					}`,
 			},
@@ -318,22 +318,22 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 					variable "notregion" {
 						type = string
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "a"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform"  = "kubernetes",
 							"cluster"   = "${"devel"}${"opers"}"
 							"region"    = var.region
-							"az"        = data.coder_parameter.az.value
+							"az"        = data.ni_parameter.az.value
 						}
 					}`,
 			},
@@ -352,12 +352,12 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "a"
@@ -365,18 +365,18 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 					data "local_file" "hostname" {
 						filename = "/etc/hostname"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform"  = "kubernetes",
 							"cluster"   = "${"devel"}${"opers"}"
 							"region"    = var.region
-							"az"        = data.coder_parameter.az.value
+							"az"        = data.ni_parameter.az.value
 							"hostname"  = data.local_file.hostname.content
 						}
 					}`,
 			},
 			expectTags:  nil,
-			expectError: `invalid workspace tag value "data.local_file.hostname.content": only the "coder_parameter" data source is supported here`,
+			expectError: `invalid workspace tag value "data.local_file.hostname.content": only the "ni_parameter" data source is supported here`,
 		},
 		{
 			name: "main.tf with disallowed resource for workspace tags",
@@ -390,22 +390,22 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "a"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform"  = "kubernetes",
 							"cluster"   = "${"devel"}${"opers"}"
 							"region"    = var.region
-							"az"        = data.coder_parameter.az.value
+							"az"        = data.ni_parameter.az.value
 							"foobarbaz" = foo_bar.baz.name
 						}
 					}`,
@@ -429,22 +429,22 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "a"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform"  = "kubernetes",
 							"cluster"   = "${"devel"}${"opers"}"
 							"region"    = try(split(".", var.region)[1], "placeholder")
-							"az"        = try(split(".", data.coder_parameter.az.value)[1], "placeholder")
+							"az"        = try(split(".", data.ni_parameter.az.value)[1], "placeholder")
 						}
 					}`,
 			},
@@ -465,22 +465,22 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = string
 						default = "region.us"
 					}
-					data "coder_parameter" "unrelated" {
+					data "ni_parameter" "unrelated" {
 						name    = "unrelated"
 						type    = "list(string)"
 						default = jsonencode(["a", "b"])
 					}
-					data "coder_parameter" "az" {
+					data "ni_parameter" "az" {
 						name = "az"
 						type = "string"
 						default = "az.a"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"platform"  = "kubernetes",
 							"cluster"   = "${"devel"}${"opers"}"
 							"region"    = try(split(".", var.region)[1], "placeholder")
-							"az"        = try(split(".", data.coder_parameter.az.value)[1], "placeholder")
+							"az"        = try(split(".", data.ni_parameter.az.value)[1], "placeholder")
 							"some_path" = pathexpand("~/file.txt")
 						}
 					}`,
@@ -512,37 +512,37 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 						type    = map(string)
 						default = {"a": "b"}
 					}
-					data "coder_parameter" "stringparam" {
+					data "ni_parameter" "stringparam" {
 						name    = "stringparam"
 						type    = "string"
 						default = "a"
 					}
-					data "coder_parameter" "numparam" {
+					data "ni_parameter" "numparam" {
 						name    = "numparam"
 						type    = "number"
 						default = 1
 					}
-					data "coder_parameter" "boolparam" {
+					data "ni_parameter" "boolparam" {
 						name    = "boolparam"
 						type    = "bool"
 						default = true
 					}
-					data "coder_parameter" "listparam" {
+					data "ni_parameter" "listparam" {
 						name    = "listparam"
 						type    = "list(string)"
 						default = "[\"a\", \"b\"]"
 					}
-					data "coder_workspace_tags" "tags" {
+					data "ni_workspace_tags" "tags" {
 						tags = {
 							"stringvar"   = var.stringvar
 							"numvar"      = var.numvar
 							"boolvar"     = var.boolvar
 							"listvar"     = var.listvar
 							"mapvar"      = var.mapvar
-							"stringparam" = data.coder_parameter.stringparam.value
-							"numparam"    = data.coder_parameter.numparam.value
-							"boolparam"   = data.coder_parameter.boolparam.value
-							"listparam"   = data.coder_parameter.listparam.value
+							"stringparam" = data.ni_parameter.stringparam.value
+							"numparam"    = data.ni_parameter.numparam.value
+							"boolparam"   = data.ni_parameter.boolparam.value
+							"listparam"   = data.ni_parameter.listparam.value
 						}
 					}`,
 			},
@@ -576,7 +576,7 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 					type        = string
 					default     = "ab"
 				}
-				data "coder_workspace_tags" "tags" {
+				data "ni_workspace_tags" "tags" {
 					tags = {
 						"foo": "bar",
 						"a": var.a,
@@ -628,7 +628,7 @@ func Test_WorkspaceTagDefaultsFromFile(t *testing.T) {
 // Last run results:
 // goos: linux
 // goarch: amd64
-// pkg: github.com/coder/coder/v2/provisioner/terraform/tfparse
+// pkg: github.com/NeuralInverse/cloud/v2/provisioner/terraform/tfparse
 // cpu: AMD EPYC 7502P 32-Core Processor
 // BenchmarkWorkspaceTagDefaultsFromFile/Tar-16         	    1922	    847236 ns/op	  176257 B/op	    1073 allocs/op
 // BenchmarkWorkspaceTagDefaultsFromFile/Zip-16         	    1273	    946910 ns/op	  225293 B/op	    1130 allocs/op
@@ -642,17 +642,17 @@ func BenchmarkWorkspaceTagDefaultsFromFile(b *testing.B) {
 			type    = string
 			default = "us"
 		}
-		data "coder_parameter" "az" {
+		data "ni_parameter" "az" {
 		  name = "az"
 			type = "string"
 			default = "a"
 		}
-		data "coder_workspace_tags" "tags" {
+		data "ni_workspace_tags" "tags" {
 			tags = {
 				"platform" = "kubernetes",
 				"cluster"  = "${"devel"}${"opers"}"
 				"region"   = var.region
-				"az"       = data.coder_parameter.az.value
+				"az"       = data.ni_parameter.az.value
 			}
 		}`,
 	}

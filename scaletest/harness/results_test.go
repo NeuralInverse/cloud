@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/workspacetraffic"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacetraffic"
 )
 
 type testError struct {
@@ -126,7 +126,7 @@ Test results:
 				"bytes_read": 1024,
 				"bytes_written": 2048
 			},
-			"error": "test-0/0 error:\n    github.com/coder/coder/v2/scaletest/harness_test.Test_Results\n        [working_directory]/results_test.go:44"
+			"error": "test-0/0 error:\n    github.com/NeuralInverse/cloud/v2/scaletest/harness_test.Test_Results\n        [working_directory]/results_test.go:44"
 		},
 		"test-0/1": {
 			"full_id": "test-0/1",

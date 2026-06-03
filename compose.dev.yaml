@@ -18,7 +18,7 @@ services:
       timeout: 5s
       retries: 10
 
-  # Ensure named volumes are owned by the coder user (uid 1000)
+  # Ensure named volumes are owned by the neuralinverse user (uid 1000)
   # since Docker creates them as root by default.
   init-volumes:
     labels:
@@ -48,7 +48,7 @@ services:
       database:
         condition: service_healthy
     working_dir: /app
-    # Add the Docker group so coderd can access the Docker socket.
+    # Add the Docker group so nicloud can access the Docker socket.
     # If your Docker group is not 999, the below should work:
     # export DOCKER_GROUP=$(getent group docker | cut -d: -f3)
     group_add:
@@ -56,7 +56,7 @@ services:
     environment:
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
-      DOCKER_HOST: "${CODER_DEV_DOCKER_HOST:-unix:///var/run/docker.sock}"
+      DOCKER_HOST: "${NEURALINVERSE_DEV_DOCKER_HOST:-unix:///var/run/docker.sock}"
     volumes:
       - .:/app
       - go_cache:/go-cache
@@ -64,16 +64,16 @@ services:
       - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock"
     command: >
       sh -c '
-        if [ "${CODER_BUILD_AGPL:-0}" = "1" ]; then
-          make -j build-slim CODER_BUILD_AGPL=1
+        if [ "${NEURALINVERSE_BUILD_AGPL:-0}" = "1" ]; then
+          make -j build-slim NEURALINVERSE_BUILD_AGPL=1
         else
           make -j build-slim
         fi &&
         mkdir -p /cache/site/orig/bin &&
-        cp site/out/bin/coder-* /cache/site/orig/bin/
+        cp site/out/bin/neuralinverse-* /cache/site/orig/bin/
       '
 
-  coderd:
+  nicloud:
     labels:
       - "com.coder.dev"
     networks:
@@ -85,21 +85,21 @@ services:
       build-slim:
         condition: service_completed_successfully
     environment:
-      CODER_ACCESS_URL: "${CODER_DEV_ACCESS_URL-http://localhost:3000}"
-      CODER_CACHE_DIRECTORY: "${CODER_CACHE_DIRECTORY-/cache}"
-      CODER_DANGEROUS_ALLOW_CORS_REQUESTS: "${CODER_DANGEROUS_ALLOW_CORS_REQUESTS-true}"
-      CODER_DEV_ADMIN_PASSWORD: "${CODER_DEV_ADMIN_PASSWORD-SomeSecurePassword!}"
-      CODER_EXPERIMENTS: "${CODER_EXPERIMENTS-*}"
-      CODER_HTTP_ADDRESS: "${CODER_HTTP_ADDRESS-0.0.0.0:3000}"
-      CODER_PG_CONNECTION_URL: "${CODER_PG_CONNECTION_URL-postgresql://coder:coder@database:5432/coder?sslmode=disable}"
-      CODER_PROMETHEUS_ENABLE: "${CODER_PROMETHEUS_ENABLE-true}"
-      CODER_SWAGGER_ENABLE: "${CODER_SWAGGER_ENABLE-true}"
-      CODER_TELEMETRY_ENABLE: "${CODER_TELEMETRY_ENABLE-false}"
-      CODER_VERBOSE: "${CODER_VERBOSE-true}"
-      DOCKER_HOST: "${CODER_DEV_DOCKER_HOST-unix:///var/run/docker.sock}"
+      NEURALINVERSE_ACCESS_URL: "${NEURALINVERSE_DEV_ACCESS_URL-http://localhost:3000}"
+      NEURALINVERSE_CACHE_DIRECTORY: "${NEURALINVERSE_CACHE_DIRECTORY-/cache}"
+      NEURALINVERSE_DANGEROUS_ALLOW_CORS_REQUESTS: "${NEURALINVERSE_DANGEROUS_ALLOW_CORS_REQUESTS-true}"
+      NEURALINVERSE_DEV_ADMIN_PASSWORD: "${NEURALINVERSE_DEV_ADMIN_PASSWORD-SomeSecurePassword!}"
+      NEURALINVERSE_EXPERIMENTS: "${NEURALINVERSE_EXPERIMENTS-*}"
+      NEURALINVERSE_HTTP_ADDRESS: "${NEURALINVERSE_HTTP_ADDRESS-0.0.0.0:3000}"
+      NEURALINVERSE_PG_CONNECTION_URL: "${NEURALINVERSE_PG_CONNECTION_URL-postgresql://coder:coder@database:5432/coder?sslmode=disable}"
+      NEURALINVERSE_PROMETHEUS_ENABLE: "${NEURALINVERSE_PROMETHEUS_ENABLE-true}"
+      NEURALINVERSE_SWAGGER_ENABLE: "${NEURALINVERSE_SWAGGER_ENABLE-true}"
+      NEURALINVERSE_TELEMETRY_ENABLE: "${NEURALINVERSE_TELEMETRY_ENABLE-false}"
+      NEURALINVERSE_VERBOSE: "${NEURALINVERSE_VERBOSE-true}"
+      DOCKER_HOST: "${NEURALINVERSE_DEV_DOCKER_HOST-unix:///var/run/docker.sock}"
       GOCACHE: /go-cache/build
       GOMODCACHE: /go-cache/mod
-    # Add the Docker group so coderd can access the Docker socket.
+    # Add the Docker group so nicloud can access the Docker socket.
     # Override DOCKER_GROUP if your host's docker group is not 999.
     group_add:
       - "${DOCKER_GROUP:-999}"
@@ -119,11 +119,11 @@ services:
       - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock"
     command: >
       sh -c '
-        CMD_PATH="./enterprise/cmd/coder"
-        [ "${CODER_BUILD_AGPL:-0}" = "1" ] && CMD_PATH="./cmd/coder"
+        CMD_PATH="./enterprise/cmd/neuralinverse"
+        [ "${NEURALINVERSE_BUILD_AGPL:-0}" = "1" ] && CMD_PATH="./cmd/neuralinverse"
         exec go run "$$CMD_PATH" server \
           --http-address 0.0.0.0:3000 \
-          --access-url "${CODER_DEV_ACCESS_URL:-http://localhost:3000}" \
+          --access-url "${NEURALINVERSE_DEV_ACCESS_URL:-http://localhost:3000}" \
           --swagger-enable \
           --dangerous-allow-cors-requests=true \
           --enable-terraform-debug-mode
@@ -136,12 +136,12 @@ services:
       - coder-dev
     image: codercom/oss-dogfood:latest
     depends_on:
-      coderd:
+      nicloud:
         condition: service_healthy
     working_dir: /app
     environment:
-      CODER_URL: "http://coderd:3000"
-      CODER_DEV_ADMIN_PASSWORD: "${CODER_DEV_ADMIN_PASSWORD:-SomeSecurePassword!}"
+      NEURALINVERSE_URL: "http://nicloud:3000"
+      NEURALINVERSE_DEV_ADMIN_PASSWORD: "${NEURALINVERSE_DEV_ADMIN_PASSWORD:-SomeSecurePassword!}"
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
     volumes:
@@ -162,8 +162,8 @@ services:
         condition: service_completed_successfully
     working_dir: /app
     environment:
-      CODER_URL: "http://coderd:3000"
-      CODER_DEV_MEMBER_PASSWORD: "${CODER_DEV_MEMBER_PASSWORD:-SomeSecurePassword!}"
+      NEURALINVERSE_URL: "http://nicloud:3000"
+      NEURALINVERSE_DEV_MEMBER_PASSWORD: "${NEURALINVERSE_DEV_MEMBER_PASSWORD:-SomeSecurePassword!}"
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
     volumes:
@@ -184,8 +184,8 @@ services:
         condition: service_completed_successfully
     working_dir: /app
     environment:
-      CODER_URL: "http://coderd:3000"
-      DOCKER_HOST: "${CODER_DEV_DOCKER_HOST:-unix:///var/run/docker.sock}"
+      NEURALINVERSE_URL: "http://nicloud:3000"
+      DOCKER_HOST: "${NEURALINVERSE_DEV_DOCKER_HOST:-unix:///var/run/docker.sock}"
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
     volumes:
@@ -207,7 +207,7 @@ services:
         condition: service_completed_successfully
     working_dir: /app/site
     environment:
-      CODER_HOST: "http://coderd:3000"
+      NEURALINVERSE_HOST: "http://nicloud:3000"
     ports:
       - "8080:8080"
     volumes:
@@ -227,7 +227,7 @@ services:
         condition: service_completed_successfully
     working_dir: /app
     environment:
-      CODER_URL: "http://coderd:3000"
+      NEURALINVERSE_URL: "http://nicloud:3000"
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
     volumes:
@@ -238,18 +238,18 @@ services:
       - "3010:3010"
     command: >
       sh -c '
-        export CODER_SESSION_TOKEN=$$(cat /bootstrap/token) &&
-        go run ./cmd/coder wsproxy delete local-proxy --yes 2>/dev/null || true
-        PROXY_TOKEN=$$(go run ./cmd/coder wsproxy create \
+        export NEURALINVERSE_SESSION_TOKEN=$$(cat /bootstrap/token) &&
+        go run ./cmd/neuralinverse wsproxy delete local-proxy --yes 2>/dev/null || true
+        PROXY_TOKEN=$$(go run ./cmd/neuralinverse wsproxy create \
           --name=local-proxy \
           --display-name="Local Proxy" \
           --icon="/emojis/1f4bb.png" \
           --only-token)
-        exec go run ./cmd/coder wsproxy server \
+        exec go run ./cmd/neuralinverse wsproxy server \
           --dangerous-allow-cors-requests=true \
           --http-address=0.0.0.0:3010 \
           --proxy-session-token="$$PROXY_TOKEN" \
-          --primary-access-url=http://coderd:3000
+          --primary-access-url=http://nicloud:3000
       '
 
   setup-multi-org:
@@ -266,9 +266,9 @@ services:
         condition: service_completed_successfully
     working_dir: /app
     environment:
-      CODER_URL: "http://coderd:3000"
-      DOCKER_HOST: "${CODER_DEV_DOCKER_HOST:-unix:///var/run/docker.sock}"
-      LICENSE_FILE: "${CODER_DEV_LICENSE_FILE:-./license.txt}"
+      NEURALINVERSE_URL: "http://nicloud:3000"
+      DOCKER_HOST: "${NEURALINVERSE_DEV_DOCKER_HOST:-unix:///var/run/docker.sock}"
+      LICENSE_FILE: "${NEURALINVERSE_DEV_LICENSE_FILE:-./license.txt}"
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
     volumes:
@@ -276,7 +276,7 @@ services:
       - go_cache:/go-cache
       - bootstrap_token:/bootstrap:ro
       - ./scripts/docker-dev:/scripts:ro
-      - "${CODER_DEV_LICENSE_FILE:-./license.txt}:/license.txt:ro"
+      - "${NEURALINVERSE_DEV_LICENSE_FILE:-./license.txt}:/license.txt:ro"
     command: ["sh", "/scripts/setup-multi-org.sh"]
 
   ext-provisioner:
@@ -295,11 +295,11 @@ services:
       - "${DOCKER_GROUP:-999}"
     working_dir: /app
     environment:
-      CODER_URL: "${CODER_URL-http://coderd:3000}"
-      DOCKER_HOST: "${CODER_DEV_DOCKER_HOST-unix:///var/run/docker.sock}"
+      NEURALINVERSE_URL: "${NEURALINVERSE_URL-http://nicloud:3000}"
+      DOCKER_HOST: "${NEURALINVERSE_DEV_DOCKER_HOST-unix:///var/run/docker.sock}"
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
-      CODER_PROMETHEUS_ENABLE: "${CODER_PROMETHEUS_ENABLE-1}"
+      NEURALINVERSE_PROMETHEUS_ENABLE: "${NEURALINVERSE_PROMETHEUS_ENABLE-1}"
     volumes:
       - .:/app
       - go_cache:/go-cache
@@ -307,8 +307,8 @@ services:
       - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock"
     command: >
       sh -c '
-        export CODER_SESSION_TOKEN=$$(cat /bootstrap/token) &&
-        exec go run ./enterprise/cmd/coder provisionerd start \
+        export NEURALINVERSE_SESSION_TOKEN=$$(cat /bootstrap/token) &&
+        exec go run ./enterprise/cmd/neuralinverse provisionerd start \
           --tag "scope=organization" \
           --name second-org-daemon \
           --org second-organization
@@ -328,7 +328,7 @@ services:
         condition: service_healthy
     working_dir: /app
     environment:
-      CODER_URL: "http://coderd:3000"
+      NEURALINVERSE_URL: "http://nicloud:3000"
       GOMODCACHE: /go-cache/mod
       GOCACHE: /go-cache/build
     volumes:

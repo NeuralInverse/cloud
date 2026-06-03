@@ -1,6 +1,6 @@
 # Working with templates
 
-You create and edit Coder templates as
+You create and edit Neural Inverse Cloud templates as
 [Terraform](../../../tutorials/quickstart.md) configuration files (`.tf`) and
 any supporting files, like a README or configuration files for other services.
 
@@ -18,28 +18,28 @@ You can give different users and groups access to templates with
 
 We provide starter templates for common cloud providers, like AWS, and
 orchestrators, like Kubernetes. From there, you can modify them to use your own
-images, VPC, cloud credentials, and so on. Coder supports all Terraform
+images, VPC, cloud credentials, and so on. Neural Inverse Cloud supports all Terraform
 resources and properties, so fear not if your favorite cloud provider isn't
 here!
 
 ![Starter templates](../../../images/start/starter-templates.png)
 
-If you prefer to use Coder on the
+If you prefer to use Neural Inverse Cloud on the
 [command line](../../../reference/cli/index.md), `coder templates init`.
 
-Coder starter templates are also available on our
-[GitHub repo](https://github.com/coder/coder/tree/main/examples/templates).
+Neural Inverse Cloud starter templates are also available on our
+[GitHub repo](https://github.com/NeuralInverse/cloud/tree/main/examples/templates).
 
 ## Community Templates
 
-As well as Coder's starter templates, you can see a list of community templates
+As well as Neural Inverse Cloud's starter templates, you can see a list of community templates
 by our users
-[here](https://github.com/coder/coder/blob/main/examples/templates/community-templates.md).
+[here](https://github.com/NeuralInverse/cloud/blob/main/examples/templates/community-templates.md).
 
 ## Editing templates
 
 Our starter templates are meant to be modified for your use cases. You can edit
-any template's files directly in the Coder dashboard.
+any template's files directly in the Neural Inverse Cloud dashboard.
 
 ![Editing a template](../../../images/templates/choosing-edit-template.gif)
 
@@ -52,7 +52,7 @@ files, then `coder templates push`.
 
 ## Updating templates
 
-Coder tracks a template's versions, keeping all developer workspaces up-to-date.
+Neural Inverse Cloud tracks a template's versions, keeping all developer workspaces up-to-date.
 When you publish a new version, developers are notified to get the latest
 infrastructure, software, or security patches. Learn more about
 [change management](./change-management.md).
@@ -63,7 +63,7 @@ infrastructure, software, or security patches. Learn more about
 
 > [!NOTE]
 > Template update policies are a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Licensed template admins may want workspaces to always remain on the latest
 version of their parent template. To do so, enable **Template Update Policies**
@@ -86,7 +86,7 @@ in the right-hand corner of the page to delete the template.
 
 ![delete-template](../../../images/delete-template.png)
 
-Using the CLI, login to Coder and run the following command to delete a
+Using the CLI, login to Neural Inverse Cloud and run the following command to delete a
 template:
 
 ```shell

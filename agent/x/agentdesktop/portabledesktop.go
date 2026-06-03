@@ -18,8 +18,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/quartz"
 )
 
@@ -79,7 +79,7 @@ const idleTimeout = 10 * time.Minute
 type portableDesktop struct {
 	logger       slog.Logger
 	execer       agentexec.Execer
-	scriptBinDir string // coder script bin directory
+	scriptBinDir string // neuralinverse script bin directory
 	clock        quartz.Clock
 
 	mu                  sync.Mutex
@@ -92,7 +92,7 @@ type portableDesktop struct {
 
 // NewPortableDesktop creates a Desktop backed by the portabledesktop
 // CLI binary, using execer to spawn child processes. scriptBinDir is
-// the coder script bin directory checked for the binary. If clk is
+// the neuralinverse script bin directory checked for the binary. If clk is
 // nil, a real clock is used.
 func NewPortableDesktop(
 	logger slog.Logger,
@@ -413,8 +413,8 @@ func (p *portableDesktop) StartRecording(ctx context.Context, recordingID string
 		return xerrors.Errorf("ensure portabledesktop binary: %w", err)
 	}
 
-	filePath := filepath.Join(os.TempDir(), "coder-recording-"+recordingID+".mp4")
-	thumbPath := filepath.Join(os.TempDir(), "coder-recording-"+recordingID+".thumb.jpg")
+	filePath := filepath.Join(os.TempDir(), "neuralinverse-recording-"+recordingID+".mp4")
+	thumbPath := filepath.Join(os.TempDir(), "neuralinverse-recording-"+recordingID+".thumb.jpg")
 
 	// Use a background context so the process outlives the HTTP
 	// request that triggered it.
@@ -762,7 +762,7 @@ func (p *portableDesktop) runCmd(ctx context.Context, args ...string) (string, e
 }
 
 // ensureBinary resolves the portabledesktop binary from PATH or the
-// coder script bin directory. It must be called while p.mu is held.
+// neuralinverse script bin directory. It must be called while p.mu is held.
 func (p *portableDesktop) ensureBinary(ctx context.Context) error {
 	if p.binPath != "" {
 		return nil
@@ -777,7 +777,7 @@ func (p *portableDesktop) ensureBinary(ctx context.Context) error {
 		return nil
 	}
 
-	// 2. Check the coder script bin directory.
+	// 2. Check the neuralinverse script bin directory.
 	scriptBinPath := filepath.Join(p.scriptBinDir, "portabledesktop")
 	if info, err := os.Stat(scriptBinPath); err == nil && !info.IsDir() {
 		// On Windows, permission bits don't indicate executability,

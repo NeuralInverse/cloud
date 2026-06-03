@@ -50,7 +50,7 @@ export const Loading: Story = {
 
 // TrialOpen pins the "Number of developers" bucket list. If this assertion
 // changes, coordinate the new values with the licensor service owner, since
-// the selected bucket is forwarded verbatim to v2-licensor.coder.com/trial.
+// the selected bucket is forwarded verbatim to v2-licensor.cloud.neuralinverse.com/trial.
 export const TrialOpen: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);

@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os   = "linux"
   arch = "amd64"
   metadata {
@@ -22,7 +22,7 @@ resource "coder_agent" "main" {
 
 resource "null_resource" "about" {
   depends_on = [
-    coder_agent.main,
+    ni_agent.main,
   ]
 }
 

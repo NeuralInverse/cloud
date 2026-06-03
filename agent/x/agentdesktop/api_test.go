@@ -25,9 +25,9 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/x/agentdesktop"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/x/agentdesktop"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/quartz"
 )
 
@@ -292,7 +292,7 @@ func TestHandleDesktopVNC_StartError(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
-	var resp codersdk.Response
+	var resp nicloudsdk.Response
 	err := json.NewDecoder(rr.Body).Decode(&resp)
 	require.NoError(t, err)
 	assert.Equal(t, "Failed to start desktop session.", resp.Message)
@@ -649,7 +649,7 @@ func TestHandleAction_HoldKeyMissingText(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 
-	var resp codersdk.Response
+	var resp nicloudsdk.Response
 	err = json.NewDecoder(rr.Body).Decode(&resp)
 	require.NoError(t, err)
 	assert.Equal(t, "Missing \"text\" for hold_key action.", resp.Message)
@@ -877,7 +877,7 @@ func TestRecordingStartFails(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
-	var resp codersdk.Response
+	var resp nicloudsdk.Response
 	err = json.NewDecoder(rr.Body).Decode(&resp)
 	require.NoError(t, err)
 	assert.Equal(t, "Failed to start recording.", resp.Message)
@@ -992,7 +992,7 @@ func TestRecordingStopUnknownRecording(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusNotFound, rr.Code)
 
-	var resp codersdk.Response
+	var resp nicloudsdk.Response
 	err = json.NewDecoder(rr.Body).Decode(&resp)
 	require.NoError(t, err)
 	assert.Equal(t, "Recording not found.", resp.Message)
@@ -1029,7 +1029,7 @@ func TestRecordingStopOversizedFile(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusRequestEntityTooLarge, rr.Code)
 
-	var resp codersdk.Response
+	var resp nicloudsdk.Response
 	err = json.NewDecoder(rr.Body).Decode(&resp)
 	require.NoError(t, err)
 	assert.Equal(t, "Recording file exceeds maximum allowed size.", resp.Message)
@@ -1225,7 +1225,7 @@ func TestRecordingStartAfterClose(t *testing.T) {
 
 	assert.Equal(t, http.StatusServiceUnavailable, rr.Code)
 
-	var resp codersdk.Response
+	var resp nicloudsdk.Response
 	err = json.NewDecoder(rr.Body).Decode(&resp)
 	require.NoError(t, err)
 	assert.Equal(t, "Desktop API is shutting down.", resp.Message)
@@ -1257,7 +1257,7 @@ func TestRecordingStartDesktopClosed(t *testing.T) {
 
 	assert.Equal(t, http.StatusServiceUnavailable, rr.Code)
 
-	var resp codersdk.Response
+	var resp nicloudsdk.Response
 	err = json.NewDecoder(rr.Body).Decode(&resp)
 	require.NoError(t, err)
 	assert.Equal(t, "Desktop API is shutting down.", resp.Message)
@@ -1295,7 +1295,7 @@ func TestRecordingStopCorrupted(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
-	var respStop codersdk.Response
+	var respStop nicloudsdk.Response
 	err = json.NewDecoder(rr.Body).Decode(&respStop)
 	require.NoError(t, err)
 	assert.Equal(t, "Recording is corrupted.", respStop.Message)

@@ -12,13 +12,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -26,32 +26,32 @@ func TestAppHealth_Healthy(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
-	apps := []codersdk.WorkspaceApp{
+	apps := []nicloudsdk.WorkspaceApp{
 		{
 			ID:          uuid.UUID{1},
 			Slug:        "app1",
-			Healthcheck: codersdk.Healthcheck{},
-			Health:      codersdk.WorkspaceAppHealthDisabled,
+			Healthcheck: nicloudsdk.Healthcheck{},
+			Health:      nicloudsdk.WorkspaceAppHealthDisabled,
 		},
 		{
 			ID:   uuid.UUID{2},
 			Slug: "app2",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: nicloudsdk.Healthcheck{
 				// URL: We don't set the URL for this test because the setup will
 				// create a httptest server for us and set it for us.
 				Interval:  1,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: nicloudsdk.WorkspaceAppHealthInitializing,
 		},
 		{
 			ID:   uuid.UUID{3},
 			Slug: "app3",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: nicloudsdk.Healthcheck{
 				Interval:  2,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: nicloudsdk.WorkspaceAppHealthInitializing,
 		},
 	}
 	checks2 := 0
@@ -95,8 +95,8 @@ func TestAppHealth_Healthy(t *testing.T) {
 	update := testutil.TryReceive(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 2)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthHealthy, apps[1].Health)
-	require.Equal(t, codersdk.WorkspaceAppHealthInitializing, apps[2].Health)
+	require.Equal(t, nicloudsdk.WorkspaceAppHealthHealthy, apps[1].Health)
+	require.Equal(t, nicloudsdk.WorkspaceAppHealthInitializing, apps[2].Health)
 
 	mClock.Advance(999 * time.Millisecond).MustWait(ctx) // app3 is now healthy
 
@@ -104,8 +104,8 @@ func TestAppHealth_Healthy(t *testing.T) {
 	update = testutil.TryReceive(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 2)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthHealthy, apps[1].Health)
-	require.Equal(t, codersdk.WorkspaceAppHealthHealthy, apps[2].Health)
+	require.Equal(t, nicloudsdk.WorkspaceAppHealthHealthy, apps[1].Health)
+	require.Equal(t, nicloudsdk.WorkspaceAppHealthHealthy, apps[2].Health)
 
 	// ensure we aren't spamming
 	require.Equal(t, 2, checks2)
@@ -116,17 +116,17 @@ func TestAppHealth_500(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
-	apps := []codersdk.WorkspaceApp{
+	apps := []nicloudsdk.WorkspaceApp{
 		{
 			ID:   uuid.UUID{2},
 			Slug: "app2",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: nicloudsdk.Healthcheck{
 				// URL: We don't set the URL for this test because the setup will
 				// create a httptest server for us and set it for us.
 				Interval:  1,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: nicloudsdk.WorkspaceAppHealthInitializing,
 		},
 	}
 	handlers := []http.Handler{
@@ -158,24 +158,24 @@ func TestAppHealth_500(t *testing.T) {
 	update := testutil.TryReceive(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 1)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
+	require.Equal(t, nicloudsdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
 }
 
 func TestAppHealth_Timeout(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitShort)
 	defer cancel()
-	apps := []codersdk.WorkspaceApp{
+	apps := []nicloudsdk.WorkspaceApp{
 		{
 			ID:   uuid.UUID{2},
 			Slug: "app2",
-			Healthcheck: codersdk.Healthcheck{
+			Healthcheck: nicloudsdk.Healthcheck{
 				// URL: We don't set the URL for this test because the setup will
 				// create a httptest server for us and set it for us.
 				Interval:  1,
 				Threshold: 1,
 			},
-			Health: codersdk.WorkspaceAppHealthInitializing,
+			Health: nicloudsdk.WorkspaceAppHealthInitializing,
 		},
 	}
 
@@ -226,12 +226,12 @@ func TestAppHealth_Timeout(t *testing.T) {
 	update := testutil.TryReceive(ctx, t, fakeAPI.AppHealthCh())
 	require.Len(t, update.GetUpdates(), 1)
 	applyUpdate(t, apps, update)
-	require.Equal(t, codersdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
+	require.Equal(t, nicloudsdk.WorkspaceAppHealthUnhealthy, apps[0].Health)
 }
 
 func setupAppReporter(
 	ctx context.Context, t *testing.T,
-	apps []codersdk.WorkspaceApp,
+	apps []nicloudsdk.WorkspaceApp,
 	handlers []http.Handler,
 	clk quartz.Clock,
 ) (*agenttest.FakeAgentAPI, func()) {
@@ -270,12 +270,12 @@ func setupAppReporter(
 	}
 }
 
-func applyUpdate(t *testing.T, apps []codersdk.WorkspaceApp, req *proto.BatchUpdateAppHealthRequest) {
+func applyUpdate(t *testing.T, apps []nicloudsdk.WorkspaceApp, req *proto.BatchUpdateAppHealthRequest) {
 	t.Helper()
 	for _, update := range req.Updates {
 		updateID, err := uuid.FromBytes(update.Id)
 		require.NoError(t, err)
-		updateHealth := codersdk.WorkspaceAppHealth(strings.ToLower(proto.AppHealth_name[int32(update.Health)]))
+		updateHealth := nicloudsdk.WorkspaceAppHealth(strings.ToLower(proto.AppHealth_name[int32(update.Health)]))
 
 		for i, app := range apps {
 			if app.ID != updateID {

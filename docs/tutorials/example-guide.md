@@ -9,7 +9,7 @@ December 13, 2023
 
 ---
 
-This is a guide on how to make Coder guides, it is not listed on our
+This is a guide on how to make Neural Inverse Cloud guides, it is not listed on our
 [official tutorials page](../tutorials/index.md) in the docs. Intended for those
 who don't frequently contribute documentation changes to the `coder/coder`
 repository.

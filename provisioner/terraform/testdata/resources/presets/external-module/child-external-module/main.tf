@@ -11,7 +11,7 @@ terraform {
   }
 }
 
-data "coder_parameter" "child_first_parameter_from_module" {
+data "ni_parameter" "child_first_parameter_from_module" {
   name        = "First parameter from child module"
   mutable     = true
   type        = "string"
@@ -19,7 +19,7 @@ data "coder_parameter" "child_first_parameter_from_module" {
   default     = "abcdef"
 }
 
-data "coder_parameter" "child_second_parameter_from_module" {
+data "ni_parameter" "child_second_parameter_from_module" {
   name        = "Second parameter from child module"
   mutable     = true
   type        = "string"

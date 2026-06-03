@@ -9,7 +9,7 @@ import { createChatStore } from "./chatStore";
 import type { StreamState } from "./types";
 import { useChatToolInvalidations } from "./useChatToolInvalidations";
 
-const ORGANIZATION_NAME = "coder";
+const ORGANIZATION_NAME = "neuralinverse";
 const USERNAME = "alice";
 
 type ToolResultOverrides = Partial<StreamState["toolResults"][string]>;

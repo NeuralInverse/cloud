@@ -37,7 +37,7 @@ export const AIGovernanceUsersConsumption: FC<
 						<span className="text-base">AI Governance add-on usage</span>
 						<span className="text-content-secondary text-center max-w-[464px] mt-2">
 							AI Governance is not included in your current license. Contact{" "}
-							<Link href="mailto:sales@coder.com">sales</Link> to upgrade your
+							<Link href="mailto:sales@cloud.neuralinverse.com">sales</Link> to upgrade your
 							license and unlock this addon.
 						</span>
 					</div>

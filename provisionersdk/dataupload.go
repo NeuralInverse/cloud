@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 // HandleReceivingDataUpload can download a multi-part file from a proto stream.

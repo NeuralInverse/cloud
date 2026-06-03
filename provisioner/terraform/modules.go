@@ -14,9 +14,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/util/xio"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/provisionersdk/tfpath"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/xio"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/tfpath"
 )
 
 const (

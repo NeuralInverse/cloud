@@ -1,30 +1,30 @@
-# Scale Coder
+# Scale Neural Inverse Cloud
 
-This best practice guide helps you prepare a Coder deployment that you can
+This best practice guide helps you prepare a Neural Inverse Cloud deployment that you can
 scale up to a high-scale deployment as use grows, and keep it operating smoothly with a
 high number of active users and workspaces.
 
 ## Observability
 
-Observability is one of the most important aspects to a scalable Coder deployment.
+Observability is one of the most important aspects to a scalable Neural Inverse Cloud deployment.
 When you have visibility into performance and usage metrics, you can make informed
 decisions about what changes you should make.
 
-[Monitor your Coder deployment](../../admin/monitoring/index.md) with log output
+[Monitor your Neural Inverse Cloud deployment](../../admin/monitoring/index.md) with log output
 and metrics to identify potential bottlenecks before they negatively affect the
 end-user experience and measure the effects of modifications you make to your
 deployment.
 
 - Log output
-  - Capture log output from from Coder Server instances and external provisioner daemons
+  - Capture log output from from Neural Inverse Cloud Server instances and external provisioner daemons
   and store them in a searchable log store like Loki, CloudWatch logs, or other tools.
   - Retain logs for a minimum of thirty days, ideally ninety days.
   This allows you investigate when anomalous behaviors began.
 
 - Metrics
   - Capture infrastructure metrics like CPU, memory, open files, and network I/O for all
-  Coder Server, external provisioner daemon, workspace proxy, and PostgreSQL instances.
-  - Capture Coder Server and External Provisioner daemons metrics
+  Neural Inverse Cloud Server, external provisioner daemon, workspace proxy, and PostgreSQL instances.
+  - Capture Neural Inverse Cloud Server and External Provisioner daemons metrics
   [via Prometheus](#how-to-capture-coder-server-metrics-with-prometheus).
 
 Retain metric time series for at least six months. This allows you to see
@@ -45,30 +45,30 @@ they affect the end-user experience.
      Monitor trends and pay special attention to the daily and weekly peak utilization.
      Use long-term trends to plan infrastructure upgrades.
 
-- Tail latency of Coder Server API requests
-  - High tail latency can indicate Coder Server or the PostgreSQL database is underprovisioned
+- Tail latency of Neural Inverse Cloud Server API requests
+  - High tail latency can indicate Neural Inverse Cloud Server or the PostgreSQL database is underprovisioned
   for the load.
-  - Use the `coderd_api_request_latencies_seconds` metric.
+  - Use the `nicloud_api_request_latencies_seconds` metric.
 
 - Tail latency of database queries
   - High tail latency can indicate the PostgreSQL database is low in resources.
-  - Use the `coderd_db_query_latencies_seconds` metric.
+  - Use the `nicloud_db_query_latencies_seconds` metric.
 
-### How to capture Coder server metrics with Prometheus
+### How to capture Neural Inverse Cloud server metrics with Prometheus
 
-Edit your Helm `values.yaml` to capture metrics from Coder Server and external provisioner daemons with
+Edit your Helm `values.yaml` to capture metrics from Neural Inverse Cloud Server and external provisioner daemons with
 [Prometheus](../../admin/integrations/prometheus.md):
 
 1. Enable Prometheus metrics:
 
    ```yaml
-   CODER_PROMETHEUS_ENABLE=true
+   NEURALINVERSE_PROMETHEUS_ENABLE=true
    ```
 
 1. Enable database metrics:
 
    ```yaml
-   CODER_PROMETHEUS_COLLECT_DB_METRICS=true
+   NEURALINVERSE_PROMETHEUS_COLLECT_DB_METRICS=true
    ```
 
 1. For a high scale deployment, configure agent stats to avoid large cardinality or disable them:
@@ -76,62 +76,62 @@ Edit your Helm `values.yaml` to capture metrics from Coder Server and external p
    - Configure agent stats:
 
      ```yaml
-     CODER_PROMETHEUS_AGGREGATE_AGENT_STATS_BY=agent_name
+     NEURALINVERSE_PROMETHEUS_AGGREGATE_AGENT_STATS_BY=agent_name
      ```
 
    - Disable agent stats:
 
      ```yaml
-     CODER_PROMETHEUS_COLLECT_AGENT_STATS=false
+     NEURALINVERSE_PROMETHEUS_COLLECT_AGENT_STATS=false
      ```
 
-## Coder Server
+## Neural Inverse Cloud Server
 
 ### Locality
 
-If increased availability of the Coder API is a concern, deploy at least three
-instances of Coder Server. Spread the instances across nodes with anti-affinity rules in
+If increased availability of the Neural Inverse Cloud API is a concern, deploy at least three
+instances of Neural Inverse Cloud Server. Spread the instances across nodes with anti-affinity rules in
 Kubernetes or in different availability zones of the same geographic region.
 
 Do not deploy in different geographic regions.
 
-Coder Servers need to be able to communicate with one another directly with low
-latency, under 10ms. Note that this is for the availability of the Coder API.
+Neural Inverse Cloud Servers need to be able to communicate with one another directly with low
+latency, under 10ms. Note that this is for the availability of the Neural Inverse Cloud API.
 Workspaces are not fault tolerant unless they are explicitly built that way at
 the template level.
 
-Deploy Coder Server instances as geographically close to PostgreSQL as possible.
-Low-latency communication (under 10ms) with Postgres is essential for Coder
+Deploy Neural Inverse Cloud Server instances as geographically close to PostgreSQL as possible.
+Low-latency communication (under 10ms) with Postgres is essential for Neural Inverse Cloud
 Server's performance.
 
 ### Scaling
 
-Coder Server can be scaled both vertically for bigger instances and horizontally
+Neural Inverse Cloud Server can be scaled both vertically for bigger instances and horizontally
 for more instances.
 
-Aim to keep the number of Coder Server instances relatively small, preferably
+Aim to keep the number of Neural Inverse Cloud Server instances relatively small, preferably
 under ten instances, and opt for vertical scale over horizontal scale after
 meeting availability requirements.
 
-Coder's
+Neural Inverse Cloud's
 [validated architectures](../../admin/infrastructure/validated-architectures/index.md)
 give specific sizing recommendations for various user scales. These are a useful
 starting point, but very few deployments will remain stable at a predetermined
 user level over the long term. We recommend monitoring and adjusting resources as needed.
 
-We don't recommend that you autoscale the Coder Servers. Instead, scale the
+We don't recommend that you autoscale the Neural Inverse Cloud Servers. Instead, scale the
 deployment for peak weekly usage.
 
-Although Coder Server persists no internal state, it operates as a proxy for end
+Although Neural Inverse Cloud Server persists no internal state, it operates as a proxy for end
 users to their workspaces in two capacities:
 
 1. As an HTTP proxy when they access workspace applications in their browser via
-   the Coder Dashboard.
+   the Neural Inverse Cloud Dashboard.
 
 1. As a DERP proxy when establishing tunneled connections with CLI tools like
    `coder ssh`, `coder port-forward`, and others, and with desktop IDEs.
 
-Stopping a Coder Server instance will (momentarily) disconnect any users
+Stopping a Neural Inverse Cloud Server instance will (momentarily) disconnect any users
 currently connecting through that instance. Adding a new instance is not
 disruptive, but you should remove instances and perform upgrades during a
 maintenance window to minimize disruption.
@@ -141,12 +141,12 @@ maintenance window to minimize disruption.
 ### Locality
 
 We recommend that you run one or more
-[provisioner daemon deployments external to Coder Server](../../admin/provisioners/index.md)
-and disable provisioner daemons within your Coder Server.
-This allows you to scale them independently of the Coder Server:
+[provisioner daemon deployments external to Neural Inverse Cloud Server](../../admin/provisioners/index.md)
+and disable provisioner daemons within your Neural Inverse Cloud Server.
+This allows you to scale them independently of the Neural Inverse Cloud Server:
 
 ```yaml
-CODER_PROVISIONER_DAEMONS=0
+NEURALINVERSE_PROVISIONER_DAEMONS=0
 ```
 
 We recommend deploying provisioner daemons within the same cluster as the
@@ -163,7 +163,7 @@ workspaces they will provision or are hosted in.
   deployments and use template tags to select the correct set of provisioner
   daemons.
 
-- Provisioner daemons need to be able to connect to Coder Server, but this does not need
+- Provisioner daemons need to be able to connect to Neural Inverse Cloud Server, but this does not need
   to be a low-latency connection.
 
 Provisioner daemons make no direct connections to the PostgreSQL database, so
@@ -172,7 +172,7 @@ there's no need for locality to the Postgres database.
 ### Scaling
 
 Each provisioner daemon instance can handle a single workspace build job at a
-time. Therefore, the maximum number of simultaneous builds your Coder deployment
+time. Therefore, the maximum number of simultaneous builds your Neural Inverse Cloud deployment
 can handle is equal to the number of provisioner daemon instances within a tagged
 deployment.
 
@@ -190,9 +190,9 @@ it kills the provisioner daemon process.
 
 If you deploy in Kubernetes, we recommend a single provisioner daemon per pod.
 On a virtual machine (VM), you can deploy multiple provisioner daemons, ensuring
-each has a unique `CODER_CACHE_DIRECTORY` value.
+each has a unique `NEURALINVERSE_CACHE_DIRECTORY` value.
 
-Coder's
+Neural Inverse Cloud's
 [validated architectures](../../admin/infrastructure/validated-architectures/index.md)
 give specific sizing recommendations for various user scales. Since the
 complexity of builds varies significantly depending on the workspace template,
@@ -201,40 +201,40 @@ the number and size of your provisioner daemon instances.
 
 ## PostgreSQL
 
-PostgreSQL is the primary persistence layer for all of Coder's deployment data.
+PostgreSQL is the primary persistence layer for all of Neural Inverse Cloud's deployment data.
 We also use `LISTEN` and `NOTIFY` to coordinate between different instances of
-Coder Server.
+Neural Inverse Cloud Server.
 
 ### Locality
 
-Coder Server instances must have low-latency connections (under 10ms) to
+Neural Inverse Cloud Server instances must have low-latency connections (under 10ms) to
 PostgreSQL. If you use multiple PostgreSQL replicas in a clustered config, these
 must also be low-latency with respect to one another.
 
 ### Scaling
 
 Prefer scaling PostgreSQL vertically rather than horizontally for best
-performance. Coder's
+performance. Neural Inverse Cloud's
 [validated architectures](../../admin/infrastructure/validated-architectures/index.md)
 give specific sizing recommendations for various user scales.
 
 ### Connection pool tuning
 
-Coder Server maintains a pool of connections to PostgreSQL. You can tune the
+Neural Inverse Cloud Server maintains a pool of connections to PostgreSQL. You can tune the
 pool size with the following settings:
 
 > [!NOTE]
 > When adjusting these settings, please ensure that your PostgreSQL Server has `max_connections`
-> set appropriately to accommodate all Coder Server replicas multiplied by the
+> set appropriately to accommodate all Neural Inverse Cloud Server replicas multiplied by the
 > maximum number of open connections. We recommend configuring an additional 20%
 > of connections to account for churn and other clients.
 >
 > Also note that increasing `max_connections` will result in potentially higher
 > CPU and RAM usage, so you'll need to monitor accordingly.
 
-- `--postgres-conn-max-open` (env: `CODER_PG_CONN_MAX_OPEN`): Maximum number of open
+- `--postgres-conn-max-open` (env: `NEURALINVERSE_PG_CONN_MAX_OPEN`): Maximum number of open
   connections. Default: 10.
-- `--postgres-conn-max-idle` (env: `CODER_PG_CONN_MAX_IDLE`): Maximum number of idle
+- `--postgres-conn-max-idle` (env: `NEURALINVERSE_PG_CONN_MAX_IDLE`): Maximum number of idle
   connections kept in the pool. Default: "auto", which uses max open / 3.
 
 When a connection is returned to the pool and the idle pool is already full, the
@@ -243,13 +243,13 @@ overhead (churn) when load fluctuates. Monitor these metrics to understand your
 connection pool behavior:
 
 - **Capacity**: `go_sql_max_open_connections - go_sql_in_use_connections` shows
-  how many connections are available for new requests. If this is 0, Coder
+  how many connections are available for new requests. If this is 0, Neural Inverse Cloud
   Server performance will start to degrade. This just provides a point-in-time view
   of the connections, however.
 
   For a more systematic view, consider running
   `sum by (pod) (increase(go_sql_wait_duration_seconds_total[1m]))` to see how long
-  each Coder replica spent waiting on the connection pool (i.e. no free connections);
+  each Neural Inverse Cloud replica spent waiting on the connection pool (i.e. no free connections);
   `sum by (pod) (increase(go_sql_wait_count_total[$__interval]))` shows how many
   connections were waited for.
 
@@ -263,7 +263,7 @@ consider increasing `--pg-conn-max-open`.
 
 ## Workspace proxies
 
-Workspace proxies proxy HTTP traffic from end users to workspaces for Coder apps
+Workspace proxies proxy HTTP traffic from end users to workspaces for Neural Inverse Cloud apps
 defined in the templates, and HTTP ports opened by the workspace. By default
 they also include a DERP Proxy.
 
@@ -288,7 +288,7 @@ stopping the proxy.
 
 ## Workspaces
 
-Workspaces represent the vast majority of resources in most Coder deployments.
+Workspaces represent the vast majority of resources in most Neural Inverse Cloud deployments.
 Because they are defined by templates, there is no one-size-fits-all advice for
 scaling workspaces.
 
@@ -299,9 +299,9 @@ simultaneously provisioned. These could be hard limits, based on the physical
 size of the cluster, especially in the case of a private cloud, or soft limits,
 based on configured limits in your public cloud account.
 
-It is important to be aware of these limits and monitor Coder workspace resource
+It is important to be aware of these limits and monitor Neural Inverse Cloud workspace resource
 utilization against the limits, so that a new influx of users don't encounter
-failed builds. Monitoring these is outside the scope of Coder, but we recommend
+failed builds. Monitoring these is outside the scope of Neural Inverse Cloud, but we recommend
 that you set up dashboards and alerts for each kind of limited resource.
 
 As you approach soft limits, you can request limit increases to keep growing.
@@ -334,11 +334,11 @@ be susceptible to a user or process consuming shared resources.
     using autostop policies to stop more workspaces during off-peak hours.
 
 - If you do overprovision workspaces onto nodes, keep them in a separate node
-  pool and schedule Coder control plane (Coder Server, PostgreSQL, workspace
+  pool and schedule Neural Inverse Cloud control plane (Neural Inverse Cloud Server, PostgreSQL, workspace
   proxies) components on a different node pool to avoid resource spikes
   affecting them.
 
-Coder customers have had success with both:
+Neural Inverse Cloud customers have had success with both:
 
 - One workspace per AWS VM
 - Lots of workspaces on Kubernetes nodes for efficiency
@@ -356,7 +356,7 @@ Coder customers have had success with both:
 ## Networking
 
 Set up your network so that most users can get direct, peer-to-peer connections
-to their workspaces. This drastically reduces the load on Coder Server and
+to their workspaces. This drastically reduces the load on Neural Inverse Cloud Server and
 workspace proxy instances.
 
 ## Next steps

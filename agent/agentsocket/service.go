@@ -8,16 +8,16 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentsocket/proto"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/agent/unit"
+	"github.com/NeuralInverse/cloud/v2/agent/agentsocket/proto"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/unit"
 )
 
 var _ proto.DRPCAgentSocketServer = (*DRPCAgentSocketService)(nil)
 
 var (
 	ErrUnitManagerNotAvailable = xerrors.New("unit manager not available")
-	ErrAgentAPINotConnected    = xerrors.New("agent not connected to coderd")
+	ErrAgentAPINotConnected    = xerrors.New("agent not connected to nicloud")
 )
 
 // DRPCAgentSocketService implements the DRPC agent socket service.
@@ -30,7 +30,7 @@ type DRPCAgentSocketService struct {
 }
 
 // SetAgentAPI sets the agent API client used to forward requests
-// to coderd. This is called when the agent connects to coderd.
+// to nicloud. This is called when the agent connects to nicloud.
 func (s *DRPCAgentSocketService) SetAgentAPI(api agentproto.DRPCAgentClient28) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -38,7 +38,7 @@ func (s *DRPCAgentSocketService) SetAgentAPI(api agentproto.DRPCAgentClient28) {
 }
 
 // ClearAgentAPI clears the agent API client. This is called when
-// the agent disconnects from coderd.
+// the agent disconnects from nicloud.
 func (s *DRPCAgentSocketService) ClearAgentAPI() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -175,7 +175,7 @@ func (s *DRPCAgentSocketService) SyncStatus(_ context.Context, req *proto.SyncSt
 	}, nil
 }
 
-// UpdateAppStatus forwards an app status update to coderd via the
+// UpdateAppStatus forwards an app status update to nicloud via the
 // agent API. Returns an error if the agent is not connected.
 func (s *DRPCAgentSocketService) UpdateAppStatus(ctx context.Context, req *agentproto.UpdateAppStatusRequest) (*agentproto.UpdateAppStatusResponse, error) {
 	s.mu.Lock()

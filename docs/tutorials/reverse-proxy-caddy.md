@@ -1,6 +1,6 @@
 # Caddy
 
-This is an example configuration of how to use Coder with
+This is an example configuration of how to use Neural Inverse Cloud with
 [caddy](https://caddyserver.com/docs). To use Caddy to generate TLS
 certificates, you'll need a domain name that resolves to your Caddy server.
 
@@ -16,16 +16,16 @@ certificates, you'll need a domain name that resolves to your Caddy server.
    ```yaml
    services:
    coder:
-       image: ghcr.io/coder/coder:${CODER_VERSION:-latest}
+       image: ghcr.io/coder/coder:${NEURALINVERSE_VERSION:-latest}
        environment:
-           CODER_PG_CONNECTION_URL: "postgresql://${POSTGRES_USER:-username}:${POSTGRES_PASSWORD:-password}@database/${POSTGRES_DB:-coder}?sslmode=disable"
-           CODER_HTTP_ADDRESS: "0.0.0.0:7080"
-           # You'll need to set CODER_ACCESS_URL to an IP or domain
+           NEURALINVERSE_PG_CONNECTION_URL: "postgresql://${POSTGRES_USER:-username}:${POSTGRES_PASSWORD:-password}@database/${POSTGRES_DB:-coder}?sslmode=disable"
+           NEURALINVERSE_HTTP_ADDRESS: "0.0.0.0:7080"
+           # You'll need to set NEURALINVERSE_ACCESS_URL to an IP or domain
            # that workspaces can reach. This cannot be localhost
            # or 127.0.0.1 for non-Docker templates!
-           CODER_ACCESS_URL: "${CODER_ACCESS_URL}"
+           NEURALINVERSE_ACCESS_URL: "${NEURALINVERSE_ACCESS_URL}"
            # Optional) Enable wildcard apps/dashboard port forwarding
-           CODER_WILDCARD_ACCESS_URL: "${CODER_WILDCARD_ACCESS_URL}"
+           NEURALINVERSE_WILDCARD_ACCESS_URL: "${NEURALINVERSE_WILDCARD_ACCESS_URL}"
            # If the coder user does not have write permissions on
            # the docker socket, you can uncomment the following
            # lines and set the group ID to one that has write
@@ -47,7 +47,7 @@ certificates, you'll need a domain name that resolves to your Caddy server.
            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password} # The PostgreSQL password (useful to connect to the database)
            POSTGRES_DB: ${POSTGRES_DB:-coder} # The PostgreSQL default database (automatically created at first launch)
        volumes:
-           - coder_data:/var/lib/postgresql/data # Use "docker volume rm coder_coder_data" to reset Coder
+           - coder_data:/var/lib/postgresql/data # Use "docker volume rm coder_coder_data" to reset Neural Inverse Cloud
        healthcheck:
            test:
            [
@@ -97,26 +97,26 @@ certificates, you'll need a domain name that resolves to your Caddy server.
 
    Here;
 
-   - `coder:7080` is the address of the Coder container on the Docker network.
-   - `coder.example.com` is the domain name you're using for Coder.
+   - `coder:7080` is the address of the Neural Inverse Cloud container on the Docker network.
+   - `coder.example.com` is the domain name you're using for Neural Inverse Cloud.
    - `*.coder.example.com` is the domain name for wildcard apps, commonly used
      for [dashboard port forwarding](../admin/networking/port-forwarding.md).
      This is optional and can be removed.
    - `email@example.com`: Email to request certificates from LetsEncrypt/ZeroSSL
-     (does not have to be Coder admin email)
+     (does not have to be Neural Inverse Cloud admin email)
 
-4. Start Coder. Set `CODER_ACCESS_URL` and `CODER_WILDCARD_ACCESS_URL` to the
+4. Start Neural Inverse Cloud. Set `NEURALINVERSE_ACCESS_URL` and `NEURALINVERSE_WILDCARD_ACCESS_URL` to the
    domain you're using in your Caddyfile.
 
    ```shell
-   export CODER_ACCESS_URL=https://coder.example.com
-   export CODER_WILDCARD_ACCESS_URL=*.coder.example.com
+   export NEURALINVERSE_ACCESS_URL=https://coder.example.com
+   export NEURALINVERSE_WILDCARD_ACCESS_URL=*.coder.example.com
    docker compose up -d # Run on startup
    ```
 
 ### Standalone
 
-1. If you haven't already, [install Coder](../install/index.md)
+1. If you haven't already, [install Neural Inverse Cloud](../install/index.md)
 
 2. Install [Caddy Server](https://caddyserver.com/docs/install)
 
@@ -138,20 +138,20 @@ certificates, you'll need a domain name that resolves to your Caddy server.
    > with `vim /etc/caddy/Caddyfile`
 
    - `email@example.com`: Email to request certificates from LetsEncrypt/ZeroSSL
-     (does not have to be Coder admin email)
-   - `coder.example.com`: Domain name you're using for Coder.
+     (does not have to be Neural Inverse Cloud admin email)
+   - `coder.example.com`: Domain name you're using for Neural Inverse Cloud.
    - `*.coder.example.com`: Domain name for wildcard apps, commonly used for
      [dashboard port forwarding](../admin/networking/port-forwarding.md). This
      is optional and can be removed.
-   - `localhost:3000`: Address Coder is running on. Modify this if you changed
-     `CODER_HTTP_ADDRESS` in the Coder configuration.
+   - `localhost:3000`: Address Neural Inverse Cloud is running on. Modify this if you changed
+     `NEURALINVERSE_HTTP_ADDRESS` in the Neural Inverse Cloud configuration.
    - _DO NOT CHANGE the `ask http://example.com` line! Doing so will result in
      your certs potentially not being generated._
 
-4. [Configure Coder](../admin/setup/index.md) and change the following values:
+4. [Configure Neural Inverse Cloud](../admin/setup/index.md) and change the following values:
 
-   - `CODER_ACCESS_URL`: root domain (e.g. `https://coder.example.com`)
-   - `CODER_WILDCARD_ACCESS_URL`: wildcard domain (e.g. `*.example.com`).
+   - `NEURALINVERSE_ACCESS_URL`: root domain (e.g. `https://coder.example.com`)
+   - `NEURALINVERSE_WILDCARD_ACCESS_URL`: wildcard domain (e.g. `*.example.com`).
 
 5. Start the Caddy server:
 
@@ -182,14 +182,14 @@ certificates, you'll need a domain name that resolves to your Caddy server.
    sudo ufw allow 80
    sudo ufw allow 443
 
-   # Deny direct access to Coder server
+   # Deny direct access to Neural Inverse Cloud server
    sudo ufw deny 3000
 
    # Enable UncomplicatedFirewall
    sudo ufw enable
    ```
 
-7. Navigate to your Coder URL! A TLS certificate should be auto-generated on
+7. Navigate to your Neural Inverse Cloud URL! A TLS certificate should be auto-generated on
    your first visit.
 
 ## Generating wildcard certificates

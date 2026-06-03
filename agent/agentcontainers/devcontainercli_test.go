@@ -23,11 +23,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/pty"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestDevcontainerCLI_ArgsAndParsing(t *testing.T) {
@@ -275,7 +275,7 @@ func TestDevcontainerCLI_ArgsAndParsing(t *testing.T) {
 			wantConfig      agentcontainers.DevcontainerConfig
 		}{
 			{
-				name:            "WithCoderCustomization",
+				name:            "WithNICustomization",
 				logFile:         "read-config-with-coder-customization.log",
 				workspaceFolder: "/test/workspace",
 				configPath:      "",
@@ -284,17 +284,17 @@ func TestDevcontainerCLI_ArgsAndParsing(t *testing.T) {
 				wantConfig: agentcontainers.DevcontainerConfig{
 					MergedConfiguration: agentcontainers.DevcontainerMergedConfiguration{
 						Customizations: agentcontainers.DevcontainerMergedCustomizations{
-							Coder: []agentcontainers.CoderCustomization{
+							Coder: []agentcontainers.NICustomization{
 								{
-									DisplayApps: map[codersdk.DisplayApp]bool{
-										codersdk.DisplayAppVSCodeDesktop: true,
-										codersdk.DisplayAppWebTerminal:   true,
+									DisplayApps: map[nicloudsdk.DisplayApp]bool{
+										nicloudsdk.DisplayAppVSCodeDesktop: true,
+										nicloudsdk.DisplayAppWebTerminal:   true,
 									},
 								},
 								{
-									DisplayApps: map[codersdk.DisplayApp]bool{
-										codersdk.DisplayAppVSCodeInsiders: true,
-										codersdk.DisplayAppWebTerminal:    false,
+									DisplayApps: map[nicloudsdk.DisplayApp]bool{
+										nicloudsdk.DisplayAppVSCodeInsiders: true,
+										nicloudsdk.DisplayAppWebTerminal:    false,
 									},
 								},
 							},
@@ -303,7 +303,7 @@ func TestDevcontainerCLI_ArgsAndParsing(t *testing.T) {
 				},
 			},
 			{
-				name:            "WithoutCoderCustomization",
+				name:            "WithoutNICustomization",
 				logFile:         "read-config-without-coder-customization.log",
 				workspaceFolder: "/test/workspace",
 				configPath:      "/test/config.json",
@@ -536,13 +536,13 @@ func TestDevcontainerHelperProcess(t *testing.T) {
 // This test verifies that containers can be created and recreated using the actual
 // devcontainer CLI and Docker. It is skipped by default and can be run with:
 //
-//	CODER_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestDockerDevcontainerCLI
+//	NEURALINVERSE_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestDockerDevcontainerCLI
 //
 // The test requires Docker to be installed and running.
 func TestDockerDevcontainerCLI(t *testing.T) {
 	t.Parallel()
-	if os.Getenv("CODER_TEST_USE_DOCKER") != "1" {
-		t.Skip("skipping Docker test; set CODER_TEST_USE_DOCKER=1 to run")
+	if os.Getenv("NEURALINVERSE_TEST_USE_DOCKER") != "1" {
+		t.Skip("skipping Docker test; set NEURALINVERSE_TEST_USE_DOCKER=1 to run")
 	}
 	if _, err := exec.LookPath("devcontainer"); err != nil {
 		t.Fatal("this test requires the devcontainer CLI: npm install -g @devcontainers/cli")

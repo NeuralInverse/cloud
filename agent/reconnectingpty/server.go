@@ -14,11 +14,11 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 type reportConnectionFunc func(id uuid.UUID, ip string) (disconnected func(code int, reason string))
@@ -97,9 +97,9 @@ func (s *Server) Serve(ctx, hardCtx context.Context, l net.Listener) (retErr err
 			case <-closed:
 			case <-hardCtx.Done():
 				clog.Info(hardCtx, "reconnecting pty closed",
-					codersdk.ConnectionDirectionAgentToClient.SlogField(),
-					codersdk.DisconnectReasonServerShutdown.SlogField(),
-					codersdk.DisconnectReasonServerShutdown.SlogExpectedField(),
+					nicloudsdk.ConnectionDirectionAgentToClient.SlogField(),
+					nicloudsdk.DisconnectReasonServerShutdown.SlogField(),
+					nicloudsdk.DisconnectReasonServerShutdown.SlogExpectedField(),
 				)
 				disconnected(1, "server shut down")
 				_ = conn.Close()
@@ -110,25 +110,25 @@ func (s *Server) Serve(ctx, hardCtx context.Context, l net.Listener) (retErr err
 			defer close(closed)
 			defer wg.Done()
 			err := s.handleConn(ctx, clog, conn)
-			var reason codersdk.DisconnectReason
+			var reason nicloudsdk.DisconnectReason
 			var code int
 			var detail string
 			switch {
 			case err != nil && ctx.Err() != nil:
-				reason = codersdk.DisconnectReasonServerShutdown
+				reason = nicloudsdk.DisconnectReasonServerShutdown
 				code = 1
 			case err != nil:
-				reason = codersdk.DisconnectReasonNetworkError
+				reason = nicloudsdk.DisconnectReasonNetworkError
 				detail = err.Error()
 				code = 1
 			default:
-				reason = codersdk.DisconnectReasonGraceful
+				reason = nicloudsdk.DisconnectReasonGraceful
 			}
 			clog.Info(ctx, "reconnecting pty closed",
-				codersdk.ConnectionDirectionAgentToClient.SlogField(),
+				nicloudsdk.ConnectionDirectionAgentToClient.SlogField(),
 				reason.SlogField(),
 				reason.SlogExpectedField(),
-				codersdk.SlogDisconnectDetail(detail),
+				nicloudsdk.SlogDisconnectDetail(detail),
 				slog.F("exit_code", code),
 			)
 			disconnected(code, string(reason))

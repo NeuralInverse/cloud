@@ -1,6 +1,6 @@
 {
 	"name": "@coder/coder",
-	"description": "Coder",
+	"description": "Neural Inverse Cloud",
 	"repository": "https://github.com/coder/coder",
 	"private": true,
 	"license": "AGPL-3.0",

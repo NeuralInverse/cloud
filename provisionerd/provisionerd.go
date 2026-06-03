@@ -22,13 +22,13 @@ import (
 	protobuf "google.golang.org/protobuf/proto"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionerd/runner"
-	"github.com/coder/coder/v2/provisionersdk"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/runner"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 	"github.com/coder/retry"
 )
 
@@ -126,7 +126,7 @@ type Server struct {
 
 	wg sync.WaitGroup
 
-	// initConnectionCh will receive when the daemon connects to coderd for the
+	// initConnectionCh will receive when the daemon connects to nicloud for the
 	// first time.
 	initConnectionCh   chan struct{}
 	initConnectionOnce sync.Once
@@ -162,19 +162,19 @@ func NewMetrics(reg prometheus.Registerer) Metrics {
 	return Metrics{
 		Runner: runner.Metrics{
 			ConcurrentJobs: auto.NewGaugeVec(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "nicloud",
 				Subsystem: "provisionerd",
 				Name:      "jobs_current",
 				Help:      "The number of currently running provisioner jobs.",
 			}, []string{"provisioner"}),
 			NumDaemons: auto.NewGauge(prometheus.GaugeOpts{
-				Namespace: "coderd",
+				Namespace: "nicloud",
 				Subsystem: "provisionerd",
 				Name:      "num_daemons",
 				Help:      "The number of provisioner daemons.",
 			}),
 			JobTimings: auto.NewHistogramVec(prometheus.HistogramOpts{
-				Namespace: "coderd",
+				Namespace: "nicloud",
 				Subsystem: "provisionerd",
 				Name:      "job_timings_seconds",
 				Help:      "The provisioner job time duration in seconds.",
@@ -190,13 +190,13 @@ func NewMetrics(reg prometheus.Registerer) Metrics {
 				},
 			}, []string{"provisioner", "status"}),
 			WorkspaceBuilds: auto.NewCounterVec(prometheus.CounterOpts{
-				Namespace: "coderd",
+				Namespace: "nicloud",
 				Subsystem: "", // Explicitly empty to make this a top-level metric.
 				Name:      "workspace_builds_total",
 				Help:      "The number of workspaces started, updated, or deleted.",
 			}, []string{"workspace_owner", "workspace_name", "template_name", "template_version", "workspace_transition", "status"}),
 			WorkspaceBuildTimings: auto.NewHistogramVec(prometheus.HistogramOpts{
-				Namespace: "coderd",
+				Namespace: "nicloud",
 				Subsystem: "provisionerd",
 				Name:      "workspace_build_timings_seconds",
 				Help:      "The time taken for a workspace to build.",
@@ -215,7 +215,7 @@ func NewMetrics(reg prometheus.Registerer) Metrics {
 	}
 }
 
-// Connect establishes a connection to coderd.
+// Connect establishes a connection to nicloud.
 func (p *Server) connect() {
 	defer p.opts.Logger.Debug(p.closeContext, "connect loop exited")
 	defer p.wg.Done()
@@ -224,7 +224,7 @@ func (p *Server) connect() {
 		logConnect = p.opts.Logger.Info
 	}
 	// An exponential back-off occurs when the connection is failing to dial.
-	// This is to prevent server spam in case of a coderd outage.
+	// This is to prevent server spam in case of a nicloud outage.
 connectLoop:
 	for retrier := retry.New(50*time.Millisecond, 10*time.Second); retrier.Wait(p.closeContext); {
 		// It's possible for the provisioner daemon to be shut down
@@ -232,30 +232,30 @@ connectLoop:
 		if p.isClosed() {
 			return
 		}
-		p.opts.Logger.Debug(p.closeContext, "dialing coderd")
+		p.opts.Logger.Debug(p.closeContext, "dialing nicloud")
 		client, err := p.clientDialer(p.closeContext)
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				return
 			}
-			var sdkErr *codersdk.Error
+			var sdkErr *nicloudsdk.Error
 			// If something is wrong with our auth, stop trying to connect.
 			if errors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusForbidden {
-				p.opts.Logger.Error(p.closeContext, "not authorized to dial coderd", slog.Error(err))
+				p.opts.Logger.Error(p.closeContext, "not authorized to dial nicloud", slog.Error(err))
 				return
 			}
 			if p.isClosed() {
 				return
 			}
-			p.opts.Logger.Warn(p.closeContext, "coderd client failed to dial", slog.Error(err))
+			p.opts.Logger.Warn(p.closeContext, "nicloud client failed to dial", slog.Error(err))
 			continue
 		}
 		// This log is useful to verify that an external provisioner daemon is
-		// successfully connecting to coderd. It doesn't add much value if the
+		// successfully connecting to nicloud. It doesn't add much value if the
 		// daemon is built-in, so we only log it on the info level if p.externalProvisioner
 		// is true. This log message is mentioned in the docs:
 		// https://github.com/coder/coder/blob/5bd86cb1c06561d1d3e90ce689da220467e525c0/docs/admin/provisioners.md#L346
-		logConnect(p.closeContext, "successfully connected to coderd")
+		logConnect(p.closeContext, "successfully connected to nicloud")
 		retrier.Reset()
 		p.initConnectionOnce.Do(func() {
 			close(p.initConnectionCh)
@@ -268,7 +268,7 @@ connectLoop:
 				client.DRPCConn().Close()
 				return
 			case <-client.DRPCConn().Closed():
-				logConnect(p.closeContext, "connection to coderd closed")
+				logConnect(p.closeContext, "connection to nicloud closed")
 				continue connectLoop
 			case p.clientCh <- client:
 				continue
@@ -356,7 +356,7 @@ func (p *Server) acquireAndRunOne(client proto.DRPCProvisionerDaemonClient) erro
 		ctx = tracing.MetadataToContext(ctx, job.TraceMetadata)
 	}
 	ctx, span := p.tracer.Start(ctx, tracing.FuncName(), trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd"),
+		semconv.ServiceNameKey.String("nicloud.provisionerd"),
 		attribute.String("job_id", job.JobId),
 		attribute.String("job_type", reflect.TypeOf(job.GetType()).Elem().Name()),
 		attribute.Int64("job_created_at", job.CreatedAt),
@@ -519,7 +519,7 @@ func (p *Server) FailJob(ctx context.Context, in *proto.FailedJob) error {
 	return err
 }
 
-// UploadModuleFiles will insert a file into the database of coderd.
+// UploadModuleFiles will insert a file into the database of nicloud.
 func (p *Server) UploadModuleFiles(ctx context.Context, moduleFiles []byte) error {
 	// Send the files separately if the message size is too large.
 	_, err := clientDoWithRetries(ctx, p.client, func(ctx context.Context, client proto.DRPCProvisionerDaemonClient) (*proto.Empty, error) {
@@ -572,7 +572,7 @@ func (p *Server) UploadModuleFiles(ctx context.Context, moduleFiles []byte) erro
 	return nil
 }
 
-// DownloadFile will download a module file from coderd.
+// DownloadFile will download a module file from nicloud.
 func (p *Server) DownloadFile(ctx context.Context, request *proto.FileRequest) ([]byte, error) {
 	data, err := clientDoWithRetries(ctx, p.client, func(ctx context.Context, client proto.DRPCProvisionerDaemonClient) ([]byte, error) {
 		// Add some timeout to prevent the stream from hanging indefinitely if something goes wrong.

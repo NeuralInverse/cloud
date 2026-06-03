@@ -7,19 +7,19 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
 type taskListRow struct {
-	Task codersdk.Task `table:"t,recursive_inline"`
+	Task nicloudsdk.Task `table:"t,recursive_inline"`
 
 	StateChangedAgo string `table:"state changed"`
 }
 
-func taskListRowFromTask(now time.Time, t codersdk.Task) taskListRow {
+func taskListRowFromTask(now time.Time, t nicloudsdk.Task) taskListRow {
 	var stateAgo string
 	if t.CurrentState != nil {
 		stateAgo = now.UTC().Sub(t.CurrentState.Timestamp).Truncate(time.Second).String() + " ago"
@@ -57,7 +57,7 @@ func (r *RootCmd) taskList() *serpent.Command {
 					if !ok {
 						return nil, xerrors.Errorf("expected []taskListRow, got %T", data)
 					}
-					out := make([]codersdk.Task, len(rows))
+					out := make([]nicloudsdk.Task, len(rows))
 					for i := range rows {
 						out[i] = rows[i].Task
 					}
@@ -73,23 +73,23 @@ func (r *RootCmd) taskList() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "List tasks for the current user.",
-				Command:     "coder task list",
+				Command:     "neuralinverse task list",
 			},
 			Example{
 				Description: "List tasks for a specific user.",
-				Command:     "coder task list --user someone-else",
+				Command:     "neuralinverse task list --user someone-else",
 			},
 			Example{
 				Description: "List all tasks you can view.",
-				Command:     "coder task list --all",
+				Command:     "neuralinverse task list --all",
 			},
 			Example{
 				Description: "List all your running tasks.",
-				Command:     "coder task list --status running",
+				Command:     "neuralinverse task list --status running",
 			},
 			Example{
 				Description: "As above, but only show IDs.",
-				Command:     "coder task list --status running --quiet",
+				Command:     "neuralinverse task list --status running --quiet",
 			},
 		),
 		Aliases: []string{"ls"},
@@ -102,7 +102,7 @@ func (r *RootCmd) taskList() *serpent.Command {
 				Description: "Filter by task status.",
 				Flag:        "status",
 				Default:     "",
-				Value:       serpent.EnumOf(&statusFilter, slice.ToStrings(codersdk.AllTaskStatuses())...),
+				Value:       serpent.EnumOf(&statusFilter, slice.ToStrings(nicloudsdk.AllTaskStatuses())...),
 			},
 			{
 				Name:          "all",
@@ -138,12 +138,12 @@ func (r *RootCmd) taskList() *serpent.Command {
 
 			targetUser := strings.TrimSpace(user)
 			if targetUser == "" && !all {
-				targetUser = codersdk.Me
+				targetUser = nicloudsdk.Me
 			}
 
-			tasks, err := client.Tasks(ctx, &codersdk.TasksFilter{
+			tasks, err := client.Tasks(ctx, &nicloudsdk.TasksFilter{
 				Owner:  targetUser,
-				Status: codersdk.TaskStatus(statusFilter),
+				Status: nicloudsdk.TaskStatus(statusFilter),
 			})
 			if err != nil {
 				return xerrors.Errorf("list tasks: %w", err)

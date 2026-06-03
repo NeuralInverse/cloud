@@ -1,7 +1,7 @@
 # Dev Containers
 
 [Dev containers](https://containers.dev/) define your development environment
-as code using a `devcontainer.json` file. Coder's Dev Containers integration
+as code using a `devcontainer.json` file. Neural Inverse Cloud's Dev Containers integration
 uses the [`@devcontainers/cli`](https://github.com/devcontainers/cli) and
 [Docker](https://www.docker.com) to seamlessly build and run these containers,
 with management in your dashboard.
@@ -11,11 +11,11 @@ administrators can configure
 [Envbuilder](../../admin/integrations/devcontainers/envbuilder/index.md) instead,
 which builds the workspace image itself from your dev container configuration.
 
-![Two dev containers running as sub-agents in a Coder workspace](../../images/user-guides/devcontainers/devcontainer-running.png)_Dev containers appear as sub-agents with their own apps, SSH access, and port forwarding_
+![Two dev containers running as sub-agents in a Neural Inverse Cloud workspace](../../images/user-guides/devcontainers/devcontainer-running.png)_Dev containers appear as sub-agents with their own apps, SSH access, and port forwarding_
 
 ## Prerequisites
 
-- Coder version 2.24.0 or later
+- Neural Inverse Cloud version 2.24.0 or later
 - Docker available inside your workspace
 - The `@devcontainers/cli` installed in your workspace
 
@@ -66,11 +66,11 @@ For more configuration options, see the
 
 ### Start your dev container
 
-Coder automatically discovers dev container configurations in your repositories
+Neural Inverse Cloud automatically discovers dev container configurations in your repositories
 and displays them in your workspace dashboard. From there, you can start a dev
 container with a single click.
 
-![Discovered dev containers with Start buttons](../../images/user-guides/devcontainers/devcontainer-discovery.png)_Coder detects dev container configurations and displays them with a Start button_
+![Discovered dev containers with Start buttons](../../images/user-guides/devcontainers/devcontainer-discovery.png)_Neural Inverse Cloud detects dev container configurations and displays them with a Start button_
 
 If your template administrator has configured automatic startup (via the
 `coder_devcontainer` Terraform resource or autostart settings), your dev
@@ -81,7 +81,7 @@ container will build and start automatically when the workspace starts.
 Once running, your dev container appears as a sub-agent in your workspace
 dashboard. You can connect via:
 
-- **Web terminal** in the Coder dashboard
+- **Web terminal** in the Neural Inverse Cloud dashboard
 - **SSH** using `coder ssh <workspace>.<agent>`
 - **VS Code** using the "Open in VS Code Desktop" button
 
@@ -92,18 +92,18 @@ connection instructions.
 
 The Dev Containers integration uses the `devcontainer` command from
 [`@devcontainers/cli`](https://github.com/devcontainers/cli) to manage
-containers within your Coder workspace.
+containers within your Neural Inverse Cloud workspace.
 
 When a workspace with Dev Containers integration starts:
 
-1. If the template defines `coder_app`, `coder_script`, or `coder_env` resources
+1. If the template defines `ni_app`, `coder_script`, or `coder_env` resources
    attached to the dev container, a sub-agent is pre-created with these resources.
 1. The workspace initializes the Docker environment.
 1. The integration detects repositories with dev container configurations.
-1. Detected dev containers appear in the Coder dashboard.
+1. Detected dev containers appear in the Neural Inverse Cloud dashboard.
 1. If auto-start is configured (via `coder_devcontainer` or autostart settings),
    the integration builds and starts the dev container automatically.
-1. Coder creates a sub-agent (or updates the pre-created one) for the running
+1. Neural Inverse Cloud creates a sub-agent (or updates the pre-created one) for the running
    container, enabling direct access.
 
 Without auto-start, users can manually start discovered dev containers from the

@@ -15,7 +15,7 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestMain(m *testing.M) {
@@ -277,7 +277,7 @@ func TestSpeaker_unaryRPC_mainline(t *testing.T) {
 		r, err := mgr.unaryRPC(ctx, &ManagerMessage{
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
-					CoderUrl: "https://coder.example.com",
+					NIUrl: "https://coder.example.com",
 				},
 			},
 		})
@@ -286,7 +286,7 @@ func TestSpeaker_unaryRPC_mainline(t *testing.T) {
 	}()
 	req := testutil.TryReceive(ctx, t, tun.requests)
 	require.NotEqualValues(t, 0, req.msg.GetRpc().GetMsgId())
-	require.Equal(t, "https://coder.example.com", req.msg.GetStart().GetCoderUrl())
+	require.Equal(t, "https://coder.example.com", req.msg.GetStart().GetNIUrl())
 	err := req.sendReply(&TunnelMessage{
 		Msg: &TunnelMessage_Start{
 			Start: &StartResponse{},
@@ -321,7 +321,7 @@ func TestSpeaker_unaryRPC_canceled(t *testing.T) {
 		r, err := mgr.unaryRPC(ctx, &ManagerMessage{
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
-					CoderUrl: "https://coder.example.com",
+					NIUrl: "https://coder.example.com",
 				},
 			},
 		})
@@ -330,7 +330,7 @@ func TestSpeaker_unaryRPC_canceled(t *testing.T) {
 	}()
 	req := testutil.TryReceive(testCtx, t, tun.requests)
 	require.NotEqualValues(t, 0, req.msg.GetRpc().GetMsgId())
-	require.Equal(t, "https://coder.example.com", req.msg.GetStart().GetCoderUrl())
+	require.Equal(t, "https://coder.example.com", req.msg.GetStart().GetNIUrl())
 
 	cancel()
 	err := testutil.TryReceive(testCtx, t, errCh)
@@ -357,7 +357,7 @@ func TestSpeaker_unaryRPC_hung_up(t *testing.T) {
 		r, err := mgr.unaryRPC(ctx, &ManagerMessage{
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
-					CoderUrl: "https://coder.example.com",
+					NIUrl: "https://coder.example.com",
 				},
 			},
 		})
@@ -366,7 +366,7 @@ func TestSpeaker_unaryRPC_hung_up(t *testing.T) {
 	}()
 	req := testutil.TryReceive(testCtx, t, tun.requests)
 	require.NotEqualValues(t, 0, req.msg.GetRpc().GetMsgId())
-	require.Equal(t, "https://coder.example.com", req.msg.GetStart().GetCoderUrl())
+	require.Equal(t, "https://coder.example.com", req.msg.GetStart().GetNIUrl())
 
 	// When: Tunnel closes instead of replying.
 	err := tun.Close()
@@ -402,7 +402,7 @@ func TestSpeaker_unaryRPC_sendLoop(t *testing.T) {
 		r, err := mgr.unaryRPC(ctx, &ManagerMessage{
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
-					CoderUrl: "https://coder.example.com",
+					NIUrl: "https://coder.example.com",
 				},
 			},
 		})

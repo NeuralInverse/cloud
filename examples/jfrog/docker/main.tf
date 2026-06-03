@@ -15,13 +15,13 @@ terraform {
 locals {
   # Make sure to use the same field as the username field in the Artifactory
   # It can be either the username or the email address.
-  artifactory_username = data.coder_workspace_owner.me.email
+  artifactory_username = data.ni_workspace_owner.me.email
   artifactory_repository_keys = {
     "npm"    = "npm"
     "python" = "python"
     "go"     = "go"
   }
-  workspace_user = data.coder_workspace_owner.me.name
+  workspace_user = data.ni_workspace_owner.me.name
   jfrog_host     = replace(var.jfrog_url, "^https://", "")
 }
 
@@ -29,8 +29,8 @@ data "coder_provisioner" "me" {}
 
 provider "docker" {}
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 variable "jfrog_url" {
   type        = string
@@ -59,7 +59,7 @@ resource "artifactory_scoped_token" "me" {
   username = length(local.artifactory_username) > 0 ? local.artifactory_username : "plan"
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   startup_script = <<-EOT
@@ -84,7 +84,7 @@ resource "coder_agent" "main" {
 
     # Configure the `npm` CLI to use the Artifactory "npm" repository.
     cat << EOF > ~/.npmrc
-    email = ${data.coder_workspace_owner.me.email}
+    email = ${data.ni_workspace_owner.me.email}
     registry = ${var.jfrog_url}/artifactory/api/npm/${local.artifactory_repository_keys["npm"]}
     EOF
     jf rt curl /api/npm/auth >> .npmrc
@@ -109,8 +109,8 @@ resource "coder_agent" "main" {
   }
 }
 
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id     = ni_agent.main.id
   slug         = "code-server"
   display_name = "code-server"
   url          = "http://localhost:13337/?folder=/home/${local.workspace_user}"
@@ -126,7 +126,7 @@ resource "coder_app" "code-server" {
 }
 
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   # Protect the volume from being deleted due to changes in attributes.
   lifecycle {
     ignore_changes = all
@@ -134,7 +134,7 @@ resource "docker_volume" "home_volume" {
 }
 
 resource "docker_image" "main" {
-  name = "coder-${data.coder_workspace.me.id}"
+  name = "coder-${data.ni_workspace.me.id}"
   build {
     context = "${path.module}/build"
     build_args = {
@@ -148,14 +148,14 @@ resource "docker_image" "main" {
 }
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = docker_image.main.name
   # Uses lower() to avoid Docker restriction on container names.
-  name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
+  name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
   # Hostname makes the shell more user friendly: coder@my-workspace:~$
-  hostname   = data.coder_workspace.me.name
-  entrypoint = ["sh", "-c", coder_agent.main.init_script]
-  env        = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+  hostname   = data.ni_workspace.me.name
+  entrypoint = ["sh", "-c", ni_agent.main.init_script]
+  env        = ["CODER_AGENT_TOKEN=${ni_agent.main.token}"]
   host {
     host = "host.docker.internal"
     ip   = "host-gateway"

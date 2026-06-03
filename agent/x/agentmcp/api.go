@@ -8,10 +8,10 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 // API exposes MCP tool discovery and call proxying through the
@@ -80,7 +80,7 @@ func (api *API) handleCallTool(rw http.ResponseWriter, r *http.Request) {
 		} else if errors.Is(err, ErrUnknownServer) {
 			status = http.StatusNotFound
 		}
-		httpapi.Write(ctx, rw, status, codersdk.Response{
+		httpapi.Write(ctx, rw, status, nicloudsdk.Response{
 			Message: "MCP tool call failed.",
 			Detail:  err.Error(),
 		})

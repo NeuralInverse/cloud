@@ -57,7 +57,7 @@ describe("LoginPage", () => {
 		await waitForLoaderToBeRemoved();
 		const email = screen.getByLabelText(/Email/);
 		const password = screen.getByLabelText(/Password/);
-		await userEvent.type(email, "test@coder.com");
+		await userEvent.type(email, "test@cloud.neuralinverse.com");
 		await userEvent.type(password, "password");
 		// Click sign-in
 		const signInButton = await screen.findByText("Sign In");
@@ -183,7 +183,7 @@ describe("LoginPage", () => {
 
 		await waitForLoaderToBeRemoved();
 
-		await userEvent.type(screen.getByLabelText(/Email/), "test@coder.com");
+		await userEvent.type(screen.getByLabelText(/Email/), "test@cloud.neuralinverse.com");
 		await userEvent.type(screen.getByLabelText(/Password/), "password");
 		fireEvent.click(await screen.findByText("Sign In"));
 
@@ -270,7 +270,7 @@ describe("LoginPage", () => {
 
 		await waitForLoaderToBeRemoved();
 
-		await userEvent.type(screen.getByLabelText(/Email/), "test@coder.com");
+		await userEvent.type(screen.getByLabelText(/Email/), "test@cloud.neuralinverse.com");
 		await userEvent.type(screen.getByLabelText(/Password/), "password");
 		fireEvent.click(await screen.findByText("Sign In"));
 

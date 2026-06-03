@@ -2,21 +2,21 @@
 
 ## Guide Overview
 
-Coder provides Extended Support Releases (ESR) bianually. This guide walks
-through upgrading from the initial Coder 2.24 ESR to our new 2.29 ESR. It will
+Neural Inverse Cloud provides Extended Support Releases (ESR) bianually. This guide walks
+through upgrading from the initial Neural Inverse Cloud 2.24 ESR to our new 2.29 ESR. It will
 summarize key changes, highlight breaking updates, and provide a recommended
 upgrade process.
 
 Read more about the ESR release process
-[here](./index.md#extended-support-release), and how Coder supports it.
+[here](./index.md#extended-support-release), and how Neural Inverse Cloud supports it.
 
-## What's New in Coder 2.29
+## What's New in Neural Inverse Cloud 2.29
 
-### Coder Tasks
+### Neural Inverse Cloud Tasks
 
-Coder Tasks is an interface for running and interfacing with terminal-based
-coding agents like Claude Code and Codex, powered by Coder workspaces. Beginning
-in Coder 2.24, Tasks were introduced as an experimental feature that allowed
+Neural Inverse Cloud Tasks is an interface for running and interfacing with terminal-based
+coding agents like Claude Code and Codex, powered by Neural Inverse Cloud workspaces. Beginning
+in Neural Inverse Cloud 2.24, Tasks were introduced as an experimental feature that allowed
 administrators and developers to run long-lived or automated operations from
 templates. Over subsequent releases, Tasks matured significantly through UI
 refinement, improved reliability, and underlying task-status improvements in the
@@ -24,9 +24,9 @@ server and database layers. By 2.29, Tasks were formally promoted to general
 availability, with full CLI support, a task-specific UI, and consistent
 visibility of task states across the dashboard. This transition establishes
 Tasks as a stable automation and job-execution primitive within
-Coder—particularly suited for long-running background operations like bug fixes,
+Neural Inverse Cloud—particularly suited for long-running background operations like bug fixes,
 documentation generation, PR reviews, and testing/QA.For more information, read
-our documentation [here](https://coder.com/docs/ai-coder/tasks).
+our documentation [here](https://cloud.neuralinverse.com/docs/ai-nicloud/tasks).
 
 ### AI Gateway
 
@@ -35,10 +35,10 @@ intermediary between users' coding agents/IDEs and AI providers like OpenAI and
 Anthropic. It solves three key problems:
 
 - Centralized authentication/authorization management (users authenticate via
-  Coder instead of managing individual API tokens)
+  Neural Inverse Cloud instead of managing individual API tokens)
 - Auditing and attribution of all AI interactions (whether autonomous or
   human-initiated)
-- Secure communication between the Coder control plane and upstream AI APIs
+- Secure communication between the Neural Inverse Cloud control plane and upstream AI APIs
 
 This is a Premium/Beta feature that intercepts AI traffic to record prompts,
 token usage, and tool invocations. For more information, read our documentation
@@ -47,12 +47,12 @@ token usage, and tool invocations. For more information, read our documentation
 ### Agent Firewall
 
 Agent Firewall was introduced in 2.27 and is currently in Early Access. Agent
-Firewall is a process-level firewall in Coder that restricts and audits what
+Firewall is a process-level firewall in Neural Inverse Cloud that restricts and audits what
 autonomous programs (like AI agents) can access and do within a workspace. They
 provide network policy enforcement—blocking specific domains and HTTP verbs to
 prevent data exfiltration—and write logs to the workspace for auditability.
 Agent Firewall supports any terminal-based agent, including custom ones, and can be
-easily configured through existing Coder modules like the Claude Code module.
+easily configured through existing Neural Inverse Cloud modules like the Claude Code module.
 For more information, read our documentation
 [here](../../ai-coder/agent-firewall/index.md).
 
@@ -81,7 +81,7 @@ directory-persistence capabilities (opt-in on a per-template basis) and improved
 ### CLI Enhancements
 
 The CLI gained substantial improvements between the two versions. Most notably,
-beginning in 2.29, Coder’s CLI now stores session tokens in the operating system
+beginning in 2.29, Neural Inverse Cloud’s CLI now stores session tokens in the operating system
 keyring by default on macOS and Windows, enhancing credential security and
 reducing exposure from plaintext token storage. Users who rely on directly
 accessing the token file can opt out using `--use-keyring=false`. The CLI also
@@ -96,18 +96,18 @@ require other manual effort to address:
 
 | Initial State (2.24 & before)                                      | New State (2.25–2.29)                                                                                 | Change Required                                                                                                                                                                                                                                                                 |
 |--------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Workspace updates occur in place without stopping                  | Workspace updates now forcibly stop workspaces before updating                                        | Expect downtime during updates; update any scripted update flows that rely on seamless updates. See [`coder update` CLI reference](https://coder.com/docs/reference/cli/update).                                                                                                |
-| Connection events (SSH, port-forward, browser) logged in Audit Log | Connection events moved to Connection Log; historical entries older than 90 days pruned               | Update compliance, audit, or ingestion pipelines to use the new [Connection Log](https://coder.com/docs/admin/monitoring/connection-logs) instead of [Audit Logs](https://coder.com/docs/admin/security/audit-logs) for connection events.                                      |
-| CLI session tokens stored in plaintext file                        | CLI session tokens stored in OS keyring (macOS/Windows)                                               | Update scripts, automation, or SSO flows that read/modify the token file, or use `--use-keyring=false`. See [Sessions & API Tokens](https://coder.com/docs/admin/users/sessions-tokens) and [`coder login` CLI reference](https://coder.com/docs/reference/cli/login).          |
-| `task_app_id` field available in `codersdk.WorkspaceBuild`         | `task_app_id` removed from `codersdk.WorkspaceBuild`                                                  | Migrate integrations to use `Task.WorkspaceAppID` instead. See [REST API reference](https://coder.com/docs/reference/api).                                                                                                                                                      |
-| OIDC session handling more permissive                              | Sessions expire when access tokens expire (typically 1 hour) unless refresh tokens are configured     | Add `offline_access` to `CODER_OIDC_SCOPES` (e.g., `openid,profile,email,offline_access`); Google requires `CODER_OIDC_AUTH_URL_PARAMS='{"access_type":"offline","prompt":"consent"}'`. See [OIDC Refresh Tokens](https://coder.com/docs/admin/users/oidc-auth/refresh-tokens). |
-| Devcontainer agent selection is random when multiple agents exist  | Devcontainer agent selection requires explicit choice                                                 | Update automated workflows to explicitly specify agent selection. See [Dev Containers Integration](https://coder.com/docs/user-guides/devcontainers) and [Configure a template for dev containers](https://coder.com/docs/admin/templates/extending-templates/devcontainers).   |
-| Terraform execution uses clean directories per build               | Terraform workflows use persistent or cached directories when enabled                                 | Update templates that rely on clean execution directories or per-build isolation. See [External Provisioners](https://coder.com/docs/admin/provisioners) and [Template Dependencies](https://coder.com/docs/admin/templates/managing-templates/dependencies).                   |
-| Agent and task lifecycle behaviors more permissive                 | Agent and task lifecycle behaviors enforce stricter permission checks, readiness gating, and ordering | Review workflows for compatibility with stricter readiness and permission requirements. See [Workspace Lifecycle](https://coder.com/docs/user-guides/workspace-lifecycle) and [Extending Templates](https://coder.com/docs/admin/templates/extending-templates).                |
+| Workspace updates occur in place without stopping                  | Workspace updates now forcibly stop workspaces before updating                                        | Expect downtime during updates; update any scripted update flows that rely on seamless updates. See [`coder update` CLI reference](https://cloud.neuralinverse.com/docs/reference/cli/update).                                                                                                |
+| Connection events (SSH, port-forward, browser) logged in Audit Log | Connection events moved to Connection Log; historical entries older than 90 days pruned               | Update compliance, audit, or ingestion pipelines to use the new [Connection Log](https://cloud.neuralinverse.com/docs/admin/monitoring/connection-logs) instead of [Audit Logs](https://cloud.neuralinverse.com/docs/admin/security/audit-logs) for connection events.                                      |
+| CLI session tokens stored in plaintext file                        | CLI session tokens stored in OS keyring (macOS/Windows)                                               | Update scripts, automation, or SSO flows that read/modify the token file, or use `--use-keyring=false`. See [Sessions & API Tokens](https://cloud.neuralinverse.com/docs/admin/users/sessions-tokens) and [`coder login` CLI reference](https://cloud.neuralinverse.com/docs/reference/cli/login).          |
+| `task_app_id` field available in `nicloudsdk.WorkspaceBuild`         | `task_app_id` removed from `nicloudsdk.WorkspaceBuild`                                                  | Migrate integrations to use `Task.WorkspaceAppID` instead. See [REST API reference](https://cloud.neuralinverse.com/docs/reference/api).                                                                                                                                                      |
+| OIDC session handling more permissive                              | Sessions expire when access tokens expire (typically 1 hour) unless refresh tokens are configured     | Add `offline_access` to `NEURALINVERSE_OIDC_SCOPES` (e.g., `openid,profile,email,offline_access`); Google requires `NEURALINVERSE_OIDC_AUTH_URL_PARAMS='{"access_type":"offline","prompt":"consent"}'`. See [OIDC Refresh Tokens](https://cloud.neuralinverse.com/docs/admin/users/oidc-auth/refresh-tokens). |
+| Devcontainer agent selection is random when multiple agents exist  | Devcontainer agent selection requires explicit choice                                                 | Update automated workflows to explicitly specify agent selection. See [Dev Containers Integration](https://cloud.neuralinverse.com/docs/user-guides/devcontainers) and [Configure a template for dev containers](https://cloud.neuralinverse.com/docs/admin/templates/extending-templates/devcontainers).   |
+| Terraform execution uses clean directories per build               | Terraform workflows use persistent or cached directories when enabled                                 | Update templates that rely on clean execution directories or per-build isolation. See [External Provisioners](https://cloud.neuralinverse.com/docs/admin/provisioners) and [Template Dependencies](https://cloud.neuralinverse.com/docs/admin/templates/managing-templates/dependencies).                   |
+| Agent and task lifecycle behaviors more permissive                 | Agent and task lifecycle behaviors enforce stricter permission checks, readiness gating, and ordering | Review workflows for compatibility with stricter readiness and permission requirements. See [Workspace Lifecycle](https://cloud.neuralinverse.com/docs/user-guides/workspace-lifecycle) and [Extending Templates](https://cloud.neuralinverse.com/docs/admin/templates/extending-templates).                |
 
 ## Upgrading
 
-The following are recommendations by the Coder team when performing the upgrade:
+The following are recommendations by the Neural Inverse Cloud team when performing the upgrade:
 
 - **Perform the upgrade in a staging environment first:** The cumulative changes
   between 2.24 and 2.29 introduce new subsystems and lifecycle behaviors, so

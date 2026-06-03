@@ -18,7 +18,7 @@ import (
 	"go.uber.org/atomic"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 

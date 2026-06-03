@@ -19,8 +19,8 @@ import (
 //
 // Sample cachePath:
 //
-//	/Users/john.doe/Library/Caches/coder/provisioner-1/tf
-//	/tmp/coder/provisioner-0/tf
+//	/Users/john.doe/Library/Caches/neuralinverse/provisioner-1/tf
+//	/tmp/neuralinverse/provisioner-0/tf
 func CleanStaleTerraformPlugins(ctx context.Context, cachePath string, fs afero.Fs, now time.Time, logger slog.Logger) error {
 	cachePath, err := filepath.Abs(cachePath) // sanity check in case the path is e.g. ../../../cache
 	if err != nil {

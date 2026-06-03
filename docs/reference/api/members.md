@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/members`
@@ -63,7 +63,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members
 
 | Status | Meaning                                                 | Description | Schema                                                                                                |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.OrganizationMemberWithUserData](schemas.md#codersdkorganizationmemberwithuserdata) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.OrganizationMemberWithUserData](schemas.md#nicloudsdkorganizationmemberwithuserdata) |
 
 <h3 id="list-organization-members-responseschema">Response Schema</h3>
 
@@ -82,11 +82,11 @@ Status Code **200**
 | `» has_ai_seat`        | boolean                                              | false    |              | Has ai seat intentionally omits omitempty so the API always includes the field, even when false. |
 | `» is_service_account` | boolean                                              | false    |              |                                                                                                  |
 | `» last_seen_at`       | string(date-time)                                    | false    |              |                                                                                                  |
-| `» login_type`         | [codersdk.LoginType](schemas.md#codersdklogintype)   | false    |              |                                                                                                  |
+| `» login_type`         | [nicloudsdk.LoginType](schemas.md#nicloudsdklogintype)   | false    |              |                                                                                                  |
 | `» name`               | string                                               | false    |              |                                                                                                  |
 | `» organization_id`    | string(uuid)                                         | false    |              |                                                                                                  |
 | `» roles`              | array                                                | false    |              |                                                                                                  |
-| `» status`             | [codersdk.UserStatus](schemas.md#codersdkuserstatus) | false    |              |                                                                                                  |
+| `» status`             | [nicloudsdk.UserStatus](schemas.md#nicloudsdkuserstatus) | false    |              |                                                                                                  |
 | `» updated_at`         | string(date-time)                                    | false    |              |                                                                                                  |
 | `» user_created_at`    | string(date-time)                                    | false    |              |                                                                                                  |
 | `» user_id`            | string(uuid)                                         | false    |              |                                                                                                  |
@@ -110,7 +110,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members/roles \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/members/roles`
@@ -169,7 +169,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members
 
 | Status | Meaning                                                 | Description | Schema                                                                  |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.AssignableRoles](schemas.md#codersdkassignableroles) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.AssignableRoles](schemas.md#nicloudsdkassignableroles) |
 
 <h3 id="get-member-roles-by-organization-responseschema">Response Schema</h3>
 
@@ -184,9 +184,9 @@ Status Code **200**
 | `» name`                            | string                                                   | false    |              |                                                                                                        |
 | `» organization_id`                 | string(uuid)                                             | false    |              |                                                                                                        |
 | `» organization_member_permissions` | array                                                    | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
-| `»» action`                         | [codersdk.RBACAction](schemas.md#codersdkrbacaction)     | false    |              |                                                                                                        |
+| `»» action`                         | [nicloudsdk.RBACAction](schemas.md#nicloudsdkrbacaction)     | false    |              |                                                                                                        |
 | `»» negate`                         | boolean                                                  | false    |              | Negate makes this a negative permission                                                                |
-| `»» resource_type`                  | [codersdk.RBACResource](schemas.md#codersdkrbacresource) | false    |              |                                                                                                        |
+| `»» resource_type`                  | [nicloudsdk.RBACResource](schemas.md#nicloudsdkrbacresource) | false    |              |                                                                                                        |
 | `» organization_permissions`        | array                                                    | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
 | `» site_permissions`                | array                                                    | false    |              |                                                                                                        |
 | `» user_permissions`                | array                                                    | false    |              |                                                                                                        |
@@ -209,7 +209,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PUT http://coder-server:8080/api/v2/organizations/{organization}/members/roles \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/organizations/{organization}/members/roles`
@@ -256,7 +256,7 @@ curl -X PUT http://coder-server:8080/api/v2/organizations/{organization}/members
 | Name           | In   | Type                                                               | Required | Description         |
 |----------------|------|--------------------------------------------------------------------|----------|---------------------|
 | `organization` | path | string(uuid)                                                       | true     | Organization ID     |
-| `body`         | body | [codersdk.CustomRoleRequest](schemas.md#codersdkcustomrolerequest) | true     | Update role request |
+| `body`         | body | [nicloudsdk.CustomRoleRequest](schemas.md#nicloudsdkcustomrolerequest) | true     | Update role request |
 
 ### Example responses
 
@@ -304,7 +304,7 @@ curl -X PUT http://coder-server:8080/api/v2/organizations/{organization}/members
 
 | Status | Meaning                                                 | Description | Schema                                            |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Role](schemas.md#codersdkrole) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Role](schemas.md#nicloudsdkrole) |
 
 <h3 id="update-a-custom-organization-role-responseschema">Response Schema</h3>
 
@@ -317,9 +317,9 @@ Status Code **200**
 | `» name`                            | string                                                   | false    |              |                                                                                                        |
 | `» organization_id`                 | string(uuid)                                             | false    |              |                                                                                                        |
 | `» organization_member_permissions` | array                                                    | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
-| `»» action`                         | [codersdk.RBACAction](schemas.md#codersdkrbacaction)     | false    |              |                                                                                                        |
+| `»» action`                         | [nicloudsdk.RBACAction](schemas.md#nicloudsdkrbacaction)     | false    |              |                                                                                                        |
 | `»» negate`                         | boolean                                                  | false    |              | Negate makes this a negative permission                                                                |
-| `»» resource_type`                  | [codersdk.RBACResource](schemas.md#codersdkrbacresource) | false    |              |                                                                                                        |
+| `»» resource_type`                  | [nicloudsdk.RBACResource](schemas.md#nicloudsdkrbacresource) | false    |              |                                                                                                        |
 | `» organization_permissions`        | array                                                    | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
 | `» site_permissions`                | array                                                    | false    |              |                                                                                                        |
 | `» user_permissions`                | array                                                    | false    |              |                                                                                                        |
@@ -342,7 +342,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/members/roles \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/organizations/{organization}/members/roles`
@@ -389,7 +389,7 @@ curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/member
 | Name           | In   | Type                                                               | Required | Description         |
 |----------------|------|--------------------------------------------------------------------|----------|---------------------|
 | `organization` | path | string(uuid)                                                       | true     | Organization ID     |
-| `body`         | body | [codersdk.CustomRoleRequest](schemas.md#codersdkcustomrolerequest) | true     | Insert role request |
+| `body`         | body | [nicloudsdk.CustomRoleRequest](schemas.md#nicloudsdkcustomrolerequest) | true     | Insert role request |
 
 ### Example responses
 
@@ -437,7 +437,7 @@ curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/member
 
 | Status | Meaning                                                 | Description | Schema                                            |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Role](schemas.md#codersdkrole) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Role](schemas.md#nicloudsdkrole) |
 
 <h3 id="insert-a-custom-organization-role-responseschema">Response Schema</h3>
 
@@ -450,9 +450,9 @@ Status Code **200**
 | `» name`                            | string                                                   | false    |              |                                                                                                        |
 | `» organization_id`                 | string(uuid)                                             | false    |              |                                                                                                        |
 | `» organization_member_permissions` | array                                                    | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
-| `»» action`                         | [codersdk.RBACAction](schemas.md#codersdkrbacaction)     | false    |              |                                                                                                        |
+| `»» action`                         | [nicloudsdk.RBACAction](schemas.md#nicloudsdkrbacaction)     | false    |              |                                                                                                        |
 | `»» negate`                         | boolean                                                  | false    |              | Negate makes this a negative permission                                                                |
-| `»» resource_type`                  | [codersdk.RBACResource](schemas.md#codersdkrbacresource) | false    |              |                                                                                                        |
+| `»» resource_type`                  | [nicloudsdk.RBACResource](schemas.md#nicloudsdkrbacresource) | false    |              |                                                                                                        |
 | `» organization_permissions`        | array                                                    | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
 | `» site_permissions`                | array                                                    | false    |              |                                                                                                        |
 | `» user_permissions`                | array                                                    | false    |              |                                                                                                        |
@@ -474,7 +474,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/organizations/{organization}/members/roles/{roleName} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/organizations/{organization}/members/roles/{roleName}`
@@ -532,7 +532,7 @@ curl -X DELETE http://coder-server:8080/api/v2/organizations/{organization}/memb
 
 | Status | Meaning                                                 | Description | Schema                                            |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Role](schemas.md#codersdkrole) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Role](schemas.md#nicloudsdkrole) |
 
 <h3 id="delete-a-custom-organization-role-responseschema">Response Schema</h3>
 
@@ -545,9 +545,9 @@ Status Code **200**
 | `» name`                            | string                                                   | false    |              |                                                                                                        |
 | `» organization_id`                 | string(uuid)                                             | false    |              |                                                                                                        |
 | `» organization_member_permissions` | array                                                    | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
-| `»» action`                         | [codersdk.RBACAction](schemas.md#codersdkrbacaction)     | false    |              |                                                                                                        |
+| `»» action`                         | [nicloudsdk.RBACAction](schemas.md#nicloudsdkrbacaction)     | false    |              |                                                                                                        |
 | `»» negate`                         | boolean                                                  | false    |              | Negate makes this a negative permission                                                                |
-| `»» resource_type`                  | [codersdk.RBACResource](schemas.md#codersdkrbacresource) | false    |              |                                                                                                        |
+| `»» resource_type`                  | [nicloudsdk.RBACResource](schemas.md#nicloudsdkrbacresource) | false    |              |                                                                                                        |
 | `» organization_permissions`        | array                                                    | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
 | `» site_permissions`                | array                                                    | false    |              |                                                                                                        |
 | `» user_permissions`                | array                                                    | false    |              |                                                                                                        |
@@ -569,7 +569,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members/{user} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/members/{user}`
@@ -623,7 +623,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members
 
 | Status | Meaning                                                 | Description | Schema                                                                                       |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.OrganizationMemberWithUserData](schemas.md#codersdkorganizationmemberwithuserdata) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.OrganizationMemberWithUserData](schemas.md#nicloudsdkorganizationmemberwithuserdata) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -635,7 +635,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/members/{user} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/organizations/{organization}/members/{user}`
@@ -671,7 +671,7 @@ curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/member
 
 | Status | Meaning                                                 | Description | Schema                                                               |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.OrganizationMember](schemas.md#codersdkorganizationmember) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.OrganizationMember](schemas.md#nicloudsdkorganizationmember) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -682,7 +682,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/organizations/{organization}/members/{user} \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/organizations/{organization}/members/{user}`
@@ -711,7 +711,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PUT http://coder-server:8080/api/v2/organizations/{organization}/members/{user}/roles \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/organizations/{organization}/members/{user}/roles`
@@ -732,7 +732,7 @@ curl -X PUT http://coder-server:8080/api/v2/organizations/{organization}/members
 |----------------|------|--------------------------------------------------------|----------|----------------------|
 | `organization` | path | string                                                 | true     | Organization ID      |
 | `user`         | path | string                                                 | true     | User ID, name, or me |
-| `body`         | body | [codersdk.UpdateRoles](schemas.md#codersdkupdateroles) | true     | Update roles request |
+| `body`         | body | [nicloudsdk.UpdateRoles](schemas.md#nicloudsdkupdateroles) | true     | Update roles request |
 
 ### Example responses
 
@@ -758,7 +758,7 @@ curl -X PUT http://coder-server:8080/api/v2/organizations/{organization}/members
 
 | Status | Meaning                                                 | Description | Schema                                                               |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.OrganizationMember](schemas.md#codersdkorganizationmember) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.OrganizationMember](schemas.md#nicloudsdkorganizationmember) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -770,7 +770,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/paginated-members \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/paginated-members`
@@ -834,7 +834,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/paginat
 
 | Status | Meaning                                                 | Description | Schema                                                                                    |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.PaginatedMembersResponse](schemas.md#codersdkpaginatedmembersresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.PaginatedMembersResponse](schemas.md#nicloudsdkpaginatedmembersresponse) |
 
 <h3 id="paginated-organization-members-responseschema">Response Schema</h3>
 
@@ -855,11 +855,11 @@ Status Code **200**
 | `»» has_ai_seat`        | boolean                                              | false    |              | Has ai seat intentionally omits omitempty so the API always includes the field, even when false. |
 | `»» is_service_account` | boolean                                              | false    |              |                                                                                                  |
 | `»» last_seen_at`       | string(date-time)                                    | false    |              |                                                                                                  |
-| `»» login_type`         | [codersdk.LoginType](schemas.md#codersdklogintype)   | false    |              |                                                                                                  |
+| `»» login_type`         | [nicloudsdk.LoginType](schemas.md#nicloudsdklogintype)   | false    |              |                                                                                                  |
 | `»» name`               | string                                               | false    |              |                                                                                                  |
 | `»» organization_id`    | string(uuid)                                         | false    |              |                                                                                                  |
 | `»» roles`              | array                                                | false    |              |                                                                                                  |
-| `»» status`             | [codersdk.UserStatus](schemas.md#codersdkuserstatus) | false    |              |                                                                                                  |
+| `»» status`             | [nicloudsdk.UserStatus](schemas.md#nicloudsdkuserstatus) | false    |              |                                                                                                  |
 | `»» updated_at`         | string(date-time)                                    | false    |              |                                                                                                  |
 | `»» user_created_at`    | string(date-time)                                    | false    |              |                                                                                                  |
 | `»» user_id`            | string(uuid)                                         | false    |              |                                                                                                  |
@@ -883,7 +883,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/users/roles \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/users/roles`
@@ -936,7 +936,7 @@ curl -X GET http://coder-server:8080/api/v2/users/roles \
 
 | Status | Meaning                                                 | Description | Schema                                                                  |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.AssignableRoles](schemas.md#codersdkassignableroles) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.AssignableRoles](schemas.md#nicloudsdkassignableroles) |
 
 <h3 id="get-site-member-roles-responseschema">Response Schema</h3>
 
@@ -951,9 +951,9 @@ Status Code **200**
 | `» name`                            | string                                                   | false    |              |                                                                                                        |
 | `» organization_id`                 | string(uuid)                                             | false    |              |                                                                                                        |
 | `» organization_member_permissions` | array                                                    | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
-| `»» action`                         | [codersdk.RBACAction](schemas.md#codersdkrbacaction)     | false    |              |                                                                                                        |
+| `»» action`                         | [nicloudsdk.RBACAction](schemas.md#nicloudsdkrbacaction)     | false    |              |                                                                                                        |
 | `»» negate`                         | boolean                                                  | false    |              | Negate makes this a negative permission                                                                |
-| `»» resource_type`                  | [codersdk.RBACResource](schemas.md#codersdkrbacresource) | false    |              |                                                                                                        |
+| `»» resource_type`                  | [nicloudsdk.RBACResource](schemas.md#nicloudsdkrbacresource) | false    |              |                                                                                                        |
 | `» organization_permissions`        | array                                                    | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
 | `» site_permissions`                | array                                                    | false    |              |                                                                                                        |
 | `» user_permissions`                | array                                                    | false    |              |                                                                                                        |

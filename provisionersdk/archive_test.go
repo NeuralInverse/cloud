@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
 )
 
 func TestTar(t *testing.T) {

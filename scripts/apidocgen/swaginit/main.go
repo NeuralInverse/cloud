@@ -16,14 +16,14 @@ import (
 func main() {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	outputDir := "./coderd/apidoc"
+	outputDir := "./nicloud/apidoc"
 	if d := os.Getenv("SWAG_OUTPUT_DIR"); d != "" {
 		outputDir = d
 	}
 
 	err := gen.New().Build(&gen.Config{
-		SearchDir:          "./coderd,./coderd/workspaceconnwatcher,./codersdk,./enterprise/coderd,./enterprise/wsproxy/wsproxysdk",
-		MainAPIFile:        "coderd.go",
+		SearchDir:          "./nicloud,./nicloud/workspaceconnwatcher,./nicloudsdk,./enterprise/nicloud,./enterprise/wsproxy/wsproxysdk",
+		MainAPIFile:        "nicloud.go",
 		OutputDir:          outputDir,
 		OutputTypes:        []string{"go", "json"},
 		PackageName:        "apidoc",

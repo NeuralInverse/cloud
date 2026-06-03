@@ -7,16 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestTemplateEdit(t *testing.T) {
@@ -25,21 +25,21 @@ func TestTemplateEdit(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl: 1,
+					nicloudsdk.FeatureAccessControl: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
 
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
-		template := coderdtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
+		template := nicloudtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
 		require.False(t, template.RequireActiveVersion)
 
 		inv, conf := newCLI(t, "templates",
@@ -62,19 +62,19 @@ func TestTemplateEdit(t *testing.T) {
 	t.Run("NotEntitled", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{},
 			},
-			Options: &coderdtest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		require.False(t, template.RequireActiveVersion)
 
 		inv, conf := newCLI(t, "templates",
@@ -93,21 +93,21 @@ func TestTemplateEdit(t *testing.T) {
 	t.Run("WorkspaceCleanup", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					nicloudsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
 
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
-		template := coderdtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
+		template := nicloudtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
 		require.False(t, template.RequireActiveVersion)
 		const (
 			expectedFailureTTL           = time.Hour * 3
@@ -160,12 +160,12 @@ func TestTemplateEdit(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		ownerClient, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		ownerClient, db, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureTemplateRBAC:               1,
+					nicloudsdk.FeatureAdvancedTemplateScheduling: 1,
+					nicloudsdk.FeatureAccessControl:              1,
+					nicloudsdk.FeatureTemplateRBAC:               1,
 				},
 			},
 		})
@@ -195,7 +195,7 @@ func TestTemplateEdit(t *testing.T) {
 			expectedAutoStopWeeks        = 1
 		)
 
-		assertFieldsFn := func(t *testing.T, tpl codersdk.Template, acl codersdk.TemplateACL) {
+		assertFieldsFn := func(t *testing.T, tpl nicloudsdk.Template, acl nicloudsdk.TemplateACL) {
 			t.Helper()
 
 			assert.Equal(t, expectedName, tpl.Name)
@@ -217,7 +217,7 @@ func TestTemplateEdit(t *testing.T) {
 			assert.Equal(t, int64(expectedAutoStopWeeks), tpl.AutostopRequirement.Weeks)
 		}
 
-		template, err := ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, codersdk.UpdateTemplateMeta{
+		template, err := ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, nicloudsdk.UpdateTemplateMeta{
 			Name:                           ptr.Ref(expectedName),
 			DisplayName:                    &expectedDisplayName,
 			Description:                    &expectedDescription,
@@ -232,7 +232,7 @@ func TestTemplateEdit(t *testing.T) {
 			DeprecationMessage:             ptr.Ref(deprecationMessage),
 			DisableEveryoneGroupAccess:     ptr.Ref(expectedDisableEveryone),
 			AllowUserCancelWorkspaceJobs:   ptr.Ref(expectedAllowCancelJobs),
-			AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+			AutostartRequirement: &nicloudsdk.TemplateAutostartRequirement{
 				DaysOfWeek: expectedAutostartDaysOfWeek,
 			},
 		})
@@ -265,7 +265,7 @@ func TestTemplateEdit(t *testing.T) {
 		expectedAutoStopDaysOfWeek = []string{"tuesday", "thursday"}
 		expectedAutoStopWeeks = 2
 
-		template, err = ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, codersdk.UpdateTemplateMeta{
+		template, err = ownerClient.UpdateTemplateMeta(ctx, dbtemplate.ID, nicloudsdk.UpdateTemplateMeta{
 			Name:                           ptr.Ref(expectedName),
 			DisplayName:                    &expectedDisplayName,
 			Description:                    &expectedDescription,
@@ -280,11 +280,11 @@ func TestTemplateEdit(t *testing.T) {
 			DeprecationMessage:             ptr.Ref(deprecationMessage),
 			DisableEveryoneGroupAccess:     ptr.Ref(expectedDisableEveryone),
 			AllowUserCancelWorkspaceJobs:   ptr.Ref(expectedAllowCancelJobs),
-			AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+			AutostartRequirement: &nicloudsdk.TemplateAutostartRequirement{
 				DaysOfWeek: expectedAutostartDaysOfWeek,
 			},
 
-			AutostopRequirement: &codersdk.TemplateAutostopRequirement{
+			AutostopRequirement: &nicloudsdk.TemplateAutostopRequirement{
 				DaysOfWeek: expectedAutoStopDaysOfWeek,
 				Weeks:      int64(expectedAutoStopWeeks),
 			},

@@ -6,7 +6,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/vpn"
+	"github.com/NeuralInverse/cloud/v2/vpn"
 	"github.com/coder/serpent"
 )
 
@@ -25,14 +25,14 @@ func (*RootCmd) vpnDaemonRun() *serpent.Command {
 		Options: serpent.OptionSet{
 			{
 				Flag:        "rpc-read-fd",
-				Env:         "CODER_VPN_DAEMON_RPC_READ_FD",
+				Env:         "NEURALINVERSE_VPN_DAEMON_RPC_READ_FD",
 				Description: "The file descriptor for the pipe to read from the RPC connection.",
 				Value:       serpent.Int64Of(&rpcReadFD),
 				Required:    true,
 			},
 			{
 				Flag:        "rpc-write-fd",
-				Env:         "CODER_VPN_DAEMON_RPC_WRITE_FD",
+				Env:         "NEURALINVERSE_VPN_DAEMON_RPC_WRITE_FD",
 				Description: "The file descriptor for the pipe to write to the RPC connection.",
 				Value:       serpent.Int64Of(&rpcWriteFD),
 				Required:    true,

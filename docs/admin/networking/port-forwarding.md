@@ -1,30 +1,30 @@
 # Port Forwarding
 
-Port forwarding lets developers securely access processes on their Coder
+Port forwarding lets developers securely access processes on their Neural Inverse Cloud
 workspace from a local machine. A common use case is testing web applications in
 a browser.
 
-There are four ways to forward ports in Coder:
+There are four ways to forward ports in Neural Inverse Cloud:
 
 | Method                                 | Details                                                                                                                                                        |
 |:---------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Coder Desktop](#coder-desktop)        | Automatic port forwarding via VPN tunnel. All workspace ports are available at `workspace.coder:PORT` with no manual setup. Supports peer-to-peer connections. |
+| [Neural Inverse Cloud Desktop](#coder-desktop)        | Automatic port forwarding via VPN tunnel. All workspace ports are available at `workspace.coder:PORT` with no manual setup. Supports peer-to-peer connections. |
 | [CLI](#the-coder-port-forward-command) | Forwards specific TCP or UDP ports from the workspace to local ports. Supports peer-to-peer connections.                                                       |
-| [Dashboard](#dashboard)                | Proxies traffic through the Coder control plane.                                                                                                               |
+| [Dashboard](#dashboard)                | Proxies traffic through the Neural Inverse Cloud control plane.                                                                                                               |
 | [SSH](#ssh)                            | Forwards ports over an SSH connection.                                                                                                                         |
 
-Coder Desktop and `coder port-forward` are generally more performant than:
+Neural Inverse Cloud Desktop and `coder port-forward` are generally more performant than:
 
-1. The Dashboard which proxies traffic through the Coder control plane versus
-   peer-to-peer which is possible with the Coder CLI and Coder Desktop
+1. The Dashboard which proxies traffic through the Neural Inverse Cloud control plane versus
+   peer-to-peer which is possible with the Neural Inverse Cloud CLI and Neural Inverse Cloud Desktop
 1. `sshd` which does double encryption of traffic with both Wireguard and SSH
 
-## Coder Desktop
+## Neural Inverse Cloud Desktop
 
-[Coder Desktop](../../user-guides/desktop/index.md) provides automatic port forwarding to every service running in your workspace.
-Once Coder Connect is enabled, any port your application listens on is instantly accessible at `<workspace-name>.coder:PORT` from your local machine, with no additional commands or configuration.
+[Neural Inverse Cloud Desktop](../../user-guides/desktop/index.md) provides automatic port forwarding to every service running in your workspace.
+Once Neural Inverse Cloud Connect is enabled, any port your application listens on is instantly accessible at `<workspace-name>.coder:PORT` from your local machine, with no additional commands or configuration.
 
-This is the simplest option for most users. See the [Coder Desktop documentation](../../user-guides/desktop/index.md) for installation and setup.
+This is the simplest option for most users. See the [Neural Inverse Cloud Desktop documentation](../../user-guides/desktop/index.md) for installation and setup.
 
 ## The `coder port-forward` command
 
@@ -66,9 +66,9 @@ For more examples, see `coder port-forward --help`.
 
 ## Dashboard
 
-To enable port forwarding via the dashboard, Coder must be configured with a
+To enable port forwarding via the dashboard, Neural Inverse Cloud must be configured with a
 [wildcard access URL](../../admin/setup/index.md#wildcard-access-url). If an
-access URL is not specified, Coder will create
+access URL is not specified, Neural Inverse Cloud will create
 [a publicly accessible URL](../../admin/setup/index.md#tunnel) to reverse
 proxy the deployment, and port forwarding will work.
 
@@ -78,17 +78,17 @@ where each segment of hostnames must not exceed 63 characters. If your app
 name, agent name, workspace name and username exceed 63 characters in the
 hostname, port forwarding via the dashboard will not work.
 
-### From an coder_app resource
+### From an ni_app resource
 
-One way to port forward is to configure a `coder_app` resource in the
+One way to port forward is to configure a `ni_app` resource in the
 workspace's template. This approach shows a visual application icon in the
-dashboard. See the following `coder_app` example for a Node React app and note
+dashboard. See the following `ni_app` example for a Node React app and note
 the `subdomain` and `share` settings:
 
 ```tf
 # node app
-resource "coder_app" "node-react-app" {
-  agent_id  = coder_agent.dev.id
+resource "ni_app" "node-react-app" {
+  agent_id  = ni_agent.dev.id
   slug      = "node-react-app"
   icon      = "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
   url       = "http://localhost:3000"
@@ -105,15 +105,15 @@ resource "coder_app" "node-react-app" {
 ```
 
 Valid `share` values include `owner` - private to the user, `authenticated` -
-accessible by any user authenticated to the Coder deployment, and `public` -
-accessible by users outside of the Coder deployment.
+accessible by any user authenticated to the Neural Inverse Cloud deployment, and `public` -
+accessible by users outside of the Neural Inverse Cloud deployment.
 
 ![Port forwarding from an app in the UI](../../images/networking/portforwarddashboard.png)
 
 ## Accessing workspace ports
 
 Another way to port forward in the dashboard is to use the "Open Ports" button
-to specify an arbitrary port. Coder will also detect if apps inside the
+to specify an arbitrary port. Neural Inverse Cloud will also detect if apps inside the
 workspace are listening on ports, and list them below the port input (this is
 only supported on Windows and Linux workspace agents).
 
@@ -123,12 +123,12 @@ only supported on Windows and Linux workspace agents).
 
 We allow developers to share ports as URLs, either with other authenticated
 coder users or publicly. Using the open ports interface, developers can assign a
-sharing levels that match our `coder_app`’s share option in
-[Coder terraform provider](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app#share-1).
+sharing levels that match our `ni_app`’s share option in
+[Neural Inverse Cloud terraform provider](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app#share-1).
 
 - `owner` (Default): The implicit sharing level for all listening ports, only
   visible to the workspace owner
-- `authenticated`: Accessible by other authenticated Coder users on the same
+- `authenticated`: Accessible by other authenticated Neural Inverse Cloud users on the same
   deployment.
 - `public`: Accessible by any user with the associated URL.
 
@@ -141,8 +141,8 @@ not it is still accessible.
 The sharing level is limited by the maximum level enforced in the template
 settings in premium deployments, and not restricted in OSS deployments.
 
-This can also be used to change the sharing level of `coder_app`s by entering
-their port number in the sharable ports UI. The `share` attribute on `coder_app`
+This can also be used to change the sharing level of `ni_app`s by entering
+their port number in the sharable ports UI. The `share` attribute on `ni_app`
 resource uses a different method of authentication and **is not impacted by the
 template's maximum sharing level**, nor the level of a shared port that points
 to the app.
@@ -151,7 +151,7 @@ to the app.
 
 > [!NOTE]
 > Configuring port sharing level is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Premium-licensed template admins can control the maximum port sharing level for
 workspaces under a given template in the template settings. By default, the
@@ -180,12 +180,12 @@ https://33295s--agent--workspace--user--apps.example.com/
 
 ### Cross-origin resource sharing (CORS)
 
-When forwarding via the dashboard, Coder automatically sets headers that allow
+When forwarding via the dashboard, Neural Inverse Cloud automatically sets headers that allow
 requests between separately forwarded applications belonging to the same user.
 
 When forwarding through other methods the application itself will need to set
 its own CORS headers if they are being forwarded through different origins since
-Coder does not intercept these cases. See below for the required headers.
+Neural Inverse Cloud does not intercept these cases. See below for the required headers.
 
 #### Authentication
 
@@ -205,7 +205,7 @@ resource. If an opaque response serves your needs, set the request's mode to
 
 #### Headers
 
-Below is a list of the cross-origin headers Coder sets with example values:
+Below is a list of the cross-origin headers Neural Inverse Cloud sets with example values:
 
 ```text
 access-control-allow-credentials: true

@@ -6,8 +6,8 @@ import { CompactOrgSelector } from "./CompactOrgSelector";
 const mockOrgs: Organization[] = [
 	{
 		id: "org-coder",
-		name: "coder",
-		display_name: "Coder",
+		name: "neuralinverse",
+		display_name: "Neural Inverse Cloud",
 		icon: "/icon/coder.svg",
 		description: "Main engineering organization",
 		created_at: "2024-01-01T00:00:00Z",

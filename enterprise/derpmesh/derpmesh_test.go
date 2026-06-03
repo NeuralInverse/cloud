@@ -17,9 +17,9 @@ import (
 	"tailscale.com/derp/derphttp"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/enterprise/derpmesh"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/enterprise/derpmesh"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestMain(m *testing.M) {

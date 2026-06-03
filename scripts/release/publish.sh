@@ -134,7 +134,7 @@ popd
 
 # Sign the checksums file if we have a GPG key. We skip this step in dry-run
 # because we don't want to sign a fake release with our real key.
-if [[ "$dry_run" == 0 ]] && [[ "${CODER_GPG_RELEASE_KEY_BASE64:-}" != "" ]]; then
+if [[ "$dry_run" == 0 ]] && [[ "${NEURALINVERSE_GPG_RELEASE_KEY_BASE64:-}" != "" ]]; then
 	log "--- Signing checksums file"
 	log
 

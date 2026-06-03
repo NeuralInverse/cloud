@@ -17,9 +17,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/aibridged"
-	"github.com/coder/coder/v2/enterprise/aibridgeproxyd"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridged"
+	"github.com/NeuralInverse/cloud/v2/enterprise/aibridgeproxyd"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // reloadTestHarness wires a real proxy server to a mutable provider
@@ -159,7 +159,7 @@ func newReloadTestHarness(t *testing.T) *reloadTestHarness {
 	store := &providerStore{}
 	metrics := aibridgeproxyd.NewMetrics(prometheus.NewRegistry())
 	srv := newTestProxy(t,
-		withCoderAccessURL(bridged.URL),
+		withNIAccessURL(bridged.URL),
 		withAllowedPorts("443"),
 		withRefreshProviders(store.refresh),
 		withMetrics(metrics),
@@ -325,7 +325,7 @@ func TestProxy_StaleTunnelStopsRoutingAfterProviderChange(t *testing.T) {
 			// newTestProxy seeds the router from the store via the
 			// initial Reload, so the first CONNECT is MITM'd as alpha.
 			srv := newTestProxy(t,
-				withCoderAccessURL(bridged.URL),
+				withNIAccessURL(bridged.URL),
 				withAllowedPorts("443"),
 				withRefreshProviders(store.refresh),
 			)

@@ -4,10 +4,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/agentconn"
+	"github.com/NeuralInverse/cloud/v2/scaletest/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
 )
 
 type UserConfig struct {
@@ -71,7 +71,7 @@ func (c Config) Validate() error {
 	}
 	c.Workspace.OrganizationID = c.User.OrganizationID
 	// This value will be overwritten during the test.
-	c.Workspace.UserID = codersdk.Me
+	c.Workspace.UserID = nicloudsdk.Me
 	if err := c.Workspace.Validate(); err != nil {
 		return xerrors.Errorf("validate workspace: %w", err)
 	}

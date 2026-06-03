@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestNetcheck(t *testing.T) {

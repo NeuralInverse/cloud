@@ -15,9 +15,9 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 	"github.com/coder/quartz"
 )
 
@@ -109,16 +109,16 @@ func TemplateTarData() ([]byte, error) {
 }
 
 type Partition struct {
-	TemplateVersion       codersdk.TemplateVersion
+	TemplateVersion       nicloudsdk.TemplateVersion
 	ConcurrentEvaluations int
 }
 
 type SDKForDynamicParametersSetup interface {
-	TemplateByName(ctx context.Context, orgID uuid.UUID, templateName string) (codersdk.Template, error)
-	CreateTemplate(ctx context.Context, orgID uuid.UUID, createReq codersdk.CreateTemplateRequest) (codersdk.Template, error)
-	CreateTemplateVersion(ctx context.Context, orgID uuid.UUID, createReq codersdk.CreateTemplateVersionRequest) (codersdk.TemplateVersion, error)
-	Upload(ctx context.Context, contentType string, reader io.Reader) (codersdk.UploadResponse, error)
-	TemplateVersion(ctx context.Context, versionID uuid.UUID) (codersdk.TemplateVersion, error)
+	TemplateByName(ctx context.Context, orgID uuid.UUID, templateName string) (nicloudsdk.Template, error)
+	CreateTemplate(ctx context.Context, orgID uuid.UUID, createReq nicloudsdk.CreateTemplateRequest) (nicloudsdk.Template, error)
+	CreateTemplateVersion(ctx context.Context, orgID uuid.UUID, createReq nicloudsdk.CreateTemplateVersionRequest) (nicloudsdk.TemplateVersion, error)
+	Upload(ctx context.Context, contentType string, reader io.Reader) (nicloudsdk.UploadResponse, error)
+	TemplateVersion(ctx context.Context, versionID uuid.UUID) (nicloudsdk.TemplateVersion, error)
 }
 
 // partitioner is an internal struct to hold context and arguments for partition setup
@@ -158,9 +158,9 @@ func SetupPartitions(
 func (p *partitioner) run() ([]Partition, error) {
 	var (
 		err         error
-		coderError  *codersdk.Error
-		templ       codersdk.Template
-		tempVersion codersdk.TemplateVersion
+		coderError  *nicloudsdk.Error
+		templ       nicloudsdk.Template
+		tempVersion nicloudsdk.TemplateVersion
 	)
 	templ, err = p.client.TemplateByName(p.ctx, p.orgID, p.templateName)
 	if xerrors.As(err, &coderError) && coderError.StatusCode() == 404 {
@@ -169,10 +169,10 @@ func (p *partitioner) run() ([]Partition, error) {
 			return nil, xerrors.Errorf("failed to create template version: %w", err)
 		}
 		p.logger.Info(p.ctx, "created template version", slog.F("version_id", tempVersion.ID))
-		createReq := codersdk.CreateTemplateRequest{
+		createReq := nicloudsdk.CreateTemplateRequest{
 			Name:        p.templateName,
 			DisplayName: "Scaletest Dynamic Parameters",
-			Description: "`coder exp scaletest dynamic parameters test` template",
+			Description: "`neuralinverse exp scaletest dynamic parameters test` template",
 			VersionID:   tempVersion.ID,
 		}
 		templ, err = p.client.CreateTemplate(p.ctx, p.orgID, createReq)
@@ -217,33 +217,33 @@ func (p *partitioner) run() ([]Partition, error) {
 	return partitions, nil
 }
 
-func (p *partitioner) createTemplateVersion(templateID uuid.UUID) (codersdk.TemplateVersion, error) {
+func (p *partitioner) createTemplateVersion(templateID uuid.UUID) (nicloudsdk.TemplateVersion, error) {
 	tarData, err := TemplateTarData()
 	if err != nil {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("failed to create template tarball: %w", err)
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("failed to create template tarball: %w", err)
 	}
 
 	// Upload tarball
-	uploadResp, err := p.client.Upload(p.ctx, codersdk.ContentTypeTar, bytes.NewReader(tarData))
+	uploadResp, err := p.client.Upload(p.ctx, nicloudsdk.ContentTypeTar, bytes.NewReader(tarData))
 	if err != nil {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("failed to upload template tar: %w", err)
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("failed to upload template tar: %w", err)
 	}
 
 	// Create template version
-	versionReq := codersdk.CreateTemplateVersionRequest{
+	versionReq := nicloudsdk.CreateTemplateVersionRequest{
 		TemplateID:      templateID,
 		FileID:          uploadResp.ID,
 		Message:         "Initial version for scaletest dynamic parameters",
-		StorageMethod:   codersdk.ProvisionerStorageMethodFile,
-		Provisioner:     codersdk.ProvisionerTypeTerraform,
+		StorageMethod:   nicloudsdk.ProvisionerStorageMethodFile,
+		Provisioner:     nicloudsdk.ProvisionerTypeTerraform,
 		ProvisionerTags: p.provisionerTags,
 	}
 	version, err := p.client.CreateTemplateVersion(p.ctx, p.orgID, versionReq)
 	if err != nil {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("failed to create template version: %w", err)
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("failed to create template version: %w", err)
 	}
 	if version.MatchedProvisioners != nil && version.MatchedProvisioners.Count == 0 {
-		return codersdk.TemplateVersion{}, ErrNoProvisionersMatched
+		return nicloudsdk.TemplateVersion{}, ErrNoProvisionersMatched
 	}
 	return version, nil
 }
@@ -266,9 +266,9 @@ func (p *partitioner) waitForTemplateVersionJobs(partitions []Partition) error {
 			status := version.Job.Status
 			p.logger.Info(p.ctx, "polled template version job", slog.F("version_id", versionID), slog.F("status", status))
 			switch status {
-			case codersdk.ProvisionerJobSucceeded:
+			case nicloudsdk.ProvisionerJobSucceeded:
 				delete(pending, versionID)
-			case codersdk.ProvisionerJobPending, codersdk.ProvisionerJobRunning:
+			case nicloudsdk.ProvisionerJobPending, nicloudsdk.ProvisionerJobRunning:
 				continue
 			default:
 				return ProvisionerJobUnexpectedStatusError{
@@ -310,7 +310,7 @@ func partitionEvaluations(total int) []int {
 
 type ProvisionerJobUnexpectedStatusError struct {
 	TemplateVersionID uuid.UUID
-	Status            codersdk.ProvisionerJobStatus
+	Status            nicloudsdk.ProvisionerJobStatus
 	JobError          string
 }
 

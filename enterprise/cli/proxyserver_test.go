@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func Test_ProxyServer_Headers(t *testing.T) {
@@ -65,7 +65,7 @@ func TestWorkspaceProxy_Server_PrometheusEnabled(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// Start fake coderd
+	// Start fake nicloud
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v2/workspaceproxies/me/register" {
 			// Give fake app_security_key (96 bytes)

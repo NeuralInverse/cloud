@@ -3,12 +3,12 @@
 [Zed](https://zed.dev/) is an [open-source](https://github.com/zed-industries/zed)
 multiplayer code editor from the creators of Atom and Tree-sitter.
 
-## Use Zed to connect to Coder via SSH
+## Use Zed to connect to Neural Inverse Cloud via SSH
 
-Use the Coder CLI to log in and configure SSH, then connect to your workspace with Zed:
+Use the Neural Inverse Cloud CLI to log in and configure SSH, then connect to your workspace with Zed:
 
 1. [Install Zed](https://zed.dev/docs/)
-1. Install Coder CLI:
+1. Install Neural Inverse Cloud CLI:
 
    <!-- copied from docs/install/cli.md - make changes there -->
 
@@ -16,41 +16,41 @@ Use the Coder CLI to log in and configure SSH, then connect to your workspace wi
 
    ### Linux/macOS
 
-   Our install script is the fastest way to install Coder on Linux/macOS:
+   Our install script is the fastest way to install Neural Inverse Cloud on Linux/macOS:
 
    ```sh
-   curl -L https://coder.com/install.sh | sh
+   curl -L https://cloud.neuralinverse.com/install.sh | sh
    ```
 
-   Refer to [GitHub releases](https://github.com/coder/coder/releases) for
+   Refer to [GitHub releases](https://github.com/NeuralInverse/cloud/releases) for
    alternate installation methods (e.g. standalone binaries, system packages).
 
    ### Windows
 
-   Use [GitHub releases](https://github.com/coder/coder/releases) to download the
+   Use [GitHub releases](https://github.com/NeuralInverse/cloud/releases) to download the
    Windows installer (`.msi`) or standalone binary (`.exe`).
 
    ![Windows setup wizard](../../images/install/windows-installer.png)
 
    Alternatively, you can use the
    [`winget`](https://learn.microsoft.com/en-us/windows/package-manager/winget/#use-winget)
-   package manager to install Coder:
+   package manager to install Neural Inverse Cloud:
 
    ```powershell
-   winget install Coder.Coder
+   winget install Neural Inverse Cloud.Neural Inverse Cloud
    ```
 
    </div>
 
-   Consult the [Coder CLI documentation](../../install/cli.md) for more options.
+   Consult the [Neural Inverse Cloud CLI documentation](../../install/cli.md) for more options.
 
-1. Log in to your Coder deployment and authenticate when prompted:
+1. Log in to your Neural Inverse Cloud deployment and authenticate when prompted:
 
    ```shell
    coder login coder.example.com
    ```
 
-1. Configure Coder SSH:
+1. Configure Neural Inverse Cloud SSH:
 
    ```shell
    coder config-ssh
@@ -68,5 +68,5 @@ Use the Coder CLI to log in and configure SSH, then connect to your workspace wi
 
 > [!NOTE]
 > If you have any suggestions or experience any issues, please
-> [create a GitHub issue](https://github.com/coder/coder/issues) or share in
+> [create a GitHub issue](https://github.com/NeuralInverse/cloud/issues) or share in
 > [our Discord channel](https://discord.gg/coder).

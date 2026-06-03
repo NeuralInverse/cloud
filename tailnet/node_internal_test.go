@@ -14,7 +14,7 @@ import (
 	"tailscale.com/types/key"
 	"tailscale.com/wgengine"
 
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestNodeUpdater_setNetInfo_different(t *testing.T) {

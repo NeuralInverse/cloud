@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/idpsync"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/idpsync"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // This mapping creates a relationship between an Auditable Resource
@@ -17,25 +17,25 @@ import (
 // It is important to maintain this mapping when adding a new Auditable Resource to the
 // AuditableResources map (below) as our documentation - generated in scripts/auditdocgen/main.go -
 // depends upon it.
-var AuditActionMap = map[string][]codersdk.AuditAction{
-	"GitSSHKey":              {codersdk.AuditActionCreate},
-	"Template":               {codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"TemplateVersion":        {codersdk.AuditActionCreate, codersdk.AuditActionWrite},
-	"User":                   {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"Workspace":              {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"WorkspaceBuild":         {codersdk.AuditActionStart, codersdk.AuditActionStop},
-	"Group":                  {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"APIKey":                 {codersdk.AuditActionLogin, codersdk.AuditActionLogout, codersdk.AuditActionRegister, codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"License":                {codersdk.AuditActionCreate, codersdk.AuditActionDelete},
-	"Task":                   {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"AiSeatState":            {codersdk.AuditActionCreate},
-	"AIProvider":             {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"AIProviderKey":          {codersdk.AuditActionCreate, codersdk.AuditActionDelete},
-	"AIGatewayKey":           {codersdk.AuditActionCreate, codersdk.AuditActionDelete},
-	"AuditableGroupAiBudget": {codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"Chat":                   {codersdk.AuditActionCreate, codersdk.AuditActionWrite}, // chats get 'archived' by users, not deleted.
-	"UserSecret":             {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
-	"UserSkill":              {codersdk.AuditActionCreate, codersdk.AuditActionWrite, codersdk.AuditActionDelete},
+var AuditActionMap = map[string][]nicloudsdk.AuditAction{
+	"GitSSHKey":              {nicloudsdk.AuditActionCreate},
+	"Template":               {nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"TemplateVersion":        {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite},
+	"User":                   {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"Workspace":              {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"WorkspaceBuild":         {nicloudsdk.AuditActionStart, nicloudsdk.AuditActionStop},
+	"Group":                  {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"APIKey":                 {nicloudsdk.AuditActionLogin, nicloudsdk.AuditActionLogout, nicloudsdk.AuditActionRegister, nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"License":                {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionDelete},
+	"Task":                   {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"AiSeatState":            {nicloudsdk.AuditActionCreate},
+	"AIProvider":             {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"AIProviderKey":          {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionDelete},
+	"AIGatewayKey":           {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionDelete},
+	"AuditableGroupAiBudget": {nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"Chat":                   {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite}, // chats get 'archived' by users, not deleted.
+	"UserSecret":             {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
+	"UserSkill":              {nicloudsdk.AuditActionCreate, nicloudsdk.AuditActionWrite, nicloudsdk.AuditActionDelete},
 }
 
 type Action string

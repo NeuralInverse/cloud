@@ -1,4 +1,4 @@
-module github.com/coder/coder/v2
+module github.com/NeuralInverse/cloud/v2
 
 go 1.26.2
 

@@ -12,32 +12,32 @@ terraform {
 }
 
 resource "time_static" "start_time" {
-  # We don't set `count = data.coder_workspace.me.start_count` here because then
+  # We don't set `count = data.ni_workspace.me.start_count` here because then
   # we can't use this value in `locals`, but we want to trigger recreation when
   # the scaletest is restarted.
   triggers = {
-    count : data.coder_workspace.me.start_count
-    token : data.coder_workspace_owner.me.session_token # Rely on this being re-generated every start.
+    count : data.ni_workspace.me.start_count
+    token : data.ni_workspace_owner.me.session_token # Rely on this being re-generated every start.
   }
 }
 
 resource "null_resource" "permission_check" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
 
   # Limit which users can create a workspace in this template.
   # The "default" user and workspace are present because they are needed
   # for the plan, and consequently, updating the template.
   lifecycle {
     precondition {
-      condition     = can(regex("^(default/default|scaletest/runner)$", "${data.coder_workspace_owner.me.name}/${data.coder_workspace.me.name}"))
+      condition     = can(regex("^(default/default|scaletest/runner)$", "${data.ni_workspace_owner.me.name}/${data.ni_workspace.me.name}"))
       error_message = "User and workspace name is not allowed, expected 'scaletest/runner'."
     }
   }
 }
 
 locals {
-  workspace_pod_name                             = "coder-scaletest-runner-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
-  workspace_pod_instance                         = "coder-workspace-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
+  workspace_pod_name                             = "coder-scaletest-runner-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
+  workspace_pod_instance                         = "coder-workspace-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
   workspace_pod_termination_grace_period_seconds = 5 * 60 * 60 # 5 hours (cleanup timeout).
   service_account_name                           = "scaletest-sa"
   home_disk_size                                 = 10
@@ -52,11 +52,11 @@ locals {
 data "coder_provisioner" "me" {
 }
 
-data "coder_workspace" "me" {
+data "ni_workspace" "me" {
 }
-data "coder_workspace_owner" "me" {}
+data "ni_workspace_owner" "me" {}
 
-data "coder_parameter" "verbose" {
+data "ni_parameter" "verbose" {
   order       = 1
   type        = "bool"
   name        = "Verbose"
@@ -66,7 +66,7 @@ data "coder_parameter" "verbose" {
   ephemeral   = true
 }
 
-data "coder_parameter" "dry_run" {
+data "ni_parameter" "dry_run" {
   order       = 2
   type        = "bool"
   name        = "Dry-run"
@@ -76,7 +76,7 @@ data "coder_parameter" "dry_run" {
   ephemeral   = true
 }
 
-data "coder_parameter" "repo_branch" {
+data "ni_parameter" "repo_branch" {
   order       = 3
   type        = "string"
   name        = "Branch"
@@ -85,7 +85,7 @@ data "coder_parameter" "repo_branch" {
   mutable     = true
 }
 
-data "coder_parameter" "comment" {
+data "ni_parameter" "comment" {
   order       = 4
   type        = "string"
   name        = "Comment"
@@ -95,7 +95,7 @@ data "coder_parameter" "comment" {
   ephemeral   = true
 }
 
-data "coder_parameter" "create_concurrency" {
+data "ni_parameter" "create_concurrency" {
   order       = 10
   type        = "number"
   name        = "Create concurrency"
@@ -111,7 +111,7 @@ data "coder_parameter" "create_concurrency" {
   }
 }
 
-data "coder_parameter" "job_concurrency" {
+data "ni_parameter" "job_concurrency" {
   order       = 11
   type        = "number"
   name        = "Job concurrency"
@@ -126,7 +126,7 @@ data "coder_parameter" "job_concurrency" {
   }
 }
 
-data "coder_parameter" "cleanup_concurrency" {
+data "ni_parameter" "cleanup_concurrency" {
   order       = 12
   type        = "number"
   name        = "Cleanup concurrency"
@@ -142,7 +142,7 @@ data "coder_parameter" "cleanup_concurrency" {
   }
 }
 
-data "coder_parameter" "cleanup_strategy" {
+data "ni_parameter" "cleanup_strategy" {
   order       = 13
   name        = "Cleanup strategy"
   default     = "always"
@@ -171,7 +171,7 @@ data "coder_parameter" "cleanup_strategy" {
   }
 }
 
-data "coder_parameter" "cleanup_prepare" {
+data "ni_parameter" "cleanup_prepare" {
   order       = 14
   type        = "bool"
   name        = "Cleanup before scaletest"
@@ -182,7 +182,7 @@ data "coder_parameter" "cleanup_prepare" {
 }
 
 
-data "coder_parameter" "workspace_template" {
+data "ni_parameter" "workspace_template" {
   order        = 20
   name         = "workspace_template"
   display_name = "Workspace Template"
@@ -222,7 +222,7 @@ data "coder_parameter" "workspace_template" {
   }
 }
 
-data "coder_parameter" "num_workspaces" {
+data "ni_parameter" "num_workspaces" {
   order       = 21
   type        = "number"
   name        = "Number of workspaces to create"
@@ -236,7 +236,7 @@ data "coder_parameter" "num_workspaces" {
   }
 }
 
-data "coder_parameter" "skip_create_workspaces" {
+data "ni_parameter" "skip_create_workspaces" {
   order       = 22
   type        = "bool"
   name        = "DEBUG: Skip creating workspaces"
@@ -246,7 +246,7 @@ data "coder_parameter" "skip_create_workspaces" {
 }
 
 
-data "coder_parameter" "load_scenarios" {
+data "ni_parameter" "load_scenarios" {
   order       = 23
   name        = "Load Scenarios"
   type        = "list(string)"
@@ -261,7 +261,7 @@ data "coder_parameter" "load_scenarios" {
   ])
 }
 
-data "coder_parameter" "load_scenario_run_concurrently" {
+data "ni_parameter" "load_scenario_run_concurrently" {
   order       = 24
   name        = "Run Load Scenarios Concurrently"
   type        = "bool"
@@ -270,7 +270,7 @@ data "coder_parameter" "load_scenario_run_concurrently" {
   mutable     = true
 }
 
-data "coder_parameter" "load_scenario_concurrency_stagger_delay_mins" {
+data "ni_parameter" "load_scenario_concurrency_stagger_delay_mins" {
   order       = 25
   name        = "Load Scenario Concurrency Stagger Delay"
   type        = "number"
@@ -279,7 +279,7 @@ data "coder_parameter" "load_scenario_concurrency_stagger_delay_mins" {
   mutable     = true
 }
 
-data "coder_parameter" "load_scenario_ssh_traffic_duration" {
+data "ni_parameter" "load_scenario_ssh_traffic_duration" {
   order       = 30
   name        = "SSH Traffic Duration"
   type        = "number"
@@ -292,7 +292,7 @@ data "coder_parameter" "load_scenario_ssh_traffic_duration" {
   }
 }
 
-data "coder_parameter" "load_scenario_ssh_bytes_per_tick" {
+data "ni_parameter" "load_scenario_ssh_bytes_per_tick" {
   order       = 31
   name        = "SSH Bytes Per Tick"
   type        = "number"
@@ -304,7 +304,7 @@ data "coder_parameter" "load_scenario_ssh_bytes_per_tick" {
   }
 }
 
-data "coder_parameter" "load_scenario_ssh_tick_interval" {
+data "ni_parameter" "load_scenario_ssh_tick_interval" {
   order       = 32
   name        = "SSH Tick Interval"
   type        = "number"
@@ -316,7 +316,7 @@ data "coder_parameter" "load_scenario_ssh_tick_interval" {
   }
 }
 
-data "coder_parameter" "load_scenario_ssh_traffic_percentage" {
+data "ni_parameter" "load_scenario_ssh_traffic_percentage" {
   order       = 33
   name        = "SSH Traffic Percentage"
   type        = "number"
@@ -329,7 +329,7 @@ data "coder_parameter" "load_scenario_ssh_traffic_percentage" {
   }
 }
 
-data "coder_parameter" "load_scenario_web_terminal_traffic_duration" {
+data "ni_parameter" "load_scenario_web_terminal_traffic_duration" {
   order       = 40
   name        = "Web Terminal Traffic Duration"
   type        = "number"
@@ -342,7 +342,7 @@ data "coder_parameter" "load_scenario_web_terminal_traffic_duration" {
   }
 }
 
-data "coder_parameter" "load_scenario_web_terminal_bytes_per_tick" {
+data "ni_parameter" "load_scenario_web_terminal_bytes_per_tick" {
   order       = 41
   name        = "Web Terminal Bytes Per Tick"
   type        = "number"
@@ -354,7 +354,7 @@ data "coder_parameter" "load_scenario_web_terminal_bytes_per_tick" {
   }
 }
 
-data "coder_parameter" "load_scenario_web_terminal_tick_interval" {
+data "ni_parameter" "load_scenario_web_terminal_tick_interval" {
   order       = 42
   name        = "Web Terminal Tick Interval"
   type        = "number"
@@ -366,7 +366,7 @@ data "coder_parameter" "load_scenario_web_terminal_tick_interval" {
   }
 }
 
-data "coder_parameter" "load_scenario_web_terminal_traffic_percentage" {
+data "ni_parameter" "load_scenario_web_terminal_traffic_percentage" {
   order       = 43
   name        = "Web Terminal Traffic Percentage"
   type        = "number"
@@ -379,7 +379,7 @@ data "coder_parameter" "load_scenario_web_terminal_traffic_percentage" {
   }
 }
 
-data "coder_parameter" "load_scenario_app_traffic_duration" {
+data "ni_parameter" "load_scenario_app_traffic_duration" {
   order       = 50
   name        = "App Traffic Duration"
   type        = "number"
@@ -392,7 +392,7 @@ data "coder_parameter" "load_scenario_app_traffic_duration" {
   }
 }
 
-data "coder_parameter" "load_scenario_app_bytes_per_tick" {
+data "ni_parameter" "load_scenario_app_bytes_per_tick" {
   order       = 51
   name        = "App Bytes Per Tick"
   type        = "number"
@@ -404,7 +404,7 @@ data "coder_parameter" "load_scenario_app_bytes_per_tick" {
   }
 }
 
-data "coder_parameter" "load_scenario_app_tick_interval" {
+data "ni_parameter" "load_scenario_app_tick_interval" {
   order       = 52
   name        = "App Tick Interval"
   type        = "number"
@@ -416,7 +416,7 @@ data "coder_parameter" "load_scenario_app_tick_interval" {
   }
 }
 
-data "coder_parameter" "load_scenario_app_traffic_percentage" {
+data "ni_parameter" "load_scenario_app_traffic_percentage" {
   order       = 53
   name        = "App Traffic Percentage"
   type        = "number"
@@ -429,7 +429,7 @@ data "coder_parameter" "load_scenario_app_traffic_percentage" {
   }
 }
 
-data "coder_parameter" "load_scenario_app_traffic_mode" {
+data "ni_parameter" "load_scenario_app_traffic_mode" {
   order       = 54
   name        = "App Traffic Mode"
   default     = "wsec"
@@ -452,7 +452,7 @@ data "coder_parameter" "load_scenario_app_traffic_mode" {
   }
 }
 
-data "coder_parameter" "load_scenario_dashboard_traffic_duration" {
+data "ni_parameter" "load_scenario_dashboard_traffic_duration" {
   order       = 60
   name        = "Dashboard Traffic Duration"
   type        = "number"
@@ -465,7 +465,7 @@ data "coder_parameter" "load_scenario_dashboard_traffic_duration" {
   }
 }
 
-data "coder_parameter" "load_scenario_dashboard_traffic_percentage" {
+data "ni_parameter" "load_scenario_dashboard_traffic_percentage" {
   order       = 61
   name        = "Dashboard Traffic Percentage"
   type        = "number"
@@ -478,7 +478,7 @@ data "coder_parameter" "load_scenario_dashboard_traffic_percentage" {
   }
 }
 
-data "coder_parameter" "load_scenario_baseline_duration" {
+data "ni_parameter" "load_scenario_baseline_duration" {
   order       = 100
   name        = "Baseline Wait Duration"
   type        = "number"
@@ -491,7 +491,7 @@ data "coder_parameter" "load_scenario_baseline_duration" {
   }
 }
 
-data "coder_parameter" "greedy_agent" {
+data "ni_parameter" "greedy_agent" {
   order       = 200
   type        = "bool"
   name        = "Greedy Agent"
@@ -501,7 +501,7 @@ data "coder_parameter" "greedy_agent" {
   ephemeral   = true
 }
 
-data "coder_parameter" "greedy_agent_template" {
+data "ni_parameter" "greedy_agent_template" {
   order        = 201
   name         = "Greedy Agent Template"
   display_name = "Greedy Agent Template"
@@ -541,7 +541,7 @@ data "coder_parameter" "greedy_agent_template" {
   }
 }
 
-data "coder_parameter" "namespace" {
+data "ni_parameter" "namespace" {
   order       = 999
   type        = "string"
   name        = "Namespace"
@@ -555,28 +555,28 @@ data "archive_file" "scripts_zip" {
   source_dir  = "${path.module}/scripts"
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch = data.coder_provisioner.me.arch
   dir  = local.scaletest_run_dir
   os   = "linux"
   env = {
-    VERBOSE : data.coder_parameter.verbose.value ? "1" : "0",
-    DRY_RUN : data.coder_parameter.dry_run.value ? "1" : "0",
+    VERBOSE : data.ni_parameter.verbose.value ? "1" : "0",
+    DRY_RUN : data.ni_parameter.dry_run.value ? "1" : "0",
     CODER_CONFIG_DIR : "/home/coder/.config/coderv2",
-    CODER_USER_TOKEN : data.coder_workspace_owner.me.session_token,
-    CODER_URL : data.coder_workspace.me.access_url,
-    CODER_USER : data.coder_workspace_owner.me.name,
-    CODER_WORKSPACE : data.coder_workspace.me.name,
+    CODER_USER_TOKEN : data.ni_workspace_owner.me.session_token,
+    CODER_URL : data.ni_workspace.me.access_url,
+    CODER_USER : data.ni_workspace_owner.me.name,
+    CODER_WORKSPACE : data.ni_workspace.me.name,
 
     # Global scaletest envs that may affect each `coder exp scaletest` invocation.
     CODER_SCALETEST_PROMETHEUS_ADDRESS : "0.0.0.0:21112",
     CODER_SCALETEST_PROMETHEUS_WAIT : "60s",
-    CODER_SCALETEST_CONCURRENCY : "${data.coder_parameter.job_concurrency.value}",
-    CODER_SCALETEST_CLEANUP_CONCURRENCY : "${data.coder_parameter.cleanup_concurrency.value}",
+    CODER_SCALETEST_CONCURRENCY : "${data.ni_parameter.job_concurrency.value}",
+    CODER_SCALETEST_CLEANUP_CONCURRENCY : "${data.ni_parameter.cleanup_concurrency.value}",
 
     # Expose as params as well, for reporting (TODO(mafredri): refactor, only have one).
-    SCALETEST_PARAM_SCALETEST_CONCURRENCY : "${data.coder_parameter.job_concurrency.value}",
-    SCALETEST_PARAM_SCALETEST_CLEANUP_CONCURRENCY : "${data.coder_parameter.cleanup_concurrency.value}",
+    SCALETEST_PARAM_SCALETEST_CONCURRENCY : "${data.ni_parameter.job_concurrency.value}",
+    SCALETEST_PARAM_SCALETEST_CLEANUP_CONCURRENCY : "${data.ni_parameter.cleanup_concurrency.value}",
 
     # Local envs passed as arguments to `coder exp scaletest` invocations.
     SCALETEST_RUN_ID : local.scaletest_run_id,
@@ -586,36 +586,36 @@ resource "coder_agent" "main" {
 
     # Comment is a scaletest param, but we want to surface it separately from
     # the rest, so we use a different name.
-    SCALETEST_COMMENT : data.coder_parameter.comment.value != "" ? data.coder_parameter.comment.value : "No comment provided",
+    SCALETEST_COMMENT : data.ni_parameter.comment.value != "" ? data.ni_parameter.comment.value : "No comment provided",
 
-    SCALETEST_PARAM_TEMPLATE : data.coder_parameter.workspace_template.value,
-    SCALETEST_PARAM_REPO_BRANCH : data.coder_parameter.repo_branch.value,
-    SCALETEST_PARAM_NUM_WORKSPACES : data.coder_parameter.num_workspaces.value,
-    SCALETEST_PARAM_SKIP_CREATE_WORKSPACES : data.coder_parameter.skip_create_workspaces.value ? "1" : "0",
-    SCALETEST_PARAM_CREATE_CONCURRENCY : "${data.coder_parameter.create_concurrency.value}",
-    SCALETEST_PARAM_CLEANUP_STRATEGY : data.coder_parameter.cleanup_strategy.value,
-    SCALETEST_PARAM_CLEANUP_PREPARE : data.coder_parameter.cleanup_prepare.value ? "1" : "0",
-    SCALETEST_PARAM_LOAD_SCENARIOS : data.coder_parameter.load_scenarios.value,
-    SCALETEST_PARAM_LOAD_SCENARIO_RUN_CONCURRENTLY : data.coder_parameter.load_scenario_run_concurrently.value ? "1" : "0",
-    SCALETEST_PARAM_LOAD_SCENARIO_CONCURRENCY_STAGGER_DELAY_MINS : "${data.coder_parameter.load_scenario_concurrency_stagger_delay_mins.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_DURATION : "${data.coder_parameter.load_scenario_ssh_traffic_duration.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_BYTES_PER_TICK : "${data.coder_parameter.load_scenario_ssh_bytes_per_tick.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_TICK_INTERVAL : "${data.coder_parameter.load_scenario_ssh_tick_interval.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_PERCENTAGE : "${data.coder_parameter.load_scenario_ssh_traffic_percentage.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_DURATION : "${data.coder_parameter.load_scenario_web_terminal_traffic_duration.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_BYTES_PER_TICK : "${data.coder_parameter.load_scenario_web_terminal_bytes_per_tick.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_TICK_INTERVAL : "${data.coder_parameter.load_scenario_web_terminal_tick_interval.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_PERCENTAGE : "${data.coder_parameter.load_scenario_web_terminal_traffic_percentage.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_DURATION : "${data.coder_parameter.load_scenario_app_traffic_duration.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_BYTES_PER_TICK : "${data.coder_parameter.load_scenario_app_bytes_per_tick.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_TICK_INTERVAL : "${data.coder_parameter.load_scenario_app_tick_interval.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_PERCENTAGE : "${data.coder_parameter.load_scenario_app_traffic_percentage.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_MODE : data.coder_parameter.load_scenario_app_traffic_mode.value,
-    SCALETEST_PARAM_LOAD_SCENARIO_DASHBOARD_TRAFFIC_DURATION : "${data.coder_parameter.load_scenario_dashboard_traffic_duration.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_DASHBOARD_TRAFFIC_PERCENTAGE : "${data.coder_parameter.load_scenario_dashboard_traffic_percentage.value}",
-    SCALETEST_PARAM_LOAD_SCENARIO_BASELINE_DURATION : "${data.coder_parameter.load_scenario_baseline_duration.value}",
-    SCALETEST_PARAM_GREEDY_AGENT : data.coder_parameter.greedy_agent.value ? "1" : "0",
-    SCALETEST_PARAM_GREEDY_AGENT_TEMPLATE : data.coder_parameter.greedy_agent_template.value,
+    SCALETEST_PARAM_TEMPLATE : data.ni_parameter.workspace_template.value,
+    SCALETEST_PARAM_REPO_BRANCH : data.ni_parameter.repo_branch.value,
+    SCALETEST_PARAM_NUM_WORKSPACES : data.ni_parameter.num_workspaces.value,
+    SCALETEST_PARAM_SKIP_CREATE_WORKSPACES : data.ni_parameter.skip_create_workspaces.value ? "1" : "0",
+    SCALETEST_PARAM_CREATE_CONCURRENCY : "${data.ni_parameter.create_concurrency.value}",
+    SCALETEST_PARAM_CLEANUP_STRATEGY : data.ni_parameter.cleanup_strategy.value,
+    SCALETEST_PARAM_CLEANUP_PREPARE : data.ni_parameter.cleanup_prepare.value ? "1" : "0",
+    SCALETEST_PARAM_LOAD_SCENARIOS : data.ni_parameter.load_scenarios.value,
+    SCALETEST_PARAM_LOAD_SCENARIO_RUN_CONCURRENTLY : data.ni_parameter.load_scenario_run_concurrently.value ? "1" : "0",
+    SCALETEST_PARAM_LOAD_SCENARIO_CONCURRENCY_STAGGER_DELAY_MINS : "${data.ni_parameter.load_scenario_concurrency_stagger_delay_mins.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_DURATION : "${data.ni_parameter.load_scenario_ssh_traffic_duration.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_BYTES_PER_TICK : "${data.ni_parameter.load_scenario_ssh_bytes_per_tick.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_TICK_INTERVAL : "${data.ni_parameter.load_scenario_ssh_tick_interval.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_PERCENTAGE : "${data.ni_parameter.load_scenario_ssh_traffic_percentage.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_DURATION : "${data.ni_parameter.load_scenario_web_terminal_traffic_duration.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_BYTES_PER_TICK : "${data.ni_parameter.load_scenario_web_terminal_bytes_per_tick.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_TICK_INTERVAL : "${data.ni_parameter.load_scenario_web_terminal_tick_interval.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_PERCENTAGE : "${data.ni_parameter.load_scenario_web_terminal_traffic_percentage.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_DURATION : "${data.ni_parameter.load_scenario_app_traffic_duration.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_BYTES_PER_TICK : "${data.ni_parameter.load_scenario_app_bytes_per_tick.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_TICK_INTERVAL : "${data.ni_parameter.load_scenario_app_tick_interval.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_PERCENTAGE : "${data.ni_parameter.load_scenario_app_traffic_percentage.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_MODE : data.ni_parameter.load_scenario_app_traffic_mode.value,
+    SCALETEST_PARAM_LOAD_SCENARIO_DASHBOARD_TRAFFIC_DURATION : "${data.ni_parameter.load_scenario_dashboard_traffic_duration.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_DASHBOARD_TRAFFIC_PERCENTAGE : "${data.ni_parameter.load_scenario_dashboard_traffic_percentage.value}",
+    SCALETEST_PARAM_LOAD_SCENARIO_BASELINE_DURATION : "${data.ni_parameter.load_scenario_baseline_duration.value}",
+    SCALETEST_PARAM_GREEDY_AGENT : data.ni_parameter.greedy_agent.value ? "1" : "0",
+    SCALETEST_PARAM_GREEDY_AGENT_TEMPLATE : data.ni_parameter.greedy_agent_template.value,
 
     GRAFANA_URL : local.grafana_url,
 
@@ -713,19 +713,19 @@ resource "coder_agent" "main" {
 
 module "code-server" {
   source          = "https://registry.coder.com/modules/code-server"
-  agent_id        = coder_agent.main.id
+  agent_id        = ni_agent.main.id
   install_version = "4.8.3"
   folder          = local.scaletest_run_dir
 }
 
 module "filebrowser" {
   source   = "https://registry.coder.com/modules/filebrowser"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   folder   = local.scaletest_run_dir
 }
 
-resource "coder_app" "grafana" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "grafana" {
+  agent_id     = ni_agent.main.id
   slug         = "00-grafana"
   display_name = "Grafana"
   url          = "${local.grafana_url}/d/${local.grafana_dashboard_uid}/${local.grafana_dashboard_name}?orgId=1&from=${time_static.start_time.unix * 1000}&to=now"
@@ -733,8 +733,8 @@ resource "coder_app" "grafana" {
   external     = true
 }
 
-resource "coder_app" "prometheus" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "prometheus" {
+  agent_id     = ni_agent.main.id
   slug         = "01-prometheus"
   display_name = "Prometheus"
   url          = "https://grafana.corp.tld:9443"
@@ -742,8 +742,8 @@ resource "coder_app" "prometheus" {
   external     = true
 }
 
-resource "coder_app" "manual_cleanup" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "manual_cleanup" {
+  agent_id     = ni_agent.main.id
   slug         = "02-manual-cleanup"
   display_name = "Manual cleanup"
   icon         = "/emojis/1f9f9.png"
@@ -754,20 +754,20 @@ resource "kubernetes_persistent_volume_claim" "home" {
   depends_on = [null_resource.permission_check]
   metadata {
     name      = "${local.workspace_pod_name}-home"
-    namespace = data.coder_parameter.namespace.value
+    namespace = data.ni_parameter.namespace.value
     labels = {
       "app.kubernetes.io/name"     = "coder-pvc"
-      "app.kubernetes.io/instance" = "coder-pvc-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
+      "app.kubernetes.io/instance" = "coder-pvc-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
       "app.kubernetes.io/part-of"  = "coder"
       // Coder specific labels.
       "com.coder.resource"       = "true"
-      "com.coder.workspace.id"   = data.coder_workspace.me.id
-      "com.coder.workspace.name" = data.coder_workspace.me.name
-      "com.coder.user.id"        = data.coder_workspace_owner.me.id
-      "com.coder.user.username"  = data.coder_workspace_owner.me.name
+      "com.coder.workspace.id"   = data.ni_workspace.me.id
+      "com.coder.workspace.name" = data.ni_workspace.me.name
+      "com.coder.user.id"        = data.ni_workspace_owner.me.id
+      "com.coder.user.username"  = data.ni_workspace_owner.me.name
     }
     annotations = {
-      "com.coder.user.email" = data.coder_workspace_owner.me.email
+      "com.coder.user.email" = data.ni_workspace_owner.me.email
     }
   }
   wait_until_bound = false
@@ -783,23 +783,23 @@ resource "kubernetes_persistent_volume_claim" "home" {
 
 resource "kubernetes_pod" "main" {
   depends_on = [null_resource.permission_check]
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   metadata {
     name      = local.workspace_pod_name
-    namespace = data.coder_parameter.namespace.value
+    namespace = data.ni_parameter.namespace.value
     labels = {
       "app.kubernetes.io/name"     = "coder-workspace"
       "app.kubernetes.io/instance" = local.workspace_pod_instance
       "app.kubernetes.io/part-of"  = "coder"
       // Coder specific labels.
       "com.coder.resource"       = "true"
-      "com.coder.workspace.id"   = data.coder_workspace.me.id
-      "com.coder.workspace.name" = data.coder_workspace.me.name
-      "com.coder.user.id"        = data.coder_workspace_owner.me.id
-      "com.coder.user.username"  = data.coder_workspace_owner.me.name
+      "com.coder.workspace.id"   = data.ni_workspace.me.id
+      "com.coder.workspace.name" = data.ni_workspace.me.name
+      "com.coder.user.id"        = data.ni_workspace_owner.me.id
+      "com.coder.user.username"  = data.ni_workspace_owner.me.name
     }
     annotations = {
-      "com.coder.user.email" = data.coder_workspace_owner.me.email
+      "com.coder.user.email" = data.ni_workspace_owner.me.email
     }
   }
   # Set the pod delete timeout to termination_grace_period_seconds + 1m.
@@ -824,13 +824,13 @@ resource "kubernetes_pod" "main" {
       name              = "dev"
       image             = "us-docker.pkg.dev/coder-v2-images-public/public/scaletest-runner:latest"
       image_pull_policy = "Always"
-      command           = ["sh", "-c", coder_agent.main.init_script]
+      command           = ["sh", "-c", ni_agent.main.init_script]
       security_context {
         run_as_user = "1000"
       }
       env {
         name  = "CODER_AGENT_TOKEN"
-        value = coder_agent.main.token
+        value = ni_agent.main.token
       }
       env {
         name  = "CODER_AGENT_LOG_DIR"
@@ -866,7 +866,7 @@ resource "kubernetes_pod" "main" {
         read_only  = false
       }
       dynamic "port" {
-        for_each = data.coder_parameter.load_scenario_run_concurrently.value ? jsondecode(data.coder_parameter.load_scenarios.value) : [""]
+        for_each = data.ni_parameter.load_scenario_run_concurrently.value ? jsondecode(data.ni_parameter.load_scenarios.value) : [""]
         iterator = it
         content {
           container_port = 21112 + it.key
@@ -920,24 +920,24 @@ resource "kubernetes_pod" "main" {
 data "kubernetes_secret" "grafana_editor_api_token" {
   metadata {
     name      = "grafana-editor-api-token"
-    namespace = data.coder_parameter.namespace.value
+    namespace = data.ni_parameter.namespace.value
   }
 }
 
 data "kubernetes_secret" "slack_scaletest_notifications_webhook_url" {
   metadata {
     name      = "slack-scaletest-notifications-webhook-url"
-    namespace = data.coder_parameter.namespace.value
+    namespace = data.ni_parameter.namespace.value
   }
 }
 
 resource "kubernetes_manifest" "pod_monitor" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   manifest = {
     apiVersion = "monitoring.coreos.com/v1"
     kind       = "PodMonitor"
     metadata = {
-      namespace = data.coder_parameter.namespace.value
+      namespace = data.ni_parameter.namespace.value
       name      = "podmonitor-${local.workspace_pod_name}"
     }
     spec = {
@@ -951,7 +951,7 @@ resource "kubernetes_manifest" "pod_monitor" {
         # scenario name in the port name (although it's limited to 15 chars so
         # it needs to be short). That said, someone looking at the stats can
         # assume that there's a 1-to-1 mapping between scenario# and port.
-        for i, _ in data.coder_parameter.load_scenario_run_concurrently.value ? jsondecode(data.coder_parameter.load_scenarios.value) : [""] : {
+        for i, _ in data.ni_parameter.load_scenario_run_concurrently.value ? jsondecode(data.ni_parameter.load_scenarios.value) : [""] : {
           port     = "prom-http${i}"
           interval = "15s"
         }

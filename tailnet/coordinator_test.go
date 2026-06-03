@@ -10,10 +10,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/tailnet/test"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/test"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestCoordinator(t *testing.T) {

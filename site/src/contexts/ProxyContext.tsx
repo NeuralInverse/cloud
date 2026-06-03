@@ -38,7 +38,7 @@ export interface ProxyContextValue {
 	// was auto selected based on some other criteria.
 	userProxy?: Region;
 
-	// proxies is the list of proxies returned by coderd. This is fetched async.
+	// proxies is the list of proxies returned by nicloud. This is fetched async.
 	// isFetched, isLoading, and error are used to track the state of the async call.
 	//
 	// Region[] is returned if the user is a non-admin.
@@ -210,7 +210,7 @@ export const useProxy = (): ProxyContextValue => {
  * assumed no proxy is configured and relative paths should be used.
  * Exported for testing.
  *
- * @param proxies Is the list of proxies returned by coderd. If this is empty, default behavior is used.
+ * @param proxies Is the list of proxies returned by nicloud. If this is empty, default behavior is used.
  * @param selectedProxy Is the proxy saved in local storage. If this is undefined, default behavior is used.
  * @param latencies If provided, this is used to determine the best proxy to default to.
  *                  If not, `primary` is always the best default.

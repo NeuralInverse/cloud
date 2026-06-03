@@ -16,7 +16,7 @@
 AI Bridge is a smart gateway that sits between AI clients (Claude Code,
 Cursor, etc.) and upstream providers (Anthropic, OpenAI). It intercepts
 all AI traffic to provide centralized authn/z, auditing, token
-attribution, and MCP tool administration. It runs as part of `coderd`
+attribution, and MCP tool administration. It runs as part of `nicloud`
 (the Coder control plane). Users authenticate with their Coder session
 tokens.
 
@@ -38,7 +38,7 @@ tokens.
                            └──────────────┘
 ```
 
-The wire-up between aibridge and coderd lives in
+The wire-up between aibridge and nicloud lives in
 `enterprise/aibridged/`. That package is outside the scope of this
 guide.
 

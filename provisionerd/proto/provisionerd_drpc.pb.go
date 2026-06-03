@@ -7,7 +7,7 @@ package proto
 import (
 	context "context"
 	errors "errors"
-	proto1 "github.com/coder/coder/v2/provisionersdk/proto"
+	proto1 "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
 	drpc "storj.io/drpc"

@@ -31,7 +31,7 @@ func (r Root) Session() File {
 	return File(filepath.Join(string(r), "session"))
 }
 
-// ReplicaID is a unique identifier for the Coder server.
+// ReplicaID is a unique identifier for the Neural Inverse Cloud server.
 func (r Root) ReplicaID() File {
 	r.mustNotEmpty()
 	return File(filepath.Join(string(r), "replica_id"))
@@ -135,7 +135,7 @@ func read(path string) ([]byte, error) {
 }
 
 func DefaultDir() string {
-	configDir := configdir.LocalConfig("coderv2")
+	configDir := configdir.LocalConfig("niv2")
 	if dir := os.Getenv("CLIDOCGEN_CONFIG_DIRECTORY"); dir != "" {
 		configDir = dir
 	}

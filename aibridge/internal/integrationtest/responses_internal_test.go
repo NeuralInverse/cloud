@@ -19,13 +19,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/sjson"
 
-	"github.com/coder/coder/v2/aibridge"
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/fixtures"
-	"github.com/coder/coder/v2/aibridge/internal/testutil"
-	"github.com/coder/coder/v2/aibridge/provider"
-	"github.com/coder/coder/v2/aibridge/recorder"
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/fixtures"
+	"github.com/NeuralInverse/cloud/v2/aibridge/internal/testutil"
+	"github.com/NeuralInverse/cloud/v2/aibridge/provider"
+	"github.com/NeuralInverse/cloud/v2/aibridge/recorder"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 type keyVal struct {
@@ -806,7 +806,7 @@ func TestResponsesInjectedTool(t *testing.T) {
 			streaming:      true,
 			mcpToolName:    "coder_list_templates",
 			expectToolArgs: map[string]any{},
-			expectPrompt:   "List my coder templates.",
+			expectPrompt:   "List my neuralinverse templates.",
 			expectTokenUsages: []recorder.TokenUsageRecord{
 				{
 					MsgID:  "resp_016595fe42aa62ca0069724419c52081a0b7eb479c6bc8109f",

@@ -3,7 +3,7 @@ package provisioner
 import "regexp"
 
 var (
-	// AgentNameRegex is the regex used to validate the name of a coder_agent
+	// AgentNameRegex is the regex used to validate the name of a ni_agent
 	// resource. It must be a valid hostname and cannot contain two consecutive
 	// hyphens or start/end with a hyphen. Uppercase characters ARE permitted,
 	// although duplicate agent names with different casing will be rejected.
@@ -19,7 +19,7 @@ var (
 	// There are test cases for this regex in regexes_test.go.
 	AgentNameRegex = regexp.MustCompile(`(?i)^[a-z0-9](-?[a-z0-9])*$`)
 
-	// AppSlugRegex is the regex used to validate the slug of a coder_app
+	// AppSlugRegex is the regex used to validate the slug of a ni_app
 	// resource. It must be a valid hostname and cannot contain two consecutive
 	// hyphens or start/end with a hyphen.
 	//

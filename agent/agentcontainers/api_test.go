@@ -30,14 +30,14 @@ import (
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentcontainers/acmock"
-	"github.com/coder/coder/v2/agent/agentcontainers/watcher"
-	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/pty"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/acmock"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/watcher"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 	"github.com/coder/websocket"
 )
@@ -46,7 +46,7 @@ import (
 // testing.
 type fakeContainerCLI struct {
 	mu         sync.Mutex
-	containers codersdk.WorkspaceAgentListContainersResponse
+	containers nicloudsdk.WorkspaceAgentListContainersResponse
 	listErr    error
 	arch       string
 	archErr    error
@@ -56,7 +56,7 @@ type fakeContainerCLI struct {
 	removeErr  error
 }
 
-func (f *fakeContainerCLI) List(_ context.Context) (codersdk.WorkspaceAgentListContainersResponse, error) {
+func (f *fakeContainerCLI) List(_ context.Context) (nicloudsdk.WorkspaceAgentListContainersResponse, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return f.containers, f.listErr
@@ -84,7 +84,7 @@ func (f *fakeContainerCLI) Stop(ctx context.Context, name string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	f.containers.Devcontainers = slice.Filter(f.containers.Devcontainers, func(dc codersdk.WorkspaceAgentDevcontainer) bool {
+	f.containers.Devcontainers = slice.Filter(f.containers.Devcontainers, func(dc nicloudsdk.WorkspaceAgentDevcontainer) bool {
 		return dc.Container.ID == name
 	})
 	for i, container := range f.containers.Containers {
@@ -99,7 +99,7 @@ func (f *fakeContainerCLI) Remove(ctx context.Context, name string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	f.containers.Containers = slice.Filter(f.containers.Containers, func(container codersdk.WorkspaceAgentContainer) bool {
+	f.containers.Containers = slice.Filter(f.containers.Containers, func(container nicloudsdk.WorkspaceAgentContainer) bool {
 		return container.ID == name
 	})
 
@@ -624,7 +624,7 @@ func TestAPI(t *testing.T) {
 	t.Run("Watch", func(t *testing.T) {
 		t.Parallel()
 
-		fakeContainer1 := fakeContainer(t, func(c *codersdk.WorkspaceAgentContainer) {
+		fakeContainer1 := fakeContainer(t, func(c *nicloudsdk.WorkspaceAgentContainer) {
 			c.ID = "container1"
 			c.FriendlyName = "devcontainer1"
 			c.Image = "busybox:latest"
@@ -634,7 +634,7 @@ func TestAPI(t *testing.T) {
 			}
 		})
 
-		fakeContainer2 := fakeContainer(t, func(c *codersdk.WorkspaceAgentContainer) {
+		fakeContainer2 := fakeContainer(t, func(c *nicloudsdk.WorkspaceAgentContainer) {
 			c.ID = "container2"
 			c.FriendlyName = "devcontainer2"
 			c.Image = "ubuntu:latest"
@@ -645,14 +645,14 @@ func TestAPI(t *testing.T) {
 		})
 
 		stages := []struct {
-			containers []codersdk.WorkspaceAgentContainer
-			expected   codersdk.WorkspaceAgentListContainersResponse
+			containers []nicloudsdk.WorkspaceAgentContainer
+			expected   nicloudsdk.WorkspaceAgentListContainersResponse
 		}{
 			{
-				containers: []codersdk.WorkspaceAgentContainer{fakeContainer1},
-				expected: codersdk.WorkspaceAgentListContainersResponse{
-					Containers: []codersdk.WorkspaceAgentContainer{fakeContainer1},
-					Devcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				containers: []nicloudsdk.WorkspaceAgentContainer{fakeContainer1},
+				expected: nicloudsdk.WorkspaceAgentListContainersResponse{
+					Containers: []nicloudsdk.WorkspaceAgentContainer{fakeContainer1},
+					Devcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 						{
 							Name:            "project1",
 							WorkspaceFolder: fakeContainer1.Labels[agentcontainers.DevcontainerLocalFolderLabel],
@@ -664,10 +664,10 @@ func TestAPI(t *testing.T) {
 				},
 			},
 			{
-				containers: []codersdk.WorkspaceAgentContainer{fakeContainer1, fakeContainer2},
-				expected: codersdk.WorkspaceAgentListContainersResponse{
-					Containers: []codersdk.WorkspaceAgentContainer{fakeContainer1, fakeContainer2},
-					Devcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				containers: []nicloudsdk.WorkspaceAgentContainer{fakeContainer1, fakeContainer2},
+				expected: nicloudsdk.WorkspaceAgentListContainersResponse{
+					Containers: []nicloudsdk.WorkspaceAgentContainer{fakeContainer1, fakeContainer2},
+					Devcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 						{
 							Name:            "project1",
 							WorkspaceFolder: fakeContainer1.Labels[agentcontainers.DevcontainerLocalFolderLabel],
@@ -686,10 +686,10 @@ func TestAPI(t *testing.T) {
 				},
 			},
 			{
-				containers: []codersdk.WorkspaceAgentContainer{fakeContainer2},
-				expected: codersdk.WorkspaceAgentListContainersResponse{
-					Containers: []codersdk.WorkspaceAgentContainer{fakeContainer2},
-					Devcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				containers: []nicloudsdk.WorkspaceAgentContainer{fakeContainer2},
+				expected: nicloudsdk.WorkspaceAgentListContainersResponse{
+					Containers: []nicloudsdk.WorkspaceAgentContainer{fakeContainer2},
+					Devcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 						{
 							Name:            "",
 							WorkspaceFolder: fakeContainer1.Labels[agentcontainers.DevcontainerLocalFolderLabel],
@@ -719,7 +719,7 @@ func TestAPI(t *testing.T) {
 		)
 
 		// Set up initial state for immediate send on connection
-		mLister.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{Containers: stages[0].containers}, nil)
+		mLister.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{Containers: stages[0].containers}, nil)
 		mLister.EXPECT().DetectArchitecture(gomock.Any(), gomock.Any()).Return("<none>", nil).AnyTimes()
 
 		api := agentcontainers.NewAPI(logger,
@@ -747,7 +747,7 @@ func TestAPI(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, websocket.MessageText, mt)
 
-		var got codersdk.WorkspaceAgentListContainersResponse
+		var got nicloudsdk.WorkspaceAgentListContainersResponse
 		err = json.Unmarshal(msg, &got)
 		require.NoError(t, err)
 
@@ -764,7 +764,7 @@ func TestAPI(t *testing.T) {
 
 		// Process remaining stages through updater loop
 		for i, stage := range stages[1:] {
-			mLister.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{Containers: stage.containers}, nil)
+			mLister.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{Containers: stage.containers}, nil)
 
 			// Given: We allow the update loop to progress
 			_, aw := mClock.AdvanceNext()
@@ -776,7 +776,7 @@ func TestAPI(t *testing.T) {
 			require.Equal(t, websocket.MessageText, mt)
 
 			// Then: We expect the receieved message matches the expected response.
-			var got codersdk.WorkspaceAgentListContainersResponse
+			var got nicloudsdk.WorkspaceAgentListContainersResponse
 			err = json.Unmarshal(msg, &got)
 			require.NoError(t, err)
 
@@ -800,12 +800,12 @@ func TestAPI(t *testing.T) {
 
 		fakeCt := fakeContainer(t)
 		fakeCt2 := fakeContainer(t)
-		makeResponse := func(cts ...codersdk.WorkspaceAgentContainer) codersdk.WorkspaceAgentListContainersResponse {
-			return codersdk.WorkspaceAgentListContainersResponse{Containers: cts}
+		makeResponse := func(cts ...nicloudsdk.WorkspaceAgentContainer) nicloudsdk.WorkspaceAgentListContainersResponse {
+			return nicloudsdk.WorkspaceAgentListContainersResponse{Containers: cts}
 		}
 
 		type initialDataPayload struct {
-			val codersdk.WorkspaceAgentListContainersResponse
+			val nicloudsdk.WorkspaceAgentListContainersResponse
 			err error
 		}
 
@@ -817,7 +817,7 @@ func TestAPI(t *testing.T) {
 			// function to set up expectations for the mock
 			setupMock func(mcl *acmock.MockContainerCLI, preReq *gomock.Call)
 			// expected result
-			expected codersdk.WorkspaceAgentListContainersResponse
+			expected nicloudsdk.WorkspaceAgentListContainersResponse
 			// expected error
 			expectedErr string
 		}{
@@ -904,12 +904,12 @@ func TestAPI(t *testing.T) {
 				r.ServeHTTP(rec, req)
 
 				if tc.initialData.err != nil {
-					got := &codersdk.Error{}
+					got := &nicloudsdk.Error{}
 					err := json.NewDecoder(rec.Body).Decode(got)
 					require.NoError(t, err, "unmarshal response failed")
 					require.ErrorContains(t, got, tc.initialData.err.Error(), "want error")
 				} else {
-					var got codersdk.WorkspaceAgentListContainersResponse
+					var got nicloudsdk.WorkspaceAgentListContainersResponse
 					err := json.NewDecoder(rec.Body).Decode(&got)
 					require.NoError(t, err, "unmarshal response failed")
 					require.Equal(t, tc.initialData.val, got, "want initial data")
@@ -926,14 +926,14 @@ func TestAPI(t *testing.T) {
 				r.ServeHTTP(rec, req)
 
 				if tc.expectedErr != "" {
-					got := &codersdk.Error{}
+					got := &nicloudsdk.Error{}
 					err := json.NewDecoder(rec.Body).Decode(got)
 					require.NoError(t, err, "unmarshal response failed")
 					require.ErrorContains(t, got, tc.expectedErr, "want error")
 					return
 				}
 
-				var got codersdk.WorkspaceAgentListContainersResponse
+				var got nicloudsdk.WorkspaceAgentListContainersResponse
 				err := json.NewDecoder(rec.Body).Decode(&got)
 				require.NoError(t, err, "unmarshal response failed")
 				require.Equal(t, tc.expected, got, "want updated data")
@@ -952,7 +952,7 @@ func TestAPI(t *testing.T) {
 		configPath2 := "/workspace/test2/.devcontainer/devcontainer.json"
 
 		// Create a container that represents an existing devcontainer
-		devContainer1 := codersdk.WorkspaceAgentContainer{
+		devContainer1 := nicloudsdk.WorkspaceAgentContainer{
 			ID:           "container-1",
 			FriendlyName: "test-container-1",
 			Running:      true,
@@ -962,7 +962,7 @@ func TestAPI(t *testing.T) {
 			},
 		}
 
-		devContainer2 := codersdk.WorkspaceAgentContainer{
+		devContainer2 := nicloudsdk.WorkspaceAgentContainer{
 			ID:           "container-2",
 			FriendlyName: "test-container-2",
 			Running:      true,
@@ -975,7 +975,7 @@ func TestAPI(t *testing.T) {
 		tests := []struct {
 			name               string
 			devcontainerID     string
-			setupDevcontainers []codersdk.WorkspaceAgentDevcontainer
+			setupDevcontainers []nicloudsdk.WorkspaceAgentDevcontainer
 			lister             *fakeContainerCLI
 			devcontainerCLI    *fakeDevcontainerCLI
 			wantStatus         []int
@@ -1002,19 +1002,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "Devcontainer CLI error",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusRunning,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusRunning,
 						Container:       &devContainer1,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch: "<none>", // Unsupported architecture, don't inject subagent.
 				},
@@ -1027,19 +1027,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "OK",
 				devcontainerID: devcontainerID2.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID2,
 						Name:            "test-devcontainer-2",
 						WorkspaceFolder: workspaceFolder2,
 						ConfigPath:      configPath2,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusRunning,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusRunning,
 						Container:       &devContainer2,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer2},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer2},
 					},
 					arch: "<none>", // Unsupported architecture, don't inject subagent.
 				},
@@ -1050,20 +1050,20 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "Terraform-defined devcontainer can be rebuilt",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-terraform",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusRunning,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusRunning,
 						Container:       &devContainer1,
 						SubagentID:      uuid.NullUUID{UUID: uuid.New(), Valid: true},
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch: "<none>",
 				},
@@ -1147,12 +1147,12 @@ func TestAPI(t *testing.T) {
 				r.ServeHTTP(rec, req)
 
 				require.Equal(t, http.StatusOK, rec.Code, "status code mismatch")
-				var resp codersdk.WorkspaceAgentListContainersResponse
+				var resp nicloudsdk.WorkspaceAgentListContainersResponse
 				t.Log(rec.Body.String())
 				err := json.NewDecoder(rec.Body).Decode(&resp)
 				require.NoError(t, err, "unmarshal response failed")
 				require.Len(t, resp.Devcontainers, 1, "expected one devcontainer in response")
-				assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusStarting, resp.Devcontainers[0].Status, "devcontainer is not starting")
+				assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusStarting, resp.Devcontainers[0].Status, "devcontainer is not starting")
 				require.NotNil(t, resp.Devcontainers[0].Container, "devcontainer should have container reference")
 
 				// Allow the devcontainer CLI to continue the up process.
@@ -1179,7 +1179,7 @@ func TestAPI(t *testing.T) {
 					err = json.NewDecoder(rec.Body).Decode(&resp)
 					require.NoError(t, err, "unmarshal response failed after error")
 					require.Len(t, resp.Devcontainers, 1, "expected one devcontainer in response after error")
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusError, resp.Devcontainers[0].Status, "devcontainer is not in an error state after up failure")
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusError, resp.Devcontainers[0].Status, "devcontainer is not in an error state after up failure")
 					require.NotNil(t, resp.Devcontainers[0].Container, "devcontainer should have container reference after up failure")
 					return
 				}
@@ -1203,7 +1203,7 @@ func TestAPI(t *testing.T) {
 				err = json.NewDecoder(rec.Body).Decode(&resp)
 				require.NoError(t, err, "unmarshal response failed after recreation")
 				require.Len(t, resp.Devcontainers, 1, "expected one devcontainer in response after recreation")
-				assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, resp.Devcontainers[0].Status, "devcontainer is not running after recreation")
+				assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, resp.Devcontainers[0].Status, "devcontainer is not running after recreation")
 				require.NotNil(t, resp.Devcontainers[0].Container, "devcontainer should have container reference after recreation")
 			})
 		}
@@ -1221,7 +1221,7 @@ func TestAPI(t *testing.T) {
 		configPath1 := "/workspace/test1/.devcontainer/devcontainer.json"
 
 		// Create a container that represents an existing devcontainer.
-		devContainer1 := codersdk.WorkspaceAgentContainer{
+		devContainer1 := nicloudsdk.WorkspaceAgentContainer{
 			ID:           "container-1",
 			FriendlyName: "test-container-1",
 			Running:      true,
@@ -1234,7 +1234,7 @@ func TestAPI(t *testing.T) {
 		tests := []struct {
 			name                string
 			devcontainerID      string
-			setupDevcontainers  []codersdk.WorkspaceAgentDevcontainer
+			setupDevcontainers  []nicloudsdk.WorkspaceAgentDevcontainer
 			lister              *fakeContainerCLI
 			devcontainerCLI     *fakeDevcontainerCLI
 			wantStatus          int
@@ -1262,19 +1262,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "Devcontainer is starting",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusStarting,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStarting,
 						Container:       &devContainer1,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch: "<none>",
 				},
@@ -1285,19 +1285,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "Devcontainer is stopping",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusDeleting,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusDeleting,
 						Container:       &devContainer1,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch: "<none>",
 				},
@@ -1308,19 +1308,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "Container stop fails",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusRunning,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusRunning,
 						Container:       &devContainer1,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch:    "<none>",
 					stopErr: xerrors.New("stop error"),
@@ -1332,19 +1332,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "Container remove fails",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusRunning,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusRunning,
 						Container:       &devContainer1,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch:      "<none>",
 					removeErr: xerrors.New("remove error"),
@@ -1356,19 +1356,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "OK with container",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusRunning,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusRunning,
 						Container:       &devContainer1,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch: "<none>",
 				},
@@ -1379,13 +1379,13 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "OK without container",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 						Container:       nil,
 					},
 				},
@@ -1399,19 +1399,19 @@ func TestAPI(t *testing.T) {
 			{
 				name:           "OK with container and subagent",
 				devcontainerID: devcontainerID1.String(),
-				setupDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				setupDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              devcontainerID1,
 						Name:            "test-devcontainer-1",
 						WorkspaceFolder: workspaceFolder1,
 						ConfigPath:      configPath1,
-						Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+						Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 						Container:       &devContainer1,
 					},
 				},
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{devContainer1},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{devContainer1},
 					},
 					arch: "amd64",
 				},
@@ -1460,7 +1460,7 @@ func TestAPI(t *testing.T) {
 					coderBin, err = filepath.EvalSymlinks(coderBin)
 					require.NoError(t, err)
 
-					mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
+					mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
 						Containers: tt.lister.containers.Containers,
 					}, nil).AnyTimes()
 					expectSubAgentInjection(mCCLI, devContainer1.ID, runtime.GOARCH, coderBin)
@@ -1546,7 +1546,7 @@ func TestAPI(t *testing.T) {
 					r.ServeHTTP(rec, req)
 
 					require.Equal(t, http.StatusOK, rec.Code, "status code mismatch on list")
-					var resp codersdk.WorkspaceAgentListContainersResponse
+					var resp nicloudsdk.WorkspaceAgentListContainersResponse
 					err := json.NewDecoder(rec.Body).Decode(&resp)
 					require.NoError(t, err, "unmarshal response failed")
 					assert.Empty(t, resp.Devcontainers, "devcontainer should be removed after delete")
@@ -1566,7 +1566,7 @@ func TestAPI(t *testing.T) {
 		knownDevcontainerID1 := uuid.New()
 		knownDevcontainerID2 := uuid.New()
 
-		knownDevcontainers := []codersdk.WorkspaceAgentDevcontainer{
+		knownDevcontainers := []nicloudsdk.WorkspaceAgentDevcontainer{
 			{
 				ID:              knownDevcontainerID1,
 				Name:            "known-devcontainer-1",
@@ -1584,11 +1584,11 @@ func TestAPI(t *testing.T) {
 		tests := []struct {
 			name               string
 			lister             *fakeContainerCLI
-			knownDevcontainers []codersdk.WorkspaceAgentDevcontainer
+			knownDevcontainers []nicloudsdk.WorkspaceAgentDevcontainer
 			wantStatus         int
 			wantCount          int
 			wantTestContainer  bool
-			verify             func(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer)
+			verify             func(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer)
 		}{
 			{
 				name: "List error",
@@ -1606,16 +1606,16 @@ func TestAPI(t *testing.T) {
 			{
 				name: "Only known devcontainers, no containers",
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{},
 					},
 				},
 				knownDevcontainers: knownDevcontainers,
 				wantStatus:         http.StatusOK,
 				wantCount:          2,
-				verify: func(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer) {
+				verify: func(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer) {
 					for _, dc := range devcontainers {
-						assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusStopped, dc.Status, "devcontainer should be stopped")
+						assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusStopped, dc.Status, "devcontainer should be stopped")
 						assert.Nil(t, dc.Container, "devcontainer should not have container reference")
 					}
 				},
@@ -1623,8 +1623,8 @@ func TestAPI(t *testing.T) {
 			{
 				name: "Runtime-detected devcontainer",
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{
 							{
 								ID:           "runtime-container-1",
 								FriendlyName: "runtime-container-1",
@@ -1645,10 +1645,10 @@ func TestAPI(t *testing.T) {
 				},
 				wantStatus: http.StatusOK,
 				wantCount:  1,
-				verify: func(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer) {
+				verify: func(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer) {
 					dc := devcontainers[0]
 					assert.Equal(t, "/workspace/runtime1", dc.WorkspaceFolder)
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, dc.Status)
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, dc.Status)
 					require.NotNil(t, dc.Container)
 					assert.Equal(t, "runtime-container-1", dc.Container.ID)
 				},
@@ -1656,8 +1656,8 @@ func TestAPI(t *testing.T) {
 			{
 				name: "Mixed known and runtime-detected devcontainers",
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{
 							{
 								ID:           "known-container-1",
 								FriendlyName: "known-container-1",
@@ -1682,14 +1682,14 @@ func TestAPI(t *testing.T) {
 				knownDevcontainers: knownDevcontainers,
 				wantStatus:         http.StatusOK,
 				wantCount:          3, // 2 known + 1 runtime
-				verify: func(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer) {
+				verify: func(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer) {
 					known1 := mustFindDevcontainerByPath(t, devcontainers, "/workspace/known1")
 					known2 := mustFindDevcontainerByPath(t, devcontainers, "/workspace/known2")
 					runtime1 := mustFindDevcontainerByPath(t, devcontainers, "/workspace/runtime1")
 
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, known1.Status)
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusStopped, known2.Status)
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, runtime1.Status)
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, known1.Status)
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusStopped, known2.Status)
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, runtime1.Status)
 
 					assert.Nil(t, known2.Container)
 
@@ -1702,8 +1702,8 @@ func TestAPI(t *testing.T) {
 			{
 				name: "Both running and non-running containers have container references",
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{
 							{
 								ID:           "running-container",
 								FriendlyName: "running-container",
@@ -1727,12 +1727,12 @@ func TestAPI(t *testing.T) {
 				},
 				wantStatus: http.StatusOK,
 				wantCount:  2,
-				verify: func(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer) {
+				verify: func(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer) {
 					running := mustFindDevcontainerByPath(t, devcontainers, "/workspace/running")
 					nonRunning := mustFindDevcontainerByPath(t, devcontainers, "/workspace/non-running")
 
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, running.Status)
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusStopped, nonRunning.Status)
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, running.Status)
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusStopped, nonRunning.Status)
 
 					require.NotNil(t, running.Container, "running container should have container reference")
 					assert.Equal(t, "running-container", running.Container.ID)
@@ -1744,8 +1744,8 @@ func TestAPI(t *testing.T) {
 			{
 				name: "Config path update",
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{
 							{
 								ID:           "known-container-2",
 								FriendlyName: "known-container-2",
@@ -1761,8 +1761,8 @@ func TestAPI(t *testing.T) {
 				knownDevcontainers: knownDevcontainers,
 				wantStatus:         http.StatusOK,
 				wantCount:          2,
-				verify: func(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer) {
-					var dc2 *codersdk.WorkspaceAgentDevcontainer
+				verify: func(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer) {
+					var dc2 *nicloudsdk.WorkspaceAgentDevcontainer
 					for i := range devcontainers {
 						if devcontainers[i].ID == knownDevcontainerID2 {
 							dc2 = &devcontainers[i]
@@ -1770,7 +1770,7 @@ func TestAPI(t *testing.T) {
 						}
 					}
 					require.NotNil(t, dc2, "missing devcontainer with ID %s", knownDevcontainerID2)
-					assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, dc2.Status)
+					assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, dc2.Status)
 					assert.NotEmpty(t, dc2.ConfigPath)
 					require.NotNil(t, dc2.Container)
 					assert.Equal(t, "known-container-2", dc2.Container.ID)
@@ -1779,8 +1779,8 @@ func TestAPI(t *testing.T) {
 			{
 				name: "Name generation and uniqueness",
 				lister: &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{
 							{
 								ID:           "project1-container",
 								FriendlyName: "project1-container",
@@ -1811,7 +1811,7 @@ func TestAPI(t *testing.T) {
 						},
 					},
 				},
-				knownDevcontainers: []codersdk.WorkspaceAgentDevcontainer{
+				knownDevcontainers: []nicloudsdk.WorkspaceAgentDevcontainer{
 					{
 						ID:              uuid.New(),
 						Name:            "project", // This will cause uniqueness conflicts.
@@ -1821,7 +1821,7 @@ func TestAPI(t *testing.T) {
 				},
 				wantStatus: http.StatusOK,
 				wantCount:  4, // 1 known + 3 runtime
-				verify: func(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer) {
+				verify: func(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer) {
 					names := make(map[string]int)
 					for _, dc := range devcontainers {
 						names[dc.Name]++
@@ -1854,7 +1854,7 @@ func TestAPI(t *testing.T) {
 				tickerTrap := mClock.Trap().TickerFunc("updaterLoop")
 
 				// This container should be ignored unless explicitly included.
-				tt.lister.containers.Containers = append(tt.lister.containers.Containers, codersdk.WorkspaceAgentContainer{
+				tt.lister.containers.Containers = append(tt.lister.containers.Containers, nicloudsdk.WorkspaceAgentContainer{
 					ID:           "test-container-1",
 					FriendlyName: "test-container-1",
 					Running:      true,
@@ -1882,9 +1882,9 @@ func TestAPI(t *testing.T) {
 
 				// Generate matching scripts for the known devcontainers
 				// (required to extract log source ID).
-				var scripts []codersdk.WorkspaceAgentScript
+				var scripts []nicloudsdk.WorkspaceAgentScript
 				for i := range tt.knownDevcontainers {
-					scripts = append(scripts, codersdk.WorkspaceAgentScript{
+					scripts = append(scripts, nicloudsdk.WorkspaceAgentScript{
 						ID:          tt.knownDevcontainers[i].ID,
 						LogSourceID: uuid.New(),
 					})
@@ -1926,7 +1926,7 @@ func TestAPI(t *testing.T) {
 					return
 				}
 
-				var response codersdk.WorkspaceAgentListContainersResponse
+				var response nicloudsdk.WorkspaceAgentListContainersResponse
 				err := json.NewDecoder(rec.Body).Decode(&response)
 				require.NoError(t, err, "unmarshal response failed")
 
@@ -1944,7 +1944,7 @@ func TestAPI(t *testing.T) {
 	t.Run("List devcontainers running then not running", func(t *testing.T) {
 		t.Parallel()
 
-		container := codersdk.WorkspaceAgentContainer{
+		container := nicloudsdk.WorkspaceAgentContainer{
 			ID:           "container-id",
 			FriendlyName: "container-name",
 			Running:      true,
@@ -1954,20 +1954,20 @@ func TestAPI(t *testing.T) {
 				agentcontainers.DevcontainerConfigFileLabel:  "/home/coder/project/.devcontainer/devcontainer.json",
 			},
 		}
-		dc := codersdk.WorkspaceAgentDevcontainer{
+		dc := nicloudsdk.WorkspaceAgentDevcontainer{
 			ID:              uuid.New(),
 			Name:            "test-devcontainer",
 			WorkspaceFolder: "/home/coder/project",
 			ConfigPath:      "/home/coder/project/.devcontainer/devcontainer.json",
-			Status:          codersdk.WorkspaceAgentDevcontainerStatusRunning, // Corrected enum
+			Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, // Corrected enum
 		}
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 
 		logger := slogtest.Make(t, nil).Leveled(slog.LevelDebug)
 		fLister := &fakeContainerCLI{
-			containers: codersdk.WorkspaceAgentListContainersResponse{
-				Containers: []codersdk.WorkspaceAgentContainer{container},
+			containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+				Containers: []nicloudsdk.WorkspaceAgentContainer{container},
 			},
 		}
 		fWatcher := newFakeWatcher(t)
@@ -1980,8 +1980,8 @@ func TestAPI(t *testing.T) {
 			agentcontainers.WithContainerCLI(fLister),
 			agentcontainers.WithWatcher(fWatcher),
 			agentcontainers.WithDevcontainers(
-				[]codersdk.WorkspaceAgentDevcontainer{dc},
-				[]codersdk.WorkspaceAgentScript{{LogSourceID: uuid.New(), ID: dc.ID}},
+				[]nicloudsdk.WorkspaceAgentDevcontainer{dc},
+				[]nicloudsdk.WorkspaceAgentScript{{LogSourceID: uuid.New(), ID: dc.ID}},
 			),
 		)
 		api.Start()
@@ -2008,17 +2008,17 @@ func TestAPI(t *testing.T) {
 		api.Routes().ServeHTTP(rec, req)
 
 		require.Equal(t, http.StatusOK, rec.Code)
-		var resp1 codersdk.WorkspaceAgentListContainersResponse
+		var resp1 nicloudsdk.WorkspaceAgentListContainersResponse
 		err := json.NewDecoder(rec.Body).Decode(&resp1)
 		require.NoError(t, err)
 		require.Len(t, resp1.Devcontainers, 1)
-		require.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, resp1.Devcontainers[0].Status, "devcontainer should be running initially")
+		require.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, resp1.Devcontainers[0].Status, "devcontainer should be running initially")
 		require.True(t, resp1.Devcontainers[0].Dirty, "devcontainer should be dirty initially")
 		require.NotNil(t, resp1.Devcontainers[0].Container, "devcontainer should have a container initially")
 
 		// Next, simulate a situation where the container is no longer
 		// running.
-		fLister.containers.Containers = []codersdk.WorkspaceAgentContainer{}
+		fLister.containers.Containers = []nicloudsdk.WorkspaceAgentContainer{}
 
 		// Trigger a refresh which will use the second response from mock
 		// lister (no containers).
@@ -2032,11 +2032,11 @@ func TestAPI(t *testing.T) {
 		api.Routes().ServeHTTP(rec, req)
 
 		require.Equal(t, http.StatusOK, rec.Code)
-		var resp2 codersdk.WorkspaceAgentListContainersResponse
+		var resp2 nicloudsdk.WorkspaceAgentListContainersResponse
 		err = json.NewDecoder(rec.Body).Decode(&resp2)
 		require.NoError(t, err)
 		require.Len(t, resp2.Devcontainers, 1)
-		require.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusStopped, resp2.Devcontainers[0].Status, "devcontainer should not be running after empty list")
+		require.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusStopped, resp2.Devcontainers[0].Status, "devcontainer should not be running after empty list")
 		require.False(t, resp2.Devcontainers[0].Dirty, "devcontainer should not be dirty after empty list")
 		require.Nil(t, resp2.Devcontainers[0].Container, "devcontainer should not have a container after empty list")
 	})
@@ -2050,7 +2050,7 @@ func TestAPI(t *testing.T) {
 
 		// Create a fake container with a config file.
 		configPath := "/workspace/project/.devcontainer/devcontainer.json"
-		container := codersdk.WorkspaceAgentContainer{
+		container := nicloudsdk.WorkspaceAgentContainer{
 			ID:           "container-id",
 			FriendlyName: "container-name",
 			Running:      true,
@@ -2066,8 +2066,8 @@ func TestAPI(t *testing.T) {
 		tickerTrap := mClock.Trap().TickerFunc("updaterLoop")
 		fWatcher := newFakeWatcher(t)
 		fLister := &fakeContainerCLI{
-			containers: codersdk.WorkspaceAgentListContainersResponse{
-				Containers: []codersdk.WorkspaceAgentContainer{container},
+			containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+				Containers: []nicloudsdk.WorkspaceAgentContainer{container},
 			},
 		}
 		fDCCLI := &fakeDevcontainerCLI{}
@@ -2099,13 +2099,13 @@ func TestAPI(t *testing.T) {
 		r.ServeHTTP(rec, req)
 		require.Equal(t, http.StatusOK, rec.Code)
 
-		var response codersdk.WorkspaceAgentListContainersResponse
+		var response nicloudsdk.WorkspaceAgentListContainersResponse
 		err := json.NewDecoder(rec.Body).Decode(&response)
 		require.NoError(t, err)
 		require.Len(t, response.Devcontainers, 1)
 		assert.False(t, response.Devcontainers[0].Dirty,
 			"devcontainer should not be marked as dirty initially")
-		assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status, "devcontainer should be running initially")
+		assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status, "devcontainer should be running initially")
 		require.NotNil(t, response.Devcontainers[0].Container, "container should not be nil")
 
 		// Verify the watcher is watching the config file.
@@ -2138,13 +2138,13 @@ func TestAPI(t *testing.T) {
 		require.Len(t, response.Devcontainers, 1)
 		assert.True(t, response.Devcontainers[0].Dirty,
 			"container should be marked as dirty after config file was modified")
-		assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status, "devcontainer should be running after config file was modified")
+		assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status, "devcontainer should be running after config file was modified")
 		require.NotNil(t, response.Devcontainers[0].Container, "container should not be nil")
 
 		container.ID = "new-container-id" // Simulate a new container ID after recreation.
 		container.FriendlyName = "new-container-name"
 		container.CreatedAt = mClock.Now() // Update the creation time.
-		fLister.containers.Containers = []codersdk.WorkspaceAgentContainer{container}
+		fLister.containers.Containers = []nicloudsdk.WorkspaceAgentContainer{container}
 
 		// Advance the clock to run updaterLoop.
 		_, aw = mClock.AdvanceNext()
@@ -2162,7 +2162,7 @@ func TestAPI(t *testing.T) {
 		require.Len(t, response.Devcontainers, 1)
 		assert.False(t, response.Devcontainers[0].Dirty,
 			"dirty flag should be cleared on the devcontainer after container recreation")
-		assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status, "devcontainer should be running after recreation")
+		assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status, "devcontainer should be running after recreation")
 		require.NotNil(t, response.Devcontainers[0].Container, "container should not be nil")
 	})
 
@@ -2175,8 +2175,8 @@ func TestAPI(t *testing.T) {
 		configPath := "/workspace/project/.devcontainer/devcontainer.json"
 		fWatcher := newFakeWatcher(t)
 		fLister := &fakeContainerCLI{
-			containers: codersdk.WorkspaceAgentListContainersResponse{
-				Containers: []codersdk.WorkspaceAgentContainer{
+			containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+				Containers: []nicloudsdk.WorkspaceAgentContainer{
 					{
 						ID:           "container-id",
 						FriendlyName: "container-name",
@@ -2229,7 +2229,7 @@ func TestAPI(t *testing.T) {
 		_, msg, err := wsConn.Read(ctx)
 		require.NoError(t, err)
 
-		var response codersdk.WorkspaceAgentListContainersResponse
+		var response nicloudsdk.WorkspaceAgentListContainersResponse
 		err = json.Unmarshal(msg, &response)
 		require.NoError(t, err)
 		require.Len(t, response.Devcontainers, 1)
@@ -2257,7 +2257,7 @@ func TestAPI(t *testing.T) {
 				},
 			})
 
-			testContainer = codersdk.WorkspaceAgentContainer{
+			testContainer = nicloudsdk.WorkspaceAgentContainer{
 				ID:           "test-container-id",
 				FriendlyName: "test-container",
 				Image:        "test-image",
@@ -2275,8 +2275,8 @@ func TestAPI(t *testing.T) {
 		coderBin, err = filepath.EvalSymlinks(coderBin)
 		require.NoError(t, err)
 
-		mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+		mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 		}, nil).Times(3) // 1 initial call + 2 updates.
 		expectSubAgentInjection(mCCLI, "test-container-id", runtime.GOARCH, coderBin)
 
@@ -2303,11 +2303,11 @@ func TestAPI(t *testing.T) {
 		// Allow initial agent creation and injection to succeed.
 		allowSubAgentCreate(ctx, t, fakeSAC)
 		testutil.RequireSend(ctx, t, fakeDCCLI.readConfigErrC, func(envs []string) error {
-			assert.Contains(t, envs, "CODER_WORKSPACE_AGENT_NAME=coder")
-			assert.Contains(t, envs, "CODER_WORKSPACE_NAME=test-workspace")
-			assert.Contains(t, envs, "CODER_WORKSPACE_OWNER_NAME=test-user")
-			assert.Contains(t, envs, "CODER_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
-			assert.Contains(t, envs, "CODER_URL=test-subagent-url")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_AGENT_NAME=coder")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_NAME=test-workspace")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_OWNER_NAME=test-user")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
+			assert.Contains(t, envs, "NEURALINVERSE_URL=test-subagent-url")
 			assert.Contains(t, envs, "CONTAINER_ID=test-container-id")
 			return nil
 		})
@@ -2380,8 +2380,8 @@ func TestAPI(t *testing.T) {
 		for {
 			// Agent reinjection will succeed and we will not re-create the
 			// agent.
-			mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-				Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+			mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+				Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 			}, nil).Times(1) // 1 update.
 			err = api.RefreshContainers(ctx)
 			require.NoError(t, err, "refresh containers should not fail")
@@ -2406,8 +2406,8 @@ func TestAPI(t *testing.T) {
 		// New container ID means the agent will be recreated.
 		testContainer.ID = "new-test-container-id" // Simulate a new container ID after recreation.
 		// Expect the agent to be injected.
-		mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+		mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 		}, nil).Times(1) // 1 update.
 		gomock.InOrder(
 			mCCLI.EXPECT().DetectArchitecture(gomock.Any(), "new-test-container-id").Return(runtime.GOARCH, nil),
@@ -2417,14 +2417,14 @@ func TestAPI(t *testing.T) {
 			mCCLI.EXPECT().ExecAs(gomock.Any(), "new-test-container-id", "root", "/bin/sh", "-c", "chown $(id -u):$(id -g) /.coder-agent/coder").Return(nil, nil),
 		)
 
-		fakeDCCLI.readConfig.MergedConfiguration.Customizations.Coder = []agentcontainers.CoderCustomization{
+		fakeDCCLI.readConfig.MergedConfiguration.Customizations.Coder = []agentcontainers.NICustomization{
 			{
-				DisplayApps: map[codersdk.DisplayApp]bool{
-					codersdk.DisplayAppSSH:            true,
-					codersdk.DisplayAppWebTerminal:    true,
-					codersdk.DisplayAppVSCodeDesktop:  true,
-					codersdk.DisplayAppVSCodeInsiders: true,
-					codersdk.DisplayAppPortForward:    true,
+				DisplayApps: map[nicloudsdk.DisplayApp]bool{
+					nicloudsdk.DisplayAppSSH:            true,
+					nicloudsdk.DisplayAppWebTerminal:    true,
+					nicloudsdk.DisplayAppVSCodeDesktop:  true,
+					nicloudsdk.DisplayAppVSCodeInsiders: true,
+					nicloudsdk.DisplayAppPortForward:    true,
 				},
 			},
 		}
@@ -2443,11 +2443,11 @@ func TestAPI(t *testing.T) {
 		// Expect the agent to be recreated.
 		testutil.RequireSend(ctx, t, fakeSAC.createErrC, nil)
 		testutil.RequireSend(ctx, t, fakeDCCLI.readConfigErrC, func(envs []string) error {
-			assert.Contains(t, envs, "CODER_WORKSPACE_AGENT_NAME=coder")
-			assert.Contains(t, envs, "CODER_WORKSPACE_NAME=test-workspace")
-			assert.Contains(t, envs, "CODER_WORKSPACE_OWNER_NAME=test-user")
-			assert.Contains(t, envs, "CODER_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
-			assert.Contains(t, envs, "CODER_URL=test-subagent-url")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_AGENT_NAME=coder")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_NAME=test-workspace")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_OWNER_NAME=test-user")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
+			assert.Contains(t, envs, "NEURALINVERSE_URL=test-subagent-url")
 			assert.NotContains(t, envs, "CONTAINER_ID=test-container-id")
 			return nil
 		})
@@ -2499,8 +2499,8 @@ func TestAPI(t *testing.T) {
 			}
 		)
 
-		mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{},
+		mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{},
 		}, nil).AnyTimes()
 
 		mClock.Set(time.Now()).MustWait(ctx)
@@ -2539,7 +2539,7 @@ func TestAPI(t *testing.T) {
 				Directory: "/workspace",
 				AuthToken: terraformAgentToken,
 			}
-			terraformDevcontainer = codersdk.WorkspaceAgentDevcontainer{
+			terraformDevcontainer = nicloudsdk.WorkspaceAgentDevcontainer{
 				ID:              uuid.New(),
 				Name:            "terraform-devcontainer",
 				WorkspaceFolder: "/workspace/project",
@@ -2570,8 +2570,8 @@ func TestAPI(t *testing.T) {
 			}
 		)
 
-		mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{},
+		mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{},
 		}, nil).AnyTimes()
 
 		mClock.Set(time.Now()).MustWait(ctx)
@@ -2582,7 +2582,7 @@ func TestAPI(t *testing.T) {
 			agentcontainers.WithContainerCLI(mCCLI),
 			agentcontainers.WithSubAgentClient(fakeSAC),
 			agentcontainers.WithDevcontainerCLI(&fakeDevcontainerCLI{}),
-			agentcontainers.WithDevcontainers([]codersdk.WorkspaceAgentDevcontainer{terraformDevcontainer}, nil),
+			agentcontainers.WithDevcontainers([]nicloudsdk.WorkspaceAgentDevcontainer{terraformDevcontainer}, nil),
 		)
 		api.Start()
 		defer api.Close()
@@ -2616,7 +2616,7 @@ func TestAPI(t *testing.T) {
 
 			// Given: A terraform-defined devcontainer with a pre-assigned subagent ID.
 			terraformAgentID   = uuid.New()
-			terraformContainer = codersdk.WorkspaceAgentContainer{
+			terraformContainer = nicloudsdk.WorkspaceAgentContainer{
 				ID:           "test-container-id",
 				FriendlyName: "test-container",
 				Image:        "test-image",
@@ -2627,7 +2627,7 @@ func TestAPI(t *testing.T) {
 					agentcontainers.DevcontainerConfigFileLabel:  "/workspace/project/.devcontainer/devcontainer.json",
 				},
 			}
-			terraformDevcontainer = codersdk.WorkspaceAgentDevcontainer{
+			terraformDevcontainer = nicloudsdk.WorkspaceAgentDevcontainer{
 				ID:              uuid.New(),
 				Name:            "terraform-devcontainer",
 				WorkspaceFolder: "/workspace/project",
@@ -2636,8 +2636,8 @@ func TestAPI(t *testing.T) {
 			}
 
 			fCCLI = &fakeContainerCLI{
-				containers: codersdk.WorkspaceAgentListContainersResponse{
-					Containers: []codersdk.WorkspaceAgentContainer{terraformContainer},
+				containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+					Containers: []nicloudsdk.WorkspaceAgentContainer{terraformContainer},
 				},
 				arch: runtime.GOARCH,
 			}
@@ -2647,7 +2647,7 @@ func TestAPI(t *testing.T) {
 				readConfig: agentcontainers.DevcontainerConfig{
 					MergedConfiguration: agentcontainers.DevcontainerMergedConfiguration{
 						Customizations: agentcontainers.DevcontainerMergedCustomizations{
-							Coder: []agentcontainers.CoderCustomization{{
+							Coder: []agentcontainers.NICustomization{{
 								Apps: []agentcontainers.SubAgentApp{{Slug: "app1"}},
 							}},
 						},
@@ -2682,8 +2682,8 @@ func TestAPI(t *testing.T) {
 			agentcontainers.WithContainerCLI(fCCLI),
 			agentcontainers.WithDevcontainerCLI(fDCCLI),
 			agentcontainers.WithDevcontainers(
-				[]codersdk.WorkspaceAgentDevcontainer{terraformDevcontainer},
-				[]codersdk.WorkspaceAgentScript{{ID: terraformDevcontainer.ID, LogSourceID: uuid.New()}},
+				[]nicloudsdk.WorkspaceAgentDevcontainer{terraformDevcontainer},
+				[]nicloudsdk.WorkspaceAgentScript{{ID: terraformDevcontainer.ID, LogSourceID: uuid.New()}},
 			),
 			agentcontainers.WithSubAgentClient(mSAC),
 			agentcontainers.WithSubAgentURL("test-subagent-url"),
@@ -2698,10 +2698,10 @@ func TestAPI(t *testing.T) {
 		// When: The container is recreated (new container ID) with config changes.
 		terraformContainer.ID = "new-container-id"
 		fCCLI.mu.Lock()
-		fCCLI.containers.Containers = []codersdk.WorkspaceAgentContainer{terraformContainer}
+		fCCLI.containers.Containers = []nicloudsdk.WorkspaceAgentContainer{terraformContainer}
 		fCCLI.mu.Unlock()
 		fDCCLI.upID = terraformContainer.ID
-		fDCCLI.readConfig.MergedConfiguration.Customizations.Coder = []agentcontainers.CoderCustomization{{
+		fDCCLI.readConfig.MergedConfiguration.Customizations.Coder = []agentcontainers.NICustomization{{
 			Apps: []agentcontainers.SubAgentApp{{Slug: "app2"}}, // Changed app triggers recreation logic.
 		}}
 
@@ -2732,7 +2732,7 @@ func TestAPI(t *testing.T) {
 			terraformAgentID = uuid.New()
 			containerID      = "test-container-id"
 
-			terraformContainer = codersdk.WorkspaceAgentContainer{
+			terraformContainer = nicloudsdk.WorkspaceAgentContainer{
 				ID:           containerID,
 				FriendlyName: "test-container",
 				Image:        "test-image",
@@ -2743,7 +2743,7 @@ func TestAPI(t *testing.T) {
 					agentcontainers.DevcontainerConfigFileLabel:  "/workspace/project/.devcontainer/devcontainer.json",
 				},
 			}
-			terraformDevcontainer = codersdk.WorkspaceAgentDevcontainer{
+			terraformDevcontainer = nicloudsdk.WorkspaceAgentDevcontainer{
 				ID:              uuid.New(),
 				Name:            "terraform-devcontainer",
 				WorkspaceFolder: "/workspace/project",
@@ -2752,8 +2752,8 @@ func TestAPI(t *testing.T) {
 			}
 
 			fCCLI = &fakeContainerCLI{
-				containers: codersdk.WorkspaceAgentListContainersResponse{
-					Containers: []codersdk.WorkspaceAgentContainer{terraformContainer},
+				containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+					Containers: []nicloudsdk.WorkspaceAgentContainer{terraformContainer},
 				},
 				arch: runtime.GOARCH,
 			}
@@ -2763,10 +2763,10 @@ func TestAPI(t *testing.T) {
 				readConfig: agentcontainers.DevcontainerConfig{
 					MergedConfiguration: agentcontainers.DevcontainerMergedConfiguration{
 						Customizations: agentcontainers.DevcontainerMergedCustomizations{
-							Coder: []agentcontainers.CoderCustomization{{
-								DisplayApps: map[codersdk.DisplayApp]bool{
-									codersdk.DisplayAppSSH:         true,
-									codersdk.DisplayAppWebTerminal: true,
+							Coder: []agentcontainers.NICustomization{{
+								DisplayApps: map[nicloudsdk.DisplayApp]bool{
+									nicloudsdk.DisplayAppSSH:         true,
+									nicloudsdk.DisplayAppWebTerminal: true,
 								},
 							}},
 						},
@@ -2803,8 +2803,8 @@ func TestAPI(t *testing.T) {
 			agentcontainers.WithContainerCLI(fCCLI),
 			agentcontainers.WithDevcontainerCLI(fDCCLI),
 			agentcontainers.WithDevcontainers(
-				[]codersdk.WorkspaceAgentDevcontainer{terraformDevcontainer},
-				[]codersdk.WorkspaceAgentScript{{ID: terraformDevcontainer.ID, LogSourceID: uuid.New()}},
+				[]nicloudsdk.WorkspaceAgentDevcontainer{terraformDevcontainer},
+				[]nicloudsdk.WorkspaceAgentScript{{ID: terraformDevcontainer.ID, LogSourceID: uuid.New()}},
 			),
 			agentcontainers.WithSubAgentClient(mSAC),
 			agentcontainers.WithSubAgentURL("test-subagent-url"),
@@ -2832,15 +2832,15 @@ func TestAPI(t *testing.T) {
 		newContainerID := "new-container-id"
 		terraformContainer.ID = newContainerID
 		fCCLI.mu.Lock()
-		fCCLI.containers.Containers = []codersdk.WorkspaceAgentContainer{terraformContainer}
+		fCCLI.containers.Containers = []nicloudsdk.WorkspaceAgentContainer{terraformContainer}
 		fCCLI.mu.Unlock()
 		fDCCLI.upID = newContainerID
-		fDCCLI.readConfig.MergedConfiguration.Customizations.Coder = []agentcontainers.CoderCustomization{{
-			DisplayApps: map[codersdk.DisplayApp]bool{
-				codersdk.DisplayAppSSH:            true,
-				codersdk.DisplayAppWebTerminal:    true,
-				codersdk.DisplayAppVSCodeDesktop:  true,
-				codersdk.DisplayAppVSCodeInsiders: true,
+		fDCCLI.readConfig.MergedConfiguration.Customizations.Coder = []agentcontainers.NICustomization{{
+			DisplayApps: map[nicloudsdk.DisplayApp]bool{
+				nicloudsdk.DisplayAppSSH:            true,
+				nicloudsdk.DisplayAppWebTerminal:    true,
+				nicloudsdk.DisplayAppVSCodeDesktop:  true,
+				nicloudsdk.DisplayAppVSCodeInsiders: true,
 			},
 		}}
 
@@ -2856,9 +2856,9 @@ func TestAPI(t *testing.T) {
 		assert.Equal(t, terraformAgentID, rebuiltAgent.ID, "rebuilt agent should preserve terraform ID")
 
 		// Verify that the display apps were updated.
-		assert.Contains(t, rebuiltAgent.DisplayApps, codersdk.DisplayAppVSCodeDesktop,
+		assert.Contains(t, rebuiltAgent.DisplayApps, nicloudsdk.DisplayAppVSCodeDesktop,
 			"rebuilt agent should include updated display apps")
-		assert.Contains(t, rebuiltAgent.DisplayApps, codersdk.DisplayAppVSCodeInsiders,
+		assert.Contains(t, rebuiltAgent.DisplayApps, nicloudsdk.DisplayAppVSCodeInsiders,
 			"rebuilt agent should include updated display apps")
 	})
 
@@ -2886,7 +2886,7 @@ func TestAPI(t *testing.T) {
 			containerID      = "test-container-id"
 
 			// Given: A container with a host-side workspace folder.
-			terraformContainer = codersdk.WorkspaceAgentContainer{
+			terraformContainer = nicloudsdk.WorkspaceAgentContainer{
 				ID:           containerID,
 				FriendlyName: "test-container",
 				Image:        "test-image",
@@ -2900,7 +2900,7 @@ func TestAPI(t *testing.T) {
 
 			// Given: A terraform-defined devcontainer whose
 			// workspace_folder is the HOST-side path (set by provisioner).
-			terraformDevcontainer = codersdk.WorkspaceAgentDevcontainer{
+			terraformDevcontainer = nicloudsdk.WorkspaceAgentDevcontainer{
 				ID:              uuid.New(),
 				Name:            "terraform-devcontainer",
 				WorkspaceFolder: "/home/coder/project",
@@ -2909,8 +2909,8 @@ func TestAPI(t *testing.T) {
 			}
 
 			fCCLI = &fakeContainerCLI{
-				containers: codersdk.WorkspaceAgentListContainersResponse{
-					Containers: []codersdk.WorkspaceAgentContainer{terraformContainer},
+				containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+					Containers: []nicloudsdk.WorkspaceAgentContainer{terraformContainer},
 				},
 				arch: runtime.GOARCH,
 			}
@@ -2925,7 +2925,7 @@ func TestAPI(t *testing.T) {
 					},
 					MergedConfiguration: agentcontainers.DevcontainerMergedConfiguration{
 						Customizations: agentcontainers.DevcontainerMergedCustomizations{
-							Coder: []agentcontainers.CoderCustomization{{}},
+							Coder: []agentcontainers.NICustomization{{}},
 						},
 					},
 				},
@@ -2955,8 +2955,8 @@ func TestAPI(t *testing.T) {
 			agentcontainers.WithContainerCLI(fCCLI),
 			agentcontainers.WithDevcontainerCLI(fDCCLI),
 			agentcontainers.WithDevcontainers(
-				[]codersdk.WorkspaceAgentDevcontainer{terraformDevcontainer},
-				[]codersdk.WorkspaceAgentScript{{ID: terraformDevcontainer.ID, LogSourceID: uuid.New()}},
+				[]nicloudsdk.WorkspaceAgentDevcontainer{terraformDevcontainer},
+				[]nicloudsdk.WorkspaceAgentScript{{ID: terraformDevcontainer.ID, LogSourceID: uuid.New()}},
 			),
 			agentcontainers.WithSubAgentClient(mSAC),
 			agentcontainers.WithSubAgentURL("test-subagent-url"),
@@ -3004,12 +3004,12 @@ func TestAPI(t *testing.T) {
 					logger: logger.Named("fakeSubAgentClient"),
 				}
 
-				testDevcontainer = codersdk.WorkspaceAgentDevcontainer{
+				testDevcontainer = nicloudsdk.WorkspaceAgentDevcontainer{
 					ID:              uuid.New(),
 					Name:            "test-devcontainer",
 					WorkspaceFolder: "/workspaces/project",
 					ConfigPath:      "/workspaces/project/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				}
 			)
 
@@ -3023,8 +3023,8 @@ func TestAPI(t *testing.T) {
 				agentcontainers.WithContainerCLI(fCCLI),
 				agentcontainers.WithDevcontainerCLI(fDCCLI),
 				agentcontainers.WithDevcontainers(
-					[]codersdk.WorkspaceAgentDevcontainer{testDevcontainer},
-					[]codersdk.WorkspaceAgentScript{{ID: testDevcontainer.ID, LogSourceID: uuid.New()}},
+					[]nicloudsdk.WorkspaceAgentDevcontainer{testDevcontainer},
+					[]nicloudsdk.WorkspaceAgentScript{{ID: testDevcontainer.ID, LogSourceID: uuid.New()}},
 				),
 				agentcontainers.WithSubAgentClient(fSAC),
 				agentcontainers.WithSubAgentURL("test-subagent-url"),
@@ -3060,7 +3060,7 @@ func TestAPI(t *testing.T) {
 			r.ServeHTTP(rec, req)
 			require.Equal(t, http.StatusOK, rec.Code)
 
-			var response codersdk.WorkspaceAgentListContainersResponse
+			var response nicloudsdk.WorkspaceAgentListContainersResponse
 			err := json.NewDecoder(rec.Body).Decode(&response)
 			require.NoError(t, err)
 
@@ -3081,7 +3081,7 @@ func TestAPI(t *testing.T) {
 				r.ServeHTTP(rec, req)
 				require.Equal(t, http.StatusOK, rec.Code)
 
-				response = codersdk.WorkspaceAgentListContainersResponse{}
+				response = nicloudsdk.WorkspaceAgentListContainersResponse{}
 				err = json.NewDecoder(rec.Body).Decode(&response)
 				require.NoError(t, err)
 
@@ -3100,7 +3100,7 @@ func TestAPI(t *testing.T) {
 			r.ServeHTTP(rec, req)
 			require.Equal(t, http.StatusOK, rec.Code)
 
-			response = codersdk.WorkspaceAgentListContainersResponse{}
+			response = nicloudsdk.WorkspaceAgentListContainersResponse{}
 			err = json.NewDecoder(rec.Body).Decode(&response)
 			require.NoError(t, err)
 
@@ -3122,7 +3122,7 @@ func TestAPI(t *testing.T) {
 				logger = slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Leveled(slog.LevelDebug)
 				mClock = quartz.NewMock(t)
 
-				testContainer = codersdk.WorkspaceAgentContainer{
+				testContainer = nicloudsdk.WorkspaceAgentContainer{
 					ID:           "test-container-id",
 					FriendlyName: "test-container",
 					Image:        "test-image",
@@ -3134,8 +3134,8 @@ func TestAPI(t *testing.T) {
 					},
 				}
 				fCCLI = &fakeContainerCLI{
-					containers: codersdk.WorkspaceAgentListContainersResponse{
-						Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+					containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+						Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 					},
 					arch: "amd64",
 				}
@@ -3147,12 +3147,12 @@ func TestAPI(t *testing.T) {
 					logger: logger.Named("fakeSubAgentClient"),
 				}
 
-				testDevcontainer = codersdk.WorkspaceAgentDevcontainer{
+				testDevcontainer = nicloudsdk.WorkspaceAgentDevcontainer{
 					ID:              uuid.New(),
 					Name:            "test-devcontainer",
 					WorkspaceFolder: "/workspaces/project",
 					ConfigPath:      "/workspaces/project/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				}
 			)
 
@@ -3165,8 +3165,8 @@ func TestAPI(t *testing.T) {
 				agentcontainers.WithContainerCLI(fCCLI),
 				agentcontainers.WithDevcontainerCLI(fDCCLI),
 				agentcontainers.WithDevcontainers(
-					[]codersdk.WorkspaceAgentDevcontainer{testDevcontainer},
-					[]codersdk.WorkspaceAgentScript{{ID: testDevcontainer.ID, LogSourceID: uuid.New()}},
+					[]nicloudsdk.WorkspaceAgentDevcontainer{testDevcontainer},
+					[]nicloudsdk.WorkspaceAgentScript{{ID: testDevcontainer.ID, LogSourceID: uuid.New()}},
 				),
 				agentcontainers.WithSubAgentClient(fSAC),
 				agentcontainers.WithSubAgentURL("test-subagent-url"),
@@ -3210,7 +3210,7 @@ func TestAPI(t *testing.T) {
 			r.ServeHTTP(rec, req)
 			require.Equal(t, http.StatusOK, rec.Code)
 
-			var response codersdk.WorkspaceAgentListContainersResponse
+			var response nicloudsdk.WorkspaceAgentListContainersResponse
 			err := json.NewDecoder(rec.Body).Decode(&response)
 			require.NoError(t, err)
 
@@ -3220,7 +3220,7 @@ func TestAPI(t *testing.T) {
 			// succeeds, but the important thing is that the container is
 			// available for use.
 			require.Len(t, response.Devcontainers, 1)
-			assert.Equal(t, codersdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status)
+			assert.Equal(t, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning, response.Devcontainers[0].Status)
 			require.NotNil(t, response.Devcontainers[0].Container)
 			assert.Equal(t, testContainer.ID, response.Devcontainers[0].Container.ID)
 		})
@@ -3240,7 +3240,7 @@ func TestAPI(t *testing.T) {
 				}
 
 				containerCreatedAt = time.Now()
-				testContainer      = codersdk.WorkspaceAgentContainer{
+				testContainer      = nicloudsdk.WorkspaceAgentContainer{
 					ID:           "test-container-id",
 					FriendlyName: "test-container",
 					Image:        "test-image",
@@ -3254,8 +3254,8 @@ func TestAPI(t *testing.T) {
 			)
 
 			// Mock the `List` function to always return the test container.
-			mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-				Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+			mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+				Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 			}, nil).AnyTimes()
 
 			// We're going to force the container CLI to fail, which will allow us to test the
@@ -3292,7 +3292,7 @@ func TestAPI(t *testing.T) {
 			r.ServeHTTP(rec, req)
 			require.Equal(t, http.StatusOK, rec.Code)
 
-			var response codersdk.WorkspaceAgentListContainersResponse
+			var response nicloudsdk.WorkspaceAgentListContainersResponse
 			err := json.NewDecoder(rec.Body).Decode(&response)
 			require.NoError(t, err)
 
@@ -3319,7 +3319,7 @@ func TestAPI(t *testing.T) {
 			r.ServeHTTP(rec, req)
 			require.Equal(t, http.StatusOK, rec.Code)
 
-			response = codersdk.WorkspaceAgentListContainersResponse{}
+			response = nicloudsdk.WorkspaceAgentListContainersResponse{}
 			err = json.NewDecoder(rec.Body).Decode(&response)
 			require.NoError(t, err)
 
@@ -3338,8 +3338,8 @@ func TestAPI(t *testing.T) {
 
 		tests := []struct {
 			name                 string
-			customization        agentcontainers.CoderCustomization
-			mergedCustomizations []agentcontainers.CoderCustomization
+			customization        agentcontainers.NICustomization
+			mergedCustomizations []agentcontainers.NICustomization
 			afterCreate          func(t *testing.T, subAgent agentcontainers.SubAgent)
 		}{
 			{
@@ -3348,80 +3348,80 @@ func TestAPI(t *testing.T) {
 			},
 			{
 				name:                 "WithDefaultDisplayApps",
-				mergedCustomizations: []agentcontainers.CoderCustomization{},
+				mergedCustomizations: []agentcontainers.NICustomization{},
 				afterCreate: func(t *testing.T, subAgent agentcontainers.SubAgent) {
 					require.Len(t, subAgent.DisplayApps, 4)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppVSCodeDesktop)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppWebTerminal)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppSSH)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppPortForward)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppVSCodeDesktop)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppWebTerminal)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppSSH)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppPortForward)
 				},
 			},
 			{
 				name: "WithAllDisplayApps",
-				mergedCustomizations: []agentcontainers.CoderCustomization{
+				mergedCustomizations: []agentcontainers.NICustomization{
 					{
-						DisplayApps: map[codersdk.DisplayApp]bool{
-							codersdk.DisplayAppSSH:            true,
-							codersdk.DisplayAppWebTerminal:    true,
-							codersdk.DisplayAppVSCodeDesktop:  true,
-							codersdk.DisplayAppVSCodeInsiders: true,
-							codersdk.DisplayAppPortForward:    true,
+						DisplayApps: map[nicloudsdk.DisplayApp]bool{
+							nicloudsdk.DisplayAppSSH:            true,
+							nicloudsdk.DisplayAppWebTerminal:    true,
+							nicloudsdk.DisplayAppVSCodeDesktop:  true,
+							nicloudsdk.DisplayAppVSCodeInsiders: true,
+							nicloudsdk.DisplayAppPortForward:    true,
 						},
 					},
 				},
 				afterCreate: func(t *testing.T, subAgent agentcontainers.SubAgent) {
 					require.Len(t, subAgent.DisplayApps, 5)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppSSH)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppWebTerminal)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppVSCodeDesktop)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppVSCodeInsiders)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppPortForward)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppSSH)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppWebTerminal)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppVSCodeDesktop)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppVSCodeInsiders)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppPortForward)
 				},
 			},
 			{
 				name: "WithSomeDisplayAppsDisabled",
-				mergedCustomizations: []agentcontainers.CoderCustomization{
+				mergedCustomizations: []agentcontainers.NICustomization{
 					{
-						DisplayApps: map[codersdk.DisplayApp]bool{
-							codersdk.DisplayAppSSH:            false,
-							codersdk.DisplayAppWebTerminal:    false,
-							codersdk.DisplayAppVSCodeInsiders: false,
+						DisplayApps: map[nicloudsdk.DisplayApp]bool{
+							nicloudsdk.DisplayAppSSH:            false,
+							nicloudsdk.DisplayAppWebTerminal:    false,
+							nicloudsdk.DisplayAppVSCodeInsiders: false,
 
 							// We'll enable vscode in this layer, and disable
 							// it in the next layer to ensure a layer can be
 							// disabled.
-							codersdk.DisplayAppVSCodeDesktop: true,
+							nicloudsdk.DisplayAppVSCodeDesktop: true,
 
 							// We disable port-forward in this layer, and
 							// then re-enable it in the next layer to ensure
 							// that behavior works.
-							codersdk.DisplayAppPortForward: false,
+							nicloudsdk.DisplayAppPortForward: false,
 						},
 					},
 					{
-						DisplayApps: map[codersdk.DisplayApp]bool{
-							codersdk.DisplayAppVSCodeDesktop: false,
-							codersdk.DisplayAppPortForward:   true,
+						DisplayApps: map[nicloudsdk.DisplayApp]bool{
+							nicloudsdk.DisplayAppVSCodeDesktop: false,
+							nicloudsdk.DisplayAppPortForward:   true,
 						},
 					},
 				},
 				afterCreate: func(t *testing.T, subAgent agentcontainers.SubAgent) {
 					require.Len(t, subAgent.DisplayApps, 1)
-					assert.Contains(t, subAgent.DisplayApps, codersdk.DisplayAppPortForward)
+					assert.Contains(t, subAgent.DisplayApps, nicloudsdk.DisplayAppPortForward)
 				},
 			},
 			{
 				name: "WithApps",
-				mergedCustomizations: []agentcontainers.CoderCustomization{
+				mergedCustomizations: []agentcontainers.NICustomization{
 					{
 						Apps: []agentcontainers.SubAgentApp{
 							{
 								Slug:        "web-app",
 								DisplayName: "Web Application",
 								URL:         "http://localhost:8080",
-								OpenIn:      codersdk.WorkspaceAppOpenInTab,
-								Share:       codersdk.WorkspaceAppSharingLevelOwner,
+								OpenIn:      nicloudsdk.WorkspaceAppOpenInTab,
+								Share:       nicloudsdk.WorkspaceAppSharingLevelOwner,
 								Icon:        "/icons/web.svg",
 								Order:       int32(1),
 							},
@@ -3429,8 +3429,8 @@ func TestAPI(t *testing.T) {
 								Slug:        "api-server",
 								DisplayName: "API Server",
 								URL:         "http://localhost:3000",
-								OpenIn:      codersdk.WorkspaceAppOpenInSlimWindow,
-								Share:       codersdk.WorkspaceAppSharingLevelAuthenticated,
+								OpenIn:      nicloudsdk.WorkspaceAppOpenInSlimWindow,
+								Share:       nicloudsdk.WorkspaceAppSharingLevelAuthenticated,
 								Icon:        "/icons/api.svg",
 								Order:       int32(2),
 								Hidden:      true,
@@ -3439,8 +3439,8 @@ func TestAPI(t *testing.T) {
 								Slug:        "docs",
 								DisplayName: "Documentation",
 								URL:         "http://localhost:4000",
-								OpenIn:      codersdk.WorkspaceAppOpenInTab,
-								Share:       codersdk.WorkspaceAppSharingLevelPublic,
+								OpenIn:      nicloudsdk.WorkspaceAppOpenInTab,
+								Share:       nicloudsdk.WorkspaceAppSharingLevelPublic,
 								Icon:        "/icons/book.svg",
 								Order:       int32(3),
 							},
@@ -3454,8 +3454,8 @@ func TestAPI(t *testing.T) {
 					assert.Equal(t, "web-app", subAgent.Apps[0].Slug)
 					assert.Equal(t, "Web Application", subAgent.Apps[0].DisplayName)
 					assert.Equal(t, "http://localhost:8080", subAgent.Apps[0].URL)
-					assert.Equal(t, codersdk.WorkspaceAppOpenInTab, subAgent.Apps[0].OpenIn)
-					assert.Equal(t, codersdk.WorkspaceAppSharingLevelOwner, subAgent.Apps[0].Share)
+					assert.Equal(t, nicloudsdk.WorkspaceAppOpenInTab, subAgent.Apps[0].OpenIn)
+					assert.Equal(t, nicloudsdk.WorkspaceAppSharingLevelOwner, subAgent.Apps[0].Share)
 					assert.Equal(t, "/icons/web.svg", subAgent.Apps[0].Icon)
 					assert.Equal(t, int32(1), subAgent.Apps[0].Order)
 
@@ -3463,8 +3463,8 @@ func TestAPI(t *testing.T) {
 					assert.Equal(t, "api-server", subAgent.Apps[1].Slug)
 					assert.Equal(t, "API Server", subAgent.Apps[1].DisplayName)
 					assert.Equal(t, "http://localhost:3000", subAgent.Apps[1].URL)
-					assert.Equal(t, codersdk.WorkspaceAppOpenInSlimWindow, subAgent.Apps[1].OpenIn)
-					assert.Equal(t, codersdk.WorkspaceAppSharingLevelAuthenticated, subAgent.Apps[1].Share)
+					assert.Equal(t, nicloudsdk.WorkspaceAppOpenInSlimWindow, subAgent.Apps[1].OpenIn)
+					assert.Equal(t, nicloudsdk.WorkspaceAppSharingLevelAuthenticated, subAgent.Apps[1].Share)
 					assert.Equal(t, "/icons/api.svg", subAgent.Apps[1].Icon)
 					assert.Equal(t, int32(2), subAgent.Apps[1].Order)
 					assert.Equal(t, true, subAgent.Apps[1].Hidden)
@@ -3473,15 +3473,15 @@ func TestAPI(t *testing.T) {
 					assert.Equal(t, "docs", subAgent.Apps[2].Slug)
 					assert.Equal(t, "Documentation", subAgent.Apps[2].DisplayName)
 					assert.Equal(t, "http://localhost:4000", subAgent.Apps[2].URL)
-					assert.Equal(t, codersdk.WorkspaceAppOpenInTab, subAgent.Apps[2].OpenIn)
-					assert.Equal(t, codersdk.WorkspaceAppSharingLevelPublic, subAgent.Apps[2].Share)
+					assert.Equal(t, nicloudsdk.WorkspaceAppOpenInTab, subAgent.Apps[2].OpenIn)
+					assert.Equal(t, nicloudsdk.WorkspaceAppSharingLevelPublic, subAgent.Apps[2].Share)
 					assert.Equal(t, "/icons/book.svg", subAgent.Apps[2].Icon)
 					assert.Equal(t, int32(3), subAgent.Apps[2].Order)
 				},
 			},
 			{
 				name: "AppDeduplication",
-				mergedCustomizations: []agentcontainers.CoderCustomization{
+				mergedCustomizations: []agentcontainers.NICustomization{
 					{
 						Apps: []agentcontainers.SubAgentApp{
 							{
@@ -3523,10 +3523,10 @@ func TestAPI(t *testing.T) {
 			},
 			{
 				name: "Name",
-				customization: agentcontainers.CoderCustomization{
+				customization: agentcontainers.NICustomization{
 					Name: "this-name",
 				},
-				mergedCustomizations: []agentcontainers.CoderCustomization{
+				mergedCustomizations: []agentcontainers.NICustomization{
 					{
 						Name: "not-this-name",
 					},
@@ -3540,7 +3540,7 @@ func TestAPI(t *testing.T) {
 			},
 			{
 				name: "NameIsOnlyUsedFromRoot",
-				mergedCustomizations: []agentcontainers.CoderCustomization{
+				mergedCustomizations: []agentcontainers.NICustomization{
 					{
 						Name: "custom-name",
 					},
@@ -3551,7 +3551,7 @@ func TestAPI(t *testing.T) {
 			},
 			{
 				name: "EmptyNameIsIgnored",
-				customization: agentcontainers.CoderCustomization{
+				customization: agentcontainers.NICustomization{
 					Name: "",
 				},
 				afterCreate: func(t *testing.T, subAgent agentcontainers.SubAgent) {
@@ -3560,7 +3560,7 @@ func TestAPI(t *testing.T) {
 			},
 			{
 				name: "InvalidNameIsIgnored",
-				customization: agentcontainers.CoderCustomization{
+				customization: agentcontainers.NICustomization{
 					Name: "This--Is_An_Invalid--Name",
 				},
 				afterCreate: func(t *testing.T, subAgent agentcontainers.SubAgent) {
@@ -3597,7 +3597,7 @@ func TestAPI(t *testing.T) {
 						},
 					}
 
-					testContainer = codersdk.WorkspaceAgentContainer{
+					testContainer = nicloudsdk.WorkspaceAgentContainer{
 						ID:           "test-container-id",
 						FriendlyName: "test-container",
 						Image:        "test-image",
@@ -3616,11 +3616,11 @@ func TestAPI(t *testing.T) {
 				require.NoError(t, err)
 
 				// Mock the `List` function to always return out test container.
-				mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-					Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+				mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+					Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 				}, nil).AnyTimes()
 
-				// Mock the steps used for injecting the coder agent.
+				// Mock the steps used for injecting the neuralinverse agent.
 				gomock.InOrder(
 					mCCLI.EXPECT().DetectArchitecture(gomock.Any(), testContainer.ID).Return(runtime.GOARCH, nil),
 					mCCLI.EXPECT().ExecAs(gomock.Any(), testContainer.ID, "root", "mkdir", "-p", "/.coder-agent").Return(nil, nil),
@@ -3683,7 +3683,7 @@ func TestAPI(t *testing.T) {
 				readConfig: agentcontainers.DevcontainerConfig{
 					Configuration: agentcontainers.DevcontainerConfiguration{
 						Customizations: agentcontainers.DevcontainerCustomizations{
-							Coder: agentcontainers.CoderCustomization{
+							Coder: agentcontainers.NICustomization{
 								// We want to specify a custom name for this agent.
 								Name: "custom-name",
 							},
@@ -3693,7 +3693,7 @@ func TestAPI(t *testing.T) {
 				readConfigErrC: make(chan func(envs []string) error, 2),
 			}
 
-			testContainer = codersdk.WorkspaceAgentContainer{
+			testContainer = nicloudsdk.WorkspaceAgentContainer{
 				ID:           "test-container-id",
 				FriendlyName: "test-container",
 				Image:        "test-image",
@@ -3712,11 +3712,11 @@ func TestAPI(t *testing.T) {
 		require.NoError(t, err)
 
 		// Mock the `List` function to always return out test container.
-		mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+		mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 		}, nil).AnyTimes()
 
-		// Mock the steps used for injecting the coder agent.
+		// Mock the steps used for injecting the neuralinverse agent.
 		gomock.InOrder(
 			mCCLI.EXPECT().DetectArchitecture(gomock.Any(), testContainer.ID).Return(runtime.GOARCH, nil),
 			mCCLI.EXPECT().ExecAs(gomock.Any(), testContainer.ID, "root", "mkdir", "-p", "/.coder-agent").Return(nil, nil),
@@ -3747,13 +3747,13 @@ func TestAPI(t *testing.T) {
 		testutil.RequireSend(ctx, t, fSAC.createErrC, nil)
 		testutil.RequireSend(ctx, t, fDCCLI.readConfigErrC, func(env []string) error {
 			// We expect the wrong workspace agent name passed in first.
-			assert.Contains(t, env, "CODER_WORKSPACE_AGENT_NAME=coder")
+			assert.Contains(t, env, "NEURALINVERSE_WORKSPACE_AGENT_NAME=coder")
 			return nil
 		})
 		testutil.RequireSend(ctx, t, fDCCLI.readConfigErrC, func(env []string) error {
 			// We then expect the agent name passed here to have been read from the config.
-			assert.Contains(t, env, "CODER_WORKSPACE_AGENT_NAME=custom-name")
-			assert.NotContains(t, env, "CODER_WORKSPACE_AGENT_NAME=coder")
+			assert.Contains(t, env, "NEURALINVERSE_WORKSPACE_AGENT_NAME=custom-name")
+			assert.NotContains(t, env, "NEURALINVERSE_WORKSPACE_AGENT_NAME=coder")
 			return nil
 		})
 
@@ -3800,7 +3800,7 @@ func TestAPI(t *testing.T) {
 				readConfigErrC: make(chan func(envs []string) error, 2),
 			}
 
-			testContainer = codersdk.WorkspaceAgentContainer{
+			testContainer = nicloudsdk.WorkspaceAgentContainer{
 				ID:           "test-container-id",
 				FriendlyName: "test-container",
 				Image:        "test-image",
@@ -3819,11 +3819,11 @@ func TestAPI(t *testing.T) {
 		require.NoError(t, err)
 
 		// Mock the `List` function to always return our test container.
-		mCCLI.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+		mCCLI.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 		}, nil).AnyTimes()
 
-		// Mock the steps used for injecting the coder agent.
+		// Mock the steps used for injecting the neuralinverse agent.
 		gomock.InOrder(
 			mCCLI.EXPECT().DetectArchitecture(gomock.Any(), testContainer.ID).Return(runtime.GOARCH, nil),
 			mCCLI.EXPECT().ExecAs(gomock.Any(), testContainer.ID, "root", "mkdir", "-p", "/.coder-agent").Return(nil, nil),
@@ -3855,11 +3855,11 @@ func TestAPI(t *testing.T) {
 		testutil.RequireSend(ctx, t, fSAC.createErrC, nil)
 
 		testutil.RequireSend(ctx, t, fDCCLI.readConfigErrC, func(envs []string) error {
-			assert.Contains(t, envs, "CODER_WORKSPACE_AGENT_NAME=coder")
-			assert.Contains(t, envs, "CODER_WORKSPACE_NAME=test-workspace")
-			assert.Contains(t, envs, "CODER_WORKSPACE_OWNER_NAME=test-user")
-			assert.Contains(t, envs, "CODER_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
-			assert.Contains(t, envs, "CODER_URL=test-subagent-url")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_AGENT_NAME=coder")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_NAME=test-workspace")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_OWNER_NAME=test-user")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
+			assert.Contains(t, envs, "NEURALINVERSE_URL=test-subagent-url")
 			assert.Contains(t, envs, "CONTAINER_ID=test-container-id")
 			// First call should not have feature envs.
 			assert.NotContains(t, envs, "FEATURE_CODE_SERVER_OPTION_PORT=9090")
@@ -3868,11 +3868,11 @@ func TestAPI(t *testing.T) {
 		})
 
 		testutil.RequireSend(ctx, t, fDCCLI.readConfigErrC, func(envs []string) error {
-			assert.Contains(t, envs, "CODER_WORKSPACE_AGENT_NAME=coder")
-			assert.Contains(t, envs, "CODER_WORKSPACE_NAME=test-workspace")
-			assert.Contains(t, envs, "CODER_WORKSPACE_OWNER_NAME=test-user")
-			assert.Contains(t, envs, "CODER_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
-			assert.Contains(t, envs, "CODER_URL=test-subagent-url")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_AGENT_NAME=coder")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_NAME=test-workspace")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_OWNER_NAME=test-user")
+			assert.Contains(t, envs, "NEURALINVERSE_WORKSPACE_PARENT_AGENT_NAME=test-parent-agent")
+			assert.Contains(t, envs, "NEURALINVERSE_URL=test-subagent-url")
 			assert.Contains(t, envs, "CONTAINER_ID=test-container-id")
 			// Second call should have feature envs from the first config read.
 			assert.Contains(t, envs, "FEATURE_CODE_SERVER_OPTION_PORT=9090")
@@ -3953,7 +3953,7 @@ func TestAPI(t *testing.T) {
 		startTime := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 		configPath := "/workspace/project/.devcontainer/devcontainer.json"
 
-		container := codersdk.WorkspaceAgentContainer{
+		container := nicloudsdk.WorkspaceAgentContainer{
 			ID:           "container-id",
 			FriendlyName: "container-name",
 			Running:      true,
@@ -3965,8 +3965,8 @@ func TestAPI(t *testing.T) {
 		}
 
 		fLister := &fakeContainerCLI{
-			containers: codersdk.WorkspaceAgentListContainersResponse{
-				Containers: []codersdk.WorkspaceAgentContainer{container},
+			containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+				Containers: []nicloudsdk.WorkspaceAgentContainer{container},
 			},
 			arch: runtime.GOARCH,
 		}
@@ -3977,7 +3977,7 @@ func TestAPI(t *testing.T) {
 			readConfig: agentcontainers.DevcontainerConfig{
 				Configuration: agentcontainers.DevcontainerConfiguration{
 					Customizations: agentcontainers.DevcontainerCustomizations{
-						Coder: agentcontainers.CoderCustomization{Ignore: true},
+						Coder: agentcontainers.NICustomization{Ignore: true},
 					},
 				},
 				Workspace: agentcontainers.DevcontainerWorkspace{WorkspaceFolder: "/workspace/project"},
@@ -4017,7 +4017,7 @@ func TestAPI(t *testing.T) {
 		r.ServeHTTP(rec, req)
 		require.Equal(t, http.StatusOK, rec.Code)
 
-		var response codersdk.WorkspaceAgentListContainersResponse
+		var response nicloudsdk.WorkspaceAgentListContainersResponse
 		err = json.NewDecoder(rec.Body).Decode(&response)
 		require.NoError(t, err)
 
@@ -4121,7 +4121,7 @@ func TestAPI(t *testing.T) {
 
 // mustFindDevcontainerByPath returns the devcontainer with the given workspace
 // folder path. It fails the test if no matching devcontainer is found.
-func mustFindDevcontainerByPath(t *testing.T, devcontainers []codersdk.WorkspaceAgentDevcontainer, path string) codersdk.WorkspaceAgentDevcontainer {
+func mustFindDevcontainerByPath(t *testing.T, devcontainers []nicloudsdk.WorkspaceAgentDevcontainer, path string) nicloudsdk.WorkspaceAgentDevcontainer {
 	t.Helper()
 
 	for i := range devcontainers {
@@ -4131,7 +4131,7 @@ func mustFindDevcontainerByPath(t *testing.T, devcontainers []codersdk.Workspace
 	}
 
 	require.Failf(t, "no devcontainer found with workspace folder %q", path)
-	return codersdk.WorkspaceAgentDevcontainer{} // Unreachable, but required for compilation
+	return nicloudsdk.WorkspaceAgentDevcontainer{} // Unreachable, but required for compilation
 }
 
 // TestSubAgentCreationWithNameRetry tests the retry logic when unique constraint violations occur
@@ -4243,8 +4243,8 @@ func TestSubAgentCreationWithNameRetry(t *testing.T) {
 	}
 }
 
-func newFakeContainer(id, configPath, workspaceFolder string) codersdk.WorkspaceAgentContainer {
-	return codersdk.WorkspaceAgentContainer{
+func newFakeContainer(id, configPath, workspaceFolder string) nicloudsdk.WorkspaceAgentContainer {
+	return nicloudsdk.WorkspaceAgentContainer{
 		ID:           id,
 		FriendlyName: "test-friendly",
 		Image:        "test-image:latest",
@@ -4256,9 +4256,9 @@ func newFakeContainer(id, configPath, workspaceFolder string) codersdk.Workspace
 	}
 }
 
-func fakeContainer(t *testing.T, mut ...func(*codersdk.WorkspaceAgentContainer)) codersdk.WorkspaceAgentContainer {
+func fakeContainer(t *testing.T, mut ...func(*nicloudsdk.WorkspaceAgentContainer)) nicloudsdk.WorkspaceAgentContainer {
 	t.Helper()
-	ct := codersdk.WorkspaceAgentContainer{
+	ct := nicloudsdk.WorkspaceAgentContainer{
 		CreatedAt:    time.Now().UTC(),
 		ID:           uuid.New().String(),
 		FriendlyName: testutil.GetRandomName(t),
@@ -4267,7 +4267,7 @@ func fakeContainer(t *testing.T, mut ...func(*codersdk.WorkspaceAgentContainer))
 			testutil.GetRandomName(t): testutil.GetRandomName(t),
 		},
 		Running: true,
-		Ports: []codersdk.WorkspaceAgentContainerPort{
+		Ports: []nicloudsdk.WorkspaceAgentContainerPort{
 			{
 				Network:  "tcp",
 				Port:     testutil.RandomPortNoListen(t),
@@ -4292,7 +4292,7 @@ func TestWithDevcontainersNameGeneration(t *testing.T) {
 		t.Skip("Dev Container tests are not supported on Windows")
 	}
 
-	devcontainers := []codersdk.WorkspaceAgentDevcontainer{
+	devcontainers := []nicloudsdk.WorkspaceAgentDevcontainer{
 		{
 			ID:              uuid.New(),
 			Name:            "original-name",
@@ -4307,7 +4307,7 @@ func TestWithDevcontainersNameGeneration(t *testing.T) {
 		},
 	}
 
-	scripts := []codersdk.WorkspaceAgentScript{
+	scripts := []nicloudsdk.WorkspaceAgentScript{
 		{ID: devcontainers[0].ID, LogSourceID: uuid.New()},
 		{ID: devcontainers[1].ID, LogSourceID: uuid.New()},
 	}
@@ -4318,9 +4318,9 @@ func TestWithDevcontainersNameGeneration(t *testing.T) {
 	api := agentcontainers.NewAPI(logger,
 		agentcontainers.WithDevcontainers(devcontainers, scripts),
 		agentcontainers.WithContainerCLI(&fakeContainerCLI{
-			containers: codersdk.WorkspaceAgentListContainersResponse{
-				Containers: []codersdk.WorkspaceAgentContainer{
-					fakeContainer(t, func(c *codersdk.WorkspaceAgentContainer) {
+			containers: nicloudsdk.WorkspaceAgentListContainersResponse{
+				Containers: []nicloudsdk.WorkspaceAgentContainer{
+					fakeContainer(t, func(c *nicloudsdk.WorkspaceAgentContainer) {
 						c.ID = "some-container-id-1"
 						c.FriendlyName = "container-name-1"
 						c.Labels[agentcontainers.DevcontainerLocalFolderLabel] = "/home/coder/baz/project"
@@ -4351,7 +4351,7 @@ func TestWithDevcontainersNameGeneration(t *testing.T) {
 	r.ServeHTTP(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
-	var response codersdk.WorkspaceAgentListContainersResponse
+	var response nicloudsdk.WorkspaceAgentListContainersResponse
 	err = json.NewDecoder(rec.Body).Decode(&response)
 	require.NoError(t, err)
 
@@ -4384,7 +4384,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 		name     string
 		agentDir string
 		fs       map[string]string
-		expected []codersdk.WorkspaceAgentDevcontainer
+		expected []nicloudsdk.WorkspaceAgentDevcontainer
 	}{
 		{
 			name:     "GitProjectInRootDir/SingleProject",
@@ -4393,11 +4393,11 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/.git/HEAD":                       "",
 				"/home/coder/.devcontainer/devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder",
 					ConfigPath:      "/home/coder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4409,16 +4409,16 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/.devcontainer/devcontainer.json":      "",
 				"/home/coder/site/.devcontainer/devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder",
 					ConfigPath:      "/home/coder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 				{
 					WorkspaceFolder: "/home/coder/site",
 					ConfigPath:      "/home/coder/site/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4429,11 +4429,11 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/coder/.git/HEAD":                       "",
 				"/home/coder/coder/.devcontainer/devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/coder",
 					ConfigPath:      "/home/coder/coder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4445,16 +4445,16 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/coder/.devcontainer/devcontainer.json":      "",
 				"/home/coder/coder/site/.devcontainer/devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/coder",
 					ConfigPath:      "/home/coder/coder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 				{
 					WorkspaceFolder: "/home/coder/coder/site",
 					ConfigPath:      "/home/coder/coder/site/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4467,16 +4467,16 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/envbuilder/.git/HEAD":                       "",
 				"/home/coder/envbuilder/.devcontainer/devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/coder",
 					ConfigPath:      "/home/coder/coder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 				{
 					WorkspaceFolder: "/home/coder/envbuilder",
 					ConfigPath:      "/home/coder/envbuilder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4491,26 +4491,26 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/envbuilder/.devcontainer/devcontainer.json":   "",
 				"/home/coder/envbuilder/x/.devcontainer/devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/coder",
 					ConfigPath:      "/home/coder/coder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 				{
 					WorkspaceFolder: "/home/coder/coder/site",
 					ConfigPath:      "/home/coder/coder/site/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 				{
 					WorkspaceFolder: "/home/coder/envbuilder",
 					ConfigPath:      "/home/coder/envbuilder/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 				{
 					WorkspaceFolder: "/home/coder/envbuilder/x",
 					ConfigPath:      "/home/coder/envbuilder/x/.devcontainer/devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4523,11 +4523,11 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/coder/.devcontainer.json":     "",
 				"/home/coder/coder/x/y/.devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/coder",
 					ConfigPath:      "/home/coder/coder/.devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4541,16 +4541,16 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/coder/x/.gitignore":           "y/",
 				"/home/coder/coder/x/y/.devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/coder",
 					ConfigPath:      "/home/coder/coder/.devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 				{
 					WorkspaceFolder: "/home/coder/coder/y",
 					ConfigPath:      "/home/coder/coder/y/.devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4563,11 +4563,11 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				"/home/coder/coder/.devcontainer.json":     "",
 				"/home/coder/coder/x/y/.devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/coder",
 					ConfigPath:      "/home/coder/coder/.devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4585,11 +4585,11 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				filepath.Join(homeDir, ".devcontainer.json"):                "",
 				filepath.Join(homeDir, "node_modules/y/.devcontainer.json"): "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: homeDir,
 					ConfigPath:      filepath.Join(homeDir, ".devcontainer.json"),
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4613,11 +4613,11 @@ func TestDevcontainerDiscovery(t *testing.T) {
 
 				"/home/coder/bar/.devcontainer.json": "",
 			},
-			expected: []codersdk.WorkspaceAgentDevcontainer{
+			expected: []nicloudsdk.WorkspaceAgentDevcontainer{
 				{
 					WorkspaceFolder: "/home/coder/bar",
 					ConfigPath:      "/home/coder/bar/.devcontainer.json",
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 				},
 			},
 		},
@@ -4669,7 +4669,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				rec := httptest.NewRecorder()
 				r.ServeHTTP(rec, req)
 
-				got := codersdk.WorkspaceAgentListContainersResponse{}
+				got := nicloudsdk.WorkspaceAgentListContainersResponse{}
 				err := json.NewDecoder(rec.Body).Decode(&got)
 				require.NoError(t, err)
 
@@ -4686,7 +4686,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 			rec := httptest.NewRecorder()
 			r.ServeHTTP(rec, req)
 
-			got := codersdk.WorkspaceAgentListContainersResponse{}
+			got := nicloudsdk.WorkspaceAgentListContainersResponse{}
 			err := json.NewDecoder(rec.Body).Decode(&got)
 			require.NoError(t, err)
 
@@ -4698,10 +4698,10 @@ func TestDevcontainerDiscovery(t *testing.T) {
 
 			// Sort the expected dev containers and got dev containers by their workspace folder.
 			// This helps ensure a deterministic test.
-			slices.SortFunc(tt.expected, func(a, b codersdk.WorkspaceAgentDevcontainer) int {
+			slices.SortFunc(tt.expected, func(a, b nicloudsdk.WorkspaceAgentDevcontainer) int {
 				return strings.Compare(a.WorkspaceFolder, b.WorkspaceFolder)
 			})
-			slices.SortFunc(got.Devcontainers, func(a, b codersdk.WorkspaceAgentDevcontainer) int {
+			slices.SortFunc(got.Devcontainers, func(a, b nicloudsdk.WorkspaceAgentDevcontainer) int {
 				return strings.Compare(a.WorkspaceFolder, b.WorkspaceFolder)
 			})
 
@@ -4758,7 +4758,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 					"/home/coder/.devcontainer/devcontainer.json": {
 						Configuration: agentcontainers.DevcontainerConfiguration{
 							Customizations: agentcontainers.DevcontainerCustomizations{
-								Coder: agentcontainers.CoderCustomization{
+								Coder: agentcontainers.NICustomization{
 									AutoStart: true,
 								},
 							},
@@ -4779,7 +4779,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 					"/home/coder/.devcontainer/devcontainer.json": {
 						Configuration: agentcontainers.DevcontainerConfiguration{
 							Customizations: agentcontainers.DevcontainerCustomizations{
-								Coder: agentcontainers.CoderCustomization{
+								Coder: agentcontainers.NICustomization{
 									AutoStart: false,
 								},
 							},
@@ -4801,7 +4801,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 					"/home/coder/.devcontainer/devcontainer.json": {
 						Configuration: agentcontainers.DevcontainerConfiguration{
 							Customizations: agentcontainers.DevcontainerCustomizations{
-								Coder: agentcontainers.CoderCustomization{
+								Coder: agentcontainers.NICustomization{
 									AutoStart: true,
 								},
 							},
@@ -4810,7 +4810,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 					"/home/coder/project/.devcontainer.json": {
 						Configuration: agentcontainers.DevcontainerConfiguration{
 							Customizations: agentcontainers.DevcontainerCustomizations{
-								Coder: agentcontainers.CoderCustomization{
+								Coder: agentcontainers.NICustomization{
 									AutoStart: false,
 								},
 							},
@@ -4832,7 +4832,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 					"/home/coder/.devcontainer/devcontainer.json": {
 						Configuration: agentcontainers.DevcontainerConfiguration{
 							Customizations: agentcontainers.DevcontainerCustomizations{
-								Coder: agentcontainers.CoderCustomization{
+								Coder: agentcontainers.NICustomization{
 									AutoStart: true,
 								},
 							},
@@ -4841,7 +4841,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 					"/home/coder/project/.devcontainer.json": {
 						Configuration: agentcontainers.DevcontainerConfiguration{
 							Customizations: agentcontainers.DevcontainerCustomizations{
-								Coder: agentcontainers.CoderCustomization{
+								Coder: agentcontainers.NICustomization{
 									AutoStart: true,
 								},
 							},
@@ -4891,13 +4891,13 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				r.Mount("/", api.Routes())
 
 				// Given: We allow the discover routing to progress
-				var got codersdk.WorkspaceAgentListContainersResponse
+				var got nicloudsdk.WorkspaceAgentListContainersResponse
 				require.Eventuallyf(t, func() bool {
 					req := httptest.NewRequest(http.MethodGet, "/", nil).WithContext(ctx)
 					rec := httptest.NewRecorder()
 					r.ServeHTTP(rec, req)
 
-					got = codersdk.WorkspaceAgentListContainersResponse{}
+					got = nicloudsdk.WorkspaceAgentListContainersResponse{}
 					err := json.NewDecoder(rec.Body).Decode(&got)
 					require.NoError(t, err)
 
@@ -4955,7 +4955,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 			).Return(agentcontainers.DevcontainerConfig{
 				Configuration: agentcontainers.DevcontainerConfiguration{
 					Customizations: agentcontainers.DevcontainerCustomizations{
-						Coder: agentcontainers.CoderCustomization{
+						Coder: agentcontainers.NICustomization{
 							AutoStart: true,
 						},
 					},
@@ -4988,7 +4988,7 @@ func TestDevcontainerDiscovery(t *testing.T) {
 				rec := httptest.NewRecorder()
 				r.ServeHTTP(rec, req)
 
-				got := codersdk.WorkspaceAgentListContainersResponse{}
+				got := nicloudsdk.WorkspaceAgentListContainersResponse{}
 				err := json.NewDecoder(rec.Body).Decode(&got)
 				require.NoError(t, err)
 
@@ -5018,7 +5018,7 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 		fCCLI  = &fakeContainerCLI{arch: runtime.GOARCH}
 		fSAC   = &fakeSubAgentClient{}
 
-		testDC = codersdk.WorkspaceAgentDevcontainer{
+		testDC = nicloudsdk.WorkspaceAgentDevcontainer{
 			ID:              uuid.New(),
 			WorkspaceFolder: "/home/coder/coder",
 			ConfigPath:      "/home/coder/coder/.devcontainer/devcontainer.json",
@@ -5040,7 +5040,7 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 	// ==================================================
 
 	// Given: There are no containers initially.
-	fCCLI.containers = codersdk.WorkspaceAgentListContainersResponse{}
+	fCCLI.containers = nicloudsdk.WorkspaceAgentListContainersResponse{}
 
 	api := agentcontainers.NewAPI(logger,
 		// We want this first `agentcontainers.API` to have a manifest info
@@ -5048,8 +5048,8 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 		agentcontainers.WithManifestInfo(prebuildOwner, prebuildWorkspace, "dev", "/home/coder"),
 		// Given: We start with a single dev container resource.
 		agentcontainers.WithDevcontainers(
-			[]codersdk.WorkspaceAgentDevcontainer{testDC},
-			[]codersdk.WorkspaceAgentScript{{ID: testDC.ID, LogSourceID: uuid.New()}},
+			[]nicloudsdk.WorkspaceAgentDevcontainer{testDC},
+			[]nicloudsdk.WorkspaceAgentScript{{ID: testDC.ID, LogSourceID: uuid.New()}},
 		),
 		agentcontainers.WithSubAgentClient(fSAC),
 		agentcontainers.WithContainerCLI(fCCLI),
@@ -5059,8 +5059,8 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 	api.Start()
 
 	fCCLI.mu.Lock()
-	fCCLI.containers = codersdk.WorkspaceAgentListContainersResponse{
-		Containers: []codersdk.WorkspaceAgentContainer{testContainer},
+	fCCLI.containers = nicloudsdk.WorkspaceAgentListContainersResponse{
+		Containers: []nicloudsdk.WorkspaceAgentContainer{testContainer},
 	}
 	fCCLI.mu.Unlock()
 
@@ -5069,7 +5069,7 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 	fDCCLI.readConfig = agentcontainers.DevcontainerConfig{
 		MergedConfiguration: agentcontainers.DevcontainerMergedConfiguration{
 			Customizations: agentcontainers.DevcontainerMergedCustomizations{
-				Coder: []agentcontainers.CoderCustomization{{
+				Coder: []agentcontainers.NICustomization{{
 					Apps: []agentcontainers.SubAgentApp{
 						{Slug: "zed", URL: prebuildAppURL},
 					},
@@ -5088,8 +5088,8 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 	err := api.CreateDevcontainer(testDC.WorkspaceFolder, testDC.ConfigPath)
 	require.NoError(t, err)
 
-	require.Contains(t, readConfigEnvVars, "CODER_WORKSPACE_OWNER_NAME="+prebuildOwner)
-	require.Contains(t, readConfigEnvVars, "CODER_WORKSPACE_NAME="+prebuildWorkspace)
+	require.Contains(t, readConfigEnvVars, "NEURALINVERSE_WORKSPACE_OWNER_NAME="+prebuildOwner)
+	require.Contains(t, readConfigEnvVars, "NEURALINVERSE_WORKSPACE_NAME="+prebuildWorkspace)
 
 	// Then: We there to be only 1 agent.
 	require.Len(t, fSAC.agents, 1)
@@ -5123,8 +5123,8 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 		agentcontainers.WithManifestInfo(userOwner, userWorkspace, "dev", "/home/coder"),
 		// Given: We start with a single dev container resource.
 		agentcontainers.WithDevcontainers(
-			[]codersdk.WorkspaceAgentDevcontainer{testDC},
-			[]codersdk.WorkspaceAgentScript{{ID: testDC.ID, LogSourceID: uuid.New()}},
+			[]nicloudsdk.WorkspaceAgentDevcontainer{testDC},
+			[]nicloudsdk.WorkspaceAgentScript{{ID: testDC.ID, LogSourceID: uuid.New()}},
 		),
 		agentcontainers.WithSubAgentClient(fSAC),
 		agentcontainers.WithContainerCLI(fCCLI),
@@ -5143,7 +5143,7 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 	fDCCLI.readConfig = agentcontainers.DevcontainerConfig{
 		MergedConfiguration: agentcontainers.DevcontainerMergedConfiguration{
 			Customizations: agentcontainers.DevcontainerMergedCustomizations{
-				Coder: []agentcontainers.CoderCustomization{{
+				Coder: []agentcontainers.NICustomization{{
 					Apps: []agentcontainers.SubAgentApp{
 						{Slug: "zed", URL: userAppURL},
 					},
@@ -5162,8 +5162,8 @@ func TestDevcontainerPrebuildSupport(t *testing.T) {
 	require.NoError(t, err)
 
 	// Then: We expect the environment variables were passed correctly.
-	require.Contains(t, readConfigEnvVars, "CODER_WORKSPACE_OWNER_NAME="+userOwner)
-	require.Contains(t, readConfigEnvVars, "CODER_WORKSPACE_NAME="+userWorkspace)
+	require.Contains(t, readConfigEnvVars, "NEURALINVERSE_WORKSPACE_OWNER_NAME="+userOwner)
+	require.Contains(t, readConfigEnvVars, "NEURALINVERSE_WORKSPACE_NAME="+userWorkspace)
 
 	// And: We expect there to be only 1 agent.
 	require.Len(t, fSAC.agents, 1)

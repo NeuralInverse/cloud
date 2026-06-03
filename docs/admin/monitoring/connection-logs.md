@@ -2,15 +2,15 @@
 
 > [!NOTE]
 > Connection logs require a
-> [Premium license](https://coder.com/pricing#compare-plans).
-> For more details, [contact your account team](https://coder.com/contact).
+> [Premium license](https://cloud.neuralinverse.com/pricing#compare-plans).
+> For more details, [contact your account team](https://cloud.neuralinverse.com/contact).
 
 The **Connection Log** page in the dashboard allows Auditors to monitor workspace agent connections.
 
 ## Workspace App Connections
 
 The connection log contains a complete record of all workspace app connections.
-These originate from within the Coder deployment, and thus the connection log
+These originate from within the Neural Inverse Cloud deployment, and thus the connection log
 is a source of truth for these events.
 
 ## Browser Port Forwarding
@@ -34,7 +34,7 @@ You can filter connection logs by the following parameters:
     to.
 - `type` - The type of the connection, such as SSH, VS Code, or workspace app.
     For more connection types, refer to the
-    [CoderSDK documentation](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#ConnectionType).
+    [Neural Inverse CloudSDK documentation](https://pkg.go.dev/github.com/NeuralInverse/cloud/v2/nicloudsdk#ConnectionType).
 - `username`: The name of the user who initiated the connection.
    Results will not include SSH or IDE sessions.
 - `user_email`: The email of the user who initiated the connection.
@@ -51,12 +51,12 @@ You can filter connection logs by the following parameters:
 
 ## Capturing/Exporting Connection Logs
 
-In addition to the Coder dashboard, there are multiple ways to consume or query
+In addition to the Neural Inverse Cloud dashboard, there are multiple ways to consume or query
 connection events.
 
 ### REST API
 
-You can retrieve connection logs via the Coder API.
+You can retrieve connection logs via the Neural Inverse Cloud API.
 Visit the
 [`get-connection-logs` endpoint documentation](../../reference/api/enterprise.md#get-connection-logs)
 for details.
@@ -75,8 +75,8 @@ connection log entry, when an SSH connection is made:
     "level": "INFO",
     "msg": "connection_log",
     "caller": "/home/coder/coder/enterprise/audit/backends/slog.go:38",
-    "func": "github.com/coder/coder/v2/enterprise/audit/backends.(*SlogExporter).ExportStruct",
-    "logger_names": ["coderd"],
+    "func": "github.com/NeuralInverse/cloud/v2/enterprise/audit/backends.(*SlogExporter).ExportStruct",
+    "logger_names": ["nicloud"],
     "fields": {
         "request_id": "916ad077-e120-4861-8640-f449d56d2bae",
         "ID": "ca5dfc63-dc43-463a-bb3e-38526866fd4b",
@@ -103,14 +103,14 @@ Example of a [human readable](../../reference/cli/server.md#--log-human)
 connection log entry, when `code-server` is opened:
 
 ```console
-[API] 2025-07-03 06:57:16.157 [info]  coderd: connection_log  request_id=de3f6004-6cc1-4880-a296-d7c6ca1abf75  ID=f0249951-d454-48f6-9504-e73340fa07b7  Time="2025-07-03T06:57:16.144719Z"  OrganizationID=0665a54f-0b77-4a58-94aa-59646fa38a74  WorkspaceOwnerID=6dea5f8c-ecec-4cf0-a5bd-bc2c63af2efa  WorkspaceID=3c0b37c8-e58c-4980-b9a1-2732410480a5  WorkspaceName=dev  AgentName=main  Type=workspace_app  Code=200  Ip=127.0.0.1  UserAgent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"  UserID=6dea5f8c-ecec-4cf0-a5bd-bc2c63af2efa  SlugOrPort=code-server  ConnectionID=<nil>  DisconnectReason=""  ConnectionStatus=connected
+[API] 2025-07-03 06:57:16.157 [info]  nicloud: connection_log  request_id=de3f6004-6cc1-4880-a296-d7c6ca1abf75  ID=f0249951-d454-48f6-9504-e73340fa07b7  Time="2025-07-03T06:57:16.144719Z"  OrganizationID=0665a54f-0b77-4a58-94aa-59646fa38a74  WorkspaceOwnerID=6dea5f8c-ecec-4cf0-a5bd-bc2c63af2efa  WorkspaceID=3c0b37c8-e58c-4980-b9a1-2732410480a5  WorkspaceName=dev  AgentName=main  Type=workspace_app  Code=200  Ip=127.0.0.1  UserAgent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"  UserID=6dea5f8c-ecec-4cf0-a5bd-bc2c63af2efa  SlugOrPort=code-server  ConnectionID=<nil>  DisconnectReason=""  ConnectionStatus=connected
 ```
 
 ## Data Retention
 
-Coder supports configurable retention policies that automatically purge old
+Neural Inverse Cloud supports configurable retention policies that automatically purge old
 Connection Logs. To enable automated purging, configure the
-`--connection-logs-retention` flag or `CODER_CONNECTION_LOGS_RETENTION`
+`--connection-logs-retention` flag or `NEURALINVERSE_CONNECTION_LOGS_RETENTION`
 environment variable. For comprehensive configuration options, see
 [Data Retention](../setup/data-retention.md).
 

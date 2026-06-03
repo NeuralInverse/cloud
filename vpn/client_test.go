@@ -17,14 +17,14 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/util/dnsname"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/tailnet/tailnettest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/vpn"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/tailnettest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/vpn"
 	"github.com/coder/websocket"
 )
 
@@ -94,11 +94,11 @@ func TestClient_WorkspaceUpdates(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				switch r.URL.Path {
 				case "/api/v2/users/me":
-					values := r.Header.Values(codersdk.SessionTokenHeader)
+					values := r.Header.Values(nicloudsdk.SessionTokenHeader)
 					assert.Len(t, values, 1, "expected exactly one session token header value")
-					httpapi.Write(ctx, w, http.StatusOK, codersdk.User{
-						ReducedUser: codersdk.ReducedUser{
-							MinimalUser: codersdk.MinimalUser{
+					httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.User{
+						ReducedUser: nicloudsdk.ReducedUser{
+							MinimalUser: nicloudsdk.MinimalUser{
 								ID:       userID,
 								Username: "rootbeer",
 								Name:     "Root Beer",
@@ -108,7 +108,7 @@ func TestClient_WorkspaceUpdates(t *testing.T) {
 					user <- struct{}{}
 
 				case "/api/v2/workspaceagents/connection":
-					values := r.Header.Values(codersdk.SessionTokenHeader)
+					values := r.Header.Values(nicloudsdk.SessionTokenHeader)
 					assert.Len(t, values, 1, "expected exactly one session token header value")
 					httpapi.Write(ctx, w, http.StatusOK, tc.agentConnectionInfo)
 					connInfo <- struct{}{}
@@ -118,14 +118,14 @@ func TestClient_WorkspaceUpdates(t *testing.T) {
 					cVer := r.URL.Query().Get("version")
 					assert.Equal(t, "2.3", cVer)
 
-					values := r.Header.Values(codersdk.SessionTokenHeader)
+					values := r.Header.Values(nicloudsdk.SessionTokenHeader)
 					assert.Len(t, values, 1, "expected exactly one session token header value")
 
 					sws, err := websocket.Accept(w, r, nil)
 					if !assert.NoError(t, err) {
 						return
 					}
-					wsCtx, nc := codersdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
+					wsCtx, nc := nicloudsdk.WebsocketNetConn(ctx, sws, websocket.MessageBinary)
 					serveErrCh <- svc.ServeConnV2(wsCtx, nc, tailnet.StreamID{
 						Name: "client",
 						ID:   peerID,
@@ -187,7 +187,7 @@ func TestClient_WorkspaceUpdates(t *testing.T) {
 
 			expectedHosts := map[dnsname.FQDN][]netip.Addr{}
 			for _, name := range tc.hostnames {
-				expectedHosts[dnsname.FQDN(name)] = []netip.Addr{tailnet.CoderServicePrefix.AddrFromUUID(agentID)}
+				expectedHosts[dnsname.FQDN(name)] = []netip.Addr{tailnet.NIServicePrefix.AddrFromUUID(agentID)}
 			}
 
 			// And be reflected on the Conn's state

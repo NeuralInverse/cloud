@@ -3,7 +3,7 @@
 # Usage: ./docs_update_feature_stages.sh
 #
 # Updates generated sections in docs/install/releases/feature-stages.md:
-# early-access (experimental) features from codersdk, and beta features from
+# early-access (experimental) features from nicloudsdk, and beta features from
 # docs/manifest.json. Uses sparse checkouts of mainline and stable tags.
 
 set -euo pipefail
@@ -51,14 +51,14 @@ echo_latest_main_version() {
 	echo origin/main
 }
 
-sparse_clone_codersdk() {
+sparse_clone_nicloudsdk() {
 	mkdir -p "${1}"
 	cd "${1}"
 	rm -rf "${2}"
 	git clone --quiet --no-checkout "${PROJECT_ROOT}" "${2}"
 	cd "${2}"
-	git sparse-checkout set --no-cone codersdk
-	git checkout "${3}" -- codersdk
+	git sparse-checkout set --no-cone nicloudsdk
+	git checkout "${3}" -- nicloudsdk
 	echo "${1}/${2}"
 }
 
@@ -76,12 +76,12 @@ clone_sparse_path() {
 parse_all_experiments() {
 	# Try ExperimentsSafe first, then fall back to ExperimentsAll if needed
 	experiments_var="ExperimentsSafe"
-	experiments_output=$(go doc -all -C "${dir}" ./codersdk "${experiments_var}" 2>/dev/null || true)
+	experiments_output=$(go doc -all -C "${dir}" ./nicloudsdk "${experiments_var}" 2>/dev/null || true)
 
 	if [[ -z "${experiments_output}" ]]; then
 		# Fall back to ExperimentsAll if ExperimentsSafe is not found
 		experiments_var="ExperimentsAll"
-		experiments_output=$(go doc -all -C "${dir}" ./codersdk "${experiments_var}" 2>/dev/null || true)
+		experiments_output=$(go doc -all -C "${dir}" ./nicloudsdk "${experiments_var}" 2>/dev/null || true)
 
 		if [[ -z "${experiments_output}" ]]; then
 			log "Warning: Neither ExperimentsSafe nor ExperimentsAll found in ${dir}"
@@ -97,7 +97,7 @@ parse_all_experiments() {
 }
 
 parse_experiments() {
-	go doc -all -C "${1}" ./codersdk Experiment |
+	go doc -all -C "${1}" ./nicloudsdk Experiment |
 		sed \
 			-e 's/\t\(Experiment[^ ]*\)\ \ *Experiment = "\([^"]*\)"\(.*\/\/ \(.*\)\)\?/\1|\2|\4/' \
 			-e 's/\t\/\/ \(.*\)/||\1/' |
@@ -131,7 +131,7 @@ for channel in mainline stable; do
 		exit 1
 	fi
 
-	dir="$(sparse_clone_codersdk "${workdir}" "${channel}" "${tag}")"
+	dir="$(sparse_clone_nicloudsdk "${workdir}" "${channel}" "${tag}")"
 
 	declare -A all_experiments=()
 	all_experiments_out="$(parse_all_experiments "${dir}")"

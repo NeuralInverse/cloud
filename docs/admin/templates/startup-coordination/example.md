@@ -30,7 +30,7 @@ if [ -n "$DEPENDENCIES" ]; then
       fi
     done
   else
-    echo "Coder CLI not found, running without sync coordination"
+    echo "Neural Inverse Cloud CLI not found, running without sync coordination"
   fi
 fi
 
@@ -64,7 +64,7 @@ claude
 
 This script demonstrates several [best practices](./usage.md#best-practices):
 
-- Checking for Coder CLI availability before using sync commands
+- Checking for Neural Inverse Cloud CLI availability before using sync commands
 - Tracking whether `coder exp sync` started successfully
 - Using `trap` to ensure completion even if the script exits early
 - Graceful degradation when `coder exp sync` isn't available
@@ -72,7 +72,7 @@ This script demonstrates several [best practices](./usage.md#best-practices):
 
 ## Template Migration Example
 
-Below is a simple example Docker template that clones [Miguel Grinberg's example Flask repo](https://github.com/miguelgrinberg/microblog/) using the [`git-clone` module](https://registry.coder.com/modules/coder/git-clone) and installs the required dependencies for the project:
+Below is a simple example Docker template that clones [Miguel Grinberg's example Flask repo](https://github.com/miguelgrinberg/microblog/) using the [`git-clone` module](https://registry.cloud.neuralinverse.com/modules/coder/git-clone) and installs the required dependencies for the project:
 
 - Python development headers (required for building some Python packages)
 - Python dependencies from the project's `requirements.txt`
@@ -83,35 +83,35 @@ We've omitted some details (such as persistent storage) for brevity, but these a
 
 ```terraform
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = "codercom/enterprise-base:ubuntu"
-  name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
-  entrypoint = ["sh", "-c", coder_agent.main.init_script]
+  name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
+  entrypoint = ["sh", "-c", ni_agent.main.init_script]
   env        = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
+    "NEURALINVERSE_AGENT_TOKEN=${ni_agent.main.token}",
     ]
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
 }
 
 module "git-clone" {
-  count             = data.coder_workspace.me.start_count
-  source            = "registry.coder.com/coder/git-clone/coder"
+  count             = data.ni_workspace.me.start_count
+  source            = "registry.cloud.neuralinverse.com/coder/git-clone/coder"
   version           = "1.2.3"
-  agent_id          = coder_agent.main.id
+  agent_id          = ni_agent.main.id
   url               = "https://github.com/miguelgrinberg/microblog"
 }
 
 resource "coder_script" "setup" {
-  count              = data.coder_workspace.me.start_count
-  agent_id           = coder_agent.main.id
+  count              = data.ni_workspace.me.start_count
+  agent_id           = ni_agent.main.id
   display_name       = "Installing Dependencies"
   run_on_start       = true
   script             = <<EOT
@@ -141,29 +141,29 @@ Here is the updated version of the template:
 
 ```terraform
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = "codercom/enterprise-base:ubuntu"
-  name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
-  entrypoint = ["sh", "-c", coder_agent.main.init_script]
+  name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
+  entrypoint = ["sh", "-c", ni_agent.main.init_script]
   env        = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
+    "NEURALINVERSE_AGENT_TOKEN=${ni_agent.main.token}",
     ]
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
 }
 
 module "git-clone" {
-  count             = data.coder_workspace.me.start_count
-  source            = "registry.coder.com/coder/git-clone/coder"
+  count             = data.ni_workspace.me.start_count
+  source            = "registry.cloud.neuralinverse.com/coder/git-clone/coder"
   version           = "1.2.3"
-  agent_id          = coder_agent.main.id
+  agent_id          = ni_agent.main.id
   url               = "https://github.com/miguelgrinberg/microblog/"
   post_clone_script = <<-EOT
     coder exp sync start git-clone && coder exp sync complete git-clone
@@ -171,8 +171,8 @@ module "git-clone" {
 }
 
 resource "coder_script" "apt-install" {
-  count              = data.coder_workspace.me.start_count
-  agent_id           = coder_agent.main.id
+  count              = data.ni_workspace.me.start_count
+  agent_id           = ni_agent.main.id
   display_name       = "Installing APT Dependencies"
   run_on_start       = true
   script             = <<EOT
@@ -185,8 +185,8 @@ resource "coder_script" "apt-install" {
 }
 
 resource "coder_script" "pip-install" {
-  count              = data.coder_workspace.me.start_count
-  agent_id           = coder_agent.main.id
+  count              = data.ni_workspace.me.start_count
+  agent_id           = ni_agent.main.id
   display_name       = "Installing Python Dependencies"
   run_on_start       = true
   script             = <<EOT

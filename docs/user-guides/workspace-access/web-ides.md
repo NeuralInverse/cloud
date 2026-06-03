@@ -1,6 +1,6 @@
 # Web IDEs
 
-By default, Coder workspaces allow connections via:
+By default, Neural Inverse Cloud workspaces allow connections via:
 
 - Web terminal
 - [SSH](./index.md#ssh)
@@ -10,10 +10,10 @@ networks, data science, contractors, and infrequent code contributors.
 
 ![Row of IDEs](../../images/ide-row.png)
 
-In Coder, web IDEs are defined as
-[coder_app](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
+In Neural Inverse Cloud, web IDEs are defined as
+[ni_app](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
 resources in the template. With our generic model, any web application can be
-used as a Coder application. For example:
+used as a Neural Inverse Cloud application. For example:
 
 To learn more about configuring IDEs in templates, see our docs on
 [template administration](../../admin/templates/index.md).
@@ -24,7 +24,7 @@ To learn more about configuring IDEs in templates, see our docs on
 
 [`code-server`](https://github.com/coder/code-server) is our supported method of
 running VS Code in the web browser. You can read more in our
-[documentation for code-server](https://coder.com/docs/code-server).
+[documentation for code-server](https://cloud.neuralinverse.com/docs/code-server).
 
 ![code-server in a workspace](../../images/code-server-ide.png)
 
@@ -35,7 +35,7 @@ template administrator can add it by following the
 [Extending Templates](../../admin/templates/extending-templates/web-ides.md#vs-code-web)
 guide.
 
-![VS Code Web in Coder](../../images/vscode-web.gif)
+![VS Code Web in Neural Inverse Cloud](../../images/vscode-web.gif)
 
 ## Jupyter Notebook
 
@@ -44,7 +44,7 @@ administrator can add it by following the
 [Extending Templates](../../admin/templates/extending-templates/web-ides.md#jupyter-notebook)
 guide.
 
-![Jupyter Notebook in Coder](../../images/jupyter-notebook.png)
+![Jupyter Notebook in Neural Inverse Cloud](../../images/jupyter-notebook.png)
 
 ## JupyterLab
 
@@ -53,7 +53,7 @@ template administrator can add it by following the
 [Extending Templates](../../admin/templates/extending-templates/web-ides.md#jupyterlab)
 guide.
 
-![JupyterLab in Coder](../../images/jupyter.png)
+![JupyterLab in Neural Inverse Cloud](../../images/jupyter.png)
 
 ## RStudio
 
@@ -62,7 +62,7 @@ can add it to your workspace by following the
 [Extending Templates](../../admin/templates/extending-templates/web-ides.md#rstudio)
 guide.
 
-![RStudio in Coder](../../images/rstudio-port-forward.png)
+![RStudio in Neural Inverse Cloud](../../images/rstudio-port-forward.png)
 
 ## Airflow
 
@@ -71,11 +71,11 @@ engineering pipelines. A template administrator can add it by following the
 [Extending Templates](../../admin/templates/extending-templates/web-ides.md#airflow)
 guide.
 
-![Airflow in Coder](../../images/airflow-port-forward.png)
+![Airflow in Neural Inverse Cloud](../../images/airflow-port-forward.png)
 
 ## SSH Fallback
 
 If you prefer to run web IDEs in localhost, you can port forward using
-[SSH](./index.md#ssh) or the Coder CLI `port-forward` sub-command. Some web IDEs
+[SSH](./index.md#ssh) or the Neural Inverse Cloud CLI `port-forward` sub-command. Some web IDEs
 may not support URL base path adjustment so port forwarding is the only
 approach.

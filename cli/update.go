@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -41,7 +41,7 @@ func (r *RootCmd) update() *serpent.Command {
 			// #17840: If the workspace is already running, we will stop it before
 			// updating. Simply performing a new start transition may not work if the
 			// template specifies ignore_changes.
-			if workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+			if workspace.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionStart {
 				build, err := stopWorkspace(inv, client, workspace, bflags)
 				if err != nil {
 					return xerrors.Errorf("stop workspace: %w", err)

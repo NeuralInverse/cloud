@@ -4,7 +4,7 @@
 #
 # Usage: ./notarize_darwin.sh path/to/zipfile.zip
 #
-# The provided zip file must contain a coder binary that has already been signed
+# The provided zip file must contain a neuralinverse binary that has already been signed
 # using ./sign_darwin.sh.
 #
 # On success, all of the contained binaries inside the input zip file will

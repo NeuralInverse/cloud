@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestSecretCreate(t *testing.T) {
@@ -24,8 +24,8 @@ func TestSecretCreate(t *testing.T) {
 	t.Run("MissingValue", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "secret", "create", "api-key")
 		clitest.SetupConfig(t, client, root)
@@ -38,8 +38,8 @@ func TestSecretCreate(t *testing.T) {
 	t.Run("MissingValueOnTTY", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "--force-tty", "secret", "create", "api-key")
 		clitest.SetupConfig(t, client, root)
@@ -52,8 +52,8 @@ func TestSecretCreate(t *testing.T) {
 	t.Run("SuccessWithValueFlag", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(
 			t,
@@ -73,7 +73,7 @@ func TestSecretCreate(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, output.Stdout(), "api-key")
 
-		secret, err := client.UserSecretByName(ctx, codersdk.Me, "api-key")
+		secret, err := client.UserSecretByName(ctx, nicloudsdk.Me, "api-key")
 		require.NoError(t, err)
 		require.Equal(t, "api-key", secret.Name)
 		require.Equal(t, "API key for workspace tools", secret.Description)
@@ -84,8 +84,8 @@ func TestSecretCreate(t *testing.T) {
 	t.Run("ValueFlagConflictsWithStdin", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(
 			t,
@@ -105,8 +105,8 @@ func TestSecretCreate(t *testing.T) {
 	t.Run("SuccessWithStdin", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(
 			t,
@@ -125,7 +125,7 @@ func TestSecretCreate(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, output.Stdout(), "api-key")
 
-		secret, err := client.UserSecretByName(ctx, codersdk.Me, "api-key")
+		secret, err := client.UserSecretByName(ctx, nicloudsdk.Me, "api-key")
 		require.NoError(t, err)
 		require.Equal(t, "api-key", secret.Name)
 		require.Equal(t, "API key for workspace tools", secret.Description)
@@ -135,9 +135,9 @@ func TestSecretCreate(t *testing.T) {
 	t.Run("StdinTrailingNewlineWarnsAndPreservesValue", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, db := coderdtest.NewWithDatabase(t, nil)
-		firstUser := coderdtest.CreateFirstUser(t, ownerClient)
-		client, user := coderdtest.CreateAnotherUser(t, ownerClient, firstUser.OrganizationID)
+		ownerClient, db := nicloudtest.NewWithDatabase(t, nil)
+		firstUser := nicloudtest.CreateFirstUser(t, ownerClient)
+		client, user := nicloudtest.CreateAnotherUser(t, ownerClient, firstUser.OrganizationID)
 
 		inv, root := clitest.New(
 			t,
@@ -171,8 +171,8 @@ func TestSecretCreate(t *testing.T) {
 	t.Run("EmptyStdinIsNotProvided", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "secret", "create", "api-key")
 		clitest.SetupConfig(t, client, root)
@@ -190,11 +190,11 @@ func TestSecretUpdate(t *testing.T) {
 	t.Run("ServerValidationError", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:  "my-secret",
 			Value: "original-value",
 		})
@@ -211,11 +211,11 @@ func TestSecretUpdate(t *testing.T) {
 	t.Run("AllowsClearingFields", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:        "my-secret",
 			Value:       "original-value",
 			Description: "original description",
@@ -242,7 +242,7 @@ func TestSecretUpdate(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, output.Stdout(), "my-secret")
 
-		secret, err := client.UserSecretByName(ctx, codersdk.Me, "my-secret")
+		secret, err := client.UserSecretByName(ctx, nicloudsdk.Me, "my-secret")
 		require.NoError(t, err)
 		require.Equal(t, "", secret.Description)
 		require.Equal(t, "", secret.EnvName)
@@ -252,11 +252,11 @@ func TestSecretUpdate(t *testing.T) {
 	t.Run("UpdatesValueFromEmptyFlag", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:  "my-secret",
 			Value: "original-value",
 		})
@@ -281,11 +281,11 @@ func TestSecretUpdate(t *testing.T) {
 	t.Run("UpdatesValueFromStdin", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:  "my-secret",
 			Value: "original-value",
 		})
@@ -305,11 +305,11 @@ func TestSecretUpdate(t *testing.T) {
 	t.Run("ValueFlagConflictsWithStdin", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:  "my-secret",
 			Value: "original-value",
 		})
@@ -337,18 +337,18 @@ func TestSecretList(t *testing.T) {
 	t.Run("TableOutput", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:        "tool-config",
 			Value:       "config-value",
 			Description: "Tool configuration",
 			FilePath:    "~/.config/tool/config.json",
 		})
 		require.NoError(t, err)
-		_, err = client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err = client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:        "service-token",
 			Value:       "service-token-value",
 			Description: "Service access token",
@@ -380,11 +380,11 @@ func TestSecretList(t *testing.T) {
 	t.Run("JSONOutput", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		created, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		created, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:        "service-token",
 			Value:       "service-token-value",
 			Description: "Service access token",
@@ -400,7 +400,7 @@ func TestSecretList(t *testing.T) {
 		err = inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var got []codersdk.UserSecret
+		var got []nicloudsdk.UserSecret
 		require.NoError(t, json.Unmarshal([]byte(output.Stdout()), &got))
 		require.Len(t, got, 1)
 		require.Equal(t, created, got[0])
@@ -409,18 +409,18 @@ func TestSecretList(t *testing.T) {
 	t.Run("SingleSecretTableOutput", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:        "tool-config",
 			Value:       "config-value",
 			Description: "Tool configuration",
 			FilePath:    "~/.config/tool/config.json",
 		})
 		require.NoError(t, err)
-		_, err = client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err = client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:        "service-token",
 			Value:       "service-token-value",
 			Description: "Service access token",
@@ -452,11 +452,11 @@ func TestSecretList(t *testing.T) {
 	t.Run("SingleSecretJSONOutput", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		created, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		created, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:        "service-token",
 			Value:       "service-token-value",
 			Description: "Service access token",
@@ -472,7 +472,7 @@ func TestSecretList(t *testing.T) {
 		err = inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var got []codersdk.UserSecret
+		var got []nicloudsdk.UserSecret
 		require.NoError(t, json.Unmarshal([]byte(output.Stdout()), &got))
 		require.Len(t, got, 1)
 		require.Equal(t, created, got[0])
@@ -481,8 +481,8 @@ func TestSecretList(t *testing.T) {
 	t.Run("EmptyState", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "secret", "list")
 		output := clitest.Capture(inv)
@@ -502,11 +502,11 @@ func TestSecretDelete(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:  "service-token",
 			Value: "service-token-value",
 		})
@@ -527,9 +527,9 @@ func TestSecretDelete(t *testing.T) {
 
 		require.NoError(t, waiter.Wait())
 
-		_, err = client.UserSecretByName(setupCtx, codersdk.Me, "service-token")
+		_, err = client.UserSecretByName(setupCtx, nicloudsdk.Me, "service-token")
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *nicloudsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusNotFound, sdkErr.StatusCode())
 	})
@@ -537,11 +537,11 @@ func TestSecretDelete(t *testing.T) {
 	t.Run("YesSkipsPrompt", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		setupCtx := testutil.Context(t, testutil.WaitMedium)
-		_, err := client.CreateUserSecret(setupCtx, codersdk.Me, codersdk.CreateUserSecretRequest{
+		_, err := client.CreateUserSecret(setupCtx, nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 			Name:  "service-token",
 			Value: "service-token-value",
 		})
@@ -558,9 +558,9 @@ func TestSecretDelete(t *testing.T) {
 		require.NotContains(t, output.Stdout(), "Delete secret")
 		require.Empty(t, output.Stderr())
 
-		_, err = client.UserSecretByName(setupCtx, codersdk.Me, "service-token")
+		_, err = client.UserSecretByName(setupCtx, nicloudsdk.Me, "service-token")
 		require.Error(t, err)
-		var sdkErr *codersdk.Error
+		var sdkErr *nicloudsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusNotFound, sdkErr.StatusCode())
 	})
@@ -569,8 +569,8 @@ func TestSecretDelete(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "secret", "delete", "missing-secret")
 		clitest.SetupConfig(t, client, root)
@@ -586,7 +586,7 @@ func TestSecretDelete(t *testing.T) {
 
 		err := waiter.Wait()
 		require.ErrorContains(t, err, `delete secret "missing-secret"`)
-		var sdkErr *codersdk.Error
+		var sdkErr *nicloudsdk.Error
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusNotFound, sdkErr.StatusCode())
 	})

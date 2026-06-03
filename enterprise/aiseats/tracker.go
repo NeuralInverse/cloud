@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 
 	"cdr.dev/slog/v3"
-	agplaiseats "github.com/coder/coder/v2/coderd/aiseats"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
+	agplaiseats "github.com/NeuralInverse/cloud/v2/nicloud/aiseats"
+	"github.com/NeuralInverse/cloud/v2/nicloud/audit"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
 	"github.com/coder/quartz"
 )
 

@@ -7,11 +7,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/enterprise/cli"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/cli"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
 	"github.com/coder/serpent"
 )
 
@@ -37,8 +37,8 @@ func TestCheckWarnings(t *testing.T) {
 
 	t.Run("LicenseWarningForPrivilegedRoles", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				ExpiresAt: time.Now().Add(time.Hour * 24),
 			},
 		})
@@ -57,13 +57,13 @@ func TestCheckWarnings(t *testing.T) {
 
 	t.Run("NoLicenseWarningForRegularUser", func(t *testing.T) {
 		t.Parallel()
-		adminClient, admin := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		adminClient, admin := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				ExpiresAt: time.Now().Add(time.Hour * 24),
 			},
 		})
 
-		client, _ := coderdtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
+		client, _ := nicloudtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
 
 		inv, conf := newCLI(t, "list")
 

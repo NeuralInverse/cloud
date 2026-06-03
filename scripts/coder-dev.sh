@@ -10,12 +10,12 @@ source "${SCRIPT_DIR}/lib.sh"
 
 # Ensure that extant environment variables do not override
 # the config dir we use to override auth for dev.coder.com.
-unset CODER_SESSION_TOKEN
-unset CODER_URL
+unset NEURALINVERSE_SESSION_TOKEN
+unset NEURALINVERSE_URL
 
 GOOS="$(go env GOOS)"
 GOARCH="$(go env GOARCH)"
-CODER_AGENT_URL="${CODER_AGENT_URL:-}"
+NEURALINVERSE_AGENT_URL="${NEURALINVERSE_AGENT_URL:-}"
 DEVELOP_IN_CODER="${DEVELOP_IN_CODER:-0}"
 DEBUG_DELVE="${DEBUG_DELVE:-0}"
 BINARY_TYPE=coder-slim
@@ -37,18 +37,18 @@ RELATIVE_BINARY_PATH="build/${BINARY_TYPE}_${GOOS}_${GOARCH}"
 # get absolute paths to everything.
 pushd "$PROJECT_ROOT"
 mkdir -p ./.coderv2
-CODER_DEV_BIN="$(realpath "$RELATIVE_BINARY_PATH")"
-CODER_DEV_DIR="$(realpath ./.coderv2)"
-CODER_DELVE_DEBUG_BIN=$(realpath "./build/coder_debug_${GOOS}_${GOARCH}")
+NEURALINVERSE_DEV_BIN="$(realpath "$RELATIVE_BINARY_PATH")"
+NEURALINVERSE_DEV_DIR="$(realpath ./.coderv2)"
+NEURALINVERSE_DELVE_DEBUG_BIN=$(realpath "./build/coder_debug_${GOOS}_${GOARCH}")
 popd
 
-if [ -n "${CODER_AGENT_URL}" ]; then
+if [ -n "${NEURALINVERSE_AGENT_URL}" ]; then
 	DEVELOP_IN_CODER=1
 fi
 
 case $BINARY_TYPE in
 coder-slim)
-	# Ensure the coder slim binary is always up-to-date with local
+	# Ensure the neuralinverse slim binary is always up-to-date with local
 	# changes, this simplifies usage of this script for development.
 	# NOTE: we send all output of `make` to /dev/null so that we do not break
 	# scripts that read the output of this command.
@@ -59,7 +59,7 @@ coder-slim)
 	fi
 	;;
 coder)
-	if [[ ! -x "${CODER_DEV_BIN}" ]]; then
+	if [[ ! -x "${NEURALINVERSE_DEV_BIN}" ]]; then
 		# A feature requiring the full binary was requested and the
 		# binary is missing, normally it's built by `develop.sh`, but
 		# it's an expensive operation, so we require manual action here.
@@ -74,13 +74,13 @@ coder)
 	;;
 esac
 
-runcmd=("${CODER_DEV_BIN}")
+runcmd=("${NEURALINVERSE_DEV_BIN}")
 if [[ "${DEBUG_DELVE}" == 1 ]]; then
 	set -x
 	build_flags=(
 		--os "$GOOS"
 		--arch "$GOARCH"
-		--output "$CODER_DELVE_DEBUG_BIN"
+		--output "$NEURALINVERSE_DELVE_DEBUG_BIN"
 		--debug
 	)
 	if [[ "$BINARY_TYPE" == "coder-slim" ]]; then
@@ -97,12 +97,12 @@ if [[ "${DEBUG_DELVE}" == 1 ]]; then
 	current_toolchain="go$(go env GOVERSION | sed 's/^go//')"
 	GOBIN="${PROJECT_ROOT}/build/.bin" GOTOOLCHAIN="${current_toolchain}" go install github.com/go-delve/delve/cmd/dlv@latest
 	dlv_bin="build/.bin/dlv"
-	# The dlv exec mode does not allow the coder binary to shut down
-	# gracefully but attach mode does. So we run the coder binary
+	# The dlv exec mode does not allow the neuralinverse binary to shut down
+	# gracefully but attach mode does. So we run the neuralinverse binary
 	# directly, then attach dlv. The trap forwards signals to the
 	# debuggee. For proper signal propagation to work, we have to
 	# capture them here and can't exec either program.
-	"${runcmd[@]}" --global-config "${CODER_DEV_DIR}" "$@" &
+	"${runcmd[@]}" --global-config "${NEURALINVERSE_DEV_DIR}" "$@" &
 	debuggee_pid=$!
 	"$dlv_bin" attach $debuggee_pid --headless --continue --listen 127.0.0.1:12345 --accept-multiclient &
 	dlv_pid=$!
@@ -117,4 +117,4 @@ if [[ "${DEBUG_DELVE}" == 1 ]]; then
 	exit $ret
 fi
 
-exec "${runcmd[@]}" --global-config "${CODER_DEV_DIR}" "$@"
+exec "${runcmd[@]}" --global-config "${NEURALINVERSE_DEV_DIR}" "$@"

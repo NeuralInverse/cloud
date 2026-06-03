@@ -12,15 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/userpassword"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 //nolint:paralleltest, tparallel
@@ -58,7 +58,7 @@ func TestServerCreateAdminUser(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, ok, "password does not match")
 
-		require.EqualValues(t, []string{codersdk.RoleOwner}, user.RBACRoles, "user does not have owner role")
+		require.EqualValues(t, []string{nicloudsdk.RoleOwner}, user.RBACRoles, "user does not have owner role")
 
 		// Check that user is admin in every org.
 		orgs, err := db.GetOrganizations(ctx, database.GetOrganizationsParams{})
@@ -156,11 +156,11 @@ func TestServerCreateAdminUser(t *testing.T) {
 		defer cancel()
 
 		inv, _ := clitest.New(t, "server", "create-admin-user")
-		inv.Environ.Set("CODER_PG_CONNECTION_URL", connectionURL)
-		inv.Environ.Set("CODER_SSH_KEYGEN_ALGORITHM", "ed25519")
-		inv.Environ.Set("CODER_USERNAME", username)
-		inv.Environ.Set("CODER_EMAIL", email)
-		inv.Environ.Set("CODER_PASSWORD", password)
+		inv.Environ.Set("NEURALINVERSE_PG_CONNECTION_URL", connectionURL)
+		inv.Environ.Set("NEURALINVERSE_SSH_KEYGEN_ALGORITHM", "ed25519")
+		inv.Environ.Set("NEURALINVERSE_USERNAME", username)
+		inv.Environ.Set("NEURALINVERSE_EMAIL", email)
+		inv.Environ.Set("NEURALINVERSE_PASSWORD", password)
 
 		stdout := expecter.NewAttachedToInvocation(t, inv)
 		clitest.Start(t, inv)

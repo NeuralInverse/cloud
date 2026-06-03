@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 type Config struct {
@@ -12,10 +12,10 @@ type Config struct {
 	OrganizationID uuid.UUID `json:"organization_id"`
 	// UserID is the ID of the user to run the test as.
 	UserID string `json:"user_id"`
-	// Request is the request to send to the Coder API to create the workspace.
+	// Request is the request to send to the Neural Inverse Cloud API to create the workspace.
 	// request.template_id must be set. A name will be generated if not
 	// specified.
-	Request codersdk.CreateWorkspaceRequest `json:"request"`
+	Request nicloudsdk.CreateWorkspaceRequest `json:"request"`
 	// NoWaitForAgents determines whether the test should wait for the workspace
 	// agents to connect before returning.
 	NoWaitForAgents bool `json:"no_wait_for_agents"`
@@ -34,10 +34,10 @@ func (c Config) Validate() error {
 	if c.UserID == "" {
 		return xerrors.New("user_id must be set")
 	}
-	if c.UserID != codersdk.Me {
+	if c.UserID != nicloudsdk.Me {
 		_, err := uuid.Parse(c.UserID)
 		if err != nil {
-			return xerrors.Errorf("user_id must be %q or a valid UUID: %w", codersdk.Me, err)
+			return xerrors.Errorf("user_id must be %q or a valid UUID: %w", nicloudsdk.Me, err)
 		}
 	}
 	if c.Request.TemplateID == uuid.Nil {

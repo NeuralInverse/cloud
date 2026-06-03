@@ -10,9 +10,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -38,9 +38,9 @@ func (r *RootCmd) showOrganizationRoles(orgContext *OrganizationContext) *serpen
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]roleTableRow{}, []string{"name", "display name", "site permissions", "organization permissions", "user permissions"}),
 			func(data any) (any, error) {
-				inputs, ok := data.([]codersdk.AssignableRoles)
+				inputs, ok := data.([]nicloudsdk.AssignableRoles)
 				if !ok {
-					return nil, xerrors.Errorf("expected []codersdk.AssignableRoles got %T", data)
+					return nil, xerrors.Errorf("expected []nicloudsdk.AssignableRoles got %T", data)
 				}
 
 				tableRows := make([]roleTableRow, 0)
@@ -76,7 +76,7 @@ func (r *RootCmd) showOrganizationRoles(orgContext *OrganizationContext) *serpen
 
 			if len(inv.Args) > 0 {
 				// filter roles
-				filtered := make([]codersdk.AssignableRoles, 0)
+				filtered := make([]nicloudsdk.AssignableRoles, 0)
 				for _, role := range roles {
 					if slices.ContainsFunc(inv.Args, func(s string) bool {
 						return strings.EqualFold(s, role.Name)
@@ -111,7 +111,7 @@ func (r *RootCmd) createOrganizationRole(orgContext *OrganizationContext) *serpe
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]roleTableRow{}, []string{"name", "display name", "site permissions", "organization permissions", "user permissions"}),
 			func(data any) (any, error) {
-				typed, _ := data.(codersdk.Role)
+				typed, _ := data.(nicloudsdk.Role)
 				return []roleTableRow{roleToTableView(typed)}, nil
 			},
 		),
@@ -129,7 +129,7 @@ func (r *RootCmd) createOrganizationRole(orgContext *OrganizationContext) *serpe
 		Long: FormatExamples(
 			Example{
 				Description: "Run with an input.json file",
-				Command:     "coder organization -O <organization_name> roles create --stdin < role.json",
+				Command:     "neuralinverse organization -O <organization_name> roles create --stdin < role.json",
 			},
 		),
 		Options: []serpent.Option{
@@ -166,7 +166,7 @@ func (r *RootCmd) createOrganizationRole(orgContext *OrganizationContext) *serpe
 				return xerrors.Errorf("listing existing roles: %w", err)
 			}
 
-			var customRole codersdk.Role
+			var customRole nicloudsdk.Role
 			if jsonInput {
 				bytes, err := io.ReadAll(inv.Stdin)
 				if err != nil {
@@ -192,7 +192,7 @@ func (r *RootCmd) createOrganizationRole(orgContext *OrganizationContext) *serpe
 				}
 			} else {
 				if len(inv.Args) == 0 {
-					return xerrors.Errorf("missing role name argument, usage: \"coder organizations roles create <role_name>\"")
+					return xerrors.Errorf("missing role name argument, usage: \"neuralinverse organizations roles create <role_name>\"")
 				}
 
 				if role := existingRole(inv.Args[0], existingRoles); role != nil {
@@ -207,7 +207,7 @@ func (r *RootCmd) createOrganizationRole(orgContext *OrganizationContext) *serpe
 				customRole = *interactiveRole
 			}
 
-			var updated codersdk.Role
+			var updated nicloudsdk.Role
 			if dryRun {
 				// Do not actually post
 				updated = customRole
@@ -236,7 +236,7 @@ func (r *RootCmd) updateOrganizationRole(orgContext *OrganizationContext) *serpe
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]roleTableRow{}, []string{"name", "display name", "site permissions", "organization permissions", "user permissions"}),
 			func(data any) (any, error) {
-				typed, _ := data.(codersdk.Role)
+				typed, _ := data.(nicloudsdk.Role)
 				return []roleTableRow{roleToTableView(typed)}, nil
 			},
 		),
@@ -254,7 +254,7 @@ func (r *RootCmd) updateOrganizationRole(orgContext *OrganizationContext) *serpe
 		Long: FormatExamples(
 			Example{
 				Description: "Run with an input.json file",
-				Command:     "coder roles update --stdin < role.json",
+				Command:     "neuralinverse roles update --stdin < role.json",
 			},
 		),
 		Options: []serpent.Option{
@@ -292,7 +292,7 @@ func (r *RootCmd) updateOrganizationRole(orgContext *OrganizationContext) *serpe
 				return xerrors.Errorf("listing existing roles: %w", err)
 			}
 
-			var customRole codersdk.Role
+			var customRole nicloudsdk.Role
 			if jsonInput {
 				bytes, err := io.ReadAll(inv.Stdin)
 				if err != nil {
@@ -318,7 +318,7 @@ func (r *RootCmd) updateOrganizationRole(orgContext *OrganizationContext) *serpe
 				}
 			} else {
 				if len(inv.Args) == 0 {
-					return xerrors.Errorf("missing role name argument, usage: \"coder organizations roles edit <role_name>\"")
+					return xerrors.Errorf("missing role name argument, usage: \"neuralinverse organizations roles edit <role_name>\"")
 				}
 
 				role := existingRole(inv.Args[0], existingRoles)
@@ -345,7 +345,7 @@ func (r *RootCmd) updateOrganizationRole(orgContext *OrganizationContext) *serpe
 				}
 			}
 
-			var updated codersdk.Role
+			var updated nicloudsdk.Role
 			if dryRun {
 				// Do not actually post
 				updated = customRole
@@ -370,10 +370,10 @@ func (r *RootCmd) updateOrganizationRole(orgContext *OrganizationContext) *serpe
 	return cmd
 }
 
-func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, updateRole *codersdk.Role) (*codersdk.Role, error) {
-	var originalRole codersdk.Role
+func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, updateRole *nicloudsdk.Role) (*nicloudsdk.Role, error) {
+	var originalRole nicloudsdk.Role
 	if updateRole == nil {
-		originalRole = codersdk.Role{
+		originalRole = nicloudsdk.Role{
 			Name:           inv.Args[0],
 			OrganizationID: orgID.String(),
 		}
@@ -391,11 +391,11 @@ func interactiveOrgRoleEdit(inv *serpent.Invocation, orgID uuid.UUID, updateRole
 	}
 
 	role := &originalRole
-	allowedResources := []codersdk.RBACResource{
-		codersdk.ResourceTemplate,
-		codersdk.ResourceWorkspace,
-		codersdk.ResourceUser,
-		codersdk.ResourceGroup,
+	allowedResources := []nicloudsdk.RBACResource{
+		nicloudsdk.ResourceTemplate,
+		nicloudsdk.ResourceWorkspace,
+		nicloudsdk.ResourceUser,
+		nicloudsdk.ResourceGroup,
 	}
 
 	const done = "Finish and submit changes"
@@ -422,7 +422,7 @@ customRoleLoop:
 
 			actions, err := cliui.MultiSelect(inv, cliui.MultiSelectOptions{
 				Message:  fmt.Sprintf("Select actions to allow across the whole deployment for resources=%q", resource),
-				Options:  slice.ToStrings(codersdk.RBACResourceActions[codersdk.RBACResource(resource)]),
+				Options:  slice.ToStrings(nicloudsdk.RBACResourceActions[nicloudsdk.RBACResource(resource)]),
 				Defaults: defaultActions(role, resource),
 			})
 			if err != nil {
@@ -438,13 +438,13 @@ customRoleLoop:
 	return role, nil
 }
 
-func applyOrgResourceActions(role *codersdk.Role, resource string, actions []string) {
+func applyOrgResourceActions(role *nicloudsdk.Role, resource string, actions []string) {
 	if role.OrganizationPermissions == nil {
-		role.OrganizationPermissions = make([]codersdk.Permission, 0)
+		role.OrganizationPermissions = make([]nicloudsdk.Permission, 0)
 	}
 
 	// Construct new site perms with only new perms for the resource
-	keep := make([]codersdk.Permission, 0)
+	keep := make([]nicloudsdk.Permission, 0)
 	for _, perm := range role.OrganizationPermissions {
 		if string(perm.ResourceType) != resource {
 			keep = append(keep, perm)
@@ -453,19 +453,19 @@ func applyOrgResourceActions(role *codersdk.Role, resource string, actions []str
 
 	// Add new perms
 	for _, action := range actions {
-		keep = append(keep, codersdk.Permission{
+		keep = append(keep, nicloudsdk.Permission{
 			Negate:       false,
-			ResourceType: codersdk.RBACResource(resource),
-			Action:       codersdk.RBACAction(action),
+			ResourceType: nicloudsdk.RBACResource(resource),
+			Action:       nicloudsdk.RBACAction(action),
 		})
 	}
 
 	role.OrganizationPermissions = keep
 }
 
-func defaultActions(role *codersdk.Role, resource string) []string {
+func defaultActions(role *nicloudsdk.Role, resource string) []string {
 	if role.OrganizationPermissions == nil {
-		role.OrganizationPermissions = []codersdk.Permission{}
+		role.OrganizationPermissions = []nicloudsdk.Permission{}
 	}
 
 	defaults := make([]string, 0)
@@ -477,7 +477,7 @@ func defaultActions(role *codersdk.Role, resource string) []string {
 	return defaults
 }
 
-func permissionPreviews(role *codersdk.Role, resources []codersdk.RBACResource) []string {
+func permissionPreviews(role *nicloudsdk.Role, resources []nicloudsdk.RBACResource) []string {
 	previews := make([]string, 0, len(resources))
 	for _, resource := range resources {
 		previews = append(previews, permissionPreview(role, resource))
@@ -485,9 +485,9 @@ func permissionPreviews(role *codersdk.Role, resources []codersdk.RBACResource) 
 	return previews
 }
 
-func permissionPreview(role *codersdk.Role, resource codersdk.RBACResource) string {
+func permissionPreview(role *nicloudsdk.Role, resource nicloudsdk.RBACResource) string {
 	if role.OrganizationPermissions == nil {
-		role.OrganizationPermissions = []codersdk.Permission{}
+		role.OrganizationPermissions = []nicloudsdk.Permission{}
 	}
 
 	count := 0
@@ -499,7 +499,7 @@ func permissionPreview(role *codersdk.Role, resource codersdk.RBACResource) stri
 	return fmt.Sprintf("%s :: %d permissions", resource, count)
 }
 
-func roleToTableView(role codersdk.Role) roleTableRow {
+func roleToTableView(role nicloudsdk.Role) roleTableRow {
 	return roleTableRow{
 		Name:                    role.Name,
 		DisplayName:             role.DisplayName,
@@ -510,7 +510,7 @@ func roleToTableView(role codersdk.Role) roleTableRow {
 	}
 }
 
-func existingRole(newRoleName string, existingRoles []codersdk.AssignableRoles) *codersdk.AssignableRoles {
+func existingRole(newRoleName string, existingRoles []nicloudsdk.AssignableRoles) *nicloudsdk.AssignableRoles {
 	for _, existingRole := range existingRoles {
 		if strings.EqualFold(newRoleName, existingRole.Name) {
 			return &existingRole

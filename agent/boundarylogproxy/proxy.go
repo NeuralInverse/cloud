@@ -1,5 +1,5 @@
 // Package boundarylogproxy provides a Unix socket server that receives boundary
-// audit logs and forwards them to coderd via the agent API.
+// audit logs and forwards them to nicloud via the agent API.
 package boundarylogproxy
 
 import (
@@ -16,8 +16,8 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/boundarylogproxy/codec"
-	agentproto "github.com/coder/coder/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy/codec"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
 )
 
 const (
@@ -45,9 +45,9 @@ type Reporter interface {
 }
 
 // Server listens on a Unix socket for boundary log messages and buffers them
-// for forwarding to coderd. The socket server and the forwarder are decoupled:
+// for forwarding to nicloud. The socket server and the forwarder are decoupled:
 // - Start() creates the socket and accepts a connection from boundary
-// - RunForwarder() drains the buffer and sends logs to coderd via AgentAPI
+// - RunForwarder() drains the buffer and sends logs to nicloud via AgentAPI
 type Server struct {
 	logger     slog.Logger
 	socketPath string
@@ -95,7 +95,7 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// RunForwarder drains the log buffer and forwards logs to coderd.
+// RunForwarder drains the log buffer and forwards logs to nicloud.
 // It blocks until ctx is canceled.
 func (s *Server) RunForwarder(ctx context.Context, sender Reporter) error {
 	s.logger.Debug(ctx, "boundary log forwarder started")

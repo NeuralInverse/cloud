@@ -9,23 +9,23 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestList(t *testing.T) {
 	t.Parallel()
 	t.Run("Single", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := nicloudtest.NewWithDatabase(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		// setup template
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
@@ -52,9 +52,9 @@ func TestList(t *testing.T) {
 
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := nicloudtest.NewWithDatabase(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		_ = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: owner.OrganizationID,
 			OwnerID:        memberUser.ID,
@@ -71,16 +71,16 @@ func TestList(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var workspaces []codersdk.Workspace
+		var workspaces []nicloudsdk.Workspace
 		require.NoError(t, json.Unmarshal(out.Bytes(), &workspaces))
 		require.Len(t, workspaces, 1)
 	})
 
 	t.Run("NoWorkspacesJSON", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		inv, root := clitest.New(t, "list", "--output=json")
 		clitest.SetupConfig(t, member, root)
@@ -95,7 +95,7 @@ func TestList(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var workspaces []codersdk.Workspace
+		var workspaces []nicloudsdk.Workspace
 		require.NoError(t, json.Unmarshal(stdout.Bytes(), &workspaces))
 		require.Len(t, workspaces, 0)
 
@@ -106,9 +106,9 @@ func TestList(t *testing.T) {
 		t.Parallel()
 
 		var (
-			client, db           = coderdtest.NewWithDatabase(t, nil)
-			orgOwner             = coderdtest.CreateFirstUser(t, client)
-			memberClient, member = coderdtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
+			client, db           = nicloudtest.NewWithDatabase(t, nil)
+			orgOwner             = nicloudtest.CreateFirstUser(t, client)
+			memberClient, member = nicloudtest.CreateAnotherUser(t, client, orgOwner.OrganizationID, rbac.ScopedRoleOrgAuditor(orgOwner.OrganizationID))
 			sharedWorkspace      = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 				Name:           "wibble",
 				OwnerID:        orgOwner.UserID,
@@ -123,9 +123,9 @@ func TestList(t *testing.T) {
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
-		client.UpdateWorkspaceACL(ctx, sharedWorkspace.ID, codersdk.UpdateWorkspaceACL{
-			UserRoles: map[string]codersdk.WorkspaceRole{
-				member.ID.String(): codersdk.WorkspaceRoleUse,
+		client.UpdateWorkspaceACL(ctx, sharedWorkspace.ID, nicloudsdk.UpdateWorkspaceACL{
+			UserRoles: map[string]nicloudsdk.WorkspaceRole{
+				member.ID.String(): nicloudsdk.WorkspaceRoleUse,
 			},
 		})
 
@@ -137,7 +137,7 @@ func TestList(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var workspaces []codersdk.Workspace
+		var workspaces []nicloudsdk.Workspace
 		require.NoError(t, json.Unmarshal(stdout.Bytes(), &workspaces))
 		require.Len(t, workspaces, 1)
 		require.Equal(t, sharedWorkspace.ID, workspaces[0].ID)

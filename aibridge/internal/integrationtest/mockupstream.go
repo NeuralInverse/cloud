@@ -21,8 +21,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/gjson"
 
-	"github.com/coder/coder/v2/aibridge/fixtures"
-	"github.com/coder/coder/v2/aibridge/intercept/eventstream"
+	"github.com/NeuralInverse/cloud/v2/aibridge/fixtures"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept/eventstream"
 )
 
 // upstreamResponse defines a single response that mockUpstream will replay

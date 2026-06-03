@@ -40,7 +40,7 @@ Use the development script:
 For isolated multi-worktree dogfood runs, prefer one of these:
 
 ```bash
-CODER_DEV_PORT_OFFSET=true ./scripts/develop.sh
+NEURALINVERSE_DEV_PORT_OFFSET=true ./scripts/develop.sh
 ```
 
 ```bash
@@ -60,13 +60,13 @@ Useful defaults:
 
 Useful overrides:
 
-- `CODER_DEV_PORT`
-- `CODER_DEV_WEB_PORT`
-- `CODER_DEV_PROXY_PORT`
-- `CODER_DEV_PROMETHEUS_PORT`
-- `CODER_DEV_PORT_OFFSET`
-- `CODER_DEV_ACCESS_URL`
-- `CODER_DEV_ADMIN_PASSWORD`
+- `NEURALINVERSE_DEV_PORT`
+- `NEURALINVERSE_DEV_WEB_PORT`
+- `NEURALINVERSE_DEV_PROXY_PORT`
+- `NEURALINVERSE_DEV_PROMETHEUS_PORT`
+- `NEURALINVERSE_DEV_PORT_OFFSET`
+- `NEURALINVERSE_DEV_ACCESS_URL`
+- `NEURALINVERSE_DEV_ADMIN_PASSWORD`
 
 ## Readiness
 

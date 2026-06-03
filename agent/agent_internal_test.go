@@ -12,11 +12,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agentcontextconfig"
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
-	agentsdk "github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontextconfig"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	agentsdk "github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // platformAbsPath constructs an absolute path that is valid
@@ -100,36 +100,36 @@ func TestClassifyCoordinatorRPCExit(t *testing.T) {
 		name      string
 		ctx       context.Context
 		retErr    error
-		reason    codersdk.DisconnectReason
-		initiator codersdk.DisconnectInitiator
+		reason    nicloudsdk.DisconnectReason
+		initiator nicloudsdk.DisconnectInitiator
 	}{
 		{
 			name:      "local shutdown, no error",
 			ctx:       canceled,
 			retErr:    nil,
-			reason:    codersdk.DisconnectReasonServerShutdown,
-			initiator: codersdk.DisconnectInitiatorAgent,
+			reason:    nicloudsdk.DisconnectReasonServerShutdown,
+			initiator: nicloudsdk.DisconnectInitiatorAgent,
 		},
 		{
 			name:      "local shutdown, with cleanup error",
 			ctx:       canceled,
 			retErr:    xerrors.New("close timed out"),
-			reason:    codersdk.DisconnectReasonServerShutdown,
-			initiator: codersdk.DisconnectInitiatorAgent,
+			reason:    nicloudsdk.DisconnectReasonServerShutdown,
+			initiator: nicloudsdk.DisconnectInitiatorAgent,
 		},
 		{
 			name:      "remote graceful, no error",
 			ctx:       context.Background(),
 			retErr:    nil,
-			reason:    codersdk.DisconnectReasonGraceful,
-			initiator: codersdk.DisconnectInitiatorServer,
+			reason:    nicloudsdk.DisconnectReasonGraceful,
+			initiator: nicloudsdk.DisconnectInitiatorServer,
 		},
 		{
 			name:      "stream broke unexpectedly",
 			ctx:       context.Background(),
 			retErr:    xerrors.New("read: connection reset"),
-			reason:    codersdk.DisconnectReasonNetworkError,
-			initiator: codersdk.DisconnectInitiatorNetwork,
+			reason:    nicloudsdk.DisconnectReasonNetworkError,
+			initiator: nicloudsdk.DisconnectInitiatorNetwork,
 		},
 	}
 

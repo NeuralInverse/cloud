@@ -3,10 +3,10 @@ package agent
 import (
 	"net/http"
 
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck/health"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk"
 )
 
 func (a *agent) HandleNetcheck(rw http.ResponseWriter, r *http.Request) {
@@ -14,7 +14,7 @@ func (a *agent) HandleNetcheck(rw http.ResponseWriter, r *http.Request) {
 
 	ifReport, err := healthsdk.RunInterfacesReport()
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to run interfaces report",
 			Detail:  err.Error(),
 		})

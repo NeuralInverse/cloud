@@ -11,7 +11,7 @@ type Story = StoryObj<typeof AvatarCard>;
 
 export const WithImage: Story = {
 	args: {
-		header: "Coder",
+		header: "Neural Inverse Cloud",
 		imgUrl: "https://avatars.githubusercontent.com/u/95932066?s=200&v=4",
 		subtitle: "56 members",
 	},

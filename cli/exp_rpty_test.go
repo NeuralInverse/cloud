@@ -10,13 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestExpRpty(t *testing.T) {
@@ -33,7 +33,7 @@ func TestExpRpty(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+		_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 		cmdDone := tGo(t, func() {
 			err := inv.WithContext(ctx).Run()
@@ -56,7 +56,7 @@ func TestExpRpty(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+		_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 		cmdDone := tGo(t, func() {
 			err := inv.WithContext(ctx).Run()
@@ -121,7 +121,7 @@ func TestExpRpty(t *testing.T) {
 				agentcontainers.WithContainerLabelIncludeFilter(wantLabel, "true"),
 			)
 		})
-		_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+		_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 		inv, root := clitest.New(t, "exp", "rpty", workspace.Name, "-c", ct.Container.ID)
 		clitest.SetupConfig(t, client, root)

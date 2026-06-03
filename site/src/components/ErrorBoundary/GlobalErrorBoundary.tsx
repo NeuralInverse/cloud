@@ -27,7 +27,7 @@ export const GlobalErrorBoundaryInner: FC<GlobalErrorBoundaryInnerProps> = ({
 	const { metadata } = useEmbeddedMetadata();
 	const location = useLocation();
 
-	const coderVersion = metadata["build-info"].value?.version;
+	const niVersion = metadata["build-info"].value?.version;
 	const isRenderableError =
 		error instanceof Error || isRouteErrorResponse(error);
 
@@ -57,7 +57,7 @@ export const GlobalErrorBoundaryInner: FC<GlobalErrorBoundaryInnerProps> = ({
 								target="_blank"
 								rel="noreferrer"
 								href={publicGithubIssueLink(
-									coderVersion,
+									niVersion,
 									location.pathname,
 									error,
 								)}
@@ -135,7 +135,7 @@ function serializeDataAsJson(data: unknown): string | null {
 }
 
 function publicGithubIssueLink(
-	coderVersion: string | undefined,
+	niVersion: string | undefined,
 	pathName: string,
 	error: unknown,
 ): string {
@@ -160,7 +160,7 @@ function publicGithubIssueLink(
 
 	const messageBody = `\
 **Version**
-${coderVersion ?? "-- Set version --"}
+${niVersion ?? "-- Set version --"}
 
 **Path**
 \`${pathName}\`

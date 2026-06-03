@@ -18,8 +18,8 @@ shown below when adding new failures.
 ## Symptom: Stale generated DB code after SQL changes
 
 - Likely cause: A query or migration changed without running `make gen`.
-- How to reproduce: Modify `coderd/database/queries/*.sql` and run tests or
-  builds without regenerating `coderd/database/queries.sql.go` and related
+- How to reproduce: Modify `nicloud/database/queries/*.sql` and run tests or
+  builds without regenerating `nicloud/database/queries.sql.go` and related
   generated files.
 - How to diagnose: Check `git diff` for SQL changes without generated Go
   changes. Run `make gen` and inspect the resulting diff.
@@ -89,9 +89,9 @@ shown below when adding new failures.
 - Existing docs or tools: [Development Isolation Guide for Agents](DEV_ISOLATION.md)
   and `scripts/develop/main.go`.
 - Missing harness piece: There is no automatic per-worktree port allocator.
-- Proposed prevention: Assign each worktree a unique `CODER_DEV_PORT`,
-  `CODER_DEV_WEB_PORT`, `CODER_DEV_PROXY_PORT`, and
-  `CODER_DEV_PROMETHEUS_PORT` before starting the app.
+- Proposed prevention: Assign each worktree a unique `NEURALINVERSE_DEV_PORT`,
+  `NEURALINVERSE_DEV_WEB_PORT`, `NEURALINVERSE_DEV_PROXY_PORT`, and
+  `NEURALINVERSE_DEV_PROMETHEUS_PORT` before starting the app.
 
 ## Symptom: Test using `time.Sleep`
 

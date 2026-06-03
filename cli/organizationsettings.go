@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -20,15 +20,15 @@ func (r *RootCmd) organizationSettings(orgContext *OrganizationContext) *serpent
 			Name:    "group-sync",
 			Aliases: []string{"groupsync"},
 			Short:   "Group sync settings to sync groups from an IdP.",
-			Patch: func(ctx context.Context, cli *codersdk.Client, org uuid.UUID, input json.RawMessage) (any, error) {
-				var req codersdk.GroupSyncSettings
+			Patch: func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID, input json.RawMessage) (any, error) {
+				var req nicloudsdk.GroupSyncSettings
 				err := json.Unmarshal(input, &req)
 				if err != nil {
 					return nil, xerrors.Errorf("unmarshalling group sync settings: %w", err)
 				}
 				return cli.PatchGroupIDPSyncSettings(ctx, org.String(), req)
 			},
-			Fetch: func(ctx context.Context, cli *codersdk.Client, org uuid.UUID) (any, error) {
+			Fetch: func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID) (any, error) {
 				return cli.GroupIDPSyncSettings(ctx, org.String())
 			},
 		},
@@ -36,15 +36,15 @@ func (r *RootCmd) organizationSettings(orgContext *OrganizationContext) *serpent
 			Name:    "role-sync",
 			Aliases: []string{"rolesync"},
 			Short:   "Role sync settings to sync organization roles from an IdP.",
-			Patch: func(ctx context.Context, cli *codersdk.Client, org uuid.UUID, input json.RawMessage) (any, error) {
-				var req codersdk.RoleSyncSettings
+			Patch: func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID, input json.RawMessage) (any, error) {
+				var req nicloudsdk.RoleSyncSettings
 				err := json.Unmarshal(input, &req)
 				if err != nil {
 					return nil, xerrors.Errorf("unmarshalling role sync settings: %w", err)
 				}
 				return cli.PatchRoleIDPSyncSettings(ctx, org.String(), req)
 			},
-			Fetch: func(ctx context.Context, cli *codersdk.Client, org uuid.UUID) (any, error) {
+			Fetch: func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID) (any, error) {
 				return cli.RoleIDPSyncSettings(ctx, org.String())
 			},
 		},
@@ -53,15 +53,15 @@ func (r *RootCmd) organizationSettings(orgContext *OrganizationContext) *serpent
 			Aliases:           []string{"organizationsync", "org-sync", "orgsync"},
 			Short:             "Organization sync settings to sync organization memberships from an IdP.",
 			DisableOrgContext: true,
-			Patch: func(ctx context.Context, cli *codersdk.Client, _ uuid.UUID, input json.RawMessage) (any, error) {
-				var req codersdk.OrganizationSyncSettings
+			Patch: func(ctx context.Context, cli *nicloudsdk.Client, _ uuid.UUID, input json.RawMessage) (any, error) {
+				var req nicloudsdk.OrganizationSyncSettings
 				err := json.Unmarshal(input, &req)
 				if err != nil {
 					return nil, xerrors.Errorf("unmarshalling organization sync settings: %w", err)
 				}
 				return cli.PatchOrganizationIDPSyncSettings(ctx, req)
 			},
-			Fetch: func(ctx context.Context, cli *codersdk.Client, _ uuid.UUID) (any, error) {
+			Fetch: func(ctx context.Context, cli *nicloudsdk.Client, _ uuid.UUID) (any, error) {
 				return cli.OrganizationIDPSyncSettings(ctx)
 			},
 		},
@@ -69,15 +69,15 @@ func (r *RootCmd) organizationSettings(orgContext *OrganizationContext) *serpent
 			Name:    "workspace-sharing",
 			Aliases: []string{"workspacesharing"},
 			Short:   "Workspace sharing settings for the organization.",
-			Patch: func(ctx context.Context, cli *codersdk.Client, org uuid.UUID, input json.RawMessage) (any, error) {
-				var req codersdk.UpdateWorkspaceSharingSettingsRequest
+			Patch: func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID, input json.RawMessage) (any, error) {
+				var req nicloudsdk.UpdateWorkspaceSharingSettingsRequest
 				err := json.Unmarshal(input, &req)
 				if err != nil {
 					return nil, xerrors.Errorf("unmarshalling workspace sharing settings: %w", err)
 				}
 				return cli.PatchWorkspaceSharingSettings(ctx, org.String(), req)
 			},
-			Fetch: func(ctx context.Context, cli *codersdk.Client, org uuid.UUID) (any, error) {
+			Fetch: func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID) (any, error) {
 				return cli.WorkspaceSharingSettings(ctx, org.String())
 			},
 		},
@@ -106,8 +106,8 @@ type organizationSetting struct {
 	// sync settings which are not tied to a specific organization.
 	// It feels excessive to build a more elaborate solution for this one-off.
 	DisableOrgContext bool
-	Patch             func(ctx context.Context, cli *codersdk.Client, org uuid.UUID, input json.RawMessage) (any, error)
-	Fetch             func(ctx context.Context, cli *codersdk.Client, org uuid.UUID) (any, error)
+	Patch             func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID, input json.RawMessage) (any, error)
+	Fetch             func(ctx context.Context, cli *nicloudsdk.Client, org uuid.UUID) (any, error)
 }
 
 func (r *RootCmd) setOrganizationSettings(orgContext *OrganizationContext, settings []organizationSetting) *serpent.Command {
@@ -117,7 +117,7 @@ func (r *RootCmd) setOrganizationSettings(orgContext *OrganizationContext, setti
 		Long: FormatExamples(
 			Example{
 				Description: "Update group sync settings.",
-				Command:     "coder organization settings set groupsync < input.json",
+				Command:     "neuralinverse organization settings set groupsync < input.json",
 			},
 		),
 		Options: []serpent.Option{},
@@ -146,7 +146,7 @@ func (r *RootCmd) setOrganizationSettings(orgContext *OrganizationContext, setti
 				}
 
 				ctx := inv.Context()
-				var org codersdk.Organization
+				var org nicloudsdk.Organization
 
 				if !set.DisableOrgContext {
 					org, err = orgContext.Selected(inv, client)
@@ -193,7 +193,7 @@ func (r *RootCmd) printOrganizationSetting(orgContext *OrganizationContext, sett
 		Long: FormatExamples(
 			Example{
 				Description: "Output group sync settings.",
-				Command:     "coder organization settings show groupsync",
+				Command:     "neuralinverse organization settings show groupsync",
 			},
 		),
 		Options: []serpent.Option{},
@@ -222,7 +222,7 @@ func (r *RootCmd) printOrganizationSetting(orgContext *OrganizationContext, sett
 				}
 
 				ctx := inv.Context()
-				var org codersdk.Organization
+				var org nicloudsdk.Organization
 				if !set.DisableOrgContext {
 					org, err = orgContext.Selected(inv, client)
 					if err != nil {

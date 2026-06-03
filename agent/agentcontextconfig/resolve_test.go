@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentcontextconfig"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontextconfig"
 )
 
 // platformAbsPath constructs an absolute path that is valid

@@ -91,6 +91,6 @@ Coder uses `aws_ec2_instance_state` to start and stop the VM. This example templ
 
 ## code-server
 
-`code-server` is installed via the `startup_script` argument in the `coder_agent`
-resource block. The `coder_app` resource is defined to access `code-server` through
+`code-server` is installed via the `startup_script` argument in the `ni_agent`
+resource block. The `ni_app` resource is defined to access `code-server` through
 the dashboard UI over `localhost:13337`.

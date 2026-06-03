@@ -12,21 +12,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // TestIntegrationDockerCLI tests the DetectArchitecture, Copy, and
 // ExecAs methods using a real Docker container. All tests share a
 // single container to avoid setup overhead.
 //
-// Run manually with: CODER_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestIntegrationDockerCLI
+// Run manually with: NEURALINVERSE_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestIntegrationDockerCLI
 //
 //nolint:tparallel,paralleltest // Docker integration tests don't run in parallel to avoid flakiness.
 func TestIntegrationDockerCLI(t *testing.T) {
-	if ctud, ok := os.LookupEnv("CODER_TEST_USE_DOCKER"); !ok || ctud != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if ctud, ok := os.LookupEnv("NEURALINVERSE_TEST_USE_DOCKER"); !ok || ctud != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 
 	pool, err := dockertest.NewPool("")
@@ -130,12 +130,12 @@ func TestIntegrationDockerCLI(t *testing.T) {
 // TestIntegrationDockerCLIStop tests the Stop method using a real
 // Docker container.
 //
-// Run manually with: CODER_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestIntegrationDockerCLIStop
+// Run manually with: NEURALINVERSE_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestIntegrationDockerCLIStop
 //
 //nolint:tparallel,paralleltest // Docker integration tests don't run in parallel to avoid flakiness.
 func TestIntegrationDockerCLIStop(t *testing.T) {
-	if os.Getenv("CODER_TEST_USE_DOCKER") != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if os.Getenv("NEURALINVERSE_TEST_USE_DOCKER") != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 
 	ctx := testutil.Context(t, testutil.WaitLong)
@@ -181,12 +181,12 @@ func TestIntegrationDockerCLIStop(t *testing.T) {
 // TestIntegrationDockerCLIRemove tests the Remove method using a real
 // Docker container.
 //
-// Run manually with: CODER_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestIntegrationDockerCLIRemove
+// Run manually with: NEURALINVERSE_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestIntegrationDockerCLIRemove
 //
 //nolint:tparallel,paralleltest // Docker integration tests don't run in parallel to avoid flakiness.
 func TestIntegrationDockerCLIRemove(t *testing.T) {
-	if os.Getenv("CODER_TEST_USE_DOCKER") != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if os.Getenv("NEURALINVERSE_TEST_USE_DOCKER") != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 
 	ctx := testutil.Context(t, testutil.WaitLong)

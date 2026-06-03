@@ -14,7 +14,7 @@ By adopting dev containers, organizations can:
 - **Improve security**: Use hardened base images and controlled package
   registries to enforce security policies while enabling developer self-service.
 
-Coder supports two approaches for running dev containers. Choose based on your
+Neural Inverse Cloud supports two approaches for running dev containers. Choose based on your
 infrastructure and workflow requirements.
 
 ## Dev Containers Integration
@@ -26,7 +26,7 @@ most use cases.
 **Best for:**
 
 - Workspaces with Docker available (Docker-in-Docker or mounted socket)
-- Dev container management in the Coder dashboard (discovery, status, rebuild)
+- Dev container management in the Neural Inverse Cloud dashboard (discovery, status, rebuild)
 - Multiple dev containers per workspace
 
 [Configure Dev Containers Integration](./integration.md)

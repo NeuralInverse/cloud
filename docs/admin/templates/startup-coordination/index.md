@@ -9,7 +9,7 @@ before it can start. Without explicit coordination, these scripts can
 race against each other, leading to startup failures and inconsistent
 workspace states.
 
-Coder's workspace startup coordination feature lets you declare
+Neural Inverse Cloud's workspace startup coordination feature lets you declare
 dependencies between startup scripts and ensure they run in the correct order.
 This eliminates race conditions and makes workspace startup predictable and
 reliable.

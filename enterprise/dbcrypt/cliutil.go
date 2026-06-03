@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
 )
 
 // Rotate rotates the database encryption keys by re-encrypting all user tokens

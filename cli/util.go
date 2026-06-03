@@ -9,8 +9,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/schedule/cron"
-	"github.com/coder/coder/v2/coderd/util/tz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/schedule/cron"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/tz"
 	"github.com/coder/serpent"
 )
 

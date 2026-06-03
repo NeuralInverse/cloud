@@ -29,7 +29,7 @@ function getKeyType(name: string) {
 const infoByType: Record<KeyType, ReactNode> = {
 	builtin: (
 		<>
-			These provisioners are running as part of a coderd instance. Built-in
+			These provisioners are running as part of a nicloud instance. Built-in
 			provisioners are only available for the default organization.{" "}
 		</>
 	),

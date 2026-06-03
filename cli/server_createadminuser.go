@@ -12,15 +12,15 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/gitsshkey"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/awsiamrds"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/gitsshkey"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/userpassword"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -66,7 +66,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(newUserPgAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if nicloudsdk.PostgresAuth(newUserPgAuth) == nicloudsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -84,10 +84,10 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 
 			validateInputs := func(username, email, password string) error {
 				// Use the validator tags so we match the API's validation.
-				req := codersdk.CreateUserRequestWithOrgs{
+				req := nicloudsdk.CreateUserRequestWithOrgs{
 					Username:        "username",
 					Name:            "Admin User",
-					Email:           "email@coder.com",
+					Email:           "email@cloud.neuralinverse.com",
 					Password:        "ValidPa$$word123!",
 					OrganizationIDs: []uuid.UUID{uuid.New()},
 				}
@@ -255,7 +255,7 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 
 	createAdminUserCommand.Options.Add(
 		serpent.Option{
-			Env:         "CODER_PG_CONNECTION_URL",
+			Env:         "NEURALINVERSE_PG_CONNECTION_URL",
 			Flag:        "postgres-url",
 			Description: "URL of a PostgreSQL database. If empty, the built-in PostgreSQL deployment will be used (Coder must not be already running in this case).",
 			Value:       serpent.StringOf(&newUserDBURL),
@@ -264,31 +264,31 @@ func (r *RootCmd) newCreateAdminUserCommand() *serpent.Command {
 			Name:        "Postgres Connection Auth",
 			Description: "Type of auth to use when connecting to postgres.",
 			Flag:        "postgres-connection-auth",
-			Env:         "CODER_PG_CONNECTION_AUTH",
+			Env:         "NEURALINVERSE_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&newUserPgAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&newUserPgAuth, nicloudsdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
-			Env:         "CODER_SSH_KEYGEN_ALGORITHM",
+			Env:         "NEURALINVERSE_SSH_KEYGEN_ALGORITHM",
 			Flag:        "ssh-keygen-algorithm",
 			Description: "The algorithm to use for generating ssh keys. Accepted values are \"ed25519\", \"ecdsa\", or \"rsa4096\".",
 			Default:     "ed25519",
 			Value:       serpent.StringOf(&newUserSSHKeygenAlgorithm),
 		},
 		serpent.Option{
-			Env:         "CODER_USERNAME",
+			Env:         "NEURALINVERSE_USERNAME",
 			Flag:        "username",
 			Description: "The username of the new user. If not specified, you will be prompted via stdin.",
 			Value:       serpent.StringOf(&newUserUsername),
 		},
 		serpent.Option{
-			Env:         "CODER_EMAIL",
+			Env:         "NEURALINVERSE_EMAIL",
 			Flag:        "email",
 			Description: "The email of the new user. If not specified, you will be prompted via stdin.",
 			Value:       serpent.StringOf(&newUserEmail),
 		},
 		serpent.Option{
-			Env:         "CODER_PASSWORD",
+			Env:         "NEURALINVERSE_PASSWORD",
 			Flag:        "password",
 			Description: "The password of the new user. If not specified, you will be prompted via stdin.",
 			Value:       serpent.StringOf(&newUserPassword),

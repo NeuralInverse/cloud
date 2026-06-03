@@ -180,8 +180,8 @@ export const WithConnectionType: Story = {
 			organization_id: "0e6fa63f-b625-4a6f-ab5b-a8217f8c80b3",
 			organization: {
 				id: "0e6fa63f-b625-4a6f-ab5b-a8217f8c80b3",
-				name: "coder",
-				display_name: "Coder",
+				name: "neuralinverse",
+				display_name: "Neural Inverse Cloud",
 				icon: "",
 			},
 			user: null,

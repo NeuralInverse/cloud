@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -39,7 +39,7 @@ func (r *RootCmd) statePull() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			var build codersdk.WorkspaceBuild
+			var build nicloudsdk.WorkspaceBuild
 			if buildNumber == 0 {
 				workspace, err := client.ResolveWorkspace(inv.Context(), inv.Args[0])
 				if err != nil {
@@ -47,7 +47,7 @@ func (r *RootCmd) statePull() *serpent.Command {
 				}
 				build = workspace.LatestBuild
 			} else {
-				owner, workspace, err := codersdk.SplitWorkspaceIdentifier(inv.Args[0])
+				owner, workspace, err := nicloudsdk.SplitWorkspaceIdentifier(inv.Args[0])
 				if err != nil {
 					return err
 				}
@@ -103,11 +103,11 @@ func (r *RootCmd) statePush() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			var build codersdk.WorkspaceBuild
+			var build nicloudsdk.WorkspaceBuild
 			if buildNumber == 0 {
 				build = workspace.LatestBuild
 			} else {
-				owner, workspace, err := codersdk.SplitWorkspaceIdentifier(inv.Args[0])
+				owner, workspace, err := nicloudsdk.SplitWorkspaceIdentifier(inv.Args[0])
 				if err != nil {
 					return err
 				}
@@ -137,7 +137,7 @@ func (r *RootCmd) statePush() *serpent.Command {
 				return nil
 			}
 
-			build, err = client.CreateWorkspaceBuild(inv.Context(), workspace.ID, codersdk.CreateWorkspaceBuildRequest{
+			build, err = client.CreateWorkspaceBuild(inv.Context(), workspace.ID, nicloudsdk.CreateWorkspaceBuildRequest{
 				TemplateVersionID: build.TemplateVersionID,
 				Transition:        build.Transition,
 				ProvisionerState:  state,

@@ -22,7 +22,7 @@ export const Success: Story = {
 		const canvas = within(canvasElement);
 		const user = userEvent.setup();
 		const emailInput = await canvas.findByLabelText(/email/i);
-		await user.type(emailInput, "admin@coder.com");
+		await user.type(emailInput, "admin@cloud.neuralinverse.com");
 		await user.click(canvas.getByRole("button", { name: /reset password/i }));
 	},
 };
@@ -55,7 +55,7 @@ export const ServerError: Story = {
 		const canvas = within(canvasElement);
 		const user = userEvent.setup();
 		const emailInput = await canvas.findByLabelText(/email/i);
-		await user.type(emailInput, "admin@coder.com");
+		await user.type(emailInput, "admin@cloud.neuralinverse.com");
 		await user.click(canvas.getByRole("button", { name: /reset password/i }));
 	},
 };

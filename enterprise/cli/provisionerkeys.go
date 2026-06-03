@@ -6,9 +6,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	agpl "github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	agpl "github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -60,7 +60,7 @@ func (r *RootCmd) provisionerKeysCreate() *serpent.Command {
 				return err
 			}
 
-			res, err := client.CreateProvisionerKey(ctx, org.ID, codersdk.CreateProvisionerKeyRequest{
+			res, err := client.CreateProvisionerKey(ctx, org.ID, nicloudsdk.CreateProvisionerKeyRequest{
 				Name: inv.Args[0],
 				Tags: tags,
 			})
@@ -83,7 +83,7 @@ func (r *RootCmd) provisionerKeysCreate() *serpent.Command {
 		{
 			Flag:          "tag",
 			FlagShorthand: "t",
-			Env:           "CODER_PROVISIONERD_TAGS",
+			Env:           "NEURALINVERSE_PROVISIONERD_TAGS",
 			Description:   "Tags to filter provisioner jobs by.",
 			Value:         serpent.StringArrayOf(&rawTags),
 		},
@@ -97,7 +97,7 @@ func (r *RootCmd) provisionerKeysList() *serpent.Command {
 	var (
 		orgContext = agpl.NewOrganizationContext()
 		formatter  = cliui.NewOutputFormatter(
-			cliui.TableFormat([]codersdk.ProvisionerKey{}, []string{"created at", "name", "tags"}),
+			cliui.TableFormat([]nicloudsdk.ProvisionerKey{}, []string{"created at", "name", "tags"}),
 			cliui.JSONFormat(),
 		)
 	)

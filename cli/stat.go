@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/clistat"
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/serpent"
 )
 
@@ -257,7 +257,7 @@ func (*RootCmd) statDisk(fs afero.Fs) *serpent.Command {
 		},
 		Handler: func(inv *serpent.Invocation) error {
 			pfx := clistat.ParsePrefix(prefixArg)
-			// Users may also call `coder stat disk <path>`.
+			// Users may also call `neuralinverse stat disk <path>`.
 			if len(inv.Args) > 0 {
 				pathArg = inv.Args[0]
 			}

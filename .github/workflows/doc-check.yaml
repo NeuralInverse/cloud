@@ -57,10 +57,10 @@ jobs:
       - name: Check if secrets are available
         id: check-secrets
         env:
-          CODER_URL: ${{ secrets.DOC_CHECK_CODER_URL }}
-          CODER_TOKEN: ${{ secrets.DOC_CHECK_CODER_SESSION_TOKEN }}
+          NEURALINVERSE_URL: ${{ secrets.DOC_CHECK_NEURALINVERSE_URL }}
+          NEURALINVERSE_TOKEN: ${{ secrets.DOC_CHECK_NEURALINVERSE_SESSION_TOKEN }}
         run: |
-          if [[ -z "${CODER_URL}" || -z "${CODER_TOKEN}" ]]; then
+          if [[ -z "${NEURALINVERSE_URL}" || -z "${NEURALINVERSE_TOKEN}" ]]; then
             echo "skip=true" >> "${GITHUB_OUTPUT}"
             echo "Secrets not available - skipping doc-check."
             echo "This is expected for PRs where secrets are not available."
@@ -198,7 +198,7 @@ jobs:
             > ⚠️ *Checked but no corresponding documentation changes found in this PR*
 
           ---
-          *Automated review via [Coder Agents](https://coder.com/docs/ai-coder/agents)*
+          *Automated review via [Coder Agents](https://coder.com/docs/ai-nicloud/agents)*
           <!-- doc-check-sticky -->
           \`\`\`
 
@@ -215,8 +215,8 @@ jobs:
         if: steps.check-secrets.outputs.skip != 'true'
         uses: coder/agents-chat-action@b3fc81d7dae5006dd124e98ef6fada1a36cdd86e # v0.3.0
         with:
-          coder-url: ${{ secrets.DOC_CHECK_CODER_URL }}
-          coder-token: ${{ secrets.DOC_CHECK_CODER_SESSION_TOKEN }}
+          coder-url: ${{ secrets.DOC_CHECK_NEURALINVERSE_URL }}
+          coder-token: ${{ secrets.DOC_CHECK_NEURALINVERSE_SESSION_TOKEN }}
           chat-prompt: ${{ steps.extract-context.outputs.chat_prompt }}
           github-url: ${{ steps.determine-context.outputs.pr_url }}
           github-token: ${{ github.token }}

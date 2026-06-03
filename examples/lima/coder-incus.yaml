@@ -3,7 +3,7 @@
 # $ limactl start ./coder-incus.yaml
 # $ limactl shell coder-incus
 # The web UI is accessible on http://localhost:3000. Ports are forwarded automatically by Lima.
-# $ coder login http://localhost:3000
+# $ neuralinverse login http://localhost:3000
 
 minimumLimaVersion: "2.0.0"
 
@@ -74,7 +74,7 @@ provision:
     script: |
       #!/bin/bash
       set -eux -o pipefail
-      command -v coder >/dev/null 2>&1 && exit 0
+      command -v neuralinverse >/dev/null 2>&1 && exit 0
       export DEBIAN_FRONTEND=noninteractive
       export HOME=/root
       # Wait for any apt locks from unattended-upgrades on first boot
@@ -85,11 +85,11 @@ provision:
       curl -fsSL https://coder.com/install.sh | sh -s -- --with-terraform
       # Ensure Coder has access to the Incus socket
       usermod -aG incus-admin coder
-      # Ensure coder listens on all interfaces
-      sed -i 's/CODER_HTTP_ADDRESS=.*/CODER_HTTP_ADDRESS=0.0.0.0:3000/' /etc/coder.d/coder.env
+      # Ensure neuralinverse listens on all interfaces
+      sed -i 's/NEURALINVERSE_HTTP_ADDRESS=.*/NEURALINVERSE_HTTP_ADDRESS=0.0.0.0:3000/' /etc/coder.d/coder.env
       # Also set the access URL to host.lima.internal for fast deployments
-      sed -i 's#CODER_ACCESS_URL=.*#CODER_ACCESS_URL=http://host.lima.internal:3000#' /etc/coder.d/coder.env
-      # Ensure coder starts on boot
+      sed -i 's#NEURALINVERSE_ACCESS_URL=.*#NEURALINVERSE_ACCESS_URL=http://host.lima.internal:3000#' /etc/coder.d/coder.env
+      # Ensure neuralinverse starts on boot
       systemctl enable coder
       systemctl start coder
       # Wait for Terraform to be installed
@@ -99,16 +99,16 @@ provision:
       #!/bin/bash
       set -eux -o pipefail
       # If we are already logged in, nothing to do
-      coder templates list >/dev/null 2>&1 && exit 0
+      neuralinverse templates list >/dev/null 2>&1 && exit 0
       # Set up initial user
-      [ ! -e ~/.config/coderv2/session ] && coder login http://localhost:3000 \
+      [ ! -e ~/.config/coderv2/session ] && neuralinverse login http://localhost:3000 \
         --first-user-username admin \
         --first-user-email admin@coder.com \
         --first-user-password "$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c12 | tee ${HOME}/.config/coderv2/password)"
       # Create an initial Incus template
-      coder templates init --id incus
+      neuralinverse templates init --id incus
       pushd ./incus
-      coder templates push incus --yes
+      neuralinverse templates push incus --yes
       popd
       rm -rf ./incus
 probes:
@@ -126,7 +126,7 @@ probes:
     script: |
       #!/bin/bash
       set -eux -o pipefail
-      if ! timeout 30s bash -c "until command -v coder >/dev/null 2>&1; do sleep 3; done"; then
+      if ! timeout 30s bash -c "until command -v neuralinverse >/dev/null 2>&1; do sleep 3; done"; then
         echo >&2 "coder is not installed yet"
         exit 1
       fi
@@ -141,11 +141,11 @@ message: |
    Create your first workspace:
   ------
   limactl shell {{.Instance.Name}}
-  coder create my-workspace --template incus
+  neuralinverse create my-workspace --template incus
   ------
 
   Get started creating your own template now:
   ------
   limactl shell {{.Instance.Name}}
-  cd && coder templates init
+  cd && neuralinverse templates init
   ------

@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 func TestWarnMatchedProvisioners(t *testing.T) {
@@ -15,47 +15,47 @@ func TestWarnMatchedProvisioners(t *testing.T) {
 
 	for _, tt := range []struct {
 		name   string
-		mp     *codersdk.MatchedProvisioners
-		job    codersdk.ProvisionerJob
+		mp     *nicloudsdk.MatchedProvisioners
+		job    nicloudsdk.ProvisionerJob
 		expect string
 	}{
 		{
 			name: "no_match",
-			mp: &codersdk.MatchedProvisioners{
+			mp: &nicloudsdk.MatchedProvisioners{
 				Count:     0,
 				Available: 0,
 			},
-			job: codersdk.ProvisionerJob{
-				Status: codersdk.ProvisionerJobPending,
+			job: nicloudsdk.ProvisionerJob{
+				Status: nicloudsdk.ProvisionerJobPending,
 			},
 			expect: `there are no provisioners that accept the required tags`,
 		},
 		{
 			name: "no_available",
-			mp: &codersdk.MatchedProvisioners{
+			mp: &nicloudsdk.MatchedProvisioners{
 				Count:     1,
 				Available: 0,
 			},
-			job: codersdk.ProvisionerJob{
-				Status: codersdk.ProvisionerJobPending,
+			job: nicloudsdk.ProvisionerJob{
+				Status: nicloudsdk.ProvisionerJobPending,
 			},
 			expect: `Provisioners that accept the required tags have not responded for longer than expected`,
 		},
 		{
 			name: "match",
-			mp: &codersdk.MatchedProvisioners{
+			mp: &nicloudsdk.MatchedProvisioners{
 				Count:     1,
 				Available: 1,
 			},
-			job: codersdk.ProvisionerJob{
-				Status: codersdk.ProvisionerJobPending,
+			job: nicloudsdk.ProvisionerJob{
+				Status: nicloudsdk.ProvisionerJobPending,
 			},
 		},
 		{
 			name: "not_pending",
-			mp:   &codersdk.MatchedProvisioners{},
-			job: codersdk.ProvisionerJob{
-				Status: codersdk.ProvisionerJobRunning,
+			mp:   &nicloudsdk.MatchedProvisioners{},
+			job: nicloudsdk.ProvisionerJob{
+				Status: nicloudsdk.ProvisionerJobRunning,
 			},
 		},
 	} {

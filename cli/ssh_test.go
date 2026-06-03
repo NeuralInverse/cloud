@@ -36,36 +36,36 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentcontainers/acmock"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/agenttest"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/workspacestats/workspacestatstest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/pty"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/acmock"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspacestats/workspacestatstest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
-func setupWorkspaceForAgent(t *testing.T, mutations ...func([]*proto.Agent) []*proto.Agent) (*codersdk.Client, database.WorkspaceTable, string) {
+func setupWorkspaceForAgent(t *testing.T, mutations ...func([]*proto.Agent) []*proto.Agent) (*nicloudsdk.Client, database.WorkspaceTable, string) {
 	t.Helper()
 
-	client, store := coderdtest.NewWithDatabase(t, nil)
+	client, store := nicloudtest.NewWithDatabase(t, nil)
 	client.SetLogger(testutil.Logger(t).Named("client"))
-	first := coderdtest.CreateFirstUser(t, client)
-	userClient, user := coderdtest.CreateAnotherUserMutators(t, client, first.OrganizationID, nil, func(r *codersdk.CreateUserRequestWithOrgs) {
+	first := nicloudtest.CreateFirstUser(t, client)
+	userClient, user := nicloudtest.CreateAnotherUserMutators(t, client, first.OrganizationID, nil, func(r *nicloudsdk.CreateUserRequestWithOrgs) {
 		r.Username = "myuser"
 	})
 	r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
@@ -99,7 +99,7 @@ func TestSSH(t *testing.T) {
 		stdout.ExpectMatchContext(ctx, "Waiting")
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Shells on Mac, Windows, and Linux all exit shells with the "exit" command.
 		stdin.WriteLine("exit")
@@ -141,7 +141,7 @@ func TestSSH(t *testing.T) {
 				stdout.ExpectMatchContext(ctx, "Waiting")
 
 				_ = agenttest.New(t, client.URL, agentToken)
-				coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+				nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 				// Shells on Mac, Windows, and Linux all exit shells with the "exit" command.
 				stdin.WriteLine("exit")
@@ -154,21 +154,21 @@ func TestSSH(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		authToken := uuid.NewString()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, ownerClient)
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionGraph: echo.ProvisionGraphWithAgent(authToken),
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		// SSH to the workspace which should autostart it
 		inv, root := clitest.New(t, "ssh", workspace.Name)
@@ -188,13 +188,13 @@ func TestSSH(t *testing.T) {
 		require.Eventually(t, func() bool {
 			var err error
 			workspace, err = client.Workspace(ctx, workspace.ID)
-			return err == nil && workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart
+			return err == nil && workspace.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionStart
 		}, testutil.WaitShort, testutil.IntervalFast)
 
 		// When the agent connects, the workspace was started, and we should
 		// have access to the shell.
 		_ = agenttest.New(t, client.URL, authToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Shells on Mac, Windows, and Linux all exit shells with the "exit" command.
 		stdin.WriteLine("exit")
@@ -236,24 +236,24 @@ func TestSSH(t *testing.T) {
 		}
 
 		authToken := uuid.NewString()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: true,
 			APIMiddleware:            buildSyncMW,
 		})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		owner := nicloudtest.CreateFirstUser(t, ownerClient)
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionGraph: echo.ProvisionGraphWithAgent(authToken),
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
 		defer cancel()
@@ -299,9 +299,9 @@ func TestSSH(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		authToken := uuid.NewString()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleMember())
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, ownerClient)
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleMember())
 
 		echoResponses := &echo.Responses{
 			Parse:          echo.ParseComplete,
@@ -309,18 +309,18 @@ func TestSSH(t *testing.T) {
 			ProvisionGraph: echo.ProvisionGraphWithAgent(authToken),
 		}
 
-		version := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, echoResponses)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
-		template := coderdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, echoResponses)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
+		template := nicloudtest.CreateTemplate(t, ownerClient, owner.OrganizationID, version.ID)
 
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.AutomaticUpdates = codersdk.AutomaticUpdatesAlways
+		workspace := nicloudtest.CreateWorkspace(t, client, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
+			cwr.AutomaticUpdates = nicloudsdk.AutomaticUpdatesAlways
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		// Update template version
 		authToken2 := uuid.NewString()
@@ -329,9 +329,9 @@ func TestSSH(t *testing.T) {
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionGraph: echo.ProvisionGraphWithAgent(authToken2),
 		}
-		version = coderdtest.UpdateTemplateVersion(t, ownerClient, owner.OrganizationID, echoResponses2, template.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
-		err := ownerClient.UpdateActiveTemplateVersion(context.Background(), template.ID, codersdk.UpdateActiveTemplateVersion{
+		version = nicloudtest.UpdateTemplateVersion(t, ownerClient, owner.OrganizationID, echoResponses2, template.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
+		err := ownerClient.UpdateActiveTemplateVersion(context.Background(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: version.ID,
 		})
 		require.NoError(t, err)
@@ -352,7 +352,7 @@ func TestSSH(t *testing.T) {
 		// When the agent connects, the workspace was started, and we should
 		// have access to the shell.
 		_ = agenttest.New(t, client.URL, authToken2)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Shells on Mac, Windows, and Linux all exit shells with the "exit" command.
 		stdin.WriteLine("exit")
@@ -401,10 +401,10 @@ func TestSSH(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		store, ps := dbtestutil.NewDB(t)
-		client := coderdtest.New(t, &coderdtest.Options{Pubsub: ps, Database: store})
+		client := nicloudtest.New(t, &nicloudtest.Options{Pubsub: ps, Database: store})
 		client.SetLogger(testutil.Logger(t).Named("client"))
-		first := coderdtest.CreateFirstUser(t, client)
-		userClient, user := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
+		first := nicloudtest.CreateFirstUser(t, client)
+		userClient, user := nicloudtest.CreateAnotherUser(t, client, first.OrganizationID)
 		r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 			OrganizationID: first.OrganizationID,
 			OwnerID:        user.ID,
@@ -424,7 +424,7 @@ func TestSSH(t *testing.T) {
 		stdout.ExpectMatchContext(ctx, "Waiting")
 
 		_ = agenttest.New(t, client.URL, r.AgentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 
 		// Ensure the agent is connected.
 		stdin.WriteLine("echo hell'o'")
@@ -526,7 +526,7 @@ func TestSSH(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
 
-		user, err := client.User(ctx, codersdk.Me)
+		user, err := client.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err)
 
 		inv, root := clitest.New(t, "ssh", "--stdio", workspace.Name)
@@ -543,7 +543,7 @@ func TestSSH(t *testing.T) {
 		keySeed, err := agent.SSHKeySeed(user.Username, workspace.Name, "dev")
 		assert.NoError(t, err)
 
-		signer, err := agentssh.CoderSigner(keySeed)
+		signer, err := agentssh.NISigner(keySeed)
 		assert.NoError(t, err)
 
 		conn, channels, requests, err := ssh.NewClientConn(&testutil.ReaderWriterConn{
@@ -649,21 +649,21 @@ func TestSSH(t *testing.T) {
 		t.Parallel()
 
 		authToken := uuid.NewString()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, ownerClient)
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionPlan:  echo.PlanComplete,
 			ProvisionGraph: echo.ProvisionGraphWithAgent(authToken),
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitSuperLong)
 		defer cancel()
@@ -766,7 +766,7 @@ func TestSSH(t *testing.T) {
 		require.Eventually(t, func() bool {
 			var err error
 			workspace, err = client.Workspace(ctx, workspace.ID)
-			return err == nil && workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart
+			return err == nil && workspace.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionStart
 		}, testutil.WaitShort, testutil.IntervalFast)
 
 		// When the agent connects, the workspace was started, and we should
@@ -1044,10 +1044,10 @@ func TestSSH(t *testing.T) {
 		}
 
 		store, ps := dbtestutil.NewDB(t)
-		client := coderdtest.New(t, &coderdtest.Options{Pubsub: ps, Database: store})
+		client := nicloudtest.New(t, &nicloudtest.Options{Pubsub: ps, Database: store})
 		client.SetLogger(testutil.Logger(t).Named("client"))
-		first := coderdtest.CreateFirstUser(t, client)
-		userClient, user := coderdtest.CreateAnotherUser(t, client, first.OrganizationID)
+		first := nicloudtest.CreateFirstUser(t, client)
+		userClient, user := nicloudtest.CreateAnotherUser(t, client, first.OrganizationID)
 		r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 			OrganizationID: first.OrganizationID,
 			OwnerID:        user.ID,
@@ -1129,7 +1129,7 @@ func TestSSH(t *testing.T) {
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Generate private key.
 		privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -1214,7 +1214,7 @@ func TestSSH(t *testing.T) {
 
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		inv, root := clitest.New(t,
 			"ssh",
@@ -1267,7 +1267,7 @@ func TestSSH(t *testing.T) {
 		logger := testutil.Logger(t)
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		inv, root := clitest.New(t,
 			"ssh",
@@ -1312,7 +1312,7 @@ func TestSSH(t *testing.T) {
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -1402,7 +1402,7 @@ func TestSSH(t *testing.T) {
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Wait super super long so this doesn't flake on -race test.
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitSuperLong*2)
@@ -1516,7 +1516,7 @@ func TestSSH(t *testing.T) {
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Wait super long so this doesn't flake on -race test.
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitSuperLong)
@@ -1622,7 +1622,7 @@ func TestSSH(t *testing.T) {
 		stdout.ExpectMatchContext(ctx, "Waiting")
 
 		agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		// Shells on Mac, Windows, and Linux all exit shells with the "exit" command.
 		stdin.WriteLine("exit")
@@ -1694,20 +1694,20 @@ func TestSSH(t *testing.T) {
 				t.Parallel()
 
 				logger := testutil.Logger(t)
-				dv := coderdtest.DeploymentValues(t)
+				dv := nicloudtest.DeploymentValues(t)
 				if tc.experiment {
-					dv.Experiments = []string{string(codersdk.ExperimentWorkspaceUsage)}
+					dv.Experiments = []string{string(nicloudsdk.ExperimentWorkspaceUsage)}
 				}
 				batcher := &workspacestatstest.StatsBatcher{
 					LastStats: &agentproto.Stats{},
 				}
-				admin, store := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+				admin, store := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{
 					DeploymentValues: dv,
 					StatsBatcher:     batcher,
 				})
 				admin.SetLogger(testutil.Logger(t).Named("client"))
-				first := coderdtest.CreateFirstUser(t, admin)
-				client, user := coderdtest.CreateAnotherUser(t, admin, first.OrganizationID)
+				first := nicloudtest.CreateFirstUser(t, admin)
+				client, user := nicloudtest.CreateAnotherUser(t, admin, first.OrganizationID)
 				r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 					OrganizationID: first.OrganizationID,
 					OwnerID:        user.ID,
@@ -1729,7 +1729,7 @@ func TestSSH(t *testing.T) {
 				stdout.ExpectMatchContext(ctx, "Waiting")
 
 				_ = agenttest.New(t, client.URL, agentToken)
-				coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+				nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 				// Shells on Mac, Windows, and Linux all exit shells with the "exit" command.
 				stdin.WriteLine("exit")
@@ -1777,7 +1777,7 @@ func TestSSH(t *testing.T) {
 				ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 				defer cancel()
 
-				user, err := client.User(ctx, codersdk.Me)
+				user, err := client.User(ctx, nicloudsdk.Me)
 				require.NoError(t, err)
 
 				args := []string{"ssh", "--stdio"}
@@ -1838,7 +1838,7 @@ func TestSSH_ForwardGPG(t *testing.T) {
 		t.SkipNow()
 	}
 
-	// This key is for dean@coder.com.
+	// This key is for dean@cloud.neuralinverse.com.
 	const randPublicKeyFingerprint = "7BDFBA0CC7F5A96537C806C427BC6335EB5117F1"
 	const randPublicKey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -1932,7 +1932,7 @@ Key-Length: 2048
 Subkey-Type: 1
 Subkey-Length: 2048
 Name-Real: Coder Test
-Name-Email: test@coder.com
+Name-Email: test@cloud.neuralinverse.com
 Expire-Date: 0
 %no-protection
 `
@@ -1986,7 +1986,7 @@ Expire-Date: 0
 			"GNUPGHOME": gnupgHomeWorkspace,
 		}
 	})
-	coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	logger := testutil.Logger(t)
 	inv, root := clitest.New(t,
@@ -2028,10 +2028,10 @@ Expire-Date: 0
 	// List the keys in the "workspace".
 	invIn.WriteLine("gpg --list-keys && echo gpg-''-listkeys-command-done")
 	listKeysOutput := invOut.ExpectMatchContext(ctx, "gpg--listkeys-command-done")
-	require.Contains(t, listKeysOutput, "[ultimate] Coder Test <test@coder.com>")
+	require.Contains(t, listKeysOutput, "[ultimate] Coder Test <test@cloud.neuralinverse.com>")
 	// It's fine that this key is expired. We're just testing that the key trust
 	// gets synced properly.
-	require.Contains(t, listKeysOutput, "[ expired] Dean Sheather (work key) <dean@coder.com>")
+	require.Contains(t, listKeysOutput, "[ expired] Dean Sheather (work key) <dean@cloud.neuralinverse.com>")
 
 	// Try to sign something. This demonstrates that the forwarding is
 	// working as expected, since the workspace doesn't have access to the
@@ -2086,7 +2086,7 @@ func TestSSH_Container(t *testing.T) {
 				agentcontainers.WithContainerLabelIncludeFilter("this.label.does.not.exist.ignore.devcontainers", "true"),
 			)
 		})
-		_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+		_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 		inv, root := clitest.New(t, "ssh", workspace.Name, "-c", ct.Container.ID)
 		clitest.SetupConfig(t, client, root)
@@ -2113,8 +2113,8 @@ func TestSSH_Container(t *testing.T) {
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 		ctrl := gomock.NewController(t)
 		mLister := acmock.NewMockContainerCLI(ctrl)
-		mLister.EXPECT().List(gomock.Any()).Return(codersdk.WorkspaceAgentListContainersResponse{
-			Containers: []codersdk.WorkspaceAgentContainer{
+		mLister.EXPECT().List(gomock.Any()).Return(nicloudsdk.WorkspaceAgentListContainersResponse{
+			Containers: []nicloudsdk.WorkspaceAgentContainer{
 				{
 					ID:           uuid.NewString(),
 					FriendlyName: "something_completely_different",
@@ -2130,7 +2130,7 @@ func TestSSH_Container(t *testing.T) {
 				agentcontainers.WithContainerLabelIncludeFilter("this.label.does.not.exist.ignore.devcontainers", "true"),
 			)
 		})
-		_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+		_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 		cID := uuid.NewString()
 		inv, root := clitest.New(t, "ssh", workspace.Name, "-c", cID)
@@ -2153,7 +2153,7 @@ func TestSSH_Container(t *testing.T) {
 		ctx := testutil.Context(t, testutil.WaitLong)
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 		_ = agenttest.New(t, client.URL, agentToken)
-		_ = coderdtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
+		_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, workspace.ID).Wait()
 
 		inv, root := clitest.New(t, "ssh", workspace.Name, "-c", uuid.NewString())
 		clitest.SetupConfig(t, client, root)
@@ -2163,7 +2163,7 @@ func TestSSH_Container(t *testing.T) {
 	})
 }
 
-func TestSSH_CoderConnect(t *testing.T) {
+func TestSSH_NIConnect(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Enabled", func(t *testing.T) {
@@ -2179,8 +2179,8 @@ func TestSSH_CoderConnect(t *testing.T) {
 		inv, root := clitest.New(t, "ssh", workspace.Name, "--network-info-dir", "/net", "--stdio")
 		clitest.SetupConfig(t, client, root)
 
-		ctx = cli.WithTestOnlyCoderConnectDialer(ctx, &fakeCoderConnectDialer{})
-		ctx = withCoderConnectRunning(ctx)
+		ctx = cli.WithTestOnlyNIConnectDialer(ctx, &fakeNIConnectDialer{})
+		ctx = withNIConnectRunning(ctx)
 
 		errCh := make(chan error, 1)
 		tGo(t, func() {
@@ -2189,11 +2189,11 @@ func TestSSH_CoderConnect(t *testing.T) {
 		})
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		err := testutil.TryReceive(ctx, t, errCh)
 		// Our mock dialer will always fail with this error, if it was called
-		require.ErrorContains(t, err, "dial coder connect host \"dev.myworkspace.myuser.coder:22\" over tcp")
+		require.ErrorContains(t, err, "dial neuralinverse connect host \"dev.myworkspace.myuser.coder:22\" over tcp")
 
 		// The network info file should be created since we passed `--stdio`
 		entries, err := afero.ReadDir(fs, "/net")
@@ -2206,7 +2206,7 @@ func TestSSH_CoderConnect(t *testing.T) {
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		clientOutput, clientInput := io.Pipe()
 		serverOutput, serverInput := io.Pipe()
@@ -2225,8 +2225,8 @@ func TestSSH_CoderConnect(t *testing.T) {
 		inv.Stdout = serverInput
 		inv.Stderr = io.Discard
 
-		ctx = cli.WithTestOnlyCoderConnectDialer(ctx, &fakeCoderConnectDialer{})
-		ctx = withCoderConnectRunning(ctx)
+		ctx = cli.WithTestOnlyNIConnectDialer(ctx, &fakeNIConnectDialer{})
+		ctx = withNIConnectRunning(ctx)
 
 		cmdDone := tGo(t, func() {
 			err := inv.WithContext(ctx).Run()
@@ -2280,7 +2280,7 @@ func TestSSH_CoderConnect(t *testing.T) {
 		})
 
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		<-cmdDone
 
@@ -2295,7 +2295,7 @@ func TestSSH_CoderConnect(t *testing.T) {
 
 		// Setup agent first to avoid race conditions
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
@@ -2390,7 +2390,7 @@ func TestSSH_OneShotCommandMode(t *testing.T) {
 
 	client, workspace, agentToken := setupWorkspaceForAgent(t)
 	_ = agenttest.New(t, client.URL, agentToken)
-	coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	t.Run("DoesNotRequestPTY", func(t *testing.T) {
 		t.Parallel()
@@ -2457,10 +2457,10 @@ func TestSSH_OneShotCommandMode(t *testing.T) {
 	})
 }
 
-type fakeCoderConnectDialer struct{}
+type fakeNIConnectDialer struct{}
 
-func (*fakeCoderConnectDialer) DialContext(ctx context.Context, network, addr string) (net.Conn, error) {
-	return nil, xerrors.Errorf("dial coder connect host %q over %s", addr, network)
+func (*fakeNIConnectDialer) DialContext(ctx context.Context, network, addr string) (net.Conn, error) {
+	return nil, xerrors.Errorf("dial neuralinverse connect host %q over %s", addr, network)
 }
 
 // tGoContext runs fn in a goroutine passing a context that will be
@@ -2514,7 +2514,7 @@ func TestSSH_Completion(t *testing.T) {
 
 		client, workspace, agentToken := setupWorkspaceForAgent(t)
 		_ = agenttest.New(t, client.URL, agentToken)
-		coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 		var stdout bytes.Buffer
 		inv, root := clitest.New(t, "ssh", "")
@@ -2538,9 +2538,9 @@ func TestSSH_Completion(t *testing.T) {
 	t.Run("MultiAgent", func(t *testing.T) {
 		t.Parallel()
 
-		client, store := coderdtest.NewWithDatabase(t, nil)
-		first := coderdtest.CreateFirstUser(t, client)
-		userClient, user := coderdtest.CreateAnotherUserMutators(t, client, first.OrganizationID, nil, func(r *codersdk.CreateUserRequestWithOrgs) {
+		client, store := nicloudtest.NewWithDatabase(t, nil)
+		first := nicloudtest.CreateFirstUser(t, client)
+		userClient, user := nicloudtest.CreateAnotherUserMutators(t, client, first.OrganizationID, nil, func(r *nicloudsdk.CreateUserRequestWithOrgs) {
 			r.Username = "multiuser"
 		})
 

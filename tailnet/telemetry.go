@@ -14,9 +14,9 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/netmap"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 const (

@@ -20,7 +20,7 @@ export default {
 	},
 
 	core: {
-		allowedHosts: [".coder", ".dev.coder.com"],
+		allowedHosts: [".coder", ".dev.cloud.neuralinverse.com"],
 	},
 
 	async viteFinal(config) {
@@ -29,7 +29,7 @@ export default {
 		// port sharing.
 		config.server = {
 			...config.server,
-			allowedHosts: [".coder", ".dev.coder.com"],
+			allowedHosts: [".coder", ".dev.cloud.neuralinverse.com"],
 		};
 		return config;
 	},

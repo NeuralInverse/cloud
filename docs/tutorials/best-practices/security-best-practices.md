@@ -5,7 +5,7 @@ December 16, 2024
 ---
 
 This best practices guide is separated into parts to help you secure aspects of
-your Coder deployment.
+your Neural Inverse Cloud deployment.
 
 Each section briefly introduces each threat model, then suggests steps or
 concepts to help implement security improvements such as authentication and
@@ -14,13 +14,13 @@ encryption.
 As with any security guide, the steps and suggestions outlined in this document
 are not meant to be exhaustive and do not offer any guarantee.
 
-## Coder Server
+## Neural Inverse Cloud Server
 
-Coder Server is the main control core of a Coder deployment.
+Neural Inverse Cloud Server is the main control core of a Neural Inverse Cloud deployment.
 
-If the Coder Server is compromised in a security incident, it can affect every
+If the Neural Inverse Cloud Server is compromised in a security incident, it can affect every
 other part of your deployment. Even a successful read-only attack against the
-Coder Server could result in a complete compromise of the Coder deployment if
+Neural Inverse Cloud Server could result in a complete compromise of the Neural Inverse Cloud deployment if
 credentials are stolen.
 
 ### User authentication
@@ -30,99 +30,99 @@ organization’s Identity Provider (IdP), such as Okta, to allow single-sign on.
 
 1. Enable and require two-factor authentication in your identity provider.
 1. Enable [IdP Sync](../../admin/users/idp-sync.md) to manage users’ roles and
-   groups in Coder.
+   groups in Neural Inverse Cloud.
 1. Use SCIM to automatically suspend users when they leave the organization.
 
 This allows you to manage user credentials according to your company’s central
 requirements, such as password complexity, 2FA, PassKeys, and others.
 
 Using IdP sync and SCIM means that the central Identity Provider is the source
-of truth, so that when users change roles or leave, their permissions in Coder
+of truth, so that when users change roles or leave, their permissions in Neural Inverse Cloud
 are automatically up to date.
 
 ### Encryption in transit
 
-Place Coder behind a TLS-capable reverse-proxy/load balancer and enable
+Place Neural Inverse Cloud behind a TLS-capable reverse-proxy/load balancer and enable
 [Strict Transport Security](../../reference/cli/server.md#--strict-transport-security)
 so that connections from end users are always encrypted.
 
-Enable [TLS](../../reference/cli/server.md#--tls-address) on Coder Server and
-encrypt traffic from the reverse-proxy/load balancer to Coder Server, so that
+Enable [TLS](../../reference/cli/server.md#--tls-address) on Neural Inverse Cloud Server and
+encrypt traffic from the reverse-proxy/load balancer to Neural Inverse Cloud Server, so that
 even if an attacker gains access to your network, they will not be able to snoop
-on Coder Server traffic.
+on Neural Inverse Cloud Server traffic.
 
 ### Encryption at rest
 
-Coder Server persists no state locally. No action is required.
+Neural Inverse Cloud Server persists no state locally. No action is required.
 
 ### Server logs and audit logs
 
-Capture the logging output of all Coder Server instances and persist them.
+Capture the logging output of all Neural Inverse Cloud Server instances and persist them.
 
 Retain all logs for a minimum of thirty days, ideally ninety days. Filter audit
 logs (which have `msg: audit_log`) and retain them for a minimum of two years
 (ideally five years) in a secure system that resists tampering.
 
-If a security incident with Coder does occur, audit logs are invaluable in
+If a security incident with Neural Inverse Cloud does occur, audit logs are invaluable in
 determining the nature and scope of the impact.
 
 ### Disable path-based apps
 
 For production deployments, we recommend that you disable path-based apps after you've configured a wildcard access URL.
 
-Path-based apps share the same origin as the Coder API, which can be convenient for trialing Coder,
+Path-based apps share the same origin as the Neural Inverse Cloud API, which can be convenient for trialing Neural Inverse Cloud,
 but can expose the deployment to cross-site-scripting (XSS) attacks in production.
-A malicious workspace could reuse Coder cookies to call the API or interact with other workspaces owned by the same user.
+A malicious workspace could reuse Neural Inverse Cloud cookies to call the API or interact with other workspaces owned by the same user.
 
 1. [Enable sub-domain apps with a wildcard DNS record](../../admin/setup/index.md#wildcard-access-url) (like `*.coder.example.com`)
 
 1. Disable path-based apps:
 
    ```shell
-   coderd server --disable-path-apps
+   nicloud server --disable-path-apps
    # or
-   export CODER_DISABLE_PATH_APPS=true
+   export NEURALINVERSE_DISABLE_PATH_APPS=true
    ```
 
-By default, Coder mitigates the impact of having path-based apps enabled, but we still recommend disabling it to prevent
-malicious workspaces accessing other workspaces owned by the same user or performing requests against the Coder API.
+By default, Neural Inverse Cloud mitigates the impact of having path-based apps enabled, but we still recommend disabling it to prevent
+malicious workspaces accessing other workspaces owned by the same user or performing requests against the Neural Inverse Cloud API.
 
 If you do keep path-based apps enabled:
 
-- Path-based apps cannot be shared with other users unless you start the Coder server with `--dangerous-allow-path-app-sharing`.
+- Path-based apps cannot be shared with other users unless you start the Neural Inverse Cloud server with `--dangerous-allow-path-app-sharing`.
 - Users with the site `owner` role cannot use their admin privileges to access path-based apps for workspaces unless the
   server is started with `--dangerous-allow-path-app-site-owner-access`.
 
 ## PostgreSQL
 
-PostgreSQL is the persistent datastore underlying the entire Coder deployment.
+PostgreSQL is the persistent datastore underlying the entire Neural Inverse Cloud deployment.
 If the database is compromised, it may leave every other part of your deployment
 vulnerable.
 
-Coder session tokens and API keys are salted and hashed, so a read-only
-compromise of the database is unlikely to allow an attacker to log into Coder.
+Neural Inverse Cloud session tokens and API keys are salted and hashed, so a read-only
+compromise of the database is unlikely to allow an attacker to log into Neural Inverse Cloud.
 However, the database contains the Terraform state for all workspaces, OIDC
 tokens, and agent tokens, so it is possible that a read-only attack could enable
 lateral movement to other systems.
 
 A successful attack that modifies database state could be escalated to a full
-takeover of an owner account in Coder which could lead to a complete compromise
-of the Coder deployment.
+takeover of an owner account in Neural Inverse Cloud which could lead to a complete compromise
+of the Neural Inverse Cloud deployment.
 
 ### Authentication
 
 1. Generate a strong, random password for accessing PostgreSQL and store it
    securely.
 
-1. Use environment variables to pass the PostgreSQL URL to Coder.
+1. Use environment variables to pass the PostgreSQL URL to Neural Inverse Cloud.
 
 1. If on Kubernetes, use a Kubernetes secret to set the environment variable.
 
 ### Encryption in transit
 
 Enable TLS on PostgreSQL and set `sslmode=verify-full` in your
-[postgres URL](../../reference/cli/server.md#--postgres-url) on Coder Server.
-This configures Coder Server to only establish TLS connections to PostgreSQL and
+[postgres URL](../../reference/cli/server.md#--postgres-url) on Neural Inverse Cloud Server.
+This configures Neural Inverse Cloud Server to only establish TLS connections to PostgreSQL and
 check that the PostgreSQL server’s certificate is valid and matches the expected
 hostname.
 
@@ -130,7 +130,7 @@ hostname.
 
 Run PostgreSQL on servers with full disk encryption enabled and configured.
 
-Coder supports
+Neural Inverse Cloud supports
 [encrypting some particularly sensitive data](../../admin/security/database-encryption.md)
 including OIDC tokens using an encryption key managed independently of the
 database, so even a user with full administrative privileges on the PostgreSQL
@@ -159,7 +159,7 @@ requests to cluster/cloud APIs.
 If one of those credentials is compromised, the potential severity of the
 compromise depends on the permissions granted to the credentials, but will
 almost certainly include code execution inside the cluster/cloud since the whole
-purpose of Coder is to deploy workspaces in the cluster/cloud that can run
+purpose of Neural Inverse Cloud is to deploy workspaces in the cluster/cloud that can run
 developer code.
 
 In addition, provisioner daemons are given access to parameters entered by end
@@ -168,8 +168,8 @@ systems.
 
 ### External provisioner daemons
 
-When Coder workspaces are deployed into multiple clusters/clouds, or workspaces
-are in a different cluster/cloud than the Coder Server, use external provisioner
+When Neural Inverse Cloud workspaces are deployed into multiple clusters/clouds, or workspaces
+are in a different cluster/cloud than the Neural Inverse Cloud Server, use external provisioner
 daemons.
 
 Running provisioner daemons within the same cluster/cloud as the workspaces they
@@ -180,7 +180,7 @@ provision:
   credentials issued outside the cloud/cluster.
 - Means that you don’t have to open any ingress ports on the clusters/clouds
   that host workspaces.
-  - The external provisioner daemons dial out to Coder Server.
+  - The external provisioner daemons dial out to Neural Inverse Cloud Server.
   - Provisioner daemons run in the cluster, so you don’t need to expose
     cluster/cloud APIs externally.
 - Each cloud/cluster is isolated, so a compromise of a provisioner daemon is
@@ -189,8 +189,8 @@ provision:
 ### Authentication
 
 1. Use a [scoped key](../../admin/provisioners/index.md#scoped-key-recommended) to
-   authenticate the provisioner daemons with Coder. These keys can only be used
-   to authenticate provisioner daemons (not other APIs on the Coder Server).
+   authenticate the provisioner daemons with Neural Inverse Cloud. These keys can only be used
+   to authenticate provisioner daemons (not other APIs on the Neural Inverse Cloud Server).
 
 1. Store the keys securely and use environment variables to pass them to the
    provisioner daemon.
@@ -222,8 +222,8 @@ credentials, if available:
 
 ### Encryption in transit
 
-Enable TLS on Coder Server and ensure you use an `https://` URL to access the
-Coder Server.
+Enable TLS on Neural Inverse Cloud Server and ensure you use an `https://` URL to access the
+Neural Inverse Cloud Server.
 
 See the **Encryption in transit** subheading of the
 [Templates](#workspace-templates) section for more about encrypting
@@ -251,8 +251,8 @@ Run provisioner daemons only on systems with full disk encryption enabled.
 Workspace proxies authenticate end users and then proxy network traffic to
 workspaces.
 
-Coder takes care to ensure the user credentials processed by workspace proxies
-are scoped to application access and do not grant full access to the Coder API
+Neural Inverse Cloud takes care to ensure the user credentials processed by workspace proxies
+are scoped to application access and do not grant full access to the Neural Inverse Cloud API
 on behalf of the user. Still, a fully compromised workspace proxy would be in a
 privileged position to phish unrestricted user credentials.
 
@@ -271,8 +271,8 @@ workspaces and can access any port on any running workspace.
 
 ### Encryption in transit
 
-Enable TLS on Coder Server and ensure you use an `https://` URL to access the
-Coder Server.
+Enable TLS on Neural Inverse Cloud Server and ensure you use an `https://` URL to access the
+Neural Inverse Cloud Server.
 
 Communication to the proxied workspace applications is always encrypted with
 Wireguard. No action is required.
@@ -283,13 +283,13 @@ Workspace proxies persist no state locally. No action is required.
 
 ## Workspace templates
 
-Coder templates are executed on provisioner daemons and can include arbitrary
+Neural Inverse Cloud templates are executed on provisioner daemons and can include arbitrary
 code via the
 [local-exec provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/local-exec).
 
-Furthermore, Coder templates are designed to provision compute resources in one
+Furthermore, Neural Inverse Cloud templates are designed to provision compute resources in one
 or more clusters/clouds, and template authors are generally in full control over
-code and scripts executed by the Coder agent in those compute resources.
+code and scripts executed by the Neural Inverse Cloud agent in those compute resources.
 
 This means that template admins have remote code execution privileges for any
 provisioner daemons in their organization and within any cluster/cloud those
@@ -320,9 +320,9 @@ Instead do one of the following:
   - Provide the secrets to the relevant Provisioner Daemons and access them via
     Terraform variables with `sensitive = true`.
 
-- Use Coder parameters to accept secrets from end users at build time.
+- Use Neural Inverse Cloud parameters to accept secrets from end users at build time.
 
-Coder does not attempt to obscure the contents of template files from users
+Neural Inverse Cloud does not attempt to obscure the contents of template files from users
 authorized to view and edit templates, so secrets included directly could
 inadvertently appear on screen while template authors do their work.
 
@@ -345,9 +345,9 @@ While your most privileged secrets should never be included in template files,
 they may inevitably contain confidential or sensitive data about your operations
 and/or infrastructure.
 
-- Ensure that operators who write, review or modify Coder templates are working
+- Ensure that operators who write, review or modify Neural Inverse Cloud templates are working
   on laptops/workstations with full disk encryption, or do their work inside a
-  Coder workspace with full disk encryption.
+  Neural Inverse Cloud workspace with full disk encryption.
 - Ensure [PostgreSQL](#postgresql) is encrypted at rest.
 - Ensure any [source code repositories that store templates](#gitops) are
   encrypted at rest and have appropriate access controls.
@@ -359,17 +359,17 @@ operational config and reconciling the config in Git with operational systems
 each time the `main` (or, archaically, `master`) branch of the repository is
 updated.
 
-1. Store Coder templates in a single Git repository, or a single repository per
-   Coder organization, and use the
-   [Coderd Terraform provider](https://registry.terraform.io/providers/coder/coderd/latest/docs/resources/template)
-   to push changes from the main branch to Coder using a CI/CD tool.
+1. Store Neural Inverse Cloud templates in a single Git repository, or a single repository per
+   Neural Inverse Cloud organization, and use the
+   [Neural Inverse Cloudd Terraform provider](https://registry.terraform.io/providers/coder/nicloud/latest/docs/resources/template)
+   to push changes from the main branch to Neural Inverse Cloud using a CI/CD tool.
 
    This gives you an easily browsable, auditable history of template changes and
-   who made them. Coder audit logs establish who and when changes happen, but
+   who made them. Neural Inverse Cloud audit logs establish who and when changes happen, but
    git repositories are particularly handy for analyzing exactly what changes to
    templates are made.
 
-1. Use a Coder user account exclusively for the purpose of pushing template
+1. Use a Neural Inverse Cloud user account exclusively for the purpose of pushing template
    changes and do not give any human users the credentials.
 
    This ensures any actions taken by the account correspond exactly to CI/CD
@@ -385,20 +385,20 @@ updated.
    bug in your template.
 
 These protections also mitigate the risk of a single trusted insider “going
-rogue” and acting unilaterally to maliciously modify Coder templates.
+rogue” and acting unilaterally to maliciously modify Neural Inverse Cloud templates.
 
 ## Workspaces
 
-The central purpose of Coder is to give end users access to managed compute in
-clusters/clouds designated by Coder’s operators (like platform or developer
+The central purpose of Neural Inverse Cloud is to give end users access to managed compute in
+clusters/clouds designated by Neural Inverse Cloud’s operators (like platform or developer
 experience teams). End users are granted shell access and from there can execute
 arbitrary commands.
 
 This means that end users have remote code execution privileges within the
-clusters/clouds that host Coder workspaces.
+clusters/clouds that host Neural Inverse Cloud workspaces.
 
-It is important to limit Coder users to trusted insiders and/or take steps to
-constrain malicious activity that could be undertaken from a Coder workspace.
+It is important to limit Neural Inverse Cloud users to trusted insiders and/or take steps to
+constrain malicious activity that could be undertaken from a Neural Inverse Cloud workspace.
 
 Example constraints include:
 
@@ -412,7 +412,7 @@ Example constraints include:
 ### Outbound network access
 
 Identify network assets like production systems or highly confidential
-datastores and configure the network to limit access from Coder workspaces.
+datastores and configure the network to limit access from Neural Inverse Cloud workspaces.
 
 If production systems or confidential data reside in the same cluster/cloud, use
 separate node pools and network boundaries.
@@ -445,7 +445,7 @@ A non-exclusive list of network assets to consider:
 
 ### Inbound network access
 
-Coder manages inbound network access to your workspaces via a set of Wireguard
+Neural Inverse Cloud manages inbound network access to your workspaces via a set of Wireguard
 encrypted tunnels. These tunnels are established by sending outbound packets, so
 on stateful firewalls, disable inbound connections to workspaces to ensure
 inbound connections are handled exclusively by the encrypted tunnels.
@@ -455,14 +455,14 @@ inbound connections are handled exclusively by the encrypted tunnels.
 [DERP](https://tailscale.com/kb/1232/derp-servers) is a relay protocol developed
 by Tailscale.
 
-Coder Server and Workspace Proxies include a DERP service by default. Tailcale
+Neural Inverse Cloud Server and Workspace Proxies include a DERP service by default. Tailcale
 also runs a set of public DERP servers, globally distributed.
 
 All DERP messages are end-to-end encrypted, so the DERP service only learns the
 (public) IP addresses of the participants.
 
 If you consider these addresses or the fact that pairs of them communicate over
-DERP to be sensitive, stick to the Coder-provided DERP services which run on
+DERP to be sensitive, stick to the Neural Inverse Cloud-provided DERP services which run on
 your own infrastructure. If not, feel free to configure Tailscale DERP servers
 for global coverage.
 
@@ -470,17 +470,17 @@ for global coverage.
 
 [STUN](https://en.wikipedia.org/wiki/STUN) is an IETF standard protocol that
 allows network endpoints behind NAT to learn their public address and port
-mappings. It is an essential component of Coder’s networking to enable encrypted
+mappings. It is an essential component of Neural Inverse Cloud’s networking to enable encrypted
 tunnels to be established without a relay for best performance.
 
-Coder does not ship with a STUN service because it needs to be run directly
-connected to the network, not behind a reverse proxy or load balancer as Coder
+Neural Inverse Cloud does not ship with a STUN service because it needs to be run directly
+connected to the network, not behind a reverse proxy or load balancer as Neural Inverse Cloud
 usually is.
 
 STUN messages are not encrypted, but do not transmit any tunneled data, they
 simply query the public address and ports. As such, a STUN service learns the
 public address and port information such as the address and port on the NAT
-device of Coder workspaces and the end user's device if STUN is configured.
+device of Neural Inverse Cloud workspaces and the end user's device if STUN is configured.
 
 Unlike DERP, it doesn’t definitively learn about communicating pairs of IPs.
 
@@ -490,40 +490,40 @@ public STUN servers.
 You may choose not to configure any STUN servers, in which case most workspace
 traffic will need to be relayed via DERP. You may choose to deploy your own STUN
 servers, either on the public Internet, or on your corporate network and
-[configure Coder to use it](../../reference/cli/server.md#--derp-server-stun-addresses).
+[configure Neural Inverse Cloud to use it](../../reference/cli/server.md#--derp-server-stun-addresses).
 
 If you do not consider the addresses and ports to be sensitive, we recommend
 using the default set of STUN servers operated by Google.
 
 #### Workspace apps
 
-Coder workspace apps are a way to allow users to access web applications running
-in the workspace via the Coder Server or Workspace Proxy.
+Neural Inverse Cloud workspace apps are a way to allow users to access web applications running
+in the workspace via the Neural Inverse Cloud Server or Workspace Proxy.
 
 1. [Disable workspace apps on sub-paths](../../reference/cli/server.md#--disable-path-apps)
-   of the main Coder domain name.
+   of the main Neural Inverse Cloud domain name.
 
 1. [Use a separate, wildcard domain name](../../admin/setup/index.md#wildcard-access-url)
    for forwarding.
 
    Because of the default
    [same-origin policy](https://en.wikipedia.org/wiki/Same-origin_policy) in
-   browsers, serving web apps on the main Coder domain would allow those apps to
-   send API requests to the Coder Server, authenticated as the logged-in user
+   browsers, serving web apps on the main Neural Inverse Cloud domain would allow those apps to
+   send API requests to the Neural Inverse Cloud Server, authenticated as the logged-in user
    without their explicit consent.
 
 #### Port sharing
 
-Coder supports the option to allow users to designate specific network ports on
+Neural Inverse Cloud supports the option to allow users to designate specific network ports on
 their workspace as shared, which allows others to access those ports via the
-Coder Server.
+Neural Inverse Cloud Server.
 
 Consider restricting the maximum sharing level for workspaces, located in the
 template settings for the corresponding template.
 
 ### Encryption at rest
 
-Deploy Coder workspaces using full disk encryption for all volumes.
+Deploy Neural Inverse Cloud workspaces using full disk encryption for all volumes.
 
 This mitigates attempts to recover sensitive data in the workspace by attackers
 who gain physical access to the disk(s).

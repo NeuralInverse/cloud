@@ -12,13 +12,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/enterprise/cli"
-	"github.com/coder/coder/v2/enterprise/dbcrypt"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/enterprise/cli"
+	"github.com/NeuralInverse/cloud/v2/enterprise/dbcrypt"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // TestServerDBCrypt tests end-to-end encryption, decryption, and deletion
@@ -215,7 +215,7 @@ func genData(t *testing.T, db database.Store) []database.User {
 				randName := testutil.MustRandString(t, 32)
 				usr := dbgen.User(t, db, database.User{
 					Username:  randName,
-					Email:     randName + "@notcoder.com",
+					Email:     randName + "@notcloud.neuralinverse.com",
 					LoginType: loginType,
 					Status:    status,
 					Deleted:   deleted,

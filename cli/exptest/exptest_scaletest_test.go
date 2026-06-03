@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // This test validates that the scaletest CLI filters out workspaces not owned
@@ -21,20 +21,20 @@ import (
 // nolint:paralleltest
 func TestScaleTestWorkspaceTraffic_UseHostLogin(t *testing.T) {
 	log := slogtest.Make(t, &slogtest.Options{IgnoreErrors: true})
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		Logger:                   &log,
 		IncludeProvisionerDaemon: true,
-		DeploymentValues: coderdtest.DeploymentValues(t, func(dv *codersdk.DeploymentValues) {
+		DeploymentValues: nicloudtest.DeploymentValues(t, func(dv *nicloudsdk.DeploymentValues) {
 			dv.DisableOwnerWorkspaceExec = true
 		}),
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	tv := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, tv.ID)
-	tpl := coderdtest.CreateTemplate(t, client, owner.OrganizationID, tv.ID)
+	owner := nicloudtest.CreateFirstUser(t, client)
+	tv := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, tv.ID)
+	tpl := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, tv.ID)
 	// Create a workspace owned by a different user
-	memberClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	_ = coderdtest.CreateWorkspace(t, memberClient, tpl.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
+	memberClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	_ = nicloudtest.CreateWorkspace(t, memberClient, tpl.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
 		cwr.Name = "scaletest-workspace"
 	})
 

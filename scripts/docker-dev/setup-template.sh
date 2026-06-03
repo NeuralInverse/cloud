@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-CODER="go run ./cmd/coder"
+CODER="go run ./cmd/neuralinverse"
 TOKEN_FILE="/bootstrap/token"
 
 # Accept optional org argument. If not provided, use the user's default org.
@@ -10,12 +10,12 @@ ORG_NAME="${1:-}"
 echo "=== Setting up docker template ==="
 
 # Load bootstrap token
-CODER_SESSION_TOKEN=$(cat "$TOKEN_FILE")
-if [ -z "${CODER_SESSION_TOKEN}" ]; then
+NEURALINVERSE_SESSION_TOKEN=$(cat "$TOKEN_FILE")
+if [ -z "${NEURALINVERSE_SESSION_TOKEN}" ]; then
 	echo "Bootstrap token not found in ${TOKEN_FILE}"
 	exit 1
 fi
-export CODER_SESSION_TOKEN
+export NEURALINVERSE_SESSION_TOKEN
 
 # If no org provided, get user's default org.
 if [ -z "$ORG_NAME" ]; then

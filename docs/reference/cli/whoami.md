@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # whoami
 
-Fetch authenticated user info for Coder deployment
+Fetch authenticated user info for Neural Inverse Cloud deployment
 
 ## Usage
 

@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -36,8 +36,8 @@ func (r *RootCmd) autoupdate() *serpent.Command {
 				return xerrors.Errorf("get workspace: %w", err)
 			}
 
-			err = client.UpdateWorkspaceAutomaticUpdates(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceAutomaticUpdatesRequest{
-				AutomaticUpdates: codersdk.AutomaticUpdates(policy),
+			err = client.UpdateWorkspaceAutomaticUpdates(inv.Context(), workspace.ID, nicloudsdk.UpdateWorkspaceAutomaticUpdatesRequest{
+				AutomaticUpdates: nicloudsdk.AutomaticUpdates(policy),
 			})
 			if err != nil {
 				return xerrors.Errorf("update workspace automatic updates policy: %w", err)
@@ -52,10 +52,10 @@ func (r *RootCmd) autoupdate() *serpent.Command {
 }
 
 func validateAutoUpdatePolicy(arg string) error {
-	switch codersdk.AutomaticUpdates(arg) {
-	case codersdk.AutomaticUpdatesAlways, codersdk.AutomaticUpdatesNever:
+	switch nicloudsdk.AutomaticUpdates(arg) {
+	case nicloudsdk.AutomaticUpdatesAlways, nicloudsdk.AutomaticUpdatesNever:
 		return nil
 	default:
-		return xerrors.Errorf("invalid option %q must be either of %q or %q", arg, codersdk.AutomaticUpdatesAlways, codersdk.AutomaticUpdatesNever)
+		return xerrors.Errorf("invalid option %q must be either of %q or %q", arg, nicloudsdk.AutomaticUpdatesAlways, nicloudsdk.AutomaticUpdatesNever)
 	}
 }

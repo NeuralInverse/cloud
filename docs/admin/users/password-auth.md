@@ -1,13 +1,13 @@
 # Password Authentication
 
-Coder has password authentication enabled by default. The account created during
+Neural Inverse Cloud has password authentication enabled by default. The account created during
 setup is a username/password account.
 
 ## Disable password authentication
 
 To disable password authentication, use the
-[`CODER_DISABLE_PASSWORD_AUTH`](../../reference/cli/server.md#--disable-password-auth)
-flag on the Coder server.
+[`NEURALINVERSE_DISABLE_PASSWORD_AUTH`](../../reference/cli/server.md#--disable-password-auth)
+flag on the Neural Inverse Cloud server.
 
 ## Restore the `Owner` user
 
@@ -16,8 +16,8 @@ If you remove the admin user account (or forget the password), you can run the
 on your server.
 
 > [!IMPORTANT]
-> You must run this command on the same machine running the Coder server.
-> If you are running Coder on Kubernetes, this means using
+> You must run this command on the same machine running the Neural Inverse Cloud server.
+> If you are running Neural Inverse Cloud on Kubernetes, this means using
 > [kubectl exec](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_exec/)
 > to exec into the pod.
 

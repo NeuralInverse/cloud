@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
 )
 
 func TestFile(t *testing.T) {

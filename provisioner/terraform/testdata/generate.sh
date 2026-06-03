@@ -8,8 +8,8 @@ scriptdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$scriptdir/resources"
 canonical_lock="$(pwd)/.terraform.lock.hcl"
 
-# These environment variables influence the coder provider.
-for v in $(env | grep -E '^CODER_' | cut -d= -f1); do
+# These environment variables influence the neuralinverse provider.
+for v in $(env | grep -E '^NEURALINVERSE_' | cut -d= -f1); do
 	unset "$v"
 done
 

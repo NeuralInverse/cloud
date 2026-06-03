@@ -10,11 +10,11 @@ January 4, 2024
 ---
 
 This guide will walkthrough how to use a Google Cloud service account to
-authenticate the Coder control plane to AWS and create an EC2 workspace. The
-below steps assume your Coder control plane is running in Google Cloud and has
+authenticate the Neural Inverse Cloud control plane to AWS and create an EC2 workspace. The
+below steps assume your Neural Inverse Cloud control plane is running in Google Cloud and has
 the relevant service account assigned.
 
-For steps on assigning a service account to a resource like Coder, visit the
+For steps on assigning a service account to a resource like Neural Inverse Cloud, visit the
 [Google documentation](https://cloud.google.com/iam/docs/attach-service-accounts#attaching-new-resource).
 
 ## 1. Get your Google service account OAuth Client ID
@@ -58,7 +58,7 @@ following:
 
 ## 3. Assign permissions to the AWS role
 
-In this example, Coder will need permissions to create the EC2 instance. Add the
+In this example, Neural Inverse Cloud will need permissions to create the EC2 instance. Add the
 following policy to the role:
 
 ```json
@@ -84,7 +84,7 @@ following policy to the role:
             "Resource": "*"
         },
         {
-            "Sid": "CoderResources",
+            "Sid": "Neural Inverse CloudResources",
             "Effect": "Allow",
             "Action": [
                 "ec2:DescribeInstanceAttribute",
@@ -102,7 +102,7 @@ following policy to the role:
             "Resource": "arn:aws:ec2:*:*:instance/*",
             "Condition": {
                 "StringEquals": {
-                    "aws:ResourceTag/Coder_Provisioned": "true"
+                    "aws:ResourceTag/Neural Inverse Cloud_Provisioned": "true"
                 }
             }
         }
@@ -125,10 +125,10 @@ veloper.gserviceaccount.com  --include-email
 > Your `gcloud` client may needed elevated permissions to run this
 > command.
 
-## 5. Set identity token in Coder control plane
+## 5. Set identity token in Neural Inverse Cloud control plane
 
 You will need to set the token created in the previous step on a location in the
-Coder control plane. Follow the below steps for your specific deployment type:
+Neural Inverse Cloud control plane. Follow the below steps for your specific deployment type:
 
 ### VM control plane
 
@@ -147,10 +147,10 @@ Coder control plane. Follow the below steps for your specific deployment type:
 kubectl create secret generic gcp-identity-token -n coder --from-literal=token=<enter-token-here>
 ```
 
-Make sure the secret is created inside the same namespace where Coder is
+Make sure the secret is created inside the same namespace where Neural Inverse Cloud is
 running.
 
-- Mount the token file into the Coder pod using the values below:
+- Mount the token file into the Neural Inverse Cloud pod using the values below:
 
 ```yaml
 coder:
@@ -166,7 +166,7 @@ coder:
 
 ## 6. Configure the AWS Terraform provider
 
-Navigate to your EC2 workspace template in Coder, and configure the AWS provider
+Navigate to your EC2 workspace template in Neural Inverse Cloud, and configure the AWS provider
 using the block below:
 
 ```tf

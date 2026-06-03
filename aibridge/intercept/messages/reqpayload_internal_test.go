@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/gjson"
 
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 func TestNewRequestPayload(t *testing.T) {

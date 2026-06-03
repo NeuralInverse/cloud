@@ -6,9 +6,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
 )
 
 type Config struct {
@@ -42,7 +42,7 @@ type Config struct {
 	// BuildUpdates is a channel that receives workspace build updates for
 	// this specific workspace. The channel is pre-created and keyed by the
 	// deterministic workspace name.
-	BuildUpdates <-chan codersdk.WorkspaceBuildUpdate `json:"-"`
+	BuildUpdates <-chan nicloudsdk.WorkspaceBuildUpdate `json:"-"`
 
 	// ResultSink is a channel where the runner sends its result upon completion.
 	// This allows the CLI to aggregate results from all concurrent runners.
@@ -55,7 +55,7 @@ func (c Config) Validate() error {
 	}
 	c.Workspace.OrganizationID = c.User.OrganizationID
 	// This value will be overwritten during the test.
-	c.Workspace.UserID = codersdk.Me
+	c.Workspace.UserID = nicloudsdk.Me
 	if err := c.Workspace.Validate(); err != nil {
 		return xerrors.Errorf("workspace config: %w", err)
 	}

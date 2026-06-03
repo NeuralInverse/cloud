@@ -1,7 +1,7 @@
 name: coder
 platform: linux
 arch: "${GOARCH}"
-version: "${CODER_VERSION}"
+version: "${NEURALINVERSE_VERSION}"
 version_schema: semver
 release: 1
 
@@ -19,7 +19,7 @@ scripts:
 
 contents:
   - src: coder
-    dst: /usr/bin/coder
+    dst: /usr/bin/neuralinverse
   - src: coder.env
     dst: /etc/coder.d/coder.env
     type: "config|noreplace"

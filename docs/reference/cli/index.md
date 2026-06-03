@@ -10,8 +10,8 @@ coder [global-flags] <subcommand>
 ## Description
 
 ```console
-Coder — A tool for provisioning self-hosted development environments with Terraform.
-  - Start a Coder server:
+Neural Inverse Cloud — A tool for provisioning self-hosted development environments with Terraform.
+  - Start a Neural Inverse Cloud server:
 
      $ coder server
 
@@ -27,13 +27,13 @@ Coder — A tool for provisioning self-hosted development environments with Terr
 | [<code>completion</code>](./completion.md)                   | Install or update shell completion scripts for the detected or chosen shell.                                                 |
 | [<code>dotfiles</code>](./dotfiles.md)                       | Personalize your workspace by applying a canonical dotfiles repository                                                       |
 | [<code>external-auth</code>](./external-auth.md)             | Manage external authentication                                                                                               |
-| [<code>login</code>](./login.md)                             | Authenticate with Coder deployment                                                                                           |
+| [<code>login</code>](./login.md)                             | Authenticate with Neural Inverse Cloud deployment                                                                                           |
 | [<code>logout</code>](./logout.md)                           | Unauthenticate your local session                                                                                            |
 | [<code>netcheck</code>](./netcheck.md)                       | Print network debug information for DERP and STUN                                                                            |
-| [<code>notifications</code>](./notifications.md)             | Manage Coder notifications                                                                                                   |
+| [<code>notifications</code>](./notifications.md)             | Manage Neural Inverse Cloud notifications                                                                                                   |
 | [<code>organizations</code>](./organizations.md)             | Organization related commands                                                                                                |
 | [<code>port-forward</code>](./port-forward.md)               | Forward ports from a workspace to the local machine. For reverse port forwarding, use "coder ssh -R".                        |
-| [<code>publickey</code>](./publickey.md)                     | Output your Coder public key used for Git operations                                                                         |
+| [<code>publickey</code>](./publickey.md)                     | Output your Neural Inverse Cloud public key used for Git operations                                                                         |
 | [<code>reset-password</code>](./reset-password.md)           | Directly connect to the database to reset a user's password                                                                  |
 | [<code>secret</code>](./secret.md)                           | Manage secrets                                                                                                               |
 | [<code>state</code>](./state.md)                             | Manually manage Terraform state to fix broken workspaces                                                                     |
@@ -62,15 +62,15 @@ Coder — A tool for provisioning self-hosted development environments with Terr
 | [<code>stop</code>](./stop.md)                               | Stop a workspace                                                                                                             |
 | [<code>unfavorite</code>](./unfavorite.md)                   | Remove a workspace from your favorites                                                                                       |
 | [<code>update</code>](./update.md)                           | Will update and start a given workspace if it is out of date. If the workspace is already running, it will be stopped first. |
-| [<code>whoami</code>](./whoami.md)                           | Fetch authenticated user info for Coder deployment                                                                           |
-| [<code>support</code>](./support.md)                         | Commands for troubleshooting issues with a Coder deployment.                                                                 |
-| [<code>server</code>](./server.md)                           | Start a Coder server                                                                                                         |
+| [<code>whoami</code>](./whoami.md)                           | Fetch authenticated user info for Neural Inverse Cloud deployment                                                                           |
+| [<code>support</code>](./support.md)                         | Commands for troubleshooting issues with a Neural Inverse Cloud deployment.                                                                 |
+| [<code>server</code>](./server.md)                           | Start a Neural Inverse Cloud server                                                                                                         |
 | [<code>provisioner</code>](./provisioner.md)                 | View and manage provisioner daemons and jobs                                                                                 |
 | [<code>boundary</code>](./boundary.md)                       | Network isolation tool for monitoring and restricting HTTP/HTTPS requests                                                    |
 | [<code>features</code>](./features.md)                       | List Enterprise features                                                                                                     |
 | [<code>licenses</code>](./licenses.md)                       | Add, delete, and list licenses                                                                                               |
 | [<code>groups</code>](./groups.md)                           | Manage groups                                                                                                                |
-| [<code>prebuilds</code>](./prebuilds.md)                     | Manage Coder prebuilds                                                                                                       |
+| [<code>prebuilds</code>](./prebuilds.md)                     | Manage Neural Inverse Cloud prebuilds                                                                                                       |
 | [<code>external-workspaces</code>](./external-workspaces.md) | Create or manage external workspaces                                                                                         |
 | [<code>aibridge</code>](./aibridge.md)                       | Manage AI Bridge.                                                                                                            |
 
@@ -81,7 +81,7 @@ Coder — A tool for provisioning self-hosted development environments with Terr
 |             |                         |
 |-------------|-------------------------|
 | Type        | <code>url</code>        |
-| Environment | <code>$CODER_URL</code> |
+| Environment | <code>$NEURALINVERSE_URL</code> |
 
 URL to a deployment.
 
@@ -98,16 +98,16 @@ Print all options, how they're set, then exit.
 |             |                                   |
 |-------------|-----------------------------------|
 | Type        | <code>string</code>               |
-| Environment | <code>$CODER_SESSION_TOKEN</code> |
+| Environment | <code>$NEURALINVERSE_SESSION_TOKEN</code> |
 
-Specify an authentication token. For security reasons setting CODER_SESSION_TOKEN is preferred.
+Specify an authentication token. For security reasons setting NEURALINVERSE_SESSION_TOKEN is preferred.
 
 ### --no-version-warning
 
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>bool</code>                      |
-| Environment | <code>$CODER_NO_VERSION_WARNING</code> |
+| Environment | <code>$NEURALINVERSE_NO_VERSION_WARNING</code> |
 
 Suppress warning when client and server versions do not match.
 
@@ -116,7 +116,7 @@ Suppress warning when client and server versions do not match.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>bool</code>                      |
-| Environment | <code>$CODER_NO_FEATURE_WARNING</code> |
+| Environment | <code>$NEURALINVERSE_NO_FEATURE_WARNING</code> |
 
 Suppress warnings about unlicensed features.
 
@@ -125,7 +125,7 @@ Suppress warnings about unlicensed features.
 |             |                            |
 |-------------|----------------------------|
 | Type        | <code>string-array</code>  |
-| Environment | <code>$CODER_HEADER</code> |
+| Environment | <code>$NEURALINVERSE_HEADER</code> |
 
 Additional HTTP headers added to all requests. Provide as key=value. Can be specified multiple times.
 
@@ -134,7 +134,7 @@ Additional HTTP headers added to all requests. Provide as key=value. Can be spec
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>string</code>                |
-| Environment | <code>$CODER_HEADER_COMMAND</code> |
+| Environment | <code>$NEURALINVERSE_HEADER_COMMAND</code> |
 
 An external command that outputs additional HTTP headers added to all requests. The command must output each header as `key=value` on its own line.
 
@@ -143,7 +143,7 @@ An external command that outputs additional HTTP headers added to all requests. 
 |             |                               |
 |-------------|-------------------------------|
 | Type        | <code>bool</code>             |
-| Environment | <code>$CODER_FORCE_TTY</code> |
+| Environment | <code>$NEURALINVERSE_FORCE_TTY</code> |
 
 Force the use of a TTY.
 
@@ -152,7 +152,7 @@ Force the use of a TTY.
 |             |                             |
 |-------------|-----------------------------|
 | Type        | <code>bool</code>           |
-| Environment | <code>$CODER_VERBOSE</code> |
+| Environment | <code>$NEURALINVERSE_VERBOSE</code> |
 
 Enable verbose output.
 
@@ -161,7 +161,7 @@ Enable verbose output.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>bool</code>                              |
-| Environment | <code>$CODER_DISABLE_DIRECT_CONNECTIONS</code> |
+| Environment | <code>$NEURALINVERSE_DISABLE_DIRECT_CONNECTIONS</code> |
 
 Disable direct (P2P) connections to workspaces.
 
@@ -170,16 +170,16 @@ Disable direct (P2P) connections to workspaces.
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>bool</code>                             |
-| Environment | <code>$CODER_DISABLE_NETWORK_TELEMETRY</code> |
+| Environment | <code>$NEURALINVERSE_DISABLE_NETWORK_TELEMETRY</code> |
 
-Disable network telemetry. Network telemetry is collected when connecting to workspaces using the CLI, and is forwarded to the server. If telemetry is also enabled on the server, it may be sent to Coder. Network telemetry is used to measure network quality and detect regressions.
+Disable network telemetry. Network telemetry is collected when connecting to workspaces using the CLI, and is forwarded to the server. If telemetry is also enabled on the server, it may be sent to Neural Inverse Cloud. Network telemetry is used to measure network quality and detect regressions.
 
 ### --client-tls-ca-file
 
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_CLIENT_TLS_CA_FILE</code> |
+| Environment | <code>$NEURALINVERSE_CLIENT_TLS_CA_FILE</code> |
 
 Path to a CA certificate file to trust for API and DERP connections.
 
@@ -188,7 +188,7 @@ Path to a CA certificate file to trust for API and DERP connections.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_CLIENT_TLS_CERT_FILE</code> |
+| Environment | <code>$NEURALINVERSE_CLIENT_TLS_CERT_FILE</code> |
 
 Path to a client certificate file for mTLS authentication with API and DERP. Requires --client-tls-key-file.
 
@@ -197,7 +197,7 @@ Path to a client certificate file for mTLS authentication with API and DERP. Req
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_CLIENT_TLS_KEY_FILE</code> |
+| Environment | <code>$NEURALINVERSE_CLIENT_TLS_KEY_FILE</code> |
 
 Path to a client private key file for mTLS authentication with API and DERP. Requires --client-tls-cert-file.
 
@@ -206,7 +206,7 @@ Path to a client private key file for mTLS authentication with API and DERP. Req
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>bool</code>               |
-| Environment | <code>$CODER_USE_KEYRING</code> |
+| Environment | <code>$NEURALINVERSE_USE_KEYRING</code> |
 | Default     | <code>true</code>               |
 
 Store and retrieve session tokens using the operating system keyring. This flag is ignored and file-based storage is used when --global-config is set or keyring usage is not supported on the current platform. Set to false to force file-based storage on supported platforms.
@@ -216,7 +216,7 @@ Store and retrieve session tokens using the operating system keyring. This flag 
 |             |                                |
 |-------------|--------------------------------|
 | Type        | <code>string</code>            |
-| Environment | <code>$CODER_CONFIG_DIR</code> |
+| Environment | <code>$NEURALINVERSE_CONFIG_DIR</code> |
 | Default     | <code>~/.config/coderv2</code> |
 
 Path to the global `coder` config directory.

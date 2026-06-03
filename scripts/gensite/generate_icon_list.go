@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/coder/coder/v2/scripts/atomicwrite"
+	"github.com/NeuralInverse/cloud/v2/scripts/atomicwrite"
 )
 
 func generateIconList(path string) int {

@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -51,7 +51,7 @@ func (r *RootCmd) show() *serpent.Command {
 				ShowDetails:   details,
 				Title:         fmt.Sprintf("%s/%s (%s since %s) %s:%s", workspace.OwnerName, workspace.Name, workspace.LatestBuild.Status, time.Since(workspace.LatestBuild.CreatedAt).Round(time.Second).String(), workspace.TemplateName, workspace.LatestBuild.TemplateVersionName),
 			}
-			if workspace.LatestBuild.Status == codersdk.WorkspaceStatusRunning {
+			if workspace.LatestBuild.Status == nicloudsdk.WorkspaceStatusRunning {
 				// Get listening ports for each agent.
 				ports, devcontainers := fetchRuntimeResources(inv, client, workspace.LatestBuild.Resources...)
 				options.ListeningPorts = ports
@@ -62,9 +62,9 @@ func (r *RootCmd) show() *serpent.Command {
 	}
 }
 
-func fetchRuntimeResources(inv *serpent.Invocation, client *codersdk.Client, resources ...codersdk.WorkspaceResource) (map[uuid.UUID]codersdk.WorkspaceAgentListeningPortsResponse, map[uuid.UUID]codersdk.WorkspaceAgentListContainersResponse) {
-	ports := make(map[uuid.UUID]codersdk.WorkspaceAgentListeningPortsResponse)
-	devcontainers := make(map[uuid.UUID]codersdk.WorkspaceAgentListContainersResponse)
+func fetchRuntimeResources(inv *serpent.Invocation, client *nicloudsdk.Client, resources ...nicloudsdk.WorkspaceResource) (map[uuid.UUID]nicloudsdk.WorkspaceAgentListeningPortsResponse, map[uuid.UUID]nicloudsdk.WorkspaceAgentListContainersResponse) {
+	ports := make(map[uuid.UUID]nicloudsdk.WorkspaceAgentListeningPortsResponse)
+	devcontainers := make(map[uuid.UUID]nicloudsdk.WorkspaceAgentListContainersResponse)
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	for _, res := range resources {

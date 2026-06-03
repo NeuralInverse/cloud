@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -15,7 +15,7 @@ func (r *RootCmd) userOIDCClaims() *serpent.Command {
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]claimRow{}, []string{"key", "value"}),
 			func(data any) (any, error) {
-				resp, ok := data.(codersdk.OIDCClaimsResponse)
+				resp, ok := data.(nicloudsdk.OIDCClaimsResponse)
 				if !ok {
 					return nil, xerrors.Errorf("expected type %T, got %T", resp, data)
 				}
@@ -38,11 +38,11 @@ func (r *RootCmd) userOIDCClaims() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Display your OIDC claims",
-				Command:     "coder users oidc-claims",
+				Command:     "neuralinverse users oidc-claims",
 			},
 			Example{
 				Description: "Display your OIDC claims as JSON",
-				Command:     "coder users oidc-claims -o json",
+				Command:     "neuralinverse users oidc-claims -o json",
 			},
 		),
 		Middleware: serpent.Chain(

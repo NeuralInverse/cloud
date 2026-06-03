@@ -10,7 +10,7 @@ You can also manage the lifecycle of failed or inactive workspaces.
 Template [admins](../../users/index.md) may define these default values:
 
 - [**Default autostop**](../../../user-guides/workspace-scheduling.md#autostop):
-  How long a workspace runs without user activity before Coder automatically
+  How long a workspace runs without user activity before Neural Inverse Cloud automatically
   stops it.
 - [**Autostop requirement**](#autostop-requirement): Enforce mandatory workspace
   restarts to apply template updates regardless of user activity.
@@ -29,7 +29,7 @@ manage infrastructure costs.
 
 > [!NOTE]
 > Failure cleanup is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Failure cleanup defines how long a workspace is permitted to remain in the
 failed state prior to being automatically stopped. Failure cleanup is only
@@ -39,13 +39,13 @@ available for licensed customers.
 
 > [!NOTE]
 > Dormancy threshold is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
-Dormancy Threshold defines how long Coder allows a workspace to remain inactive
+Dormancy Threshold defines how long Neural Inverse Cloud allows a workspace to remain inactive
 before being moved into a dormant state. A workspace's inactivity is determined
 by the time elapsed since a user last accessed the workspace. A workspace in the
 dormant state is not eligible for autostart and must be manually activated by
-the user before being accessible. Coder stops workspaces during their transition
+the user before being accessible. Neural Inverse Cloud stops workspaces during their transition
 to the dormant state if they are detected to be running. Dormancy Threshold is
 only available for licensed customers.
 
@@ -53,7 +53,7 @@ only available for licensed customers.
 
 > [!NOTE]
 > Dormancy auto-deletion is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Dormancy Auto-Deletion allows a template admin to dictate how long a workspace
 is permitted to remain dormant before it is automatically deleted. Dormancy
@@ -63,7 +63,7 @@ Auto-Deletion is only available for licensed customers.
 
 > [!NOTE]
 > Autostop requirement is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Autostop requirement is a template setting that determines how often workspaces
 using the template must automatically stop. Autostop requirement ignores any
@@ -97,7 +97,7 @@ requirement during the deprecation period, but only one can be used at a time.
 
 > [!NOTE]
 > User quiet hours are a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 User quiet hours can be configured in the user's schedule settings page.
 Workspaces on templates with an autostop requirement will only be forcibly
@@ -106,16 +106,16 @@ stopped due to the policy at the start of the user's quiet hours.
 ![User schedule settings](../../../images/admin/templates/schedule/user-quiet-hours.png)
 
 Admins can define the default quiet hours for all users with the
-[CODER_QUIET_HOURS_DEFAULT_SCHEDULE](../../../reference/cli/server.md#--default-quiet-hours-schedule)
+[NEURALINVERSE_QUIET_HOURS_DEFAULT_SCHEDULE](../../../reference/cli/server.md#--default-quiet-hours-schedule)
 environment variable. The value should be a cron expression such as
 `CRON_TZ=America/Chicago 30 2 * * *` which would set the default quiet hours to
 2:30 AM in the America/Chicago timezone. The cron schedule can only have a
 minute and hour component. The default schedule is UTC 00:00. It is recommended
 to set the default quiet hours to a time when most users are not expected to be
-using Coder.
+using Neural Inverse Cloud.
 
 Admins can force users to use the default quiet hours with the
-[CODER_ALLOW_CUSTOM_QUIET_HOURS](../../../reference/cli/server.md#--allow-custom-quiet-hours)
+[NEURALINVERSE_ALLOW_CUSTOM_QUIET_HOURS](../../../reference/cli/server.md#--allow-custom-quiet-hours)
 environment variable. Users will still be able to see the page, but will be
 unable to set a custom time or timezone. If users have already set a custom
 quiet hours schedule, it will be ignored and the default will be used instead.

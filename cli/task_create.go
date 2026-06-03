@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -32,23 +32,23 @@ func (r *RootCmd) taskCreate() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Create a task with direct input",
-				Command:     "coder task create \"Add authentication to the user service\"",
+				Command:     "neuralinverse task create \"Add authentication to the user service\"",
 			},
 			Example{
 				Description: "Create a task with stdin input",
-				Command:     "echo \"Add authentication to the user service\" | coder task create",
+				Command:     "echo \"Add authentication to the user service\" | neuralinverse task create",
 			},
 			Example{
 				Description: "Create a task with a specific name",
-				Command:     "coder task create --name task1 \"Add authentication to the user service\"",
+				Command:     "neuralinverse task create --name task1 \"Add authentication to the user service\"",
 			},
 			Example{
 				Description: "Create a task from a specific template / preset",
-				Command:     "coder task create --template backend-dev --preset \"My Preset\" \"Add authentication to the user service\"",
+				Command:     "neuralinverse task create --template backend-dev --preset \"My Preset\" \"Add authentication to the user service\"",
 			},
 			Example{
 				Description: "Create a task for another user (requires appropriate permissions)",
-				Command:     "coder task create --owner user@example.com \"Add authentication to the user service\"",
+				Command:     "neuralinverse task create --owner user@example.com \"Add authentication to the user service\"",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -69,24 +69,24 @@ func (r *RootCmd) taskCreate() *serpent.Command {
 				Description: "Specify the owner of the task. Defaults to the current user.",
 				Value:       serpent.StringOf(&ownerArg),
 				Required:    false,
-				Default:     codersdk.Me,
+				Default:     nicloudsdk.Me,
 			},
 			{
 				Name:  "template",
 				Flag:  "template",
-				Env:   "CODER_TASK_TEMPLATE_NAME",
+				Env:   "NEURALINVERSE_TASK_TEMPLATE_NAME",
 				Value: serpent.StringOf(&templateName),
 			},
 			{
 				Name:  "template-version",
 				Flag:  "template-version",
-				Env:   "CODER_TASK_TEMPLATE_VERSION",
+				Env:   "NEURALINVERSE_TASK_TEMPLATE_VERSION",
 				Value: serpent.StringOf(&templateVersionName),
 			},
 			{
 				Name:    "preset",
 				Flag:    "preset",
-				Env:     "CODER_TASK_PRESET_NAME",
+				Env:     "NEURALINVERSE_TASK_PRESET_NAME",
 				Value:   serpent.StringOf(&presetName),
 				Default: PresetNone,
 			},
@@ -144,7 +144,7 @@ func (r *RootCmd) taskCreate() *serpent.Command {
 
 			switch {
 			case templateName == "":
-				templates, err := client.Templates(ctx, codersdk.TemplateFilter{SearchQuery: "has-ai-task:true", OrganizationID: organization.ID})
+				templates, err := client.Templates(ctx, nicloudsdk.TemplateFilter{SearchQuery: "has-ai-task:true", OrganizationID: organization.ID})
 				if err != nil {
 					return xerrors.Errorf("list templates: %w", err)
 				}
@@ -207,7 +207,7 @@ func (r *RootCmd) taskCreate() *serpent.Command {
 				templateVersionPresetID = preset.ID
 			}
 
-			task, err := client.CreateTask(ctx, ownerArg, codersdk.CreateTaskRequest{
+			task, err := client.CreateTask(ctx, ownerArg, nicloudsdk.CreateTaskRequest{
 				Name:                    taskName,
 				TemplateVersionID:       templateVersionID,
 				TemplateVersionPresetID: templateVersionPresetID,

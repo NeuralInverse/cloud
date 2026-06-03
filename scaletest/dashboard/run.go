@@ -10,12 +10,12 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
 )
 
 type Runner struct {
-	client  *codersdk.Client
+	client  *nicloudsdk.Client
 	cfg     Config
 	metrics Metrics
 }
@@ -25,7 +25,7 @@ var (
 	_ harness.Cleanable = &Runner{}
 )
 
-func NewRunner(client *codersdk.Client, metrics Metrics, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, metrics Metrics, cfg Config) *Runner {
 	client.Trace = cfg.Trace
 	if cfg.WaitLoaded == nil {
 		cfg.WaitLoaded = waitForWorkspacesPageLoaded
@@ -63,7 +63,7 @@ func (r *Runner) runUntilDeadlineExceeded(ctx context.Context) error {
 	if r.client == nil {
 		return xerrors.Errorf("client is nil")
 	}
-	me, err := r.client.User(ctx, codersdk.Me)
+	me, err := r.client.User(ctx, nicloudsdk.Me)
 	if err != nil {
 		return xerrors.Errorf("get scaletest user: %w", err)
 	}

@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestParse(t *testing.T) {
@@ -215,7 +215,7 @@ func TestParse(t *testing.T) {
 			Files: map[string]string{
 				`main.tf`: `
 				`,
-				"parameters.tf": `data "coder_parameter" "os_selector" {
+				"parameters.tf": `data "ni_parameter" "os_selector" {
 					name         = "os_selector"
 					display_name = "Operating System"
 					mutable      = false
@@ -239,7 +239,7 @@ func TestParse(t *testing.T) {
 					}
 				  }
 
-				  data "coder_parameter" "feature_cache_enabled" {
+				  data "ni_parameter" "feature_cache_enabled" {
 					name         = "feature_cache_enabled"
 					display_name = "Enable cache?"
 					type         = "bool"
@@ -247,28 +247,28 @@ func TestParse(t *testing.T) {
 					default = false
 				  }
 
-				  data "coder_parameter" "feature_debug_enabled" {
+				  data "ni_parameter" "feature_debug_enabled" {
 					name         = "feature_debug_enabled"
 					display_name = "Enable debug?"
 					type         = "bool"
 
 					default = true
 				  }`,
-				"tags.tf": `data "coder_workspace_tags" "custom_workspace_tags" {
+				"tags.tf": `data "ni_workspace_tags" "custom_workspace_tags" {
 					tags = {
 					  "cluster" = "developers"
-					  "os"      = data.coder_parameter.os_selector.value
-					  "debug"   = "${data.coder_parameter.feature_debug_enabled.value}+12345"
-					  "cache"   = data.coder_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"
+					  "os"      = data.ni_parameter.os_selector.value
+					  "debug"   = "${data.ni_parameter.feature_debug_enabled.value}+12345"
+					  "cache"   = data.ni_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"
 					}
 				  }`,
 			},
 			Response: &proto.ParseComplete{
 				WorkspaceTags: map[string]string{
 					"cluster": `"developers"`,
-					"os":      `data.coder_parameter.os_selector.value`,
-					"debug":   `"${data.coder_parameter.feature_debug_enabled.value}+12345"`,
-					"cache":   `data.coder_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"`,
+					"os":      `data.ni_parameter.os_selector.value`,
+					"debug":   `"${data.ni_parameter.feature_debug_enabled.value}+12345"`,
+					"cache":   `data.ni_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"`,
 				},
 			},
 		},
@@ -276,7 +276,7 @@ func TestParse(t *testing.T) {
 			Name: "workspace-tags-in-a-single-file",
 			Files: map[string]string{
 				"main.tf": `
-				  data "coder_parameter" "os_selector" {
+				  data "ni_parameter" "os_selector" {
 					name         = "os_selector"
 					display_name = "Operating System"
 					mutable      = false
@@ -300,7 +300,7 @@ func TestParse(t *testing.T) {
 					}
 				  }
 
-				  data "coder_parameter" "feature_cache_enabled" {
+				  data "ni_parameter" "feature_cache_enabled" {
 					name         = "feature_cache_enabled"
 					display_name = "Enable cache?"
 					type         = "bool"
@@ -308,7 +308,7 @@ func TestParse(t *testing.T) {
 					default = false
 				  }
 
-				  data "coder_parameter" "feature_debug_enabled" {
+				  data "ni_parameter" "feature_debug_enabled" {
 					name         = "feature_debug_enabled"
 					display_name = "Enable debug?"
 					type         = "bool"
@@ -316,12 +316,12 @@ func TestParse(t *testing.T) {
 					default = true
 				  }
 
-				  data "coder_workspace_tags" "custom_workspace_tags" {
+				  data "ni_workspace_tags" "custom_workspace_tags" {
 					tags = {
 					  "cluster" = "developers"
-					  "os"      = data.coder_parameter.os_selector.value
-					  "debug"   = "${data.coder_parameter.feature_debug_enabled.value}+12345"
-					  "cache"   = data.coder_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"
+					  "os"      = data.ni_parameter.os_selector.value
+					  "debug"   = "${data.ni_parameter.feature_debug_enabled.value}+12345"
+					  "cache"   = data.ni_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"
 					}
 				  }
 				  `,
@@ -329,9 +329,9 @@ func TestParse(t *testing.T) {
 			Response: &proto.ParseComplete{
 				WorkspaceTags: map[string]string{
 					"cluster": `"developers"`,
-					"os":      `data.coder_parameter.os_selector.value`,
-					"debug":   `"${data.coder_parameter.feature_debug_enabled.value}+12345"`,
-					"cache":   `data.coder_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"`,
+					"os":      `data.ni_parameter.os_selector.value`,
+					"debug":   `"${data.ni_parameter.feature_debug_enabled.value}+12345"`,
+					"cache":   `data.ni_parameter.feature_cache_enabled.value == "true" ? "nix-with-cache" : "no-cache"`,
 				},
 			},
 		},
@@ -339,7 +339,7 @@ func TestParse(t *testing.T) {
 			Name: "workspace-tags-duplicate-tag",
 			Files: map[string]string{
 				"main.tf": `
-				  data "coder_workspace_tags" "custom_workspace_tags" {
+				  data "ni_workspace_tags" "custom_workspace_tags" {
 					tags = {
 					  "cluster" = "developers"
 					  "debug"   = "yes"
@@ -355,7 +355,7 @@ func TestParse(t *testing.T) {
 			Name: "workspace-tags-wrong-tag-format",
 			Files: map[string]string{
 				"main.tf": `
-					data "coder_workspace_tags" "custom_workspace_tags" {
+					data "ni_workspace_tags" "custom_workspace_tags" {
 						tags {
 						  cluster = "developers"
 						  debug   = "yes"
@@ -364,7 +364,7 @@ func TestParse(t *testing.T) {
 					}
 				  `,
 			},
-			ParseErrorContains: `"tags" attribute is required by coder_workspace_tags`,
+			ParseErrorContains: `"tags" attribute is required by ni_workspace_tags`,
 		},
 		{
 			Name: "empty-main",

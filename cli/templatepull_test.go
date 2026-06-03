@@ -13,16 +13,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/archive"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/archive"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 // dirSum calculates a checksum of the files in a directory.
@@ -58,11 +58,11 @@ func TestTemplatePull_NoName(t *testing.T) {
 func TestTemplatePull_Stdout(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+	owner := nicloudtest.CreateFirstUser(t, client)
+	templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 	// Create an initial template bundle.
 	source1 := genTemplateVersionSource()
@@ -73,16 +73,16 @@ func TestTemplatePull_Stdout(t *testing.T) {
 	expected, err := echo.Tar(source2)
 	require.NoError(t, err)
 
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
 	// Update the template version so that we can assert that templates
 	// are being sorted correctly.
-	updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-	coderdtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion.ID)
+	updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+	nicloudtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion.ID)
 
 	// Verify .tar format
 	inv, root := clitest.New(t, "templates", "pull", "--tar", template.Name)
@@ -97,7 +97,7 @@ func TestTemplatePull_Stdout(t *testing.T) {
 
 	// Verify .zip format
 	tarReader := tar.NewReader(bytes.NewReader(expected))
-	expectedZip, err := archive.CreateZipFromTar(tarReader, coderd.HTTPFileMaxBytes)
+	expectedZip, err := archive.CreateZipFromTar(tarReader, nicloud.HTTPFileMaxBytes)
 	require.NoError(t, err)
 
 	inv, root = clitest.New(t, "templates", "pull", "--zip", template.Name)
@@ -115,11 +115,11 @@ func TestTemplatePull_Stdout(t *testing.T) {
 func TestTemplatePull_ActiveOldStdout(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+	owner := nicloudtest.CreateFirstUser(t, client)
+	templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 	source1 := genTemplateVersionSource()
 	source2 := genTemplateVersionSource()
@@ -127,13 +127,13 @@ func TestTemplatePull_ActiveOldStdout(t *testing.T) {
 	expected, err := echo.Tar(source1)
 	require.NoError(t, err)
 
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-	updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+	updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
 
 	inv, root := clitest.New(t, "templates", "pull", "--tar", template.Name)
 	clitest.SetupConfig(t, templateAdmin, root)
@@ -155,11 +155,11 @@ func TestTemplatePull_ActiveOldStdout(t *testing.T) {
 func TestTemplatePull_SpecifiedStdout(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+	owner := nicloudtest.CreateFirstUser(t, client)
+	templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 	source1 := genTemplateVersionSource()
 	source2 := genTemplateVersionSource()
@@ -168,17 +168,17 @@ func TestTemplatePull_SpecifiedStdout(t *testing.T) {
 	expected, err := echo.Tar(source1)
 	require.NoError(t, err)
 
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-	updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+	updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
 
-	updatedVersion2 := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source3, template.ID)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion2.ID)
-	coderdtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion2.ID)
+	updatedVersion2 := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source3, template.ID)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion2.ID)
+	nicloudtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion2.ID)
 
 	inv, root := clitest.New(t, "templates", "pull", "--tar", template.Name, "--version", version1.Name)
 	clitest.SetupConfig(t, templateAdmin, root)
@@ -197,11 +197,11 @@ func TestTemplatePull_SpecifiedStdout(t *testing.T) {
 func TestTemplatePull_LatestStdout(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+	owner := nicloudtest.CreateFirstUser(t, client)
+	templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 	source1 := genTemplateVersionSource()
 	source2 := genTemplateVersionSource()
@@ -209,13 +209,13 @@ func TestTemplatePull_LatestStdout(t *testing.T) {
 	expected, err := echo.Tar(source1)
 	require.NoError(t, err)
 
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-	updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+	updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
 
 	inv, root := clitest.New(t, "templates", "pull", "--tar", template.Name, "latest")
 	clitest.SetupConfig(t, templateAdmin, root)
@@ -283,11 +283,11 @@ func TestTemplatePull_ToDir(t *testing.T) {
 				actualDest = filepath.Join(dir, "actual")
 			}
 
-			client := coderdtest.New(t, &coderdtest.Options{
+			client := nicloudtest.New(t, &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 			// Create an initial template bundle.
 			source1 := genTemplateVersionSource()
@@ -298,16 +298,16 @@ func TestTemplatePull_ToDir(t *testing.T) {
 			expected, err := echo.Tar(source2)
 			require.NoError(t, err)
 
-			version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+			version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
 			// Update the template version so that we can assert that templates
 			// are being sorted correctly.
-			updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-			coderdtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion.ID)
+			updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+			nicloudtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion.ID)
 
 			err = provisionersdk.Untar(expectedDest, bytes.NewReader(expected))
 			require.NoError(t, err)
@@ -344,11 +344,11 @@ func TestTemplatePull_FolderConflict(t *testing.T) {
 
 	logger := testutil.Logger(t)
 	ctx := testutil.Context(t, testutil.WaitMedium)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+	owner := nicloudtest.CreateFirstUser(t, client)
+	templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 	// Create an initial template bundle.
 	source1 := genTemplateVersionSource()
@@ -359,16 +359,16 @@ func TestTemplatePull_FolderConflict(t *testing.T) {
 	expected, err := echo.Tar(source2)
 	require.NoError(t, err)
 
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, source1)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
 	// Update the template version so that we can assert that templates
 	// are being sorted correctly.
-	updatedVersion := coderdtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
-	_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
-	coderdtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion.ID)
+	updatedVersion := nicloudtest.UpdateTemplateVersion(t, client, owner.OrganizationID, source2, template.ID)
+	_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, updatedVersion.ID)
+	nicloudtest.UpdateActiveTemplateVersion(t, client, template.ID, updatedVersion.ID)
 
 	dir := t.TempDir()
 

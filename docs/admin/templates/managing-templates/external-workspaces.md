@@ -1,30 +1,30 @@
 # External Workspaces
 
-External workspaces allow you to seamlessly connect externally managed infrastructure as Coder workspaces. This enables you to integrate existing servers, on-premises systems, or any capable machine with the Coder environment, ensuring a smooth and efficient development workflow without requiring Coder to provision additional compute resources.
+External workspaces allow you to seamlessly connect externally managed infrastructure as Neural Inverse Cloud workspaces. This enables you to integrate existing servers, on-premises systems, or any capable machine with the Neural Inverse Cloud environment, ensuring a smooth and efficient development workflow without requiring Neural Inverse Cloud to provision additional compute resources.
 
 ## Prerequisites
 
-- Access to external compute resources that can run the Coder agent:
+- Access to external compute resources that can run the Neural Inverse Cloud agent:
   - **Windows**: amd64 or arm64 architecture
   - **Linux**: amd64, arm64, or armv7 architecture
   - **macOS**: amd64 or arm64 architecture
   - **Examples**: VMs, bare-metal servers, Kubernetes nodes, or any machine meeting the above requirements.
-- Networking access to your Coder deployment.
-- A workspace template that includes a [`coder_external_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/external_agent) resource.
+- Networking access to your Neural Inverse Cloud deployment.
+- A workspace template that includes a [`ni_external_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/external_agent) resource.
 
-We provide an example template on how to set up external workspaces in the [Coder Registry](https://registry.coder.com/templates/coder-labs/externally-managed-workspace)
+We provide an example template on how to set up external workspaces in the [Neural Inverse Cloud Registry](https://registry.cloud.neuralinverse.com/templates/coder-labs/externally-managed-workspace)
 
 ## Benefits
 
 External workspaces offer flexibility and control in complex environments:
 
-- **Incremental adoption of Coder**
+- **Incremental adoption of Neural Inverse Cloud**
 
-  Integrate with existing infrastructure gradually without needing to migrate everything at once. This is particularly useful when gradually migrating workloads to Coder without refactoring current infrastructure.
+  Integrate with existing infrastructure gradually without needing to migrate everything at once. This is particularly useful when gradually migrating workloads to Neural Inverse Cloud without refactoring current infrastructure.
 
 - **Flexibility**
 
-  Attach cloud, hybrid, or on-premises machines as developer workspaces. This enables connecting existing on-premises GPU servers for ML development or bringing manually provisioned VMs in restricted networks under Coder's workspace management.
+  Attach cloud, hybrid, or on-premises machines as developer workspaces. This enables connecting existing on-premises GPU servers for ML development or bringing manually provisioned VMs in restricted networks under Neural Inverse Cloud's workspace management.
 
 - **Separation of concerns**
 
@@ -34,25 +34,25 @@ External workspaces offer flexibility and control in complex environments:
 
 - **Lifecycle control**
 
-  Start/stop/restart actions in the Coder UI are disabled for external workspaces.
+  Start/stop/restart actions in the Neural Inverse Cloud UI are disabled for external workspaces.
 - **No automatic deprovisioning**
 
-  Deleting an external workspace in Coder removes the agent token and record, but does not delete the underlying compute resource.
+  Deleting an external workspace in Neural Inverse Cloud removes the agent token and record, but does not delete the underlying compute resource.
 - **Manual agent management**
 
   Administrators are responsible for deploying and maintaining agents on external resources.
 - **Limited UI indicators**
 
-  External workspaces are marked in the UI, but underlying infrastructure health is not monitored by Coder.
+  External workspaces are marked in the UI, but underlying infrastructure health is not monitored by Neural Inverse Cloud.
 
 ## When to use it?
 
 Use external workspaces if:
 
-- You have compute resources provisioned outside of Coder’s Terraform flows.
-- You want to connect specialized or legacy systems to your Coder deployment.
-- You are migrating incrementally to Coder and need hybrid support.
-- You need finer control over how and where agents run, while still benefiting from Coder’s workspace experience.
+- You have compute resources provisioned outside of Neural Inverse Cloud’s Terraform flows.
+- You want to connect specialized or legacy systems to your Neural Inverse Cloud deployment.
+- You are migrating incrementally to Neural Inverse Cloud and need hybrid support.
+- You need finer control over how and where agents run, while still benefiting from Neural Inverse Cloud’s workspace experience.
 
 ## How to use it?
 
@@ -69,8 +69,8 @@ You can create and manage external workspaces using either the **CLI** or the **
      --template=externally-managed-workspace -y
    ```
 
-   - Validates that the template includes a `coder_external_agent` resource.
-   - Once created, the workspace is registered in Coder but marked as requiring an external agent.
+   - Validates that the template includes a `ni_external_agent` resource.
+   - Once created, the workspace is registered in Neural Inverse Cloud but marked as requiring an external agent.
 
 2. **List external workspaces**
 
@@ -98,7 +98,7 @@ You can create and manage external workspaces using either the **CLI** or the **
    ```bash
    Please run the following command to attach external agent to the workspace hello-world:
 
-   curl -fsSL "https://<DEPLOYMENT_URL>/api/v2/init-script/linux/amd64" | CODER_AGENT_TOKEN="<token>" sh
+   curl -fsSL "https://<DEPLOYMENT_URL>/api/v2/init-script/linux/amd64" | NEURALINVERSE_AGENT_TOKEN="<token>" sh
    ```
 
    You can also output JSON for automation:
@@ -113,15 +113,15 @@ You can create and manage external workspaces using either the **CLI** or the **
      "agent_name": "main",
      "auth_type": "token",
      "auth_token": "<token>",
-     "init_script": "curl -fsSL \"https://<DEPLOYMENT_URL>/api/v2/init-script/linux/arm64\" | CODER_AGENT_TOKEN=\"<token>\" sh"
+     "init_script": "curl -fsSL \"https://<DEPLOYMENT_URL>/api/v2/init-script/linux/arm64\" | NEURALINVERSE_AGENT_TOKEN=\"<token>\" sh"
    }
    ```
 
 ### UI
 
 1. Import the external workspace template (see prerequisites).
-2. In the Coder UI, go to **Workspaces → New workspace** and select the imported template.
-3. Once the workspace is created, Coder will display **connection details** with the command users need to run on the external machine to start the agent.
+2. In the Neural Inverse Cloud UI, go to **Workspaces → New workspace** and select the imported template.
+3. Once the workspace is created, Neural Inverse Cloud will display **connection details** with the command users need to run on the external machine to start the agent.
 4. The workspace will appear in the dashboard, but with the following differences:
    - **Start**, **Stop**, and **Restart** actions are disabled.
    - Users are provided with instructions for launching the agent manually on the external machine.

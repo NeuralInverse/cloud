@@ -22,8 +22,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // mimicking the --version output which we use to test the binary (see provisionersdk/scripts/bootstrap_*).
@@ -143,7 +143,7 @@ func serveScript(t *testing.T, in string) string {
 	srvURL, err := url.Parse(srv.URL)
 	require.NoError(t, err)
 
-	script, exists := provisionersdk.AgentScriptEnv()[fmt.Sprintf("CODER_AGENT_SCRIPT_%s_%s", runtime.GOOS, runtime.GOARCH)]
+	script, exists := provisionersdk.AgentScriptEnv()[fmt.Sprintf("NEURALINVERSE_AGENT_SCRIPT_%s_%s", runtime.GOOS, runtime.GOARCH)]
 	if !exists {
 		t.Skip("Agent not supported...")
 		return ""

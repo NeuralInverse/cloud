@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	agpl "github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	agpl "github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -51,7 +51,7 @@ func (r *RootCmd) groupList() *serpent.Command {
 
 			if out == "" {
 				_, _ = fmt.Fprintf(inv.Stderr, "%s No groups found in %s! Create one:\n\n", agpl.Caret, color.HiWhiteString(org.Name))
-				_, _ = fmt.Fprintln(inv.Stderr, color.HiMagentaString("  $ coder groups create <name>\n"))
+				_, _ = fmt.Fprintln(inv.Stderr, color.HiMagentaString("  $ neuralinverse groups create <name>\n"))
 				return nil
 			}
 
@@ -67,7 +67,7 @@ func (r *RootCmd) groupList() *serpent.Command {
 
 type groupTableRow struct {
 	// For json output:
-	codersdk.Group `table:"-"`
+	nicloudsdk.Group `table:"-"`
 
 	// For table output:
 	Name           string    `json:"-" table:"name,default_sort"`
@@ -77,7 +77,7 @@ type groupTableRow struct {
 	AvatarURL      string    `json:"-" table:"avatar url"`
 }
 
-func groupsToRows(groups ...codersdk.Group) []groupTableRow {
+func groupsToRows(groups ...nicloudsdk.Group) []groupTableRow {
 	rows := make([]groupTableRow, 0, len(groups))
 	for _, group := range groups {
 		members := make([]string, 0, len(group.Members))

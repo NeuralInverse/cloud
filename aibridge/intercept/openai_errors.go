@@ -9,8 +9,8 @@ import (
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/shared"
 
-	"github.com/coder/coder/v2/aibridge/keypool"
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 // OpenAI error type and code constants used by the chatcompletions

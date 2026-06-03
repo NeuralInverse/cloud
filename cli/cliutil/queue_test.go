@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
 )
 
 func TestQueue(t *testing.T) {

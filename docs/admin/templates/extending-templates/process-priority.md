@@ -1,6 +1,6 @@
 # Improving Agent Resiliency
 
-Coder's agent can automatically lower the scheduling priority
+Neural Inverse Cloud's agent can automatically lower the scheduling priority
 and raise the OOM (out-of-memory) kill score of user processes
 so the agent itself stays alive under resource pressure.
 
@@ -25,19 +25,19 @@ so the agent itself stays alive under resource pressure.
 
 Configure the feature with environment variables in the
 environment that launches the agent binary. These must be set
-on the workspace container or host, not in the `coder_agent`
+on the workspace container or host, not in the `ni_agent`
 resource's `env` block — the agent reads them from its own
 process environment at startup.
 
 | Variable                | Required | Default                       | Description                                                                                                                                                                                   |
 |-------------------------|----------|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `CODER_PROC_PRIO_MGMT`  | Yes      | —                             | Set to enable the feature. The agent checks whether the variable is present, not its value — even an empty string enables it. Use `1` by convention. To disable, unset the variable entirely. |
-| `CODER_PROC_OOM_SCORE`  | No       | Computed from agent's score   | Explicit `oom_score_adj` value for child processes. Range: `-1000` to `1000`.                                                                                                                 |
-| `CODER_PROC_NICE_SCORE` | No       | Agent nice + 5 (capped at 19) | Explicit nice value for child processes. Range: `-20` to `19` (higher = lower priority).                                                                                                      |
+| `NEURALINVERSE_PROC_PRIO_MGMT`  | Yes      | —                             | Set to enable the feature. The agent checks whether the variable is present, not its value — even an empty string enables it. Use `1` by convention. To disable, unset the variable entirely. |
+| `NEURALINVERSE_PROC_OOM_SCORE`  | No       | Computed from agent's score   | Explicit `oom_score_adj` value for child processes. Range: `-1000` to `1000`.                                                                                                                 |
+| `NEURALINVERSE_PROC_NICE_SCORE` | No       | Agent nice + 5 (capped at 19) | Explicit nice value for child processes. Range: `-20` to `19` (higher = lower priority).                                                                                                      |
 
 ### OOM score defaults
 
-If you do not set `CODER_PROC_OOM_SCORE`, the agent computes a
+If you do not set `NEURALINVERSE_PROC_OOM_SCORE`, the agent computes a
 value based on its own `oom_score_adj`:
 
 | Agent's `oom_score_adj` | Child score | Rationale                                      |
@@ -52,7 +52,7 @@ even when a workspace runs out of memory.
 
 ### Nice score defaults
 
-If you do not set `CODER_PROC_NICE_SCORE`, the agent sets
+If you do not set `NEURALINVERSE_PROC_NICE_SCORE`, the agent sets
 children to its own nice value plus 5, capped at 19. This
 gives the agent more CPU scheduling priority than user
 workloads.
@@ -74,19 +74,19 @@ resource "kubernetes_deployment" "workspace" {
           image = "codercom/enterprise-base:ubuntu"
 
           env {
-            name  = "CODER_AGENT_TOKEN"
-            value = coder_agent.main.token
+            name  = "NEURALINVERSE_AGENT_TOKEN"
+            value = ni_agent.main.token
           }
           env {
-            name  = "CODER_PROC_PRIO_MGMT"
+            name  = "NEURALINVERSE_PROC_PRIO_MGMT"
             value = "1"
           }
           env {
-            name  = "CODER_PROC_OOM_SCORE"
+            name  = "NEURALINVERSE_PROC_OOM_SCORE"
             value = "10"
           }
           env {
-            name  = "CODER_PROC_NICE_SCORE"
+            name  = "NEURALINVERSE_PROC_NICE_SCORE"
             value = "1"
           }
 
@@ -102,9 +102,9 @@ resource "kubernetes_deployment" "workspace" {
 }
 ```
 
-- `CODER_PROC_OOM_SCORE=10` gives child processes a slightly
+- `NEURALINVERSE_PROC_OOM_SCORE=10` gives child processes a slightly
   elevated OOM score while keeping them well below the maximum.
-- `CODER_PROC_NICE_SCORE=1` gives children a mildly lower CPU
+- `NEURALINVERSE_PROC_NICE_SCORE=1` gives children a mildly lower CPU
   priority than the agent.
 - `CAP_SYS_NICE` allows the agent to set nice values.
 
@@ -122,16 +122,16 @@ can fail if the container runtime restricts `prctl` calls.
 
 If you see `failed to adjust niceness` in stderr, nice values
 can only be increased (lowered in priority) without
-`CAP_SYS_NICE`. If your template sets a `CODER_PROC_NICE_SCORE`
+`CAP_SYS_NICE`. If your template sets a `NEURALINVERSE_PROC_NICE_SCORE`
 lower than the agent's current nice value, add the capability
 to the container's security context.
 
-### Environment variables leak to nested Coder agents
+### Environment variables leak to nested Neural Inverse Cloud agents
 
-The agent strips all `CODER_PROC_*` variables from child
+The agent strips all `NEURALINVERSE_PROC_*` variables from child
 environments automatically. This prevents interference in
-"Coder on Coder" development scenarios where a workspace
-runs another Coder agent.
+"Neural Inverse Cloud on Neural Inverse Cloud" development scenarios where a workspace
+runs another Neural Inverse Cloud agent.
 
 ### Verifying the feature is enabled
 
@@ -143,12 +143,12 @@ at startup. Look for these lines in the agent log:
 "process priority management not enabled (linux-only)"
 ```
 
-The log entry includes the `CODER_PROC_PRIO_MGMT` value and
+The log entry includes the `NEURALINVERSE_PROC_PRIO_MGMT` value and
 the operating system. Check the agent log file at
 `<log-dir>/coder-agent.log` or stderr output.
 
 ### Feature has no effect on macOS or Windows
 
 Process priority management is Linux-only. Setting
-`CODER_PROC_PRIO_MGMT` on other operating systems is safe
+`NEURALINVERSE_PROC_PRIO_MGMT` on other operating systems is safe
 but has no effect.

@@ -1,6 +1,6 @@
 # Additional clusters
 
-With Coder, you can deploy workspaces in additional Kubernetes clusters using
+With Neural Inverse Cloud, you can deploy workspaces in additional Kubernetes clusters using
 different
 [authentication methods](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#authentication)
 in the Terraform provider.
@@ -22,9 +22,9 @@ CURRENT   NAME                        CLUSTER
 
 ### Kubernetes control plane
 
-If you deployed Coder on Kubernetes, you can attach a kubeconfig as a secret.
+If you deployed Neural Inverse Cloud on Kubernetes, you can attach a kubeconfig as a secret.
 
-This assumes Coder is deployed on the `coder` namespace and your kubeconfig file
+This assumes Neural Inverse Cloud is deployed on the `coder` namespace and your kubeconfig file
 is in ~/.kube/config.
 
 ```shell
@@ -46,18 +46,18 @@ coder:
       readOnly: true
 ```
 
-[Upgrade Coder](../../install/kubernetes.md#upgrading-coder-via-helm) with these
+[Upgrade Neural Inverse Cloud](../../install/kubernetes.md#upgrading-coder-via-helm) with these
 new values.
 
 ### VM control plane
 
-If you deployed Coder on a VM, copy the kubeconfig file to
+If you deployed Neural Inverse Cloud on a VM, copy the kubeconfig file to
 `/home/coder/.kube/config`.
 
-### Create a Coder template
+### Create a Neural Inverse Cloud template
 
 You can start from our
-[example template](https://github.com/coder/coder/tree/main/examples/templates/kubernetes).
+[example template](https://github.com/NeuralInverse/cloud/tree/main/examples/templates/kubernetes).
 From there, add
 [template parameters](../templates/extending-templates/parameters.md) to allow
 developers to pick their desired cluster.
@@ -65,7 +65,7 @@ developers to pick their desired cluster.
 ```tf
 # main.tf
 
-data "coder_parameter" "kube_context" {
+data "ni_parameter" "kube_context" {
   name         = "kube_context"
   display_name = "Cluster"
   default      = "workspaces-us-central1-a"
@@ -84,14 +84,14 @@ data "coder_parameter" "kube_context" {
 
 provider "kubernetes" {
   config_path    = "~/.kube/config" # or /mnt/secrets/kube/config for Kubernetes
-  config_context = data.coder_parameter.kube_context.value
+  config_context = data.ni_parameter.kube_context.value
 }
 ```
 
 ## Option 2) Kubernetes ServiceAccounts
 
 Alternatively, you can authenticate with remote clusters with ServiceAccount
-tokens. Coder can store these secrets on your behalf with
+tokens. Neural Inverse Cloud can store these secrets on your behalf with
 [managed Terraform variables](../templates/extending-templates/variables.md).
 
 Alternatively, these could also be fetched from Kubernetes secrets or even
@@ -158,7 +158,7 @@ rolebinding.rbac.authorization.k8s.io/coder-v2 created
 ### 2. Modify the Kubernetes template
 
 You can start from our
-[example template](https://github.com/coder/coder/tree/main/examples/templates/kubernetes).
+[example template](https://github.com/NeuralInverse/cloud/tree/main/examples/templates/kubernetes).
 
 ```tf
 variable "host" {
@@ -187,9 +187,9 @@ provider "kubernetes" {
 }
 ```
 
-### Create Coder template with managed variables
+### Create Neural Inverse Cloud template with managed variables
 
-Fetch the values from the secret and pass them to Coder. This should work on
+Fetch the values from the secret and pass them to Neural Inverse Cloud. This should work on
 macOS and Linux.
 
 To get the cluster address:

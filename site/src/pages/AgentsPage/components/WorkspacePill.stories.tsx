@@ -113,7 +113,7 @@ const meta: Meta<typeof WorkspacePill> = {
 			proxy: {
 				proxy: undefined,
 				preferredPathAppURL: "",
-				preferredWildcardHostname: "*.coder.com",
+				preferredWildcardHostname: "*.cloud.neuralinverse.com",
 			},
 		}),
 	],

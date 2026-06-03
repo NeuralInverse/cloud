@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
 )
 
 func Recover(log slog.Logger) func(h http.Handler) http.Handler {

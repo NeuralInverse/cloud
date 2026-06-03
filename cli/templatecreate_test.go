@@ -9,13 +9,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestCliTemplateCreate(t *testing.T) {
@@ -24,8 +24,8 @@ func TestCliTemplateCreate(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		nicloudtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		args := []string{
 			"templates",
@@ -62,8 +62,8 @@ func TestCliTemplateCreate(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		nicloudtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		require.NoError(t, os.Remove(filepath.Join(source, ".terraform.lock.hcl")))
 		args := []string{
@@ -104,8 +104,8 @@ func TestCliTemplateCreate(t *testing.T) {
 	t.Run("CreateNoLockfileIgnored", func(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		nicloudtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		require.NoError(t, os.Remove(filepath.Join(source, ".terraform.lock.hcl")))
 		args := []string{
@@ -141,8 +141,8 @@ func TestCliTemplateCreate(t *testing.T) {
 
 	t.Run("CreateStdin", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		nicloudtest.CreateFirstUser(t, client)
 		source, err := echo.Tar(completeWithAgent())
 		require.NoError(t, err)
 
@@ -163,8 +163,8 @@ func TestCliTemplateCreate(t *testing.T) {
 
 	t.Run("Recreate template with same name (create, delete, create)", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		nicloudtest.CreateFirstUser(t, client)
 
 		create := func() error {
 			source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
@@ -207,8 +207,8 @@ func TestCliTemplateCreate(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		nicloudtest.CreateFirstUser(t, client)
 
 		templateVariables := []*proto.TemplateVariable{
 			{
@@ -259,8 +259,8 @@ func TestCliTemplateCreate(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		nicloudtest.CreateFirstUser(t, client)
 
 		templateVariables := []*proto.TemplateVariable{
 			{
@@ -298,10 +298,10 @@ func TestCliTemplateCreate(t *testing.T) {
 	t.Run("RequireActiveVersionInvalid", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: true,
 		})
-		coderdtest.CreateFirstUser(t, client)
+		nicloudtest.CreateFirstUser(t, client)
 		source := clitest.CreateTemplateVersionSource(t, completeWithAgent())
 		args := []string{
 			"templates",

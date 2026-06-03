@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/coderd/httpmw/loggermw"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw/loggermw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestMiddlewareAccessLog(t *testing.T) {
@@ -29,8 +29,8 @@ func TestMiddlewareAccessLog(t *testing.T) {
 	))
 
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)
-	req.Header.Set(workspacesdk.CoderChatIDHeader, chatID.String())
-	req.Header.Set(workspacesdk.CoderAncestorChatIDsHeader, mustMarshalJSON(t, []string{ancestorID.String()}))
+	req.Header.Set(workspacesdk.NIChatIDHeader, chatID.String())
+	req.Header.Set(workspacesdk.NIAncestorChatIDsHeader, mustMarshalJSON(t, []string{ancestorID.String()}))
 	rw := httptest.NewRecorder()
 	handler.ServeHTTP(rw, req)
 	require.Equal(t, http.StatusNoContent, rw.Code)
@@ -76,7 +76,7 @@ func TestMiddlewareContextFields(t *testing.T) {
 	))
 
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)
-	req.Header.Set(workspacesdk.CoderChatIDHeader, chatID.String())
+	req.Header.Set(workspacesdk.NIChatIDHeader, chatID.String())
 	rw := httptest.NewRecorder()
 	handler.ServeHTTP(rw, req)
 	require.Equal(t, http.StatusNoContent, rw.Code)

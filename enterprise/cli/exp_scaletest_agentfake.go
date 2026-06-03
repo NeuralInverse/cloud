@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	agplcli "github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/enterprise/scaletest/agentfake"
+	agplcli "github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/enterprise/scaletest/agentfake"
 	"github.com/coder/serpent"
 )
 
@@ -37,7 +37,7 @@ func (r *RootCmd) scaletestAgentFake() *serpent.Command {
 			agplcli.Example{
 				Description: "Connect a fake agent for every external-agent workspace built from the template named " +
 					"\"agentfake-runner\".",
-				Command: "coder exp scaletest agentfake --template agentfake-runner",
+				Command: "neuralinverse exp scaletest agentfake --template agentfake-runner",
 			},
 		) + "\n\n" +
 			"Enumerates external-agent workspaces matching --template (optionally filtered by --owner), " +
@@ -45,7 +45,7 @@ func (r *RootCmd) scaletestAgentFake() *serpent.Command {
 			"agent per token until the command is interrupted.\n\n" +
 			"Requires a session token whose user is template-admin (or higher) on a deployment licensed " +
 			"for the workspace external-agent feature; both the workspace builds and the credentials " +
-			"endpoint are gated server-side. Pair with `coder exp scaletest create-workspaces " +
+			"endpoint are gated server-side. Pair with `neuralinverse exp scaletest create-workspaces " +
 			"--no-wait-for-agents` to seed the workspaces this command will pick up. Workspaces created " +
 			"after this command starts are NOT picked up; rerun the command after seeding more.",
 		Handler: func(inv *serpent.Invocation) error {
@@ -84,13 +84,13 @@ func (r *RootCmd) scaletestAgentFake() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "template",
-			Env:         "CODER_SCALETEST_AGENTFAKE_TEMPLATE",
+			Env:         "NEURALINVERSE_SCALETEST_AGENTFAKE_TEMPLATE",
 			Description: "Name of the template whose external-agent workspaces should be supervised. Required.",
 			Value:       serpent.StringOf(&template),
 		},
 		{
 			Flag:        "owner",
-			Env:         "CODER_SCALETEST_AGENTFAKE_OWNER",
+			Env:         "NEURALINVERSE_SCALETEST_AGENTFAKE_OWNER",
 			Description: "Optional workspace-owner filter (username). When empty, all owners' workspaces of the template are included.",
 			Value:       serpent.StringOf(&owner),
 		},

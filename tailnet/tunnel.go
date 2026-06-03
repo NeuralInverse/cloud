@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 var legacyWorkspaceAgentIP = netip.MustParseAddr("fd7a:115c:a1e0:49d6:b259:b7ac:b1b2:48f4")
@@ -33,7 +33,7 @@ type CoordinateeAuth interface {
 	Authorize(ctx context.Context, req *proto.CoordinateRequest) error
 }
 
-// SingleTailnetCoordinateeAuth allows all tunnels, since Coderd and wsproxy are allowed to initiate a tunnel to any agent
+// SingleTailnetCoordinateeAuth allows all tunnels, since Neural Inverse Cloudd and wsproxy are allowed to initiate a tunnel to any agent
 type SingleTailnetCoordinateeAuth struct{}
 
 func (SingleTailnetCoordinateeAuth) Authorize(context.Context, *proto.CoordinateRequest) error {
@@ -82,7 +82,7 @@ func (a AgentCoordinateeAuth) Authorize(_ context.Context, req *proto.Coordinate
 			}
 
 			if TailscaleServicePrefix.AddrFromUUID(a.ID).Compare(pre.Addr()) != 0 &&
-				CoderServicePrefix.AddrFromUUID(a.ID).Compare(pre.Addr()) != 0 &&
+				NIServicePrefix.AddrFromUUID(a.ID).Compare(pre.Addr()) != 0 &&
 				legacyWorkspaceAgentIP.Compare(pre.Addr()) != 0 {
 				return InvalidNodeAddressError{pre.Addr().String()}
 			}

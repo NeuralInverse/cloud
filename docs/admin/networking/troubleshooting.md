@@ -14,8 +14,8 @@ pong from workspace proxied via  DERP(Council Bluffs, Iowa)  in 42ms
 pong from workspace proxied via  DERP(Council Bluffs, Iowa)  in 41ms
 pong from workspace proxied via  DERP(Council Bluffs, Iowa)  in 39ms
 ✔ preferred DERP region: 999 (Council Bluffs, Iowa)
-✔ sent local data to Coder networking coordinator
-✔ received remote agent data from Coder networking coordinator
+✔ sent local data to Neural Inverse Cloud networking coordinator
+✔ received remote agent data from Neural Inverse Cloud networking coordinator
     preferred DERP region: 999 (Council Bluffs, Iowa)
     endpoints: x.x.x.x:46433, x.x.x.x:46433, x.x.x.x:46433
 ✔ Wireguard handshake 11s ago
@@ -34,7 +34,7 @@ Possible agent-side issues with direct connection:
 ### Disabled Deployment-wide
 
 Direct connections can be disabled at the deployment level by setting the
-`CODER_BLOCK_DIRECT` environment variable or the `--block-direct-connections`
+`NEURALINVERSE_BLOCK_DIRECT` environment variable or the `--block-direct-connections`
 flag on the server. When set, this will be reflected in the output of
 `coder ping`.
 
@@ -43,11 +43,11 @@ flag on the server. When set, this will be reflected in the output of
 Some corporate firewalls block UDP traffic. Direct connections require UDP
 traffic to be allowed between the client and agent, as well as between the
 client/agent and STUN servers in most cases. `coder ping` will indicate if
-either the Coder agent or client had issues sending or receiving UDP packets to
+either the Neural Inverse Cloud agent or client had issues sending or receiving UDP packets to
 STUN servers.
 
 If this is the case, you may need to add exceptions to the firewall to allow UDP
-for Coder workspaces, clients, and STUN servers.
+for Neural Inverse Cloud workspaces, clients, and STUN servers.
 
 ### Endpoint-Dependent NAT (Hard NAT)
 
@@ -76,7 +76,7 @@ Direct connections may also be impeded if one side is behind a hard NAT and the
 other is running a firewall that blocks ingress traffic from unknown 5-tuples
 (Protocol, Source IP, Source Port, Destination IP, Destination Port).
 
-If this is suspected, you may need to add an exception for Coder to the
+If this is suspected, you may need to add an exception for Neural Inverse Cloud to the
 firewall, or reconfigure the hard NAT.
 
 ### VPNs
@@ -88,7 +88,7 @@ NAT does not permit traffic to be
 the public IP address of the NAT (determined via STUN) to the internal IP
 address of the agent.
 
-If this is the case, you may need to add exceptions to the VPN for Coder, modify
+If this is the case, you may need to add exceptions to the VPN for Neural Inverse Cloud, modify
 the NAT configuration, or deploy an internal STUN server.
 
 ### Low MTU
@@ -114,7 +114,7 @@ will not be affected by the low MTU.
 
 To disable direct connections, set the
 [`--block-direct-connections`](../../reference/cli/server.md#--block-direct-connections)
-flag or `CODER_BLOCK_DIRECT` environment variable on the Coder server.
+flag or `NEURALINVERSE_BLOCK_DIRECT` environment variable on the Neural Inverse Cloud server.
 
 ## Throughput
 

@@ -13,8 +13,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/quartz"
 )
 
@@ -131,7 +131,7 @@ func (m *manager) start(req workspacesdk.StartProcessRequest, chatID string) (*p
 
 	// Build the process environment. If the manager has an
 	// updateEnv hook (provided by the agent), use it to get the
-	// full agent environment including GIT_ASKPASS, CODER_* vars,
+	// full agent environment including GIT_ASKPASS, NEURALINVERSE_* vars,
 	// etc. Otherwise fall back to the current process env.
 	baseEnv := os.Environ()
 	if m.updateEnv != nil {
@@ -156,7 +156,7 @@ func (m *manager) start(req workspacesdk.StartProcessRequest, chatID string) (*p
 	// Propagate the chat ID so child processes (e.g.
 	// GIT_ASKPASS) can send it back to the server.
 	if chatID != "" {
-		cmd.Env = append(cmd.Env, fmt.Sprintf("CODER_CHAT_ID=%s", chatID))
+		cmd.Env = append(cmd.Env, fmt.Sprintf("NEURALINVERSE_CHAT_ID=%s", chatID))
 	}
 
 	if err := cmd.Start(); err != nil {

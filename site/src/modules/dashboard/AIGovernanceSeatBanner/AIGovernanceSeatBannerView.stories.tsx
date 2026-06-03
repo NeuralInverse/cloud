@@ -25,8 +25,8 @@ export const OverLimit: Story = {
 			/110 \/ 100 AI Governance user seats \(10% over the limit\)/,
 		);
 		await expect(
-			canvas.getByRole("link", { name: "sales@coder.com" }),
-		).toHaveAttribute("href", "mailto:sales@coder.com");
+			canvas.getByRole("link", { name: "sales@cloud.neuralinverse.com" }),
+		).toHaveAttribute("href", "mailto:sales@cloud.neuralinverse.com");
 	},
 };
 

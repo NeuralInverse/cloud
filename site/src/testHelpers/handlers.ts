@@ -327,7 +327,7 @@ export const handlers = [
 
 	// Applications host
 	http.get("/api/v2/applications/host", () => {
-		return HttpResponse.json({ host: "*.dev.coder.com" });
+		return HttpResponse.json({ host: "*.dev.cloud.neuralinverse.com" });
 	}),
 
 	// Groups

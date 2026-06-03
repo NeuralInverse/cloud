@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 func Test_resolveAgentAbsPath(t *testing.T) {
@@ -69,9 +69,9 @@ func Test_buildAppLinkURL(t *testing.T) {
 		name string
 		// function arguments
 		baseURL           string
-		workspace         codersdk.Workspace
-		agent             codersdk.WorkspaceAgent
-		app               codersdk.WorkspaceApp
+		workspace         nicloudsdk.Workspace
+		agent             nicloudsdk.WorkspaceAgent
+		app               nicloudsdk.WorkspaceApp
 		appsHost          string
 		preferredPathBase string
 		// expected results
@@ -80,7 +80,7 @@ func Test_buildAppLinkURL(t *testing.T) {
 		{
 			name:    "external url",
 			baseURL: "https://coder.tld",
-			app: codersdk.WorkspaceApp{
+			app: nicloudsdk.WorkspaceApp{
 				External: true,
 				URL:      "https://external-url.tld",
 			},
@@ -89,14 +89,14 @@ func Test_buildAppLinkURL(t *testing.T) {
 		{
 			name:    "without subdomain",
 			baseURL: "https://coder.tld",
-			workspace: codersdk.Workspace{
+			workspace: nicloudsdk.Workspace{
 				Name:      "Test-Workspace",
 				OwnerName: "username",
 			},
-			agent: codersdk.WorkspaceAgent{
+			agent: nicloudsdk.WorkspaceAgent{
 				Name: "a-workspace-agent",
 			},
-			app: codersdk.WorkspaceApp{
+			app: nicloudsdk.WorkspaceApp{
 				Slug:      "app-slug",
 				Subdomain: false,
 			},
@@ -106,14 +106,14 @@ func Test_buildAppLinkURL(t *testing.T) {
 		{
 			name:    "with command",
 			baseURL: "https://coder.tld",
-			workspace: codersdk.Workspace{
+			workspace: nicloudsdk.Workspace{
 				Name:      "Test-Workspace",
 				OwnerName: "username",
 			},
-			agent: codersdk.WorkspaceAgent{
+			agent: nicloudsdk.WorkspaceAgent{
 				Name: "a-workspace-agent",
 			},
-			app: codersdk.WorkspaceApp{
+			app: nicloudsdk.WorkspaceApp{
 				Slug:    "my-terminal",
 				Command: "ls -la",
 			},
@@ -122,14 +122,14 @@ func Test_buildAppLinkURL(t *testing.T) {
 		{
 			name:    "with subdomain",
 			baseURL: "ftps://coder.tld",
-			workspace: codersdk.Workspace{
+			workspace: nicloudsdk.Workspace{
 				Name:      "Test-Workspace",
 				OwnerName: "username",
 			},
-			agent: codersdk.WorkspaceAgent{
+			agent: nicloudsdk.WorkspaceAgent{
 				Name: "a-workspace-agent",
 			},
-			app: codersdk.WorkspaceApp{
+			app: nicloudsdk.WorkspaceApp{
 				Subdomain:     true,
 				SubdomainName: "hellocoder",
 			},
@@ -140,14 +140,14 @@ func Test_buildAppLinkURL(t *testing.T) {
 		{
 			name:    "with subdomain, but not apps host",
 			baseURL: "https://coder.tld",
-			workspace: codersdk.Workspace{
+			workspace: nicloudsdk.Workspace{
 				Name:      "Test-Workspace",
 				OwnerName: "username",
 			},
-			agent: codersdk.WorkspaceAgent{
+			agent: nicloudsdk.WorkspaceAgent{
 				Name: "a-workspace-agent",
 			},
-			app: codersdk.WorkspaceApp{
+			app: nicloudsdk.WorkspaceApp{
 				Slug:          "app-slug",
 				Subdomain:     true,
 				SubdomainName: "It really doesn't matter what this is without AppsHost.",

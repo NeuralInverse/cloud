@@ -14,9 +14,9 @@ import (
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 var WindowsDriveRegex = regexp.MustCompile(`^[a-zA-Z]:\\$`)
@@ -31,7 +31,7 @@ func (api *API) HandleLS(rw http.ResponseWriter, r *http.Request) {
 	path := parser.String(query, "", "path")
 	parser.ErrorExcessParams(query)
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: parser.Errors,
 		})
@@ -53,7 +53,7 @@ func (api *API) HandleLS(rw http.ResponseWriter, r *http.Request) {
 			status = http.StatusForbidden
 		default:
 		}
-		httpapi.Write(ctx, rw, status, codersdk.Response{
+		httpapi.Write(ctx, rw, status, nicloudsdk.Response{
 			Message: err.Error(),
 		})
 		return

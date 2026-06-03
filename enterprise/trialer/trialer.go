@@ -12,15 +12,15 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
 )
 
 // New creates a handler that can issue trial licenses!
-func New(db database.Store, url string, keys map[string]ed25519.PublicKey) func(ctx context.Context, body codersdk.LicensorTrialRequest) error {
-	return func(ctx context.Context, body codersdk.LicensorTrialRequest) error {
+func New(db database.Store, url string, keys map[string]ed25519.PublicKey) func(ctx context.Context, body nicloudsdk.LicensorTrialRequest) error {
+	return func(ctx context.Context, body nicloudsdk.LicensorTrialRequest) error {
 		deploymentID, err := db.GetDeploymentID(ctx)
 		if err != nil {
 			return xerrors.Errorf("get deployment id: %w", err)

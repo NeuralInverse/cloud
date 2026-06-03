@@ -10,7 +10,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // Table creates a new table with standardized styles.
@@ -229,7 +229,7 @@ func renderTable(out any, sort string, headers table.Row, filterColumns []string
 				if val != nil {
 					v = val.Format(time.RFC3339)
 				}
-			case codersdk.NullTime:
+			case nicloudsdk.NullTime:
 				if val.Valid {
 					v = val.Time.Format(time.RFC3339)
 				} else {

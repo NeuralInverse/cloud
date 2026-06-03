@@ -34,7 +34,7 @@ export const WithContent: Story = {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os   = "linux"
   arch = "amd64"
 }

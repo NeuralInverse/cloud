@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -48,7 +48,7 @@ func TestRichSelect(t *testing.T) {
 		msgChan := make(chan string)
 		go func() {
 			resp, err := newRichSelect(cliui.RichSelectOptions{
-				Options: []codersdk.TemplateVersionParameterOption{
+				Options: []nicloudsdk.TemplateVersionParameterOption{
 					{Name: "A-Name", Value: "A-Value", Description: "A-Description."},
 					{Name: "B-Name", Value: "B-Value", Description: "B-Description."},
 				},
@@ -80,14 +80,14 @@ func TestRichMultiSelect(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		options     []codersdk.TemplateVersionParameterOption
+		options     []nicloudsdk.TemplateVersionParameterOption
 		defaults    []string
 		allowCustom bool
 		want        []string
 	}{
 		{
 			name: "Predefined",
-			options: []codersdk.TemplateVersionParameterOption{
+			options: []nicloudsdk.TemplateVersionParameterOption{
 				{Name: "AAA", Description: "This is AAA", Value: "aaa"},
 				{Name: "BBB", Description: "This is BBB", Value: "bbb"},
 				{Name: "CCC", Description: "This is CCC", Value: "ccc"},
@@ -98,7 +98,7 @@ func TestRichMultiSelect(t *testing.T) {
 		},
 		{
 			name: "Custom",
-			options: []codersdk.TemplateVersionParameterOption{
+			options: []nicloudsdk.TemplateVersionParameterOption{
 				{Name: "AAA", Description: "This is AAA", Value: "aaa"},
 				{Name: "BBB", Description: "This is BBB", Value: "bbb"},
 				{Name: "CCC", Description: "This is CCC", Value: "ccc"},
@@ -109,7 +109,7 @@ func TestRichMultiSelect(t *testing.T) {
 		},
 		{
 			name: "NoOptionSelected",
-			options: []codersdk.TemplateVersionParameterOption{
+			options: []nicloudsdk.TemplateVersionParameterOption{
 				{Name: "AAA", Description: "This is AAA", Value: "aaa"},
 				{Name: "BBB", Description: "This is BBB", Value: "bbb"},
 				{Name: "CCC", Description: "This is CCC", Value: "ccc"},

@@ -9,13 +9,13 @@ development environments.
 ## Basic usage
 
 ```tf
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
   os   = "linux"
   arch = "amd64"
 }
 
 resource "coder_env" "go_path" {
-  agent_id = coder_agent.dev.id
+  agent_id = ni_agent.dev.id
   name     = "GOPATH"
   value    = "/home/coder/go"
 }
@@ -45,14 +45,14 @@ Multiple `coder_env` resources can each add directories to `PATH`:
 
 ```tf
 resource "coder_env" "path_tools" {
-  agent_id       = coder_agent.dev.id
+  agent_id       = ni_agent.dev.id
   name           = "PATH"
   value          = "/home/coder/tools/bin"
   merge_strategy = "append"
 }
 
 resource "coder_env" "path_go" {
-  agent_id       = coder_agent.dev.id
+  agent_id       = ni_agent.dev.id
   name           = "PATH"
   value          = "/home/coder/go/bin"
   merge_strategy = "append"
@@ -68,7 +68,7 @@ Use `error` to catch accidental duplicate definitions:
 
 ```tf
 resource "coder_env" "editor" {
-  agent_id       = coder_agent.dev.id
+  agent_id       = ni_agent.dev.id
   name           = "EDITOR"
   value          = "vim"
   merge_strategy = "error"
@@ -89,15 +89,15 @@ alphabetically.
 
 ## Agent env override
 
-The `env` block inside a `coder_agent` resource always takes final precedence
+The `env` block inside a `ni_agent` resource always takes final precedence
 over any `coder_env` resources. If both define the same variable, the
-`coder_agent` value wins regardless of `merge_strategy`. This override happens
+`ni_agent` value wins regardless of `merge_strategy`. This override happens
 after `coder_env` resources are merged, so `merge_strategy = "error"` does not
 trigger when the conflict is with the agent's `env` block — only when two
 `coder_env` resources define the same key:
 
 ```tf
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
   os   = "linux"
   arch = "amd64"
   env = {
@@ -105,9 +105,9 @@ resource "coder_agent" "dev" {
   }
 }
 
-# This value is ignored because coder_agent.dev.env sets PATH directly.
+# This value is ignored because ni_agent.dev.env sets PATH directly.
 resource "coder_env" "extra_path" {
-  agent_id       = coder_agent.dev.id
+  agent_id       = ni_agent.dev.id
   name           = "PATH"
   value          = "/home/coder/bin"
   merge_strategy = "append"
@@ -115,5 +115,5 @@ resource "coder_env" "extra_path" {
 ```
 
 See the
-[Coder Terraform provider documentation](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/env)
+[Neural Inverse Cloud Terraform provider documentation](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/env)
 for the complete `coder_env` reference.

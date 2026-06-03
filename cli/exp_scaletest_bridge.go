@@ -14,10 +14,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/bridge"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/bridge"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
 	"github.com/coder/serpent"
 )
 
@@ -47,16 +47,16 @@ func (r *RootCmd) scaletestBridge() *serpent.Command {
 
 Examples:
   # Test OpenAI API through bridge
-  coder scaletest bridge --mode bridge --provider openai --concurrent-users 10 --request-count 5 --num-messages 10
+  neuralinverse scaletest bridge --mode bridge --provider openai --concurrent-users 10 --request-count 5 --num-messages 10
 
   # Test OpenAI Responses API through bridge
-  coder scaletest bridge --mode bridge --provider responses --concurrent-users 10 --request-count 5 --num-messages 10
+  neuralinverse scaletest bridge --mode bridge --provider responses --concurrent-users 10 --request-count 5 --num-messages 10
 
   # Test Anthropic API through bridge
-  coder scaletest bridge --mode bridge --provider anthropic --concurrent-users 10 --request-count 5 --num-messages 10
+  neuralinverse scaletest bridge --mode bridge --provider anthropic --concurrent-users 10 --request-count 5 --num-messages 10
 
   # Test directly against mock server
-  coder scaletest bridge --mode direct --provider openai --upstream-url http://localhost:8080/v1/chat/completions
+  neuralinverse scaletest bridge --mode direct --provider openai --upstream-url http://localhost:8080/v1/chat/completions
 `,
 		Handler: func(inv *serpent.Invocation) error {
 			ctx := inv.Context()
@@ -65,10 +65,10 @@ Examples:
 				return err
 			}
 			client.HTTPClient = &http.Client{
-				Transport: &codersdk.HeaderTransport{
+				Transport: &nicloudsdk.HeaderTransport{
 					Transport: http.DefaultTransport,
 					Header: map[string][]string{
-						codersdk.BypassRatelimitHeader: {"true"},
+						nicloudsdk.BypassRatelimitHeader: {"true"},
 					},
 				},
 			}
@@ -196,7 +196,7 @@ Examples:
 		{
 			Flag:          "concurrent-users",
 			FlagShorthand: "c",
-			Env:           "CODER_SCALETEST_BRIDGE_CONCURRENT_USERS",
+			Env:           "NEURALINVERSE_SCALETEST_BRIDGE_CONCURRENT_USERS",
 			Description:   "Required: Number of concurrent users.",
 			Value: serpent.Validate(serpent.Int64Of(&concurrentUsers), func(value *serpent.Int64) error {
 				if value == nil || value.Value() <= 0 {
@@ -208,27 +208,27 @@ Examples:
 		},
 		{
 			Flag:        "mode",
-			Env:         "CODER_SCALETEST_BRIDGE_MODE",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_MODE",
 			Default:     "direct",
 			Description: "Request mode: 'bridge' (create users and use AI Bridge) or 'direct' (make requests directly to upstream-url).",
 			Value:       serpent.EnumOf(&mode, string(bridge.RequestModeBridge), string(bridge.RequestModeDirect)),
 		},
 		{
 			Flag:        "upstream-url",
-			Env:         "CODER_SCALETEST_BRIDGE_UPSTREAM_URL",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_UPSTREAM_URL",
 			Description: "URL to make requests to directly (required in direct mode, e.g., http://localhost:8080/v1/chat/completions).",
 			Value:       serpent.StringOf(&upstreamURL),
 		},
 		{
 			Flag:        "provider",
-			Env:         "CODER_SCALETEST_BRIDGE_PROVIDER",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_PROVIDER",
 			Required:    true,
 			Description: "API provider to use.",
 			Value:       serpent.EnumOf(&provider, "completions", "messages", "responses"),
 		},
 		{
 			Flag:        "request-count",
-			Env:         "CODER_SCALETEST_BRIDGE_REQUEST_COUNT",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_REQUEST_COUNT",
 			Default:     "1",
 			Description: "Number of sequential requests to make per runner.",
 			Value: serpent.Validate(serpent.Int64Of(&requestsPerUser), func(value *serpent.Int64) error {
@@ -240,33 +240,33 @@ Examples:
 		},
 		{
 			Flag:        "stream",
-			Env:         "CODER_SCALETEST_BRIDGE_STREAM",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_STREAM",
 			Description: "Enable streaming requests.",
 			Value:       serpent.BoolOf(&useStreamingAPI),
 		},
 		{
 			Flag:        "request-payload-size",
-			Env:         "CODER_SCALETEST_BRIDGE_REQUEST_PAYLOAD_SIZE",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_REQUEST_PAYLOAD_SIZE",
 			Default:     "1024",
 			Description: "Size in bytes of the request payload (user message content). If 0, uses default message content.",
 			Value:       serpent.Int64Of(&requestPayloadSize),
 		},
 		{
 			Flag:        "num-messages",
-			Env:         "CODER_SCALETEST_BRIDGE_NUM_MESSAGES",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_NUM_MESSAGES",
 			Default:     "1",
 			Description: "Number of messages to include in the conversation.",
 			Value:       serpent.Int64Of(&numMessages),
 		},
 		{
 			Flag:        "no-cleanup",
-			Env:         "CODER_SCALETEST_NO_CLEANUP",
+			Env:         "NEURALINVERSE_SCALETEST_NO_CLEANUP",
 			Description: "Do not clean up resources after the test completes.",
 			Value:       serpent.BoolOf(&noCleanup),
 		},
 		{
 			Flag:        "http-timeout",
-			Env:         "CODER_SCALETEST_BRIDGE_HTTP_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_BRIDGE_HTTP_TIMEOUT",
 			Default:     "30s",
 			Description: "Timeout for individual HTTP requests to the upstream provider.",
 			Value:       serpent.DurationOf(&httpTimeout),

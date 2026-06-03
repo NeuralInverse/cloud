@@ -11,8 +11,8 @@ import (
 	"github.com/danieljoos/wincred"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/sessionstore"
-	"github.com/coder/coder/v2/cli/sessionstore/testhelpers"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore/testhelpers"
 )
 
 func readRawKeychainCredential(t *testing.T, serviceName string) []byte {
@@ -57,7 +57,7 @@ func TestWindowsKeyring_WriteReadDelete(t *testing.T) {
 	cred, ok := storedCreds[srvURL.Host]
 	require.True(t, ok, "credential for URL should exist")
 	require.Equal(t, inputToken, cred.APIToken)
-	require.Equal(t, srvURL.Host, cred.CoderURL)
+	require.Equal(t, srvURL.Host, cred.NIURL)
 
 	// Read the token back
 	token, err := backend.Read(srvURL)

@@ -18,12 +18,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestTemplateEdit(t *testing.T) {
@@ -31,12 +31,12 @@ func TestTemplateEdit(t *testing.T) {
 
 	t.Run("FirstEmptyThenModified", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		name := "new-template-name"
@@ -77,12 +77,12 @@ func TestTemplateEdit(t *testing.T) {
 	})
 	t.Run("FirstEmptyThenNotModified", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		cmdArgs := []string{
@@ -114,12 +114,12 @@ func TestTemplateEdit(t *testing.T) {
 	})
 	t.Run("InvalidDisplayName", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Test the cli command.
 		cmdArgs := []string{
@@ -136,7 +136,7 @@ func TestTemplateEdit(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 
 		require.Error(t, err, "client call must fail")
-		_, isSdkError := codersdk.AsError(err)
+		_, isSdkError := nicloudsdk.AsError(err)
 		require.True(t, isSdkError, "sdk error is expected")
 
 		// Assert that the template metadata did not change.
@@ -147,17 +147,17 @@ func TestTemplateEdit(t *testing.T) {
 	})
 	t.Run("WithPropertiesThenModified", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		initialDisplayName := "This is a template"
 		initialDescription := "This is description"
 		initialIcon := "/img/icon.png"
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {
 			ctr.DisplayName = initialDisplayName
 			ctr.Description = initialDescription
 			ctr.Icon = initialIcon
@@ -200,17 +200,17 @@ func TestTemplateEdit(t *testing.T) {
 	})
 	t.Run("WithPropertiesThenEmptyEdit", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 		initialDisplayName := "This is a template"
 		initialDescription := "This is description"
 		initialIcon := "/img/icon.png"
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {
 			ctr.DisplayName = initialDisplayName
 			ctr.Description = initialDescription
 			ctr.Icon = initialIcon
@@ -255,12 +255,12 @@ func TestTemplateEdit(t *testing.T) {
 		t.Parallel()
 		t.Run("BlockedAGPL", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 			})
@@ -337,12 +337,12 @@ func TestTemplateEdit(t *testing.T) {
 
 		t.Run("BlockedNotEntitled", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 			})
@@ -351,17 +351,17 @@ func TestTemplateEdit(t *testing.T) {
 			// response, but without advanced scheduling entitlement.
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := nicloudsdk.Entitlements{
+						Features:         map[nicloudsdk.FeatureName]nicloudsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+					for _, feature := range nicloudsdk.FeatureNames {
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementNotEntitled,
 							Enabled:     false,
 							Limit:       nil,
 							Actual:      nil,
@@ -383,7 +383,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+			proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -451,12 +451,12 @@ func TestTemplateEdit(t *testing.T) {
 		})
 		t.Run("Entitled", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 			})
@@ -466,18 +466,18 @@ func TestTemplateEdit(t *testing.T) {
 			var updateTemplateCalled atomic.Int64
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := nicloudsdk.Entitlements{
+						Features:         map[nicloudsdk.FeatureName]nicloudsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
+					for _, feature := range nicloudsdk.FeatureNames {
 						var one int64 = 1
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementNotEntitled,
 							Enabled:     true,
 							Limit:       &one,
 							Actual:      &one,
@@ -491,7 +491,7 @@ func TestTemplateEdit(t *testing.T) {
 					require.NoError(t, err)
 					_ = r.Body.Close()
 
-					var req codersdk.UpdateTemplateMeta
+					var req nicloudsdk.UpdateTemplateMeta
 					err = json.Unmarshal(body, &req)
 					require.NoError(t, err)
 					assert.Equal(t, req.AutostopRequirement.DaysOfWeek, []string{"monday", "tuesday"})
@@ -514,7 +514,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+			proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -554,12 +554,12 @@ func TestTemplateEdit(t *testing.T) {
 		t.Parallel()
 		t.Run("BlockedAGPL", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {
 				ctr.DefaultTTLMillis = nil
 				ctr.AutostopRequirement = nil
 				ctr.FailureTTLMillis = nil
@@ -615,28 +615,28 @@ func TestTemplateEdit(t *testing.T) {
 
 		t.Run("BlockedNotEntitled", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 			// Make a proxy server that will return a valid entitlements
 			// response, but without advanced scheduling entitlement.
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := nicloudsdk.Entitlements{
+						Features:         map[nicloudsdk.FeatureName]nicloudsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+					for _, feature := range nicloudsdk.FeatureNames {
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementNotEntitled,
 							Enabled:     false,
 							Limit:       nil,
 							Actual:      nil,
@@ -658,7 +658,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+			proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -710,30 +710,30 @@ func TestTemplateEdit(t *testing.T) {
 		})
 		t.Run("Entitled", func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 			// Make a proxy server that will return a valid entitlements
 			// response, including a valid advanced scheduling entitlement.
 			var updateTemplateCalled atomic.Int64
 			proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/api/v2/entitlements" {
-					res := codersdk.Entitlements{
-						Features:         map[codersdk.FeatureName]codersdk.Feature{},
+					res := nicloudsdk.Entitlements{
+						Features:         map[nicloudsdk.FeatureName]nicloudsdk.Feature{},
 						Warnings:         []string{},
 						Errors:           []string{},
 						HasLicense:       true,
 						Trial:            true,
 						RequireTelemetry: false,
 					}
-					for _, feature := range codersdk.FeatureNames {
+					for _, feature := range nicloudsdk.FeatureNames {
 						var one int64 = 1
-						res.Features[feature] = codersdk.Feature{
-							Entitlement: codersdk.EntitlementNotEntitled,
+						res.Features[feature] = nicloudsdk.Feature{
+							Entitlement: nicloudsdk.EntitlementNotEntitled,
 							Enabled:     true,
 							Limit:       &one,
 							Actual:      &one,
@@ -747,7 +747,7 @@ func TestTemplateEdit(t *testing.T) {
 					require.NoError(t, err)
 					_ = r.Body.Close()
 
-					var req codersdk.UpdateTemplateMeta
+					var req nicloudsdk.UpdateTemplateMeta
 					err = json.Unmarshal(body, &req)
 					require.NoError(t, err)
 					require.NotNil(t, req.AllowUserAutostart)
@@ -772,7 +772,7 @@ func TestTemplateEdit(t *testing.T) {
 			// Create a new client that uses the proxy server.
 			proxyURL, err := url.Parse(proxy.URL)
 			require.NoError(t, err)
-			proxyClient := codersdk.New(proxyURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(proxyURL)))
+			proxyClient := nicloudsdk.New(proxyURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(proxyURL)))
 			proxyClient.SetSessionToken(templateAdmin.SessionToken())
 			t.Cleanup(proxyClient.HTTPClient.CloseIdleConnections)
 
@@ -814,12 +814,12 @@ func TestTemplateEdit(t *testing.T) {
 
 	t.Run("RequireActiveVersion", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {})
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {})
 
 		// Test the cli command with --allow-user-autostart.
 		cmdArgs := []string{
@@ -839,12 +839,12 @@ func TestTemplateEdit(t *testing.T) {
 	})
 	t.Run("DefaultValues", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *codersdk.CreateTemplateRequest) {
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID, func(ctr *nicloudsdk.CreateTemplateRequest) {
 			ctr.Name = "random"
 			ctr.Icon = "/icon/foobar.png"
 			ctr.DisplayName = "Foobar"

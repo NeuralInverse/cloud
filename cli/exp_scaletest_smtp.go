@@ -11,7 +11,7 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/scaletest/smtpmock"
+	"github.com/NeuralInverse/cloud/v2/scaletest/smtpmock"
 	"github.com/coder/serpent"
 )
 
@@ -82,26 +82,26 @@ messages and get messages by email.`,
 	cmd.Options = []serpent.Option{
 		{
 			Flag:        "host-address",
-			Env:         "CODER_SCALETEST_SMTP_HOST_ADDRESS",
+			Env:         "NEURALINVERSE_SCALETEST_SMTP_HOST_ADDRESS",
 			Default:     "localhost",
 			Description: "Host address to bind the mock SMTP and API servers.",
 			Value:       serpent.StringOf(&hostAddress),
 		},
 		{
 			Flag:        "smtp-port",
-			Env:         "CODER_SCALETEST_SMTP_PORT",
+			Env:         "NEURALINVERSE_SCALETEST_SMTP_PORT",
 			Description: "Port for the mock SMTP server. Uses a random port if not specified.",
 			Value:       serpent.Int64Of(&smtpPort),
 		},
 		{
 			Flag:        "api-port",
-			Env:         "CODER_SCALETEST_SMTP_API_PORT",
+			Env:         "NEURALINVERSE_SCALETEST_SMTP_API_PORT",
 			Description: "Port for the HTTP API server. Uses a random port if not specified.",
 			Value:       serpent.Int64Of(&apiPort),
 		},
 		{
 			Flag:        "purge-at-count",
-			Env:         "CODER_SCALETEST_SMTP_PURGE_AT_COUNT",
+			Env:         "NEURALINVERSE_SCALETEST_SMTP_PURGE_AT_COUNT",
 			Default:     "100000",
 			Description: "Maximum number of messages to keep before auto-purging. Set to 0 to disable.",
 			Value:       serpent.Int64Of(&purgeAtCount),

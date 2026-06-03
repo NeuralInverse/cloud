@@ -1,8 +1,8 @@
 # check-scopes
 
-Validates that the DB enum `api_key_scope` contains every `<resource>:<action>` derived from `coderd/rbac/policy/RBACPermissions`.
+Validates that the DB enum `api_key_scope` contains every `<resource>:<action>` derived from `nicloud/rbac/policy/RBACPermissions`.
 
-- Exits 0 when all scopes are present in `coderd/database/dump.sql`.
+- Exits 0 when all scopes are present in `nicloud/database/dump.sql`.
 - Exits 1 and prints missing values with suggested `ALTER TYPE` statements otherwise.
 
 ## Usage
@@ -22,7 +22,7 @@ go run ./tools/check-scopes
 
 Optional flags:
 
-- `-dump path` — override path to `dump.sql` (default `coderd/database/dump.sql`).
+- `-dump path` — override path to `dump.sql` (default `nicloud/database/dump.sql`).
 
 ## Remediation
 
@@ -41,4 +41,4 @@ When the tool reports missing values:
    ```
 
 3. Decide whether each new scope is public (exposed in the catalog) or internal-only.
-   - If public, add it to the curated map in `coderd/rbac/scopes_catalog.go` (`externalLowLevel`) so it appears in the public catalog and can be requested by users.
+   - If public, add it to the curated map in `nicloud/rbac/scopes_catalog.go` (`externalLowLevel`) so it appears in the public catalog and can be requested by users.

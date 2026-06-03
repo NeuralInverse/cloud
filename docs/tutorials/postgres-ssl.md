@@ -1,4 +1,4 @@
-# Configure Coder to connect to PostgreSQL using SSL
+# Configure Neural Inverse Cloud to connect to PostgreSQL using SSL
 
 <div>
   <a href="https://github.com/ericpaulsen" style="text-decoration: none; color: inherit;">
@@ -10,7 +10,7 @@ February 24, 2024
 ---
 
 Your organization may require connecting to the database instance over SSL. To
-supply Coder with the appropriate certificates, and have it connect over SSL,
+supply Neural Inverse Cloud with the appropriate certificates, and have it connect over SSL,
 follow the steps below:
 
 ## Client verification (server verifies the client)

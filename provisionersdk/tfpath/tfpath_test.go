@@ -9,8 +9,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/provisionersdk/tfpath"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/tfpath"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestCleanStaleSessions(t *testing.T) {

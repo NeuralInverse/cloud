@@ -51,8 +51,8 @@ if [[ -z "${SCALETEST_NAME}" ]]; then
 	exit 1
 fi
 
-CODER_TOKEN=$("${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" tokens create)
-CODER_URL="http://coder.coder-${SCALETEST_NAME}.svc.cluster.local"
+NEURALINVERSE_TOKEN=$("${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" tokens create)
+NEURALINVERSE_URL="http://coder.coder-${SCALETEST_NAME}.svc.cluster.local"
 export KUBECONFIG="${PROJECT_ROOT}/scaletest/.coderv2/${SCALETEST_NAME}-cluster.kubeconfig"
 
 # Clean up any pre-existing pods
@@ -80,15 +80,15 @@ spec:
   - command:
     - sh
     - -c
-    - "curl -fsSL $CODER_URL/bin/coder-linux-amd64 -o /tmp/coder && chmod +x /tmp/coder && /tmp/coder --verbose --url=$CODER_URL --token=$CODER_TOKEN exp scaletest workspace-traffic --concurrency=0 --bytes-per-tick=${SCALETEST_TRAFFIC_BYTES_PER_TICK} --tick-interval=${SCALETEST_TRAFFIC_TICK_INTERVAL} --scaletest-prometheus-wait=60s"
+    - "curl -fsSL $NEURALINVERSE_URL/bin/neuralinverse-linux-amd64 -o /tmp/coder && chmod +x /tmp/coder && /tmp/coder --verbose --url=$NEURALINVERSE_URL --token=$NEURALINVERSE_TOKEN exp scaletest workspace-traffic --concurrency=0 --bytes-per-tick=${SCALETEST_TRAFFIC_BYTES_PER_TICK} --tick-interval=${SCALETEST_TRAFFIC_TICK_INTERVAL} --scaletest-prometheus-wait=60s"
     env:
-    - name: CODER_URL
-      value: $CODER_URL
-    - name: CODER_TOKEN
-      value: $CODER_TOKEN
-    - name: CODER_SCALETEST_PROMETHEUS_ADDRESS
+    - name: NEURALINVERSE_URL
+      value: $NEURALINVERSE_URL
+    - name: NEURALINVERSE_TOKEN
+      value: $NEURALINVERSE_TOKEN
+    - name: NEURALINVERSE_SCALETEST_PROMETHEUS_ADDRESS
       value: "0.0.0.0:21112"
-    - name: CODER_SCALETEST_JOB_TIMEOUT
+    - name: NEURALINVERSE_SCALETEST_JOB_TIMEOUT
       value: "30m"
     ports:
     - containerPort: 21112

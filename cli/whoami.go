@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -49,8 +49,8 @@ func (r *RootCmd) whoami() *serpent.Command {
 
 			ctx := inv.Context()
 			// Fetch the user info
-			resp, err := client.User(ctx, codersdk.Me)
-			// Get Coder instance url
+			resp, err := client.User(ctx, nicloudsdk.Me)
+			// Get Neural Inverse Cloud instance url
 			clientURL := client.URL
 			if err != nil {
 				return err

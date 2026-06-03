@@ -52,7 +52,7 @@ export const WithTextEnd: Story = {
 		children: (
 			<>
 				<InputGroupInput placeholder="username" />
-				<InputGroupAddon align="inline-end">@coder.com</InputGroupAddon>
+				<InputGroupAddon align="inline-end">@cloud.neuralinverse.com</InputGroupAddon>
 			</>
 		),
 	},

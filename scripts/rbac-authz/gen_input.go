@@ -12,8 +12,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac/policy"
 )
 
 type SubjectJSON struct {
@@ -53,7 +53,7 @@ func main() {
 	// Template Admin user
 	subject := rbac.Subject{
 		FriendlyName: "Test Name",
-		Email:        "test@coder.com",
+		Email:        "test@cloud.neuralinverse.com",
 		Type:         "user",
 		ID:           uuid.New().String(),
 		Roles: rbac.RoleIdentifiers{

@@ -10,15 +10,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/scaletest/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func Test_Runner(t *testing.T) {
@@ -245,16 +245,16 @@ func Test_Runner(t *testing.T) {
 	})
 }
 
-func setupRunnerTest(t *testing.T) (client *codersdk.Client, agentID uuid.UUID) {
+func setupRunnerTest(t *testing.T) (client *nicloudsdk.Client, agentID uuid.UUID) {
 	t.Helper()
 
-	client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, _, api := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := nicloudtest.CreateFirstUser(t, client)
 
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionGraph: []*proto.Response{{
@@ -277,14 +277,14 @@ func setupRunnerTest(t *testing.T) (client *codersdk.Client, agentID uuid.UUID) 
 		}},
 	})
 
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	_ = agenttest.New(t, client.URL, authToken)
-	resources := coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	resources := nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 	require.Eventually(t, func() bool {
 		t.Log("agent id", resources[0].Agents[0].ID)
 		return (*api.TailnetCoordinator.Load()).Node(resources[0].Agents[0].ID) != nil

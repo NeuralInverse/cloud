@@ -4,7 +4,7 @@ Users can generate tokens to make API requests on behalf of themselves.
 
 ## Short-Lived Tokens (Sessions)
 
-The [Coder CLI](../../install/cli.md) and
+The [Neural Inverse Cloud CLI](../../install/cli.md) and
 [Backstage Plugin](https://github.com/coder/backstage-plugins) use short-lived
 token to authenticate. To generate a short-lived session token on behalf of your
 account, visit the following URL: `https://coder.example.com/cli-auth`
@@ -21,16 +21,16 @@ coder login token
 This is useful for passing your session token to other tools:
 
 ```sh
-export CODER_SESSION_TOKEN=$(coder login token)
+export NEURALINVERSE_SESSION_TOKEN=$(coder login token)
 ```
 
 ### Session Durations
 
 By default, sessions last 24 hours and are automatically refreshed. You can
 configure
-[`CODER_SESSION_DURATION`](../../reference/cli/server.md#--session-duration) to
+[`NEURALINVERSE_SESSION_DURATION`](../../reference/cli/server.md#--session-duration) to
 change the duration and
-[`CODER_DISABLE_SESSION_EXPIRY_REFRESH`](../../reference/cli/server.md#--disable-session-expiry-refresh)
+[`NEURALINVERSE_DISABLE_SESSION_EXPIRY_REFRESH`](../../reference/cli/server.md#--disable-session-expiry-refresh)
 to configure this behavior.
 
 ## Long-Lived Tokens (API Tokens)
@@ -68,8 +68,8 @@ See the help docs for
 
 You must have the `Owner` role to generate a token for another user.
 
-As of Coder v2.17+, you can use the CLI or API to create long-lived tokens on
-behalf of other users. Use the API for earlier versions of Coder.
+As of Neural Inverse Cloud v2.17+, you can use the CLI or API to create long-lived tokens on
+behalf of other users. Use the API for earlier versions of Neural Inverse Cloud.
 
 <div class="tabs">
 
@@ -92,7 +92,7 @@ Use our API reference for more information on how to
 ### Set max token length
 
 You can use the
-[`CODER_MAX_TOKEN_LIFETIME`](https://coder.com/docs/reference/cli/server#--max-token-lifetime)
+[`NEURALINVERSE_MAX_TOKEN_LIFETIME`](https://cloud.neuralinverse.com/docs/reference/cli/server#--max-token-lifetime)
 server flag to set the maximum duration for long-lived tokens in your
 deployment.
 

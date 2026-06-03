@@ -11,7 +11,7 @@ terraform {
 
 # Last updated 2023-03-14
 # aws ec2 describe-regions | jq -r '[.Regions[].RegionName] | sort'
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name         = "region"
   display_name = "Region"
   description  = "The region to deploy the workspace in."
@@ -104,7 +104,7 @@ data "coder_parameter" "region" {
   }
 }
 
-data "coder_parameter" "instance_type" {
+data "ni_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
   description  = "What instance type should your workspace use?"
@@ -137,12 +137,12 @@ data "coder_parameter" "instance_type" {
 }
 
 provider "aws" {
-  region = data.coder_parameter.region.value
+  region = data.ni_parameter.region.value
 }
 
-data "coder_workspace" "me" {
+data "ni_workspace" "me" {
 }
-data "coder_workspace_owner" "me" {}
+data "ni_workspace_owner" "me" {}
 
 data "aws_ami" "windows" {
   most_recent = true
@@ -154,7 +154,7 @@ data "aws_ami" "windows" {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch = "amd64"
   auth = "aws-instance-identity"
   os   = "windows"
@@ -168,7 +168,7 @@ locals {
   user_data_start = <<EOT
 <powershell>
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-${coder_agent.main.init_script}
+${ni_agent.main.init_script}
 </powershell>
 <persist>true</persist>
 EOT
@@ -183,12 +183,12 @@ EOT
 
 resource "aws_instance" "dev" {
   ami               = data.aws_ami.windows.id
-  availability_zone = "${data.coder_parameter.region.value}a"
-  instance_type     = data.coder_parameter.instance_type.value
+  availability_zone = "${data.ni_parameter.region.value}a"
+  instance_type     = data.ni_parameter.instance_type.value
 
-  user_data = data.coder_workspace.me.transition == "start" ? local.user_data_start : local.user_data_end
+  user_data = data.ni_workspace.me.transition == "start" ? local.user_data_start : local.user_data_end
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
     # Required if you are using our example policy, see template README
     Coder_Provisioned = "true"
   }
@@ -201,7 +201,7 @@ resource "coder_metadata" "workspace_info" {
   resource_id = aws_instance.dev.id
   item {
     key   = "region"
-    value = data.coder_parameter.region.value
+    value = data.ni_parameter.region.value
   }
   item {
     key   = "instance type"

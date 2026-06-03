@@ -13,7 +13,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -23,7 +23,7 @@ func gitssh() *serpent.Command {
 	cmd := &serpent.Command{
 		Use:    "gitssh",
 		Hidden: true,
-		Short:  `Wraps the "ssh" command and uses the coder gitssh key for authentication`,
+		Short:  `Wraps the "ssh" command and uses the neuralinverse gitssh key for authentication`,
 		Handler: func(inv *serpent.Invocation) error {
 			ctx := inv.Context()
 			env := os.Environ()
@@ -48,7 +48,7 @@ func gitssh() *serpent.Command {
 				return xerrors.Errorf("get agent git ssh token: %w", err)
 			}
 
-			privateKeyFile, err := os.CreateTemp("", "coder-gitsshkey-*")
+			privateKeyFile, err := os.CreateTemp("", "neuralinverse-gitsshkey-*")
 			if err != nil {
 				return xerrors.Errorf("create temp gitsshkey file: %w", err)
 			}
@@ -135,10 +135,10 @@ var fallbackIdentityFiles = strings.Join([]string{
 //
 // Example invocation:
 //
-//	ssh -G -o SendEnv=GIT_PROTOCOL git@github.com git-upload-pack 'coder/coder'
+//	ssh -G -o SendEnv=GIT_PROTOCOL git@github.com git-upload-pack 'NeuralInverse/cloud'
 //
 // The extra arguments work without issue and lets us run the command
-// as-is without stripping out the excess (git-upload-pack 'coder/coder').
+// as-is without stripping out the excess (git-upload-pack 'NeuralInverse/cloud').
 func parseIdentityFilesForHost(ctx context.Context, args, env []string) (identityFiles []string, err error) {
 	home, err := os.UserHomeDir()
 	if err != nil {

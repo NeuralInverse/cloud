@@ -1,9 +1,9 @@
 # Icons
 
-Coder uses icons in several places, including ones that can be configured
+Neural Inverse Cloud uses icons in several places, including ones that can be configured
 throughout the app, or specified in your Terraform. They're specified by a URL,
 which can be to an image hosted on a CDN of your own, or one of the icons that
-come bundled with your Coder deployment.
+come bundled with your Neural Inverse Cloud deployment.
 
 - **Template Icons**:
 
@@ -12,8 +12,8 @@ come bundled with your Coder deployment.
 
 - [**Terraform**](https://registry.terraform.io/providers/coder/coder/latest/docs):
 
-  - [`coder_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app#icon-1)
-  - [`coder_parameter`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/parameter#icon-1)
+  - [`ni_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app#icon-1)
+  - [`ni_parameter`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/parameter#icon-1)
     and
     [`option`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/parameter#nested-schema-for-option)
     blocks
@@ -23,7 +23,7 @@ come bundled with your Coder deployment.
   These can all be configured to use an icon by setting the `icon` field.
 
   ```tf
-  data "coder_parameter" "my_parameter" {
+  data "ni_parameter" "my_parameter" {
     icon = "/icon/coder.svg"
 
     option {
@@ -36,28 +36,28 @@ come bundled with your Coder deployment.
 
   - Use icons for external authentication providers to make them recognizable.
     You can set an icon for each provider by setting the
-    `CODER_EXTERNAL_AUTH_X_ICON` environment variable, where `X` is the number
+    `NEURALINVERSE_EXTERNAL_AUTH_X_ICON` environment variable, where `X` is the number
     of the provider.
 
     ```env
-    CODER_EXTERNAL_AUTH_0_ICON=/icon/github.svg
-    CODER_EXTERNAL_AUTH_1_ICON=/icon/google.svg
+    NEURALINVERSE_EXTERNAL_AUTH_0_ICON=/icon/github.svg
+    NEURALINVERSE_EXTERNAL_AUTH_1_ICON=/icon/google.svg
     ```
 
 - [**Support Links**](../../setup/appearance.md#support-links):
 
   - Use icons for support links to make them recognizable. You can set the
-    `icon` field for each link in `CODER_SUPPORT_LINKS` array.
+    `icon` field for each link in `NEURALINVERSE_SUPPORT_LINKS` array.
 
 ## Bundled icons
 
-Coder is distributed with a bundle of icons for popular cloud providers and
+Neural Inverse Cloud is distributed with a bundle of icons for popular cloud providers and
 programming languages. You can see all of the icons (or suggest new ones) in our
 repository on
-[GitHub](https://github.com/coder/coder/tree/main/site/static/icon).
+[GitHub](https://github.com/NeuralInverse/cloud/tree/main/site/static/icon).
 
 You can also view the entire list, with search and previews, by navigating to
-`/icons` on your Coder deployment (for example,
+`/icons` on your Neural Inverse Cloud deployment (for example,
 `https://coder.example.com/icons`). This can be particularly useful in airgapped
 deployments.
 

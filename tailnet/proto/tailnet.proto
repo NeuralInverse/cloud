@@ -1,7 +1,7 @@
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/tailnet/proto";
+option go_package = "github.com/NeuralInverse/cloud/v2/tailnet/proto";
 
-package coder.tailnet.v2;
+package neuralinverse.tailnet.v2;
 
 import "google/protobuf/timestamp.proto"; // Importing for time.Time
 import "google/protobuf/duration.proto"; // Importing for time.Duration

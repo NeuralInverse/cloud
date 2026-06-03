@@ -12,8 +12,8 @@ import (
 	"github.com/tidwall/gjson"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/fixtures"
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge/fixtures"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 func TestNewRequestPayload(t *testing.T) {

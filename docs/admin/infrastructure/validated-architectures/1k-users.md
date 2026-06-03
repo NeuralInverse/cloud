@@ -14,7 +14,7 @@ architectural tier](./2k-users.md).
 
 ## Hardware recommendations
 
-### Coderd
+### Neural Inverse Cloudd
 
 | vCPU | Memory | Replicas |
 |------|--------|----------|
@@ -26,10 +26,10 @@ architectural tier](./2k-users.md).
 - If deploying on Kubernetes:
   - Set CPU request and limit to `2000m`
   - Set Memory request and limit to `8Gi`
-- Coderd does not typically benefit from high performance disks like SSDs (unless you are co-locating provisioners).
+- Neural Inverse Cloudd does not typically benefit from high performance disks like SSDs (unless you are co-locating provisioners).
 - For small deployments (ca. 100 users, 10 concurrent workspace builds), it is
-  acceptable to deploy provisioners on `coderd` replicas.
-- Coderd instances should be deployed in the same region as the database.
+  acceptable to deploy provisioners on `nicloud` replicas.
+- Neural Inverse Cloudd instances should be deployed in the same region as the database.
 
 ### Provisioners
 
@@ -46,7 +46,7 @@ architectural tier](./2k-users.md).
 - If deploying on virtual machines, stack up to 30 provisioners per machine with a commensurate amount of memory and CPU.
 - Provisioners benefit from high performance disks like SSDs.
 - For small deployments (ca. 100 users, 10 concurrent workspace builds), it is
-  acceptable to deploy provisioners on `coderd` nodes.
+  acceptable to deploy provisioners on `nicloud` nodes.
 - If deploying workspaces to multiple clouds or multiple Kubernetes clusters, divide the provisioner replicas among the
   clouds or clusters according to expected usage.
 
@@ -59,14 +59,14 @@ architectural tier](./2k-users.md).
 **Notes**:
 
 - "General purpose" virtual machines, such as the M8-series in AWS work well.
-- Deploy in the same region as `coderd`
+- Deploy in the same region as `nicloud`
 
 ### Workspaces
 
-The following resource requirements are for the Coder Workspace Agent, which runs alongside your end users work, and as
-such should be interpreted as the _bare minimum_ requirements for a Coder workspace. Size your workspaces to fit the use
+The following resource requirements are for the Neural Inverse Cloud Workspace Agent, which runs alongside your end users work, and as
+such should be interpreted as the _bare minimum_ requirements for a Neural Inverse Cloud workspace. Size your workspaces to fit the use
 case your users will be undertaking. If in doubt, chose sizes based on the development environments your users are
-migrating from onto Coder.
+migrating from onto Neural Inverse Cloud.
 
 | vCPU | Memory |
 |------|--------|

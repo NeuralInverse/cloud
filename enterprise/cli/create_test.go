@@ -15,24 +15,24 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel/trace/noop"
 
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/files"
-	"github.com/coder/coder/v2/coderd/notifications"
-	agplprebuilds "github.com/coder/coder/v2/coderd/prebuilds"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/wsbuilder"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/enterprise/coderd/prebuilds"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/files"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications"
+	agplprebuilds "github.com/NeuralInverse/cloud/v2/nicloud/prebuilds"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/wsbuilder"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/prebuilds"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/quartz"
 )
 
@@ -40,10 +40,10 @@ func TestEnterpriseCreate(t *testing.T) {
 	t.Parallel()
 
 	type setupData struct {
-		firstResponse codersdk.CreateFirstUserResponse
-		second        codersdk.Organization
-		owner         *codersdk.Client
-		member        *codersdk.Client
+		firstResponse nicloudsdk.CreateFirstUserResponse
+		second        nicloudsdk.Organization
+		owner         *nicloudsdk.Client
+		member        *nicloudsdk.Client
 	}
 
 	type setupArgs struct {
@@ -54,35 +54,35 @@ func TestEnterpriseCreate(t *testing.T) {
 	// setupMultipleOrganizations creates an extra organization, assigns a member
 	// both organizations, and optionally creates templates in each organization.
 	setupMultipleOrganizations := func(t *testing.T, args setupArgs) setupData {
-		ownerClient, first := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, first := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				// This only affects the first org.
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 
-		second := coderdenttest.CreateOrganization(t, ownerClient, coderdenttest.CreateOrganizationOptions{
+		second := nicloudenttest.CreateOrganization(t, ownerClient, nicloudenttest.CreateOrganizationOptions{
 			IncludeProvisionerDaemon: true,
 		})
-		member, _ := coderdtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.ScopedRoleOrgMember(second.ID))
+		member, _ := nicloudtest.CreateAnotherUser(t, ownerClient, first.OrganizationID, rbac.ScopedRoleOrgMember(second.ID))
 
 		var wg sync.WaitGroup
 
 		createTemplate := func(tplName string, orgID uuid.UUID) {
-			version := coderdtest.CreateTemplateVersion(t, ownerClient, orgID, nil)
+			version := nicloudtest.CreateTemplateVersion(t, ownerClient, orgID, nil)
 			wg.Add(1)
 			go func() {
-				coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
+				nicloudtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
 				wg.Done()
 			}()
 
-			coderdtest.CreateTemplate(t, ownerClient, orgID, version.ID, func(request *codersdk.CreateTemplateRequest) {
+			nicloudtest.CreateTemplate(t, ownerClient, orgID, version.ID, func(request *nicloudsdk.CreateTemplateRequest) {
 				request.Name = tplName
 			})
 		}
@@ -127,7 +127,7 @@ func TestEnterpriseCreate(t *testing.T) {
 		err := inv.Run()
 		require.NoError(t, err)
 
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), nicloudsdk.Me, "my-workspace", nicloudsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, templateName)
 			assert.Equal(t, ws.OrganizationName, setup.second.Name, "workspace in second organization")
@@ -182,7 +182,7 @@ func TestEnterpriseCreate(t *testing.T) {
 		err := inv.Run()
 		require.NoError(t, err)
 
-		ws, err := member.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "my-workspace", codersdk.WorkspaceOptions{})
+		ws, err := member.WorkspaceByOwnerAndName(context.Background(), nicloudsdk.Me, "my-workspace", nicloudsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, templateName)
 			assert.Equal(t, ws.OrganizationName, setup.second.Name, "workspace in second organization")
@@ -202,7 +202,7 @@ func TestEnterpriseCreate(t *testing.T) {
 		// Create a new Owner user who is NOT a member of the second org.
 		// The setup.owner created the second org and is auto-added as member,
 		// so we need a different Owner to test the RBAC-only path.
-		newOwner, _ := coderdtest.CreateAnotherUser(t, setup.owner, setup.firstResponse.OrganizationID, rbac.RoleOwner())
+		newOwner, _ := nicloudtest.CreateAnotherUser(t, setup.owner, setup.firstResponse.OrganizationID, rbac.RoleOwner())
 
 		args := []string{
 			"create",
@@ -216,7 +216,7 @@ func TestEnterpriseCreate(t *testing.T) {
 		err := inv.Run()
 		require.NoError(t, err)
 
-		ws, err := newOwner.WorkspaceByOwnerAndName(context.Background(), codersdk.Me, "owner-workspace", codersdk.WorkspaceOptions{})
+		ws, err := newOwner.WorkspaceByOwnerAndName(context.Background(), nicloudsdk.Me, "owner-workspace", nicloudsdk.WorkspaceOptions{})
 		if assert.NoError(t, err, "expected workspace to be created") {
 			assert.Equal(t, ws.TemplateName, templateName)
 			assert.Equal(t, ws.OrganizationName, setup.second.Name, "workspace in second organization")
@@ -306,7 +306,7 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		ctx context.Context,
 		db database.Store,
 		reconciler *prebuilds.StoreReconciler,
-		presets []codersdk.Preset,
+		presets []nicloudsdk.Preset,
 	) {
 		t.Helper()
 
@@ -374,8 +374,8 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		// Setup
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
 		db, pb := dbtestutil.NewDB(t, dbtestutil.WithDumpOnFailure())
-		client, _, api, owner := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, _, api, owner := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				Database:                 db,
 				Pubsub:                   pb,
 				IncludeProvisionerDaemon: true,
@@ -383,7 +383,7 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		})
 
 		// Setup Prebuild reconciler
-		cache := files.New(prometheus.NewRegistry(), &coderdtest.FakeAuthorizer{})
+		cache := files.New(prometheus.NewRegistry(), &nicloudtest.FakeAuthorizer{})
 		newNoopUsageCheckerPtr := func() *atomic.Pointer[wsbuilder.UsageChecker] {
 			var noopUsageChecker wsbuilder.UsageChecker = wsbuilder.NoopUsageChecker{}
 			buildUsageChecker := atomic.Pointer[wsbuilder.UsageChecker]{}
@@ -392,7 +392,7 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		}
 		reconciler := prebuilds.NewStoreReconciler(
 			db, pb, cache,
-			codersdk.PrebuildsConfig{},
+			nicloudsdk.PrebuildsConfig{},
 			testutil.Logger(t),
 			quartz.NewMock(t),
 			prometheus.NewRegistry(),
@@ -418,10 +418,10 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 				Instances: prebuildInstances,
 			},
 		}
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses(&preset))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses(&preset))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		presets, err := client.TemplateVersionPresets(ctx, version.ID)
 		require.NoError(t, err)
 		require.Len(t, presets, 1)
@@ -434,8 +434,8 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		require.Equal(t, presets[0].ID, runningPrebuilds[0].CurrentPresetID.UUID)
 
 		// Given: a running prebuilt workspace, ready to be claimed
-		prebuild := coderdtest.MustWorkspace(t, client, runningPrebuilds[0].ID)
-		require.Equal(t, codersdk.WorkspaceTransitionStart, prebuild.LatestBuild.Transition)
+		prebuild := nicloudtest.MustWorkspace(t, client, runningPrebuilds[0].ID)
+		require.Equal(t, nicloudsdk.WorkspaceTransitionStart, prebuild.LatestBuild.Transition)
 		require.Equal(t, template.ID, prebuild.TemplateID)
 		require.Equal(t, version.ID, prebuild.TemplateActiveVersionID)
 		require.Equal(t, presets[0].ID, *prebuild.LatestBuild.TemplateVersionPresetID)
@@ -459,7 +459,7 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		defer cancel()
 
 		// Should: create the user's workspace by claiming the existing prebuilt workspace
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		workspaces, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{
 			Name: workspaceName,
 		})
 		require.NoError(t, err)
@@ -473,8 +473,8 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		buildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceLatestBuild.ID)
 		require.NoError(t, err)
 		require.Len(t, buildParameters, 2)
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: firstParameterName, Value: secondOptionalParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: thirdParameterName, Value: thirdParameterValue})
+		require.Contains(t, buildParameters, nicloudsdk.WorkspaceBuildParameter{Name: firstParameterName, Value: secondOptionalParameterValue})
+		require.Contains(t, buildParameters, nicloudsdk.WorkspaceBuildParameter{Name: thirdParameterName, Value: thirdParameterValue})
 	})
 
 	// This test verifies that when the user provides `--preset None`,
@@ -486,8 +486,8 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		// Setup
 		ctx := testutil.Context(t, testutil.WaitSuperLong)
 		db, pb := dbtestutil.NewDB(t, dbtestutil.WithDumpOnFailure())
-		client, _, api, owner := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, _, api, owner := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				Database:                 db,
 				Pubsub:                   pb,
 				IncludeProvisionerDaemon: true,
@@ -495,7 +495,7 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		})
 
 		// Setup Prebuild reconciler
-		cache := files.New(prometheus.NewRegistry(), &coderdtest.FakeAuthorizer{})
+		cache := files.New(prometheus.NewRegistry(), &nicloudtest.FakeAuthorizer{})
 		newNoopUsageCheckerPtr := func() *atomic.Pointer[wsbuilder.UsageChecker] {
 			var noopUsageChecker wsbuilder.UsageChecker = wsbuilder.NoopUsageChecker{}
 			buildUsageChecker := atomic.Pointer[wsbuilder.UsageChecker]{}
@@ -504,7 +504,7 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		}
 		reconciler := prebuilds.NewStoreReconciler(
 			db, pb, cache,
-			codersdk.PrebuildsConfig{},
+			nicloudsdk.PrebuildsConfig{},
 			testutil.Logger(t),
 			quartz.NewMock(t),
 			prometheus.NewRegistry(),
@@ -530,10 +530,10 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 				Instances: prebuildInstances,
 			},
 		}
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses(&presetWithPrebuild))
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses(&presetWithPrebuild))
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 		presets, err := client.TemplateVersionPresets(ctx, version.ID)
 		require.NoError(t, err)
 		require.Len(t, presets, 1)
@@ -545,8 +545,8 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		require.Equal(t, presets[0].ID, runningPrebuilds[0].CurrentPresetID.UUID)
 
 		// Given: a running prebuilt workspace, ready to be claimed
-		prebuild := coderdtest.MustWorkspace(t, client, runningPrebuilds[0].ID)
-		require.Equal(t, codersdk.WorkspaceTransitionStart, prebuild.LatestBuild.Transition)
+		prebuild := nicloudtest.MustWorkspace(t, client, runningPrebuilds[0].ID)
+		require.Equal(t, nicloudsdk.WorkspaceTransitionStart, prebuild.LatestBuild.Transition)
 		require.Equal(t, template.ID, prebuild.TemplateID)
 		require.Equal(t, version.ID, prebuild.TemplateActiveVersionID)
 		require.Equal(t, presets[0].ID, *prebuild.LatestBuild.TemplateVersionPresetID)
@@ -568,7 +568,7 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		defer cancel()
 
 		// Should: create a new user's workspace without claiming the existing prebuilt workspace
-		workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		workspaces, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{
 			Name: workspaceName,
 		})
 		require.NoError(t, err)
@@ -582,8 +582,8 @@ func TestEnterpriseCreateWithPreset(t *testing.T) {
 		buildParameters, err := client.WorkspaceBuildParameters(ctx, workspaceLatestBuild.ID)
 		require.NoError(t, err)
 		require.Len(t, buildParameters, 2)
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
-		require.Contains(t, buildParameters, codersdk.WorkspaceBuildParameter{Name: thirdParameterName, Value: thirdParameterValue})
+		require.Contains(t, buildParameters, nicloudsdk.WorkspaceBuildParameter{Name: firstParameterName, Value: firstParameterValue})
+		require.Contains(t, buildParameters, nicloudsdk.WorkspaceBuildParameter{Name: thirdParameterName, Value: thirdParameterValue})
 	})
 }
 

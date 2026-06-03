@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # publickey
 
-Output your Coder public key used for Git operations
+Output your Neural Inverse Cloud public key used for Git operations
 
 Aliases:
 

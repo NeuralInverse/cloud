@@ -8,16 +8,16 @@ as a Docker container with Ubuntu.
 ## Before you start
 
 You'll need a computer or cloud computing instance with both
-[Docker](https://docs.docker.com/get-docker/) and [Coder](../install/index.md)
+[Docker](https://docs.docker.com/get-docker/) and [Neural Inverse Cloud](../install/index.md)
 installed on it.
 
 ## What's in a template
 
-The main part of a Coder template is a [Terraform](https://terraform.io) `tf`
-file. A Coder template often has other files to configure the other resources
+The main part of a Neural Inverse Cloud template is a [Terraform](https://terraform.io) `tf`
+file. A Neural Inverse Cloud template often has other files to configure the other resources
 that the template needs. In this tour you'll also create a `Dockerfile`.
 
-Coder can provision all Terraform modules, resources, and properties. The Coder
+Neural Inverse Cloud can provision all Terraform modules, resources, and properties. The Neural Inverse Cloud
 server essentially runs a `terraform apply` every time a workspace is created,
 started, or stopped.
 
@@ -33,7 +33,7 @@ create:
 ## 1. Create template files
 
 On your local computer, create a directory for your template and create the
-`Dockerfile`. You will upload the files to your Coder instance later.
+`Dockerfile`. You will upload the files to your Neural Inverse Cloud instance later.
 
 ```sh
 mkdir -p template-tour/build && cd $_
@@ -86,7 +86,7 @@ terraform {
 }
 
 locals {
-  username = data.coder_workspace_owner.me.name
+  username = data.ni_workspace_owner.me.name
 }
 
 data "coder_provisioner" "me" {
@@ -98,10 +98,10 @@ provider "docker" {
 provider "coder" {
 }
 
-data "coder_workspace" "me" {
+data "ni_workspace" "me" {
 }
 
-data "coder_workspace_owner" "me" {
+data "ni_workspace_owner" "me" {
 }
 ```
 
@@ -110,7 +110,7 @@ practical template, you would add arguments to these blocks to configure the
 providers, if needed.
 
 The
-[`coder_workspace`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace)
+[`ni_workspace`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace)
 data source provides details about the state of a workspace, such as its name,
 owner, and so on. The data source also lets us know when a workspace is being
 started or stopped. We'll use this information in later steps to:
@@ -118,21 +118,21 @@ started or stopped. We'll use this information in later steps to:
 - Set some environment variables based on the workspace owner.
 - Manage ephemeral and persistent storage.
 
-## 3. coder_agent
+## 3. ni_agent
 
 All templates need to create and run a
-[Coder agent](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent).
-This lets developers connect to their workspaces. The `coder_agent` resource
+[Neural Inverse Cloud agent](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent).
+This lets developers connect to their workspaces. The `ni_agent` resource
 runs inside the compute aspect of your workspace, typically a VM or container.
 In our case, it will run in Docker.
 
 You do not need to have any open ports on the compute aspect, but the agent
-needs `curl` access to the Coder server.
+needs `curl` access to the Neural Inverse Cloud server.
 
 Add this snippet after the last closing `}` in `main.tf` to create the agent:
 
 ```tf
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch                   = data.coder_provisioner.me.arch
   os                     = "linux"
   startup_script         = <<-EOT
@@ -144,10 +144,10 @@ resource "coder_agent" "main" {
   EOT
 
   env = {
-    GIT_AUTHOR_NAME     = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_AUTHOR_EMAIL    = "${data.coder_workspace_owner.me.email}"
-    GIT_COMMITTER_NAME  = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
+    GIT_AUTHOR_NAME     = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_AUTHOR_EMAIL    = "${data.ni_workspace_owner.me.email}"
+    GIT_COMMITTER_NAME  = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_COMMITTER_EMAIL = "${data.ni_workspace_owner.me.email}"
   }
 
   metadata {
@@ -168,8 +168,8 @@ resource "coder_agent" "main" {
 }
 ```
 
-Because Docker is running locally in the Coder server, there is no need to
-authenticate `coder_agent`. But if your `coder_agent` is running on a remote
+Because Docker is running locally in the Neural Inverse Cloud server, there is no need to
+authenticate `ni_agent`. But if your `ni_agent` is running on a remote
 host, your template will need
 [authentication credentials](../admin/external-auth/index.md).
 
@@ -178,45 +178,45 @@ and provides metadata.
 
 - [`startup script`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent#startup_script)
 
-  - Installs [code-server](https://coder.com/docs/code-server), a browser-based
+  - Installs [code-server](https://cloud.neuralinverse.com/docs/code-server), a browser-based
     [VS Code](https://code.visualstudio.com/) app that runs in the workspace.
 
-    We'll give users access to code-server through `coder_app` later.
+    We'll give users access to code-server through `ni_app` later.
 
 - [`env` block](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent#env)
 
   - Sets environments variables for the workspace.
 
-    We use the data source from `coder_workspace` to set the environment
+    We use the data source from `ni_workspace` to set the environment
     variables based on the workspace's owner. This way, the owner can make git
     commits immediately without any manual configuration.
 
 - [`metadata`](../admin/templates/extending-templates/agent-metadata.md) blocks
 
   - Your template can use metadata to show information to the workspace owner
-    Coder displays this metadata in the Coder dashboard.
+    Neural Inverse Cloud displays this metadata in the Neural Inverse Cloud dashboard.
 
     Our template has `metadata` blocks for CPU and RAM usage.
 
-## 4. coder_app
+## 4. ni_app
 
 A
-[`coder_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
-resource lets a developer use an app from the workspace's Coder dashboard.
+[`ni_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
+resource lets a developer use an app from the workspace's Neural Inverse Cloud dashboard.
 
-![Apps in a Coder workspace](../images/templates/workspace-apps.png)
+![Apps in a Neural Inverse Cloud workspace](../images/templates/workspace-apps.png)
 
 This is commonly used for
 [web IDEs](../user-guides/workspace-access/web-ides.md) such as
-[code-server](https://coder.com/docs/code-server), RStudio, and JupyterLab.
+[code-server](https://cloud.neuralinverse.com/docs/code-server), RStudio, and JupyterLab.
 
 We installed code-server in the `startup_script` argument. To add code-server to
-the workspace, make it available in the workspace with a `coder_app` resource.
+the workspace, make it available in the workspace with a `ni_app` resource.
 See [web IDEs](../user-guides/workspace-access/web-ides.md) for more examples:
 
 ```tf
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id     = ni_agent.main.id
   slug         = "code-server"
   display_name = "code-server"
   url          = "http://localhost:13337/?folder=/home/${local.username}"
@@ -232,15 +232,15 @@ resource "coder_app" "code-server" {
 }
 ```
 
-You can also use a `coder_app` resource to link to external apps, such as links
+You can also use a `ni_app` resource to link to external apps, such as links
 to wikis or cloud consoles:
 
 ```tf
-resource "coder_app" "coder-server-doc" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "coder-server-doc" {
+  agent_id     = ni_agent.main.id
   icon         = "/emojis/1f4dd.png"
   slug         = "getting-started"
-  url          = "https://coder.com/docs/code-server"
+  url          = "https://cloud.neuralinverse.com/docs/code-server"
   external     = true
 }
 ```
@@ -259,7 +259,7 @@ We do this in 2 parts:
   `ignore_changes = all` argument to prevent accidental deletions.
 - To prevent Terraform from destroying persistent Docker volumes in case of a
   workspace name change, we use an immutable parameter, like
-  `data.coder_workspace.me.id`.
+  `data.ni_workspace.me.id`.
 
 Later, we use the Terraform
 [count](https://developer.hashicorp.com/terraform/language/meta-arguments/count)
@@ -267,7 +267,7 @@ meta-argument to make sure that our Docker container is ephemeral.
 
 ```tf
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   # Protect the volume from being deleted due to changes in attributes.
   lifecycle {
     ignore_changes = all
@@ -285,7 +285,7 @@ uses `build/Dockerfile`, which we created earlier:
 
 ```tf
 resource "docker_image" "main" {
-  name = "coder-${data.coder_workspace.me.id}"
+  name = "coder-${data.ni_workspace.me.id}"
   build {
     context = "./build"
     build_args = {
@@ -298,21 +298,21 @@ resource "docker_image" "main" {
 }
 ```
 
-Our `docker_container` resource uses `coder_workspace` `start_count` to start
+Our `docker_container` resource uses `ni_workspace` `start_count` to start
 and stop the Docker container:
 
 ```tf
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = docker_image.main.name
   # Uses lower() to avoid Docker restriction on container names.
-  name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
+  name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
   # Hostname makes the shell more user friendly: coder@my-workspace:~$
-  hostname = data.coder_workspace.me.name
+  hostname = data.ni_workspace.me.name
   # Use the docker gateway if the access URL is 127.0.0.1
-  entrypoint = ["sh", "-c", replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
+  entrypoint = ["sh", "-c", replace(ni_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
+    "NEURALINVERSE_AGENT_TOKEN=${ni_agent.main.token}",
   ]
   host {
     host = "host.docker.internal"
@@ -326,17 +326,17 @@ resource "docker_container" "workspace" {
 }
 ```
 
-## 7. Create the template in Coder
+## 7. Create the template in Neural Inverse Cloud
 
 Save `main.tf` and exit the editor.
 
-Now that we've created the files for our template, we can add them to our Coder
+Now that we've created the files for our template, we can add them to our Neural Inverse Cloud
 deployment.
 
-We can do this with the Coder CLI or the Coder dashboard. In this example, we'll
-use the Coder CLI.
+We can do this with the Neural Inverse Cloud CLI or the Neural Inverse Cloud dashboard. In this example, we'll
+use the Neural Inverse Cloud CLI.
 
-1. Log in to your Coder deployment from the CLI. This is where you need the URL
+1. Log in to your Neural Inverse Cloud deployment from the CLI. This is where you need the URL
    for your deployment:
 
    ```console
@@ -351,7 +351,7 @@ use the Coder CLI.
 
 1. In your web browser, enter your credentials:
 
-   ![Log in to your Coder deployment](../images/screenshots/coder-login.png)
+   ![Log in to your Neural Inverse Cloud deployment](../images/screenshots/coder-login.png)
 
 1. Copy the session token to the clipboard:
 
@@ -360,14 +360,14 @@ use the Coder CLI.
 1. Paste it into the CLI:
 
    ```output
-   > Welcome to Coder, marc! You're authenticated.
+   > Welcome to Neural Inverse Cloud, marc! You're authenticated.
    $
    ```
 
-### Add the template files to Coder
+### Add the template files to Neural Inverse Cloud
 
-Add your template files to your Coder deployment. You can upload the template
-through the CLI, or through the Coder dashboard:
+Add your template files to your Neural Inverse Cloud deployment. You can upload the template
+through the CLI, or through the Neural Inverse Cloud dashboard:
 
 <div class="tabs">
 
@@ -382,7 +382,7 @@ through the CLI, or through the Coder dashboard:
    > Upload "."? (yes/no) yes
    ```
 
-1. The Coder CLI tool gives progress information then prompts you to confirm:
+1. The Neural Inverse Cloud CLI tool gives progress information then prompts you to confirm:
 
    ```console
    > Confirm create? (yes/no) yes
@@ -392,7 +392,7 @@ through the CLI, or through the Coder dashboard:
    coder create --template="template-tour" [workspace name]
    ```
 
-1. In your web browser, log in to your Coder dashboard, select **Templates**.
+1. In your web browser, log in to your Neural Inverse Cloud dashboard, select **Templates**.
 
 1. Once the upload completes, select **Templates** from the top to deploy it to
    a new workspace.
@@ -412,7 +412,7 @@ through the CLI, or through the Coder dashboard:
      zip templates.zip Dockerfile main.tf
      ```
 
-1. Select **Templates** from the top of the Coder dashboard, then **Create
+1. Select **Templates** from the top of the Neural Inverse Cloud dashboard, then **Create
    Template**.
 1. Select **Upload template**:
 

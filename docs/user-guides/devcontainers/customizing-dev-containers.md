@@ -1,7 +1,7 @@
 # Customizing dev containers
 
-Coder supports custom configuration in your `devcontainer.json` file through the
-`customizations.coder` block. These options let you control how Coder interacts
+Neural Inverse Cloud supports custom configuration in your `devcontainer.json` file through the
+`customizations.coder` block. These options let you control how Neural Inverse Cloud interacts
 with your dev container without requiring template changes.
 
 > [!TIP]
@@ -13,7 +13,7 @@ with your dev container without requiring template changes.
 
 ## Ignore a dev container
 
-Use the `ignore` option to hide a dev container from Coder completely:
+Use the `ignore` option to hide a dev container from Neural Inverse Cloud completely:
 
 ```json
 {
@@ -29,10 +29,10 @@ Use the `ignore` option to hide a dev container from Coder completely:
 
 When `ignore` is set to `true`:
 
-- The dev container won't appear in the Coder UI
-- Coder won't manage or monitor the container
+- The dev container won't appear in the Neural Inverse Cloud UI
+- Neural Inverse Cloud won't manage or monitor the container
 
-This is useful for dev containers in your repository that you don't want Coder
+This is useful for dev containers in your repository that you don't want Neural Inverse Cloud
 to manage.
 
 ## Auto-start
@@ -61,7 +61,7 @@ and shown in the UI, but users must manually start it.
 > [!NOTE]
 >
 > The `autoStart` option only takes effect when your template administrator has
-> enabled [`CODER_AGENT_DEVCONTAINERS_DISCOVERY_AUTOSTART_ENABLE`](../../admin/integrations/devcontainers/integration.md#coder_agent_devcontainers_discovery_autostart_enable).
+> enabled [`NEURALINVERSE_AGENT_DEVCONTAINERS_DISCOVERY_AUTOSTART_ENABLE`](../../admin/integrations/devcontainers/integration.md#ni_agent_devcontainers_discovery_autostart_enable).
 > If this setting is disabled at the template level, containers won't auto-start
 > regardless of this option.
 
@@ -88,7 +88,7 @@ appears in `coder ssh` commands and the dashboard (e.g.,
 
 ## Display apps
 
-Control which built-in Coder apps appear for your dev container using
+Control which built-in Neural Inverse Cloud apps appear for your dev container using
 `displayApps`:
 
 ![Dev container with all display apps disabled](../../images/user-guides/devcontainers/devcontainer-apps-bar.png)_Disable built-in apps to reduce clutter or guide developers toward preferred tools_
@@ -135,7 +135,7 @@ Define custom applications for your dev container using the `apps` array:
         {
           "slug": "zed",
           "displayName": "Zed Editor",
-          "url": "zed://ssh/${localEnv:CODER_WORKSPACE_AGENT_NAME}.${localEnv:CODER_WORKSPACE_NAME}.${localEnv:CODER_WORKSPACE_OWNER_NAME}.coder${containerWorkspaceFolder}",
+          "url": "zed://ssh/${localEnv:NEURALINVERSE_WORKSPACE_AGENT_NAME}.${localEnv:NEURALINVERSE_WORKSPACE_NAME}.${localEnv:NEURALINVERSE_WORKSPACE_OWNER_NAME}.coder${containerWorkspaceFolder}",
           "external": true,
           "icon": "/icon/zed.svg",
           "order": 1
@@ -225,17 +225,17 @@ default values:
 }
 ```
 
-### Coder-provided variables
+### Neural Inverse Cloud-provided variables
 
-Coder provides these environment variables automatically:
+Neural Inverse Cloud provides these environment variables automatically:
 
 | Variable                            | Description                        |
 |-------------------------------------|------------------------------------|
-| `CODER_WORKSPACE_NAME`              | Name of the workspace              |
-| `CODER_WORKSPACE_OWNER_NAME`        | Username of the workspace owner    |
-| `CODER_WORKSPACE_AGENT_NAME`        | Name of the dev container agent    |
-| `CODER_WORKSPACE_PARENT_AGENT_NAME` | Name of the parent workspace agent |
-| `CODER_URL`                         | URL of the Coder deployment        |
+| `NEURALINVERSE_WORKSPACE_NAME`              | Name of the workspace              |
+| `NEURALINVERSE_WORKSPACE_OWNER_NAME`        | Username of the workspace owner    |
+| `NEURALINVERSE_WORKSPACE_AGENT_NAME`        | Name of the dev container agent    |
+| `NEURALINVERSE_WORKSPACE_PARENT_AGENT_NAME` | Name of the parent workspace agent |
+| `NEURALINVERSE_URL`                         | URL of the Neural Inverse Cloud deployment        |
 | `CONTAINER_ID`                      | Docker container ID                |
 
 ### Dev container variables
@@ -270,7 +270,7 @@ Use `$SESSION_TOKEN` in external app URLs to include the user's session token:
 
 ## Feature options as environment variables
 
-When your dev container uses features, Coder exposes feature options as
+When your dev container uses features, Neural Inverse Cloud exposes feature options as
 environment variables. The format is `FEATURE_<FEATURE_NAME>_OPTION_<OPTION_NAME>`.
 
 For example, with this feature configuration:
@@ -285,7 +285,7 @@ For example, with this feature configuration:
 }
 ```
 
-Coder creates `FEATURE_CODE_SERVER_OPTION_PORT=9090`, which you can reference in
+Neural Inverse Cloud creates `FEATURE_CODE_SERVER_OPTION_PORT=9090`, which you can reference in
 your apps:
 
 ```json

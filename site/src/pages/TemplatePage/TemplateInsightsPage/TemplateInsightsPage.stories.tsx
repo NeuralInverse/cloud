@@ -94,7 +94,7 @@ export const Empty: Story = {
 
 export const Loaded: Story = {
 	args: {
-		// Got from dev.coder.com network calls
+		// Got from dev.cloud.neuralinverse.com network calls
 		templateInsights: {
 			data: {
 				report: {

@@ -9,7 +9,7 @@
 curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/members/{user}/workspaces \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/organizations/{organization}/members/{user}/workspaces`
@@ -45,7 +45,7 @@ of the template will be used.
 |----------------|------|------------------------------------------------------------------------------|----------|--------------------------|
 | `organization` | path | string(uuid)                                                                 | true     | Organization ID          |
 | `user`         | path | string                                                                       | true     | Username, UUID, or me    |
-| `body`         | body | [codersdk.CreateWorkspaceRequest](schemas.md#codersdkcreateworkspacerequest) | true     | Create workspace request |
+| `body`         | body | [nicloudsdk.CreateWorkspaceRequest](schemas.md#nicloudsdkcreateworkspacerequest) | true     | Create workspace request |
 
 ### Example responses
 
@@ -330,7 +330,7 @@ of the template will be used.
 
 | Status | Meaning                                                 | Description | Schema                                             |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Workspace](schemas.md#codersdkworkspace) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Workspace](schemas.md#nicloudsdkworkspace) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -342,7 +342,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members/{user}/workspaces/available-users \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/members/{user}/workspaces/available-users`
@@ -376,7 +376,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/members
 
 | Status | Meaning                                                 | Description | Schema                                                          |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.MinimalUser](schemas.md#codersdkminimaluser) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.MinimalUser](schemas.md#nicloudsdkminimaluser) |
 
 <h3 id="get-users-available-for-workspace-creation-responseschema">Response Schema</h3>
 
@@ -400,7 +400,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/users/{user}/workspace/{workspacename} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/users/{user}/workspace/{workspacename}`
@@ -696,7 +696,7 @@ curl -X GET http://coder-server:8080/api/v2/users/{user}/workspace/{workspacenam
 
 | Status | Meaning                                                 | Description | Schema                                             |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Workspace](schemas.md#codersdkworkspace) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Workspace](schemas.md#nicloudsdkworkspace) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -709,7 +709,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/users/{user}/workspaces \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/users/{user}/workspaces`
@@ -744,7 +744,7 @@ of the template will be used.
 | Name   | In   | Type                                                                         | Required | Description              |
 |--------|------|------------------------------------------------------------------------------|----------|--------------------------|
 | `user` | path | string                                                                       | true     | Username, UUID, or me    |
-| `body` | body | [codersdk.CreateWorkspaceRequest](schemas.md#codersdkcreateworkspacerequest) | true     | Create workspace request |
+| `body` | body | [nicloudsdk.CreateWorkspaceRequest](schemas.md#nicloudsdkcreateworkspacerequest) | true     | Create workspace request |
 
 ### Example responses
 
@@ -1029,7 +1029,7 @@ of the template will be used.
 
 | Status | Meaning                                                 | Description | Schema                                             |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Workspace](schemas.md#codersdkworkspace) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Workspace](schemas.md#nicloudsdkworkspace) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1041,7 +1041,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces`
@@ -1325,7 +1325,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaces \
 
 | Status | Meaning                                                 | Description | Schema                                                               |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspacesResponse](schemas.md#codersdkworkspacesresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspacesResponse](schemas.md#nicloudsdkworkspacesresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1337,7 +1337,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}`
@@ -1632,7 +1632,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace} \
 
 | Status | Meaning                                                 | Description | Schema                                             |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Workspace](schemas.md#codersdkworkspace) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Workspace](schemas.md#nicloudsdkworkspace) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1644,7 +1644,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PATCH http://coder-server:8080/api/v2/workspaces/{workspace} \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/workspaces/{workspace}`
@@ -1662,7 +1662,7 @@ curl -X PATCH http://coder-server:8080/api/v2/workspaces/{workspace} \
 | Name        | In   | Type                                                                         | Required | Description             |
 |-------------|------|------------------------------------------------------------------------------|----------|-------------------------|
 | `workspace` | path | string(uuid)                                                                 | true     | Workspace ID            |
-| `body`      | body | [codersdk.UpdateWorkspaceRequest](schemas.md#codersdkupdateworkspacerequest) | true     | Metadata update request |
+| `body`      | body | [nicloudsdk.UpdateWorkspaceRequest](schemas.md#nicloudsdkupdateworkspacerequest) | true     | Metadata update request |
 
 ### Responses
 
@@ -1680,7 +1680,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/acl \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}/acl`
@@ -1744,7 +1744,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/acl \
 
 | Status | Meaning                                                 | Description | Schema                                                   |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceACL](schemas.md#codersdkworkspaceacl) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceACL](schemas.md#nicloudsdkworkspaceacl) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1755,7 +1755,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/workspaces/{workspace}/acl \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/workspaces/{workspace}/acl`
@@ -1782,7 +1782,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PATCH http://coder-server:8080/api/v2/workspaces/{workspace}/acl \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/workspaces/{workspace}/acl`
@@ -1807,7 +1807,7 @@ curl -X PATCH http://coder-server:8080/api/v2/workspaces/{workspace}/acl \
 | Name        | In   | Type                                                                 | Required | Description                  |
 |-------------|------|----------------------------------------------------------------------|----------|------------------------------|
 | `workspace` | path | string(uuid)                                                         | true     | Workspace ID                 |
-| `body`      | body | [codersdk.UpdateWorkspaceACL](schemas.md#codersdkupdateworkspaceacl) | true     | Update workspace ACL request |
+| `body`      | body | [nicloudsdk.UpdateWorkspaceACL](schemas.md#nicloudsdkupdateworkspaceacl) | true     | Update workspace ACL request |
 
 ### Responses
 
@@ -1825,7 +1825,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/agent-connection-watch \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}/agent-connection-watch`
@@ -1875,7 +1875,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/autostart \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/workspaces/{workspace}/autostart`
@@ -1893,7 +1893,7 @@ curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/autostart \
 | Name        | In   | Type                                                                                           | Required | Description             |
 |-------------|------|------------------------------------------------------------------------------------------------|----------|-------------------------|
 | `workspace` | path | string(uuid)                                                                                   | true     | Workspace ID            |
-| `body`      | body | [codersdk.UpdateWorkspaceAutostartRequest](schemas.md#codersdkupdateworkspaceautostartrequest) | true     | Schedule update request |
+| `body`      | body | [nicloudsdk.UpdateWorkspaceAutostartRequest](schemas.md#nicloudsdkupdateworkspaceautostartrequest) | true     | Schedule update request |
 
 ### Responses
 
@@ -1911,7 +1911,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/autoupdates \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/workspaces/{workspace}/autoupdates`
@@ -1929,7 +1929,7 @@ curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/autoupdates \
 | Name        | In   | Type                                                                                                         | Required | Description               |
 |-------------|------|--------------------------------------------------------------------------------------------------------------|----------|---------------------------|
 | `workspace` | path | string(uuid)                                                                                                 | true     | Workspace ID              |
-| `body`      | body | [codersdk.UpdateWorkspaceAutomaticUpdatesRequest](schemas.md#codersdkupdateworkspaceautomaticupdatesrequest) | true     | Automatic updates request |
+| `body`      | body | [nicloudsdk.UpdateWorkspaceAutomaticUpdatesRequest](schemas.md#nicloudsdkupdateworkspaceautomaticupdatesrequest) | true     | Automatic updates request |
 
 ### Responses
 
@@ -1948,7 +1948,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/dormant \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/workspaces/{workspace}/dormant`
@@ -1966,7 +1966,7 @@ curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/dormant \
 | Name        | In   | Type                                                                           | Required | Description                        |
 |-------------|------|--------------------------------------------------------------------------------|----------|------------------------------------|
 | `workspace` | path | string(uuid)                                                                   | true     | Workspace ID                       |
-| `body`      | body | [codersdk.UpdateWorkspaceDormancy](schemas.md#codersdkupdateworkspacedormancy) | true     | Make a workspace dormant or active |
+| `body`      | body | [nicloudsdk.UpdateWorkspaceDormancy](schemas.md#nicloudsdkupdateworkspacedormancy) | true     | Make a workspace dormant or active |
 
 ### Example responses
 
@@ -2251,7 +2251,7 @@ curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/dormant \
 
 | Status | Meaning                                                 | Description | Schema                                             |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Workspace](schemas.md#codersdkworkspace) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Workspace](schemas.md#nicloudsdkworkspace) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2264,7 +2264,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/extend \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/workspaces/{workspace}/extend`
@@ -2282,7 +2282,7 @@ curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/extend \
 | Name        | In   | Type                                                                               | Required | Description                    |
 |-------------|------|------------------------------------------------------------------------------------|----------|--------------------------------|
 | `workspace` | path | string(uuid)                                                                       | true     | Workspace ID                   |
-| `body`      | body | [codersdk.PutExtendWorkspaceRequest](schemas.md#codersdkputextendworkspacerequest) | true     | Extend deadline update request |
+| `body`      | body | [nicloudsdk.PutExtendWorkspaceRequest](schemas.md#nicloudsdkputextendworkspacerequest) | true     | Extend deadline update request |
 
 ### Example responses
 
@@ -2305,7 +2305,7 @@ curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/extend \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2316,7 +2316,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/favorite \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/workspaces/{workspace}/favorite`
@@ -2342,7 +2342,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/workspaces/{workspace}/favorite \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/workspaces/{workspace}/favorite`
@@ -2369,7 +2369,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/resolve-autostart \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}/resolve-autostart`
@@ -2394,7 +2394,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/resolve-autos
 
 | Status | Meaning                                                 | Description | Schema                                                                           |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ResolveAutostartResponse](schemas.md#codersdkresolveautostartresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ResolveAutostartResponse](schemas.md#nicloudsdkresolveautostartresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2406,7 +2406,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/timings \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}/timings`
@@ -2462,7 +2462,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/timings \
 
 | Status | Meaning                                                 | Description | Schema                                                                     |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceBuildTimings](schemas.md#codersdkworkspacebuildtimings) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceBuildTimings](schemas.md#nicloudsdkworkspacebuildtimings) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2474,7 +2474,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/ttl \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/workspaces/{workspace}/ttl`
@@ -2492,7 +2492,7 @@ curl -X PUT http://coder-server:8080/api/v2/workspaces/{workspace}/ttl \
 | Name        | In   | Type                                                                               | Required | Description                  |
 |-------------|------|------------------------------------------------------------------------------------|----------|------------------------------|
 | `workspace` | path | string(uuid)                                                                       | true     | Workspace ID                 |
-| `body`      | body | [codersdk.UpdateWorkspaceTTLRequest](schemas.md#codersdkupdateworkspacettlrequest) | true     | Workspace TTL update request |
+| `body`      | body | [nicloudsdk.UpdateWorkspaceTTLRequest](schemas.md#nicloudsdkupdateworkspacettlrequest) | true     | Workspace TTL update request |
 
 ### Responses
 
@@ -2510,7 +2510,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/workspaces/{workspace}/usage \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaces/{workspace}/usage`
@@ -2529,7 +2529,7 @@ curl -X POST http://coder-server:8080/api/v2/workspaces/{workspace}/usage \
 | Name        | In   | Type                                                                               | Required | Description                  |
 |-------------|------|------------------------------------------------------------------------------------|----------|------------------------------|
 | `workspace` | path | string(uuid)                                                                       | true     | Workspace ID                 |
-| `body`      | body | [codersdk.PostWorkspaceUsageRequest](schemas.md#codersdkpostworkspaceusagerequest) | false    | Post workspace usage request |
+| `body`      | body | [nicloudsdk.PostWorkspaceUsageRequest](schemas.md#nicloudsdkpostworkspaceusagerequest) | false    | Post workspace usage request |
 
 ### Responses
 
@@ -2547,7 +2547,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/watch \
   -H 'Accept: text/event-stream' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}/watch`
@@ -2566,7 +2566,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/watch \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2578,7 +2578,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/watch-ws \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}/watch-ws`
@@ -2604,6 +2604,6 @@ curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/watch-ws \
 
 | Status | Meaning                                                 | Description | Schema                                                         |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ServerSentEvent](schemas.md#codersdkserversentevent) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ServerSentEvent](schemas.md#nicloudsdkserversentevent) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

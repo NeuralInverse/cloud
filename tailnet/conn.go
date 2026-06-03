@@ -43,8 +43,8 @@ import (
 	"tailscale.com/wgengine/router"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 var ErrConnClosed = xerrors.New("connection closed")
@@ -62,7 +62,7 @@ const (
 //
 // With this disabled, you still get a lot of output if you have a valid logger
 // with the debug level enabled.
-const EnvMagicsockDebugLogging = "CODER_MAGICSOCK_DEBUG_LOGGING"
+const EnvMagicsockDebugLogging = "NEURALINVERSE_MAGICSOCK_DEBUG_LOGGING"
 
 func init() {
 	// Globally disable network namespacing. All networking happens in
@@ -83,7 +83,7 @@ func init() {
 	//
 	// Our use case is different: for clients, it's a point-to-point connection
 	// to a single workspace, and lasts only as long as the connection.  For
-	// agents, it's connections to a small number of clients (CLI or Coderd)
+	// agents, it's connections to a small number of clients (CLI or Neural Inverse Cloudd)
 	// that are being actively used by the end user.
 	envknob.Setenv("TS_DEBUG_TRIM_WIREGUARD", "false")
 }
@@ -112,7 +112,7 @@ type Options struct {
 	// ForceNetworkUp forces the network to be considered up. magicsock will not
 	// do anything if it thinks it can't reach the internet.
 	ForceNetworkUp bool
-	// Network Telemetry Client Type: CLI | Agent | coderd
+	// Network Telemetry Client Type: CLI | Agent | nicloud
 	ClientType proto.TelemetryEvent_ClientType
 	// TelemetrySink is optional.
 	TelemetrySink TelemetrySink
@@ -131,7 +131,7 @@ type Options struct {
 	DNSMatchDomain string
 }
 
-// TelemetrySink allows tailnet.Conn to send network telemetry to the Coder
+// TelemetrySink allows tailnet.Conn to send network telemetry to the Neural Inverse Cloud
 // server.
 type TelemetrySink interface {
 	// SendTelemetryEvent sends a telemetry event to some external sink.
@@ -163,8 +163,8 @@ func NewConn(options *Options) (conn *Conn, err error) {
 	useNetNS := options.TUNDev != nil
 	options.Logger.Debug(context.Background(), "network isolation configuration", slog.F("use_netns", useNetNS))
 	netns.SetEnabled(useNetNS)
-	// The Coder soft isolation mode is a workaround to allow Coder Connect to
-	// connect to Coder servers behind corporate VPNs, and relaxes some of the
+	// The Coder soft isolation mode is a workaround to allow Neural Inverse Cloud Connect to
+	// connect to Neural Inverse Cloud servers behind corporate VPNs, and relaxes some of the
 	// loop protections that come with Tailscale.
 	// See the comment above the netns function for more details.
 	netns.SetCoderSoftIsolation(useNetNS)
@@ -287,7 +287,7 @@ func NewConn(options *Options) (conn *Conn, err error) {
 	}
 
 	if options.DNSMatchDomain == "" {
-		options.DNSMatchDomain = CoderDNSSuffix
+		options.DNSMatchDomain = NIDNSSuffix
 	}
 	matchDomain, err := dnsname.ToFQDN(options.DNSMatchDomain + ".")
 	if err != nil {
@@ -382,27 +382,27 @@ func NewConn(options *Options) (conn *Conn, err error) {
 	return server, nil
 }
 
-// A FQDN to be mapped to `tsaddr.CoderServiceIPv6`. This address can be used
-// when you want to know if Coder Connect is running, but are not trying to
+// A FQDN to be mapped to `tsaddr.Neural Inverse CloudServiceIPv6`. This address can be used
+// when you want to know if Neural Inverse Cloud Connect is running, but are not trying to
 // connect to a specific known workspace.
-const IsCoderConnectEnabledFmtString = "is.coder--connect--enabled--right--now.%s."
+const IsNIConnectEnabledFmtString = "is.neuralinverse--connect--enabled--right--now.%s."
 
 type ServicePrefix [6]byte
 
 var (
 	// TailscaleServicePrefix is the IPv6 prefix for all tailnet nodes since it was first added to
-	// Coder.  It is identical to the service prefix Tailscale.com uses. With the introduction of
-	// CoderVPN, we would like to stop using the Tailscale prefix so that we don't conflict with
+	// Neural Inverse Cloud.  It is identical to the service prefix Tailscale.com uses. With the introduction of
+	// Neural Inverse CloudVPN, we would like to stop using the Tailscale prefix so that we don't conflict with
 	// Tailscale if both are installed at the same time. However, there are a large number of agents
 	// and clients using this prefix, so we need to carefully manage deprecation and eventual
 	// removal.
 	// fd7a:115c:a1e0:://48
 	TailscaleServicePrefix ServicePrefix = [6]byte{0xfd, 0x7a, 0x11, 0x5c, 0xa1, 0xe0}
-	// CoderServicePrefix is the Coder-specific IPv6 prefix for tailnet nodes, which we are in the
-	// process of migrating to. It allows Coder to run alongside Tailscale without conflicts even
-	// if both are set up as TUN interfaces into the OS (e.g. CoderVPN).
+	// NIServicePrefix is the Neural Inverse Cloud-specific IPv6 prefix for tailnet nodes, which we are in the
+	// process of migrating to. It allows Neural Inverse Cloud to run alongside Tailscale without conflicts even
+	// if both are set up as TUN interfaces into the OS (e.g. Neural Inverse CloudVPN).
 	// fd60:627a:a42b::/48
-	CoderServicePrefix ServicePrefix = [6]byte{0xfd, 0x60, 0x62, 0x7a, 0xa4, 0x2b}
+	NIServicePrefix ServicePrefix = [6]byte{0xfd, 0x60, 0x62, 0x7a, 0xa4, 0x2b}
 )
 
 // maskUUID returns a new UUID with the first 6 bytes changed to the ServicePrefix

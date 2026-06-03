@@ -105,7 +105,7 @@ export const VirtualDesktopSettings: FC<VirtualDesktopSettingsProps> = ({
 					Allow agents to use a virtual, graphical desktop within workspaces.
 					Requires the{" "}
 					<Link
-						href="https://registry.coder.com/modules/coder/portabledesktop"
+						href="https://registry.cloud.neuralinverse.com/modules/coder/portabledesktop"
 						target="_blank"
 						size="sm"
 					>

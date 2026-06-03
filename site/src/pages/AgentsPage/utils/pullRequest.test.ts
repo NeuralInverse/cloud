@@ -6,8 +6,8 @@ describe("parsePullRequestUrl", () => {
 		expect(
 			parsePullRequestUrl("https://github.com/coder/coder/pull/42"),
 		).toEqual({
-			owner: "coder",
-			repo: "coder",
+			owner: "neuralinverse",
+			repo: "neuralinverse",
 			number: "42",
 		});
 	});
@@ -26,8 +26,8 @@ describe("parsePullRequestUrl", () => {
 		expect(
 			parsePullRequestUrl("https://github.com/coder/coder/pull/42/files"),
 		).toEqual({
-			owner: "coder",
-			repo: "coder",
+			owner: "neuralinverse",
+			repo: "neuralinverse",
 			number: "42",
 		});
 	});

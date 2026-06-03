@@ -26,17 +26,17 @@ import (
 	"cdr.dev/slog/v3/sloggers/sloghuman"
 	"cdr.dev/slog/v3/sloggers/slogjson"
 	"cdr.dev/slog/v3/sloggers/slogstackdriver"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentcontextconfig"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/boundarylogproxy"
-	"github.com/coder/coder/v2/agent/reaper"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontextconfig"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy"
+	"github.com/NeuralInverse/cloud/v2/agent/reaper"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/clilog"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
 	"github.com/coder/serpent"
 )
 
@@ -126,7 +126,7 @@ func workspaceAgent() *serpent.Command {
 			// of zombie processes.
 			if reaper.IsInitProcess() && !noReap && isLinux {
 				logWriter := &clilog.LumberjackWriteCloseFixer{Writer: &lumberjack.Logger{
-					Filename: filepath.Join(logDir, "coder-agent-init.log"),
+					Filename: filepath.Join(logDir, "neuralinverse-agent-init.log"),
 					MaxSize:  5, // MB
 					// Without this, rotated logs will never be deleted.
 					MaxBackups: 1,
@@ -159,7 +159,7 @@ func workspaceAgent() *serpent.Command {
 			}
 
 			logWriter := &clilog.LumberjackWriteCloseFixer{Writer: &lumberjack.Logger{
-				Filename: filepath.Join(logDir, "coder-agent.log"),
+				Filename: filepath.Join(logDir, "neuralinverse-agent.log"),
 				MaxSize:  5, // MB
 				// Per customer incident on November 17th, 2023, its helpful
 				// to have the log of the last few restarts to debug a failing agent.
@@ -234,9 +234,9 @@ func workspaceAgent() *serpent.Command {
 			}
 
 			subsystemsRaw := inv.Environ.Get(agent.EnvAgentSubsystem)
-			subsystems := []codersdk.AgentSubsystem{}
+			subsystems := []nicloudsdk.AgentSubsystem{}
 			for _, s := range strings.Split(subsystemsRaw, ",") {
-				subsystem := codersdk.AgentSubsystem(strings.TrimSpace(s))
+				subsystem := nicloudsdk.AgentSubsystem(strings.TrimSpace(s))
 				if subsystem == "" {
 					continue
 				}
@@ -408,32 +408,32 @@ func workspaceAgent() *serpent.Command {
 			Flag:        "log-dir",
 			Default:     os.TempDir(),
 			Description: "Specify the location for the agent log files.",
-			Env:         "CODER_AGENT_LOG_DIR",
+			Env:         "NEURALINVERSE_AGENT_LOG_DIR",
 			Value:       serpent.StringOf(&logDir),
 		},
 		{
 			Flag:        "script-data-dir",
 			Default:     os.TempDir(),
 			Description: "Specify the location for storing script data.",
-			Env:         "CODER_AGENT_SCRIPT_DATA_DIR",
+			Env:         "NEURALINVERSE_AGENT_SCRIPT_DATA_DIR",
 			Value:       serpent.StringOf(&scriptDataDir),
 		},
 		{
 			Flag:        "pprof-address",
 			Default:     "127.0.0.1:6060",
-			Env:         "CODER_AGENT_PPROF_ADDRESS",
+			Env:         "NEURALINVERSE_AGENT_PPROF_ADDRESS",
 			Value:       serpent.StringOf(&pprofAddress),
 			Description: "The address to serve pprof.",
 		},
 		{
 			Flag:        "agent-header-command",
-			Env:         "CODER_AGENT_HEADER_COMMAND",
+			Env:         "NEURALINVERSE_AGENT_HEADER_COMMAND",
 			Value:       serpent.StringOf(&agentHeaderCommand),
 			Description: "An external command that outputs additional HTTP headers added to all requests. The command must output each header as `key=value` on its own line.",
 		},
 		{
 			Flag:        "agent-header",
-			Env:         "CODER_AGENT_HEADER",
+			Env:         "NEURALINVERSE_AGENT_HEADER",
 			Value:       serpent.StringArrayOf(&agentHeader),
 			Description: "Additional HTTP headers added to all requests. Provide as " + `key=value` + ". Can be specified multiple times.",
 		},
@@ -448,28 +448,28 @@ func workspaceAgent() *serpent.Command {
 			Flag: "ssh-max-timeout",
 			// tcpip.KeepaliveIdleOption = 72h + 1min (forwardTCPSockOpts() in tailnet/conn.go)
 			Default:     "72h",
-			Env:         "CODER_AGENT_SSH_MAX_TIMEOUT",
+			Env:         "NEURALINVERSE_AGENT_SSH_MAX_TIMEOUT",
 			Description: "Specify the max timeout for a SSH connection, it is advisable to set it to a minimum of 60s, but no more than 72h.",
 			Value:       serpent.DurationOf(&sshMaxTimeout),
 		},
 		{
 			Flag:        "tailnet-listen-port",
 			Default:     "0",
-			Env:         "CODER_AGENT_TAILNET_LISTEN_PORT",
+			Env:         "NEURALINVERSE_AGENT_TAILNET_LISTEN_PORT",
 			Description: "Specify a static port for Tailscale to use for listening.",
 			Value:       serpent.Int64Of(&tailnetListenPort),
 		},
 		{
 			Flag:        "prometheus-address",
 			Default:     "127.0.0.1:2112",
-			Env:         "CODER_AGENT_PROMETHEUS_ADDRESS",
+			Env:         "NEURALINVERSE_AGENT_PROMETHEUS_ADDRESS",
 			Value:       serpent.StringOf(&prometheusAddress),
 			Description: "The bind address to serve Prometheus metrics.",
 		},
 		{
 			Flag:        "debug-address",
 			Default:     "127.0.0.1:2113",
-			Env:         "CODER_AGENT_DEBUG_ADDRESS",
+			Env:         "NEURALINVERSE_AGENT_DEBUG_ADDRESS",
 			Value:       serpent.StringOf(&debugAddress),
 			Description: "The bind address to serve a debug HTTP server.",
 		},
@@ -477,7 +477,7 @@ func workspaceAgent() *serpent.Command {
 			Name:        "Human Log Location",
 			Description: "Output human-readable logs to a given file.",
 			Flag:        "log-human",
-			Env:         "CODER_AGENT_LOGGING_HUMAN",
+			Env:         "NEURALINVERSE_AGENT_LOGGING_HUMAN",
 			Default:     "/dev/stderr",
 			Value:       serpent.StringOf(&slogHumanPath),
 		},
@@ -485,7 +485,7 @@ func workspaceAgent() *serpent.Command {
 			Name:        "JSON Log Location",
 			Description: "Output JSON logs to a given file.",
 			Flag:        "log-json",
-			Env:         "CODER_AGENT_LOGGING_JSON",
+			Env:         "NEURALINVERSE_AGENT_LOGGING_JSON",
 			Default:     "",
 			Value:       serpent.StringOf(&slogJSONPath),
 		},
@@ -493,69 +493,69 @@ func workspaceAgent() *serpent.Command {
 			Name:        "Stackdriver Log Location",
 			Description: "Output Stackdriver compatible logs to a given file.",
 			Flag:        "log-stackdriver",
-			Env:         "CODER_AGENT_LOGGING_STACKDRIVER",
+			Env:         "NEURALINVERSE_AGENT_LOGGING_STACKDRIVER",
 			Default:     "",
 			Value:       serpent.StringOf(&slogStackdriverPath),
 		},
 		{
 			Flag:        "block-file-transfer",
 			Default:     "false",
-			Env:         "CODER_AGENT_BLOCK_FILE_TRANSFER",
+			Env:         "NEURALINVERSE_AGENT_BLOCK_FILE_TRANSFER",
 			Description: fmt.Sprintf("Block file transfer using known applications: %s.", strings.Join(agentssh.BlockedFileTransferCommands, ",")),
 			Value:       serpent.BoolOf(&blockFileTransfer),
 		},
 		{
 			Flag:        "block-reverse-port-forwarding",
 			Default:     "false",
-			Env:         "CODER_AGENT_BLOCK_REVERSE_PORT_FORWARDING",
+			Env:         "NEURALINVERSE_AGENT_BLOCK_REVERSE_PORT_FORWARDING",
 			Description: "Block reverse port forwarding through the SSH server (ssh -R).",
 			Value:       serpent.BoolOf(&blockReversePortForwarding),
 		},
 		{
 			Flag:        "block-local-port-forwarding",
 			Default:     "false",
-			Env:         "CODER_AGENT_BLOCK_LOCAL_PORT_FORWARDING",
+			Env:         "NEURALINVERSE_AGENT_BLOCK_LOCAL_PORT_FORWARDING",
 			Description: "Block local port forwarding through the SSH server (ssh -L).",
 			Value:       serpent.BoolOf(&blockLocalPortForwarding),
 		},
 		{
 			Flag:        "devcontainers-enable",
 			Default:     "true",
-			Env:         "CODER_AGENT_DEVCONTAINERS_ENABLE",
+			Env:         "NEURALINVERSE_AGENT_DEVCONTAINERS_ENABLE",
 			Description: "Allow the agent to automatically detect running devcontainers.",
 			Value:       serpent.BoolOf(&devcontainers),
 		},
 		{
 			Flag:        "devcontainers-project-discovery-enable",
 			Default:     "true",
-			Env:         "CODER_AGENT_DEVCONTAINERS_PROJECT_DISCOVERY_ENABLE",
+			Env:         "NEURALINVERSE_AGENT_DEVCONTAINERS_PROJECT_DISCOVERY_ENABLE",
 			Description: "Allow the agent to search the filesystem for devcontainer projects.",
 			Value:       serpent.BoolOf(&devcontainerProjectDiscovery),
 		},
 		{
 			Flag:        "devcontainers-discovery-autostart-enable",
 			Default:     "false",
-			Env:         "CODER_AGENT_DEVCONTAINERS_DISCOVERY_AUTOSTART_ENABLE",
+			Env:         "NEURALINVERSE_AGENT_DEVCONTAINERS_DISCOVERY_AUTOSTART_ENABLE",
 			Description: "Allow the agent to autostart devcontainer projects it discovers based on their configuration.",
 			Value:       serpent.BoolOf(&devcontainerDiscoveryAutostart),
 		},
 		{
 			Flag:        "socket-server-enabled",
 			Default:     "true",
-			Env:         "CODER_AGENT_SOCKET_SERVER_ENABLED",
+			Env:         "NEURALINVERSE_AGENT_SOCKET_SERVER_ENABLED",
 			Description: "Enable the agent socket server.",
 			Value:       serpent.BoolOf(&socketServerEnabled),
 		},
 		{
 			Flag:        "socket-path",
-			Env:         "CODER_AGENT_SOCKET_PATH",
+			Env:         "NEURALINVERSE_AGENT_SOCKET_PATH",
 			Description: "Specify the path for the agent socket.",
 			Value:       serpent.StringOf(&socketPath),
 		},
 		{
 			Flag:        "boundary-log-proxy-socket-path",
 			Default:     boundarylogproxy.DefaultSocketPath(),
-			Env:         "CODER_AGENT_BOUNDARY_LOG_PROXY_SOCKET_PATH",
+			Env:         "NEURALINVERSE_AGENT_BOUNDARY_LOG_PROXY_SOCKET_PATH",
 			Description: "The path for the boundary log proxy server Unix socket. Boundary should write audit logs to this socket.",
 			Value:       serpent.StringOf(&boundaryLogProxySocketPath),
 		},

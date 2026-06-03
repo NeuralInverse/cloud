@@ -262,7 +262,7 @@ export const SetupPageView: FC<SetupPageViewProps> = ({
 								quotas, and more.
 							</span>
 							<a
-								href="https://coder.com/pricing"
+								href="https://cloud.neuralinverse.com/pricing"
 								target="_blank"
 								rel="noreferrer"
 								className="text-xs text-content-link hover:underline mt-0.5"
@@ -393,7 +393,7 @@ export const SetupPageView: FC<SetupPageViewProps> = ({
 							Subscribe for the latest product and news updates from Coder. The
 							information you provide will be treated in accordance with the{" "}
 							<a
-								href="https://coder.com/legal/privacy-policy"
+								href="https://cloud.neuralinverse.com/legal/privacy-policy"
 								target="_blank"
 								rel="noreferrer"
 								className="text-content-link hover:underline"
@@ -415,7 +415,7 @@ export const SetupPageView: FC<SetupPageViewProps> = ({
 									<a
 										target="_blank"
 										rel="noreferrer"
-										href="https://coder.com/contact/sales"
+										href="https://cloud.neuralinverse.com/contact/sales"
 										className="text-content-link hover:underline"
 									>
 										Contact Sales

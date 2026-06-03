@@ -20,7 +20,7 @@ coder provisioner keys list [flags]
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.
 

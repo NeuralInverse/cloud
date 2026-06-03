@@ -13,12 +13,12 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/intercept/apidump"
-	"github.com/coder/coder/v2/coderd/aibridged"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/enterprise/aibridgeproxyd"
-	"github.com/coder/coder/v2/enterprise/coderd"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept/apidump"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridged"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/enterprise/aibridgeproxyd"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud"
 )
 
 // aiBridgeProxyDaemon bundles the proxy server and its pubsub
@@ -39,48 +39,48 @@ func (d *aiBridgeProxyDaemon) Close() error {
 // subscribes to ai_providers changes so the proxy's routing snapshot
 // tracks the database, and registers the HTTP handler on the API.
 // The returned io.Closer tears down both the subscription and server.
-func newAIBridgeProxyDaemon(coderAPI *coderd.API) (io.Closer, error) {
+func newAIBridgeProxyDaemon(niAPI *nicloud.API) (io.Closer, error) {
 	ctx := context.Background()
-	coderAPI.Logger.Debug(ctx, "starting in-memory aibridgeproxy daemon")
+	niAPI.Logger.Debug(ctx, "starting in-memory aibridgeproxy daemon")
 
-	logger := coderAPI.Logger.Named("aibridgeproxyd")
+	logger := niAPI.Logger.Named("aibridgeproxyd")
 
-	reg := prometheus.WrapRegistererWithPrefix("coder_aibridgeproxyd_", coderAPI.PrometheusRegistry)
+	reg := prometheus.WrapRegistererWithPrefix("coder_aibridgeproxyd_", niAPI.PrometheusRegistry)
 	metrics := aibridgeproxyd.NewMetrics(reg)
 
 	var newDumper func(provider, requestID string) aibridgeproxyd.RoundTripDumper
-	if dumpDir := coderAPI.DeploymentValues.AI.BridgeProxyConfig.APIDumpDir.String(); dumpDir != "" {
+	if dumpDir := niAPI.DeploymentValues.AI.BridgeProxyConfig.APIDumpDir.String(); dumpDir != "" {
 		newDumper = func(provider, requestID string) aibridgeproxyd.RoundTripDumper {
 			return apidump.NewDumper(filepath.Join(dumpDir, provider, requestID), logger)
 		}
 	}
 
 	srv, err := aibridgeproxyd.New(ctx, logger, aibridgeproxyd.Options{
-		ListenAddr:          coderAPI.DeploymentValues.AI.BridgeProxyConfig.ListenAddr.String(),
-		TLSCertFile:         coderAPI.DeploymentValues.AI.BridgeProxyConfig.TLSCertFile.String(),
-		TLSKeyFile:          coderAPI.DeploymentValues.AI.BridgeProxyConfig.TLSKeyFile.String(),
-		CoderAccessURL:      coderAPI.AccessURL.String(),
-		MITMCertFile:        coderAPI.DeploymentValues.AI.BridgeProxyConfig.MITMCertFile.String(),
-		MITMKeyFile:         coderAPI.DeploymentValues.AI.BridgeProxyConfig.MITMKeyFile.String(),
-		UpstreamProxy:       coderAPI.DeploymentValues.AI.BridgeProxyConfig.UpstreamProxy.String(),
-		UpstreamProxyCA:     coderAPI.DeploymentValues.AI.BridgeProxyConfig.UpstreamProxyCA.String(),
-		AllowedPrivateCIDRs: coderAPI.DeploymentValues.AI.BridgeProxyConfig.AllowedPrivateCIDRs.Value(),
+		ListenAddr:          niAPI.DeploymentValues.AI.BridgeProxyConfig.ListenAddr.String(),
+		TLSCertFile:         niAPI.DeploymentValues.AI.BridgeProxyConfig.TLSCertFile.String(),
+		TLSKeyFile:          niAPI.DeploymentValues.AI.BridgeProxyConfig.TLSKeyFile.String(),
+		NIAccessURL:      niAPI.AccessURL.String(),
+		MITMCertFile:        niAPI.DeploymentValues.AI.BridgeProxyConfig.MITMCertFile.String(),
+		MITMKeyFile:         niAPI.DeploymentValues.AI.BridgeProxyConfig.MITMKeyFile.String(),
+		UpstreamProxy:       niAPI.DeploymentValues.AI.BridgeProxyConfig.UpstreamProxy.String(),
+		UpstreamProxyCA:     niAPI.DeploymentValues.AI.BridgeProxyConfig.UpstreamProxyCA.String(),
+		AllowedPrivateCIDRs: niAPI.DeploymentValues.AI.BridgeProxyConfig.AllowedPrivateCIDRs.Value(),
 		NewDumper:           newDumper,
 		Metrics:             metrics,
-		RefreshProviders:    refreshProxyProviders(coderAPI.Database),
+		RefreshProviders:    refreshProxyProviders(niAPI.Database),
 	})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to start in-memory aibridgeproxy daemon: %w", err)
 	}
 
-	unsubscribe, err := aibridged.SubscribeProviderReload(ctx, coderAPI.Pubsub, srv, logger.Named("provider-reload"))
+	unsubscribe, err := aibridged.SubscribeProviderReload(ctx, niAPI.Pubsub, srv, logger.Named("provider-reload"))
 	if err != nil {
 		logger.Warn(ctx, "subscribe aibridgeproxyd to ai providers change channel", slog.Error(err))
 		unsubscribe = func() {}
 	}
 
-	// Register the handler so coderd can serve the proxy endpoints.
-	coderAPI.RegisterInMemoryAIBridgeProxydHTTPHandler(srv.Handler())
+	// Register the handler so nicloud can serve the proxy endpoints.
+	niAPI.RegisterInMemoryAIBridgeProxydHTTPHandler(srv.Handler())
 
 	return &aiBridgeProxyDaemon{
 		server:      srv,

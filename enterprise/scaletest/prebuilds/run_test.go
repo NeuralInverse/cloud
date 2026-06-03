@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/scaletest/prebuilds"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/scaletest/prebuilds"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -25,24 +25,24 @@ func TestRun(t *testing.T) {
 
 	ctx := testutil.Context(t, testutil.WaitSuperLong*3)
 
-	client, user := coderdenttest.New(t, &coderdenttest.Options{
-		LicenseOptions: &coderdenttest.LicenseOptions{
+	client, user := nicloudenttest.New(t, &nicloudenttest.Options{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspacePrebuilds:         1,
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				nicloudsdk.FeatureWorkspacePrebuilds:         1,
+				nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		},
 	})
 
 	// This is a real Terraform provisioner
-	_ = coderdenttest.NewExternalProvisionerDaemonTerraform(t, client, user.OrganizationID, nil)
+	_ = nicloudenttest.NewExternalProvisionerDaemonTerraform(t, client, user.OrganizationID, nil)
 
 	numTemplates := 2
 	numPresets := 1
 	numPresetPrebuilds := 1
 
 	//nolint:gocritic // It's fine to use the owner user to pause prebuilds
-	err := client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+	err := client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 		ReconciliationPaused: true,
 	})
 	require.NoError(t, err)
@@ -89,7 +89,7 @@ func TestRun(t *testing.T) {
 	setupBarrier.Wait()
 
 	// Resume prebuilds to trigger prebuild creation
-	err = client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+	err = client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 		ReconciliationPaused: false,
 	})
 	require.NoError(t, err)
@@ -98,13 +98,13 @@ func TestRun(t *testing.T) {
 	creationBarrier.Wait()
 
 	//nolint:gocritic // Owner user is fine here as we want to view all workspaces
-	workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	workspaces, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	expectedWorkspaces := numTemplates * numPresets * numPresetPrebuilds
 	require.Equal(t, workspaces.Count, expectedWorkspaces)
 
 	// Pause prebuilds before deletion setup
-	err = client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+	err = client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 		ReconciliationPaused: true,
 	})
 	require.NoError(t, err)
@@ -116,7 +116,7 @@ func TestRun(t *testing.T) {
 	deletionBarrier.Wait()
 
 	// Resume prebuilds to trigger prebuild deletion
-	err = client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+	err = client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 		ReconciliationPaused: false,
 	})
 	require.NoError(t, err)
@@ -125,7 +125,7 @@ func TestRun(t *testing.T) {
 	require.NoError(t, err)
 
 	//nolint:gocritic // Owner user is fine here as we want to view all workspaces
-	workspaces, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	workspaces, err = client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	require.Equal(t, workspaces.Count, 0)
 

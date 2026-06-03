@@ -9,8 +9,8 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
 )
 
 type requestModeStrategy interface {
@@ -18,9 +18,9 @@ type requestModeStrategy interface {
 	Cleanup(ctx context.Context, id string, logs io.Writer) error
 }
 
-// bridgeStrategy creates users via Coder and routes requests through AI Bridge.
+// bridgeStrategy creates users via Neural Inverse Cloud and routes requests through AI Bridge.
 type bridgeStrategy struct {
-	client   *codersdk.Client
+	client   *nicloudsdk.Client
 	provider string
 	metrics  *Metrics
 
@@ -29,7 +29,7 @@ type bridgeStrategy struct {
 }
 
 type bridgeStrategyConfig struct {
-	Client   *codersdk.Client
+	Client   *nicloudsdk.Client
 	Provider string
 	Metrics  *Metrics
 	User     createusers.Config

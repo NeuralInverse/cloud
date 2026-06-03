@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -22,7 +22,7 @@ const (
 	releasesFile     = "docs/install/releases/index.md"
 	kubernetesFile   = "docs/install/kubernetes.md"
 	rancherFile      = "docs/install/rancher.md"
-	changelogURLFmt  = "https://coder.com/changelog/coder-%d-%d"
+	changelogURLFmt  = "https://cloud.neuralinverse.com/changelog/coder-%d-%d"
 	releaseTagURLFmt = "https://github.com/coder/coder/releases/tag/%s"
 )
 

@@ -21,12 +21,12 @@ import (
 	"tailscale.com/wgengine/router"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 	"github.com/coder/retry"
 )
 
 const (
-	tunName = "Coder"
+	tunName = "NeuralInverse"
 	tunGUID = "{0ed1515d-04a4-4c46-abae-11ad07cf0e6d}"
 
 	wintunDLL = "wintun.dll"
@@ -86,7 +86,7 @@ func GetNetworkingStack(t *Tunnel, _ *StartRequest, logger slog.Logger) (Network
 
 	wireguardMonitor, err := netmon.New(tailnet.Logger(logger.Named("net.wgmonitor")))
 
-	coderRouter, err := router.New(tailnet.Logger(logger.Named("net.router")), tunDev, wireguardMonitor)
+	niRouter, err := router.New(tailnet.Logger(logger.Named("net.router")), tunDev, wireguardMonitor)
 	if err != nil {
 		return NetworkStack{}, xerrors.Errorf("create router: %w", err)
 	}
@@ -99,7 +99,7 @@ func GetNetworkingStack(t *Tunnel, _ *StartRequest, logger slog.Logger) (Network
 	return NetworkStack{
 		WireguardMonitor: nil, // default is fine
 		TUNDevice:        tunDev,
-		Router:           coderRouter,
+		Router:           niRouter,
 		DNSConfigurator:  dnsConfigurator,
 	}, nil
 }

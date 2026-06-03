@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/coder/coder/v2/coderd/promoauth"
+	"github.com/NeuralInverse/cloud/v2/nicloud/promoauth"
 )
 
 type OAuth2Config struct {

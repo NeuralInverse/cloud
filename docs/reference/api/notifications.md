@@ -9,7 +9,7 @@
 curl -X POST http://coder-server:8080/api/v2/notifications/custom \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/notifications/custom`
@@ -29,7 +29,7 @@ curl -X POST http://coder-server:8080/api/v2/notifications/custom \
 
 | Name   | In   | Type                                                                               | Required | Description                          |
 |--------|------|------------------------------------------------------------------------------------|----------|--------------------------------------|
-| `body` | body | [codersdk.CustomNotificationRequest](schemas.md#codersdkcustomnotificationrequest) | true     | Provide a non-empty title or message |
+| `body` | body | [nicloudsdk.CustomNotificationRequest](schemas.md#nicloudsdkcustomnotificationrequest) | true     | Provide a non-empty title or message |
 
 ### Example responses
 
@@ -53,9 +53,9 @@ curl -X POST http://coder-server:8080/api/v2/notifications/custom \
 | Status | Meaning                                                                    | Description                                   | Schema                                           |
 |--------|----------------------------------------------------------------------------|-----------------------------------------------|--------------------------------------------------|
 | 204    | [No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)            | No Content                                    |                                                  |
-| 400    | [Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)           | Invalid request body                          | [codersdk.Response](schemas.md#codersdkresponse) |
-| 403    | [Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)             | System users cannot send custom notifications | [codersdk.Response](schemas.md#codersdkresponse) |
-| 500    | [Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1) | Failed to send custom notification            | [codersdk.Response](schemas.md#codersdkresponse) |
+| 400    | [Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)           | Invalid request body                          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
+| 403    | [Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)             | System users cannot send custom notifications | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
+| 500    | [Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1) | Failed to send custom notification            | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -67,7 +67,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/notifications/dispatch-methods \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/notifications/dispatch-methods`
@@ -91,7 +91,7 @@ curl -X GET http://coder-server:8080/api/v2/notifications/dispatch-methods \
 
 | Status | Meaning                                                 | Description | Schema                                                                                          |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.NotificationMethodsResponse](schemas.md#codersdknotificationmethodsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.NotificationMethodsResponse](schemas.md#nicloudsdknotificationmethodsresponse) |
 
 <h3 id="get-notification-dispatch-methods-responseschema">Response Schema</h3>
 
@@ -113,7 +113,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/notifications/inbox \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/notifications/inbox`
@@ -162,7 +162,7 @@ curl -X GET http://coder-server:8080/api/v2/notifications/inbox \
 
 | Status | Meaning                                                 | Description | Schema                                                                                       |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ListInboxNotificationsResponse](schemas.md#codersdklistinboxnotificationsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ListInboxNotificationsResponse](schemas.md#nicloudsdklistinboxnotificationsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -173,7 +173,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X PUT http://coder-server:8080/api/v2/notifications/inbox/mark-all-as-read \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/notifications/inbox/mark-all-as-read`
@@ -194,7 +194,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/notifications/inbox/watch \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/notifications/inbox/watch`
@@ -247,7 +247,7 @@ curl -X GET http://coder-server:8080/api/v2/notifications/inbox/watch \
 
 | Status | Meaning                                                 | Description | Schema                                                                                   |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.GetInboxNotificationResponse](schemas.md#codersdkgetinboxnotificationresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.GetInboxNotificationResponse](schemas.md#nicloudsdkgetinboxnotificationresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -259,7 +259,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PUT http://coder-server:8080/api/v2/notifications/inbox/{id}/read-status \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/notifications/inbox/{id}/read-status`
@@ -291,7 +291,7 @@ curl -X PUT http://coder-server:8080/api/v2/notifications/inbox/{id}/read-status
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -303,7 +303,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/notifications/settings \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/notifications/settings`
@@ -322,7 +322,7 @@ curl -X GET http://coder-server:8080/api/v2/notifications/settings \
 
 | Status | Meaning                                                 | Description | Schema                                                                     |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.NotificationsSettings](schemas.md#codersdknotificationssettings) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.NotificationsSettings](schemas.md#nicloudsdknotificationssettings) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -335,7 +335,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PUT http://coder-server:8080/api/v2/notifications/settings \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/notifications/settings`
@@ -352,7 +352,7 @@ curl -X PUT http://coder-server:8080/api/v2/notifications/settings \
 
 | Name   | In   | Type                                                                       | Required | Description                    |
 |--------|------|----------------------------------------------------------------------------|----------|--------------------------------|
-| `body` | body | [codersdk.NotificationsSettings](schemas.md#codersdknotificationssettings) | true     | Notifications settings request |
+| `body` | body | [nicloudsdk.NotificationsSettings](schemas.md#nicloudsdknotificationssettings) | true     | Notifications settings request |
 
 ### Example responses
 
@@ -368,7 +368,7 @@ curl -X PUT http://coder-server:8080/api/v2/notifications/settings \
 
 | Status | Meaning                                                         | Description  | Schema                                                                     |
 |--------|-----------------------------------------------------------------|--------------|----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | OK           | [codersdk.NotificationsSettings](schemas.md#codersdknotificationssettings) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | OK           | [nicloudsdk.NotificationsSettings](schemas.md#nicloudsdknotificationssettings) |
 | 304    | [Not Modified](https://tools.ietf.org/html/rfc7232#section-4.1) | Not Modified |                                                                            |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
@@ -381,7 +381,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/notifications/templates/custom \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/notifications/templates/custom`
@@ -410,8 +410,8 @@ curl -X GET http://coder-server:8080/api/v2/notifications/templates/custom \
 
 | Status | Meaning                                                                    | Description                                        | Schema                                                                            |
 |--------|----------------------------------------------------------------------------|----------------------------------------------------|-----------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)                    | OK                                                 | array of [codersdk.NotificationTemplate](schemas.md#codersdknotificationtemplate) |
-| 500    | [Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1) | Failed to retrieve 'custom' notifications template | [codersdk.Response](schemas.md#codersdkresponse)                                  |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)                    | OK                                                 | array of [nicloudsdk.NotificationTemplate](schemas.md#nicloudsdknotificationtemplate) |
+| 500    | [Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1) | Failed to retrieve 'custom' notifications template | [nicloudsdk.Response](schemas.md#nicloudsdkresponse)                                  |
 
 <h3 id="get-custom-notification-templates-responseschema">Response Schema</h3>
 
@@ -440,7 +440,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/notifications/templates/system \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/notifications/templates/system`
@@ -469,8 +469,8 @@ curl -X GET http://coder-server:8080/api/v2/notifications/templates/system \
 
 | Status | Meaning                                                                    | Description                                        | Schema                                                                            |
 |--------|----------------------------------------------------------------------------|----------------------------------------------------|-----------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)                    | OK                                                 | array of [codersdk.NotificationTemplate](schemas.md#codersdknotificationtemplate) |
-| 500    | [Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1) | Failed to retrieve 'system' notifications template | [codersdk.Response](schemas.md#codersdkresponse)                                  |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)                    | OK                                                 | array of [nicloudsdk.NotificationTemplate](schemas.md#nicloudsdknotificationtemplate) |
+| 500    | [Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1) | Failed to retrieve 'system' notifications template | [nicloudsdk.Response](schemas.md#nicloudsdkresponse)                                  |
 
 <h3 id="get-system-notification-templates-responseschema">Response Schema</h3>
 
@@ -498,7 +498,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/notifications/test \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/notifications/test`
@@ -519,7 +519,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/users/{user}/notifications/preferences \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/users/{user}/notifications/preferences`
@@ -548,7 +548,7 @@ curl -X GET http://coder-server:8080/api/v2/users/{user}/notifications/preferenc
 
 | Status | Meaning                                                 | Description | Schema                                                                                |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.NotificationPreference](schemas.md#codersdknotificationpreference) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.NotificationPreference](schemas.md#nicloudsdknotificationpreference) |
 
 <h3 id="get-user-notification-preferences-responseschema">Response Schema</h3>
 
@@ -572,7 +572,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PUT http://coder-server:8080/api/v2/users/{user}/notifications/preferences \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/users/{user}/notifications/preferences`
@@ -593,7 +593,7 @@ curl -X PUT http://coder-server:8080/api/v2/users/{user}/notifications/preferenc
 | Name   | In   | Type                                                                                               | Required | Description          |
 |--------|------|----------------------------------------------------------------------------------------------------|----------|----------------------|
 | `user` | path | string                                                                                             | true     | User ID, name, or me |
-| `body` | body | [codersdk.UpdateUserNotificationPreferences](schemas.md#codersdkupdateusernotificationpreferences) | true     | Preferences          |
+| `body` | body | [nicloudsdk.UpdateUserNotificationPreferences](schemas.md#nicloudsdkupdateusernotificationpreferences) | true     | Preferences          |
 
 ### Example responses
 
@@ -613,7 +613,7 @@ curl -X PUT http://coder-server:8080/api/v2/users/{user}/notifications/preferenc
 
 | Status | Meaning                                                 | Description | Schema                                                                                |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.NotificationPreference](schemas.md#codersdknotificationpreference) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.NotificationPreference](schemas.md#nicloudsdknotificationpreference) |
 
 <h3 id="update-user-notification-preferences-responseschema">Response Schema</h3>
 

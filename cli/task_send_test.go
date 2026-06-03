@@ -12,15 +12,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	agentapisdk "github.com/coder/agentapi-sdk-go"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/quartz"
 )
 
@@ -80,9 +80,9 @@ func Test_TaskSend(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		userClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		var stdout strings.Builder
 		inv, root := clitest.New(t, "task", "send", "doesnotexist", "some task input")
@@ -98,9 +98,9 @@ func Test_TaskSend(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		userClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		var stdout strings.Builder
 		inv, root := clitest.New(t, "task", "send", uuid.Nil.String(), "some task input")
@@ -164,13 +164,13 @@ func Test_TaskSend(t *testing.T) {
 		setup.agent = agenttest.New(t, setup.userClient.URL, setup.agentToken, func(o *agent.Options) {
 			o.Client = agentClient
 		})
-		coderdtest.NewWorkspaceAgentWaiter(t, setup.userClient, setup.task.WorkspaceID.UUID).
-			WaitFor(coderdtest.AgentsReady)
+		nicloudtest.NewWorkspaceAgentWaiter(t, setup.userClient, setup.task.WorkspaceID.UUID).
+			WaitFor(nicloudtest.AgentsReady)
 
 		// Report the task app as idle so waitForTaskIdle can proceed.
 		require.NoError(t, agentClient.PatchAppStatus(ctx, agentsdk.PatchAppStatus{
 			AppSlug: "task-sidebar",
-			State:   codersdk.WorkspaceAppStatusStateIdle,
+			State:   nicloudsdk.WorkspaceAppStatusStateIdle,
 			Message: "ready",
 		}))
 
@@ -179,7 +179,7 @@ func Test_TaskSend(t *testing.T) {
 
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusActive, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusActive, updated.Status)
 	})
 
 	t.Run("ResumesPausedTask", func(t *testing.T) {
@@ -215,13 +215,13 @@ func Test_TaskSend(t *testing.T) {
 		setup.agent = agenttest.New(t, setup.userClient.URL, setup.agentToken, func(o *agent.Options) {
 			o.Client = agentClient
 		})
-		coderdtest.NewWorkspaceAgentWaiter(t, setup.userClient, setup.task.WorkspaceID.UUID).
-			WaitFor(coderdtest.AgentsReady)
+		nicloudtest.NewWorkspaceAgentWaiter(t, setup.userClient, setup.task.WorkspaceID.UUID).
+			WaitFor(nicloudtest.AgentsReady)
 
 		// Report the task app as idle so waitForTaskIdle can proceed.
 		require.NoError(t, agentClient.PatchAppStatus(ctx, agentsdk.PatchAppStatus{
 			AppSlug: "task-sidebar",
-			State:   codersdk.WorkspaceAppStatusStateIdle,
+			State:   nicloudsdk.WorkspaceAppStatusStateIdle,
 			Message: "ready",
 		}))
 
@@ -230,7 +230,7 @@ func Test_TaskSend(t *testing.T) {
 
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusActive, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusActive, updated.Status)
 	})
 
 	t.Run("PausedDuringWaitForReady", func(t *testing.T) {
@@ -312,7 +312,7 @@ func Test_TaskSend(t *testing.T) {
 		agentClient := agentsdk.New(setup.userClient.URL, agentsdk.WithFixedToken(setup.agentToken))
 		require.NoError(t, agentClient.PatchAppStatus(setupCtx, agentsdk.PatchAppStatus{
 			AppSlug: "task-sidebar",
-			State:   codersdk.WorkspaceAppStatusStateWorking,
+			State:   nicloudsdk.WorkspaceAppStatusStateWorking,
 			Message: "busy",
 		}))
 
@@ -351,7 +351,7 @@ func Test_TaskSend(t *testing.T) {
 		// transition the app to idle.
 		require.NoError(t, agentClient.PatchAppStatus(ctx, agentsdk.PatchAppStatus{
 			AppSlug: "task-sidebar",
-			State:   codersdk.WorkspaceAppStatusStateIdle,
+			State:   nicloudsdk.WorkspaceAppStatusStateIdle,
 			Message: "ready",
 		}))
 
@@ -367,9 +367,9 @@ func Test_TaskSend(t *testing.T) {
 	t.Run("SendToNonIdleAppState", func(t *testing.T) {
 		t.Parallel()
 
-		for _, appState := range []codersdk.WorkspaceAppStatusState{
-			codersdk.WorkspaceAppStatusStateComplete,
-			codersdk.WorkspaceAppStatusStateFailure,
+		for _, appState := range []nicloudsdk.WorkspaceAppStatusState{
+			nicloudsdk.WorkspaceAppStatusStateComplete,
+			nicloudsdk.WorkspaceAppStatusStateFailure,
 		} {
 			t.Run(string(appState), func(t *testing.T) {
 				t.Parallel()

@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/port-share \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaces/{workspace}/port-share`
@@ -41,7 +41,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaces/{workspace}/port-share \
 
 | Status | Meaning                                                 | Description | Schema                                                                           |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgentPortShares](schemas.md#codersdkworkspaceagentportshares) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgentPortShares](schemas.md#nicloudsdkworkspaceagentportshares) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -54,7 +54,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/workspaces/{workspace}/port-share \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaces/{workspace}/port-share`
@@ -75,7 +75,7 @@ curl -X POST http://coder-server:8080/api/v2/workspaces/{workspace}/port-share \
 | Name        | In   | Type                                                                                                     | Required | Description                       |
 |-------------|------|----------------------------------------------------------------------------------------------------------|----------|-----------------------------------|
 | `workspace` | path | string(uuid)                                                                                             | true     | Workspace ID                      |
-| `body`      | body | [codersdk.UpsertWorkspaceAgentPortShareRequest](schemas.md#codersdkupsertworkspaceagentportsharerequest) | true     | Upsert port sharing level request |
+| `body`      | body | [nicloudsdk.UpsertWorkspaceAgentPortShareRequest](schemas.md#nicloudsdkupsertworkspaceagentportsharerequest) | true     | Upsert port sharing level request |
 
 ### Example responses
 
@@ -95,7 +95,7 @@ curl -X POST http://coder-server:8080/api/v2/workspaces/{workspace}/port-share \
 
 | Status | Meaning                                                 | Description | Schema                                                                         |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgentPortShare](schemas.md#codersdkworkspaceagentportshare) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgentPortShare](schemas.md#nicloudsdkworkspaceagentportshare) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -107,7 +107,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/workspaces/{workspace}/port-share \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/workspaces/{workspace}/port-share`
@@ -126,7 +126,7 @@ curl -X DELETE http://coder-server:8080/api/v2/workspaces/{workspace}/port-share
 | Name        | In   | Type                                                                                                     | Required | Description                       |
 |-------------|------|----------------------------------------------------------------------------------------------------------|----------|-----------------------------------|
 | `workspace` | path | string(uuid)                                                                                             | true     | Workspace ID                      |
-| `body`      | body | [codersdk.DeleteWorkspaceAgentPortShareRequest](schemas.md#codersdkdeleteworkspaceagentportsharerequest) | true     | Delete port sharing level request |
+| `body`      | body | [nicloudsdk.DeleteWorkspaceAgentPortShareRequest](schemas.md#nicloudsdkdeleteworkspaceagentportsharerequest) | true     | Delete port sharing level request |
 
 ### Responses
 

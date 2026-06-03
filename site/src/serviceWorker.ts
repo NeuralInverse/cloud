@@ -59,7 +59,7 @@ self.addEventListener("push", (event) => {
 // this handler the device's local subscription updates but the server keeps
 // the old keys, which is the failure mode after a PWA reinstall on iOS:
 // the bell stays green client-side because pushManager.getSubscription()
-// returns the new subscription, but coderd encrypts to the old keys and
+// returns the new subscription, but nicloud encrypts to the old keys and
 // the device silently drops the message.
 self.addEventListener("pushsubscriptionchange", (event) => {
 	event.waitUntil(handlePushSubscriptionChange(event));

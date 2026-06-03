@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -53,8 +53,8 @@ func (RootCmd) promptExample() *serpent.Command {
 	)
 	cmd := &serpent.Command{
 		Use:   "prompt-example",
-		Short: "Example of various prompt types used within coder cli.",
-		Long: "Example of various prompt types used within coder cli. " +
+		Short: "Example of various prompt types used within neuralinverse cli.",
+		Long: "Example of various prompt types used within neuralinverse cli. " +
 			"This command exists to aid in adjusting visuals of command prompts.",
 		Handler: func(inv *serpent.Invocation) error {
 			return inv.Command.HelpHandler(inv)
@@ -203,7 +203,7 @@ func (RootCmd) promptExample() *serpent.Command {
 			}, useThingsOption, enableCustomInputOption),
 			promptCmd("rich-parameter", func(inv *serpent.Invocation) error {
 				value, err := cliui.RichSelect(inv, cliui.RichSelectOptions{
-					Options: []codersdk.TemplateVersionParameterOption{
+					Options: []nicloudsdk.TemplateVersionParameterOption{
 						{
 							Name:        "Blue",
 							Description: "Like the ocean.",

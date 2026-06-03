@@ -16,8 +16,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )

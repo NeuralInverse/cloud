@@ -123,7 +123,7 @@ export const AnnouncementBannerSettings: FC<
 						<div className="text-content-secondary">
 							<p>
 								Your license does not include Service Banners.{" "}
-								<Link href="mailto:sales@coder.com" showExternalIcon={false}>
+								<Link href="mailto:sales@cloud.neuralinverse.com" showExternalIcon={false}>
 									Contact sales
 								</Link>{" "}
 								to learn more.

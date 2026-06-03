@@ -1,0 +1,591 @@
+package nicloud_test
+
+import (
+	"context"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io"
+	"net/http"
+	"net/netip"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/goleak"
+	"tailscale.com/tailcfg"
+
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	tailnetproto "github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/coder/quartz"
+	"github.com/coder/websocket"
+)
+
+// updateGoldenFiles is a flag that can be set to update golden files.
+var updateGoldenFiles = flag.Bool("update", false, "Update golden files")
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m, testutil.GoleakOptions...)
+}
+
+func TestBuildInfo(t *testing.T) {
+	t.Parallel()
+	client := nicloudtest.New(t, nil)
+
+	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
+	defer cancel()
+
+	buildInfo, err := client.BuildInfo(ctx)
+	require.NoError(t, err)
+	require.Equal(t, buildinfo.ExternalURL(), buildInfo.ExternalURL, "external URL")
+	require.Equal(t, buildinfo.Version(), buildInfo.Version, "version")
+}
+
+func TestDERP(t *testing.T) {
+	t.Parallel()
+	ctx := testutil.Context(t, testutil.WaitMedium)
+	client := nicloudtest.New(t, nil)
+
+	logger := testutil.Logger(t)
+
+	derpPort, err := strconv.Atoi(client.URL.Port())
+	require.NoError(t, err)
+	derpMap := &tailcfg.DERPMap{
+		Regions: map[int]*tailcfg.DERPRegion{
+			1: {
+				RegionID:   1,
+				RegionCode: "cdr",
+				RegionName: "Coder",
+				Nodes: []*tailcfg.DERPNode{{
+					Name:      "1a",
+					RegionID:  1,
+					HostName:  client.URL.Hostname(),
+					DERPPort:  derpPort,
+					STUNPort:  -1,
+					ForceHTTP: true,
+				}},
+			},
+		},
+	}
+	w1IP := tailnet.TailscaleServicePrefix.RandomAddr()
+	w1, err := tailnet.NewConn(&tailnet.Options{
+		Addresses: []netip.Prefix{netip.PrefixFrom(w1IP, 128)},
+		Logger:    logger.Named("w1"),
+		DERPMap:   derpMap,
+	})
+	require.NoError(t, err)
+
+	w2, err := tailnet.NewConn(&tailnet.Options{
+		Addresses: []netip.Prefix{tailnet.TailscaleServicePrefix.RandomPrefix()},
+		Logger:    logger.Named("w2"),
+		DERPMap:   derpMap,
+	})
+	require.NoError(t, err)
+
+	w1ID := uuid.New()
+	w1.SetNodeCallback(func(node *tailnet.Node) {
+		pn, err := tailnet.NodeToProto(node)
+		if !assert.NoError(t, err) {
+			return
+		}
+		w2.UpdatePeers([]*tailnetproto.CoordinateResponse_PeerUpdate{{
+			Id:   w1ID[:],
+			Node: pn,
+			Kind: tailnetproto.CoordinateResponse_PeerUpdate_NODE,
+		}})
+	})
+	w2ID := uuid.New()
+	w2.SetNodeCallback(func(node *tailnet.Node) {
+		pn, err := tailnet.NodeToProto(node)
+		if !assert.NoError(t, err) {
+			return
+		}
+		w1.UpdatePeers([]*tailnetproto.CoordinateResponse_PeerUpdate{{
+			Id:   w2ID[:],
+			Node: pn,
+			Kind: tailnetproto.CoordinateResponse_PeerUpdate_NODE,
+		}})
+	})
+
+	conn := make(chan struct{})
+	go func() {
+		listener, err := w1.Listen("tcp", ":35565")
+		assert.NoError(t, err)
+		defer listener.Close()
+		conn <- struct{}{}
+		nc, err := listener.Accept()
+		assert.NoError(t, err)
+		_ = nc.Close()
+		conn <- struct{}{}
+	}()
+
+	<-conn
+	w2.AwaitReachable(ctx, w1IP)
+	nc, err := w2.DialContextTCP(ctx, netip.AddrPortFrom(w1IP, 35565))
+	require.NoError(t, err)
+	_ = nc.Close()
+	<-conn
+
+	w1.Close()
+	w2.Close()
+}
+
+func TestDERPForceWebSockets(t *testing.T) {
+	t.Parallel()
+
+	dv := nicloudtest.DeploymentValues(t)
+	dv.DERP.Config.ForceWebSockets = true
+	dv.DERP.Config.BlockDirect = true // to ensure the test always uses DERP
+
+	// Manually create a server so we can influence the HTTP handler.
+	options := &nicloudtest.Options{
+		DeploymentValues: dv,
+	}
+	setHandler, cancelFunc, serverURL, newOptions := nicloudtest.NewOptions(t, options)
+	niAPI := nicloud.New(newOptions)
+	t.Cleanup(func() {
+		cancelFunc()
+		_ = niAPI.Close()
+	})
+
+	// Set the HTTP handler to a custom one that ensures all /derp calls are
+	// WebSockets and not `Upgrade: derp`.
+	var upgradeCount atomic.Int64
+	setHandler(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/derp") {
+			up := r.Header.Get("Upgrade")
+			if up != "" && up != "websocket" {
+				t.Errorf("expected Upgrade: websocket, got %q", up)
+			} else {
+				upgradeCount.Add(1)
+			}
+		}
+
+		niAPI.RootHandler.ServeHTTP(rw, r)
+	}))
+
+	// Start a provisioner daemon.
+	provisionerCloser := nicloudtest.NewProvisionerDaemon(t, niAPI)
+	t.Cleanup(func() {
+		_ = provisionerCloser.Close()
+	})
+
+	client := nicloudsdk.New(serverURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(serverURL)))
+	t.Cleanup(func() {
+		client.HTTPClient.CloseIdleConnections()
+	})
+	wsclient := workspacesdk.New(client)
+	user := nicloudtest.CreateFirstUser(t, client)
+
+	gen, err := wsclient.AgentConnectionInfoGeneric(context.Background())
+	require.NoError(t, err)
+	t.Log(spew.Sdump(gen))
+
+	authToken := uuid.NewString()
+	version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+		Parse:          echo.ParseComplete,
+		ProvisionPlan:  echo.PlanComplete,
+		ProvisionGraph: echo.ProvisionGraphWithAgent(authToken),
+	})
+	template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+
+	_ = agenttest.New(t, client.URL, authToken)
+	_ = nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+
+	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
+	defer cancel()
+
+	resources := nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	conn, err := wsclient.DialAgent(ctx, resources[0].Agents[0].ID,
+		&workspacesdk.DialAgentOptions{
+			Logger: testutil.Logger(t).Named("client"),
+		},
+	)
+	require.NoError(t, err)
+	defer func() {
+		_ = conn.Close()
+	}()
+	conn.AwaitReachable(ctx)
+
+	require.GreaterOrEqual(t, upgradeCount.Load(), int64(1), "expected at least one /derp call")
+}
+
+func TestDERPLatencyCheck(t *testing.T) {
+	t.Parallel()
+	client := nicloudtest.New(t, nil)
+	res, err := client.Request(context.Background(), http.MethodGet, "/derp/latency-check", nil)
+	require.NoError(t, err)
+	defer res.Body.Close()
+	require.Equal(t, http.StatusOK, res.StatusCode)
+}
+
+func TestFastLatencyCheck(t *testing.T) {
+	t.Parallel()
+	client := nicloudtest.New(t, nil)
+	res, err := client.Request(context.Background(), http.MethodGet, "/latency-check", nil)
+	require.NoError(t, err)
+	defer res.Body.Close()
+	require.Equal(t, http.StatusOK, res.StatusCode)
+}
+
+func TestHealthz(t *testing.T) {
+	t.Parallel()
+	client := nicloudtest.New(t, nil)
+
+	res, err := client.Request(context.Background(), http.MethodGet, "/healthz", nil)
+	require.NoError(t, err)
+	defer res.Body.Close()
+
+	require.Equal(t, http.StatusOK, res.StatusCode)
+	body, err := io.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, "OK", string(body))
+}
+
+func TestSwagger(t *testing.T) {
+	t.Parallel()
+
+	const swaggerEndpoint = "/swagger"
+	t.Run("endpoint enabled", func(t *testing.T) {
+		t.Parallel()
+
+		client := nicloudtest.New(t, &nicloudtest.Options{
+			SwaggerEndpoint: true,
+		})
+
+		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
+		defer cancel()
+
+		resp, err := requestWithRetries(ctx, t, client, http.MethodGet, swaggerEndpoint, nil)
+		require.NoError(t, err)
+
+		body, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		bodyString := string(body)
+		require.Contains(t, bodyString, "Swagger UI")
+		require.Contains(t, bodyString, "requestInterceptor")
+	})
+	t.Run("doc.json exposed", func(t *testing.T) {
+		t.Parallel()
+
+		client := nicloudtest.New(t, &nicloudtest.Options{
+			SwaggerEndpoint: true,
+		})
+
+		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
+		defer cancel()
+
+		resp, err := requestWithRetries(ctx, t, client, http.MethodGet, swaggerEndpoint+"/doc.json", nil)
+		require.NoError(t, err)
+
+		body, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		bodyString := string(body)
+		require.NotContains(t, bodyString, `"/api/v2/scim/v2`)
+
+		var doc struct {
+			Swagger  string                                `json:"swagger"`
+			BasePath string                                `json:"basePath"`
+			Paths    map[string]map[string]json.RawMessage `json:"paths"`
+		}
+		require.NoError(t, json.Unmarshal(body, &doc))
+		require.Equal(t, "2.0", doc.Swagger)
+		require.Equal(t, "/", doc.BasePath)
+		require.Contains(t, doc.Paths, "/api/v2/users")
+		require.Contains(t, doc.Paths, "/api/v2/oauth2-provider/apps")
+		require.Contains(t, doc.Paths, "/api/experimental/watch-all-workspacebuilds")
+		require.Contains(t, doc.Paths, "/.well-known/oauth-authorization-server")
+		require.Contains(t, doc.Paths, "/oauth2/tokens")
+		require.Contains(t, doc.Paths, "/scim/v2/Users")
+	})
+	t.Run("endpoint disabled by default", func(t *testing.T) {
+		t.Parallel()
+
+		client := nicloudtest.New(t, nil)
+
+		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
+		defer cancel()
+
+		resp, err := requestWithRetries(ctx, t, client, http.MethodGet, swaggerEndpoint, nil)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	})
+	t.Run("doc.json disabled by default", func(t *testing.T) {
+		t.Parallel()
+
+		client := nicloudtest.New(t, nil)
+
+		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
+		defer cancel()
+
+		resp, err := requestWithRetries(ctx, t, client, http.MethodGet, swaggerEndpoint+"/doc.json", nil)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	})
+}
+
+func TestCSRFExempt(t *testing.T) {
+	t.Parallel()
+
+	// This test build a workspace with an agent and an app. The app is not
+	// a real http server, so it will fail to serve requests. We just want
+	// to make sure the failure is not a CSRF failure, as path based
+	// apps should be exempt.
+	t.Run("PathBasedApp", func(t *testing.T) {
+		t.Parallel()
+
+		client, _, api := nicloudtest.NewWithAPI(t, nil)
+		first := nicloudtest.CreateFirstUser(t, client)
+		owner, err := client.User(context.Background(), "me")
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitMedium)
+		defer cancel()
+
+		// Create a workspace.
+		const agentSlug = "james"
+		const appSlug = "web"
+		wrk := dbfake.WorkspaceBuild(t, api.Database, database.WorkspaceTable{
+			OwnerID:        owner.ID,
+			OrganizationID: first.OrganizationID,
+		}).
+			WithAgent(func(agents []*proto.Agent) []*proto.Agent {
+				agents[0].Name = agentSlug
+				agents[0].Apps = []*proto.App{{
+					Slug:        appSlug,
+					DisplayName: appSlug,
+					Subdomain:   false,
+					Url:         "/",
+				}}
+
+				return agents
+			}).
+			Do()
+
+		u := client.URL.JoinPath(fmt.Sprintf("/@%s/%s.%s/apps/%s", owner.Username, wrk.Workspace.Name, agentSlug, appSlug)).String()
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, nil)
+		req.AddCookie(&http.Cookie{
+			Name:   nicloudsdk.SessionTokenCookie,
+			Value:  client.SessionToken(),
+			Path:   "/",
+			Domain: client.URL.String(),
+		})
+		require.NoError(t, err)
+
+		resp, err := client.HTTPClient.Do(req)
+		require.NoError(t, err)
+		data, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+
+		// A StatusNotFound means Coderd tried to proxy to the agent and failed because the agent
+		// was not there. This means CSRF did not block the app request, which is what we want.
+		require.Equal(t, http.StatusNotFound, resp.StatusCode, "status code 500 is CSRF failure")
+		require.NotContains(t, string(data), "CSRF")
+	})
+}
+
+func TestDERPMetrics(t *testing.T) {
+	t.Parallel()
+
+	_, _, api := nicloudtest.NewWithAPI(t, nil)
+
+	require.NotNil(t, api.Options.DERPServer, "DERP server should be configured")
+	require.NotNil(t, api.Options.PrometheusRegistry, "Prometheus registry should be configured")
+
+	// The registry is created internally by nicloud. Gather from it
+	// to verify DERP metrics were registered during startup.
+	metrics, err := api.Options.PrometheusRegistry.Gather()
+	require.NoError(t, err)
+
+	names := make(map[string]struct{})
+	for _, m := range metrics {
+		names[m.GetName()] = struct{}{}
+	}
+
+	assert.Contains(t, names, "coder_derp_server_connections",
+		"expected coder_derp_server_connections to be registered")
+	assert.Contains(t, names, "coder_derp_server_bytes_received_total",
+		"expected coder_derp_server_bytes_received_total to be registered")
+	assert.Contains(t, names, "coder_derp_server_packets_dropped_reason_total",
+		"expected coder_derp_server_packets_dropped_reason_total to be registered")
+}
+
+// TestWebSocketProbeMetrics verifies that the nicloud_api_websocket_probes_total
+// metric is recorded end-to-end through a real nicloud server.
+func TestWebSocketProbeMetrics(t *testing.T) {
+	t.Parallel()
+
+	ctx := testutil.Context(t, testutil.WaitLong)
+	mClock := quartz.NewMock(t)
+
+	trap := mClock.Trap().NewTicker("WSWatcher")
+	defer trap.Close()
+
+	client, _, api := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
+		Clock: mClock,
+	})
+	firstUser := nicloudtest.CreateFirstUser(t, client)
+	member, _ := nicloudtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
+
+	// Open a WebSocket connection to the inbox watch endpoint.
+	u, err := member.URL.Parse("/api/v2/notifications/inbox/watch")
+	require.NoError(t, err)
+
+	// nolint:bodyclose
+	wsConn, resp, err := websocket.Dial(ctx, u.String(), &websocket.DialOptions{
+		HTTPHeader: http.Header{
+			"NI-Session-Token": []string{member.SessionToken()},
+		},
+	})
+	if err != nil {
+		if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
+			err = nicloudsdk.ReadBodyAsError(resp)
+		}
+		require.NoError(t, err)
+	}
+	defer wsConn.Close(websocket.StatusNormalClosure, "done")
+
+	// Start a reader to process control frames (pong responses).
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				_, _, err := wsConn.Read(ctx)
+				if err != nil {
+					return
+				}
+			}
+		}
+	}()
+
+	// Wait for the WSWatcher ticker to be created, then trigger one probe.
+	trap.MustWait(ctx).MustRelease(ctx)
+	mClock.Advance(httpapi.HeartbeatInterval).MustWait(ctx)
+
+	// Assert the probe metric was recorded.
+	testutil.Eventually(ctx, t, func(context.Context) bool {
+		metrics, err := api.Options.PrometheusRegistry.Gather()
+		assert.NoError(t, err)
+		return testutil.PromCounterHasValue(t, metrics, 1,
+			"nicloud_api_websocket_probes_total", "/api/v2/notifications/inbox/watch", "ok")
+	}, testutil.IntervalFast, "websocket probe metric not recorded")
+}
+
+// TestRateLimitByUser verifies that rate limiting keys by user ID when
+// an authenticated session is present, rather than falling back to IP.
+// This is a regression test for https://github.com/coder/coder/issues/20857
+func TestRateLimitByUser(t *testing.T) {
+	t.Parallel()
+
+	const rateLimit = 5
+
+	ownerClient := nicloudtest.New(t, &nicloudtest.Options{
+		APIRateLimit: rateLimit,
+	})
+	firstUser := nicloudtest.CreateFirstUser(t, ownerClient)
+
+	t.Run("HitsLimit", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := testutil.Context(t, testutil.WaitLong)
+
+		// Make rateLimit requests — they should all succeed.
+		for i := 0; i < rateLimit; i++ {
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+				ownerClient.URL.String()+"/api/v2/buildinfo", nil)
+			require.NoError(t, err)
+			req.Header.Set(nicloudsdk.SessionTokenHeader, ownerClient.SessionToken())
+
+			resp, err := ownerClient.HTTPClient.Do(req)
+			require.NoError(t, err)
+			resp.Body.Close()
+			require.Equal(t, http.StatusOK, resp.StatusCode,
+				"request %d should succeed", i+1)
+		}
+
+		// The next request should be rate-limited.
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+			ownerClient.URL.String()+"/api/v2/buildinfo", nil)
+		require.NoError(t, err)
+		req.Header.Set(nicloudsdk.SessionTokenHeader, ownerClient.SessionToken())
+
+		resp, err := ownerClient.HTTPClient.Do(req)
+		require.NoError(t, err)
+		resp.Body.Close()
+		require.Equal(t, http.StatusTooManyRequests, resp.StatusCode,
+			"request should be rate limited")
+	})
+
+	t.Run("BypassOwner", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := testutil.Context(t, testutil.WaitLong)
+
+		// Owner with bypass header should not be rate-limited.
+		for i := 0; i < rateLimit+5; i++ {
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+				ownerClient.URL.String()+"/api/v2/buildinfo", nil)
+			require.NoError(t, err)
+			req.Header.Set(nicloudsdk.SessionTokenHeader, ownerClient.SessionToken())
+			req.Header.Set(nicloudsdk.BypassRatelimitHeader, "true")
+
+			resp, err := ownerClient.HTTPClient.Do(req)
+			require.NoError(t, err)
+			resp.Body.Close()
+			require.Equal(t, http.StatusOK, resp.StatusCode,
+				"owner bypass request %d should succeed", i+1)
+		}
+	})
+
+	t.Run("MemberCannotBypass", func(t *testing.T) {
+		t.Parallel()
+
+		memberClient, _ := nicloudtest.CreateAnotherUser(t, ownerClient, firstUser.OrganizationID)
+		ctx := testutil.Context(t, testutil.WaitLong)
+
+		// A member requesting the bypass header should be rejected
+		// with 428 Precondition Required — only owners may bypass.
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+			memberClient.URL.String()+"/api/v2/buildinfo", nil)
+		require.NoError(t, err)
+		req.Header.Set(nicloudsdk.SessionTokenHeader, memberClient.SessionToken())
+		req.Header.Set(nicloudsdk.BypassRatelimitHeader, "true")
+
+		resp, err := memberClient.HTTPClient.Do(req)
+		require.NoError(t, err)
+		resp.Body.Close()
+		require.Equal(t, http.StatusPreconditionRequired, resp.StatusCode,
+			"member should not be able to bypass rate limit")
+	})
+}

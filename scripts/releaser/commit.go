@@ -121,10 +121,10 @@ var humanizedAreas = []struct {
 	Area   string
 }{
 	{"agent/agentssh", "Agent SSH"},
-	{"coderd/database", "Database"},
+	{"nicloud/database", "Database"},
 	{"enterprise/audit", "Auditing"},
 	{"enterprise/cli", "CLI"},
-	{"enterprise/coderd", "Server"},
+	{"enterprise/nicloud", "Server"},
 	{"enterprise/dbcrypt", "Database"},
 	{"enterprise/derpmesh", "Networking"},
 	{"enterprise/provisionerd", "Provisioner"},
@@ -132,8 +132,8 @@ var humanizedAreas = []struct {
 	{"enterprise/wsproxy", "Workspace Proxy"},
 	{"agent", "Agent"},
 	{"cli", "CLI"},
-	{"coderd", "Server"},
-	{"codersdk", "SDK"},
+	{"nicloud", "Server"},
+	{"nicloudsdk", "SDK"},
 	{"docs", "Documentation"},
 	{"enterprise", "Enterprise"},
 	{"examples", "Examples"},

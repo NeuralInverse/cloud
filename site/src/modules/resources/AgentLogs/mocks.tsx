@@ -1,4 +1,4 @@
-// Those mocks are fetched from the Coder API in dev.coder.com
+// Those mocks are fetched from the Coder API in dev.cloud.neuralinverse.com
 
 import type { Line } from "#/components/Logs/LogLine";
 

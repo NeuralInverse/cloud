@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templates \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/templates`
@@ -91,7 +91,7 @@ To include deprecated templates, specify `deprecated:true` in the search query.
 
 | Status | Meaning                                                 | Description | Schema                                                    |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Template](schemas.md#codersdktemplate) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Template](schemas.md#nicloudsdktemplate) |
 
 <h3 id="get-templates-by-organization-responseschema">Response Schema</h3>
 
@@ -106,17 +106,17 @@ Status Code **200**
 | `» allow_user_autostart`             | boolean                                                                                  | false    |              | Allow user autostart and AllowUserAutostop are enterprise-only. Their values are only used if your license is entitled to use the advanced template scheduling feature.    |
 | `» allow_user_autostop`              | boolean                                                                                  | false    |              |                                                                                                                                                                            |
 | `» allow_user_cancel_workspace_jobs` | boolean                                                                                  | false    |              |                                                                                                                                                                            |
-| `» autostart_requirement`            | [codersdk.TemplateAutostartRequirement](schemas.md#codersdktemplateautostartrequirement) | false    |              |                                                                                                                                                                            |
+| `» autostart_requirement`            | [nicloudsdk.TemplateAutostartRequirement](schemas.md#nicloudsdktemplateautostartrequirement) | false    |              |                                                                                                                                                                            |
 | `»» days_of_week`                    | array                                                                                    | false    |              | Days of week is a list of days of the week in which autostart is allowed to happen. If no days are specified, autostart is not allowed.                                    |
-| `» autostop_requirement`             | [codersdk.TemplateAutostopRequirement](schemas.md#codersdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement are enterprise features. Its value is only used if your license is entitled to use the advanced template scheduling feature. |
+| `» autostop_requirement`             | [nicloudsdk.TemplateAutostopRequirement](schemas.md#nicloudsdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement are enterprise features. Its value is only used if your license is entitled to use the advanced template scheduling feature. |
 |`»» days_of_week`|array|false||Days of week is a list of days of the week on which restarts are required. Restarts happen within the user's quiet hours (in their configured timezone). If no days are specified, restarts are not required. Weekdays cannot be specified twice.
 Restarts will only happen on weekdays in this list on weeks which line up with Weeks.|
-|`»» weeks`|integer|false||Weeks is the number of weeks between required restarts. Weeks are synced across all workspaces (and Coder deployments) using modulo math on a hardcoded epoch week of January 2nd, 2023 (the first Monday of 2023). Values of 0 or 1 indicate weekly restarts. Values of 2 indicate fortnightly restarts, etc.|
-|`» build_time_stats`|[codersdk.TemplateBuildTimeStats](schemas.md#codersdktemplatebuildtimestats)|false|||
-|`»» [any property]`|[codersdk.TransitionStats](schemas.md#codersdktransitionstats)|false|||
+|`»» weeks`|integer|false||Weeks is the number of weeks between required restarts. Weeks are synced across all workspaces (and Neural Inverse Cloud deployments) using modulo math on a hardcoded epoch week of January 2nd, 2023 (the first Monday of 2023). Values of 0 or 1 indicate weekly restarts. Values of 2 indicate fortnightly restarts, etc.|
+|`» build_time_stats`|[nicloudsdk.TemplateBuildTimeStats](schemas.md#nicloudsdktemplatebuildtimestats)|false|||
+|`»» [any property]`|[nicloudsdk.TransitionStats](schemas.md#nicloudsdktransitionstats)|false|||
 |`»»» p50`|integer|false|||
 |`»»» p95`|integer|false|||
-|`» cors_behavior`|[codersdk.CORSBehavior](schemas.md#codersdkcorsbehavior)|false|||
+|`» cors_behavior`|[nicloudsdk.CORSBehavior](schemas.md#nicloudsdkcorsbehavior)|false|||
 |`» created_at`|string(date-time)|false|||
 |`» created_by_id`|string(uuid)|false|||
 |`» created_by_name`|string|false|||
@@ -130,7 +130,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |`» failure_ttl_ms`|integer|false||Failure ttl ms TimeTilDormantMillis, and TimeTilDormantAutoDeleteMillis are enterprise-only. Their values are used if your license is entitled to use the advanced template scheduling feature.|
 |`» icon`|string|false|||
 |`» id`|string(uuid)|false|||
-|`» max_port_share_level`|[codersdk.WorkspaceAgentPortShareLevel](schemas.md#codersdkworkspaceagentportsharelevel)|false|||
+|`» max_port_share_level`|[nicloudsdk.WorkspaceAgentPortShareLevel](schemas.md#nicloudsdkworkspaceagentportsharelevel)|false|||
 |`» name`|string|false|||
 |`» organization_display_name`|string|false|||
 |`» organization_icon`|string|false|||
@@ -162,7 +162,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/templates \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/organizations/{organization}/templates`
@@ -208,7 +208,7 @@ curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/templa
 | Name           | In   | Type                                                                       | Required | Description     |
 |----------------|------|----------------------------------------------------------------------------|----------|-----------------|
 | `organization` | path | string                                                                     | true     | Organization ID |
-| `body`         | body | [codersdk.CreateTemplateRequest](schemas.md#codersdkcreatetemplaterequest) | true     | Request body    |
+| `body`         | body | [nicloudsdk.CreateTemplateRequest](schemas.md#nicloudsdkcreatetemplaterequest) | true     | Request body    |
 
 ### Example responses
 
@@ -276,7 +276,7 @@ curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/templa
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Template](schemas.md#codersdktemplate) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Template](schemas.md#nicloudsdktemplate) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -288,7 +288,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templates/examples \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/templates/examples`
@@ -323,7 +323,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templat
 
 | Status | Meaning                                                 | Description | Schema                                                                  |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.TemplateExample](schemas.md#codersdktemplateexample) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.TemplateExample](schemas.md#nicloudsdktemplateexample) |
 
 <h3 id="get-template-examples-by-organization-responseschema">Response Schema</h3>
 
@@ -350,7 +350,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templates/{templatename} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/templates/{templatename}`
@@ -428,7 +428,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templat
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Template](schemas.md#codersdktemplate) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Template](schemas.md#nicloudsdktemplate) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -440,7 +440,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templates/{templatename}/versions/{templateversionname} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/templates/{templatename}/versions/{templateversionname}`
@@ -531,7 +531,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templat
 
 | Status | Meaning                                                 | Description | Schema                                                         |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.TemplateVersion](schemas.md#codersdktemplateversion) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.TemplateVersion](schemas.md#nicloudsdktemplateversion) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -543,7 +543,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templates/{templatename}/versions/{templateversionname}/previous \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/templates/{templatename}/versions/{templateversionname}/previous`
@@ -634,7 +634,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/templat
 
 | Status | Meaning                                                         | Description | Schema                                                         |
 |--------|-----------------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | OK          | [codersdk.TemplateVersion](schemas.md#codersdktemplateversion) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | OK          | [nicloudsdk.TemplateVersion](schemas.md#nicloudsdktemplateversion) |
 | 204    | [No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5) | No Content  |                                                                |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
@@ -648,7 +648,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/templateversions \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/organizations/{organization}/templateversions`
@@ -682,7 +682,7 @@ curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/templa
 | Name           | In   | Type                                                                                     | Required | Description                     |
 |----------------|------|------------------------------------------------------------------------------------------|----------|---------------------------------|
 | `organization` | path | string(uuid)                                                                             | true     | Organization ID                 |
-| `body`         | body | [codersdk.CreateTemplateVersionRequest](schemas.md#codersdkcreatetemplateversionrequest) | true     | Create template version request |
+| `body`         | body | [nicloudsdk.CreateTemplateVersionRequest](schemas.md#nicloudsdkcreatetemplateversionrequest) | true     | Create template version request |
 
 ### Example responses
 
@@ -762,7 +762,7 @@ curl -X POST http://coder-server:8080/api/v2/organizations/{organization}/templa
 
 | Status | Meaning                                                      | Description | Schema                                                         |
 |--------|--------------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [codersdk.TemplateVersion](schemas.md#codersdktemplateversion) |
+| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [nicloudsdk.TemplateVersion](schemas.md#nicloudsdktemplateversion) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -774,7 +774,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templates \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templates`
@@ -851,7 +851,7 @@ To include deprecated templates, specify `deprecated:true` in the search query.
 
 | Status | Meaning                                                 | Description | Schema                                                    |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Template](schemas.md#codersdktemplate) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Template](schemas.md#nicloudsdktemplate) |
 
 <h3 id="get-all-templates-responseschema">Response Schema</h3>
 
@@ -866,17 +866,17 @@ Status Code **200**
 | `» allow_user_autostart`             | boolean                                                                                  | false    |              | Allow user autostart and AllowUserAutostop are enterprise-only. Their values are only used if your license is entitled to use the advanced template scheduling feature.    |
 | `» allow_user_autostop`              | boolean                                                                                  | false    |              |                                                                                                                                                                            |
 | `» allow_user_cancel_workspace_jobs` | boolean                                                                                  | false    |              |                                                                                                                                                                            |
-| `» autostart_requirement`            | [codersdk.TemplateAutostartRequirement](schemas.md#codersdktemplateautostartrequirement) | false    |              |                                                                                                                                                                            |
+| `» autostart_requirement`            | [nicloudsdk.TemplateAutostartRequirement](schemas.md#nicloudsdktemplateautostartrequirement) | false    |              |                                                                                                                                                                            |
 | `»» days_of_week`                    | array                                                                                    | false    |              | Days of week is a list of days of the week in which autostart is allowed to happen. If no days are specified, autostart is not allowed.                                    |
-| `» autostop_requirement`             | [codersdk.TemplateAutostopRequirement](schemas.md#codersdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement are enterprise features. Its value is only used if your license is entitled to use the advanced template scheduling feature. |
+| `» autostop_requirement`             | [nicloudsdk.TemplateAutostopRequirement](schemas.md#nicloudsdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement are enterprise features. Its value is only used if your license is entitled to use the advanced template scheduling feature. |
 |`»» days_of_week`|array|false||Days of week is a list of days of the week on which restarts are required. Restarts happen within the user's quiet hours (in their configured timezone). If no days are specified, restarts are not required. Weekdays cannot be specified twice.
 Restarts will only happen on weekdays in this list on weeks which line up with Weeks.|
-|`»» weeks`|integer|false||Weeks is the number of weeks between required restarts. Weeks are synced across all workspaces (and Coder deployments) using modulo math on a hardcoded epoch week of January 2nd, 2023 (the first Monday of 2023). Values of 0 or 1 indicate weekly restarts. Values of 2 indicate fortnightly restarts, etc.|
-|`» build_time_stats`|[codersdk.TemplateBuildTimeStats](schemas.md#codersdktemplatebuildtimestats)|false|||
-|`»» [any property]`|[codersdk.TransitionStats](schemas.md#codersdktransitionstats)|false|||
+|`»» weeks`|integer|false||Weeks is the number of weeks between required restarts. Weeks are synced across all workspaces (and Neural Inverse Cloud deployments) using modulo math on a hardcoded epoch week of January 2nd, 2023 (the first Monday of 2023). Values of 0 or 1 indicate weekly restarts. Values of 2 indicate fortnightly restarts, etc.|
+|`» build_time_stats`|[nicloudsdk.TemplateBuildTimeStats](schemas.md#nicloudsdktemplatebuildtimestats)|false|||
+|`»» [any property]`|[nicloudsdk.TransitionStats](schemas.md#nicloudsdktransitionstats)|false|||
 |`»»» p50`|integer|false|||
 |`»»» p95`|integer|false|||
-|`» cors_behavior`|[codersdk.CORSBehavior](schemas.md#codersdkcorsbehavior)|false|||
+|`» cors_behavior`|[nicloudsdk.CORSBehavior](schemas.md#nicloudsdkcorsbehavior)|false|||
 |`» created_at`|string(date-time)|false|||
 |`» created_by_id`|string(uuid)|false|||
 |`» created_by_name`|string|false|||
@@ -890,7 +890,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |`» failure_ttl_ms`|integer|false||Failure ttl ms TimeTilDormantMillis, and TimeTilDormantAutoDeleteMillis are enterprise-only. Their values are used if your license is entitled to use the advanced template scheduling feature.|
 |`» icon`|string|false|||
 |`» id`|string(uuid)|false|||
-|`» max_port_share_level`|[codersdk.WorkspaceAgentPortShareLevel](schemas.md#codersdkworkspaceagentportsharelevel)|false|||
+|`» max_port_share_level`|[nicloudsdk.WorkspaceAgentPortShareLevel](schemas.md#nicloudsdkworkspaceagentportsharelevel)|false|||
 |`» name`|string|false|||
 |`» organization_display_name`|string|false|||
 |`» organization_icon`|string|false|||
@@ -921,7 +921,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templates/examples \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templates/examples`
@@ -950,7 +950,7 @@ curl -X GET http://coder-server:8080/api/v2/templates/examples \
 
 | Status | Meaning                                                 | Description | Schema                                                                  |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.TemplateExample](schemas.md#codersdktemplateexample) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.TemplateExample](schemas.md#nicloudsdktemplateexample) |
 
 <h3 id="get-template-examples-responseschema">Response Schema</h3>
 
@@ -977,7 +977,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templates/{template} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templates/{template}`
@@ -1054,7 +1054,7 @@ curl -X GET http://coder-server:8080/api/v2/templates/{template} \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Template](schemas.md#codersdktemplate) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Template](schemas.md#nicloudsdktemplate) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1066,7 +1066,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/templates/{template} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/templates/{template}`
@@ -1098,7 +1098,7 @@ curl -X DELETE http://coder-server:8080/api/v2/templates/{template} \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1111,7 +1111,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PATCH http://coder-server:8080/api/v2/templates/{template} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/templates/{template}`
@@ -1160,7 +1160,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templates/{template} \
 | Name       | In   | Type                                                                 | Required | Description                     |
 |------------|------|----------------------------------------------------------------------|----------|---------------------------------|
 | `template` | path | string(uuid)                                                         | true     | Template ID                     |
-| `body`     | body | [codersdk.UpdateTemplateMeta](schemas.md#codersdkupdatetemplatemeta) | true     | Patch template settings request |
+| `body`     | body | [nicloudsdk.UpdateTemplateMeta](schemas.md#nicloudsdkupdatetemplatemeta) | true     | Patch template settings request |
 
 ### Example responses
 
@@ -1228,7 +1228,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templates/{template} \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Template](schemas.md#codersdktemplate) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Template](schemas.md#nicloudsdktemplate) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1240,7 +1240,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templates/{template}/daus \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templates/{template}/daus`
@@ -1271,7 +1271,7 @@ curl -X GET http://coder-server:8080/api/v2/templates/{template}/daus \
 
 | Status | Meaning                                                 | Description | Schema                                                   |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.DAUsResponse](schemas.md#codersdkdausresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.DAUsResponse](schemas.md#nicloudsdkdausresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1283,7 +1283,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templates/{template}/versions \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templates/{template}/versions`
@@ -1378,7 +1378,7 @@ curl -X GET http://coder-server:8080/api/v2/templates/{template}/versions \
 
 | Status | Meaning                                                 | Description | Schema                                                                  |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.TemplateVersion](schemas.md#codersdktemplateversion) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.TemplateVersion](schemas.md#nicloudsdktemplateversion) |
 
 <h3 id="list-template-versions-by-template-id-responseschema">Response Schema</h3>
 
@@ -1389,48 +1389,48 @@ Status Code **200**
 | `[array item]`                   | array                                                                        | false    |              |                                                                                                                                                                     |
 | `» archived`                     | boolean                                                                      | false    |              |                                                                                                                                                                     |
 | `» created_at`                   | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
-| `» created_by`                   | [codersdk.MinimalUser](schemas.md#codersdkminimaluser)                       | false    |              |                                                                                                                                                                     |
+| `» created_by`                   | [nicloudsdk.MinimalUser](schemas.md#nicloudsdkminimaluser)                       | false    |              |                                                                                                                                                                     |
 | `»» avatar_url`                  | string(uri)                                                                  | false    |              |                                                                                                                                                                     |
 | `»» id`                          | string(uuid)                                                                 | true     |              |                                                                                                                                                                     |
 | `»» name`                        | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»» username`                    | string                                                                       | true     |              |                                                                                                                                                                     |
 | `» has_external_agent`           | boolean                                                                      | false    |              |                                                                                                                                                                     |
 | `» id`                           | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
-| `» job`                          | [codersdk.ProvisionerJob](schemas.md#codersdkprovisionerjob)                 | false    |              |                                                                                                                                                                     |
+| `» job`                          | [nicloudsdk.ProvisionerJob](schemas.md#nicloudsdkprovisionerjob)                 | false    |              |                                                                                                                                                                     |
 | `»» available_workers`           | array                                                                        | false    |              |                                                                                                                                                                     |
 | `»» canceled_at`                 | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
 | `»» completed_at`                | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
 | `»» created_at`                  | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
 | `»» error`                       | string                                                                       | false    |              |                                                                                                                                                                     |
-| `»» error_code`                  | [codersdk.JobErrorCode](schemas.md#codersdkjoberrorcode)                     | false    |              |                                                                                                                                                                     |
+| `»» error_code`                  | [nicloudsdk.JobErrorCode](schemas.md#nicloudsdkjoberrorcode)                     | false    |              |                                                                                                                                                                     |
 | `»» file_id`                     | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» id`                          | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» initiator_id`                | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
-| `»» input`                       | [codersdk.ProvisionerJobInput](schemas.md#codersdkprovisionerjobinput)       | false    |              |                                                                                                                                                                     |
+| `»» input`                       | [nicloudsdk.ProvisionerJobInput](schemas.md#nicloudsdkprovisionerjobinput)       | false    |              |                                                                                                                                                                     |
 | `»»» error`                      | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_version_id`        | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»»» workspace_build_id`         | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» logs_overflowed`             | boolean                                                                      | false    |              |                                                                                                                                                                     |
-| `»» metadata`                    | [codersdk.ProvisionerJobMetadata](schemas.md#codersdkprovisionerjobmetadata) | false    |              |                                                                                                                                                                     |
+| `»» metadata`                    | [nicloudsdk.ProvisionerJobMetadata](schemas.md#nicloudsdkprovisionerjobmetadata) | false    |              |                                                                                                                                                                     |
 | `»»» template_display_name`      | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_icon`              | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_id`                | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»»» template_name`              | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_version_name`      | string                                                                       | false    |              |                                                                                                                                                                     |
-| `»»» workspace_build_transition` | [codersdk.WorkspaceTransition](schemas.md#codersdkworkspacetransition)       | false    |              |                                                                                                                                                                     |
+| `»»» workspace_build_transition` | [nicloudsdk.WorkspaceTransition](schemas.md#nicloudsdkworkspacetransition)       | false    |              |                                                                                                                                                                     |
 | `»»» workspace_id`               | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»»» workspace_name`             | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»» organization_id`             | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» queue_position`              | integer                                                                      | false    |              |                                                                                                                                                                     |
 | `»» queue_size`                  | integer                                                                      | false    |              |                                                                                                                                                                     |
 | `»» started_at`                  | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
-| `»» status`                      | [codersdk.ProvisionerJobStatus](schemas.md#codersdkprovisionerjobstatus)     | false    |              |                                                                                                                                                                     |
+| `»» status`                      | [nicloudsdk.ProvisionerJobStatus](schemas.md#nicloudsdkprovisionerjobstatus)     | false    |              |                                                                                                                                                                     |
 | `»» tags`                        | object                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» [any property]`             | string                                                                       | false    |              |                                                                                                                                                                     |
-| `»» type`                        | [codersdk.ProvisionerJobType](schemas.md#codersdkprovisionerjobtype)         | false    |              |                                                                                                                                                                     |
+| `»» type`                        | [nicloudsdk.ProvisionerJobType](schemas.md#nicloudsdkprovisionerjobtype)         | false    |              |                                                                                                                                                                     |
 | `»» worker_id`                   | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» worker_name`                 | string                                                                       | false    |              |                                                                                                                                                                     |
-| `» matched_provisioners`         | [codersdk.MatchedProvisioners](schemas.md#codersdkmatchedprovisioners)       | false    |              |                                                                                                                                                                     |
+| `» matched_provisioners`         | [nicloudsdk.MatchedProvisioners](schemas.md#nicloudsdkmatchedprovisioners)       | false    |              |                                                                                                                                                                     |
 | `»» available`                   | integer                                                                      | false    |              | Available is the number of provisioner daemons that are available to take jobs. This may be less than the count if some provisioners are busy or have been stopped. |
 | `»» count`                       | integer                                                                      | false    |              | Count is the number of provisioner daemons that matched the given tags. If the count is 0, it means no provisioner daemons matched the requested tags.              |
 | `»» most_recently_seen`          | string(date-time)                                                            | false    |              | Most recently seen is the most recently seen time of the set of matched provisioners. If no provisioners matched, this field will be null.                          |
@@ -1462,7 +1462,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PATCH http://coder-server:8080/api/v2/templates/{template}/versions \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/templates/{template}/versions`
@@ -1480,7 +1480,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templates/{template}/versions \
 | Name       | In   | Type                                                                                   | Required | Description               |
 |------------|------|----------------------------------------------------------------------------------------|----------|---------------------------|
 | `template` | path | string(uuid)                                                                           | true     | Template ID               |
-| `body`     | body | [codersdk.UpdateActiveTemplateVersion](schemas.md#codersdkupdateactivetemplateversion) | true     | Modified template version |
+| `body`     | body | [nicloudsdk.UpdateActiveTemplateVersion](schemas.md#nicloudsdkupdateactivetemplateversion) | true     | Modified template version |
 
 ### Example responses
 
@@ -1503,7 +1503,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templates/{template}/versions \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1516,7 +1516,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/templates/{template}/versions/archive \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/templates/{template}/versions/archive`
@@ -1534,7 +1534,7 @@ curl -X POST http://coder-server:8080/api/v2/templates/{template}/versions/archi
 | Name       | In   | Type                                                                                         | Required | Description     |
 |------------|------|----------------------------------------------------------------------------------------------|----------|-----------------|
 | `template` | path | string(uuid)                                                                                 | true     | Template ID     |
-| `body`     | body | [codersdk.ArchiveTemplateVersionsRequest](schemas.md#codersdkarchivetemplateversionsrequest) | true     | Archive request |
+| `body`     | body | [nicloudsdk.ArchiveTemplateVersionsRequest](schemas.md#nicloudsdkarchivetemplateversionsrequest) | true     | Archive request |
 
 ### Example responses
 
@@ -1557,7 +1557,7 @@ curl -X POST http://coder-server:8080/api/v2/templates/{template}/versions/archi
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1569,7 +1569,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templates/{template}/versions/{templateversionname} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templates/{template}/versions/{templateversionname}`
@@ -1661,7 +1661,7 @@ curl -X GET http://coder-server:8080/api/v2/templates/{template}/versions/{templ
 
 | Status | Meaning                                                 | Description | Schema                                                                  |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.TemplateVersion](schemas.md#codersdktemplateversion) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.TemplateVersion](schemas.md#nicloudsdktemplateversion) |
 
 <h3 id="get-template-version-by-template-id-and-name-responseschema">Response Schema</h3>
 
@@ -1672,48 +1672,48 @@ Status Code **200**
 | `[array item]`                   | array                                                                        | false    |              |                                                                                                                                                                     |
 | `» archived`                     | boolean                                                                      | false    |              |                                                                                                                                                                     |
 | `» created_at`                   | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
-| `» created_by`                   | [codersdk.MinimalUser](schemas.md#codersdkminimaluser)                       | false    |              |                                                                                                                                                                     |
+| `» created_by`                   | [nicloudsdk.MinimalUser](schemas.md#nicloudsdkminimaluser)                       | false    |              |                                                                                                                                                                     |
 | `»» avatar_url`                  | string(uri)                                                                  | false    |              |                                                                                                                                                                     |
 | `»» id`                          | string(uuid)                                                                 | true     |              |                                                                                                                                                                     |
 | `»» name`                        | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»» username`                    | string                                                                       | true     |              |                                                                                                                                                                     |
 | `» has_external_agent`           | boolean                                                                      | false    |              |                                                                                                                                                                     |
 | `» id`                           | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
-| `» job`                          | [codersdk.ProvisionerJob](schemas.md#codersdkprovisionerjob)                 | false    |              |                                                                                                                                                                     |
+| `» job`                          | [nicloudsdk.ProvisionerJob](schemas.md#nicloudsdkprovisionerjob)                 | false    |              |                                                                                                                                                                     |
 | `»» available_workers`           | array                                                                        | false    |              |                                                                                                                                                                     |
 | `»» canceled_at`                 | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
 | `»» completed_at`                | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
 | `»» created_at`                  | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
 | `»» error`                       | string                                                                       | false    |              |                                                                                                                                                                     |
-| `»» error_code`                  | [codersdk.JobErrorCode](schemas.md#codersdkjoberrorcode)                     | false    |              |                                                                                                                                                                     |
+| `»» error_code`                  | [nicloudsdk.JobErrorCode](schemas.md#nicloudsdkjoberrorcode)                     | false    |              |                                                                                                                                                                     |
 | `»» file_id`                     | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» id`                          | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» initiator_id`                | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
-| `»» input`                       | [codersdk.ProvisionerJobInput](schemas.md#codersdkprovisionerjobinput)       | false    |              |                                                                                                                                                                     |
+| `»» input`                       | [nicloudsdk.ProvisionerJobInput](schemas.md#nicloudsdkprovisionerjobinput)       | false    |              |                                                                                                                                                                     |
 | `»»» error`                      | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_version_id`        | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»»» workspace_build_id`         | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» logs_overflowed`             | boolean                                                                      | false    |              |                                                                                                                                                                     |
-| `»» metadata`                    | [codersdk.ProvisionerJobMetadata](schemas.md#codersdkprovisionerjobmetadata) | false    |              |                                                                                                                                                                     |
+| `»» metadata`                    | [nicloudsdk.ProvisionerJobMetadata](schemas.md#nicloudsdkprovisionerjobmetadata) | false    |              |                                                                                                                                                                     |
 | `»»» template_display_name`      | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_icon`              | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_id`                | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»»» template_name`              | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» template_version_name`      | string                                                                       | false    |              |                                                                                                                                                                     |
-| `»»» workspace_build_transition` | [codersdk.WorkspaceTransition](schemas.md#codersdkworkspacetransition)       | false    |              |                                                                                                                                                                     |
+| `»»» workspace_build_transition` | [nicloudsdk.WorkspaceTransition](schemas.md#nicloudsdkworkspacetransition)       | false    |              |                                                                                                                                                                     |
 | `»»» workspace_id`               | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»»» workspace_name`             | string                                                                       | false    |              |                                                                                                                                                                     |
 | `»» organization_id`             | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» queue_position`              | integer                                                                      | false    |              |                                                                                                                                                                     |
 | `»» queue_size`                  | integer                                                                      | false    |              |                                                                                                                                                                     |
 | `»» started_at`                  | string(date-time)                                                            | false    |              |                                                                                                                                                                     |
-| `»» status`                      | [codersdk.ProvisionerJobStatus](schemas.md#codersdkprovisionerjobstatus)     | false    |              |                                                                                                                                                                     |
+| `»» status`                      | [nicloudsdk.ProvisionerJobStatus](schemas.md#nicloudsdkprovisionerjobstatus)     | false    |              |                                                                                                                                                                     |
 | `»» tags`                        | object                                                                       | false    |              |                                                                                                                                                                     |
 | `»»» [any property]`             | string                                                                       | false    |              |                                                                                                                                                                     |
-| `»» type`                        | [codersdk.ProvisionerJobType](schemas.md#codersdkprovisionerjobtype)         | false    |              |                                                                                                                                                                     |
+| `»» type`                        | [nicloudsdk.ProvisionerJobType](schemas.md#nicloudsdkprovisionerjobtype)         | false    |              |                                                                                                                                                                     |
 | `»» worker_id`                   | string(uuid)                                                                 | false    |              |                                                                                                                                                                     |
 | `»» worker_name`                 | string                                                                       | false    |              |                                                                                                                                                                     |
-| `» matched_provisioners`         | [codersdk.MatchedProvisioners](schemas.md#codersdkmatchedprovisioners)       | false    |              |                                                                                                                                                                     |
+| `» matched_provisioners`         | [nicloudsdk.MatchedProvisioners](schemas.md#nicloudsdkmatchedprovisioners)       | false    |              |                                                                                                                                                                     |
 | `»» available`                   | integer                                                                      | false    |              | Available is the number of provisioner daemons that are available to take jobs. This may be less than the count if some provisioners are busy or have been stopped. |
 | `»» count`                       | integer                                                                      | false    |              | Count is the number of provisioner daemons that matched the given tags. If the count is 0, it means no provisioner daemons matched the requested tags.              |
 | `»» most_recently_seen`          | string(date-time)                                                            | false    |              | Most recently seen is the most recently seen time of the set of matched provisioners. If no provisioners matched, this field will be null.                          |
@@ -1744,7 +1744,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}`
@@ -1833,7 +1833,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion} \
 
 | Status | Meaning                                                 | Description | Schema                                                         |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.TemplateVersion](schemas.md#codersdktemplateversion) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.TemplateVersion](schemas.md#nicloudsdktemplateversion) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1846,7 +1846,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PATCH http://coder-server:8080/api/v2/templateversions/{templateversion} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/templateversions/{templateversion}`
@@ -1865,7 +1865,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templateversions/{templateversion}
 | Name              | In   | Type                                                                                   | Required | Description                    |
 |-------------------|------|----------------------------------------------------------------------------------------|----------|--------------------------------|
 | `templateversion` | path | string(uuid)                                                                           | true     | Template version ID            |
-| `body`            | body | [codersdk.PatchTemplateVersionRequest](schemas.md#codersdkpatchtemplateversionrequest) | true     | Patch template version request |
+| `body`            | body | [nicloudsdk.PatchTemplateVersionRequest](schemas.md#nicloudsdkpatchtemplateversionrequest) | true     | Patch template version request |
 
 ### Example responses
 
@@ -1945,7 +1945,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templateversions/{templateversion}
 
 | Status | Meaning                                                 | Description | Schema                                                         |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.TemplateVersion](schemas.md#codersdktemplateversion) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.TemplateVersion](schemas.md#nicloudsdktemplateversion) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1957,7 +1957,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/archive \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/templateversions/{templateversion}/archive`
@@ -1989,7 +1989,7 @@ curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2001,7 +2001,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PATCH http://coder-server:8080/api/v2/templateversions/{templateversion}/cancel \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/templateversions/{templateversion}/cancel`
@@ -2033,7 +2033,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templateversions/{templateversion}
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2046,7 +2046,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/dry-run \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/templateversions/{templateversion}/dry-run`
@@ -2076,7 +2076,7 @@ curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/
 | Name              | In   | Type                                                                                                 | Required | Description         |
 |-------------------|------|------------------------------------------------------------------------------------------------------|----------|---------------------|
 | `templateversion` | path | string(uuid)                                                                                         | true     | Template version ID |
-| `body`            | body | [codersdk.CreateTemplateVersionDryRunRequest](schemas.md#codersdkcreatetemplateversiondryrunrequest) | true     | Dry-run request     |
+| `body`            | body | [nicloudsdk.CreateTemplateVersionDryRunRequest](schemas.md#nicloudsdkcreatetemplateversiondryrunrequest) | true     | Dry-run request     |
 
 ### Example responses
 
@@ -2130,7 +2130,7 @@ curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/
 
 | Status | Meaning                                                      | Description | Schema                                                       |
 |--------|--------------------------------------------------------------|-------------|--------------------------------------------------------------|
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [codersdk.ProvisionerJob](schemas.md#codersdkprovisionerjob) |
+| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [nicloudsdk.ProvisionerJob](schemas.md#nicloudsdkprovisionerjob) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2142,7 +2142,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/dry-run/{jobID} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/dry-run/{jobID}`
@@ -2206,7 +2206,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/d
 
 | Status | Meaning                                                 | Description | Schema                                                       |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ProvisionerJob](schemas.md#codersdkprovisionerjob) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ProvisionerJob](schemas.md#nicloudsdkprovisionerjob) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2218,7 +2218,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PATCH http://coder-server:8080/api/v2/templateversions/{templateversion}/dry-run/{jobID}/cancel \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/templateversions/{templateversion}/dry-run/{jobID}/cancel`
@@ -2251,7 +2251,7 @@ curl -X PATCH http://coder-server:8080/api/v2/templateversions/{templateversion}
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2263,7 +2263,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/dry-run/{jobID}/logs \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/dry-run/{jobID}/logs`
@@ -2306,7 +2306,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/d
 
 | Status | Meaning                                                 | Description | Schema                                                                      |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.ProvisionerJobLog](schemas.md#codersdkprovisionerjoblog) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.ProvisionerJobLog](schemas.md#nicloudsdkprovisionerjoblog) |
 
 <h3 id="get-template-version-dry-run-logs-by-job-id-responseschema">Response Schema</h3>
 
@@ -2317,8 +2317,8 @@ Status Code **200**
 | `[array item]` | array                                              | false    |              |             |
 | `» created_at` | string(date-time)                                  | false    |              |             |
 | `» id`         | integer                                            | false    |              |             |
-| `» log_level`  | [codersdk.LogLevel](schemas.md#codersdkloglevel)   | false    |              |             |
-| `» log_source` | [codersdk.LogSource](schemas.md#codersdklogsource) | false    |              |             |
+| `» log_level`  | [nicloudsdk.LogLevel](schemas.md#nicloudsdkloglevel)   | false    |              |             |
+| `» log_source` | [nicloudsdk.LogSource](schemas.md#nicloudsdklogsource) | false    |              |             |
 | `» output`     | string                                             | false    |              |             |
 | `» stage`      | string                                             | false    |              |             |
 
@@ -2339,7 +2339,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/dry-run/{jobID}/matched-provisioners \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/dry-run/{jobID}/matched-provisioners`
@@ -2367,7 +2367,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/d
 
 | Status | Meaning                                                 | Description | Schema                                                                 |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.MatchedProvisioners](schemas.md#codersdkmatchedprovisioners) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.MatchedProvisioners](schemas.md#nicloudsdkmatchedprovisioners) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2379,7 +2379,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/dry-run/{jobID}/resources \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/dry-run/{jobID}/resources`
@@ -2541,7 +2541,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/d
 
 | Status | Meaning                                                 | Description | Schema                                                                      |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.WorkspaceResource](schemas.md#codersdkworkspaceresource) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.WorkspaceResource](schemas.md#nicloudsdkworkspaceresource) |
 
 <h3 id="get-template-version-dry-run-resources-by-job-id-responseschema">Response Schema</h3>
 
@@ -2557,16 +2557,16 @@ Status Code **200**
 | `»»» display_name`              | string                                                                                                 | false    |              | Display name is a friendly name for the app.                                                                                                                                                                                                   |
 | `»»» external`                  | boolean                                                                                                | false    |              | External specifies whether the URL should be opened externally on the client or not.                                                                                                                                                           |
 | `»»» group`                     | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
-| `»»» health`                    | [codersdk.WorkspaceAppHealth](schemas.md#codersdkworkspaceapphealth)                                   | false    |              |                                                                                                                                                                                                                                                |
-| `»»» healthcheck`               | [codersdk.Healthcheck](schemas.md#codersdkhealthcheck)                                                 | false    |              | Healthcheck specifies the configuration for checking app health.                                                                                                                                                                               |
+| `»»» health`                    | [nicloudsdk.WorkspaceAppHealth](schemas.md#nicloudsdkworkspaceapphealth)                                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» healthcheck`               | [nicloudsdk.Healthcheck](schemas.md#nicloudsdkhealthcheck)                                                 | false    |              | Healthcheck specifies the configuration for checking app health.                                                                                                                                                                               |
 | `»»»» interval`                 | integer                                                                                                | false    |              | Interval specifies the seconds between each health check.                                                                                                                                                                                      |
 | `»»»» threshold`                | integer                                                                                                | false    |              | Threshold specifies the number of consecutive failed health checks before returning "unhealthy".                                                                                                                                               |
 | `»»»» url`                      | string                                                                                                 | false    |              | URL specifies the endpoint to check for the app health.                                                                                                                                                                                        |
 | `»»» hidden`                    | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
 | `»»» icon`                      | string                                                                                                 | false    |              | Icon is a relative path or external URL that specifies an icon to be displayed in the dashboard.                                                                                                                                               |
 | `»»» id`                        | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
-| `»»» open_in`                   | [codersdk.WorkspaceAppOpenIn](schemas.md#codersdkworkspaceappopenin)                                   | false    |              |                                                                                                                                                                                                                                                |
-| `»»» sharing_level`             | [codersdk.WorkspaceAppSharingLevel](schemas.md#codersdkworkspaceappsharinglevel)                       | false    |              |                                                                                                                                                                                                                                                |
+| `»»» open_in`                   | [nicloudsdk.WorkspaceAppOpenIn](schemas.md#nicloudsdkworkspaceappopenin)                                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» sharing_level`             | [nicloudsdk.WorkspaceAppSharingLevel](schemas.md#nicloudsdkworkspaceappsharinglevel)                       | false    |              |                                                                                                                                                                                                                                                |
 | `»»» slug`                      | string                                                                                                 | false    |              | Slug is a unique identifier within the agent.                                                                                                                                                                                                  |
 | `»»» statuses`                  | array                                                                                                  | false    |              | Statuses is a list of statuses for the app.                                                                                                                                                                                                    |
 | `»»»» agent_id`                 | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
@@ -2576,7 +2576,7 @@ Status Code **200**
 | `»»»» id`                       | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» message`                  | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» needs_user_attention`     | boolean                                                                                                | false    |              | Deprecated: This field is unused and will be removed in a future version. NeedsUserAttention specifies whether the status needs user attention.                                                                                                |
-| `»»»» state`                    | [codersdk.WorkspaceAppStatusState](schemas.md#codersdkworkspaceappstatusstate)                         | false    |              |                                                                                                                                                                                                                                                |
+| `»»»» state`                    | [nicloudsdk.WorkspaceAppStatusState](schemas.md#nicloudsdkworkspaceappstatusstate)                         | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» uri`                      | string                                                                                                 | false    |              | Uri is the URI of the resource that the status is for. e.g. https://github.com/org/repo/pull/123 e.g. file:///path/to/file                                                                                                                     |
 | `»»»» workspace_id`             | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
 | `»»» subdomain`                 | boolean                                                                                                | false    |              | Subdomain denotes whether the app should be accessed via a path on the `coder server` or via a hostname-based dev URL. If this is set to true and there is no app wildcard configured on the server, the app will not be accessible in the UI. |
@@ -2593,17 +2593,17 @@ Status Code **200**
 | `»»» [any property]`            | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» expanded_directory`         | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» first_connected_at`         | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
-| `»» health`                     | [codersdk.WorkspaceAgentHealth](schemas.md#codersdkworkspaceagenthealth)                               | false    |              | Health reports the health of the agent.                                                                                                                                                                                                        |
+| `»» health`                     | [nicloudsdk.WorkspaceAgentHealth](schemas.md#nicloudsdkworkspaceagenthealth)                               | false    |              | Health reports the health of the agent.                                                                                                                                                                                                        |
 | `»»» healthy`                   | boolean                                                                                                | false    |              | Healthy is true if the agent is healthy.                                                                                                                                                                                                       |
 | `»»» reason`                    | string                                                                                                 | false    |              | Reason is a human-readable explanation of the agent's health. It is empty if Healthy is true.                                                                                                                                                  |
 | `»» id`                         | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
 | `»» instance_id`                | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» last_connected_at`          | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
 | `»» latency`                    | object                                                                                                 | false    |              | Latency is mapped by region name (e.g. "New York City", "Seattle").                                                                                                                                                                            |
-| `»»» [any property]`            | [codersdk.DERPRegion](schemas.md#codersdkderpregion)                                                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» [any property]`            | [nicloudsdk.DERPRegion](schemas.md#nicloudsdkderpregion)                                                   | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» latency_ms`               | number                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» preferred`                | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
-| `»» lifecycle_state`            | [codersdk.WorkspaceAgentLifecycle](schemas.md#codersdkworkspaceagentlifecycle)                         | false    |              |                                                                                                                                                                                                                                                |
+| `»» lifecycle_state`            | [nicloudsdk.WorkspaceAgentLifecycle](schemas.md#nicloudsdkworkspaceagentlifecycle)                         | false    |              |                                                                                                                                                                                                                                                |
 | `»» log_sources`                | array                                                                                                  | false    |              |                                                                                                                                                                                                                                                |
 | `»»» created_at`                | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
 | `»»» display_name`              | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
@@ -2630,11 +2630,11 @@ Status Code **200**
 | `»»» run_on_stop`               | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
 | `»»» script`                    | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»»» start_blocks_login`        | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
-| `»»» status`                    | [codersdk.WorkspaceAgentScriptStatus](schemas.md#codersdkworkspaceagentscriptstatus)                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» status`                    | [nicloudsdk.WorkspaceAgentScriptStatus](schemas.md#nicloudsdkworkspaceagentscriptstatus)                   | false    |              |                                                                                                                                                                                                                                                |
 | `»»» timeout`                   | integer                                                                                                | false    |              |                                                                                                                                                                                                                                                |
 | `»» started_at`                 | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
-| `»» startup_script_behavior`    | [codersdk.WorkspaceAgentStartupScriptBehavior](schemas.md#codersdkworkspaceagentstartupscriptbehavior) | false    |              | Startup script behavior is a legacy field that is deprecated in favor of the `coder_script` resource. It's only referenced by old clients. Deprecated: Remove in the future!                                                                   |
-| `»» status`                     | [codersdk.WorkspaceAgentStatus](schemas.md#codersdkworkspaceagentstatus)                               | false    |              |                                                                                                                                                                                                                                                |
+| `»» startup_script_behavior`    | [nicloudsdk.WorkspaceAgentStartupScriptBehavior](schemas.md#nicloudsdkworkspaceagentstartupscriptbehavior) | false    |              | Startup script behavior is a legacy field that is deprecated in favor of the `coder_script` resource. It's only referenced by old clients. Deprecated: Remove in the future!                                                                   |
+| `»» status`                     | [nicloudsdk.WorkspaceAgentStatus](schemas.md#nicloudsdkworkspaceagentstatus)                               | false    |              |                                                                                                                                                                                                                                                |
 | `»» subsystems`                 | array                                                                                                  | false    |              |                                                                                                                                                                                                                                                |
 | `»» troubleshooting_url`        | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» updated_at`                 | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
@@ -2651,7 +2651,7 @@ Status Code **200**
 | `»» value`                      | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `» name`                        | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `» type`                        | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
-| `» workspace_transition`        | [codersdk.WorkspaceTransition](schemas.md#codersdkworkspacetransition)                                 | false    |              |                                                                                                                                                                                                                                                |
+| `» workspace_transition`        | [nicloudsdk.WorkspaceTransition](schemas.md#nicloudsdkworkspacetransition)                                 | false    |              |                                                                                                                                                                                                                                                |
 
 #### Enumerated Values
 
@@ -2675,7 +2675,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/dynamic-parameters \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/dynamic-parameters`
@@ -2703,7 +2703,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/dynamic-parameters/evaluate \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/templateversions/{templateversion}/dynamic-parameters/evaluate`
@@ -2726,7 +2726,7 @@ curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/
 | Name              | In   | Type                                                                             | Required | Description              |
 |-------------------|------|----------------------------------------------------------------------------------|----------|--------------------------|
 | `templateversion` | path | string(uuid)                                                                     | true     | Template version ID      |
-| `body`            | body | [codersdk.DynamicParametersRequest](schemas.md#codersdkdynamicparametersrequest) | true     | Initial parameter values |
+| `body`            | body | [nicloudsdk.DynamicParametersRequest](schemas.md#nicloudsdkdynamicparametersrequest) | true     | Initial parameter values |
 
 ### Example responses
 
@@ -2810,7 +2810,7 @@ curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/
 
 | Status | Meaning                                                 | Description | Schema                                                                             |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.DynamicParametersResponse](schemas.md#codersdkdynamicparametersresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.DynamicParametersResponse](schemas.md#nicloudsdkdynamicparametersresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2822,7 +2822,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/external-auth \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/external-auth`
@@ -2855,7 +2855,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/e
 
 | Status | Meaning                                                 | Description | Schema                                                                                          |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.TemplateVersionExternalAuth](schemas.md#codersdktemplateversionexternalauth) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.TemplateVersionExternalAuth](schemas.md#nicloudsdktemplateversionexternalauth) |
 
 <h3 id="get-external-auth-by-template-version-responseschema">Response Schema</h3>
 
@@ -2882,7 +2882,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/logs \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/logs`
@@ -2924,7 +2924,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/l
 
 | Status | Meaning                                                 | Description | Schema                                                                      |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.ProvisionerJobLog](schemas.md#codersdkprovisionerjoblog) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.ProvisionerJobLog](schemas.md#nicloudsdkprovisionerjoblog) |
 
 <h3 id="get-logs-by-template-version-responseschema">Response Schema</h3>
 
@@ -2935,8 +2935,8 @@ Status Code **200**
 | `[array item]` | array                                              | false    |              |             |
 | `» created_at` | string(date-time)                                  | false    |              |             |
 | `» id`         | integer                                            | false    |              |             |
-| `» log_level`  | [codersdk.LogLevel](schemas.md#codersdkloglevel)   | false    |              |             |
-| `» log_source` | [codersdk.LogSource](schemas.md#codersdklogsource) | false    |              |             |
+| `» log_level`  | [nicloudsdk.LogLevel](schemas.md#nicloudsdkloglevel)   | false    |              |             |
+| `» log_source` | [nicloudsdk.LogSource](schemas.md#nicloudsdklogsource) | false    |              |             |
 | `» output`     | string                                             | false    |              |             |
 | `» stage`      | string                                             | false    |              |             |
 
@@ -2956,7 +2956,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/parameters \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/parameters`
@@ -2983,7 +2983,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/presets \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/presets`
@@ -3021,7 +3021,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/p
 
 | Status | Meaning                                                 | Description | Schema                                                |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Preset](schemas.md#codersdkpreset) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Preset](schemas.md#nicloudsdkpreset) |
 
 <h3 id="get-template-version-presets-responseschema">Response Schema</h3>
 
@@ -3050,7 +3050,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/resources \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/resources`
@@ -3211,7 +3211,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/r
 
 | Status | Meaning                                                 | Description | Schema                                                                      |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.WorkspaceResource](schemas.md#codersdkworkspaceresource) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.WorkspaceResource](schemas.md#nicloudsdkworkspaceresource) |
 
 <h3 id="get-resources-by-template-version-responseschema">Response Schema</h3>
 
@@ -3227,16 +3227,16 @@ Status Code **200**
 | `»»» display_name`              | string                                                                                                 | false    |              | Display name is a friendly name for the app.                                                                                                                                                                                                   |
 | `»»» external`                  | boolean                                                                                                | false    |              | External specifies whether the URL should be opened externally on the client or not.                                                                                                                                                           |
 | `»»» group`                     | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
-| `»»» health`                    | [codersdk.WorkspaceAppHealth](schemas.md#codersdkworkspaceapphealth)                                   | false    |              |                                                                                                                                                                                                                                                |
-| `»»» healthcheck`               | [codersdk.Healthcheck](schemas.md#codersdkhealthcheck)                                                 | false    |              | Healthcheck specifies the configuration for checking app health.                                                                                                                                                                               |
+| `»»» health`                    | [nicloudsdk.WorkspaceAppHealth](schemas.md#nicloudsdkworkspaceapphealth)                                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» healthcheck`               | [nicloudsdk.Healthcheck](schemas.md#nicloudsdkhealthcheck)                                                 | false    |              | Healthcheck specifies the configuration for checking app health.                                                                                                                                                                               |
 | `»»»» interval`                 | integer                                                                                                | false    |              | Interval specifies the seconds between each health check.                                                                                                                                                                                      |
 | `»»»» threshold`                | integer                                                                                                | false    |              | Threshold specifies the number of consecutive failed health checks before returning "unhealthy".                                                                                                                                               |
 | `»»»» url`                      | string                                                                                                 | false    |              | URL specifies the endpoint to check for the app health.                                                                                                                                                                                        |
 | `»»» hidden`                    | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
 | `»»» icon`                      | string                                                                                                 | false    |              | Icon is a relative path or external URL that specifies an icon to be displayed in the dashboard.                                                                                                                                               |
 | `»»» id`                        | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
-| `»»» open_in`                   | [codersdk.WorkspaceAppOpenIn](schemas.md#codersdkworkspaceappopenin)                                   | false    |              |                                                                                                                                                                                                                                                |
-| `»»» sharing_level`             | [codersdk.WorkspaceAppSharingLevel](schemas.md#codersdkworkspaceappsharinglevel)                       | false    |              |                                                                                                                                                                                                                                                |
+| `»»» open_in`                   | [nicloudsdk.WorkspaceAppOpenIn](schemas.md#nicloudsdkworkspaceappopenin)                                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» sharing_level`             | [nicloudsdk.WorkspaceAppSharingLevel](schemas.md#nicloudsdkworkspaceappsharinglevel)                       | false    |              |                                                                                                                                                                                                                                                |
 | `»»» slug`                      | string                                                                                                 | false    |              | Slug is a unique identifier within the agent.                                                                                                                                                                                                  |
 | `»»» statuses`                  | array                                                                                                  | false    |              | Statuses is a list of statuses for the app.                                                                                                                                                                                                    |
 | `»»»» agent_id`                 | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
@@ -3246,7 +3246,7 @@ Status Code **200**
 | `»»»» id`                       | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» message`                  | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» needs_user_attention`     | boolean                                                                                                | false    |              | Deprecated: This field is unused and will be removed in a future version. NeedsUserAttention specifies whether the status needs user attention.                                                                                                |
-| `»»»» state`                    | [codersdk.WorkspaceAppStatusState](schemas.md#codersdkworkspaceappstatusstate)                         | false    |              |                                                                                                                                                                                                                                                |
+| `»»»» state`                    | [nicloudsdk.WorkspaceAppStatusState](schemas.md#nicloudsdkworkspaceappstatusstate)                         | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» uri`                      | string                                                                                                 | false    |              | Uri is the URI of the resource that the status is for. e.g. https://github.com/org/repo/pull/123 e.g. file:///path/to/file                                                                                                                     |
 | `»»»» workspace_id`             | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
 | `»»» subdomain`                 | boolean                                                                                                | false    |              | Subdomain denotes whether the app should be accessed via a path on the `coder server` or via a hostname-based dev URL. If this is set to true and there is no app wildcard configured on the server, the app will not be accessible in the UI. |
@@ -3263,17 +3263,17 @@ Status Code **200**
 | `»»» [any property]`            | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» expanded_directory`         | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» first_connected_at`         | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
-| `»» health`                     | [codersdk.WorkspaceAgentHealth](schemas.md#codersdkworkspaceagenthealth)                               | false    |              | Health reports the health of the agent.                                                                                                                                                                                                        |
+| `»» health`                     | [nicloudsdk.WorkspaceAgentHealth](schemas.md#nicloudsdkworkspaceagenthealth)                               | false    |              | Health reports the health of the agent.                                                                                                                                                                                                        |
 | `»»» healthy`                   | boolean                                                                                                | false    |              | Healthy is true if the agent is healthy.                                                                                                                                                                                                       |
 | `»»» reason`                    | string                                                                                                 | false    |              | Reason is a human-readable explanation of the agent's health. It is empty if Healthy is true.                                                                                                                                                  |
 | `»» id`                         | string(uuid)                                                                                           | false    |              |                                                                                                                                                                                                                                                |
 | `»» instance_id`                | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» last_connected_at`          | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
 | `»» latency`                    | object                                                                                                 | false    |              | Latency is mapped by region name (e.g. "New York City", "Seattle").                                                                                                                                                                            |
-| `»»» [any property]`            | [codersdk.DERPRegion](schemas.md#codersdkderpregion)                                                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» [any property]`            | [nicloudsdk.DERPRegion](schemas.md#nicloudsdkderpregion)                                                   | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» latency_ms`               | number                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»»»» preferred`                | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
-| `»» lifecycle_state`            | [codersdk.WorkspaceAgentLifecycle](schemas.md#codersdkworkspaceagentlifecycle)                         | false    |              |                                                                                                                                                                                                                                                |
+| `»» lifecycle_state`            | [nicloudsdk.WorkspaceAgentLifecycle](schemas.md#nicloudsdkworkspaceagentlifecycle)                         | false    |              |                                                                                                                                                                                                                                                |
 | `»» log_sources`                | array                                                                                                  | false    |              |                                                                                                                                                                                                                                                |
 | `»»» created_at`                | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
 | `»»» display_name`              | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
@@ -3300,11 +3300,11 @@ Status Code **200**
 | `»»» run_on_stop`               | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
 | `»»» script`                    | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»»» start_blocks_login`        | boolean                                                                                                | false    |              |                                                                                                                                                                                                                                                |
-| `»»» status`                    | [codersdk.WorkspaceAgentScriptStatus](schemas.md#codersdkworkspaceagentscriptstatus)                   | false    |              |                                                                                                                                                                                                                                                |
+| `»»» status`                    | [nicloudsdk.WorkspaceAgentScriptStatus](schemas.md#nicloudsdkworkspaceagentscriptstatus)                   | false    |              |                                                                                                                                                                                                                                                |
 | `»»» timeout`                   | integer                                                                                                | false    |              |                                                                                                                                                                                                                                                |
 | `»» started_at`                 | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
-| `»» startup_script_behavior`    | [codersdk.WorkspaceAgentStartupScriptBehavior](schemas.md#codersdkworkspaceagentstartupscriptbehavior) | false    |              | Startup script behavior is a legacy field that is deprecated in favor of the `coder_script` resource. It's only referenced by old clients. Deprecated: Remove in the future!                                                                   |
-| `»» status`                     | [codersdk.WorkspaceAgentStatus](schemas.md#codersdkworkspaceagentstatus)                               | false    |              |                                                                                                                                                                                                                                                |
+| `»» startup_script_behavior`    | [nicloudsdk.WorkspaceAgentStartupScriptBehavior](schemas.md#nicloudsdkworkspaceagentstartupscriptbehavior) | false    |              | Startup script behavior is a legacy field that is deprecated in favor of the `coder_script` resource. It's only referenced by old clients. Deprecated: Remove in the future!                                                                   |
+| `»» status`                     | [nicloudsdk.WorkspaceAgentStatus](schemas.md#nicloudsdkworkspaceagentstatus)                               | false    |              |                                                                                                                                                                                                                                                |
 | `»» subsystems`                 | array                                                                                                  | false    |              |                                                                                                                                                                                                                                                |
 | `»» troubleshooting_url`        | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `»» updated_at`                 | string(date-time)                                                                                      | false    |              |                                                                                                                                                                                                                                                |
@@ -3321,7 +3321,7 @@ Status Code **200**
 | `»» value`                      | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `» name`                        | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
 | `» type`                        | string                                                                                                 | false    |              |                                                                                                                                                                                                                                                |
-| `» workspace_transition`        | [codersdk.WorkspaceTransition](schemas.md#codersdkworkspacetransition)                                 | false    |              |                                                                                                                                                                                                                                                |
+| `» workspace_transition`        | [nicloudsdk.WorkspaceTransition](schemas.md#nicloudsdkworkspacetransition)                                 | false    |              |                                                                                                                                                                                                                                                |
 
 #### Enumerated Values
 
@@ -3346,7 +3346,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/rich-parameters \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/rich-parameters`
@@ -3396,7 +3396,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/r
 
 | Status | Meaning                                                 | Description | Schema                                                                                    |
 |--------|---------------------------------------------------------|-------------|-------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.TemplateVersionParameter](schemas.md#codersdktemplateversionparameter) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.TemplateVersionParameter](schemas.md#nicloudsdktemplateversionparameter) |
 
 <h3 id="get-rich-parameters-by-template-version-responseschema">Response Schema</h3>
 
@@ -3424,7 +3424,7 @@ Status Code **200**
 | `» validation_error`      | string                                                                           | false    |              |                                                                                                    |
 | `» validation_max`        | integer                                                                          | false    |              |                                                                                                    |
 | `» validation_min`        | integer                                                                          | false    |              |                                                                                                    |
-| `» validation_monotonic`  | [codersdk.ValidationMonotonicOrder](schemas.md#codersdkvalidationmonotonicorder) | false    |              |                                                                                                    |
+| `» validation_monotonic`  | [nicloudsdk.ValidationMonotonicOrder](schemas.md#nicloudsdkvalidationmonotonicorder) | false    |              |                                                                                                    |
 | `» validation_regex`      | string                                                                           | false    |              |                                                                                                    |
 
 #### Enumerated Values
@@ -3444,7 +3444,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/schema \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/schema`
@@ -3471,7 +3471,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/unarchive \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/templateversions/{templateversion}/unarchive`
@@ -3503,7 +3503,7 @@ curl -X POST http://coder-server:8080/api/v2/templateversions/{templateversion}/
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -3515,7 +3515,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/variables \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/templateversions/{templateversion}/variables`
@@ -3548,7 +3548,7 @@ curl -X GET http://coder-server:8080/api/v2/templateversions/{templateversion}/v
 
 | Status | Meaning                                                 | Description | Schema                                                                                  |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.TemplateVersionVariable](schemas.md#codersdktemplateversionvariable) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.TemplateVersionVariable](schemas.md#nicloudsdktemplateversionvariable) |
 
 <h3 id="get-template-variables-by-template-version-responseschema">Response Schema</h3>
 

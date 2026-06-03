@@ -11,7 +11,7 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/scaletest/llmmock"
+	"github.com/NeuralInverse/cloud/v2/scaletest/llmmock"
 	"github.com/coder/serpent"
 )
 
@@ -75,42 +75,42 @@ func (*RootCmd) scaletestLLMMock() *serpent.Command {
 	cmd.Options = []serpent.Option{
 		{
 			Flag:        "address",
-			Env:         "CODER_SCALETEST_LLM_MOCK_ADDRESS",
+			Env:         "NEURALINVERSE_SCALETEST_LLM_MOCK_ADDRESS",
 			Default:     "localhost",
 			Description: "Address to bind the mock LLM API server. Can include a port (e.g., 'localhost:8080' or ':8080'). Uses a random port if no port is specified.",
 			Value:       serpent.StringOf(&address),
 		},
 		{
 			Flag:        "artificial-latency",
-			Env:         "CODER_SCALETEST_LLM_MOCK_ARTIFICIAL_LATENCY",
+			Env:         "NEURALINVERSE_SCALETEST_LLM_MOCK_ARTIFICIAL_LATENCY",
 			Default:     "0s",
 			Description: "Artificial latency to add to each response (e.g., 100ms, 1s). Simulates slow upstream processing.",
 			Value:       serpent.DurationOf(&artificialLatency),
 		},
 		{
 			Flag:        "response-payload-size",
-			Env:         "CODER_SCALETEST_LLM_MOCK_RESPONSE_PAYLOAD_SIZE",
+			Env:         "NEURALINVERSE_SCALETEST_LLM_MOCK_RESPONSE_PAYLOAD_SIZE",
 			Default:     "0",
 			Description: "Size in bytes of the response payload. If 0, uses default context-aware responses.",
 			Value:       serpent.Int64Of(&responsePayloadSize),
 		},
 		{
 			Flag:        "pprof-enable",
-			Env:         "CODER_SCALETEST_LLM_MOCK_PPROF_ENABLE",
+			Env:         "NEURALINVERSE_SCALETEST_LLM_MOCK_PPROF_ENABLE",
 			Default:     "false",
 			Description: "Serve pprof metrics on the address defined by pprof-address.",
 			Value:       serpent.BoolOf(&pprofEnable),
 		},
 		{
 			Flag:        "pprof-address",
-			Env:         "CODER_SCALETEST_LLM_MOCK_PPROF_ADDRESS",
+			Env:         "NEURALINVERSE_SCALETEST_LLM_MOCK_PPROF_ADDRESS",
 			Default:     "127.0.0.1:6060",
 			Description: "The bind address to serve pprof.",
 			Value:       serpent.StringOf(&pprofAddress),
 		},
 		{
 			Flag:        "trace-enable",
-			Env:         "CODER_SCALETEST_LLM_MOCK_TRACE_ENABLE",
+			Env:         "NEURALINVERSE_SCALETEST_LLM_MOCK_TRACE_ENABLE",
 			Default:     "false",
 			Description: "Whether application tracing data is collected. It exports to a backend configured by environment variables. See: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md.",
 			Value:       serpent.BoolOf(&traceEnable),

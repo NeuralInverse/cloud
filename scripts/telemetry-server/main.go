@@ -2,7 +2,7 @@
 // snapshots and prints them as a JSON stream to stdout. This is useful for
 // local development. Test with scripts/develop.sh by setting:
 //
-//	CODER_TELEMETRY_ENABLE=true CODER_TELEMETRY_URL=http://127.0.0.1:8081
+//	NEURALINVERSE_TELEMETRY_ENABLE=true NEURALINVERSE_TELEMETRY_URL=http://127.0.0.1:8081
 //
 // Usage:
 //

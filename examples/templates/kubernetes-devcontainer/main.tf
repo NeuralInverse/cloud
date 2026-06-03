@@ -21,8 +21,8 @@ provider "kubernetes" {
 provider "envbuilder" {}
 
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 variable "use_kubeconfig" {
   type        = bool
@@ -56,7 +56,7 @@ variable "insecure_cache_repo" {
   type        = bool
 }
 
-data "coder_parameter" "cpu" {
+data "ni_parameter" "cpu" {
   type         = "number"
   name         = "cpu"
   display_name = "CPU"
@@ -71,7 +71,7 @@ data "coder_parameter" "cpu" {
   order = 1
 }
 
-data "coder_parameter" "memory" {
+data "ni_parameter" "memory" {
   type         = "number"
   name         = "memory"
   display_name = "Memory"
@@ -86,7 +86,7 @@ data "coder_parameter" "memory" {
   order = 2
 }
 
-data "coder_parameter" "workspaces_volume_size" {
+data "ni_parameter" "workspaces_volume_size" {
   name         = "workspaces_volume_size"
   display_name = "Workspaces volume size"
   description  = "Size of the `/workspaces` volume (GiB)."
@@ -101,7 +101,7 @@ data "coder_parameter" "workspaces_volume_size" {
   order = 3
 }
 
-data "coder_parameter" "repo" {
+data "ni_parameter" "repo" {
   description  = "Select a repository to automatically clone and start working with a devcontainer."
   display_name = "Repository (auto)"
   mutable      = true
@@ -110,7 +110,7 @@ data "coder_parameter" "repo" {
   type         = "string"
 }
 
-data "coder_parameter" "fallback_image" {
+data "ni_parameter" "fallback_image" {
   default      = "codercom/enterprise-base:ubuntu"
   description  = "This image runs if the devcontainer fails to build."
   display_name = "Fallback Image"
@@ -119,7 +119,7 @@ data "coder_parameter" "fallback_image" {
   order        = 6
 }
 
-data "coder_parameter" "devcontainer_builder" {
+data "ni_parameter" "devcontainer_builder" {
   description  = <<-EOF
 Image that will build the devcontainer.
 We highly recommend using a specific release as the `:latest` tag will change.
@@ -148,22 +148,22 @@ data "kubernetes_secret_v1" "cache_repo_dockerconfig_secret" {
 }
 
 locals {
-  deployment_name            = "coder-${lower(data.coder_workspace.me.id)}"
-  devcontainer_builder_image = data.coder_parameter.devcontainer_builder.value
-  git_author_name            = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-  git_author_email           = data.coder_workspace_owner.me.email
-  repo_url                   = data.coder_parameter.repo.value
+  deployment_name            = "coder-${lower(data.ni_workspace.me.id)}"
+  devcontainer_builder_image = data.ni_parameter.devcontainer_builder.value
+  git_author_name            = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+  git_author_email           = data.ni_workspace_owner.me.email
+  repo_url                   = data.ni_parameter.repo.value
   # The envbuilder provider requires a key-value map of environment variables.
   envbuilder_env = {
-    "CODER_AGENT_TOKEN" : coder_agent.main.token,
+    "CODER_AGENT_TOKEN" : ni_agent.main.token,
     # Use the docker gateway if the access URL is 127.0.0.1
-    "CODER_AGENT_URL" : replace(data.coder_workspace.me.access_url, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
+    "CODER_AGENT_URL" : replace(data.ni_workspace.me.access_url, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
     # ENVBUILDER_GIT_URL and ENVBUILDER_CACHE_REPO will be overridden by the provider
     # if the cache repo is enabled.
     "ENVBUILDER_GIT_URL" : var.cache_repo == "" ? local.repo_url : "",
     # Use the docker gateway if the access URL is 127.0.0.1
-    "ENVBUILDER_INIT_SCRIPT" : replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
-    "ENVBUILDER_FALLBACK_IMAGE" : data.coder_parameter.fallback_image.value,
+    "ENVBUILDER_INIT_SCRIPT" : replace(ni_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
+    "ENVBUILDER_FALLBACK_IMAGE" : data.ni_parameter.fallback_image.value,
     "ENVBUILDER_DOCKER_CONFIG_BASE64" : base64encode(try(data.kubernetes_secret_v1.cache_repo_dockerconfig_secret[0].data[".dockerconfigjson"], "")),
     "ENVBUILDER_PUSH_IMAGE" : var.cache_repo == "" ? "" : "true"
     # You may need to adjust this if you get an error regarding deleting files when building the workspace.
@@ -176,7 +176,7 @@ locals {
 # Check for the presence of a prebuilt image in the cache repo
 # that we can use instead.
 resource "envbuilder_cached_image" "cached" {
-  count         = var.cache_repo == "" ? 0 : data.coder_workspace.me.start_count
+  count         = var.cache_repo == "" ? 0 : data.ni_workspace.me.start_count
   builder_image = local.devcontainer_builder_image
   git_url       = local.repo_url
   cache_repo    = var.cache_repo
@@ -186,21 +186,21 @@ resource "envbuilder_cached_image" "cached" {
 
 resource "kubernetes_persistent_volume_claim_v1" "workspaces" {
   metadata {
-    name      = "coder-${lower(data.coder_workspace.me.id)}-workspaces"
+    name      = "coder-${lower(data.ni_workspace.me.id)}-workspaces"
     namespace = var.namespace
     labels = {
-      "app.kubernetes.io/name"     = "coder-${lower(data.coder_workspace.me.id)}-workspaces"
-      "app.kubernetes.io/instance" = "coder-${lower(data.coder_workspace.me.id)}-workspaces"
+      "app.kubernetes.io/name"     = "coder-${lower(data.ni_workspace.me.id)}-workspaces"
+      "app.kubernetes.io/instance" = "coder-${lower(data.ni_workspace.me.id)}-workspaces"
       "app.kubernetes.io/part-of"  = "coder"
       //Coder-specific labels.
       "com.coder.resource"       = "true"
-      "com.coder.workspace.id"   = data.coder_workspace.me.id
-      "com.coder.workspace.name" = data.coder_workspace.me.name
-      "com.coder.user.id"        = data.coder_workspace_owner.me.id
-      "com.coder.user.username"  = data.coder_workspace_owner.me.name
+      "com.coder.workspace.id"   = data.ni_workspace.me.id
+      "com.coder.workspace.name" = data.ni_workspace.me.name
+      "com.coder.user.id"        = data.ni_workspace_owner.me.id
+      "com.coder.user.username"  = data.ni_workspace_owner.me.name
     }
     annotations = {
-      "com.coder.user.email" = data.coder_workspace_owner.me.email
+      "com.coder.user.email" = data.ni_workspace_owner.me.email
     }
   }
   wait_until_bound = false
@@ -208,7 +208,7 @@ resource "kubernetes_persistent_volume_claim_v1" "workspaces" {
     access_modes = ["ReadWriteOnce"]
     resources {
       requests = {
-        storage = "${data.coder_parameter.workspaces_volume_size.value}Gi"
+        storage = "${data.ni_parameter.workspaces_volume_size.value}Gi"
       }
     }
     # storage_class_name = "local-path" # Configure the StorageClass to use here, if required.
@@ -216,7 +216,7 @@ resource "kubernetes_persistent_volume_claim_v1" "workspaces" {
 }
 
 resource "kubernetes_deployment_v1" "main" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   depends_on = [
     kubernetes_persistent_volume_claim_v1.workspaces
   ]
@@ -229,13 +229,13 @@ resource "kubernetes_deployment_v1" "main" {
       "app.kubernetes.io/instance" = local.deployment_name
       "app.kubernetes.io/part-of"  = "coder"
       "com.coder.resource"         = "true"
-      "com.coder.workspace.id"     = data.coder_workspace.me.id
-      "com.coder.workspace.name"   = data.coder_workspace.me.name
-      "com.coder.user.id"          = data.coder_workspace_owner.me.id
-      "com.coder.user.username"    = data.coder_workspace_owner.me.name
+      "com.coder.workspace.id"     = data.ni_workspace.me.id
+      "com.coder.workspace.name"   = data.ni_workspace.me.name
+      "com.coder.user.id"          = data.ni_workspace_owner.me.id
+      "com.coder.user.username"    = data.ni_workspace_owner.me.name
     }
     annotations = {
-      "com.coder.user.email" = data.coder_workspace_owner.me.email
+      "com.coder.user.email" = data.ni_workspace_owner.me.email
     }
   }
 
@@ -283,8 +283,8 @@ resource "kubernetes_deployment_v1" "main" {
               "memory" = "512Mi"
             }
             limits = {
-              "cpu"    = "${data.coder_parameter.cpu.value}"
-              "memory" = "${data.coder_parameter.memory.value}Gi"
+              "cpu"    = "${data.ni_parameter.cpu.value}"
+              "memory" = "${data.ni_parameter.memory.value}Gi"
             }
           }
           volume_mount {
@@ -326,7 +326,7 @@ resource "kubernetes_deployment_v1" "main" {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   startup_script = <<-EOT
@@ -416,29 +416,29 @@ resource "coder_agent" "main" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 # See https://registry.coder.com/modules/coder/jetbrains
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
-  agent_id   = coder_agent.main.id
+  agent_id   = ni_agent.main.id
   agent_name = "main"
   folder     = "/home/coder"
 }
 
 resource "coder_metadata" "container_info" {
-  count       = data.coder_workspace.me.start_count
-  resource_id = coder_agent.main.id
+  count       = data.ni_workspace.me.start_count
+  resource_id = ni_agent.main.id
   item {
     key   = "workspace image"
     value = var.cache_repo == "" ? local.devcontainer_builder_image : envbuilder_cached_image.cached.0.image

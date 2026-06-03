@@ -12,10 +12,10 @@ import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/examples"
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/examples"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -66,7 +66,7 @@ func (*RootCmd) templateInit() *serpent.Command {
 						return xerrors.Errorf(
 							"Couldn't find a matching template!\n" +
 								"Tip: if you're trying to automate template creation, try\n" +
-								"coder templates init --id <template_id> instead!",
+								"neuralinverse templates init --id <template_id> instead!",
 						)
 					}
 					return err
@@ -113,7 +113,7 @@ func (*RootCmd) templateInit() *serpent.Command {
 				inv.Stdout,
 				pretty.Sprint(
 					cliui.DefaultStyles.Code,
-					"cd "+relPath+" && coder templates push"),
+					"cd "+relPath+" && neuralinverse templates push"),
 			)
 			_, _ = fmt.Fprintln(inv.Stdout, pretty.Sprint(cliui.DefaultStyles.Wrap, "\nExamples provide a starting point and are expected to be edited! 🎨"))
 			return nil
@@ -131,11 +131,11 @@ func (*RootCmd) templateInit() *serpent.Command {
 	return cmd
 }
 
-func templateByID(templateID string, tes []codersdk.TemplateExample) (codersdk.TemplateExample, bool) {
+func templateByID(templateID string, tes []nicloudsdk.TemplateExample) (nicloudsdk.TemplateExample, bool) {
 	for _, te := range tes {
 		if te.ID == templateID {
 			return te, true
 		}
 	}
-	return codersdk.TemplateExample{}, false
+	return nicloudsdk.TemplateExample{}, false
 }

@@ -46,7 +46,7 @@ machine:
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string-array</code>            |
-| Environment | <code>$CODER_PORT_FORWARD_TCP</code> |
+| Environment | <code>$NEURALINVERSE_PORT_FORWARD_TCP</code> |
 
 Forward TCP port(s) from the workspace to the local machine.
 
@@ -55,7 +55,7 @@ Forward TCP port(s) from the workspace to the local machine.
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string-array</code>            |
-| Environment | <code>$CODER_PORT_FORWARD_UDP</code> |
+| Environment | <code>$NEURALINVERSE_PORT_FORWARD_UDP</code> |
 
 Forward UDP port(s) from the workspace to the local machine. The UDP connection has TCP-like semantics to support stateful UDP protocols.
 
@@ -64,7 +64,7 @@ Forward UDP port(s) from the workspace to the local machine. The UDP connection 
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>bool</code>                         |
-| Environment | <code>$CODER_SSH_DISABLE_AUTOSTART</code> |
+| Environment | <code>$NEURALINVERSE_SSH_DISABLE_AUTOSTART</code> |
 | Default     | <code>false</code>                        |
 
 Disable starting the workspace automatically when connecting via SSH.

@@ -10,21 +10,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/notifications/notificationstest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications/notificationstest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
-func createOpts(t *testing.T) *coderdtest.Options {
+func createOpts(t *testing.T) *nicloudtest.Options {
 	t.Helper()
 
-	dt := coderdtest.DeploymentValues(t)
-	return &coderdtest.Options{
+	dt := nicloudtest.DeploymentValues(t)
+	return &nicloudtest.Options{
 		DeploymentValues: dt,
 	}
 }
@@ -54,8 +54,8 @@ func TestNotifications(t *testing.T) {
 			t.Parallel()
 
 			// given
-			ownerClient, db := coderdtest.NewWithDatabase(t, createOpts(t))
-			_ = coderdtest.CreateFirstUser(t, ownerClient)
+			ownerClient, db := nicloudtest.NewWithDatabase(t, createOpts(t))
+			_ = nicloudtest.CreateFirstUser(t, ownerClient)
 
 			// when
 			inv, root := clitest.New(t, "notifications", tt.command)
@@ -72,7 +72,7 @@ func TestNotifications(t *testing.T) {
 			settingsJSON, err := db.GetNotificationsSettings(ctx)
 			require.NoError(t, err)
 
-			var settings codersdk.NotificationsSettings
+			var settings nicloudsdk.NotificationsSettings
 			err = json.Unmarshal([]byte(settingsJSON), &settings)
 			require.NoError(t, err)
 			require.Equal(t, tt.expectPaused, settings.NotifierPaused)
@@ -84,9 +84,9 @@ func TestPauseNotifications_RegularUser(t *testing.T) {
 	t.Parallel()
 
 	// given
-	ownerClient, db := coderdtest.NewWithDatabase(t, createOpts(t))
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient, db := nicloudtest.NewWithDatabase(t, createOpts(t))
+	owner := nicloudtest.CreateFirstUser(t, ownerClient)
+	anotherClient, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	// when
 	inv, root := clitest.New(t, "notifications", "pause")
@@ -95,9 +95,9 @@ func TestPauseNotifications_RegularUser(t *testing.T) {
 	var buf bytes.Buffer
 	inv.Stdout = &buf
 	err := inv.Run()
-	var sdkError *codersdk.Error
+	var sdkError *nicloudsdk.Error
 	require.Error(t, err)
-	require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+	require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 	assert.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 	assert.Contains(t, sdkError.Message, "Forbidden.")
 
@@ -107,7 +107,7 @@ func TestPauseNotifications_RegularUser(t *testing.T) {
 	settingsJSON, err := db.GetNotificationsSettings(ctx)
 	require.NoError(t, err)
 
-	var settings codersdk.NotificationsSettings
+	var settings nicloudsdk.NotificationsSettings
 	err = json.Unmarshal([]byte(settingsJSON), &settings)
 	require.NoError(t, err)
 	require.False(t, settings.NotifierPaused) // still running
@@ -122,11 +122,11 @@ func TestNotificationsTest(t *testing.T) {
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
 		// Given: An owner user.
-		ownerClient := coderdtest.New(t, &coderdtest.Options{
-			DeploymentValues:      coderdtest.DeploymentValues(t),
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{
+			DeploymentValues:      nicloudtest.DeploymentValues(t),
 			NotificationsEnqueuer: notifyEnq,
 		})
-		_ = coderdtest.CreateFirstUser(t, ownerClient)
+		_ = nicloudtest.CreateFirstUser(t, ownerClient)
 
 		// When: The owner user attempts to send the test notification.
 		inv, root := clitest.New(t, "notifications", "test")
@@ -146,12 +146,12 @@ func TestNotificationsTest(t *testing.T) {
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
 		// Given: A member user.
-		ownerClient := coderdtest.New(t, &coderdtest.Options{
-			DeploymentValues:      coderdtest.DeploymentValues(t),
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{
+			DeploymentValues:      nicloudtest.DeploymentValues(t),
 			NotificationsEnqueuer: notifyEnq,
 		})
-		ownerUser := coderdtest.CreateFirstUser(t, ownerClient)
-		memberClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, ownerUser.OrganizationID)
+		ownerUser := nicloudtest.CreateFirstUser(t, ownerClient)
+		memberClient, _ := nicloudtest.CreateAnotherUser(t, ownerClient, ownerUser.OrganizationID)
 
 		// When: The member user attempts to send the test notification.
 		inv, root := clitest.New(t, "notifications", "test")
@@ -159,9 +159,9 @@ func TestNotificationsTest(t *testing.T) {
 
 		// Then: we expect an error and no notifications to be sent.
 		err := inv.Run()
-		var sdkError *codersdk.Error
+		var sdkError *nicloudsdk.Error
 		require.Error(t, err)
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 		assert.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 
 		sent := notifyEnq.Sent(notificationstest.WithTemplateID(notifications.TemplateTestNotification))
@@ -177,14 +177,14 @@ func TestCustomNotifications(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		ownerClient := coderdtest.New(t, &coderdtest.Options{
-			DeploymentValues:      coderdtest.DeploymentValues(t),
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{
+			DeploymentValues:      nicloudtest.DeploymentValues(t),
 			NotificationsEnqueuer: notifyEnq,
 		})
 
 		// Given: A member user
-		ownerUser := coderdtest.CreateFirstUser(t, ownerClient)
-		memberClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, ownerUser.OrganizationID)
+		ownerUser := nicloudtest.CreateFirstUser(t, ownerClient)
+		memberClient, _ := nicloudtest.CreateAnotherUser(t, ownerClient, ownerUser.OrganizationID)
 
 		// When: The member user attempts to send a custom notification with empty title and message
 		inv, root := clitest.New(t, "notifications", "custom", "", "")
@@ -192,9 +192,9 @@ func TestCustomNotifications(t *testing.T) {
 
 		// Then: an error is expected with no notifications sent
 		err := inv.Run()
-		var sdkError *codersdk.Error
+		var sdkError *nicloudsdk.Error
 		require.Error(t, err)
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 		require.Equal(t, http.StatusBadRequest, sdkError.StatusCode())
 		require.Equal(t, "Invalid request body", sdkError.Message)
 
@@ -207,8 +207,8 @@ func TestCustomNotifications(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		ownerClient, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
-			DeploymentValues:      coderdtest.DeploymentValues(t),
+		ownerClient, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{
+			DeploymentValues:      nicloudtest.DeploymentValues(t),
 			NotificationsEnqueuer: notifyEnq,
 		})
 
@@ -217,7 +217,7 @@ func TestCustomNotifications(t *testing.T) {
 			UserID:    database.PrebuildsSystemUserID,
 			LoginType: database.LoginTypeNone,
 		})
-		systemUserClient := codersdk.New(ownerClient.URL)
+		systemUserClient := nicloudsdk.New(ownerClient.URL)
 		systemUserClient.SetSessionToken(token)
 
 		// When: The system user attempts to send a custom notification
@@ -226,9 +226,9 @@ func TestCustomNotifications(t *testing.T) {
 
 		// Then: an error is expected with no notifications sent
 		err := inv.Run()
-		var sdkError *codersdk.Error
+		var sdkError *nicloudsdk.Error
 		require.Error(t, err)
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 		require.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 		require.Equal(t, "Forbidden", sdkError.Message)
 
@@ -241,14 +241,14 @@ func TestCustomNotifications(t *testing.T) {
 
 		notifyEnq := &notificationstest.FakeEnqueuer{}
 
-		ownerClient := coderdtest.New(t, &coderdtest.Options{
-			DeploymentValues:      coderdtest.DeploymentValues(t),
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{
+			DeploymentValues:      nicloudtest.DeploymentValues(t),
 			NotificationsEnqueuer: notifyEnq,
 		})
 
 		// Given: A member user
-		ownerUser := coderdtest.CreateFirstUser(t, ownerClient)
-		memberClient, memberUser := coderdtest.CreateAnotherUser(t, ownerClient, ownerUser.OrganizationID)
+		ownerUser := nicloudtest.CreateFirstUser(t, ownerClient)
+		memberClient, memberUser := nicloudtest.CreateAnotherUser(t, ownerClient, ownerUser.OrganizationID)
 
 		// When: The member user attempts to send a custom notification
 		inv, root := clitest.New(t, "notifications", "custom", "Custom Title", "Custom Message")

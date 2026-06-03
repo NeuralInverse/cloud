@@ -2,16 +2,16 @@
 
 Templates are written in
 [Terraform](https://developer.hashicorp.com/terraform/intro) and define the
-underlying infrastructure that all Coder workspaces run on.
+underlying infrastructure that all Neural Inverse Cloud workspaces run on.
 
 ![Starter templates](../../images/admin/templates/starter-templates.png)
 
-<small>The "Starter Templates" page within the Coder dashboard.</small>
+<small>The "Starter Templates" page within the Neural Inverse Cloud dashboard.</small>
 
 ## Learn the concepts
 
 While templates are written in standard Terraform, it's important to learn the
-Coder-specific concepts behind templates. The best way to learn the concepts is
+Neural Inverse Cloud-specific concepts behind templates. The best way to learn the concepts is
 by
 [creating a basic template from scratch](../../tutorials/template-from-scratch.md).
 If you are unfamiliar with Terraform, see
@@ -43,11 +43,11 @@ Learn more about the various ways you can
 ## Best Practices
 
 We recommend starting with a universal template that can be used for basic
-tasks. As your Coder deployment grows, you can create more templates to meet the
+tasks. As your Neural Inverse Cloud deployment grows, you can create more templates to meet the
 needs of different teams.
 
 - [Image management](./managing-templates/image-management.md): Learn how to
-  create and publish images for use within Coder workspaces & templates.
+  create and publish images for use within Neural Inverse Cloud workspaces & templates.
 - [Dev Containers integration](../integrations/devcontainers/integration.md): Enable
   native dev containers support using `@devcontainers/cli` and Docker.
 - [Envbuilder](../integrations/devcontainers/envbuilder/index.md): Alternative approach
@@ -60,6 +60,6 @@ needs of different teams.
   changes are reviewed and tested.
 - [Permissions and Policies](./template-permissions.md): Control who may access
   and modify your template.
-- [External Workspaces](./managing-templates/external-workspaces.md): Learn how to connect your existing infrastructure to Coder workspaces.
+- [External Workspaces](./managing-templates/external-workspaces.md): Learn how to connect your existing infrastructure to Neural Inverse Cloud workspaces.
 
 <children></children>

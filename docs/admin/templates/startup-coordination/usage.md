@@ -3,7 +3,7 @@
 > [!NOTE]
 > This feature is experimental and may change without notice in future releases.
 
-Startup coordination is built around the concept of **units**. You declare units in your Coder workspace template using the `coder exp sync` command in `coder_script` resources. When the Coder agent starts, it keeps an in-memory directed acyclic graph (DAG) of all units of which it is aware. When you need to synchronize with another unit, you can use `coder exp sync start $UNIT_NAME` to block until all dependencies of that unit have been marked complete.
+Startup coordination is built around the concept of **units**. You declare units in your Neural Inverse Cloud workspace template using the `coder exp sync` command in `coder_script` resources. When the Neural Inverse Cloud agent starts, it keeps an in-memory directed acyclic graph (DAG) of all units of which it is aware. When you need to synchronize with another unit, you can use `coder exp sync start $UNIT_NAME` to block until all dependencies of that unit have been marked complete.
 
 ## What is a unit?
 
@@ -18,7 +18,7 @@ task.
 ## Requirements
 
 > [!IMPORTANT]
-> The `coder exp sync` command is only available from Coder version >=v2.30 onwards.
+> The `coder exp sync` command is only available from Neural Inverse Cloud version >=v2.30 onwards.
 
 To use startup dependencies in your templates, you must:
 
@@ -102,14 +102,14 @@ Once you're satisfied, [promote the new template version](../../../reference/cli
 
 ### Handle missing CLI gracefully
 
-Not all workspaces will have the Coder CLI available in `$PATH`. Check for availability of the Coder CLI before using
+Not all workspaces will have the Neural Inverse Cloud CLI available in `$PATH`. Check for availability of the Neural Inverse Cloud CLI before using
 sync commands:
 
 ```bash
 if command -v coder > /dev/null 2>&1; then
   coder exp sync start "$UNIT_NAME"
 else
-  echo "Coder CLI not available, continuing without coordination"
+  echo "Neural Inverse Cloud CLI not available, continuing without coordination"
 fi
 ```
 
@@ -166,7 +166,7 @@ resource "coder_script" "ide_setup" {
 
 ### Avoid circular dependencies
 
-The Coder Agent detects and rejects circular dependencies, but they indicate a design problem:
+The Neural Inverse Cloud Agent detects and rejects circular dependencies, but they indicate a design problem:
 
 ```bash
 # This will fail

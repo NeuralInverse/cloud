@@ -8,9 +8,9 @@ For other security tips, visit our guide to
 ## Security Advisories
 
 > [!CAUTION]
-> If you discover a vulnerability in Coder, please do not hesitate to report it
-> to us by following the [security policy](https://github.com/coder/coder/blob/main/SECURITY.md).
+> If you discover a vulnerability in Neural Inverse Cloud, please do not hesitate to report it
+> to us by following the [security policy](https://github.com/NeuralInverse/cloud/blob/main/SECURITY.md).
 
 Security advisories are published on the
-[GitHub Security Advisories](https://github.com/coder/coder/security/advisories)
+[GitHub Security Advisories](https://github.com/NeuralInverse/cloud/security/advisories)
 page.

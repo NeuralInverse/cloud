@@ -8,8 +8,8 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 type mockLogger struct {
@@ -63,13 +63,13 @@ func TestOnlyDataResources(t *testing.T) {
 			name: "only data resources",
 			stateMod: &tfjson.StateModule{
 				Resources: []*tfjson.StateResource{
-					{Name: "cat", Type: "coder_parameter", Mode: "data", Address: "cat-address"},
+					{Name: "cat", Type: "ni_parameter", Mode: "data", Address: "cat-address"},
 					{Name: "cow", Type: "foobaz", Mode: "data", Address: "cow-address"},
 				},
 				ChildModules: []*tfjson.StateModule{
 					{
 						Resources: []*tfjson.StateResource{
-							{Name: "child-cat", Type: "coder_parameter", Mode: "data", Address: "child-cat-address"},
+							{Name: "child-cat", Type: "ni_parameter", Mode: "data", Address: "child-cat-address"},
 							{Name: "child-dog", Type: "foobar", Mode: "data", Address: "child-dog-address"},
 						},
 						Address: "child-module-1",
@@ -79,13 +79,13 @@ func TestOnlyDataResources(t *testing.T) {
 			},
 			expected: &tfjson.StateModule{
 				Resources: []*tfjson.StateResource{
-					{Name: "cat", Type: "coder_parameter", Mode: "data", Address: "cat-address"},
+					{Name: "cat", Type: "ni_parameter", Mode: "data", Address: "cat-address"},
 					{Name: "cow", Type: "foobaz", Mode: "data", Address: "cow-address"},
 				},
 				ChildModules: []*tfjson.StateModule{
 					{
 						Resources: []*tfjson.StateResource{
-							{Name: "child-cat", Type: "coder_parameter", Mode: "data", Address: "child-cat-address"},
+							{Name: "child-cat", Type: "ni_parameter", Mode: "data", Address: "child-cat-address"},
 							{Name: "child-dog", Type: "foobar", Mode: "data", Address: "child-dog-address"},
 						},
 						Address: "child-module-1",
@@ -98,13 +98,13 @@ func TestOnlyDataResources(t *testing.T) {
 			name: "only non-data resources",
 			stateMod: &tfjson.StateModule{
 				Resources: []*tfjson.StateResource{
-					{Name: "cat", Type: "coder_parameter", Mode: "foobar", Address: "cat-address"},
+					{Name: "cat", Type: "ni_parameter", Mode: "foobar", Address: "cat-address"},
 					{Name: "cow", Type: "foobaz", Mode: "foo", Address: "cow-address"},
 				},
 				ChildModules: []*tfjson.StateModule{
 					{
 						Resources: []*tfjson.StateResource{
-							{Name: "child-cat", Type: "coder_parameter", Mode: "foobar", Address: "child-cat-address"},
+							{Name: "child-cat", Type: "ni_parameter", Mode: "foobar", Address: "child-cat-address"},
 							{Name: "child-dog", Type: "foobar", Mode: "foobaz", Address: "child-dog-address"},
 						},
 						Address: "child-module-1",
@@ -123,14 +123,14 @@ func TestOnlyDataResources(t *testing.T) {
 			name: "mixed resources",
 			stateMod: &tfjson.StateModule{
 				Resources: []*tfjson.StateResource{
-					{Name: "cat", Type: "coder_parameter", Mode: "data", Address: "cat-address"},
+					{Name: "cat", Type: "ni_parameter", Mode: "data", Address: "cat-address"},
 					{Name: "dog", Type: "foobar", Mode: "magic", Address: "dog-address"},
 					{Name: "cow", Type: "foobaz", Mode: "data", Address: "cow-address"},
 				},
 				ChildModules: []*tfjson.StateModule{
 					{
 						Resources: []*tfjson.StateResource{
-							{Name: "child-cat", Type: "coder_parameter", Mode: "data", Address: "child-cat-address"},
+							{Name: "child-cat", Type: "ni_parameter", Mode: "data", Address: "child-cat-address"},
 							{Name: "child-dog", Type: "foobar", Mode: "data", Address: "child-dog-address"},
 							{Name: "child-cow", Type: "foobaz", Mode: "magic", Address: "child-cow-address"},
 						},
@@ -141,13 +141,13 @@ func TestOnlyDataResources(t *testing.T) {
 			},
 			expected: &tfjson.StateModule{
 				Resources: []*tfjson.StateResource{
-					{Name: "cat", Type: "coder_parameter", Mode: "data", Address: "cat-address"},
+					{Name: "cat", Type: "ni_parameter", Mode: "data", Address: "cat-address"},
 					{Name: "cow", Type: "foobaz", Mode: "data", Address: "cow-address"},
 				},
 				ChildModules: []*tfjson.StateModule{
 					{
 						Resources: []*tfjson.StateResource{
-							{Name: "child-cat", Type: "coder_parameter", Mode: "data", Address: "child-cat-address"},
+							{Name: "child-cat", Type: "ni_parameter", Mode: "data", Address: "child-cat-address"},
 							{Name: "child-dog", Type: "foobar", Mode: "data", Address: "child-dog-address"},
 						},
 						Address: "child-module-1",

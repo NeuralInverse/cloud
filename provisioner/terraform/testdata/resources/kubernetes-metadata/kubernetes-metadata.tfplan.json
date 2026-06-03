@@ -141,7 +141,7 @@
                     "args": null,
                     "env": [
                       {
-                        "name": "CODER_AGENT_TOKEN",
+                        "name": "NEURALINVERSE_AGENT_TOKEN",
                         "value_from": []
                       }
                     ],
@@ -627,7 +627,7 @@
                   "args": null,
                   "env": [
                     {
-                      "name": "CODER_AGENT_TOKEN",
+                      "name": "NEURALINVERSE_AGENT_TOKEN",
                       "value_from": []
                     }
                   ],
@@ -1857,7 +1857,7 @@
                     "env": [
                       {
                         "name": {
-                          "constant_value": "CODER_AGENT_TOKEN"
+                          "constant_value": "NEURALINVERSE_AGENT_TOKEN"
                         },
                         "value": {
                           "references": [

@@ -1,17 +1,17 @@
 # Contributing modules
 
-Learn how to create and contribute Terraform modules to the Coder Registry. Modules provide reusable components that extend Coder workspaces with IDEs, development tools, login tools, and other features.
+Learn how to create and contribute Terraform modules to the Neural Inverse Cloud Registry. Modules provide reusable components that extend Neural Inverse Cloud workspaces with IDEs, development tools, login tools, and other features.
 
-## What are Coder modules
+## What are Neural Inverse Cloud modules
 
-Coder modules are Terraform modules that integrate with Coder workspaces to provide specific functionality. They are published to the Coder Registry at [registry.coder.com](https://registry.coder.com) and can be consumed in any Coder template using standard Terraform module syntax.
+Neural Inverse Cloud modules are Terraform modules that integrate with Neural Inverse Cloud workspaces to provide specific functionality. They are published to the Neural Inverse Cloud Registry at [registry.cloud.neuralinverse.com](https://registry.cloud.neuralinverse.com) and can be consumed in any Neural Inverse Cloud template using standard Terraform module syntax.
 
 Examples of modules include:
 
-- **Desktop IDEs**: [`jetbrains-fleet`](https://registry.coder.com/modules/coder/jetbrains-fleet), [`cursor`](https://registry.coder.com/modules/coder/cursor), [`windsurf`](https://registry.coder.com/modules/coder/windsurf), [`zed`](https://registry.coder.com/modules/coder/zed)
-- **Web IDEs**: [`code-server`](https://registry.coder.com/modules/coder/code-server), [`vscode-web`](https://registry.coder.com/modules/coder/vscode-web), [`jupyter-notebook`](https://registry.coder.com/modules/coder/jupyter-notebook), [`jupyter-lab`](https://registry.coder.com/modules/coder/jupyterlab)
-- **Integrations**: [`devcontainers-cli`](https://registry.coder.com/modules/coder/devcontainers-cli), [`vault-github`](https://registry.coder.com/modules/coder/vault-github), [`jfrog-oauth`](https://registry.coder.com/modules/coder/jfrog-oauth), [`jfrog-token`](https://registry.coder.com/modules/coder/jfrog-token)
-- **Workspace utilities**: [`git-clone`](https://registry.coder.com/modules/coder/git-clone), [`dotfiles`](https://registry.coder.com/modules/coder/dotfiles), [`filebrowser`](https://registry.coder.com/modules/coder/filebrowser), [`coder-login`](https://registry.coder.com/modules/coder/coder-login), [`personalize`](https://registry.coder.com/modules/coder/personalize)
+- **Desktop IDEs**: [`jetbrains-fleet`](https://registry.cloud.neuralinverse.com/modules/coder/jetbrains-fleet), [`cursor`](https://registry.cloud.neuralinverse.com/modules/coder/cursor), [`windsurf`](https://registry.cloud.neuralinverse.com/modules/coder/windsurf), [`zed`](https://registry.cloud.neuralinverse.com/modules/coder/zed)
+- **Web IDEs**: [`code-server`](https://registry.cloud.neuralinverse.com/modules/coder/code-server), [`vscode-web`](https://registry.cloud.neuralinverse.com/modules/coder/vscode-web), [`jupyter-notebook`](https://registry.cloud.neuralinverse.com/modules/coder/jupyter-notebook), [`jupyter-lab`](https://registry.cloud.neuralinverse.com/modules/coder/jupyterlab)
+- **Integrations**: [`devcontainers-cli`](https://registry.cloud.neuralinverse.com/modules/coder/devcontainers-cli), [`vault-github`](https://registry.cloud.neuralinverse.com/modules/coder/vault-github), [`jfrog-oauth`](https://registry.cloud.neuralinverse.com/modules/coder/jfrog-oauth), [`jfrog-token`](https://registry.cloud.neuralinverse.com/modules/coder/jfrog-token)
+- **Workspace utilities**: [`git-clone`](https://registry.cloud.neuralinverse.com/modules/coder/git-clone), [`dotfiles`](https://registry.cloud.neuralinverse.com/modules/coder/dotfiles), [`filebrowser`](https://registry.cloud.neuralinverse.com/modules/coder/filebrowser), [`coder-login`](https://registry.cloud.neuralinverse.com/modules/coder/coder-login), [`personalize`](https://registry.cloud.neuralinverse.com/modules/coder/personalize)
 
 ## Prerequisites
 
@@ -115,7 +115,7 @@ terraform {
 
 # Input variables
 variable "agent_id" {
-  description = "The ID of a Coder agent"
+  description = "The ID of a Neural Inverse Cloud agent"
   type        = string
 }
 
@@ -178,7 +178,7 @@ describe("git-clone", async () => {
     await runTerraformInit("registry/[your-username]/modules/git-clone")
     await runTerraformApply("registry/[your-username]/modules/git-clone", {
       agent_id: "test-agent-id",
-      url: "https://github.com/coder/coder.git",
+      url: "https://github.com/NeuralInverse/cloud.git",
       base_dir: "/tmp"
     })
   })
@@ -200,7 +200,7 @@ Update `README.md` with complete documentation:
 ```markdown
 ---
 display_name: "Git Clone"
-description: "Clone a Git repository into your Coder workspace"
+description: "Clone a Git repository into your Neural Inverse Cloud workspace"
 icon: "../../../../.icons/git.svg"
 verified: false
 tags: ["git", "development", "vcs"]
@@ -208,17 +208,17 @@ tags: ["git", "development", "vcs"]
 
 # Git Clone
 
-This module clones a Git repository into your Coder workspace and ensures Git is installed.
+This module clones a Git repository into your Neural Inverse Cloud workspace and ensures Git is installed.
 
 ## Usage
 
 ```tf
 module "git_clone" {
-  source   = "registry.coder.com/[your-username]/git-clone/coder"
+  source   = "registry.cloud.neuralinverse.com/[your-username]/git-clone/coder"
   version  = "~> 1.0"
   
-  agent_id = coder_agent.main.id
-  url      = "https://github.com/coder/coder.git"
+  agent_id = ni_agent.main.id
+  url      = "https://github.com/NeuralInverse/cloud.git"
   base_dir = "/home/coder/projects"
 }
 ```
@@ -369,10 +369,10 @@ Use the version bump script to update versions:
 
 ## Get help
 
-- **Examples**: Review existing modules like [`code-server`](https://registry.coder.com/modules/coder/code-server), [`git-clone`](https://registry.coder.com/modules/coder/git-clone), and [`jetbrains`](https://registry.coder.com/modules/coder/jetbrains)
+- **Examples**: Review existing modules like [`code-server`](https://registry.cloud.neuralinverse.com/modules/coder/code-server), [`git-clone`](https://registry.cloud.neuralinverse.com/modules/coder/git-clone), and [`jetbrains`](https://registry.cloud.neuralinverse.com/modules/coder/jetbrains)
 - **Issues**: Open an issue at [github.com/coder/registry](https://github.com/coder/registry/issues)
-- **Community**: Join the [Coder Discord](https://discord.gg/coder) for questions
-- **Documentation**: Check the [Coder docs](https://coder.com/docs) for help on Coder.
+- **Community**: Join the [Neural Inverse Cloud Discord](https://discord.gg/coder) for questions
+- **Documentation**: Check the [Neural Inverse Cloud docs](https://cloud.neuralinverse.com/docs) for help on Neural Inverse Cloud.
 
 ## Next steps
 

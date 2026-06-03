@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/guts"
 	"github.com/coder/guts/bindings"
 	"github.com/coder/guts/config"
@@ -24,9 +24,9 @@ func main() {
 	gen.PreserveComments()
 
 	generateDirectories := map[string]string{
-		"github.com/coder/coder/v2/codersdk":                  "",
-		"github.com/coder/coder/v2/coderd/healthcheck/health": "Health",
-		"github.com/coder/coder/v2/codersdk/healthsdk":        "",
+		"github.com/NeuralInverse/cloud/v2/nicloudsdk":                  "",
+		"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck/health": "Health",
+		"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk":        "",
 	}
 	for dir, prefix := range generateDirectories {
 		err = gen.IncludeGenerateWithPrefix(dir, prefix)
@@ -35,7 +35,7 @@ func main() {
 		}
 	}
 
-	// Serpent has some types referenced in the codersdk.
+	// Serpent has some types referenced in the nicloudsdk.
 	// We want the referenced types generated.
 	referencePackages := map[string]string{
 		"github.com/coder/preview/types": "Preview",
@@ -96,12 +96,12 @@ func TSMutations(ts *guts.Typescript) {
 	)
 }
 
-// TypeMappings is all the custom types for codersdk
+// TypeMappings is all the custom types for nicloudsdk
 func TypeMappings(gen *guts.GoParser) error {
 	gen.IncludeCustomDeclaration(config.StandardMappings())
 
 	gen.IncludeCustomDeclaration(map[string]guts.TypeOverride{
-		"github.com/coder/coder/v2/codersdk.NullTime": config.OverrideNullable(config.OverrideLiteral(bindings.KeywordString)),
+		"github.com/NeuralInverse/cloud/v2/nicloudsdk.NullTime": config.OverrideNullable(config.OverrideLiteral(bindings.KeywordString)),
 		// opt.Bool can return 'null' if unset
 		"tailscale.com/types/opt.Bool": config.OverrideNullable(config.OverrideLiteral(bindings.KeywordBoolean)),
 		// hcl diagnostics should be cast to `preview.FriendlyDiagnostic`
@@ -152,7 +152,7 @@ func TypeMappings(gen *guts.GoParser) error {
 // and includes only the fields relevant to that part type.
 //
 // Variant membership is declared via `variants` struct tags on
-// ChatMessagePart fields in codersdk/chats.go. This function
+// ChatMessagePart fields in nicloudsdk/chats.go. This function
 // reads those tags via reflect and builds the union from them.
 func DiscriminatedChatMessagePart(ts *guts.Typescript) {
 	node, ok := ts.Node("ChatMessagePart")
@@ -246,7 +246,7 @@ func DiscriminatedChatMessagePart(ts *guts.Typescript) {
 
 // chatPartVariant holds the parsed variant info for one part type.
 type chatPartVariant struct {
-	typeLiteral codersdk.ChatMessagePartType
+	typeLiteral nicloudsdk.ChatMessagePartType
 	required    []string // JSON field names
 	optional    []string // JSON field names
 }
@@ -255,13 +255,13 @@ type chatPartVariant struct {
 // and returns the per-type field sets using JSON tag names. Variants
 // are returned in AllChatMessagePartTypes order for stable codegen.
 func parseVariantTags() []chatPartVariant {
-	t := reflect.TypeFor[codersdk.ChatMessagePart]()
+	t := reflect.TypeFor[nicloudsdk.ChatMessagePart]()
 
 	type fieldSets struct {
 		required []string
 		optional []string
 	}
-	byType := make(map[codersdk.ChatMessagePartType]*fieldSets)
+	byType := make(map[nicloudsdk.ChatMessagePartType]*fieldSets)
 
 	for i := range t.NumField() {
 		f := t.Field(i)
@@ -272,7 +272,7 @@ func parseVariantTags() []chatPartVariant {
 		jsonName, _, _ := strings.Cut(f.Tag.Get("json"), ",")
 		for entry := range strings.SplitSeq(varTag, ",") {
 			isOptional := strings.HasSuffix(entry, "?")
-			typeLit := codersdk.ChatMessagePartType(strings.TrimSuffix(entry, "?"))
+			typeLit := nicloudsdk.ChatMessagePartType(strings.TrimSuffix(entry, "?"))
 			if byType[typeLit] == nil {
 				byType[typeLit] = &fieldSets{}
 			}
@@ -285,7 +285,7 @@ func parseVariantTags() []chatPartVariant {
 	}
 
 	result := make([]chatPartVariant, 0, len(byType))
-	for _, pt := range codersdk.AllChatMessagePartTypes() {
+	for _, pt := range nicloudsdk.AllChatMessagePartTypes() {
 		if fs, ok := byType[pt]; ok {
 			result = append(result, chatPartVariant{
 				typeLiteral: pt,
@@ -299,7 +299,7 @@ func parseVariantTags() []chatPartVariant {
 
 // chatMessagePartTSName derives a TypeScript interface name from
 // a ChatMessagePartType literal. "tool-call" → "ChatToolCallPart".
-func chatMessagePartTSName(t codersdk.ChatMessagePartType) string {
+func chatMessagePartTSName(t nicloudsdk.ChatMessagePartType) string {
 	words := strings.Split(string(t), "-")
 	for i, w := range words {
 		if len(w) > 0 {

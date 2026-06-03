@@ -7,9 +7,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -47,9 +47,9 @@ func (r *RootCmd) start() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			var build codersdk.WorkspaceBuild
+			var build nicloudsdk.WorkspaceBuild
 			switch workspace.LatestBuild.Status {
-			case codersdk.WorkspaceStatusPending:
+			case nicloudsdk.WorkspaceStatusPending:
 				// The above check is technically duplicated in cliutil.WarnmatchedProvisioners
 				// but we still want to avoid users spamming multiple builds that will
 				// not be picked up.
@@ -66,13 +66,13 @@ func (r *RootCmd) start() *serpent.Command {
 				}); err != nil {
 					return err
 				}
-			case codersdk.WorkspaceStatusRunning:
+			case nicloudsdk.WorkspaceStatusRunning:
 				_, _ = fmt.Fprintf(
 					inv.Stdout, "\nThe %s workspace is already running!\n",
 					cliui.Keyword(workspace.Name),
 				)
 				return nil
-			case codersdk.WorkspaceStatusStarting:
+			case nicloudsdk.WorkspaceStatusStarting:
 				_, _ = fmt.Fprintf(
 					inv.Stdout, "\nThe %s workspace is already starting.\n",
 					cliui.Keyword(workspace.Name),
@@ -82,11 +82,11 @@ func (r *RootCmd) start() *serpent.Command {
 				// If the last build was a failed start, run a stop
 				// first to clean up any partially-provisioned
 				// resources.
-				if workspace.LatestBuild.Status == codersdk.WorkspaceStatusFailed &&
-					workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+				if workspace.LatestBuild.Status == nicloudsdk.WorkspaceStatusFailed &&
+					workspace.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionStart {
 					_, _ = fmt.Fprintf(inv.Stdout, "The last start build failed. Cleaning up before retrying...\n")
-					stopBuild, stopErr := client.CreateWorkspaceBuild(inv.Context(), workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-						Transition: codersdk.WorkspaceTransitionStop,
+					stopBuild, stopErr := client.CreateWorkspaceBuild(inv.Context(), workspace.ID, nicloudsdk.CreateWorkspaceBuildRequest{
+						Transition: nicloudsdk.WorkspaceTransitionStop,
 					})
 					if stopErr != nil {
 						return xerrors.Errorf("cleanup stop after failed start: %w", stopErr)
@@ -105,7 +105,7 @@ func (r *RootCmd) start() *serpent.Command {
 				build, err = startWorkspace(inv, client, workspace, parameterFlags, bflags, WorkspaceStart)
 				// It's possible for a workspace build to fail due to the template requiring starting
 				// workspaces with the active version.
-				if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusForbidden {
+				if cerr, ok := nicloudsdk.AsError(err); ok && cerr.StatusCode() == http.StatusForbidden {
 					_, _ = fmt.Fprintln(inv.Stdout, "Unable to start the workspace with the template version from the last build. Policy may require you to restart with the current active template version.")
 					build, err = startWorkspace(inv, client, workspace, parameterFlags, bflags, WorkspaceUpdate)
 					if err != nil {
@@ -140,10 +140,10 @@ func (r *RootCmd) start() *serpent.Command {
 	return cmd
 }
 
-func buildWorkspaceStartRequest(inv *serpent.Invocation, client *codersdk.Client, workspace codersdk.Workspace, parameterFlags workspaceParameterFlags, buildFlags buildFlags, action WorkspaceCLIAction) (codersdk.CreateWorkspaceBuildRequest, error) {
+func buildWorkspaceStartRequest(inv *serpent.Invocation, client *nicloudsdk.Client, workspace nicloudsdk.Workspace, parameterFlags workspaceParameterFlags, buildFlags buildFlags, action WorkspaceCLIAction) (nicloudsdk.CreateWorkspaceBuildRequest, error) {
 	version := workspace.LatestBuild.TemplateVersionID
 
-	if workspace.AutomaticUpdates == codersdk.AutomaticUpdatesAlways || workspace.TemplateRequireActiveVersion || action == WorkspaceUpdate {
+	if workspace.AutomaticUpdates == nicloudsdk.AutomaticUpdatesAlways || workspace.TemplateRequireActiveVersion || action == WorkspaceUpdate {
 		version = workspace.TemplateActiveVersionID
 		if version != workspace.LatestBuild.TemplateVersionID {
 			action = WorkspaceUpdate
@@ -152,22 +152,22 @@ func buildWorkspaceStartRequest(inv *serpent.Invocation, client *codersdk.Client
 
 	lastBuildParameters, err := client.WorkspaceBuildParameters(inv.Context(), workspace.LatestBuild.ID)
 	if err != nil {
-		return codersdk.CreateWorkspaceBuildRequest{}, err
+		return nicloudsdk.CreateWorkspaceBuildRequest{}, err
 	}
 
 	ephemeralParameters, err := asWorkspaceBuildParameters(parameterFlags.ephemeralParameters)
 	if err != nil {
-		return codersdk.CreateWorkspaceBuildRequest{}, xerrors.Errorf("unable to parse build options: %w", err)
+		return nicloudsdk.CreateWorkspaceBuildRequest{}, xerrors.Errorf("unable to parse build options: %w", err)
 	}
 
 	cliRichParameters, err := asWorkspaceBuildParameters(parameterFlags.richParameters)
 	if err != nil {
-		return codersdk.CreateWorkspaceBuildRequest{}, xerrors.Errorf("unable to parse rich parameters: %w", err)
+		return nicloudsdk.CreateWorkspaceBuildRequest{}, xerrors.Errorf("unable to parse rich parameters: %w", err)
 	}
 
 	cliRichParameterDefaults, err := asWorkspaceBuildParameters(parameterFlags.richParameterDefaults)
 	if err != nil {
-		return codersdk.CreateWorkspaceBuildRequest{}, xerrors.Errorf("unable to parse rich parameter defaults: %w", err)
+		return nicloudsdk.CreateWorkspaceBuildRequest{}, xerrors.Errorf("unable to parse rich parameter defaults: %w", err)
 	}
 
 	buildParameters, err := prepWorkspaceBuild(inv, client, prepWorkspaceBuildArgs{
@@ -186,42 +186,42 @@ func buildWorkspaceStartRequest(inv *serpent.Invocation, client *codersdk.Client
 		UseParameterDefaults:      parameterFlags.useParameterDefaults,
 	})
 	if err != nil {
-		return codersdk.CreateWorkspaceBuildRequest{}, err
+		return nicloudsdk.CreateWorkspaceBuildRequest{}, err
 	}
 
-	wbr := codersdk.CreateWorkspaceBuildRequest{
-		Transition:          codersdk.WorkspaceTransitionStart,
+	wbr := nicloudsdk.CreateWorkspaceBuildRequest{
+		Transition:          nicloudsdk.WorkspaceTransitionStart,
 		RichParameterValues: buildParameters,
 		TemplateVersionID:   version,
 	}
 	if buildFlags.provisionerLogDebug {
-		wbr.LogLevel = codersdk.ProvisionerLogLevelDebug
+		wbr.LogLevel = nicloudsdk.ProvisionerLogLevelDebug
 	}
 	if buildFlags.reason != "" {
-		wbr.Reason = codersdk.CreateWorkspaceBuildReason(buildFlags.reason)
+		wbr.Reason = nicloudsdk.CreateWorkspaceBuildReason(buildFlags.reason)
 	}
 
 	return wbr, nil
 }
 
-func startWorkspace(inv *serpent.Invocation, client *codersdk.Client, workspace codersdk.Workspace, parameterFlags workspaceParameterFlags, buildFlags buildFlags, action WorkspaceCLIAction) (codersdk.WorkspaceBuild, error) {
+func startWorkspace(inv *serpent.Invocation, client *nicloudsdk.Client, workspace nicloudsdk.Workspace, parameterFlags workspaceParameterFlags, buildFlags buildFlags, action WorkspaceCLIAction) (nicloudsdk.WorkspaceBuild, error) {
 	if workspace.DormantAt != nil {
 		_, _ = fmt.Fprintln(inv.Stdout, "Activating dormant workspace...")
-		err := client.UpdateWorkspaceDormancy(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceDormancy{
+		err := client.UpdateWorkspaceDormancy(inv.Context(), workspace.ID, nicloudsdk.UpdateWorkspaceDormancy{
 			Dormant: false,
 		})
 		if err != nil {
-			return codersdk.WorkspaceBuild{}, xerrors.Errorf("activate workspace: %w", err)
+			return nicloudsdk.WorkspaceBuild{}, xerrors.Errorf("activate workspace: %w", err)
 		}
 	}
 	req, err := buildWorkspaceStartRequest(inv, client, workspace, parameterFlags, buildFlags, action)
 	if err != nil {
-		return codersdk.WorkspaceBuild{}, err
+		return nicloudsdk.WorkspaceBuild{}, err
 	}
 
 	build, err := client.CreateWorkspaceBuild(inv.Context(), workspace.ID, req)
 	if err != nil {
-		return codersdk.WorkspaceBuild{}, xerrors.Errorf("create workspace build: %w", err)
+		return nicloudsdk.WorkspaceBuild{}, xerrors.Errorf("create workspace build: %w", err)
 	}
 	cliutil.WarnMatchedProvisioners(inv.Stderr, build.MatchedProvisioners, build.Job)
 

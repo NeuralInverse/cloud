@@ -6,29 +6,29 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestTemplateVersionsArchive(t *testing.T) {
 	t.Parallel()
 	t.Run("Archive-Unarchive", func(t *testing.T) {
 		t.Parallel()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, ownerClient)
 
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		other := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *codersdk.CreateTemplateVersionRequest) {
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		other := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *nicloudsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, other.ID)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, other.ID)
 
 		// Archive
 		inv, root := clitest.New(t, "templates", "versions", "archive", template.Name, other.Name, "-y")
@@ -57,31 +57,31 @@ func TestTemplateVersionsArchive(t *testing.T) {
 
 	t.Run("ArchiveMany", func(t *testing.T) {
 		t.Parallel()
-		ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, ownerClient)
 
-		client, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		// Add a failed
 		expArchived := map[uuid.UUID]bool{}
-		failed := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
+		failed := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, &echo.Responses{
 			Parse:          echo.ParseComplete,
 			ProvisionApply: echo.ApplyFailed,
 			ProvisionPlan:  echo.PlanFailed,
 			ProvisionInit:  echo.InitComplete,
-		}, func(request *codersdk.CreateTemplateVersionRequest) {
+		}, func(request *nicloudsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, failed.ID)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, failed.ID)
 		expArchived[failed.ID] = true
 		// Add unused
-		unused := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *codersdk.CreateTemplateVersionRequest) {
+		unused := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(request *nicloudsdk.CreateTemplateVersionRequest) {
 			request.TemplateID = template.ID
 		})
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, unused.ID)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, unused.ID)
 		expArchived[unused.ID] = true
 
 		// Archive all unused versions
@@ -91,7 +91,7 @@ func TestTemplateVersionsArchive(t *testing.T) {
 		w.RequireSuccess()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		all, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+		all, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 			TemplateID:      template.ID,
 			IncludeArchived: true,
 		})

@@ -18,10 +18,10 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 	"github.com/coder/terraform-provider-coder/v2/provider"
 )
 
@@ -114,7 +114,7 @@ func (s *server) Init(
 		// require a restart.
 		var errTFB *textFileBusyError
 		if xerrors.As(err, &errTFB) {
-			stacktrace := tryGettingCoderProviderStacktrace(sess)
+			stacktrace := tryGettingNIProviderStacktrace(sess)
 			s.logger.Critical(ctx, "init: text file busy",
 				slog.Error(errTFB),
 				slog.F("stderr", errTFB.stderr),
@@ -134,7 +134,7 @@ func (s *server) Init(
 	var moduleFiles []byte
 	// Skipping modules archiving is useful if the caller does not need it, eg during
 	// a workspace build. This removes some added costs of sending the modules
-	// payload back to coderd if coderd is just going to ignore it.
+	// payload back to nicloud if nicloud is just going to ignore it.
 	if !request.OmitModuleFiles {
 		var skipped []string
 		moduleFiles, skipped, err = GetModulesArchive(os.DirFS(e.files.WorkDirectory()))
@@ -360,27 +360,27 @@ func provisionEnv(
 	}
 
 	env = append(env,
-		"CODER_AGENT_URL="+metadata.GetCoderUrl(),
-		"CODER_WORKSPACE_TRANSITION="+strings.ToLower(metadata.GetWorkspaceTransition().String()),
-		"CODER_WORKSPACE_NAME="+metadata.GetWorkspaceName(),
-		"CODER_WORKSPACE_OWNER="+metadata.GetWorkspaceOwner(),
-		"CODER_WORKSPACE_OWNER_EMAIL="+metadata.GetWorkspaceOwnerEmail(),
-		"CODER_WORKSPACE_OWNER_NAME="+metadata.GetWorkspaceOwnerName(),
-		"CODER_WORKSPACE_OWNER_OIDC_ACCESS_TOKEN="+metadata.GetWorkspaceOwnerOidcAccessToken(),
-		"CODER_WORKSPACE_OWNER_GROUPS="+string(ownerGroups),
-		"CODER_WORKSPACE_OWNER_SSH_PUBLIC_KEY="+metadata.GetWorkspaceOwnerSshPublicKey(),
-		"CODER_WORKSPACE_OWNER_SSH_PRIVATE_KEY="+metadata.GetWorkspaceOwnerSshPrivateKey(),
-		"CODER_WORKSPACE_OWNER_LOGIN_TYPE="+metadata.GetWorkspaceOwnerLoginType(),
-		"CODER_WORKSPACE_OWNER_RBAC_ROLES="+string(ownerRbacRoles),
-		"CODER_WORKSPACE_ID="+metadata.GetWorkspaceId(),
-		"CODER_WORKSPACE_OWNER_ID="+metadata.GetWorkspaceOwnerId(),
-		"CODER_WORKSPACE_OWNER_SESSION_TOKEN="+metadata.GetWorkspaceOwnerSessionToken(),
-		"CODER_WORKSPACE_TEMPLATE_ID="+metadata.GetTemplateId(),
-		"CODER_WORKSPACE_TEMPLATE_NAME="+metadata.GetTemplateName(),
-		"CODER_WORKSPACE_TEMPLATE_VERSION="+metadata.GetTemplateVersion(),
-		"CODER_WORKSPACE_BUILD_ID="+metadata.GetWorkspaceBuildId(),
-		"CODER_TASK_ID="+metadata.GetTaskId(),
-		"CODER_TASK_PROMPT="+metadata.GetTaskPrompt(),
+		"NEURALINVERSE_AGENT_URL="+metadata.GetNIUrl(),
+		"NEURALINVERSE_WORKSPACE_TRANSITION="+strings.ToLower(metadata.GetWorkspaceTransition().String()),
+		"NEURALINVERSE_WORKSPACE_NAME="+metadata.GetWorkspaceName(),
+		"NEURALINVERSE_WORKSPACE_OWNER="+metadata.GetWorkspaceOwner(),
+		"NEURALINVERSE_WORKSPACE_OWNER_EMAIL="+metadata.GetWorkspaceOwnerEmail(),
+		"NEURALINVERSE_WORKSPACE_OWNER_NAME="+metadata.GetWorkspaceOwnerName(),
+		"NEURALINVERSE_WORKSPACE_OWNER_OIDC_ACCESS_TOKEN="+metadata.GetWorkspaceOwnerOidcAccessToken(),
+		"NEURALINVERSE_WORKSPACE_OWNER_GROUPS="+string(ownerGroups),
+		"NEURALINVERSE_WORKSPACE_OWNER_SSH_PUBLIC_KEY="+metadata.GetWorkspaceOwnerSshPublicKey(),
+		"NEURALINVERSE_WORKSPACE_OWNER_SSH_PRIVATE_KEY="+metadata.GetWorkspaceOwnerSshPrivateKey(),
+		"NEURALINVERSE_WORKSPACE_OWNER_LOGIN_TYPE="+metadata.GetWorkspaceOwnerLoginType(),
+		"NEURALINVERSE_WORKSPACE_OWNER_RBAC_ROLES="+string(ownerRbacRoles),
+		"NEURALINVERSE_WORKSPACE_ID="+metadata.GetWorkspaceId(),
+		"NEURALINVERSE_WORKSPACE_OWNER_ID="+metadata.GetWorkspaceOwnerId(),
+		"NEURALINVERSE_WORKSPACE_OWNER_SESSION_TOKEN="+metadata.GetWorkspaceOwnerSessionToken(),
+		"NEURALINVERSE_WORKSPACE_TEMPLATE_ID="+metadata.GetTemplateId(),
+		"NEURALINVERSE_WORKSPACE_TEMPLATE_NAME="+metadata.GetTemplateName(),
+		"NEURALINVERSE_WORKSPACE_TEMPLATE_VERSION="+metadata.GetTemplateVersion(),
+		"NEURALINVERSE_WORKSPACE_BUILD_ID="+metadata.GetWorkspaceBuildId(),
+		"NEURALINVERSE_TASK_ID="+metadata.GetTaskId(),
+		"NEURALINVERSE_TASK_PROMPT="+metadata.GetTaskPrompt(),
 		awsSDKUserAgentEnv(safeEnvironValue(env, awsSDKUserAgentEnvKey)),
 	)
 	if metadata.GetPrebuiltWorkspaceBuildStage().IsPrebuild() {
@@ -457,12 +457,12 @@ func logTerraformEnvVars(sink logSink) {
 	}
 }
 
-// tryGettingCoderProviderStacktrace attempts to dial a special pprof endpoint we added to
+// tryGettingNeural Inverse CloudProviderStacktrace attempts to dial a special pprof endpoint we added to
 // terraform-provider-coder in https://github.com/coder/terraform-provider-coder/pull/295 which
 // shipped in v1.0.4.  It will return the stacktraces of the provider, which will hopefully allow us
 // to figure out why it hasn't exited.
-func tryGettingCoderProviderStacktrace(sess *provisionersdk.Session) string {
-	path := filepath.Clean(filepath.Join(sess.Files.WorkDirectory(), "../.coder/pprof"))
+func tryGettingNIProviderStacktrace(sess *provisionersdk.Session) string {
+	path := filepath.Clean(filepath.Join(sess.Files.WorkDirectory(), "../.neuralinverse/pprof"))
 	sess.Logger.Info(sess.Context(), "attempting to get stack traces", slog.F("path", path))
 	c := http.Client{
 		Transport: &http.Transport{
@@ -499,5 +499,5 @@ func tryGettingCoderProviderStacktrace(sess *provisionersdk.Session) string {
 // depend on this environment variable. Once we are certain that no customers are still using v1 of
 // the provider, we can remove this function.
 func gitAuthAccessTokenEnvironmentVariable(id string) string {
-	return fmt.Sprintf("CODER_GIT_AUTH_ACCESS_TOKEN_%s", id)
+	return fmt.Sprintf("NEURALINVERSE_GIT_AUTH_ACCESS_TOKEN_%s", id)
 }

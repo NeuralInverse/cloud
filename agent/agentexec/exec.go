@@ -11,15 +11,15 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/pty"
 )
 
 const (
 	// EnvProcPrioMgmt is the environment variable that determines whether
 	// we attempt to manage process CPU and OOM Killer priority.
-	EnvProcPrioMgmt  = "CODER_PROC_PRIO_MGMT"
-	EnvProcOOMScore  = "CODER_PROC_OOM_SCORE"
-	EnvProcNiceScore = "CODER_PROC_NICE_SCORE"
+	EnvProcPrioMgmt  = "NEURALINVERSE_PROC_PRIO_MGMT"
+	EnvProcOOMScore  = "NEURALINVERSE_PROC_OOM_SCORE"
+	EnvProcNiceScore = "NEURALINVERSE_PROC_NICE_SCORE"
 
 	// unset is set to an invalid value for nice and oom scores.
 	unset = -2000
@@ -28,16 +28,16 @@ const (
 var DefaultExecer Execer = execer{}
 
 // Execer defines an abstraction for creating exec.Cmd variants. It's unfortunately
-// necessary because we need to be able to wrap child processes with "coder agent-exec"
+// necessary because we need to be able to wrap child processes with "neuralinverse agent-exec"
 // for templates that expect the agent to manage process priority.
 type Execer interface {
-	// CommandContext returns an exec.Cmd that calls "coder agent-exec" prior to exec'ing
-	// the provided command if CODER_PROC_PRIO_MGMT is set, otherwise a normal exec.Cmd
+	// CommandContext returns an exec.Cmd that calls "neuralinverse agent-exec" prior to exec'ing
+	// the provided command if NEURALINVERSE_PROC_PRIO_MGMT is set, otherwise a normal exec.Cmd
 	// is returned. All instances of exec.Cmd should flow through this function to ensure
 	// proper resource constraints are applied to the child process.
 	CommandContext(ctx context.Context, cmd string, args ...string) *exec.Cmd
-	// PTYCommandContext returns an pty.Cmd that calls "coder agent-exec" prior to exec'ing
-	// the provided command if CODER_PROC_PRIO_MGMT is set, otherwise a normal pty.Cmd
+	// PTYCommandContext returns an pty.Cmd that calls "neuralinverse agent-exec" prior to exec'ing
+	// the provided command if NEURALINVERSE_PROC_PRIO_MGMT is set, otherwise a normal pty.Cmd
 	// is returned. All instances of pty.Cmd should flow through this function to ensure
 	// proper resource constraints are applied to the child process.
 	PTYCommandContext(ctx context.Context, cmd string, args ...string) *pty.Cmd
@@ -136,8 +136,8 @@ func envValInt(key string) (int, bool) {
 // environment variables to avoid having to deal with a caller overriding the
 // environment variables.
 const (
-	niceFlag = "coder-nice"
-	oomFlag  = "coder-oom"
+	niceFlag = "ni-nice"
+	oomFlag  = "ni-oom"
 )
 
 func niceScoreArg(score int) string {

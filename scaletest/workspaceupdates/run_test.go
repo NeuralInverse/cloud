@@ -11,14 +11,14 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
-	"github.com/coder/coder/v2/scaletest/workspaceupdates"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspaceupdates"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestRun(t *testing.T) {
@@ -26,17 +26,17 @@ func TestRun(t *testing.T) {
 
 	ctx := testutil.Context(t, testutil.WaitSuperLong)
 
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := nicloudtest.CreateFirstUser(t, client)
 
 	numUsers := 2
 	userWorkspaces := 2
 	numWorkspaces := numUsers * userWorkspaces
 
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:         echo.ParseComplete,
 		ProvisionPlan: echo.PlanComplete,
 		ProvisionGraph: []*proto.Response{
@@ -65,8 +65,8 @@ func TestRun(t *testing.T) {
 		},
 	})
 
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 
 	barrier := new(sync.WaitGroup)
 	barrier.Add(numUsers)
@@ -82,7 +82,7 @@ func TestRun(t *testing.T) {
 			},
 			Workspace: workspacebuild.Config{
 				OrganizationID: user.OrganizationID,
-				Request: codersdk.CreateWorkspaceRequest{
+				Request: nicloudsdk.CreateWorkspaceRequest{
 					TemplateID: template.ID,
 				},
 				NoWaitForAgents: true,
@@ -106,11 +106,11 @@ func TestRun(t *testing.T) {
 	err := eg.Wait()
 	require.NoError(t, err)
 
-	users, err := client.Users(ctx, codersdk.UsersRequest{})
+	users, err := client.Users(ctx, nicloudsdk.UsersRequest{})
 	require.NoError(t, err)
 	require.Len(t, users.Users, 1+numUsers) // owner + created users
 
-	workspaces, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	workspaces, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	require.Len(t, workspaces.Workspaces, numWorkspaces)
 
@@ -123,11 +123,11 @@ func TestRun(t *testing.T) {
 	err = cleanupEg.Wait()
 	require.NoError(t, err)
 
-	workspaces, err = client.Workspaces(ctx, codersdk.WorkspaceFilter{})
+	workspaces, err = client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	require.Len(t, workspaces.Workspaces, 0)
 
-	users, err = client.Users(ctx, codersdk.UsersRequest{})
+	users, err = client.Users(ctx, nicloudsdk.UsersRequest{})
 	require.NoError(t, err)
 	require.Len(t, users.Users, 1) // owner
 

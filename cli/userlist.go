@@ -8,14 +8,14 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) userList() *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
-		cliui.TableFormat([]codersdk.User{}, []string{"username", "email", "created at", "status"}),
+		cliui.TableFormat([]nicloudsdk.User{}, []string{"username", "email", "created at", "status"}),
 		cliui.JSONFormat(),
 	)
 	var githubUserID int64
@@ -43,7 +43,7 @@ func (r *RootCmd) userList() *serpent.Command {
 				return err
 			}
 
-			req := codersdk.UsersRequest{}
+			req := nicloudsdk.UsersRequest{}
 			if githubUserID != 0 {
 				req.Search = fmt.Sprintf("github_com_user_id:%d", githubUserID)
 			}
@@ -83,7 +83,7 @@ func (r *RootCmd) userSingle() *serpent.Command {
 		Short: "Show a single user. Use 'me' to indicate the currently authenticated user.",
 		Long: FormatExamples(
 			Example{
-				Command: "coder users show me",
+				Command: "neuralinverse users show me",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -128,7 +128,7 @@ func (r *RootCmd) userSingle() *serpent.Command {
 }
 
 type userWithOrgNames struct {
-	codersdk.User
+	nicloudsdk.User
 	OrganizationNames []string `json:"organization_names"`
 }
 

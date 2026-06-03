@@ -1,6 +1,6 @@
 package proto
 
-import "github.com/coder/coder/v2/apiversion"
+import "github.com/NeuralInverse/cloud/v2/apiversion"
 
 // Version history:
 //
@@ -10,7 +10,7 @@ import "github.com/coder/coder/v2/apiversion"
 //   - Sync operations: SyncStart, SyncWant, SyncComplete, SyncWait, SyncStatus
 //
 // API v1.1:
-//   - UpdateAppStatus RPC (forwarded to coderd)
+//   - UpdateAppStatus RPC (forwarded to nicloud)
 
 const (
 	CurrentMajor = 1

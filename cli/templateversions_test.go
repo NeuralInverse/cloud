@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestTemplateVersions(t *testing.T) {
@@ -21,12 +21,12 @@ func TestTemplateVersions(t *testing.T) {
 	t.Run("ListVersions", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "versions", "list", template.Name)
 		clitest.SetupConfig(t, member, root)
@@ -47,12 +47,12 @@ func TestTemplateVersions(t *testing.T) {
 
 	t.Run("ListVersionsJSON", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "versions", "list", template.Name, "--output", "json")
 		clitest.SetupConfig(t, member, root)
@@ -63,7 +63,7 @@ func TestTemplateVersions(t *testing.T) {
 		require.NoError(t, inv.Run())
 
 		var rows []struct {
-			TemplateVersion codersdk.TemplateVersion `json:"TemplateVersion"`
+			TemplateVersion nicloudsdk.TemplateVersion `json:"TemplateVersion"`
 			Active          bool                     `json:"active"`
 		}
 		require.NoError(t, json.Unmarshal(stdout.Bytes(), &rows))
@@ -78,20 +78,20 @@ func TestTemplateVersionsPromote(t *testing.T) {
 
 	t.Run("PromoteVersion", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
 
 		// Create a template with two versions
-		version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+		version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
 
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
 
-		version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		version2 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent(), func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 			ctvr.Name = "2.0.0"
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
 
 		// Ensure version1 is active
 		updatedTemplate, err := client.Template(context.Background(), template.ID)
@@ -124,13 +124,13 @@ func TestTemplateVersionsPromote(t *testing.T) {
 
 	t.Run("PromoteNonExistentVersion", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
 		inv, root := clitest.New(t, "templates", "versions", "promote", "--template", template.Name, "--template-version", "non-existent-version")
 		clitest.SetupConfig(t, member, root)
@@ -142,9 +142,9 @@ func TestTemplateVersionsPromote(t *testing.T) {
 
 	t.Run("PromoteVersionInvalidTemplate", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		inv, root := clitest.New(t, "templates", "versions", "promote", "--template", "non-existent-template", "--template-version", "some-version")
 		clitest.SetupConfig(t, member, root)

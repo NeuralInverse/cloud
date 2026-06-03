@@ -8,11 +8,11 @@ import (
 
 	"github.com/briandowns/spinner"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 type ExternalAuthOptions struct {
-	Fetch         func(context.Context) ([]codersdk.TemplateVersionExternalAuth, error)
+	Fetch         func(context.Context) ([]nicloudsdk.TemplateVersionExternalAuth, error)
 	FetchInterval time.Duration
 }
 

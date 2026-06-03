@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -20,15 +20,15 @@ func (r *RootCmd) taskDelete() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Delete a single task.",
-				Command:     "$ coder task delete task1",
+				Command:     "$ neuralinverse task delete task1",
 			},
 			Example{
 				Description: "Delete multiple tasks.",
-				Command:     "$ coder task delete task1 task2 task3",
+				Command:     "$ neuralinverse task delete task1 task2 task3",
 			},
 			Example{
 				Description: "Delete a task without confirmation.",
-				Command:     "$ coder task delete task4 --yes",
+				Command:     "$ neuralinverse task delete task4 --yes",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -44,7 +44,7 @@ func (r *RootCmd) taskDelete() *serpent.Command {
 				return err
 			}
 
-			var tasks []codersdk.Task
+			var tasks []nicloudsdk.Task
 			for _, identifier := range inv.Args {
 				task, err := client.TaskByIdentifier(ctx, identifier)
 				if err != nil {

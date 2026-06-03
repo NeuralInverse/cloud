@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 
 	boundarycli "github.com/coder/boundary/cli"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -40,14 +40,14 @@ func (r *RootCmd) verifyLicense(inv *serpent.Invocation) error {
 	}
 
 	entitlements, err := client.Entitlements(inv.Context())
-	if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
+	if cerr, ok := nicloudsdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
 		return xerrors.Errorf("your deployment appears to be an AGPL deployment, so you cannot use the boundary command")
 	} else if err != nil {
 		return xerrors.Errorf("failed to get entitlements: %w", err)
 	}
 
-	feature := entitlements.Features[codersdk.FeatureBoundary]
-	if feature.Entitlement == codersdk.EntitlementNotEntitled {
+	feature := entitlements.Features[nicloudsdk.FeatureBoundary]
+	if feature.Entitlement == nicloudsdk.EntitlementNotEntitled {
 		return xerrors.Errorf("your license is not entitled to use the boundary feature")
 	}
 	if !feature.Enabled {
@@ -61,7 +61,7 @@ func (r *RootCmd) verifyLicense(inv *serpent.Invocation) error {
 
 func (r *RootCmd) boundary() *serpent.Command {
 	version := getBoundaryVersion()
-	cmd := boundarycli.BaseCommand(version) // Package coder/boundary/cli exports a "base command" designed to be integrated as a subcommand.
+	cmd := boundarycli.BaseCommand(version) // Package neuralinverse/boundary/cli exports a "base command" designed to be integrated as a subcommand.
 	cmd.Use += " [args...]"                 // The base command looks like `boundary -- command`. Serpent adds the flags piece, but we need to add the args.
 
 	// Wrap the handler to check for FeatureBoundary entitlement.

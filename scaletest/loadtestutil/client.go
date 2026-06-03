@@ -6,14 +6,14 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // DupClientCopyingHeaders duplicates the Client, but with an independent underlying HTTP transport, so that it will not
 // share connections with the client being duplicated. It copies any headers already on the existing transport as
-// [codersdk.HeaderTransport] and add the headers in the argument.
-func DupClientCopyingHeaders(client *codersdk.Client, header http.Header) (*codersdk.Client, error) {
-	nc := codersdk.New(client.URL, codersdk.WithLogger(client.Logger()))
+// [nicloudsdk.HeaderTransport] and add the headers in the argument.
+func DupClientCopyingHeaders(client *nicloudsdk.Client, header http.Header) (*nicloudsdk.Client, error) {
+	nc := nicloudsdk.New(client.URL, nicloudsdk.WithLogger(client.Logger()))
 	nc.SessionTokenProvider = client.SessionTokenProvider
 	newHeader, t, err := extractHeaderAndInnerTransport(client.HTTPClient.Transport)
 	if err != nil {
@@ -21,7 +21,7 @@ func DupClientCopyingHeaders(client *codersdk.Client, header http.Header) (*code
 	}
 	maps.Copy(newHeader, header)
 
-	nc.HTTPClient.Transport = &codersdk.HeaderTransport{
+	nc.HTTPClient.Transport = &nicloudsdk.HeaderTransport{
 		Transport: t.Clone(),
 		Header:    newHeader,
 	}
@@ -33,7 +33,7 @@ func extractHeaderAndInnerTransport(rt http.RoundTripper) (http.Header, *http.Tr
 		// base case
 		return make(http.Header), t, nil
 	}
-	if ht, ok := rt.(*codersdk.HeaderTransport); ok {
+	if ht, ok := rt.(*nicloudsdk.HeaderTransport); ok {
 		headers, t, err := extractHeaderAndInnerTransport(ht.Transport)
 		if err != nil {
 			return nil, nil, err

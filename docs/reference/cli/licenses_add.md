@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # licenses add
 
-Add license to Coder deployment
+Add license to Neural Inverse Cloud deployment
 
 ## Usage
 

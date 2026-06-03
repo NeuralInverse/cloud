@@ -19,19 +19,19 @@ import (
 //
 // So, we can't actually include " directly, but here is a horrible workaround:
 //
-// "for /f %%a in ('powershell.exe -Command [char]34') do @cmd.exe /c %%aC:\Program Files\Coder\bin\coder.exe%%a connect exists %h"
+// "for /f %%a in ('powershell.exe -Command [char]34') do @cmd.exe /c %%aC:\Program Files\Neural Inverse Cloud\bin\neuralinverse.exe%%a connect exists %h"
 //
 // The key insight here is to store the character " in a variable (%a in this case, but the % itself needs to be
 // escaped, so it becomes %%a), and then use that variable to construct the double-quoted path:
 //
-// %%aC:\Program Files\Coder\bin\coder.exe%%a.
+// %%aC:\Program Files\Neural Inverse Cloud\bin\neuralinverse.exe%%a.
 //
 // How do we generate a single " character without actually using that character? I couldn't find any command in cmd.exe
 // to do it, but powershell.exe can convert ASCII to characters like this: `[char]34` (where 34 is the code point for ").
 //
 // Other notes:
 //   - @ in `@cmd.exe` suppresses echoing it, so you don't get this command printed
-//   - we need another invocation of cmd.exe (e.g. `do @cmd.exe /c %%aC:\Program Files\Coder\bin\coder.exe%%a`). Without
+//   - we need another invocation of cmd.exe (e.g. `do @cmd.exe /c %%aC:\Program Files\Neural Inverse Cloud\bin\neuralinverse.exe%%a`). Without
 //     it the double-quote gets interpreted as part of the path, and you get: '"C:\Program' is not recognized.
 //     Constructing the string and then passing it to another instance of cmd.exe does this trick here.
 //   - OpenSSH passes the `Match exec` command to cmd.exe regardless of whether the user has a unix-like shell like

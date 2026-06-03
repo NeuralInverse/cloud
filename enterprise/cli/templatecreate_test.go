@@ -6,15 +6,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestTemplateCreate(t *testing.T) {
@@ -23,17 +23,17 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("RequireActiveVersion", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl: 1,
+					nicloudsdk.FeatureAccessControl: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
@@ -62,17 +62,17 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("WorkspaceCleanup", func(t *testing.T) {
 		t.Parallel()
 
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, user := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					nicloudsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
-			Options: &coderdtest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
 
 		source := clitest.CreateTemplateVersionSource(t, &echo.Responses{
 			Parse:          echo.ParseComplete,
@@ -112,15 +112,15 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("NotEntitled", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{},
 			},
-			Options: &coderdtest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
 		})
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
 
 		inv, conf := newCLI(t, "templates",
 			"create", "new-template",
@@ -139,39 +139,39 @@ func TestTemplateCreate(t *testing.T) {
 	t.Run("SecondOrganization", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient, _ := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				// This only affects the first org.
 				IncludeProvisionerDaemon: false,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureCustomRoles:                1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureAccessControl:              1,
+					nicloudsdk.FeatureCustomRoles:                1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 
 		// Create the second organization
-		secondOrg := coderdenttest.CreateOrganization(t, ownerClient, coderdenttest.CreateOrganizationOptions{
+		secondOrg := nicloudenttest.CreateOrganization(t, ownerClient, nicloudenttest.CreateOrganizationOptions{
 			IncludeProvisionerDaemon: true,
 		})
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		//nolint:gocritic // owner required to make custom roles
-		orgTemplateAdminRole, err := ownerClient.CreateOrganizationRole(ctx, codersdk.Role{
+		orgTemplateAdminRole, err := ownerClient.CreateOrganizationRole(ctx, nicloudsdk.Role{
 			Name:           "org-template-admin",
 			OrganizationID: secondOrg.ID.String(),
-			OrganizationPermissions: codersdk.CreatePermissions(map[codersdk.RBACResource][]codersdk.RBACAction{
-				codersdk.ResourceTemplate: codersdk.RBACResourceActions[codersdk.ResourceTemplate],
+			OrganizationPermissions: nicloudsdk.CreatePermissions(map[nicloudsdk.RBACResource][]nicloudsdk.RBACAction{
+				nicloudsdk.ResourceTemplate: nicloudsdk.RBACResourceActions[nicloudsdk.ResourceTemplate],
 			}),
 		})
 		require.NoError(t, err, "create admin role")
 
-		orgTemplateAdmin, _ := coderdtest.CreateAnotherUser(t, ownerClient, secondOrg.ID, rbac.RoleIdentifier{
+		orgTemplateAdmin, _ := nicloudtest.CreateAnotherUser(t, ownerClient, secondOrg.ID, rbac.RoleIdentifier{
 			Name:           orgTemplateAdminRole.Name,
 			OrganizationID: secondOrg.ID,
 		})

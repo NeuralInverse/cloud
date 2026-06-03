@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/prebuilds/settings \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/prebuilds/settings`
@@ -27,7 +27,7 @@ curl -X GET http://coder-server:8080/api/v2/prebuilds/settings \
 
 | Status | Meaning                                                 | Description | Schema                                                             |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.PrebuildsSettings](schemas.md#codersdkprebuildssettings) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.PrebuildsSettings](schemas.md#nicloudsdkprebuildssettings) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -40,7 +40,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PUT http://coder-server:8080/api/v2/prebuilds/settings \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PUT /api/v2/prebuilds/settings`
@@ -57,7 +57,7 @@ curl -X PUT http://coder-server:8080/api/v2/prebuilds/settings \
 
 | Name   | In   | Type                                                               | Required | Description                |
 |--------|------|--------------------------------------------------------------------|----------|----------------------------|
-| `body` | body | [codersdk.PrebuildsSettings](schemas.md#codersdkprebuildssettings) | true     | Prebuilds settings request |
+| `body` | body | [nicloudsdk.PrebuildsSettings](schemas.md#nicloudsdkprebuildssettings) | true     | Prebuilds settings request |
 
 ### Example responses
 
@@ -73,7 +73,7 @@ curl -X PUT http://coder-server:8080/api/v2/prebuilds/settings \
 
 | Status | Meaning                                                         | Description  | Schema                                                             |
 |--------|-----------------------------------------------------------------|--------------|--------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | OK           | [codersdk.PrebuildsSettings](schemas.md#codersdkprebuildssettings) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | OK           | [nicloudsdk.PrebuildsSettings](schemas.md#nicloudsdkprebuildssettings) |
 | 304    | [Not Modified](https://tools.ietf.org/html/rfc7232#section-4.1) | Not Modified |                                                                    |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

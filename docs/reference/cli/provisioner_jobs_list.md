@@ -20,7 +20,7 @@ coder provisioner jobs list [flags]
 |             |                                                                                  |
 |-------------|----------------------------------------------------------------------------------|
 | Type        | <code>[pending\|running\|succeeded\|canceling\|canceled\|failed\|unknown]</code> |
-| Environment | <code>$CODER_PROVISIONER_JOB_LIST_STATUS</code>                                  |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_JOB_LIST_STATUS</code>                                  |
 
 Filter by job status.
 
@@ -29,7 +29,7 @@ Filter by job status.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>int</code>                               |
-| Environment | <code>$CODER_PROVISIONER_JOB_LIST_LIMIT</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_JOB_LIST_LIMIT</code> |
 | Default     | <code>50</code>                                |
 
 Limit the number of jobs returned.
@@ -39,7 +39,7 @@ Limit the number of jobs returned.
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>string</code>                                |
-| Environment | <code>$CODER_PROVISIONER_JOB_LIST_INITIATOR</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_JOB_LIST_INITIATOR</code> |
 
 Filter by initiator (user ID or username).
 
@@ -48,7 +48,7 @@ Filter by initiator (user ID or username).
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.
 

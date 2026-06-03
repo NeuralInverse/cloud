@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/scaletest/autostart"
+	"github.com/NeuralInverse/cloud/v2/scaletest/autostart"
 )
 
 func TestRunResult(t *testing.T) {

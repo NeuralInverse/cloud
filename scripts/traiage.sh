@@ -4,7 +4,7 @@ SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 # shellcheck source=scripts/lib.sh
 source "${SCRIPT_DIR}/lib.sh"
 
-CODER_BIN=${CODER_BIN:-"$(which coder)"}
+NEURALINVERSE_BIN=${NEURALINVERSE_BIN:-"$(which coder)"}
 APP_SLUG=${APP_SLUG:-""}
 
 TEMPDIR=$(mktemp -d)
@@ -19,37 +19,37 @@ usage() {
 }
 
 create() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN CODER_USERNAME TASK_NAME TEMPLATE_NAME TEMPLATE_PRESET PROMPT
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN NEURALINVERSE_USERNAME TASK_NAME TEMPLATE_NAME TEMPLATE_PRESET PROMPT
 	# Check if a task already exists
 	set +e
-	task_json=$("${CODER_BIN}" \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
-		exp tasks status "${CODER_USERNAME}/${TASK_NAME}" \
+	task_json=$("${NEURALINVERSE_BIN}" \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
+		exp tasks status "${NEURALINVERSE_USERNAME}/${TASK_NAME}" \
 		--output json)
 	set -e
 
 	if [[ "${TASK_NAME}" == $(jq -r '.name' <<<"${task_json}") ]]; then
-		echo "Task \"${CODER_USERNAME}/${TASK_NAME}\" already exists. Sending prompt to existing task."
+		echo "Task \"${NEURALINVERSE_USERNAME}/${TASK_NAME}\" already exists. Sending prompt to existing task."
 		prompt
 		exit 0
 	fi
 
-	"${CODER_BIN}" \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
+	"${NEURALINVERSE_BIN}" \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
 		exp tasks create \
 		--name "${TASK_NAME}" \
 		--template "${TEMPLATE_NAME}" \
 		--preset "${TEMPLATE_PRESET}" \
-		--org coder \
-		--owner "${CODER_USERNAME}" \
+		--org neuralinverse \
+		--owner "${NEURALINVERSE_USERNAME}" \
 		--stdin <<<"${PROMPT}"
 	exit 0
 }
 
 ssh_config() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME
 
 	if [[ -n "${OPENSSH_CONFIG_FILE:-}" ]]; then
 		echo "Using existing SSH config file: ${OPENSSH_CONFIG_FILE}"
@@ -57,10 +57,10 @@ ssh_config() {
 	fi
 
 	OPENSSH_CONFIG_FILE="${TEMPDIR}/coder-ssh.config"
-	"${CODER_BIN}" \
+	"${NEURALINVERSE_BIN}" \
 		config-ssh \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
 		--ssh-config-file="${OPENSSH_CONFIG_FILE}" \
 		--yes \
 		>/dev/null 2>&1
@@ -68,24 +68,24 @@ ssh_config() {
 }
 
 prompt() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME PROMPT
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME PROMPT
 
-	${CODER_BIN} \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
+	${NEURALINVERSE_BIN} \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
 		exp tasks status "${TASK_NAME}" \
 		--watch >/dev/null
 
-	${CODER_BIN} \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
+	${NEURALINVERSE_BIN} \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
 		exp tasks send "${TASK_NAME}" \
 		--stdin \
 		<<<"${PROMPT}"
 
-	${CODER_BIN} \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
+	${NEURALINVERSE_BIN} \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
 		exp tasks status "${TASK_NAME}" \
 		--watch >/dev/null
 
@@ -93,12 +93,12 @@ prompt() {
 }
 
 last_message() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME PROMPT
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME PROMPT
 
 	last_msg_json=$(
-		${CODER_BIN} \
-			--url "${CODER_URL}" \
-			--token "${CODER_SESSION_TOKEN}" \
+		${NEURALINVERSE_BIN} \
+			--url "${NEURALINVERSE_URL}" \
+			--token "${NEURALINVERSE_SESSION_TOKEN}" \
 			exp tasks logs "${TASK_NAME}" \
 			--output json
 	)
@@ -110,17 +110,17 @@ last_message() {
 }
 
 wait_agentapi_stable() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME
 
-	${CODER_BIN} \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
+	${NEURALINVERSE_BIN} \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
 		exp tasks status "${TASK_NAME}" \
 		--watch
 }
 
 archive() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME BUCKET_PREFIX
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME BUCKET_PREFIX
 	ssh_config
 
 	# We want the heredoc to be expanded locally and not remotely.
@@ -150,7 +150,7 @@ archive() {
 }
 
 summary() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME
 	ssh_config
 
 	# We want the heredoc to be expanded locally and not remotely.
@@ -178,7 +178,7 @@ summary() {
 }
 
 commit_push() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME
 	ssh_config
 
 	# We want the heredoc to be expanded locally and not remotely.
@@ -214,10 +214,10 @@ commit_push() {
 
 # TODO(Cian): Update this to delete the task when available.
 delete() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME
-	"${CODER_BIN}" \
-		--url "${CODER_URL}" \
-		--token "${CODER_SESSION_TOKEN}" \
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME
+	"${NEURALINVERSE_BIN}" \
+		--url "${NEURALINVERSE_URL}" \
+		--token "${NEURALINVERSE_SESSION_TOKEN}" \
 		delete \
 		"${TASK_NAME}" \
 		--yes
@@ -225,7 +225,7 @@ delete() {
 }
 
 resume() {
-	requiredenvs CODER_URL CODER_SESSION_TOKEN TASK_NAME BUCKET_PREFIX
+	requiredenvs NEURALINVERSE_URL NEURALINVERSE_SESSION_TOKEN TASK_NAME BUCKET_PREFIX
 
 	# Note: TASK_NAME here is really the 'context key'.
 	# Files are uploaded to the GCS bucket under this key.

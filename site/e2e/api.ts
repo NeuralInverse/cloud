@@ -33,7 +33,7 @@ export const getCurrentOrgId = async (): Promise<string> => {
 export const createUser = async (...orgIds: string[]) => {
 	const name = randomName();
 	const user = await API.createUser({
-		email: `${name}@coder.com`,
+		email: `${name}@cloud.neuralinverse.com`,
 		username: name,
 		name: name,
 		password: defaultPassword,
@@ -54,7 +54,7 @@ type CreateOrganizationMemberOptions = {
 
 export const createOrganizationMember = async ({
 	username = randomName(),
-	email = `${username}@coder.com`,
+	email = `${username}@cloud.neuralinverse.com`,
 	password = defaultPassword,
 	orgRoles,
 }: CreateOrganizationMemberOptions): Promise<LoginOptions> => {

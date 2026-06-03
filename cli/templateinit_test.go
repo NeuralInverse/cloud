@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
 )
 
 func TestTemplateInit(t *testing.T) {

@@ -15,9 +15,9 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/scaletest/dashboard"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/scaletest/dashboard"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func Test_Run(t *testing.T) {
@@ -42,8 +42,8 @@ func Test_Run(t *testing.T) {
 	//nolint: gosec // just for testing
 	rg := rand.New(rand.NewSource(0)) // deterministic for testing
 
-	client := coderdtest.New(t, nil)
-	_ = coderdtest.CreateFirstUser(t, client)
+	client := nicloudtest.New(t, nil)
+	_ = nicloudtest.CreateFirstUser(t, client)
 
 	log := slogtest.Make(t, &slogtest.Options{
 		IgnoreErrors: true,

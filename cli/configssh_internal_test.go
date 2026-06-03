@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_sshConfigSplitOnCoderSection(t *testing.T) {
+func Test_sshConfigSplitOnNISection(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -116,7 +116,7 @@ func Test_sshConfigSplitOnCoderSection(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 
-			before, section, after, err := sshConfigSplitOnCoderSection([]byte(tc.Input))
+			before, section, after, err := sshConfigSplitOnNISection([]byte(tc.Input))
 			if tc.Err {
 				require.Error(t, err)
 				return
@@ -269,7 +269,7 @@ func Test_sshConfigExecEscapeSeparatorForce(t *testing.T) {
 		{
 			name:           "windows_force_unix_with_spaces",
 			path:           `C:\Program Files\Coder\bin\coder.exe`,
-			expWindowsPath: `"C:/Program Files/Coder/bin/coder.exe"`,
+			expWindowsPath: `"C:/Program Files/Coder/bin/neuralinverse.exe"`,
 			expOtherPath:   `"C:\Program Files\Coder\bin\coder.exe"`,
 			forceUnix:      true,
 			wantErr:        false,
@@ -277,7 +277,7 @@ func Test_sshConfigExecEscapeSeparatorForce(t *testing.T) {
 		{
 			name:           "windows_force_unix",
 			path:           `C:\ProgramFiles\Coder\bin\coder.exe`,
-			expWindowsPath: `C:/ProgramFiles/Coder/bin/coder.exe`,
+			expWindowsPath: `C:/ProgramFiles/Coder/bin/neuralinverse.exe`,
 			expOtherPath:   `C:\ProgramFiles\Coder\bin\coder.exe`,
 			forceUnix:      true,
 			wantErr:        false,

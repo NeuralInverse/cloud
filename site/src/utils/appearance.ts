@@ -2,10 +2,10 @@ export const getApplicationName = (): string => {
 	const c = document.head
 		.querySelector("meta[name=application-name]")
 		?.getAttribute("content");
-	// Fallback to "Coder" if the application name is not available for some reason.
+	// Fallback to "Neural Inverse Cloud" if the application name is not available for some reason.
 	// We need to check if the content does not look like `{{ .ApplicationName }}`
 	// as it means that Coder is running in development mode.
-	return c && !c.startsWith("{{ .") ? c : "Coder";
+	return c && !c.startsWith("{{ .") ? c : "Neural Inverse Cloud";
 };
 
 export const getLogoURL = (): string => {

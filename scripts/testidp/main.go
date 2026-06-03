@@ -16,8 +16,8 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/coderdtest/oidctest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest/oidctest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // Flags
@@ -51,7 +51,7 @@ func main() {
 type withClientSecret struct {
 	// We never unmarshal this in prod, but we need this field for testing.
 	ClientSecret string `json:"client_secret"`
-	codersdk.ExternalAuthConfig
+	nicloudsdk.ExternalAuthConfig
 }
 
 // RunIDP needs the testing.T because our oidctest package requires the
@@ -90,7 +90,7 @@ func RunIDP() func(t *testing.T) {
 				// to allow different values here. This is only required for using the
 				// testIDP as primary auth. External auth does not ever fetch these fields.
 				"sub":                uuid.MustParse("26c6a19c-b9b8-493b-a991-88a4c3310314"),
-				"email":              "oidc_member@coder.com",
+				"email":              "oidc_member@cloud.neuralinverse.com",
 				"preferred_username": "oidc_member",
 				"email_verified":     true,
 				"groups":             []string{"testidp", "qa", "engineering"},
@@ -108,7 +108,7 @@ func RunIDP() func(t *testing.T) {
 		id, sec := idp.AppCredentials()
 		prov := idp.WellknownConfig()
 		const appID = "fake"
-		coderCfg := idp.ExternalAuthConfig(t, appID, &oidctest.ExternalAuthConfigOptions{
+		niCfg := idp.ExternalAuthConfig(t, appID, &oidctest.ExternalAuthConfigOptions{
 			UseDeviceAuth: *deviceFlow,
 		})
 
@@ -116,13 +116,13 @@ func RunIDP() func(t *testing.T) {
 		log.Println("Coderd Flags")
 
 		deviceCodeURL := ""
-		if coderCfg.DeviceAuth != nil {
-			deviceCodeURL = coderCfg.DeviceAuth.CodeURL
+		if niCfg.DeviceAuth != nil {
+			deviceCodeURL = niCfg.DeviceAuth.CodeURL
 		}
 
 		cfg := withClientSecret{
 			ClientSecret: sec,
-			ExternalAuthConfig: codersdk.ExternalAuthConfig{
+			ExternalAuthConfig: nicloudsdk.ExternalAuthConfig{
 				Type:                appID,
 				ClientID:            id,
 				ClientSecret:        sec,
@@ -130,16 +130,16 @@ func RunIDP() func(t *testing.T) {
 				AuthURL:             prov.AuthURL,
 				TokenURL:            prov.TokenURL,
 				ValidateURL:         prov.ExternalAuthURL,
-				AppInstallURL:       coderCfg.AppInstallURL,
-				AppInstallationsURL: coderCfg.AppInstallationsURL,
+				AppInstallURL:       niCfg.AppInstallURL,
+				AppInstallationsURL: niCfg.AppInstallationsURL,
 				NoRefresh:           false,
 				Scopes:              []string{"openid", "email", "profile"},
-				ExtraTokenKeys:      coderCfg.ExtraTokenKeys,
+				ExtraTokenKeys:      niCfg.ExtraTokenKeys,
 				DeviceFlow:          *deviceFlow,
 				DeviceCodeURL:       deviceCodeURL,
 				Regex:               *extRegex,
-				DisplayName:         coderCfg.DisplayName,
-				DisplayIcon:         coderCfg.DisplayIcon,
+				DisplayName:         niCfg.DisplayName,
+				DisplayIcon:         niCfg.DisplayIcon,
 			},
 		}
 

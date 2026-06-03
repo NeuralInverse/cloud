@@ -12,7 +12,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-const defaultSocketPath = "/tmp/coder-agent.sock"
+const defaultSocketPath = "/tmp/neuralinverse-agent.sock"
 
 func createSocket(path string) (net.Listener, error) {
 	if path == "" {

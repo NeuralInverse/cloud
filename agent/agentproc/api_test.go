@@ -20,15 +20,15 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/agentgit"
-	"github.com/coder/coder/v2/agent/agentproc"
-	"github.com/coder/coder/v2/coderd/httpmw/loggermw"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/agentgit"
+	"github.com/NeuralInverse/cloud/v2/agent/agentproc"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw/loggermw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // postStart sends a POST /start request and returns the recorder.
@@ -262,7 +262,7 @@ func TestStartProcess(t *testing.T) {
 		})
 		require.Equal(t, http.StatusBadRequest, w.Code)
 
-		var resp codersdk.Response
+		var resp nicloudsdk.Response
 		err := json.NewDecoder(w.Body).Decode(&resp)
 		require.NoError(t, err)
 		require.Contains(t, resp.Message, "Command is required")
@@ -282,7 +282,7 @@ func TestStartProcess(t *testing.T) {
 
 		require.Equal(t, http.StatusBadRequest, w.Code)
 
-		var resp codersdk.Response
+		var resp nicloudsdk.Response
 		err := json.NewDecoder(w.Body).Decode(&resp)
 		require.NoError(t, err)
 		require.Contains(t, resp.Message, "valid JSON")
@@ -497,8 +497,8 @@ func TestListProcesses(t *testing.T) {
 
 		chatA := uuid.New().String()
 		chatB := uuid.New().String()
-		headersA := http.Header{workspacesdk.CoderChatIDHeader: {chatA}}
-		headersB := http.Header{workspacesdk.CoderChatIDHeader: {chatB}}
+		headersA := http.Header{workspacesdk.NIChatIDHeader: {chatA}}
+		headersB := http.Header{workspacesdk.NIChatIDHeader: {chatB}}
 
 		// Start processes with different chat IDs.
 		id1 := startAndGetID(t, handler, workspacesdk.StartProcessRequest{
@@ -557,7 +557,7 @@ func TestListProcesses(t *testing.T) {
 
 		handler := newTestAPI(t)
 		chatID := uuid.New().String()
-		headers := http.Header{workspacesdk.CoderChatIDHeader: {chatID}}
+		headers := http.Header{workspacesdk.NIChatIDHeader: {chatID}}
 
 		id := startAndGetID(t, handler, workspacesdk.StartProcessRequest{
 			Command: "echo with-chat",
@@ -723,7 +723,7 @@ func getListWithChatHeader(t *testing.T, handler http.Handler, chatID string) *h
 	w := httptest.NewRecorder()
 	r := httptest.NewRequestWithContext(ctx, http.MethodGet, "/list", nil)
 	if chatID != "" {
-		r.Header.Set(workspacesdk.CoderChatIDHeader, chatID)
+		r.Header.Set(workspacesdk.NIChatIDHeader, chatID)
 	}
 	handler.ServeHTTP(w, r)
 	return w
@@ -782,7 +782,7 @@ func TestProcessOutput(t *testing.T) {
 		w := getOutput(t, handler, "nonexistent-id-12345")
 		require.Equal(t, http.StatusNotFound, w.Code)
 
-		var resp codersdk.Response
+		var resp nicloudsdk.Response
 		err := json.NewDecoder(w.Body).Decode(&resp)
 		require.NoError(t, err)
 		require.Contains(t, resp.Message, "not found")
@@ -799,14 +799,14 @@ func TestProcessOutput(t *testing.T) {
 			Command:    "echo secret",
 			Background: true,
 		}, http.Header{
-			workspacesdk.CoderChatIDHeader: {chatA.String()},
+			workspacesdk.NIChatIDHeader: {chatA.String()},
 		})
 		waitForExit(t, handler, id)
 
 		// Chat-b should NOT see this process.
 		chatB := uuid.New()
 		w1 := getOutputWithHeaders(t, handler, id, http.Header{
-			workspacesdk.CoderChatIDHeader: {chatB.String()},
+			workspacesdk.NIChatIDHeader: {chatB.String()},
 		})
 		require.Equal(t, http.StatusNotFound, w1.Code)
 
@@ -1037,7 +1037,7 @@ func TestSignalProcess(t *testing.T) {
 		})
 		require.Equal(t, http.StatusBadRequest, w.Code)
 
-		var resp codersdk.Response
+		var resp nicloudsdk.Response
 		err := json.NewDecoder(w.Body).Decode(&resp)
 		require.NoError(t, err)
 		require.Contains(t, resp.Message, "Signal is required")
@@ -1063,7 +1063,7 @@ func TestSignalProcess(t *testing.T) {
 		})
 		require.Equal(t, http.StatusBadRequest, w.Code)
 
-		var resp codersdk.Response
+		var resp nicloudsdk.Response
 		err := json.NewDecoder(w.Body).Decode(&resp)
 		require.NoError(t, err)
 		require.Contains(t, resp.Message, "Unsupported signal")
@@ -1097,7 +1097,7 @@ func TestHandleStartProcess_ChatHeaders_EmptyWorkDir_StillNotifies(t *testing.T)
 	require.NoError(t, err)
 
 	req := httptest.NewRequest(http.MethodPost, "/start", bytes.NewReader(body))
-	req.Header.Set(workspacesdk.CoderChatIDHeader, chatID.String())
+	req.Header.Set(workspacesdk.NIChatIDHeader, chatID.String())
 	rw := httptest.NewRecorder()
 	routes.ServeHTTP(rw, req)
 

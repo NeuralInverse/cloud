@@ -10,27 +10,27 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/coderdtest/oidctest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest/oidctest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestUserOIDCClaims(t *testing.T) {
 	t.Parallel()
 
-	newOIDCTest := func(t *testing.T) (*oidctest.FakeIDP, *codersdk.Client) {
+	newOIDCTest := func(t *testing.T) (*oidctest.FakeIDP, *nicloudsdk.Client) {
 		t.Helper()
 
 		fake := oidctest.NewFakeIDP(t,
 			oidctest.WithServing(),
 		)
-		cfg := fake.OIDCConfig(t, nil, func(cfg *coderd.OIDCConfig) {
+		cfg := fake.OIDCConfig(t, nil, func(cfg *nicloud.OIDCConfig) {
 			cfg.AllowSignups = true
 		})
-		ownerClient := coderdtest.New(t, &coderdtest.Options{
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{
 			OIDCConfig: cfg,
 		})
 		return fake, ownerClient
@@ -41,7 +41,7 @@ func TestUserOIDCClaims(t *testing.T) {
 
 		fake, ownerClient := newOIDCTest(t)
 		claims := jwt.MapClaims{
-			"email":          "alice@coder.com",
+			"email":          "alice@cloud.neuralinverse.com",
 			"email_verified": true,
 			"sub":            uuid.NewString(),
 			"groups":         []string{"admin", "eng"},
@@ -57,11 +57,11 @@ func TestUserOIDCClaims(t *testing.T) {
 		err := inv.WithContext(testutil.Context(t, testutil.WaitMedium)).Run()
 		require.NoError(t, err)
 
-		var resp codersdk.OIDCClaimsResponse
+		var resp nicloudsdk.OIDCClaimsResponse
 		err = json.Unmarshal(buf.Bytes(), &resp)
 		require.NoError(t, err, "unmarshal JSON output")
 		require.NotEmpty(t, resp.Claims, "claims should not be empty")
-		assert.Equal(t, "alice@coder.com", resp.Claims["email"])
+		assert.Equal(t, "alice@cloud.neuralinverse.com", resp.Claims["email"])
 	})
 
 	t.Run("Table", func(t *testing.T) {
@@ -69,7 +69,7 @@ func TestUserOIDCClaims(t *testing.T) {
 
 		fake, ownerClient := newOIDCTest(t)
 		claims := jwt.MapClaims{
-			"email":          "bob@coder.com",
+			"email":          "bob@cloud.neuralinverse.com",
 			"email_verified": true,
 			"sub":            uuid.NewString(),
 		}
@@ -86,14 +86,14 @@ func TestUserOIDCClaims(t *testing.T) {
 
 		output := buf.String()
 		require.Contains(t, output, "email")
-		require.Contains(t, output, "bob@coder.com")
+		require.Contains(t, output, "bob@cloud.neuralinverse.com")
 	})
 
 	t.Run("NotOIDCUser", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "users", "oidc-claims")
 		clitest.SetupConfig(t, client, root)
@@ -111,7 +111,7 @@ func TestUserOIDCClaims(t *testing.T) {
 
 		aliceFake, aliceOwnerClient := newOIDCTest(t)
 		aliceClaims := jwt.MapClaims{
-			"email":          "alice-isolation@coder.com",
+			"email":          "alice-isolation@cloud.neuralinverse.com",
 			"email_verified": true,
 			"sub":            uuid.NewString(),
 		}
@@ -120,7 +120,7 @@ func TestUserOIDCClaims(t *testing.T) {
 
 		bobFake, bobOwnerClient := newOIDCTest(t)
 		bobClaims := jwt.MapClaims{
-			"email":          "bob-isolation@coder.com",
+			"email":          "bob-isolation@cloud.neuralinverse.com",
 			"email_verified": true,
 			"sub":            uuid.NewString(),
 		}
@@ -132,12 +132,12 @@ func TestUserOIDCClaims(t *testing.T) {
 		// Alice sees her own claims.
 		aliceResp, err := aliceClient.UserOIDCClaims(ctx)
 		require.NoError(t, err)
-		assert.Equal(t, "alice-isolation@coder.com", aliceResp.Claims["email"])
+		assert.Equal(t, "alice-isolation@cloud.neuralinverse.com", aliceResp.Claims["email"])
 
 		// Bob sees his own claims.
 		bobResp, err := bobClient.UserOIDCClaims(ctx)
 		require.NoError(t, err)
-		assert.Equal(t, "bob-isolation@coder.com", bobResp.Claims["email"])
+		assert.Equal(t, "bob-isolation@cloud.neuralinverse.com", bobResp.Claims["email"])
 	})
 
 	t.Run("ClaimsNeverNull", func(t *testing.T) {
@@ -146,7 +146,7 @@ func TestUserOIDCClaims(t *testing.T) {
 		fake, ownerClient := newOIDCTest(t)
 		// Use minimal claims — just enough for OIDC login.
 		claims := jwt.MapClaims{
-			"email":          "minimal@coder.com",
+			"email":          "minimal@cloud.neuralinverse.com",
 			"email_verified": true,
 			"sub":            uuid.NewString(),
 		}

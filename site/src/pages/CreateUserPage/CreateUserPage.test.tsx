@@ -11,7 +11,7 @@ import CreateUserPage from "./CreateUserPage";
 
 const fillForm = async ({
 	username = "someuser",
-	email = "someone@coder.com",
+	email = "someone@cloud.neuralinverse.com",
 	password = "SomeSecurePassword!",
 }: {
 	username?: string;

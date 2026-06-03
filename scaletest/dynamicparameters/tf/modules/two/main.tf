@@ -12,7 +12,7 @@ variable "one_value" {
   type        = string
 }
 
-data "coder_parameter" "two" {
+data "ni_parameter" "two" {
   name         = "Two"
   display_name = "Level Two"
   description  = "This is the second level."
@@ -27,5 +27,5 @@ data "coder_parameter" "two" {
 
 output "two_value" {
   description = "The value of the 'two' parameter"
-  value       = data.coder_parameter.two.value
+  value       = data.ni_parameter.two.value
 }

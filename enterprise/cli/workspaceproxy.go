@@ -8,8 +8,8 @@ import (
 	"github.com/fatih/color"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -63,7 +63,7 @@ func (r *RootCmd) regenerateProxyToken() *serpent.Command {
 			}
 
 			// Only regenerate the token
-			updated, err := client.PatchWorkspaceProxy(ctx, codersdk.PatchWorkspaceProxy{
+			updated, err := client.PatchWorkspaceProxy(ctx, nicloudsdk.PatchWorkspaceProxy{
 				ID:              proxy.ID,
 				Name:            proxy.Name,
 				DisplayName:     proxy.DisplayName,
@@ -95,7 +95,7 @@ func (r *RootCmd) patchProxy() *serpent.Command {
 		formatter   = cliui.NewOutputFormatter(
 			// Text formatter should be human readable.
 			cliui.ChangeFormatterData(cliui.TextFormat(), func(data any) (any, error) {
-				response, ok := data.(codersdk.WorkspaceProxy)
+				response, ok := data.(nicloudsdk.WorkspaceProxy)
 				if !ok {
 					return nil, xerrors.Errorf("unexpected type %T", data)
 				}
@@ -103,13 +103,13 @@ func (r *RootCmd) patchProxy() *serpent.Command {
 			}),
 			cliui.JSONFormat(),
 			// Table formatter expects a slice, make a slice of one.
-			cliui.ChangeFormatterData(cliui.TableFormat([]codersdk.WorkspaceProxy{}, []string{"name", "url"}),
+			cliui.ChangeFormatterData(cliui.TableFormat([]nicloudsdk.WorkspaceProxy{}, []string{"name", "url"}),
 				func(data any) (any, error) {
-					response, ok := data.(codersdk.WorkspaceProxy)
+					response, ok := data.(nicloudsdk.WorkspaceProxy)
 					if !ok {
 						return nil, xerrors.Errorf("unexpected type %T", data)
 					}
-					return []codersdk.WorkspaceProxy{response}, nil
+					return []nicloudsdk.WorkspaceProxy{response}, nil
 				}),
 		)
 	)
@@ -148,7 +148,7 @@ func (r *RootCmd) patchProxy() *serpent.Command {
 				proxyIcon = proxy.IconURL
 			}
 
-			updated, err := client.PatchWorkspaceProxy(ctx, codersdk.PatchWorkspaceProxy{
+			updated, err := client.PatchWorkspaceProxy(ctx, nicloudsdk.PatchWorkspaceProxy{
 				ID:          proxy.ID,
 				Name:        proxyName,
 				DisplayName: displayName,
@@ -297,7 +297,7 @@ func (r *RootCmd) createProxy() *serpent.Command {
 				return xerrors.New("proxy name is required")
 			}
 
-			resp, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+			resp, err := client.CreateWorkspaceProxy(ctx, nicloudsdk.CreateWorkspaceProxyRequest{
 				Name:        proxyName,
 				DisplayName: displayName,
 				Icon:        proxyIcon,
@@ -343,10 +343,10 @@ func (r *RootCmd) createProxy() *serpent.Command {
 
 func (r *RootCmd) listProxies() *serpent.Command {
 	formatter := cliui.NewOutputFormatter(
-		cliui.TableFormat([]codersdk.WorkspaceProxy{}, []string{"name", "url", "proxy status"}),
+		cliui.TableFormat([]nicloudsdk.WorkspaceProxy{}, []string{"name", "url", "proxy status"}),
 		cliui.JSONFormat(),
 		cliui.ChangeFormatterData(cliui.TextFormat(), func(data any) (any, error) {
-			resp, ok := data.([]codersdk.WorkspaceProxy)
+			resp, ok := data.([]nicloudsdk.WorkspaceProxy)
 			if !ok {
 				return nil, xerrors.Errorf("unexpected type %T", data)
 			}
@@ -412,7 +412,7 @@ type updateProxyResponseFormatter struct {
 	primaryAccessURL string
 }
 
-func (f *updateProxyResponseFormatter) Format(ctx context.Context, data codersdk.UpdateWorkspaceProxyResponse) (string, error) {
+func (f *updateProxyResponseFormatter) Format(ctx context.Context, data nicloudsdk.UpdateWorkspaceProxyResponse) (string, error) {
 	if f.onlyToken {
 		return data.ProxyToken, nil
 	}
@@ -437,7 +437,7 @@ func newUpdateProxyResponseFormatter() *updateProxyResponseFormatter {
 	up.formatter = cliui.NewOutputFormatter(
 		// Text formatter should be human readable.
 		cliui.ChangeFormatterData(cliui.TextFormat(), func(data any) (any, error) {
-			response, ok := data.(codersdk.UpdateWorkspaceProxyResponse)
+			response, ok := data.(nicloudsdk.UpdateWorkspaceProxyResponse)
 			if !ok {
 				return nil, xerrors.Errorf("unexpected type %T", data)
 			}
@@ -448,20 +448,20 @@ func newUpdateProxyResponseFormatter() *updateProxyResponseFormatter {
 				"Token: %[2]s\n"+
 				"\n"+
 				"Start the proxy by running:\n"+
-				cliui.Code("CODER_PROXY_SESSION_TOKEN=%[2]s coder wsproxy server --primary-access-url %[3]s --http-address=0.0.0.0:3001")+
+				cliui.Code("NEURALINVERSE_PROXY_SESSION_TOKEN=%[2]s neuralinverse wsproxy server --primary-access-url %[3]s --http-address=0.0.0.0:3001")+
 				// This is required to turn off the code style. Otherwise it appears in the code block until the end of the line.
 				pretty.Sprint(cliui.DefaultStyles.Placeholder, ""),
 				response.Proxy.Name, response.ProxyToken, up.primaryAccessURL), nil
 		}),
 		cliui.JSONFormat(),
 		// Table formatter expects a slice, make a slice of one.
-		cliui.ChangeFormatterData(cliui.TableFormat([]codersdk.UpdateWorkspaceProxyResponse{}, []string{"name", "url", "proxy token"}),
+		cliui.ChangeFormatterData(cliui.TableFormat([]nicloudsdk.UpdateWorkspaceProxyResponse{}, []string{"name", "url", "proxy token"}),
 			func(data any) (any, error) {
-				response, ok := data.(codersdk.UpdateWorkspaceProxyResponse)
+				response, ok := data.(nicloudsdk.UpdateWorkspaceProxyResponse)
 				if !ok {
 					return nil, xerrors.Errorf("unexpected type %T", data)
 				}
-				return []codersdk.UpdateWorkspaceProxyResponse{response}, nil
+				return []nicloudsdk.UpdateWorkspaceProxyResponse{response}, nil
 			}),
 	)
 

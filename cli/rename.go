@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -48,7 +48,7 @@ func (r *RootCmd) rename() *serpent.Command {
 				return err
 			}
 
-			err = client.UpdateWorkspace(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceRequest{
+			err = client.UpdateWorkspace(inv.Context(), workspace.ID, nicloudsdk.UpdateWorkspaceRequest{
 				Name: inv.Args[1],
 			})
 			if err != nil {

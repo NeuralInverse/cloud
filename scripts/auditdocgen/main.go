@@ -10,9 +10,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/util/maps"
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/scripts/atomicwrite"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/maps"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit"
+	"github.com/NeuralInverse/cloud/v2/scripts/atomicwrite"
 )
 
 var (

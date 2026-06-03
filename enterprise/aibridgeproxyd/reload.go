@@ -11,7 +11,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/aibridged"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridged"
 )
 
 // ReloadedProvider is the classification of one ai_providers row.

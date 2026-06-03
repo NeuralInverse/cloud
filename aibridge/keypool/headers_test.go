@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
 )
 
 func TestParseRetryAfter(t *testing.T) {

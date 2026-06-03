@@ -14,10 +14,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 	"github.com/coder/quartz"
 )
 
@@ -53,11 +53,11 @@ var (
 	_ harness.Cleanable = &Runner{}
 )
 
-// NewRunner creates a new Runner with the provided codersdk.Client and configuration.
-func NewRunner(coderClient *codersdk.Client, cfg Config) *Runner {
+// NewRunner creates a new Runner with the provided nicloudsdk.Client and configuration.
+func NewRunner(niClient *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
-		client:      newClient(coderClient),
-		updater:     newAppStatusUpdater(coderClient),
+		client:      newClient(niClient),
+		updater:     newAppStatusUpdater(niClient),
 		cfg:         cfg,
 		clock:       quartz.NewReal(),
 		randFloat64: rand.Float64,
@@ -86,7 +86,7 @@ func (r *Runner) Run(ctx context.Context, name string, logs io.Writer) error {
 		slog.F("template_id", r.cfg.TemplateID),
 		slog.F("workspace_name", r.cfg.WorkspaceName))
 
-	result, err := r.createExternalWorkspace(ctx, codersdk.CreateWorkspaceRequest{
+	result, err := r.createExternalWorkspace(ctx, nicloudsdk.CreateWorkspaceRequest{
 		TemplateID: r.cfg.TemplateID,
 		Name:       r.cfg.WorkspaceName,
 	})
@@ -226,7 +226,7 @@ func (r *Runner) reportTaskStatus(ctx context.Context) error {
 
 	getRandPeriod := func() time.Duration {
 		// vary the period by +-50% so that updates are not synchronized across runners, which would create
-		// artificially large instantaneous stress on Coder and the database.
+		// artificially large instantaneous stress on Neural Inverse Cloud and the database.
 		p := (r.randFloat64() + 0.5) * r.cfg.ReportStatusPeriod.Seconds()
 		return time.Duration(p * float64(time.Second))
 	}
@@ -283,9 +283,9 @@ func parseStatusMessage(message string) (int, bool) {
 
 // createExternalWorkspace creates an external workspace and returns the workspace ID
 // and agent token for the first external agent found in the workspace resources.
-func (r *Runner) createExternalWorkspace(ctx context.Context, req codersdk.CreateWorkspaceRequest) (createExternalWorkspaceResult, error) {
+func (r *Runner) createExternalWorkspace(ctx context.Context, req nicloudsdk.CreateWorkspaceRequest) (createExternalWorkspaceResult, error) {
 	// Create the workspace
-	workspace, err := r.client.CreateUserWorkspace(ctx, codersdk.Me, req)
+	workspace, err := r.client.CreateUserWorkspace(ctx, nicloudsdk.Me, req)
 	if err != nil {
 		return createExternalWorkspaceResult{}, err
 	}
@@ -295,11 +295,11 @@ func (r *Runner) createExternalWorkspace(ctx context.Context, req codersdk.Creat
 		slog.F("workspace_id", workspace.ID))
 
 	// Poll the workspace until the build is complete
-	var finalWorkspace codersdk.Workspace
+	var finalWorkspace nicloudsdk.Workspace
 	buildComplete := xerrors.New("build complete") // sentinel error
 	waiter := r.clock.TickerFunc(ctx, 30*time.Second, func() error {
 		// Get the workspace with latest build details
-		workspace, err := r.client.WorkspaceByOwnerAndName(ctx, codersdk.Me, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := r.client.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, workspace.Name, nicloudsdk.WorkspaceOptions{})
 		if err != nil {
 			r.logger.Error(ctx, "failed to poll workspace while waiting for build to complete", slog.Error(err))
 			return nil
@@ -311,16 +311,16 @@ func (r *Runner) createExternalWorkspace(ctx context.Context, req codersdk.Creat
 			slog.F("build_id", workspace.LatestBuild.ID))
 
 		switch jobStatus {
-		case codersdk.ProvisionerJobSucceeded:
+		case nicloudsdk.ProvisionerJobSucceeded:
 			// Build succeeded
 			r.logger.Info(ctx, "workspace build succeeded")
 			finalWorkspace = workspace
 			return buildComplete
-		case codersdk.ProvisionerJobFailed:
+		case nicloudsdk.ProvisionerJobFailed:
 			return xerrors.Errorf("workspace build failed: %s", workspace.LatestBuild.Job.Error)
-		case codersdk.ProvisionerJobCanceled:
+		case nicloudsdk.ProvisionerJobCanceled:
 			return xerrors.Errorf("workspace build was canceled")
-		case codersdk.ProvisionerJobPending, codersdk.ProvisionerJobRunning, codersdk.ProvisionerJobCanceling:
+		case nicloudsdk.ProvisionerJobPending, nicloudsdk.ProvisionerJobRunning, nicloudsdk.ProvisionerJobCanceling:
 			// Still in progress, continue polling
 			return nil
 		default:
@@ -335,7 +335,7 @@ func (r *Runner) createExternalWorkspace(ctx context.Context, req codersdk.Creat
 
 	// Find external agents in resources
 	for _, resource := range finalWorkspace.LatestBuild.Resources {
-		if resource.Type != "coder_external_agent" || len(resource.Agents) == 0 {
+		if resource.Type != "ni_external_agent" || len(resource.Agents) == 0 {
 			continue
 		}
 

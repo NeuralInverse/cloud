@@ -12,11 +12,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	terraform_internal "github.com/coder/coder/v2/provisioner/terraform/internal"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	terraform_internal "github.com/NeuralInverse/cloud/v2/provisioner/terraform/internal"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // TestTimingsFromProvision uses a fake terraform binary which spits out expected log content.
@@ -101,7 +101,7 @@ func TestTimingsFromProvision(t *testing.T) {
 	terraform_internal.StableSortTimings(t, timings)
 	// `coder_stage_` timings use `dbtime.Now()`, which makes them hard to compare to
 	// a static set of expected timings. Filter them out. This test is good for
-	// testing timings sourced from terraform logs, not internal coder timings.
+	// testing timings sourced from terraform logs, not internal neuralinverse timings.
 	timings = slice.Filter(timings, func(tim *proto.Timing) bool {
 		return !strings.HasPrefix(tim.Resource, "coder_stage_")
 	})
@@ -111,10 +111,10 @@ func TestTimingsFromProvision(t *testing.T) {
 	initTimings := terraform_internal.ParseTimingLines(t, []byte(`{"start":"2025-10-22T17:48:29Z","end":"2025-10-22T17:48:31Z","action":"load","resource":"modules","stage":"init","state":"COMPLETED"}
 {"start":"2025-10-22T17:48:29Z","end":"2025-10-22T17:48:29Z","action":"load","resource":"backend","stage":"init","state":"COMPLETED"}
 {"start":"2025-10-22T17:48:31Z","end":"2025-10-22T17:48:34Z","action":"load","resource":"provider plugins","stage":"init","state":"COMPLETED"}`))
-	planTimings := terraform_internal.ParseTimingLines(t, []byte(`{"start":"2024-08-15T08:26:39.194726Z", "end":"2024-08-15T08:26:39.195836Z", "action":"read", "source":"coder", "resource":"data.coder_parameter.memory_size", "stage":"plan", "state":"COMPLETED"}
+	planTimings := terraform_internal.ParseTimingLines(t, []byte(`{"start":"2024-08-15T08:26:39.194726Z", "end":"2024-08-15T08:26:39.195836Z", "action":"read", "source":"coder", "resource":"data.ni_parameter.memory_size", "stage":"plan", "state":"COMPLETED"}
 {"start":"2024-08-15T08:26:39.194726Z", "end":"2024-08-15T08:26:39.195712Z", "action":"read", "source":"coder", "resource":"data.coder_provisioner.me", "stage":"plan", "state":"COMPLETED"}
-{"start":"2024-08-15T08:26:39.194726Z", "end":"2024-08-15T08:26:39.195820Z", "action":"read", "source":"coder", "resource":"data.coder_workspace.me", "stage":"plan", "state":"COMPLETED"}`))
-	applyTimings := terraform_internal.ParseTimingLines(t, []byte(`{"start":"2024-08-15T08:26:39.616546Z", "end":"2024-08-15T08:26:39.618045Z", "action":"create", "source":"coder", "resource":"coder_agent.main", "stage":"apply", "state":"COMPLETED"}
+{"start":"2024-08-15T08:26:39.194726Z", "end":"2024-08-15T08:26:39.195820Z", "action":"read", "source":"coder", "resource":"data.ni_workspace.me", "stage":"plan", "state":"COMPLETED"}`))
+	applyTimings := terraform_internal.ParseTimingLines(t, []byte(`{"start":"2024-08-15T08:26:39.616546Z", "end":"2024-08-15T08:26:39.618045Z", "action":"create", "source":"coder", "resource":"ni_agent.main", "stage":"apply", "state":"COMPLETED"}
 {"start":"2024-08-15T08:26:39.626722Z", "end":"2024-08-15T08:26:39.669954Z", "action":"create", "source":"docker", "resource":"docker_image.main", "stage":"apply", "state":"COMPLETED"}
 {"start":"2024-08-15T08:26:39.627335Z", "end":"2024-08-15T08:26:39.660616Z", "action":"create", "source":"docker", "resource":"docker_volume.home_volume", "stage":"apply", "state":"COMPLETED"}
 {"start":"2024-08-15T08:26:39.682223Z", "end":"2024-08-15T08:26:40.186482Z", "action":"create", "source":"docker", "resource":"docker_container.workspace[0]", "stage":"apply", "state":"COMPLETED"}`))

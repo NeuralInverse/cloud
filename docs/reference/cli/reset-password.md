@@ -16,7 +16,7 @@ coder reset-password [flags] <username>
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string</code>                   |
-| Environment | <code>$CODER_PG_CONNECTION_URL</code> |
+| Environment | <code>$NEURALINVERSE_PG_CONNECTION_URL</code> |
 
 URL of a PostgreSQL database to connect to.
 
@@ -25,7 +25,7 @@ URL of a PostgreSQL database to connect to.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>password\|awsiamrds</code>       |
-| Environment | <code>$CODER_PG_CONNECTION_AUTH</code> |
+| Environment | <code>$NEURALINVERSE_PG_CONNECTION_AUTH</code> |
 | Default     | <code>password</code>                  |
 
 Type of auth to use when connecting to postgres.

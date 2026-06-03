@@ -12,11 +12,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestExpTaskDelete(t *testing.T) {
@@ -59,7 +59,7 @@ func TestExpTaskDelete(t *testing.T) {
 					case r.Method == http.MethodGet && r.URL.Path == "/api/v2/tasks/me/exists":
 						c.nameResolves.Add(1)
 						httpapi.Write(r.Context(), w, http.StatusOK,
-							codersdk.Task{
+							nicloudsdk.Task{
 								ID:        taskID,
 								Name:      "exists",
 								OwnerName: "me",
@@ -83,7 +83,7 @@ func TestExpTaskDelete(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch {
 					case r.Method == http.MethodGet && r.URL.Path == "/api/v2/tasks/me/"+id2:
-						httpapi.Write(r.Context(), w, http.StatusOK, codersdk.Task{
+						httpapi.Write(r.Context(), w, http.StatusOK, nicloudsdk.Task{
 							ID:        uuid.MustParse(id2),
 							OwnerName: "me",
 							Name:      "uuid-task",
@@ -106,14 +106,14 @@ func TestExpTaskDelete(t *testing.T) {
 					switch {
 					case r.Method == http.MethodGet && r.URL.Path == "/api/v2/tasks/me/first":
 						c.nameResolves.Add(1)
-						httpapi.Write(r.Context(), w, http.StatusOK, codersdk.Task{
+						httpapi.Write(r.Context(), w, http.StatusOK, nicloudsdk.Task{
 							ID:        uuid.MustParse(id3),
 							Name:      "first",
 							OwnerName: "me",
 						})
 					case r.Method == http.MethodGet && r.URL.Path == "/api/v2/tasks/me/"+id4:
 						c.nameResolves.Add(1)
-						httpapi.Write(r.Context(), w, http.StatusOK, codersdk.Task{
+						httpapi.Write(r.Context(), w, http.StatusOK, nicloudsdk.Task{
 							ID:        uuid.MustParse(id4),
 							OwnerName: "me",
 							Name:      "uuid-task-4",
@@ -142,10 +142,10 @@ func TestExpTaskDelete(t *testing.T) {
 					switch {
 					case r.Method == http.MethodGet && r.URL.Path == "/api/v2/tasks" && r.URL.Query().Get("q") == "owner:\"me\"":
 						httpapi.Write(r.Context(), w, http.StatusOK, struct {
-							Tasks []codersdk.Task `json:"tasks"`
+							Tasks []nicloudsdk.Task `json:"tasks"`
 							Count int             `json:"count"`
 						}{
-							Tasks: []codersdk.Task{},
+							Tasks: []nicloudsdk.Task{},
 							Count: 0,
 						})
 					default:
@@ -165,7 +165,7 @@ func TestExpTaskDelete(t *testing.T) {
 					switch {
 					case r.Method == http.MethodGet && r.URL.Path == "/api/v2/tasks/me/bad":
 						c.nameResolves.Add(1)
-						httpapi.Write(r.Context(), w, http.StatusOK, codersdk.Task{
+						httpapi.Write(r.Context(), w, http.StatusOK, nicloudsdk.Task{
 							ID:        taskID,
 							Name:      "bad",
 							OwnerName: "me",
@@ -192,7 +192,7 @@ func TestExpTaskDelete(t *testing.T) {
 			srv := httptest.NewServer(tc.buildHandler(&counters))
 			t.Cleanup(srv.Close)
 
-			client := codersdk.New(testutil.MustURL(t, srv.URL))
+			client := nicloudsdk.New(testutil.MustURL(t, srv.URL))
 
 			args := append([]string{"task", "delete"}, tc.args...)
 			inv, root := clitest.New(t, args...)

@@ -16,14 +16,14 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/serpent"
 )
 
-// vscodeSSH is used by the Coder VS Code extension to establish
+// vscodeSSH is used by the Neural Inverse Cloud VS Code extension to establish
 // a connection to a workspace.
 //
 // This command needs to remain stable for compatibility with
@@ -40,10 +40,10 @@ func (r *RootCmd) vscodeSSH() *serpent.Command {
 	)
 	cmd := &serpent.Command{
 		// A SSH config entry is added by the VS Code extension that
-		// passes %h to ProxyCommand. The prefix of `coder-vscode--`
+		// passes %h to ProxyCommand. The prefix of `neuralinverse-vscode--`
 		// is a magical string represented in our VS Code extension.
 		// It's not important here, only the delimiter `--` is.
-		Use:        "vscodessh <coder-vscode--<owner>--<workspace>--<agent?>>",
+		Use:        "vscodessh <neuralinverse-vscode--<owner>--<workspace>--<agent?>>",
 		Hidden:     true,
 		Middleware: serpent.RequireNArgs(1),
 		Handler: func(inv *serpent.Invocation) error {
@@ -83,14 +83,14 @@ func (r *RootCmd) vscodeSSH() *serpent.Command {
 			if err != nil {
 				return xerrors.Errorf("create HTTP client: %w", err)
 			}
-			client := codersdk.New(serverURL,
-				codersdk.WithSessionToken(string(sessionToken)),
-				codersdk.WithHTTPClient(httpClient),
+			client := nicloudsdk.New(serverURL,
+				nicloudsdk.WithSessionToken(string(sessionToken)),
+				nicloudsdk.WithHTTPClient(httpClient),
 			)
 
 			parts := strings.Split(inv.Args[0], "--")
 			if len(parts) < 3 {
-				return xerrors.Errorf("invalid argument format. must be: coder-vscode--<owner>--<name>--<agent?>")
+				return xerrors.Errorf("invalid argument format. must be: neuralinverse-vscode--<owner>--<name>--<agent?>")
 			}
 			owner := parts[1]
 			name := parts[2]
@@ -127,11 +127,11 @@ func (r *RootCmd) vscodeSSH() *serpent.Command {
 
 			appearanceCfg, err := client.Appearance(ctx)
 			if err != nil {
-				var sdkErr *codersdk.Error
+				var sdkErr *nicloudsdk.Error
 				if !(xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound) {
 					return xerrors.Errorf("get appearance config: %w", err)
 				}
-				appearanceCfg.DocsURL = codersdk.DefaultDocsURL()
+				appearanceCfg.DocsURL = nicloudsdk.DefaultDocsURL()
 			}
 
 			err = cliui.Agent(ctx, inv.Stderr, workspaceAgent.ID, cliui.AgentOptions{
@@ -176,9 +176,9 @@ func (r *RootCmd) vscodeSSH() *serpent.Command {
 
 			agentConn.AwaitReachable(ctx)
 
-			closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, codersdk.PostWorkspaceUsageRequest{
+			closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, nicloudsdk.PostWorkspaceUsageRequest{
 				AgentID: workspaceAgent.ID,
-				AppName: codersdk.UsageAppNameVscode,
+				AppName: nicloudsdk.UsageAppNameVscode,
 			})
 			defer closeUsage()
 

@@ -43,8 +43,8 @@ variable "iam_instance_profile" {
   type        = string
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -59,7 +59,7 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-data "coder_parameter" "instance_type" {
+data "ni_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
   description  = "What instance type should your workspace use?"
@@ -91,7 +91,7 @@ data "coder_parameter" "instance_type" {
   }
 }
 
-data "coder_parameter" "root_volume_size_gb" {
+data "ni_parameter" "root_volume_size_gb" {
   name         = "root_volume_size_gb"
   display_name = "Root Volume Size (GB)"
   description  = "How large should the root volume for the instance be?"
@@ -104,7 +104,7 @@ data "coder_parameter" "root_volume_size_gb" {
   }
 }
 
-data "coder_parameter" "fallback_image" {
+data "ni_parameter" "fallback_image" {
   default      = "codercom/enterprise-base:ubuntu"
   description  = "This image runs if the devcontainer fails to build."
   display_name = "Fallback Image"
@@ -113,7 +113,7 @@ data "coder_parameter" "fallback_image" {
   order        = 3
 }
 
-data "coder_parameter" "devcontainer_builder" {
+data "ni_parameter" "devcontainer_builder" {
   description  = <<-EOF
 Image that will build the devcontainer.
 Find the latest version of Envbuilder here: https://ghcr.io/coder/envbuilder
@@ -126,7 +126,7 @@ EOF
   order        = 4
 }
 
-data "coder_parameter" "repo_url" {
+data "ni_parameter" "repo_url" {
   name         = "repo_url"
   display_name = "Repository URL"
   default      = "https://github.com/coder/envbuilder-starter-devcontainer"
@@ -134,7 +134,7 @@ data "coder_parameter" "repo_url" {
   mutable      = true
 }
 
-data "coder_parameter" "ssh_pubkey" {
+data "ni_parameter" "ssh_pubkey" {
   name         = "ssh_pubkey"
   display_name = "SSH Public Key"
   default      = ""
@@ -157,11 +157,11 @@ locals {
   # TODO: provide a way to pick the availability zone.
   aws_availability_zone = "${module.aws_region.value}a"
 
-  hostname   = lower(data.coder_workspace.me.name)
+  hostname   = lower(data.ni_workspace.me.name)
   linux_user = "coder"
 
   # The devcontainer builder image is the image that will build the devcontainer.
-  devcontainer_builder_image = data.coder_parameter.devcontainer_builder.value
+  devcontainer_builder_image = data.ni_parameter.devcontainer_builder.value
 
   # We may need to authenticate with a registry. If so, the user will provide a path to a docker config.json.
   docker_config_json_base64 = try(data.local_sensitive_file.cache_repo_dockerconfigjson[0].content_base64, "")
@@ -170,17 +170,17 @@ locals {
   envbuilder_env = {
     # ENVBUILDER_GIT_URL and ENVBUILDER_CACHE_REPO will be overridden by the provider
     # if the cache repo is enabled.
-    "ENVBUILDER_GIT_URL" : data.coder_parameter.repo_url.value,
+    "ENVBUILDER_GIT_URL" : data.ni_parameter.repo_url.value,
     # The agent token is required for the agent to connect to the Coder platform.
-    "CODER_AGENT_TOKEN" : try(coder_agent.dev.0.token, ""),
+    "CODER_AGENT_TOKEN" : try(ni_agent.dev.0.token, ""),
     # The agent URL is required for the agent to connect to the Coder platform.
-    "CODER_AGENT_URL" : data.coder_workspace.me.access_url,
+    "CODER_AGENT_URL" : data.ni_workspace.me.access_url,
     # The agent init script is required for the agent to start up. We base64 encode it here
     # to avoid quoting issues.
-    "ENVBUILDER_INIT_SCRIPT" : "echo ${base64encode(try(coder_agent.dev[0].init_script, ""))} | base64 -d | sh",
+    "ENVBUILDER_INIT_SCRIPT" : "echo ${base64encode(try(ni_agent.dev[0].init_script, ""))} | base64 -d | sh",
     "ENVBUILDER_DOCKER_CONFIG_BASE64" : local.docker_config_json_base64,
     # The fallback image is the image that will run if the devcontainer fails to build.
-    "ENVBUILDER_FALLBACK_IMAGE" : data.coder_parameter.fallback_image.value,
+    "ENVBUILDER_FALLBACK_IMAGE" : data.ni_parameter.fallback_image.value,
     # The following are used to push the image to the cache repo, if defined.
     "ENVBUILDER_CACHE_REPO" : var.cache_repo,
     "ENVBUILDER_PUSH_IMAGE" : var.cache_repo == "" ? "" : "true",
@@ -192,9 +192,9 @@ locals {
 # Check for the presence of a prebuilt image in the cache repo
 # that we can use instead.
 resource "envbuilder_cached_image" "cached" {
-  count         = var.cache_repo == "" ? 0 : data.coder_workspace.me.start_count
+  count         = var.cache_repo == "" ? 0 : data.ni_workspace.me.start_count
   builder_image = local.devcontainer_builder_image
-  git_url       = data.coder_parameter.repo_url.value
+  git_url       = data.ni_parameter.repo_url.value
   cache_repo    = var.cache_repo
   extra_env     = local.envbuilder_env
 }
@@ -213,7 +213,7 @@ data "cloudinit_config" "user_data" {
       hostname   = local.hostname
       linux_user = local.linux_user
 
-      ssh_pubkey = data.coder_parameter.ssh_pubkey.value
+      ssh_pubkey = data.ni_parameter.ssh_pubkey.value
     })
   }
 
@@ -230,7 +230,7 @@ data "cloudinit_config" "user_data" {
       environment = try(envbuilder_cached_image.cached[0].env_map, local.envbuilder_env)
 
       # Builder image will either be the builder image parameter, or the cached image, if cache is provided.
-      builder_image = try(envbuilder_cached_image.cached[0].image, data.coder_parameter.devcontainer_builder.value)
+      builder_image = try(envbuilder_cached_image.cached[0].image, data.ni_parameter.devcontainer_builder.value)
 
       docker_config_json_base64 = local.docker_config_json_base64
     })
@@ -246,15 +246,15 @@ data "cloudinit_config" "user_data" {
 resource "aws_instance" "vm" {
   ami                  = data.aws_ami.ubuntu.id
   availability_zone    = local.aws_availability_zone
-  instance_type        = data.coder_parameter.instance_type.value
+  instance_type        = data.ni_parameter.instance_type.value
   iam_instance_profile = try(data.aws_iam_instance_profile.vm_instance_profile[0].name, null)
   root_block_device {
-    volume_size = data.coder_parameter.root_volume_size_gb.value
+    volume_size = data.ni_parameter.root_volume_size_gb.value
   }
 
   user_data = data.cloudinit_config.user_data.rendered
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
     # Required if you are using our example policy, see template README
     Coder_Provisioned = "true"
   }
@@ -265,15 +265,15 @@ resource "aws_instance" "vm" {
 
 resource "aws_ec2_instance_state" "vm" {
   instance_id = aws_instance.vm.id
-  state       = data.coder_workspace.me.transition == "start" ? "running" : "stopped"
+  state       = data.ni_workspace.me.transition == "start" ? "running" : "stopped"
 }
 
-resource "coder_agent" "dev" {
-  count              = data.coder_workspace.me.start_count
+resource "ni_agent" "dev" {
+  count              = data.ni_workspace.me.start_count
   arch               = "amd64"
   auth               = "token"
   os                 = "linux"
-  dir                = "/workspaces/${trimsuffix(basename(data.coder_parameter.repo_url.value), ".git")}"
+  dir                = "/workspaces/${trimsuffix(basename(data.ni_parameter.repo_url.value), ".git")}"
   connection_timeout = 0
 
   metadata {
@@ -293,8 +293,8 @@ resource "coder_agent" "dev" {
 }
 
 resource "coder_metadata" "info" {
-  count       = data.coder_workspace.me.start_count
-  resource_id = coder_agent.dev[0].id
+  count       = data.ni_workspace.me.start_count
+  resource_id = ni_agent.dev[0].id
   item {
     key   = "ami"
     value = aws_instance.vm.ami
@@ -305,27 +305,27 @@ resource "coder_metadata" "info" {
   }
   item {
     key   = "instance_type"
-    value = data.coder_parameter.instance_type.value
+    value = data.ni_parameter.instance_type.value
   }
   item {
     key   = "ssh_pubkey"
-    value = data.coder_parameter.ssh_pubkey.value
+    value = data.ni_parameter.ssh_pubkey.value
   }
   item {
     key   = "repo_url"
-    value = data.coder_parameter.repo_url.value
+    value = data.ni_parameter.repo_url.value
   }
   item {
     key   = "devcontainer_builder"
-    value = data.coder_parameter.devcontainer_builder.value
+    value = data.ni_parameter.devcontainer_builder.value
   }
 }
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version  = "~> 1.0"
-  agent_id = coder_agent.dev[0].id
+  agent_id = ni_agent.dev[0].id
 }

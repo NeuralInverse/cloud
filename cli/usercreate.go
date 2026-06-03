@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -66,7 +66,7 @@ func (r *RootCmd) userCreate() *serpent.Command {
 				username, err = cliui.Prompt(inv, cliui.PromptOptions{
 					Text: "Username:",
 					Validate: func(username string) error {
-						err = codersdk.NameValid(username)
+						err = nicloudsdk.NameValid(username)
 						if err != nil {
 							return xerrors.Errorf("username %q is invalid: %w", username, err)
 						}
@@ -99,19 +99,19 @@ func (r *RootCmd) userCreate() *serpent.Command {
 				if err != nil {
 					return err
 				}
-				name = codersdk.NormalizeRealUsername(rawName)
+				name = nicloudsdk.NormalizeRealUsername(rawName)
 				if !strings.EqualFold(rawName, name) {
 					cliui.Warnf(inv.Stderr, "Normalized name to %q", name)
 				}
 			}
-			userLoginType := codersdk.LoginTypePassword
+			userLoginType := nicloudsdk.LoginTypePassword
 			if disableLogin || serviceAccount {
-				userLoginType = codersdk.LoginTypeNone
+				userLoginType = nicloudsdk.LoginTypeNone
 			} else if loginType != "" {
-				userLoginType = codersdk.LoginType(loginType)
+				userLoginType = nicloudsdk.LoginType(loginType)
 			}
 
-			if password == "" && userLoginType == codersdk.LoginTypePassword {
+			if password == "" && userLoginType == nicloudsdk.LoginTypePassword {
 				// Generate a random password
 				password, err = cryptorand.StringCharset(cryptorand.Human, 20)
 				if err != nil {
@@ -119,7 +119,7 @@ func (r *RootCmd) userCreate() *serpent.Command {
 				}
 			}
 
-			_, err = client.CreateUserWithOrgs(inv.Context(), codersdk.CreateUserRequestWithOrgs{
+			_, err = client.CreateUserWithOrgs(inv.Context(), nicloudsdk.CreateUserRequestWithOrgs{
 				Email:           email,
 				Username:        username,
 				Name:            name,
@@ -133,14 +133,14 @@ func (r *RootCmd) userCreate() *serpent.Command {
 			}
 
 			authenticationMethod := ""
-			switch codersdk.LoginType(strings.ToLower(string(userLoginType))) {
-			case codersdk.LoginTypePassword:
+			switch nicloudsdk.LoginType(strings.ToLower(string(userLoginType))) {
+			case nicloudsdk.LoginTypePassword:
 				authenticationMethod = `Your password is: ` + pretty.Sprint(cliui.DefaultStyles.Field, password)
-			case codersdk.LoginTypeNone:
+			case nicloudsdk.LoginTypeNone:
 				authenticationMethod = "Login has been disabled for this user. Contact your administrator to authenticate."
-			case codersdk.LoginTypeGithub:
+			case nicloudsdk.LoginTypeGithub:
 				authenticationMethod = `Login is authenticated through GitHub.`
-			case codersdk.LoginTypeOIDC:
+			case nicloudsdk.LoginTypeOIDC:
 				authenticationMethod = `Login is authenticated through the configured OIDC provider.`
 			}
 			if serviceAccount {
@@ -154,12 +154,12 @@ Share the instructions below to get them started.
 Download the Coder command line for your operating system:
 https://github.com/coder/coder/releases
 
-Run `+pretty.Sprint(cliui.DefaultStyles.Code, "coder login "+client.URL.String())+` to authenticate.
+Run `+pretty.Sprint(cliui.DefaultStyles.Code, "neuralinverse login "+client.URL.String())+` to authenticate.
 
 Your email is: `+pretty.Sprint(cliui.DefaultStyles.Field, email)+`
 `+authenticationMethod+`
 
-Create a workspace  `+pretty.Sprint(cliui.DefaultStyles.Code, "coder create")+`!`)
+Create a workspace  `+pretty.Sprint(cliui.DefaultStyles.Code, "neuralinverse create")+`!`)
 			return nil
 		},
 	}
@@ -177,7 +177,7 @@ Create a workspace  `+pretty.Sprint(cliui.DefaultStyles.Code, "coder create")+`!
 			Value: serpent.Validate(serpent.StringOf(&username), func(_username *serpent.String) error {
 				username := _username.String()
 				if username != "" {
-					err := codersdk.NameValid(username)
+					err := nicloudsdk.NameValid(username)
 					if err != nil {
 						return xerrors.Errorf("username %q is invalid: %w", username, err)
 					}
@@ -211,7 +211,7 @@ Create a workspace  `+pretty.Sprint(cliui.DefaultStyles.Code, "coder create")+`!
 				"Deprecated: 'none' is deprecated. Use service accounts (requires Premium) for machine-to-machine access, "+
 				"or password/github/oidc login types for regular user accounts.",
 				strings.Join([]string{
-					string(codersdk.LoginTypePassword), string(codersdk.LoginTypeNone), string(codersdk.LoginTypeGithub), string(codersdk.LoginTypeOIDC),
+					string(nicloudsdk.LoginTypePassword), string(nicloudsdk.LoginTypeNone), string(nicloudsdk.LoginTypeGithub), string(nicloudsdk.LoginTypeOIDC),
 				}, ", ",
 				)),
 			Value: serpent.StringOf(&loginType),

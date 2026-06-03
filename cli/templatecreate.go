@@ -8,9 +8,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -38,8 +38,8 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 		Middleware: serpent.Chain(
 			serpent.RequireRangeArgs(0, 1),
 			cliui.DeprecationWarning(
-				"Use `coder templates push` command for creating and updating templates. \n"+
-					"Use `coder templates edit` command for editing template settings. ",
+				"Use `neuralinverse templates push` command for creating and updating templates. \n"+
+					"Use `neuralinverse templates edit` command for editing template settings. ",
 			),
 		),
 		Handler: func(inv *serpent.Invocation) error {
@@ -51,20 +51,20 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 
 			if isTemplateSchedulingOptionsSet || requireActiveVersion {
 				entitlements, err := client.Entitlements(inv.Context())
-				if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
+				if cerr, ok := nicloudsdk.AsError(err); ok && cerr.StatusCode() == http.StatusNotFound {
 					return xerrors.Errorf("your deployment appears to be an AGPL deployment, so you cannot set enterprise-only flags")
 				} else if err != nil {
 					return xerrors.Errorf("get entitlements: %w", err)
 				}
 
 				if isTemplateSchedulingOptionsSet {
-					if !entitlements.Features[codersdk.FeatureAdvancedTemplateScheduling].Enabled {
+					if !entitlements.Features[nicloudsdk.FeatureAdvancedTemplateScheduling].Enabled {
 						return xerrors.Errorf("your license is not entitled to use advanced template scheduling, so you cannot set --failure-ttl, or --inactivity-ttl")
 					}
 				}
 
 				if requireActiveVersion {
-					if !entitlements.Features[codersdk.FeatureAccessControl].Enabled {
+					if !entitlements.Features[nicloudsdk.FeatureAccessControl].Enabled {
 						return xerrors.Errorf("your license is not entitled to use enterprise access control, so you cannot set --require-active-version")
 					}
 				}
@@ -98,7 +98,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 
 			var varsFiles []string
 			if !uploadFlags.stdin(inv) {
-				varsFiles, err = codersdk.DiscoverVarsFiles(uploadFlags.directory)
+				varsFiles, err = nicloudsdk.DiscoverVarsFiles(uploadFlags.directory)
 				if err != nil {
 					return err
 				}
@@ -119,7 +119,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 				return err
 			}
 
-			userVariableValues, err := codersdk.ParseUserVariableValues(
+			userVariableValues, err := nicloudsdk.ParseUserVariableValues(
 				varsFiles,
 				variablesFile,
 				commandLineVariables)
@@ -131,7 +131,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 				Message:            message,
 				Client:             client,
 				Organization:       organization,
-				Provisioner:        codersdk.ProvisionerType(provisioner),
+				Provisioner:        nicloudsdk.ProvisionerType(provisioner),
 				FileID:             resp.ID,
 				ProvisionerTags:    tags,
 				UserVariableValues: userVariableValues,
@@ -150,7 +150,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 				}
 			}
 
-			createReq := codersdk.CreateTemplateRequest{
+			createReq := nicloudsdk.CreateTemplateRequest{
 				Name:                           templateName,
 				VersionID:                      job.ID,
 				DefaultTTLMillis:               ptr.Ref(defaultTTL.Milliseconds()),
@@ -172,7 +172,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 					pretty.Sprint(cliui.DefaultStyles.DateTimeStamp, time.Now().Format(time.Stamp))+"! "+
 					"Developers can provision a workspace with this template using:")+"\n")
 
-			_, _ = fmt.Fprintln(inv.Stdout, "  "+pretty.Sprint(cliui.DefaultStyles.Code, fmt.Sprintf("coder create --template=%q --org=%q [workspace name]", templateName, template.OrganizationName)))
+			_, _ = fmt.Fprintln(inv.Stdout, "  "+pretty.Sprint(cliui.DefaultStyles.Code, fmt.Sprintf("neuralinverse create --template=%q --org=%q [workspace name]", templateName, template.OrganizationName)))
 			_, _ = fmt.Fprintln(inv.Stdout)
 
 			return nil
@@ -213,7 +213,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 		},
 		{
 			Flag:        "failure-ttl",
-			Description: "Specify a failure TTL for workspaces created from this template. It is the amount of time after a failed \"start\" build before coder automatically schedules a \"stop\" build to cleanup.This licensed feature's default is 0h (off). Maps to \"Failure cleanup\"in the UI.",
+			Description: "Specify a failure TTL for workspaces created from this template. It is the amount of time after a failed \"start\" build before neuralinverse automatically schedules a \"stop\" build to cleanup.This licensed feature's default is 0h (off). Maps to \"Failure cleanup\"in the UI.",
 			Default:     "0h",
 			Value:       serpent.DurationOf(&failureTTL),
 		},
@@ -238,7 +238,7 @@ func (r *RootCmd) templateCreate() *serpent.Command {
 		},
 		{
 			Flag:        "require-active-version",
-			Description: "Requires workspace builds to use the active template version. This setting does not apply to template admins. This is an enterprise-only feature. See https://coder.com/docs/admin/templates/managing-templates#require-automatic-updates-enterprise for more details.",
+			Description: "Requires workspace builds to use the active template version. This setting does not apply to template admins. This is an enterprise-only feature. See https://cloud.neuralinverse.com/docs/admin/templates/managing-templates#require-automatic-updates-enterprise for more details.",
 			Value:       serpent.BoolOf(&requireActiveVersion),
 			Default:     "false",
 		},

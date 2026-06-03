@@ -31,7 +31,7 @@ variable "namespace" {
   description = "The Kubernetes namespace to create workspaces in (must exist prior to creating workspaces). If the Coder host is itself running as a Pod on the same Kubernetes cluster as you are deploying workspaces to, set this to the same namespace."
 }
 
-data "coder_parameter" "cpu" {
+data "ni_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU"
   description  = "The number of CPU cores"
@@ -56,7 +56,7 @@ data "coder_parameter" "cpu" {
   }
 }
 
-data "coder_parameter" "memory" {
+data "ni_parameter" "memory" {
   name         = "memory"
   display_name = "Memory"
   description  = "The amount of memory in GB"
@@ -81,7 +81,7 @@ data "coder_parameter" "memory" {
   }
 }
 
-data "coder_parameter" "home_disk_size" {
+data "ni_parameter" "home_disk_size" {
   name         = "home_disk_size"
   display_name = "Home disk size"
   description  = "The size of the home disk in GB"
@@ -100,10 +100,10 @@ provider "kubernetes" {
   config_path = var.use_kubeconfig == true ? "~/.kube/config" : null
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os             = "linux"
   arch           = "amd64"
   startup_script = <<-EOT
@@ -175,8 +175,8 @@ resource "coder_agent" "main" {
 }
 
 # code-server
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id     = ni_agent.main.id
   slug         = "code-server"
   display_name = "code-server"
   icon         = "/icon/code.svg"
@@ -193,21 +193,21 @@ resource "coder_app" "code-server" {
 
 resource "kubernetes_persistent_volume_claim_v1" "home" {
   metadata {
-    name      = "coder-${data.coder_workspace.me.id}-home"
+    name      = "coder-${data.ni_workspace.me.id}-home"
     namespace = var.namespace
     labels = {
       "app.kubernetes.io/name"     = "coder-pvc"
-      "app.kubernetes.io/instance" = "coder-pvc-${data.coder_workspace.me.id}"
+      "app.kubernetes.io/instance" = "coder-pvc-${data.ni_workspace.me.id}"
       "app.kubernetes.io/part-of"  = "coder"
       //Coder-specific labels.
       "com.coder.resource"       = "true"
-      "com.coder.workspace.id"   = data.coder_workspace.me.id
-      "com.coder.workspace.name" = data.coder_workspace.me.name
-      "com.coder.user.id"        = data.coder_workspace_owner.me.id
-      "com.coder.user.username"  = data.coder_workspace_owner.me.name
+      "com.coder.workspace.id"   = data.ni_workspace.me.id
+      "com.coder.workspace.name" = data.ni_workspace.me.name
+      "com.coder.user.id"        = data.ni_workspace_owner.me.id
+      "com.coder.user.username"  = data.ni_workspace_owner.me.name
     }
     annotations = {
-      "com.coder.user.email" = data.coder_workspace_owner.me.email
+      "com.coder.user.email" = data.ni_workspace_owner.me.email
     }
   }
   wait_until_bound = false
@@ -215,33 +215,33 @@ resource "kubernetes_persistent_volume_claim_v1" "home" {
     access_modes = ["ReadWriteOnce"]
     resources {
       requests = {
-        storage = "${data.coder_parameter.home_disk_size.value}Gi"
+        storage = "${data.ni_parameter.home_disk_size.value}Gi"
       }
     }
   }
 }
 
 resource "kubernetes_deployment_v1" "main" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   depends_on = [
     kubernetes_persistent_volume_claim_v1.home
   ]
   wait_for_rollout = false
   metadata {
-    name      = "coder-${data.coder_workspace.me.id}"
+    name      = "coder-${data.ni_workspace.me.id}"
     namespace = var.namespace
     labels = {
       "app.kubernetes.io/name"     = "coder-workspace"
-      "app.kubernetes.io/instance" = "coder-workspace-${data.coder_workspace.me.id}"
+      "app.kubernetes.io/instance" = "coder-workspace-${data.ni_workspace.me.id}"
       "app.kubernetes.io/part-of"  = "coder"
       "com.coder.resource"         = "true"
-      "com.coder.workspace.id"     = data.coder_workspace.me.id
-      "com.coder.workspace.name"   = data.coder_workspace.me.name
-      "com.coder.user.id"          = data.coder_workspace_owner.me.id
-      "com.coder.user.username"    = data.coder_workspace_owner.me.name
+      "com.coder.workspace.id"     = data.ni_workspace.me.id
+      "com.coder.workspace.name"   = data.ni_workspace.me.name
+      "com.coder.user.id"          = data.ni_workspace_owner.me.id
+      "com.coder.user.username"    = data.ni_workspace_owner.me.name
     }
     annotations = {
-      "com.coder.user.email" = data.coder_workspace_owner.me.email
+      "com.coder.user.email" = data.ni_workspace_owner.me.email
     }
   }
 
@@ -250,13 +250,13 @@ resource "kubernetes_deployment_v1" "main" {
     selector {
       match_labels = {
         "app.kubernetes.io/name"     = "coder-workspace"
-        "app.kubernetes.io/instance" = "coder-workspace-${data.coder_workspace.me.id}"
+        "app.kubernetes.io/instance" = "coder-workspace-${data.ni_workspace.me.id}"
         "app.kubernetes.io/part-of"  = "coder"
         "com.coder.resource"         = "true"
-        "com.coder.workspace.id"     = data.coder_workspace.me.id
-        "com.coder.workspace.name"   = data.coder_workspace.me.name
-        "com.coder.user.id"          = data.coder_workspace_owner.me.id
-        "com.coder.user.username"    = data.coder_workspace_owner.me.name
+        "com.coder.workspace.id"     = data.ni_workspace.me.id
+        "com.coder.workspace.name"   = data.ni_workspace.me.name
+        "com.coder.user.id"          = data.ni_workspace_owner.me.id
+        "com.coder.user.username"    = data.ni_workspace_owner.me.name
       }
     }
     strategy {
@@ -267,13 +267,13 @@ resource "kubernetes_deployment_v1" "main" {
       metadata {
         labels = {
           "app.kubernetes.io/name"     = "coder-workspace"
-          "app.kubernetes.io/instance" = "coder-workspace-${data.coder_workspace.me.id}"
+          "app.kubernetes.io/instance" = "coder-workspace-${data.ni_workspace.me.id}"
           "app.kubernetes.io/part-of"  = "coder"
           "com.coder.resource"         = "true"
-          "com.coder.workspace.id"     = data.coder_workspace.me.id
-          "com.coder.workspace.name"   = data.coder_workspace.me.name
-          "com.coder.user.id"          = data.coder_workspace_owner.me.id
-          "com.coder.user.username"    = data.coder_workspace_owner.me.name
+          "com.coder.workspace.id"     = data.ni_workspace.me.id
+          "com.coder.workspace.name"   = data.ni_workspace.me.name
+          "com.coder.user.id"          = data.ni_workspace_owner.me.id
+          "com.coder.user.username"    = data.ni_workspace_owner.me.name
         }
       }
       spec {
@@ -287,13 +287,13 @@ resource "kubernetes_deployment_v1" "main" {
           name              = "dev"
           image             = "codercom/enterprise-base:ubuntu"
           image_pull_policy = "Always"
-          command           = ["sh", "-c", coder_agent.main.init_script]
+          command           = ["sh", "-c", ni_agent.main.init_script]
           security_context {
             run_as_user = "1000"
           }
           env {
             name  = "CODER_AGENT_TOKEN"
-            value = coder_agent.main.token
+            value = ni_agent.main.token
           }
           resources {
             requests = {
@@ -301,8 +301,8 @@ resource "kubernetes_deployment_v1" "main" {
               "memory" = "512Mi"
             }
             limits = {
-              "cpu"    = "${data.coder_parameter.cpu.value}"
-              "memory" = "${data.coder_parameter.memory.value}Gi"
+              "cpu"    = "${data.ni_parameter.cpu.value}"
+              "memory" = "${data.ni_parameter.memory.value}Gi"
             }
           }
           volume_mount {

@@ -7,17 +7,17 @@ terraform {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os   = "linux"
   arch = "amd64"
 }
 
 resource "coder_devcontainer" "dev" {
-  agent_id         = coder_agent.main.id
+  agent_id         = ni_agent.main.id
   workspace_folder = "/workspace"
 }
 
-resource "coder_app" "devcontainer-app" {
+resource "ni_app" "devcontainer-app" {
   agent_id = coder_devcontainer.dev.subagent_id
   slug     = "devcontainer-app"
 }
@@ -37,6 +37,6 @@ resource "coder_env" "devcontainer-env" {
 
 resource "null_resource" "dev" {
   depends_on = [
-    coder_agent.main
+    ni_agent.main
   ]
 }

@@ -1,12 +1,12 @@
 # Shared Workspaces
 
-Multiple users can securely connect to a single Coder workspace for programming and debugging.
+Multiple users can securely connect to a single Neural Inverse Cloud workspace for programming and debugging.
 
 <!-- Insert screenshot of UI here -->
 
 ## Features
 
-Workspace sharing is available to all Coder users by default, but platform admins with a Premium subscription can choose to disable sharing within their organizations or for their entire deployment.
+Workspace sharing is available to all Neural Inverse Cloud users by default, but platform admins with a Premium subscription can choose to disable sharing within their organizations or for their entire deployment.
 
 Owners of a workspace can grant access to other users or groups with scoped roles.
 
@@ -14,13 +14,13 @@ This is helpful in a number of scenarios, including:
 
 - Developers can do ad-hoc debugging or pair programming.
 - A workspace can be owned by a group of users for QA, on-call rotations, or shared staging.
-- AI workflows where an agent prepares a workspace and a developer takes over to review or finalize the work (ex. with [Coder Tasks](https://coder.com/docs/ai-coder/tasks).)
+- AI workflows where an agent prepares a workspace and a developer takes over to review or finalize the work (ex. with [Neural Inverse Cloud Tasks](https://cloud.neuralinverse.com/docs/ai-nicloud/tasks).)
 
 ## Getting Started
 
-Workspaces can be shared through either the Coder CLI or UI.
+Workspaces can be shared through either the Neural Inverse Cloud CLI or UI.
 
-Before you begin, ensure that you have a version of Coder with workspace sharing enabled and that your account has permission to share workspaces. This is true by default if you are an OSS user, but deployments with Premium licenses may be restricted by admins.
+Before you begin, ensure that you have a version of Neural Inverse Cloud with workspace sharing enabled and that your account has permission to share workspaces. This is true by default if you are an OSS user, but deployments with Premium licenses may be restricted by admins.
 
 ### CLI
 
@@ -86,7 +86,7 @@ depending on how the app is routed.
 
 By default, workspace apps that don't set `subdomain = true` use **path-based
 routing** (e.g., `coder.example.com/@user/workspace/apps/code-server/`).
-Path-based apps share the same origin as the Coder dashboard, so Coder blocks
+Path-based apps share the same origin as the Neural Inverse Cloud dashboard, so Neural Inverse Cloud blocks
 non-owners from accessing them to prevent
 [cross-site scripting risks](../tutorials/best-practices/security-best-practices.md#disable-path-based-apps).
 This restriction applies even when the user has been granted access through
@@ -97,20 +97,20 @@ To allow other users to access workspace apps, configure subdomain-based access:
 1. Set a
    [wildcard access URL](../admin/networking/wildcard-access-url.md)
    on your deployment
-   (e.g., `CODER_WILDCARD_ACCESS_URL=*.coder.example.com`).
+   (e.g., `NEURALINVERSE_WILDCARD_ACCESS_URL=*.coder.example.com`).
 2. Set `subdomain = true` on the workspace app. For example, if you use the
-   [code-server module](https://registry.coder.com/modules/coder/code-server):
+   [code-server module](https://registry.cloud.neuralinverse.com/modules/coder/code-server):
 
    ```hcl
    module "code-server" {
-     source    = "registry.coder.com/coder/code-server/coder"
-     agent_id  = coder_agent.main.id
+     source    = "registry.cloud.neuralinverse.com/coder/code-server/coder"
+     agent_id  = ni_agent.main.id
      subdomain = true
      # ...
    }
    ```
 
-Subdomain-based apps run in an isolated browser security context, so Coder
+Subdomain-based apps run in an isolated browser security context, so Neural Inverse Cloud
 allows other users to access them without additional configuration.
 
 ### Policies
@@ -121,4 +121,4 @@ There are several sharing policy levels that can be selected on a per-organizati
 - **Service Accounts Only** – Only workspaces owned by service accounts can be shared with any individual or group in the same organization.
 - **Disabled** – Workspaces within the organization cannot be shared.
 
-The **Disabled** policy can also be applied to the entire deployment by [setting the `CODER_DISABLE_WORKSPACE_SHARING` environment variable, or by using the corresponding command argument or config value](https://coder.com/docs/reference/cli/server#--disable-workspace-sharing).
+The **Disabled** policy can also be applied to the entire deployment by [setting the `NEURALINVERSE_DISABLE_WORKSPACE_SHARING` environment variable, or by using the corresponding command argument or config value](https://cloud.neuralinverse.com/docs/reference/cli/server#--disable-workspace-sharing).

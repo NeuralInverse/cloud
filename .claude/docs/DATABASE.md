@@ -4,7 +4,7 @@
 
 ### Database Generation Process
 
-1. Modify SQL files in `coderd/database/queries/`
+1. Modify SQL files in `nicloud/database/queries/`
 2. Run `make gen`
 3. If errors about audit table, update `enterprise/audit/table.go`
 4. Run `make gen` again
@@ -14,7 +14,7 @@
 
 ### Creating Migration Files
 
-**Location**: `coderd/database/migrations/`
+**Location**: `nicloud/database/migrations/`
 **Format**: `{number}_{description}.{up|down}.sql`
 
 - Number must be unique and sequential
@@ -24,15 +24,15 @@
 
 | Script                                                              | Purpose                                 |
 |---------------------------------------------------------------------|-----------------------------------------|
-| `./coderd/database/migrations/create_migration.sh "migration name"` | Creates new migration files             |
-| `./coderd/database/migrations/fix_migration_numbers.sh`             | Renumbers migrations to avoid conflicts |
-| `./coderd/database/migrations/create_fixture.sh "fixture name"`     | Creates test fixtures for migrations    |
+| `./nicloud/database/migrations/create_migration.sh "migration name"` | Creates new migration files             |
+| `./nicloud/database/migrations/fix_migration_numbers.sh`             | Renumbers migrations to avoid conflicts |
+| `./nicloud/database/migrations/create_fixture.sh "fixture name"`     | Creates test fixtures for migrations    |
 
 ### Database Query Organization
 
-- **MUST DO**: Any changes to database - adding queries, modifying queries should be done in the `coderd/database/queries/*.sql` files
+- **MUST DO**: Any changes to database - adding queries, modifying queries should be done in the `nicloud/database/queries/*.sql` files
 - **MUST DO**: Queries are grouped in files relating to context - e.g. `prebuilds.sql`, `users.sql`, `oauth2.sql`
-- After making changes to any `coderd/database/queries/*.sql` files you must run `make gen` to generate respective ORM changes
+- After making changes to any `nicloud/database/queries/*.sql` files you must run `make gen` to generate respective ORM changes
 
 ### Query Naming
 
@@ -255,7 +255,7 @@ func (q *sqlQuerier) UpdateUser(ctx context.Context, arg UpdateUserParams) (User
 make test
 
 # Run specific database tests
-go test ./coderd/database/... -run TestSpecificFunction
+go test ./nicloud/database/... -run TestSpecificFunction
 
 # Check query generation
 make gen

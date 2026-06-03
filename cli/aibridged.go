@@ -11,17 +11,17 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge"
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/keypool"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/aibridged"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/aibridge"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridged"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/db2sdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/quartz"
 )
 
@@ -30,16 +30,16 @@ import (
 // database on every ai_providers change event. The returned unsubscribe
 // function tears down the subscription; callers must invoke it
 // alongside Server.Close on shutdown.
-func newAIBridgeDaemon(coderAPI *coderd.API, providers []aibridge.Provider, cfg codersdk.AIBridgeConfig) (*aibridged.Server, func(), error) {
+func newAIBridgeDaemon(niAPI *nicloud.API, providers []aibridge.Provider, cfg nicloudsdk.AIBridgeConfig) (*aibridged.Server, func(), error) {
 	ctx := context.Background()
-	coderAPI.Logger.Debug(ctx, "starting in-memory aibridge daemon")
+	niAPI.Logger.Debug(ctx, "starting in-memory aibridge daemon")
 
-	logger := coderAPI.Logger.Named("aibridged")
+	logger := niAPI.Logger.Named("aibridged")
 
-	reg := prometheus.WrapRegistererWithPrefix("coder_aibridged_", coderAPI.PrometheusRegistry)
+	reg := prometheus.WrapRegistererWithPrefix("coder_aibridged_", niAPI.PrometheusRegistry)
 	metrics := aibridge.NewMetrics(reg)
 	providerMetrics := aibridged.NewMetrics(reg)
-	tracer := coderAPI.TracerProvider.Tracer(tracing.TracerName)
+	tracer := niAPI.TracerProvider.Tracer(tracing.TracerName)
 
 	// Create pool for reusable stateful [aibridge.RequestBridge] instances (one per user).
 	pool, err := aibridged.NewCachedBridgePool(aibridged.DefaultPoolOptions, providers, logger.Named("pool"), metrics, tracer) // TODO: configurable size.
@@ -53,12 +53,12 @@ func newAIBridgeDaemon(coderAPI *coderd.API, providers []aibridge.Provider, cfg 
 	// load fails inside the reloader.
 	reloader := &poolDBReloader{
 		pool:    pool,
-		db:      coderAPI.Database,
+		db:      niAPI.Database,
 		cfg:     cfg,
 		logger:  logger.Named("provider-loader"),
 		metrics: providerMetrics,
 	}
-	unsubscribe, err := aibridged.SubscribeProviderReload(ctx, coderAPI.Pubsub, reloader, logger.Named("provider-reload"))
+	unsubscribe, err := aibridged.SubscribeProviderReload(ctx, niAPI.Pubsub, reloader, logger.Named("provider-reload"))
 	if err != nil {
 		// Pool is still usable with the boot-time snapshot; subscription
 		// failure is logged but not fatal so the daemon still serves.
@@ -68,7 +68,7 @@ func newAIBridgeDaemon(coderAPI *coderd.API, providers []aibridge.Provider, cfg 
 
 	// Create daemon.
 	srv, err := aibridged.New(ctx, pool, func(dialCtx context.Context) (aibridged.DRPCClient, error) {
-		return coderAPI.CreateInMemoryAIBridgeServer(dialCtx)
+		return niAPI.CreateInMemoryAIBridgeServer(dialCtx)
 	}, logger, tracer)
 	if err != nil {
 		unsubscribe()
@@ -83,7 +83,7 @@ func newAIBridgeDaemon(coderAPI *coderd.API, providers []aibridge.Provider, cfg 
 type poolDBReloader struct {
 	pool    *aibridged.CachedBridgePool
 	db      database.Store
-	cfg     codersdk.AIBridgeConfig
+	cfg     nicloudsdk.AIBridgeConfig
 	logger  slog.Logger
 	metrics *aibridged.Metrics
 }
@@ -114,7 +114,7 @@ func (r *poolDBReloader) Reload(ctx context.Context) error {
 // excluded from the returned snapshot; only a failure of the DB query
 // itself is propagated. This keeps a single misconfigured row from
 // taking the whole daemon down.
-func BuildProviders(ctx context.Context, db database.Store, cfg codersdk.AIBridgeConfig, logger slog.Logger) ([]aibridge.Provider, []aibridged.ProviderOutcome, error) {
+func BuildProviders(ctx context.Context, db database.Store, cfg nicloudsdk.AIBridgeConfig, logger slog.Logger) ([]aibridge.Provider, []aibridged.ProviderOutcome, error) {
 	//nolint:gocritic // AsAIBridged has a minimal permission set for this purpose.
 	authCtx := dbauthz.AsAIBridged(ctx)
 
@@ -209,7 +209,7 @@ func BuildProviders(ctx context.Context, db database.Store, cfg codersdk.AIBridg
 func buildAIProviderFromRow(
 	row database.AIProvider,
 	keys []database.AIProviderKey,
-	cfg codersdk.AIBridgeConfig,
+	cfg nicloudsdk.AIBridgeConfig,
 ) (aibridge.Provider, error) {
 	if !row.Enabled {
 		return disabledProviderFromRow(row)
@@ -326,8 +326,8 @@ func buildAIProviderKeyPool(keys []database.AIProviderKey) (*keypool.Pool, error
 // discriminator or when the Bedrock fields are not actually configured.
 // The provider row's BaseUrl is the generic upstream endpoint and is
 // always non-empty, so it cannot serve as a Bedrock detection signal;
-// gate on the settings blob alone via [codersdk.AIProviderBedrockSettings.IsConfigured].
-func bedrockConfigFromRow(row database.AIProvider, settings codersdk.AIProviderSettings) *aibridge.AWSBedrockConfig {
+// gate on the settings blob alone via [nicloudsdk.AIProviderBedrockSettings.IsConfigured].
+func bedrockConfigFromRow(row database.AIProvider, settings nicloudsdk.AIProviderSettings) *aibridge.AWSBedrockConfig {
 	if settings.Bedrock == nil {
 		return nil
 	}
@@ -348,7 +348,7 @@ func bedrockConfigFromRow(row database.AIProvider, settings codersdk.AIProviderS
 }
 
 // circuitBreakerConfig returns nil when the breaker is disabled.
-func circuitBreakerConfig(cfg codersdk.AIBridgeConfig) *config.CircuitBreaker {
+func circuitBreakerConfig(cfg nicloudsdk.AIBridgeConfig) *config.CircuitBreaker {
 	if !cfg.CircuitBreakerEnabled.Value() {
 		return nil
 	}

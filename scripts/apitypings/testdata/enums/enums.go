@@ -1,4 +1,4 @@
-package codersdk
+package nicloudsdk
 
 type (
 	Enum          string

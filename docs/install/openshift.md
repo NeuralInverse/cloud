@@ -5,11 +5,11 @@
 - OpenShift cluster running K8s 1.19+ (OpenShift 4.7+)
 - Helm 3.5+ installed
 - OpenShift CLI (`oc`) installed
-- [Coder CLI](./cli.md) installed
+- [Neural Inverse Cloud CLI](./cli.md) installed
 
-## Install Coder with OpenShift
+## Install Neural Inverse Cloud with OpenShift
 
-### 1. Authenticate to OpenShift and create a Coder project
+### 1. Authenticate to OpenShift and create a Neural Inverse Cloud project
 
 Run the following command to login to your OpenShift cluster:
 
@@ -17,7 +17,7 @@ Run the following command to login to your OpenShift cluster:
 oc login --token=w4r...04s --server=<cluster-url>
 ```
 
-Next, you will run the below command to create a project for Coder:
+Next, you will run the below command to create a project for Neural Inverse Cloud:
 
 ```shell
 oc new-project coder
@@ -29,7 +29,7 @@ Depending upon your configured Security Context Constraints (SCC), you'll need
 to modify some or all of the following `securityContext` values from the default
 values:
 
-The below values are modified from Coder defaults and allow the Coder deployment
+The below values are modified from Neural Inverse Cloud defaults and allow the Neural Inverse Cloud deployment
 to run under the SCC `restricted-v2`.
 
 > [!NOTE]
@@ -60,7 +60,7 @@ coder:
   Alternatively, you can set these values to `null` to allow OpenShift to
   automatically select the correct value for the project.
 
-- For `readOnlyRootFilesystem`, consult the SCC under which Coder needs to run.
+- For `readOnlyRootFilesystem`, consult the SCC under which Neural Inverse Cloud needs to run.
   In the below example, the `restricted-v2` SCC does not require a read-only
   root filesystem, while `restricted-custom` does:
 
@@ -77,28 +77,28 @@ coder:
 - For `seccompProfile`: in some environments, you may need to set this to `null`
   to allow OpenShift to pick its preferred value.
 
-### 3. Configure the Coder service, connection URLs, and cache values
+### 3. Configure the Neural Inverse Cloud service, connection URLs, and cache values
 
-To establish a connection to PostgreSQL, set the `CODER_PG_CONNECTION_URL`
+To establish a connection to PostgreSQL, set the `NEURALINVERSE_PG_CONNECTION_URL`
 value. [See our Helm documentation](./kubernetes.md) on configuring the
-PostgreSQL connection URL as a secret. Additionally, if accessing Coder over a
-hostname, set the `CODER_ACCESS_URL` value.
+PostgreSQL connection URL as a secret. Additionally, if accessing Neural Inverse Cloud over a
+hostname, set the `NEURALINVERSE_ACCESS_URL` value.
 
-By default, Coder creates the cache directory in `/home/coder/.cache`. Given the
+By default, Neural Inverse Cloud creates the cache directory in `/home/coder/.cache`. Given the
 OpenShift-provided UID and `readOnlyRootFS` security context constraint, the
-Coder container does not have permission to write to this directory.
+Neural Inverse Cloud container does not have permission to write to this directory.
 
 To fix this, you can mount a temporary volume in the pod and set the
-`CODER_CACHE_DIRECTORY` environment variable to that location. In the below
+`NEURALINVERSE_CACHE_DIRECTORY` environment variable to that location. In the below
 example, we mount this under `/tmp` and set the cache location to `/tmp/coder`.
-This enables Coder to run with `readOnlyRootFilesystem: true`.
+This enables Neural Inverse Cloud to run with `readOnlyRootFilesystem: true`.
 
 > [!NOTE]
 > Depending on the number of templates and provisioners you use, you may
 > need to increase the size of the volume, as the `coder` pod will be
 > automatically restarted when this volume fills up.
 
-Additionally, create the Coder service as a `ClusterIP`. In the next step, you
+Additionally, create the Neural Inverse Cloud service as a `ClusterIP`. In the next step, you
 will create an OpenShift route that points to the service HTTP target port.
 
 ```yaml
@@ -106,14 +106,14 @@ coder:
   service:
     type: ClusterIP
   env:
-    - name: CODER_CACHE_DIRECTORY
+    - name: NEURALINVERSE_CACHE_DIRECTORY
       value: /tmp/coder
-    - name: CODER_PG_CONNECTION_URL
+    - name: NEURALINVERSE_PG_CONNECTION_URL
       valueFrom:
         secretKeyRef:
           key: url
           name: coder-db-url
-    - name: CODER_ACCESS_URL
+    - name: NEURALINVERSE_ACCESS_URL
       value: "https://coder-example.apps.openshiftapps.com"
   securityContext:
     runAsNonRoot: true
@@ -137,7 +137,7 @@ coder:
 ### 4. Create the OpenShift route
 
 Below is the YAML spec for creating an OpenShift route that sends traffic to the
-HTTP port of the Coder service:
+HTTP port of the Neural Inverse Cloud service:
 
 ```yaml
 kind: Route
@@ -166,13 +166,13 @@ Once complete, you can create this route in OpenShift via:
 oc apply -f route.yaml
 ```
 
-### 5. Install Coder
+### 5. Install Neural Inverse Cloud
 
-You can now install Coder using the values you've set from the above steps. To
+You can now install Neural Inverse Cloud using the values you've set from the above steps. To
 do so, run the series of `helm` commands below:
 
 ```shell
-helm repo add coder-v2 https://helm.coder.com/v2
+helm repo add coder-v2 https://helm.cloud.neuralinverse.com/v2
 helm repo update
 helm install coder coder-v2/coder \
   --namespace coder \

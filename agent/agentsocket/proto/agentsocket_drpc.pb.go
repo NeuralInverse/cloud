@@ -7,7 +7,7 @@ package proto
 import (
 	context "context"
 	errors "errors"
-	proto1 "github.com/coder/coder/v2/agent/proto"
+	proto1 "github.com/NeuralInverse/cloud/v2/agent/proto"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	proto "google.golang.org/protobuf/proto"
 	drpc "storj.io/drpc"
@@ -60,7 +60,7 @@ func (c *drpcAgentSocketClient) DRPCConn() drpc.Conn { return c.cc }
 
 func (c *drpcAgentSocketClient) Ping(ctx context.Context, in *PingRequest) (*PingResponse, error) {
 	out := new(PingResponse)
-	err := c.cc.Invoke(ctx, "/coder.agentsocket.v1.AgentSocket/Ping", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agentsocket.v1.AgentSocket/Ping", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (c *drpcAgentSocketClient) Ping(ctx context.Context, in *PingRequest) (*Pin
 
 func (c *drpcAgentSocketClient) SyncStart(ctx context.Context, in *SyncStartRequest) (*SyncStartResponse, error) {
 	out := new(SyncStartResponse)
-	err := c.cc.Invoke(ctx, "/coder.agentsocket.v1.AgentSocket/SyncStart", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agentsocket.v1.AgentSocket/SyncStart", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *drpcAgentSocketClient) SyncStart(ctx context.Context, in *SyncStartRequ
 
 func (c *drpcAgentSocketClient) SyncWant(ctx context.Context, in *SyncWantRequest) (*SyncWantResponse, error) {
 	out := new(SyncWantResponse)
-	err := c.cc.Invoke(ctx, "/coder.agentsocket.v1.AgentSocket/SyncWant", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agentsocket.v1.AgentSocket/SyncWant", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (c *drpcAgentSocketClient) SyncWant(ctx context.Context, in *SyncWantReques
 
 func (c *drpcAgentSocketClient) SyncComplete(ctx context.Context, in *SyncCompleteRequest) (*SyncCompleteResponse, error) {
 	out := new(SyncCompleteResponse)
-	err := c.cc.Invoke(ctx, "/coder.agentsocket.v1.AgentSocket/SyncComplete", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agentsocket.v1.AgentSocket/SyncComplete", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (c *drpcAgentSocketClient) SyncComplete(ctx context.Context, in *SyncComple
 
 func (c *drpcAgentSocketClient) SyncReady(ctx context.Context, in *SyncReadyRequest) (*SyncReadyResponse, error) {
 	out := new(SyncReadyResponse)
-	err := c.cc.Invoke(ctx, "/coder.agentsocket.v1.AgentSocket/SyncReady", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agentsocket.v1.AgentSocket/SyncReady", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (c *drpcAgentSocketClient) SyncReady(ctx context.Context, in *SyncReadyRequ
 
 func (c *drpcAgentSocketClient) SyncStatus(ctx context.Context, in *SyncStatusRequest) (*SyncStatusResponse, error) {
 	out := new(SyncStatusResponse)
-	err := c.cc.Invoke(ctx, "/coder.agentsocket.v1.AgentSocket/SyncStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agentsocket.v1.AgentSocket/SyncStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (c *drpcAgentSocketClient) SyncStatus(ctx context.Context, in *SyncStatusRe
 
 func (c *drpcAgentSocketClient) UpdateAppStatus(ctx context.Context, in *proto1.UpdateAppStatusRequest) (*proto1.UpdateAppStatusResponse, error) {
 	out := new(proto1.UpdateAppStatusResponse)
-	err := c.cc.Invoke(ctx, "/coder.agentsocket.v1.AgentSocket/UpdateAppStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agentsocket.v1.AgentSocket/UpdateAppStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (DRPCAgentSocketDescription) NumMethods() int { return 7 }
 func (DRPCAgentSocketDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver, interface{}, bool) {
 	switch n {
 	case 0:
-		return "/coder.agentsocket.v1.AgentSocket/Ping", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
+		return "/neuralinverse.agentsocket.v1.AgentSocket/Ping", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentSocketServer).
 					Ping(
@@ -177,7 +177,7 @@ func (DRPCAgentSocketDescription) Method(n int) (string, drpc.Encoding, drpc.Rec
 					)
 			}, DRPCAgentSocketServer.Ping, true
 	case 1:
-		return "/coder.agentsocket.v1.AgentSocket/SyncStart", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
+		return "/neuralinverse.agentsocket.v1.AgentSocket/SyncStart", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentSocketServer).
 					SyncStart(
@@ -186,7 +186,7 @@ func (DRPCAgentSocketDescription) Method(n int) (string, drpc.Encoding, drpc.Rec
 					)
 			}, DRPCAgentSocketServer.SyncStart, true
 	case 2:
-		return "/coder.agentsocket.v1.AgentSocket/SyncWant", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
+		return "/neuralinverse.agentsocket.v1.AgentSocket/SyncWant", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentSocketServer).
 					SyncWant(
@@ -195,7 +195,7 @@ func (DRPCAgentSocketDescription) Method(n int) (string, drpc.Encoding, drpc.Rec
 					)
 			}, DRPCAgentSocketServer.SyncWant, true
 	case 3:
-		return "/coder.agentsocket.v1.AgentSocket/SyncComplete", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
+		return "/neuralinverse.agentsocket.v1.AgentSocket/SyncComplete", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentSocketServer).
 					SyncComplete(
@@ -204,7 +204,7 @@ func (DRPCAgentSocketDescription) Method(n int) (string, drpc.Encoding, drpc.Rec
 					)
 			}, DRPCAgentSocketServer.SyncComplete, true
 	case 4:
-		return "/coder.agentsocket.v1.AgentSocket/SyncReady", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
+		return "/neuralinverse.agentsocket.v1.AgentSocket/SyncReady", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentSocketServer).
 					SyncReady(
@@ -213,7 +213,7 @@ func (DRPCAgentSocketDescription) Method(n int) (string, drpc.Encoding, drpc.Rec
 					)
 			}, DRPCAgentSocketServer.SyncReady, true
 	case 5:
-		return "/coder.agentsocket.v1.AgentSocket/SyncStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
+		return "/neuralinverse.agentsocket.v1.AgentSocket/SyncStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentSocketServer).
 					SyncStatus(
@@ -222,7 +222,7 @@ func (DRPCAgentSocketDescription) Method(n int) (string, drpc.Encoding, drpc.Rec
 					)
 			}, DRPCAgentSocketServer.SyncStatus, true
 	case 6:
-		return "/coder.agentsocket.v1.AgentSocket/UpdateAppStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
+		return "/neuralinverse.agentsocket.v1.AgentSocket/UpdateAppStatus", drpcEncoding_File_agent_agentsocket_proto_agentsocket_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentSocketServer).
 					UpdateAppStatus(

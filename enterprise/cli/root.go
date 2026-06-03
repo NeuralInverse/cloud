@@ -1,7 +1,7 @@
 package cli
 
 import (
-	agplcli "github.com/coder/coder/v2/cli"
+	agplcli "github.com/NeuralInverse/cloud/v2/cli"
 	"github.com/coder/serpent"
 )
 

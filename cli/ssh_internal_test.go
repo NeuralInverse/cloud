@@ -21,8 +21,8 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -38,12 +38,12 @@ func TestVerifyWorkspaceOutdated(t *testing.T) {
 	serverURL, err := url.Parse(fakeServerURL)
 	require.NoError(t, err)
 
-	client := codersdk.Client{URL: serverURL}
+	client := nicloudsdk.Client{URL: serverURL}
 
 	t.Run("Up-to-date", func(t *testing.T) {
 		t.Parallel()
 
-		workspace := codersdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
+		workspace := nicloudsdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
 
 		_, outdated := verifyWorkspaceOutdated(&client, workspace)
 
@@ -52,7 +52,7 @@ func TestVerifyWorkspaceOutdated(t *testing.T) {
 	t.Run("Outdated", func(t *testing.T) {
 		t.Parallel()
 
-		workspace := codersdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName, Outdated: true}
+		workspace := nicloudsdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName, Outdated: true}
 
 		updateWorkspaceBanner, outdated := verifyWorkspaceOutdated(&client, workspace)
 
@@ -67,7 +67,7 @@ func TestBuildWorkspaceLink(t *testing.T) {
 	serverURL, err := url.Parse(fakeServerURL)
 	require.NoError(t, err)
 
-	workspace := codersdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
+	workspace := nicloudsdk.Workspace{Name: fakeWorkspaceName, OwnerName: fakeOwnerName}
 	workspaceLink := buildWorkspaceLink(serverURL, workspace)
 
 	assert.Equal(t, workspaceLink.String(), fakeServerURL+"/@"+fakeOwnerName+"/"+fakeWorkspaceName)
@@ -243,7 +243,7 @@ func TestCloserStack_PushAfterClose_ConnClosed(t *testing.T) {
 	require.Equal(t, []*fakeCloser{fc}, *closes, "should close conn on failed push")
 }
 
-func TestCoderConnectDialer_DefaultTimeout(t *testing.T) {
+func TestNIConnectDialer_DefaultTimeout(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
@@ -254,16 +254,16 @@ func TestCoderConnectDialer_DefaultTimeout(t *testing.T) {
 	assert.Equal(t, 30*time.Second, d.KeepAlive)
 }
 
-func TestCoderConnectDialer_Overridden(t *testing.T) {
+func TestNIConnectDialer_Overridden(t *testing.T) {
 	t.Parallel()
 	custom := &net.Dialer{Timeout: 99 * time.Second}
-	ctx := WithTestOnlyCoderConnectDialer(context.Background(), custom)
+	ctx := WithTestOnlyNIConnectDialer(context.Background(), custom)
 
 	dialer := testOrDefaultDialer(ctx)
 	assert.Equal(t, custom, dialer)
 }
 
-func TestCoderConnectStdio(t *testing.T) {
+func TestNIConnectStdio(t *testing.T) {
 	t.Parallel()
 
 	ctx := testutil.Context(t, testutil.WaitShort)
@@ -291,7 +291,7 @@ func TestCoderConnectStdio(t *testing.T) {
 
 	stdioDone := make(chan struct{})
 	go func() {
-		err = runCoderConnectStdio(ctx, ln.Addr().String(), clientOutput, serverInput, stack, logger)
+		err = runNIConnectStdio(ctx, ln.Addr().String(), clientOutput, serverInput, stack, logger)
 		assert.NoError(t, err)
 		close(stdioDone)
 	}()
@@ -392,11 +392,11 @@ func newAsyncCloser(ctx context.Context, t *testing.T) *asyncCloser {
 func Test_getWorkspaceAgent(t *testing.T) {
 	t.Parallel()
 
-	createWorkspaceWithAgents := func(agents []codersdk.WorkspaceAgent) codersdk.Workspace {
-		return codersdk.Workspace{
+	createWorkspaceWithAgents := func(agents []nicloudsdk.WorkspaceAgent) nicloudsdk.Workspace {
+		return nicloudsdk.Workspace{
 			Name: "test-workspace",
-			LatestBuild: codersdk.WorkspaceBuild{
-				Resources: []codersdk.WorkspaceResource{
+			LatestBuild: nicloudsdk.WorkspaceBuild{
+				Resources: []nicloudsdk.WorkspaceResource{
 					{
 						Agents: agents,
 					},
@@ -405,8 +405,8 @@ func Test_getWorkspaceAgent(t *testing.T) {
 		}
 	}
 
-	createAgent := func(name string) codersdk.WorkspaceAgent {
-		return codersdk.WorkspaceAgent{
+	createAgent := func(name string) nicloudsdk.WorkspaceAgent {
+		return nicloudsdk.WorkspaceAgent{
 			ID:   uuid.New(),
 			Name: name,
 		}
@@ -415,7 +415,7 @@ func Test_getWorkspaceAgent(t *testing.T) {
 	t.Run("SingleAgent_NoNameSpecified", func(t *testing.T) {
 		t.Parallel()
 		agent := createAgent("main")
-		workspace := createWorkspaceWithAgents([]codersdk.WorkspaceAgent{agent})
+		workspace := createWorkspaceWithAgents([]nicloudsdk.WorkspaceAgent{agent})
 
 		result, _, err := getWorkspaceAgent(workspace, "")
 		require.NoError(t, err)
@@ -427,7 +427,7 @@ func Test_getWorkspaceAgent(t *testing.T) {
 		t.Parallel()
 		agent1 := createAgent("main1")
 		agent2 := createAgent("main2")
-		workspace := createWorkspaceWithAgents([]codersdk.WorkspaceAgent{agent1, agent2})
+		workspace := createWorkspaceWithAgents([]nicloudsdk.WorkspaceAgent{agent1, agent2})
 
 		_, _, err := getWorkspaceAgent(workspace, "")
 		require.Error(t, err)
@@ -439,7 +439,7 @@ func Test_getWorkspaceAgent(t *testing.T) {
 		t.Parallel()
 		agent1 := createAgent("main1")
 		agent2 := createAgent("main2")
-		workspace := createWorkspaceWithAgents([]codersdk.WorkspaceAgent{agent1, agent2})
+		workspace := createWorkspaceWithAgents([]nicloudsdk.WorkspaceAgent{agent1, agent2})
 
 		result, other, err := getWorkspaceAgent(workspace, "main1")
 		require.NoError(t, err)
@@ -454,7 +454,7 @@ func Test_getWorkspaceAgent(t *testing.T) {
 		t.Parallel()
 		agent1 := createAgent("main1")
 		agent2 := createAgent("main2")
-		workspace := createWorkspaceWithAgents([]codersdk.WorkspaceAgent{agent1, agent2})
+		workspace := createWorkspaceWithAgents([]nicloudsdk.WorkspaceAgent{agent1, agent2})
 
 		_, _, err := getWorkspaceAgent(workspace, "nonexistent")
 		require.Error(t, err)
@@ -464,7 +464,7 @@ func Test_getWorkspaceAgent(t *testing.T) {
 
 	t.Run("NoAgents", func(t *testing.T) {
 		t.Parallel()
-		workspace := createWorkspaceWithAgents([]codersdk.WorkspaceAgent{})
+		workspace := createWorkspaceWithAgents([]nicloudsdk.WorkspaceAgent{})
 
 		_, _, err := getWorkspaceAgent(workspace, "")
 		require.Error(t, err)
@@ -477,7 +477,7 @@ func Test_getWorkspaceAgent(t *testing.T) {
 		agent2 := createAgent("zod")
 		agent1 := createAgent("clark")
 		agent3 := createAgent("krypton")
-		workspace := createWorkspaceWithAgents([]codersdk.WorkspaceAgent{agent2, agent1, agent3})
+		workspace := createWorkspaceWithAgents([]nicloudsdk.WorkspaceAgent{agent2, agent1, agent3})
 
 		_, _, err := getWorkspaceAgent(workspace, "nonexistent")
 		require.Error(t, err)
@@ -501,12 +501,12 @@ func TestIsRetryableError(t *testing.T) {
 		{"DNSError", &net.DNSError{Err: "no such host", Name: "example.com", IsNotFound: true}, true},
 		{"OpError", &net.OpError{Op: "dial", Net: "tcp", Err: &os.SyscallError{}}, true},
 		{"WrappedDNSError", xerrors.Errorf("connect: %w", &net.DNSError{Err: "no such host", Name: "example.com"}), true},
-		{"SDKError_500", codersdk.NewTestError(http.StatusInternalServerError, "GET", "/api"), true},
-		{"SDKError_502", codersdk.NewTestError(http.StatusBadGateway, "GET", "/api"), true},
-		{"SDKError_503", codersdk.NewTestError(http.StatusServiceUnavailable, "GET", "/api"), true},
-		{"SDKError_401", codersdk.NewTestError(http.StatusUnauthorized, "GET", "/api"), false},
-		{"SDKError_403", codersdk.NewTestError(http.StatusForbidden, "GET", "/api"), false},
-		{"SDKError_404", codersdk.NewTestError(http.StatusNotFound, "GET", "/api"), false},
+		{"SDKError_500", nicloudsdk.NewTestError(http.StatusInternalServerError, "GET", "/api"), true},
+		{"SDKError_502", nicloudsdk.NewTestError(http.StatusBadGateway, "GET", "/api"), true},
+		{"SDKError_503", nicloudsdk.NewTestError(http.StatusServiceUnavailable, "GET", "/api"), true},
+		{"SDKError_401", nicloudsdk.NewTestError(http.StatusUnauthorized, "GET", "/api"), false},
+		{"SDKError_403", nicloudsdk.NewTestError(http.StatusForbidden, "GET", "/api"), false},
+		{"SDKError_404", nicloudsdk.NewTestError(http.StatusNotFound, "GET", "/api"), false},
 		{"GenericError", xerrors.New("something went wrong"), false},
 	}
 
@@ -530,8 +530,8 @@ func TestIsRetryableError(t *testing.T) {
 		require.ErrorIs(t, err, context.DeadlineExceeded)
 		require.ErrorAs(t, err, new(*net.OpError))
 		assert.True(t, isRetryableError(err))
-		// Also when wrapped, as runCoderConnectStdio does.
-		assert.True(t, isRetryableError(xerrors.Errorf("dial coder connect: %w", err)))
+		// Also when wrapped, as runNIConnectStdio does.
+		assert.True(t, isRetryableError(xerrors.Errorf("dial neuralinverse connect: %w", err)))
 	})
 }
 

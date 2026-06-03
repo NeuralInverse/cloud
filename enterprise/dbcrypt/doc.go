@@ -25,7 +25,7 @@
 //   - active_key_digest: the SHA256 digest of the active key. If null, the key has been revoked.
 //   - revoked_key_digest: the SHA256 digest of the revoked key. If null, the key has not been revoked.
 //   - revoked_at: the time the key was revoked. If null, the key has not been revoked.
-//   - test: the encrypted value of the string "coder". This is used to ensure that the key is valid.
+//   - test: the encrypted value of the string "neuralinverse". This is used to ensure that the key is valid.
 //
 // Encrypted fields are stored in the database as a base64-encoded string.
 // Each encrypted column MUST have a corresponding _key_id column that is a foreign key

@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 func TestAutoUpdate(t *testing.T) {
@@ -18,17 +18,17 @@ func TestAutoUpdate(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-		require.Equal(t, codersdk.AutomaticUpdatesNever, workspace.AutomaticUpdates)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, member, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		require.Equal(t, nicloudsdk.AutomaticUpdatesNever, workspace.AutomaticUpdates)
 
-		expectedPolicy := codersdk.AutomaticUpdatesAlways
+		expectedPolicy := nicloudsdk.AutomaticUpdatesAlways
 		inv, root := clitest.New(t, "autoupdate", workspace.Name, string(expectedPolicy))
 		clitest.SetupConfig(t, member, root)
 		var buf bytes.Buffer
@@ -37,7 +37,7 @@ func TestAutoUpdate(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, buf.String(), fmt.Sprintf("Updated workspace %q auto-update policy to %q", workspace.Name, expectedPolicy))
 
-		workspace = coderdtest.MustWorkspace(t, client, workspace.ID)
+		workspace = nicloudtest.MustWorkspace(t, client, workspace.ID)
 		require.Equal(t, expectedPolicy, workspace.AutomaticUpdates)
 	})
 
@@ -64,8 +64,8 @@ func TestAutoUpdate(t *testing.T) {
 		for _, c := range cases {
 			t.Run(c.Name, func(t *testing.T) {
 				t.Parallel()
-				client := coderdtest.New(t, nil)
-				_ = coderdtest.CreateFirstUser(t, client)
+				client := nicloudtest.New(t, nil)
+				_ = nicloudtest.CreateFirstUser(t, client)
 
 				inv, root := clitest.New(t, c.Args...)
 				clitest.SetupConfig(t, client, root)

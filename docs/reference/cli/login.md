@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # login
 
-Authenticate with Coder deployment
+Authenticate with Neural Inverse Cloud deployment
 
 ## Usage
 
@@ -12,7 +12,7 @@ coder login [flags] [<url>]
 ## Description
 
 ```console
-By default, the session token is stored in the operating system keyring on macOS and Windows and a plain text file on Linux. Use the --use-keyring flag or CODER_USE_KEYRING environment variable to change the storage mechanism.
+By default, the session token is stored in the operating system keyring on macOS and Windows and a plain text file on Linux. Use the --use-keyring flag or NEURALINVERSE_USE_KEYRING environment variable to change the storage mechanism.
 ```
 
 ## Subcommands
@@ -28,7 +28,7 @@ By default, the session token is stored in the operating system keyring on macOS
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_FIRST_USER_EMAIL</code> |
+| Environment | <code>$NEURALINVERSE_FIRST_USER_EMAIL</code> |
 
 Specifies an email address to use if creating the first user for the deployment.
 
@@ -37,7 +37,7 @@ Specifies an email address to use if creating the first user for the deployment.
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_FIRST_USER_USERNAME</code> |
+| Environment | <code>$NEURALINVERSE_FIRST_USER_USERNAME</code> |
 
 Specifies a username to use if creating the first user for the deployment.
 
@@ -46,7 +46,7 @@ Specifies a username to use if creating the first user for the deployment.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_FIRST_USER_FULL_NAME</code> |
+| Environment | <code>$NEURALINVERSE_FIRST_USER_FULL_NAME</code> |
 
 Specifies a human-readable name for the first user of the deployment.
 
@@ -55,7 +55,7 @@ Specifies a human-readable name for the first user of the deployment.
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_FIRST_USER_PASSWORD</code> |
+| Environment | <code>$NEURALINVERSE_FIRST_USER_PASSWORD</code> |
 
 Specifies a password to use if creating the first user for the deployment.
 
@@ -64,9 +64,9 @@ Specifies a password to use if creating the first user for the deployment.
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>bool</code>                    |
-| Environment | <code>$CODER_FIRST_USER_TRIAL</code> |
+| Environment | <code>$NEURALINVERSE_FIRST_USER_TRIAL</code> |
 
-Specifies whether a trial license should be provisioned for the Coder deployment or not.
+Specifies whether a trial license should be provisioned for the Neural Inverse Cloud deployment or not.
 
 ### --use-token-as-session
 

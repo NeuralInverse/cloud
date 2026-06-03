@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # prebuilds
 
-Manage Coder prebuilds
+Manage Neural Inverse Cloud prebuilds
 
 Aliases:
 
@@ -17,11 +17,11 @@ coder prebuilds
 
 ```console
 Administrators can use these commands to manage prebuilt workspace settings.
-  - Pause Coder prebuilt workspace reconciliation.:
+  - Pause Neural Inverse Cloud prebuilt workspace reconciliation.:
 
      $ coder prebuilds pause
 
-  - Resume Coder prebuilt workspace reconciliation if it has been paused.:
+  - Resume Neural Inverse Cloud prebuilt workspace reconciliation if it has been paused.:
 
      $ coder prebuilds resume
 ```

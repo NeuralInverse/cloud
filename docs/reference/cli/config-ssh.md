@@ -29,7 +29,7 @@ workspaces:
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string</code>                 |
-| Environment | <code>$CODER_SSH_CONFIG_FILE</code> |
+| Environment | <code>$NEURALINVERSE_SSH_CONFIG_FILE</code> |
 | Default     | <code>~/.ssh/config</code>          |
 
 Specifies the path to an SSH config.
@@ -39,7 +39,7 @@ Specifies the path to an SSH config.
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>string</code>                        |
-| Environment | <code>$CODER_SSH_CONFIG_BINARY_PATH</code> |
+| Environment | <code>$NEURALINVERSE_SSH_CONFIG_BINARY_PATH</code> |
 
 Optionally specify the absolute path to the coder binary used in ProxyCommand. By default, the binary invoking this command ('config ssh') is used.
 
@@ -48,7 +48,7 @@ Optionally specify the absolute path to the coder binary used in ProxyCommand. B
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string-array</code>           |
-| Environment | <code>$CODER_SSH_CONFIG_OPTS</code> |
+| Environment | <code>$NEURALINVERSE_SSH_CONFIG_OPTS</code> |
 
 Specifies additional SSH options to embed in each host stanza.
 
@@ -57,7 +57,7 @@ Specifies additional SSH options to embed in each host stanza.
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>bool</code>               |
-| Environment | <code>$CODER_SSH_DRY_RUN</code> |
+| Environment | <code>$NEURALINVERSE_SSH_DRY_RUN</code> |
 
 Perform a trial run with no changes made, showing a diff at the end.
 
@@ -66,7 +66,7 @@ Perform a trial run with no changes made, showing a diff at the end.
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>bool</code>                            |
-| Environment | <code>$CODER_SSH_USE_PREVIOUS_OPTIONS</code> |
+| Environment | <code>$NEURALINVERSE_SSH_USE_PREVIOUS_OPTIONS</code> |
 
 Specifies whether or not to keep options from previous run of config-ssh.
 
@@ -75,7 +75,7 @@ Specifies whether or not to keep options from previous run of config-ssh.
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_CONFIGSSH_SSH_HOST_PREFIX</code> |
+| Environment | <code>$NEURALINVERSE_CONFIGSSH_SSH_HOST_PREFIX</code> |
 
 Override the default host prefix.
 
@@ -84,7 +84,7 @@ Override the default host prefix.
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_CONFIGSSH_HOSTNAME_SUFFIX</code> |
+| Environment | <code>$NEURALINVERSE_CONFIGSSH_HOSTNAME_SUFFIX</code> |
 
 Override the default hostname suffix.
 
@@ -93,7 +93,7 @@ Override the default hostname suffix.
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>yes\|no\|auto</code>         |
-| Environment | <code>$CODER_CONFIGSSH_WAIT</code> |
+| Environment | <code>$NEURALINVERSE_CONFIGSSH_WAIT</code> |
 | Default     | <code>auto</code>                  |
 
 Specifies whether or not to wait for the startup script to finish executing. Auto means that the agent startup script behavior configured in the workspace template is used.
@@ -103,7 +103,7 @@ Specifies whether or not to wait for the startup script to finish executing. Aut
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>bool</code>                               |
-| Environment | <code>$CODER_CONFIGSSH_DISABLE_AUTOSTART</code> |
+| Environment | <code>$NEURALINVERSE_CONFIGSSH_DISABLE_AUTOSTART</code> |
 | Default     | <code>false</code>                              |
 
 Disable starting the workspace automatically when connecting via SSH.
@@ -113,7 +113,7 @@ Disable starting the workspace automatically when connecting via SSH.
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>bool</code>                            |
-| Environment | <code>$CODER_CONFIGSSH_UNIX_FILEPATHS</code> |
+| Environment | <code>$NEURALINVERSE_CONFIGSSH_UNIX_FILEPATHS</code> |
 
 By default, 'config-ssh' uses the os path separator when writing the ssh config. This might be an issue in Windows machine that use a unix-like shell. This flag forces the use of unix file paths (the forward slash '/').
 

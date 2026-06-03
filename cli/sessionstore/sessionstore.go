@@ -1,11 +1,11 @@
 // Package sessionstore provides CLI session token storage mechanisms.
-// Operating system keyring storage is intended to have compatibility with other Coder
-// applications (e.g. Coder Desktop, Coder provider for JetBrains Toolbox, etc) so that
+// Operating system keyring storage is intended to have compatibility with other Neural Inverse Cloud
+// applications (e.g. Coder Desktop, Neural Inverse Cloud provider for JetBrains Toolbox, etc) so that
 // applications can read/write the same credential stored in the keyring.
 //
 // Note that we aren't using an existing Go package zalando/go-keyring here for a few
 // reasons. 1) It prescribes the format of the target credential name in the OS keyrings,
-// which makes our life difficult for compatibility with other Coder applications. 2)
+// which makes our life difficult for compatibility with other Neural Inverse Cloud applications. 2)
 // It uses init functions that make it difficult to test with. As a result, the OS
 // keyring implementations may be adapted from zalando/go-keyring source (i.e. Windows).
 package sessionstore
@@ -19,7 +19,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
 )
 
 // Backend is a storage backend for session tokens.
@@ -47,9 +47,9 @@ var (
 )
 
 const (
-	// DefaultServiceName is the service name used in keyrings for storing Coder CLI session
+	// DefaultServiceName is the service name used in keyrings for storing Neural Inverse Cloud CLI session
 	// tokens.
-	DefaultServiceName = "coder-v2-credentials"
+	DefaultServiceName = "neuralinverse-v2-credentials"
 )
 
 // keyringProvider represents an operating system keyring. The expectation
@@ -68,7 +68,7 @@ type keyringProvider interface {
 
 // credential represents a single credential entry.
 type credential struct {
-	CoderURL string `json:"coder_url"`
+	NIURL string `json:"coder_url"`
 	APIToken string `json:"api_token"`
 }
 
@@ -101,7 +101,7 @@ func parseCredentialsJSON(jsonData []byte) (credentialsMap, error) {
 // Keyring is a Backend that exclusively stores the session token in the operating
 // system keyring. Happy path usage of this type should start with NewKeyring.
 // It stores a JSON object in the keyring that supports multiple credentials for
-// different server URLs, providing compatibility with Coder Desktop and other Coder
+// different server URLs, providing compatibility with Coder Desktop and other Neural Inverse Cloud
 // applications.
 type Keyring struct {
 	provider    keyringProvider
@@ -163,7 +163,7 @@ func (o Keyring) Write(serverURL *url.URL, token string) error {
 
 	// Upsert the credential for this URL.
 	creds[host] = credential{
-		CoderURL: host,
+		NIURL: host,
 		APIToken: token,
 	}
 

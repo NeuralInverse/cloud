@@ -20,7 +20,7 @@ type DRPCTailnetClient21 interface {
 	DRPCTailnetClient20
 }
 
-// DRPCTailnetClient22 is the Tailnet API at v2.2. It adds telemetry support. Compatible with Coder
+// DRPCTailnetClient22 is the Tailnet API at v2.2. It adds telemetry support. Compatible with Neural Inverse Cloud
 // v2.13+
 type DRPCTailnetClient22 interface {
 	DRPCTailnetClient21
@@ -28,7 +28,7 @@ type DRPCTailnetClient22 interface {
 }
 
 // DRPCTailnetClient23 is the Tailnet API at v2.3. It adds resume token and workspace updates
-// support. Compatible with Coder v2.18+.
+// support. Compatible with Neural Inverse Cloud v2.18+.
 type DRPCTailnetClient23 interface {
 	DRPCTailnetClient22
 	RefreshResumeToken(ctx context.Context, in *RefreshResumeTokenRequest) (*RefreshResumeTokenResponse, error)

@@ -20,8 +20,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/pproflabel"
-	"github.com/coder/coder/v2/coderd/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloud/pproflabel"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
 )
 
 // Server wraps the LLM mock server and provides an HTTP API to retrieve requests.

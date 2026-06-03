@@ -6,9 +6,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -31,7 +31,7 @@ func (r *RootCmd) Provisioners() *serpent.Command {
 
 func (r *RootCmd) provisionerList() *serpent.Command {
 	type provisionerDaemonRow struct {
-		codersdk.ProvisionerDaemon `table:"provisioner_daemon,recursive_inline"`
+		nicloudsdk.ProvisionerDaemon `table:"provisioner_daemon,recursive_inline"`
 		OrganizationName           string `json:"organization_name" table:"organization"`
 	}
 	var (
@@ -64,10 +64,10 @@ func (r *RootCmd) provisionerList() *serpent.Command {
 				return xerrors.Errorf("current organization: %w", err)
 			}
 
-			daemons, err := client.OrganizationProvisionerDaemons(ctx, org.ID, &codersdk.OrganizationProvisionerDaemonsOptions{
+			daemons, err := client.OrganizationProvisionerDaemons(ctx, org.ID, &nicloudsdk.OrganizationProvisionerDaemonsOptions{
 				Limit:   int(limit),
 				Offline: offline,
-				Status:  slice.StringEnums[codersdk.ProvisionerDaemonStatus](status),
+				Status:  slice.StringEnums[nicloudsdk.ProvisionerDaemonStatus](status),
 				MaxAge:  maxAge,
 			})
 			if err != nil {
@@ -102,7 +102,7 @@ func (r *RootCmd) provisionerList() *serpent.Command {
 		{
 			Flag:          "limit",
 			FlagShorthand: "l",
-			Env:           "CODER_PROVISIONER_LIST_LIMIT",
+			Env:           "NEURALINVERSE_PROVISIONER_LIST_LIMIT",
 			Description:   "Limit the number of provisioners returned.",
 			Default:       "50",
 			Value:         serpent.Int64Of(&limit),
@@ -110,21 +110,21 @@ func (r *RootCmd) provisionerList() *serpent.Command {
 		{
 			Flag:          "show-offline",
 			FlagShorthand: "f",
-			Env:           "CODER_PROVISIONER_SHOW_OFFLINE",
+			Env:           "NEURALINVERSE_PROVISIONER_SHOW_OFFLINE",
 			Description:   "Show offline provisioners.",
 			Value:         serpent.BoolOf(&offline),
 		},
 		{
 			Flag:          "status",
 			FlagShorthand: "s",
-			Env:           "CODER_PROVISIONER_LIST_STATUS",
+			Env:           "NEURALINVERSE_PROVISIONER_LIST_STATUS",
 			Description:   "Filter by provisioner status.",
-			Value:         serpent.EnumArrayOf(&status, slice.ToStrings(codersdk.ProvisionerDaemonStatusEnums())...),
+			Value:         serpent.EnumArrayOf(&status, slice.ToStrings(nicloudsdk.ProvisionerDaemonStatusEnums())...),
 		},
 		{
 			Flag:          "max-age",
 			FlagShorthand: "m",
-			Env:           "CODER_PROVISIONER_LIST_MAX_AGE",
+			Env:           "NEURALINVERSE_PROVISIONER_LIST_MAX_AGE",
 			Description:   "Filter provisioners by maximum age.",
 			Value:         serpent.DurationOf(&maxAge),
 		},

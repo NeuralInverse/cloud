@@ -12,20 +12,20 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 
 	workspaceID uuid.UUID
 }
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -70,8 +70,8 @@ func (r *Runner) RunReturningWorkspace(ctx context.Context, id string, logs io.W
 			for i := 0; i < r.cfg.Retry; i++ {
 				_, _ = fmt.Fprintf(logs, "Retrying build %d/%d...\n", i+1, r.cfg.Retry)
 
-				workspace.LatestBuild, err = r.client.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-					Transition:          codersdk.WorkspaceTransitionStart,
+				workspace.LatestBuild, err = r.client.CreateWorkspaceBuild(ctx, workspace.ID, nicloudsdk.CreateWorkspaceBuildRequest{
+					Transition:          nicloudsdk.WorkspaceTransitionStart,
 					RichParameterValues: req.RichParameterValues,
 					TemplateVersionID:   req.TemplateVersionID,
 				})
@@ -106,13 +106,13 @@ func (r *Runner) RunReturningWorkspace(ctx context.Context, id string, logs io.W
 
 // CleanupRunner is a runner that deletes a workspace in the Run phase.
 type CleanupRunner struct {
-	client      *codersdk.Client
+	client      *nicloudsdk.Client
 	workspaceID uuid.UUID
 }
 
 var _ harness.Runnable = &CleanupRunner{}
 
-func NewCleanupRunner(client *codersdk.Client, workspaceID uuid.UUID) *CleanupRunner {
+func NewCleanupRunner(client *nicloudsdk.Client, workspaceID uuid.UUID) *CleanupRunner {
 	return &CleanupRunner{
 		client:      client,
 		workspaceID: workspaceID,
@@ -134,7 +134,7 @@ func (r *CleanupRunner) Run(ctx context.Context, _ string, logs io.Writer) error
 
 	ws, err := r.client.Workspace(ctx, r.workspaceID)
 	if err != nil {
-		var sdkErr *codersdk.Error
+		var sdkErr *nicloudsdk.Error
 		if xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound {
 			logger.Info(ctx, "workspace not found, skipping delete", slog.F("workspace_id", r.workspaceID))
 			return nil
@@ -146,7 +146,7 @@ func (r *CleanupRunner) Run(ctx context.Context, _ string, logs io.Writer) error
 	if err == nil && build.Job.Status.Active() {
 		// mark the build as canceled
 		logger.Info(ctx, "canceling workspace build", slog.F("build_id", build.ID), slog.F("workspace_id", r.workspaceID))
-		if err = r.client.CancelWorkspaceBuild(ctx, build.ID, codersdk.CancelWorkspaceBuildParams{}); err != nil {
+		if err = r.client.CancelWorkspaceBuild(ctx, build.ID, nicloudsdk.CancelWorkspaceBuildParams{}); err != nil {
 			logger.Warn(ctx, "failed to cancel workspace build", slog.Error(err))
 		}
 		// Wait for either the build or the cancellation to finish
@@ -156,8 +156,8 @@ func (r *CleanupRunner) Run(ctx context.Context, _ string, logs io.Writer) error
 		logger.Warn(ctx, "unable to lookup latest workspace build, attempting to delete anyway", slog.Error(err))
 	}
 
-	build, err = r.client.CreateWorkspaceBuild(ctx, r.workspaceID, codersdk.CreateWorkspaceBuildRequest{
-		Transition: codersdk.WorkspaceTransitionDelete,
+	build, err = r.client.CreateWorkspaceBuild(ctx, r.workspaceID, nicloudsdk.CreateWorkspaceBuildRequest{
+		Transition: nicloudsdk.WorkspaceTransitionDelete,
 	})
 	if err != nil {
 		return xerrors.Errorf("delete workspace: %w", err)
@@ -179,7 +179,7 @@ func (r *Runner) Cleanup(ctx context.Context, id string, w io.Writer) error {
 	}).Run(ctx, id, w)
 }
 
-func waitForBuild(ctx context.Context, w io.Writer, client *codersdk.Client, buildID uuid.UUID) error {
+func waitForBuild(ctx context.Context, w io.Writer, client *nicloudsdk.Client, buildID uuid.UUID) error {
 	ctx, span := tracing.StartSpan(ctx)
 	defer span.End()
 	_, _ = fmt.Fprint(w, "Build is currently queued...")
@@ -191,7 +191,7 @@ func waitForBuild(ctx context.Context, w io.Writer, client *codersdk.Client, bui
 			return xerrors.Errorf("fetch build: %w", err)
 		}
 
-		if build.Job.Status != codersdk.ProvisionerJobPending {
+		if build.Job.Status != nicloudsdk.ProvisionerJobPending {
 			break
 		}
 
@@ -221,13 +221,13 @@ func waitForBuild(ctx context.Context, w io.Writer, client *codersdk.Client, bui
 
 				_, _ = fmt.Fprintln(w, "")
 				switch build.Job.Status {
-				case codersdk.ProvisionerJobSucceeded:
+				case nicloudsdk.ProvisionerJobSucceeded:
 					_, _ = fmt.Fprintln(w, "\nBuild succeeded!")
 					return nil
-				case codersdk.ProvisionerJobFailed:
+				case nicloudsdk.ProvisionerJobFailed:
 					_, _ = fmt.Fprintf(w, "\nBuild failed with error %q.\nSee logs above for more details.\n", build.Job.Error)
 					return xerrors.Errorf("build failed with status %q: %s", build.Job.Status, build.Job.Error)
-				case codersdk.ProvisionerJobCanceled:
+				case nicloudsdk.ProvisionerJobCanceled:
 					_, _ = fmt.Fprintln(w, "\nBuild canceled.")
 					return xerrors.New("build canceled")
 				default:
@@ -250,7 +250,7 @@ func waitForBuild(ctx context.Context, w io.Writer, client *codersdk.Client, bui
 	}
 }
 
-func waitForAgents(ctx context.Context, w io.Writer, client *codersdk.Client, workspaceID uuid.UUID) error {
+func waitForAgents(ctx context.Context, w io.Writer, client *nicloudsdk.Client, workspaceID uuid.UUID) error {
 	ctx, span := tracing.StartSpan(ctx)
 	defer span.End()
 	_, _ = fmt.Fprint(w, "Waiting for agents to connect...\n\n")
@@ -270,7 +270,7 @@ func waitForAgents(ctx context.Context, w io.Writer, client *codersdk.Client, wo
 		ok := true
 		for _, res := range workspace.LatestBuild.Resources {
 			for _, agent := range res.Agents {
-				if agent.Status != codersdk.WorkspaceAgentConnected {
+				if agent.Status != nicloudsdk.WorkspaceAgentConnected {
 					ok = false
 				}
 

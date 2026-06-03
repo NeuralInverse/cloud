@@ -135,7 +135,7 @@ export const HealthLayout: FC = () => {
 									data-chromatic="ignore"
 									className="text-content-secondary line-height-[150%]"
 								>
-									{healthStatus.coder_version}
+									{healthStatus.ni_version}
 								</span>
 							</div>
 						</div>

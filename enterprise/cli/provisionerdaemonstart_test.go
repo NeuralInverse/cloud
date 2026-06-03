@@ -11,17 +11,17 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestProvisionerDaemon_PSK(t *testing.T) {
@@ -30,12 +30,12 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -49,7 +49,7 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 		stdout.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		stdout.ExpectMatchContext(ctx, "matt-daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
 			if err != nil {
@@ -65,17 +65,17 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 
 	t.Run("AnotherOrgByNameWithUser", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
-		anotherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
+		anotherOrg := nicloudenttest.CreateOrganization(t, client, nicloudenttest.CreateOrganizationOptions{})
+		anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
 		inv, conf := newCLI(t, "provisionerd", "start", "--name", "org-daemon", "--org", anotherOrg.Name)
 		clitest.SetupConfig(t, anotherClient, conf)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -87,11 +87,11 @@ func TestProvisionerDaemon_PSK(t *testing.T) {
 
 	t.Run("NoUserNoPSK", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
@@ -109,15 +109,15 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 	t.Parallel()
 	t.Run("ScopeUser", func(t *testing.T) {
 		t.Parallel()
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		anotherClient, anotherUser := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=user", "--name", "my-daemon")
 		clitest.SetupConfig(t, anotherClient, conf)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -126,7 +126,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		stdout.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
@@ -144,15 +144,15 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 
 	t.Run("ScopeAnotherUser", func(t *testing.T) {
 		t.Parallel()
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		anotherClient, anotherUser := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=user", "--tag", "owner="+admin.UserID.String(), "--name", "my-daemon")
 		clitest.SetupConfig(t, anotherClient, conf)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -161,7 +161,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		stdout.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
@@ -180,15 +180,15 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 
 	t.Run("ScopeOrg", func(t *testing.T) {
 		t.Parallel()
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
+		anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=organization", "--name", "org-daemon")
 		clitest.SetupConfig(t, anotherClient, conf)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -197,7 +197,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		stdout.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.ProvisionerDaemons(ctx)
@@ -214,17 +214,17 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 
 	t.Run("ScopeUserAnotherOrg", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
-		anotherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
-		anotherClient, anotherUser := coderdtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
+		anotherOrg := nicloudenttest.CreateOrganization(t, client, nicloudenttest.CreateOrganizationOptions{})
+		anotherClient, anotherUser := nicloudtest.CreateAnotherUser(t, client, anotherOrg.ID, rbac.RoleTemplateAdmin())
 		inv, conf := newCLI(t, "provisionerd", "start", "--tag", "scope=user", "--name", "org-daemon", "--org", anotherOrg.ID.String())
 		clitest.SetupConfig(t, anotherClient, conf)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -233,7 +233,7 @@ func TestProvisionerDaemon_SessionToken(t *testing.T) {
 		clitest.Start(t, inv)
 		stdout.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		var err error
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, anotherOrg.ID, nil)
@@ -258,17 +258,17 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, nicloudsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -280,7 +280,7 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 		stdout.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		stdout.ExpectMatchContext(ctx, "matt-daemon")
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, user.OrganizationID, nil)
 			if err != nil {
@@ -299,17 +299,17 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		//nolint:gocritic // ignore This client is operating as the owner user, which has unrestricted permissions
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, nicloudsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 			Tags: map[string]string{
 				"tag1": "value1",
@@ -325,7 +325,7 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 		stdout.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		stdout.ExpectMatchContext(ctx, `tags={"tag1":"value1","tag2":"value2"}`)
 
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, user.OrganizationID, nil)
 			if err != nil {
@@ -344,12 +344,12 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
@@ -366,17 +366,17 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, nicloudsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -392,17 +392,17 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, user := coderdenttest.New(t, &coderdenttest.Options{
+		client, user := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, user.OrganizationID, nicloudsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -418,18 +418,18 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 		defer cancel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			ProvisionerDaemonPSK: "provisionersftw",
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureExternalProvisionerDaemons: 1,
-					codersdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
 				},
 			},
 		})
-		anotherOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{})
+		anotherOrg := nicloudenttest.CreateOrganization(t, client, nicloudenttest.CreateOrganizationOptions{})
 		// nolint:gocritic // test
-		res, err := client.CreateProvisionerKey(ctx, anotherOrg.ID, codersdk.CreateProvisionerKeyRequest{
+		res, err := client.CreateProvisionerKey(ctx, anotherOrg.ID, nicloudsdk.CreateProvisionerKeyRequest{
 			Name: "dont-TEST-me",
 		})
 		require.NoError(t, err)
@@ -440,7 +440,7 @@ func TestProvisionerDaemon_ProvisionerKey(t *testing.T) {
 		clitest.Start(t, inv)
 		stdout.ExpectNoMatchBefore(ctx, "check entitlement", "starting provisioner daemon")
 		stdout.ExpectMatchContext(ctx, "matt-daemon")
-		var daemons []codersdk.ProvisionerDaemon
+		var daemons []nicloudsdk.ProvisionerDaemon
 		require.Eventually(t, func() bool {
 			daemons, err = client.OrganizationProvisionerDaemons(ctx, anotherOrg.ID, nil)
 			if err != nil {
@@ -462,15 +462,15 @@ func TestProvisionerDaemon_PrometheusEnabled(t *testing.T) {
 	prometheusPort := 32001
 
 	// Configure CLI client
-	client, admin := coderdenttest.New(t, &coderdenttest.Options{
+	client, admin := nicloudenttest.New(t, &nicloudenttest.Options{
 		ProvisionerDaemonPSK: "provisionersftw",
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureExternalProvisionerDaemons: 1,
+				nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 			},
 		},
 	})
-	anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
+	anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleTemplateAdmin())
 	inv, conf := newCLI(t, "provisionerd", "start", "--name", "daemon-with-prometheus", "--prometheus-enable", "--prometheus-address", fmt.Sprintf("127.0.0.1:%d", prometheusPort))
 	clitest.SetupConfig(t, anotherClient, conf)
 	stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -481,7 +481,7 @@ func TestProvisionerDaemon_PrometheusEnabled(t *testing.T) {
 	clitest.Start(t, inv)
 	stdout.ExpectMatchContext(ctx, "starting provisioner daemon")
 
-	var daemons []codersdk.ProvisionerDaemon
+	var daemons []nicloudsdk.ProvisionerDaemon
 	var err error
 	require.Eventually(t, func() bool {
 		daemons, err = client.ProvisionerDaemons(ctx)
@@ -519,7 +519,7 @@ func TestProvisionerDaemon_PrometheusEnabled(t *testing.T) {
 	hasGoStats := false
 	hasPromHTTP := false
 	for scanner.Scan() {
-		if strings.HasPrefix(scanner.Text(), "coderd_provisionerd_num_daemons 1") {
+		if strings.HasPrefix(scanner.Text(), "nicloud_provisionerd_num_daemons 1") {
 			hasOneDaemon = true
 			continue
 		}

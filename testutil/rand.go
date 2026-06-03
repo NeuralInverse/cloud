@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
 )
 
 // MustRandString returns a random string of length n.

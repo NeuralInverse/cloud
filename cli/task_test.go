@@ -17,20 +17,20 @@ import (
 	"golang.org/x/xerrors"
 
 	agentapisdk "github.com/coder/agentapi-sdk-go"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // This test performs an integration-style test for tasks functionality.
@@ -42,9 +42,9 @@ func Test_Tasks(t *testing.T) {
 	// Given: a template configured for tasks
 	var (
 		ctx           = testutil.Context(t, testutil.WaitLong)
-		client        = coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner         = coderdtest.CreateFirstUser(t, client)
-		userClient, _ = coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client        = nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner         = nicloudtest.CreateFirstUser(t, client)
+		userClient, _ = nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		initMsg       = agentapisdk.Message{
 			Content: "test task input for " + t.Name(),
 			Id:      0,
@@ -60,20 +60,20 @@ func Test_Tasks(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
 		cmdArgs  []string
-		assertFn func(stdout string, userClient *codersdk.Client)
+		assertFn func(stdout string, userClient *nicloudsdk.Client)
 	}{
 		{
 			name:    "create task",
 			cmdArgs: []string{"task", "create", "test task input for " + t.Name(), "--name", taskName, "--template", taskTpl.Name},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
 				require.Contains(t, stdout, taskName, "task name should be in output")
 			},
 		},
 		{
 			name:    "list tasks after create",
 			cmdArgs: []string{"task", "list", "--output", "json"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
-				var tasks []codersdk.Task
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
+				var tasks []nicloudsdk.Task
 				err := json.NewDecoder(strings.NewReader(stdout)).Decode(&tasks)
 				require.NoError(t, err, "list output should unmarshal properly")
 				require.Len(t, tasks, 1, "expected one task")
@@ -81,18 +81,18 @@ func Test_Tasks(t *testing.T) {
 				require.Equal(t, initMsg.Content, tasks[0].InitialPrompt, "initial prompt should match")
 				require.True(t, tasks[0].WorkspaceID.Valid, "workspace should be created")
 				// For the next test, we need to wait for the workspace to be healthy
-				ws := coderdtest.MustWorkspace(t, userClient, tasks[0].WorkspaceID.UUID)
-				coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
+				ws := nicloudtest.MustWorkspace(t, userClient, tasks[0].WorkspaceID.UUID)
+				nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, ws.LatestBuild.ID)
 				agentClient := agentsdk.New(client.URL, agentsdk.WithFixedToken(authToken))
 				_ = agenttest.New(t, client.URL, authToken, func(o *agent.Options) {
 					o.Client = agentClient
 				})
-				coderdtest.NewWorkspaceAgentWaiter(t, userClient, tasks[0].WorkspaceID.UUID).WithContext(ctx).WaitFor(coderdtest.AgentsReady)
+				nicloudtest.NewWorkspaceAgentWaiter(t, userClient, tasks[0].WorkspaceID.UUID).WithContext(ctx).WaitFor(nicloudtest.AgentsReady)
 				// Report the task app as idle so that waitForTaskIdle
 				// can proceed during the "send task message" step.
 				require.NoError(t, agentClient.PatchAppStatus(ctx, agentsdk.PatchAppStatus{
 					AppSlug: "task-sidebar",
-					State:   codersdk.WorkspaceAppStatusStateIdle,
+					State:   nicloudsdk.WorkspaceAppStatusStateIdle,
 					Message: "ready",
 				}))
 			},
@@ -100,11 +100,11 @@ func Test_Tasks(t *testing.T) {
 		{
 			name:    "get task status after create",
 			cmdArgs: []string{"task", "status", taskName, "--output", "json"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
-				var task codersdk.Task
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
+				var task nicloudsdk.Task
 				require.NoError(t, json.NewDecoder(strings.NewReader(stdout)).Decode(&task), "should unmarshal task status")
 				require.Equal(t, task.Name, taskName, "task name should match")
-				require.Equal(t, codersdk.TaskStatusActive, task.Status, "task should be active")
+				require.Equal(t, nicloudsdk.TaskStatusActive, task.Status, "task should be active")
 			},
 		},
 		{
@@ -115,63 +115,63 @@ func Test_Tasks(t *testing.T) {
 		{
 			name:    "read task logs",
 			cmdArgs: []string{"task", "logs", taskName, "--output", "json"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
-				var logs []codersdk.TaskLogEntry
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
+				var logs []nicloudsdk.TaskLogEntry
 				require.NoError(t, json.NewDecoder(strings.NewReader(stdout)).Decode(&logs), "should unmarshal task logs")
 				require.Len(t, logs, 3, "should have 3 logs")
 				require.Equal(t, logs[0].Content, initMsg.Content, "first message should be the init message")
-				require.Equal(t, logs[0].Type, codersdk.TaskLogTypeInput, "first message should be an input")
+				require.Equal(t, logs[0].Type, nicloudsdk.TaskLogTypeInput, "first message should be an input")
 				require.Equal(t, logs[1].Content, "hello", "second message should be the sent message")
-				require.Equal(t, logs[1].Type, codersdk.TaskLogTypeInput, "second message should be an input")
+				require.Equal(t, logs[1].Type, nicloudsdk.TaskLogTypeInput, "second message should be an input")
 				require.Equal(t, logs[2].Content, "hello", "third message should be the echoed message")
-				require.Equal(t, logs[2].Type, codersdk.TaskLogTypeOutput, "third message should be an output")
+				require.Equal(t, logs[2].Type, nicloudsdk.TaskLogTypeOutput, "third message should be an output")
 			},
 		},
 		{
 			name:    "pause task",
 			cmdArgs: []string{"task", "pause", taskName, "--yes"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
 				require.Contains(t, stdout, "has been paused", "pause output should confirm task was paused")
 			},
 		},
 		{
 			name:    "get task status after pause",
 			cmdArgs: []string{"task", "status", taskName, "--output", "json"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
-				var task codersdk.Task
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
+				var task nicloudsdk.Task
 				require.NoError(t, json.NewDecoder(strings.NewReader(stdout)).Decode(&task), "should unmarshal task status")
 				require.Equal(t, taskName, task.Name, "task name should match")
-				require.Equal(t, codersdk.TaskStatusPaused, task.Status, "task should be paused")
+				require.Equal(t, nicloudsdk.TaskStatusPaused, task.Status, "task should be paused")
 			},
 		},
 		{
 			name:    "resume task",
 			cmdArgs: []string{"task", "resume", taskName, "--yes"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
 				require.Contains(t, stdout, "has been resumed", "resume output should confirm task was resumed")
 			},
 		},
 		{
 			name:    "get task status after resume",
 			cmdArgs: []string{"task", "status", taskName, "--output", "json"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
-				var task codersdk.Task
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
+				var task nicloudsdk.Task
 				require.NoError(t, json.NewDecoder(strings.NewReader(stdout)).Decode(&task), "should unmarshal task status")
 				require.Equal(t, taskName, task.Name, "task name should match")
-				require.Equal(t, codersdk.TaskStatusInitializing, task.Status, "task should be initializing after resume")
+				require.Equal(t, nicloudsdk.TaskStatusInitializing, task.Status, "task should be initializing after resume")
 			},
 		},
 		{
 			name:    "delete task",
 			cmdArgs: []string{"task", "delete", taskName, "--yes"},
-			assertFn: func(stdout string, userClient *codersdk.Client) {
+			assertFn: func(stdout string, userClient *nicloudsdk.Client) {
 				// The task should eventually no longer show up in the list of tasks
 				testutil.Eventually(ctx, t, func(ctx context.Context) bool {
-					tasks, err := userClient.Tasks(ctx, &codersdk.TasksFilter{})
+					tasks, err := userClient.Tasks(ctx, &nicloudsdk.TasksFilter{})
 					if !assert.NoError(t, err) {
 						return false
 					}
-					return slices.IndexFunc(tasks, func(task codersdk.Task) bool {
+					return slices.IndexFunc(tasks, func(task nicloudsdk.Task) bool {
 						return task.Name == taskName
 					}) == -1
 				}, testutil.IntervalMedium)
@@ -281,9 +281,9 @@ func fakeAgentAPIEcho(ctx context.Context, t testing.TB, initMsg agentapisdk.Mes
 // Returns the user client and workspace.
 // setupCLITaskTestResult holds the return values from setupCLITaskTest.
 type setupCLITaskTestResult struct {
-	ownerClient *codersdk.Client
-	userClient  *codersdk.Client
-	task        codersdk.Task
+	ownerClient *nicloudsdk.Client
+	userClient  *nicloudsdk.Client
+	task        nicloudsdk.Task
 	agentToken  string
 	agent       agent.Agent
 }
@@ -291,9 +291,9 @@ type setupCLITaskTestResult struct {
 func setupCLITaskTest(ctx context.Context, t *testing.T, agentAPIHandlers map[string]http.HandlerFunc) setupCLITaskTestResult {
 	t.Helper()
 
-	ownerClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	userClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+	owner := nicloudtest.CreateFirstUser(t, ownerClient)
+	userClient, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	fakeAPI := startFakeAgentAPI(t, agentAPIHandlers)
 
@@ -301,7 +301,7 @@ func setupCLITaskTest(ctx context.Context, t *testing.T, agentAPIHandlers map[st
 	template := createAITaskTemplate(t, ownerClient, owner.OrganizationID, withSidebarURL(fakeAPI.URL()), withAgentToken(authToken))
 
 	wantPrompt := "test prompt"
-	task, err := userClient.CreateTask(ctx, codersdk.Me, codersdk.CreateTaskRequest{
+	task, err := userClient.CreateTask(ctx, nicloudsdk.Me, nicloudsdk.CreateTaskRequest{
 		TemplateVersionID: template.ActiveVersionID,
 		Input:             wantPrompt,
 		Name:              "test-task",
@@ -312,20 +312,20 @@ func setupCLITaskTest(ctx context.Context, t *testing.T, agentAPIHandlers map[st
 	require.True(t, task.WorkspaceID.Valid, "task should have a workspace ID")
 	workspace, err := userClient.Workspace(ctx, task.WorkspaceID.UUID)
 	require.NoError(t, err)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, userClient, workspace.LatestBuild.ID)
 
 	agentClient := agentsdk.New(userClient.URL, agentsdk.WithFixedToken(authToken))
 	agt := agenttest.New(t, userClient.URL, authToken, func(o *agent.Options) {
 		o.Client = agentClient
 	})
 
-	coderdtest.NewWorkspaceAgentWaiter(t, userClient, workspace.ID).
-		WaitFor(coderdtest.AgentsReady)
+	nicloudtest.NewWorkspaceAgentWaiter(t, userClient, workspace.ID).
+		WaitFor(nicloudtest.AgentsReady)
 
 	// Report the task app as idle so that waitForTaskIdle can proceed.
 	err = agentClient.PatchAppStatus(ctx, agentsdk.PatchAppStatus{
 		AppSlug: "task-sidebar",
-		State:   codersdk.WorkspaceAppStatusStateIdle,
+		State:   nicloudsdk.WorkspaceAppStatusStateIdle,
 		Message: "ready",
 	})
 	require.NoError(t, err)
@@ -340,45 +340,45 @@ func setupCLITaskTest(ctx context.Context, t *testing.T, agentAPIHandlers map[st
 }
 
 // pauseTask pauses the task and waits for the stop build to complete.
-func pauseTask(ctx context.Context, t *testing.T, client *codersdk.Client, task codersdk.Task) {
+func pauseTask(ctx context.Context, t *testing.T, client *nicloudsdk.Client, task nicloudsdk.Task) {
 	t.Helper()
 
 	pauseResp, err := client.PauseTask(ctx, task.OwnerName, task.ID)
 	require.NoError(t, err)
 	require.NotNil(t, pauseResp.WorkspaceBuild)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, pauseResp.WorkspaceBuild.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, pauseResp.WorkspaceBuild.ID)
 }
 
 // resumeTask resumes the task waits for the start build to complete. The task
 // will be in "initializing" state after this returns because no agent is connected.
-func resumeTask(ctx context.Context, t *testing.T, client *codersdk.Client, task codersdk.Task) {
+func resumeTask(ctx context.Context, t *testing.T, client *nicloudsdk.Client, task nicloudsdk.Task) {
 	t.Helper()
 
 	resumeResp, err := client.ResumeTask(ctx, task.OwnerName, task.ID)
 	require.NoError(t, err)
 	require.NotNil(t, resumeResp.WorkspaceBuild)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, resumeResp.WorkspaceBuild.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, resumeResp.WorkspaceBuild.ID)
 }
 
 // setupCLITaskTestWithSnapshot creates a task in the specified status with a log snapshot.
 // Note: We do not use IncludeProvisionerDaemon because these tests use dbfake to directly
 // set up database state and don't need actual provisioning. This also avoids potential
 // interference from the provisioner daemon polling for jobs.
-func setupCLITaskTestWithSnapshot(ctx context.Context, t *testing.T, status codersdk.TaskStatus, messages []agentapisdk.Message) (*codersdk.Client, codersdk.Task) {
+func setupCLITaskTestWithSnapshot(ctx context.Context, t *testing.T, status nicloudsdk.TaskStatus, messages []agentapisdk.Message) (*nicloudsdk.Client, nicloudsdk.Task) {
 	t.Helper()
 
-	ownerClient, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	userClient, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient, db := nicloudtest.NewWithDatabase(t, nil)
+	owner := nicloudtest.CreateFirstUser(t, ownerClient)
+	userClient, user := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	ownerUser, err := ownerClient.User(ctx, owner.UserID.String())
 	require.NoError(t, err)
-	ownerSubject := coderdtest.AuthzUserSubject(ownerUser)
+	ownerSubject := nicloudtest.AuthzUserSubject(ownerUser)
 
 	task := createTaskInStatus(t, db, owner.OrganizationID, user.ID, status)
 
 	// Create snapshot envelope with agentapi format.
-	envelope := coderd.TaskLogSnapshotEnvelope{
+	envelope := nicloud.TaskLogSnapshotEnvelope{
 		Format: "agentapi",
 		Data: agentapisdk.GetMessagesResponse{
 			Messages: messages,
@@ -403,12 +403,12 @@ func setupCLITaskTestWithSnapshot(ctx context.Context, t *testing.T, status code
 // Note: We do not use IncludeProvisionerDaemon because these tests use dbfake to directly
 // set up database state and don't need actual provisioning. This also avoids potential
 // interference from the provisioner daemon polling for jobs.
-func setupCLITaskTestWithoutSnapshot(t *testing.T, status codersdk.TaskStatus) (*codersdk.Client, codersdk.Task) {
+func setupCLITaskTestWithoutSnapshot(t *testing.T, status nicloudsdk.TaskStatus) (*nicloudsdk.Client, nicloudsdk.Task) {
 	t.Helper()
 
-	ownerClient, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	userClient, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	ownerClient, db := nicloudtest.NewWithDatabase(t, nil)
+	owner := nicloudtest.CreateFirstUser(t, ownerClient)
+	userClient, user := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	task := createTaskInStatus(t, db, owner.OrganizationID, user.ID, status)
 
@@ -416,7 +416,7 @@ func setupCLITaskTestWithoutSnapshot(t *testing.T, status codersdk.TaskStatus) (
 }
 
 // createTaskInStatus creates a task in the specified status using dbfake.
-func createTaskInStatus(t *testing.T, db database.Store, orgID, ownerID uuid.UUID, status codersdk.TaskStatus) codersdk.Task {
+func createTaskInStatus(t *testing.T, db database.Store, orgID, ownerID uuid.UUID, status nicloudsdk.TaskStatus) nicloudsdk.Task {
 	t.Helper()
 
 	builder := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
@@ -429,11 +429,11 @@ func createTaskInStatus(t *testing.T, db database.Store, orgID, ownerID uuid.UUI
 		}, nil)
 
 	switch status {
-	case codersdk.TaskStatusPending:
+	case nicloudsdk.TaskStatusPending:
 		builder = builder.Pending()
-	case codersdk.TaskStatusInitializing:
+	case nicloudsdk.TaskStatusInitializing:
 		builder = builder.Starting()
-	case codersdk.TaskStatusPaused:
+	case nicloudsdk.TaskStatusPaused:
 		builder = builder.Seed(database.WorkspaceBuild{
 			Transition: database.WorkspaceTransitionStop,
 		})
@@ -443,7 +443,7 @@ func createTaskInStatus(t *testing.T, db database.Store, orgID, ownerID uuid.UUI
 
 	resp := builder.Do()
 
-	return codersdk.Task{
+	return nicloudsdk.Task{
 		ID:             resp.Task.ID,
 		Name:           resp.Task.Name,
 		OrganizationID: resp.Task.OrganizationID,
@@ -454,7 +454,7 @@ func createTaskInStatus(t *testing.T, db database.Store, orgID, ownerID uuid.UUI
 }
 
 // createAITaskTemplate creates a template configured for AI tasks with a sidebar app.
-func createAITaskTemplate(t *testing.T, client *codersdk.Client, orgID uuid.UUID, opts ...aiTemplateOpt) codersdk.Template {
+func createAITaskTemplate(t *testing.T, client *nicloudsdk.Client, orgID uuid.UUID, opts ...aiTemplateOpt) nicloudsdk.Template {
 	t.Helper()
 
 	opt := aiTemplateOpts{
@@ -465,7 +465,7 @@ func createAITaskTemplate(t *testing.T, client *codersdk.Client, orgID uuid.UUID
 	}
 
 	taskAppID := uuid.New()
-	version := coderdtest.CreateTemplateVersion(t, client, orgID, &echo.Responses{
+	version := nicloudtest.CreateTemplateVersion(t, client, orgID, &echo.Responses{
 		Parse: echo.ParseComplete,
 		ProvisionGraph: []*proto.Response{
 			{
@@ -505,8 +505,8 @@ func createAITaskTemplate(t *testing.T, client *codersdk.Client, orgID uuid.UUID
 			},
 		},
 	})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, orgID, version.ID)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := nicloudtest.CreateTemplate(t, client, orgID, version.ID)
 
 	return template
 }

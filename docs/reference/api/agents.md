@@ -7,7 +7,7 @@
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/derp-map \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/derp-map`
@@ -27,7 +27,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/tailnet \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/tailnet`
@@ -49,7 +49,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/workspaceagents/aws-instance-identity \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaceagents/aws-instance-identity`
@@ -97,7 +97,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/workspaceagents/azure-instance-identity \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaceagents/azure-instance-identity`
@@ -145,7 +145,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/workspaceagents/google-instance-identity \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaceagents/google-instance-identity`
@@ -192,7 +192,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PATCH http://coder-server:8080/api/v2/workspaceagents/me/app-status \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/workspaceagents/me/app-status`
@@ -237,7 +237,7 @@ curl -X PATCH http://coder-server:8080/api/v2/workspaceagents/me/app-status \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -249,7 +249,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/me/external-auth?match=string&id=string \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/me/external-auth`
@@ -293,7 +293,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/me/gitauth?match=string&id=string \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/me/gitauth`
@@ -337,7 +337,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/me/gitsshkey \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/me/gitsshkey`
@@ -370,7 +370,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/v2/workspaceagents/me/log-source \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaceagents/me/log-source`
@@ -409,7 +409,7 @@ curl -X POST http://coder-server:8080/api/v2/workspaceagents/me/log-source \
 
 | Status | Meaning                                                 | Description | Schema                                                                         |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgentLogSource](schemas.md#codersdkworkspaceagentlogsource) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgentLogSource](schemas.md#nicloudsdkworkspaceagentlogsource) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -422,7 +422,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PATCH http://coder-server:8080/api/v2/workspaceagents/me/logs \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/v2/workspaceagents/me/logs`
@@ -469,7 +469,7 @@ curl -X PATCH http://coder-server:8080/api/v2/workspaceagents/me/logs \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -481,7 +481,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/me/reinit \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/me/reinit`
@@ -509,7 +509,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaceagents/me/reinit \
 | Status | Meaning                                                       | Description | Schema                                                                     |
 |--------|---------------------------------------------------------------|-------------|----------------------------------------------------------------------------|
 | 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)       | OK          | [agentsdk.ReinitializationEvent](schemas.md#agentsdkreinitializationevent) |
-| 409    | [Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8) | Conflict    | [codersdk.Response](schemas.md#codersdkresponse)                           |
+| 409    | [Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8) | Conflict    | [nicloudsdk.Response](schemas.md#nicloudsdkresponse)                           |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -521,7 +521,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}`
@@ -660,7 +660,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent} \
 
 | Status | Meaning                                                 | Description | Schema                                                       |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgent](schemas.md#codersdkworkspaceagent) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgent](schemas.md#nicloudsdkworkspaceagent) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -672,7 +672,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/connection \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/connection`
@@ -770,7 +770,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/containers?label=string \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/containers`
@@ -868,7 +868,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/con
 
 | Status | Meaning                                                 | Description | Schema                                                                                                   |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgentListContainersResponse](schemas.md#codersdkworkspaceagentlistcontainersresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgentListContainersResponse](schemas.md#nicloudsdkworkspaceagentlistcontainersresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -879,7 +879,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X DELETE http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/containers/devcontainers/{devcontainer} \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `DELETE /api/v2/workspaceagents/{workspaceagent}/containers/devcontainers/{devcontainer}`
@@ -907,7 +907,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/containers/devcontainers/{devcontainer}/recreate \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/workspaceagents/{workspaceagent}/containers/devcontainers/{devcontainer}/recreate`
@@ -940,7 +940,7 @@ curl -X POST http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/co
 
 | Status | Meaning                                                       | Description | Schema                                           |
 |--------|---------------------------------------------------------------|-------------|--------------------------------------------------|
-| 202    | [Accepted](https://tools.ietf.org/html/rfc7231#section-6.3.3) | Accepted    | [codersdk.Response](schemas.md#codersdkresponse) |
+| 202    | [Accepted](https://tools.ietf.org/html/rfc7231#section-6.3.3) | Accepted    | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -952,7 +952,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/containers/watch \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/containers/watch`
@@ -1049,7 +1049,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/con
 
 | Status | Meaning                                                 | Description | Schema                                                                                                   |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgentListContainersResponse](schemas.md#codersdkworkspaceagentlistcontainersresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgentListContainersResponse](schemas.md#nicloudsdkworkspaceagentlistcontainersresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1060,7 +1060,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/coordinate \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/coordinate`
@@ -1087,7 +1087,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/listening-ports \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/listening-ports`
@@ -1118,7 +1118,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/lis
 
 | Status | Meaning                                                 | Description | Schema                                                                                                   |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgentListeningPortsResponse](schemas.md#codersdkworkspaceagentlisteningportsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgentListeningPortsResponse](schemas.md#nicloudsdkworkspaceagentlisteningportsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1130,7 +1130,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/logs \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/logs`
@@ -1172,7 +1172,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/log
 
 | Status | Meaning                                                 | Description | Schema                                                                      |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.WorkspaceAgentLog](schemas.md#codersdkworkspaceagentlog) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.WorkspaceAgentLog](schemas.md#nicloudsdkworkspaceagentlog) |
 
 <h3 id="get-logs-by-workspace-agent-responseschema">Response Schema</h3>
 
@@ -1183,7 +1183,7 @@ Status Code **200**
 | `[array item]` | array                                            | false    |              |             |
 | `» created_at` | string(date-time)                                | false    |              |             |
 | `» id`         | integer                                          | false    |              |             |
-| `» level`      | [codersdk.LogLevel](schemas.md#codersdkloglevel) | false    |              |             |
+| `» level`      | [nicloudsdk.LogLevel](schemas.md#nicloudsdkloglevel) | false    |              |             |
 | `» output`     | string                                           | false    |              |             |
 | `» source_id`  | string(uuid)                                     | false    |              |             |
 
@@ -1202,7 +1202,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/pty \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/pty`
@@ -1229,7 +1229,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/startup-logs \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/workspaceagents/{workspaceagent}/startup-logs`
@@ -1264,7 +1264,7 @@ curl -X GET http://coder-server:8080/api/v2/workspaceagents/{workspaceagent}/sta
 
 | Status | Meaning                                                 | Description | Schema                                                                      |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.WorkspaceAgentLog](schemas.md#codersdkworkspaceagentlog) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.WorkspaceAgentLog](schemas.md#nicloudsdkworkspaceagentlog) |
 
 <h3 id="removed:-get-logs-by-workspace-agent-responseschema">Response Schema</h3>
 
@@ -1275,7 +1275,7 @@ Status Code **200**
 | `[array item]` | array                                            | false    |              |             |
 | `» created_at` | string(date-time)                                | false    |              |             |
 | `» id`         | integer                                          | false    |              |             |
-| `» level`      | [codersdk.LogLevel](schemas.md#codersdkloglevel) | false    |              |             |
+| `» level`      | [nicloudsdk.LogLevel](schemas.md#nicloudsdkloglevel) | false    |              |             |
 | `» output`     | string                                           | false    |              |             |
 | `» source_id`  | string(uuid)                                     | false    |              |             |
 

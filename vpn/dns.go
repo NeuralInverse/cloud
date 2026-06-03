@@ -24,7 +24,7 @@ func (*dnsManager) GetBaseConfig() (dns.OSConfig, error) {
 }
 
 func (*dnsManager) SupportsSplitDNS() bool {
-	// macOS & Windows 10+ support split DNS, so we'll assume all CoderVPN
+	// macOS & Windows 10+ support split DNS, so we'll assume all Neural Inverse CloudVPN
 	// clients do too.
 	return true
 }
@@ -51,7 +51,7 @@ func convertDNSConfig(cfg dns.OSConfig) *NetworkSettingsRequest_DNSSettings {
 	return &NetworkSettingsRequest_DNSSettings{
 		Servers:              servers,
 		SearchDomains:        searchDomains,
-		DomainName:           "coder",
+		DomainName:           "neuralinverse",
 		MatchDomains:         matchDomains,
 		MatchDomainsNoSearch: false,
 	}

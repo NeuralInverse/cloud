@@ -49,7 +49,7 @@ if [[ "$version" == "" ]]; then
 	version="$(execrelative ./version.sh)"
 fi
 
-image="${CODER_IMAGE_BASE:-ghcr.io/coder/coder}"
+image="${NEURALINVERSE_IMAGE_BASE:-ghcr.io/coder/coder}"
 
 tag="v$version"
 

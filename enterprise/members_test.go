@@ -6,13 +6,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestEnterpriseMembers(t *testing.T) {
@@ -20,31 +20,31 @@ func TestEnterpriseMembers(t *testing.T) {
 
 	t.Run("Remove", func(t *testing.T) {
 		t.Parallel()
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
-					codersdk.FeatureTemplateRBAC:          1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureTemplateRBAC:          1,
 				},
 			},
 		})
 
-		secondOrg := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		secondOrg := nicloudenttest.CreateOrganization(t, owner, nicloudenttest.CreateOrganizationOptions{})
 
-		orgAdminClient, orgAdmin := coderdtest.CreateAnotherUser(t, owner, secondOrg.ID, rbac.ScopedRoleOrgAdmin(secondOrg.ID))
-		_, user := coderdtest.CreateAnotherUser(t, owner, secondOrg.ID)
+		orgAdminClient, orgAdmin := nicloudtest.CreateAnotherUser(t, owner, secondOrg.ID, rbac.ScopedRoleOrgAdmin(secondOrg.ID))
+		_, user := nicloudtest.CreateAnotherUser(t, owner, secondOrg.ID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 
 		// Groups exist to ensure a user removed from the org loses their
 		// group access.
-		g1, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, codersdk.CreateGroupRequest{
+		g1, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, nicloudsdk.CreateGroupRequest{
 			Name:        "foo",
 			DisplayName: "Foo",
 		})
 		require.NoError(t, err)
 
-		g2, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, codersdk.CreateGroupRequest{
+		g2, err := orgAdminClient.CreateGroup(ctx, secondOrg.ID, nicloudsdk.CreateGroupRequest{
 			Name:        "bar",
 			DisplayName: "Bar",
 		})
@@ -59,18 +59,18 @@ func TestEnterpriseMembers(t *testing.T) {
 			slice.List(members, onlyIDs))
 
 		// Add the member to some groups
-		_, err = orgAdminClient.PatchGroup(ctx, g1.ID, codersdk.PatchGroupRequest{
+		_, err = orgAdminClient.PatchGroup(ctx, g1.ID, nicloudsdk.PatchGroupRequest{
 			AddUsers: []string{user.ID.String()},
 		})
 		require.NoError(t, err)
 
-		_, err = orgAdminClient.PatchGroup(ctx, g2.ID, codersdk.PatchGroupRequest{
+		_, err = orgAdminClient.PatchGroup(ctx, g2.ID, nicloudsdk.PatchGroupRequest{
 			AddUsers: []string{user.ID.String()},
 		})
 		require.NoError(t, err)
 
 		// Verify group membership
-		userGroups, err := orgAdminClient.Groups(ctx, codersdk.GroupArguments{
+		userGroups, err := orgAdminClient.Groups(ctx, nicloudsdk.GroupArguments{
 			HasMember: user.ID.String(),
 		})
 		require.NoError(t, err)
@@ -89,7 +89,7 @@ func TestEnterpriseMembers(t *testing.T) {
 			slice.List(members, onlyIDs))
 
 		// User should now belong to 0 groups
-		userGroups, err = orgAdminClient.Groups(ctx, codersdk.GroupArguments{
+		userGroups, err = orgAdminClient.Groups(ctx, nicloudsdk.GroupArguments{
 			HasMember: user.ID.String(),
 		})
 		require.NoError(t, err)
@@ -99,22 +99,22 @@ func TestEnterpriseMembers(t *testing.T) {
 	t.Run("PostUser", func(t *testing.T) {
 		t.Parallel()
 
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		org := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		org := nicloudenttest.CreateOrganization(t, owner, nicloudenttest.CreateOrganizationOptions{})
 
 		// Make a user not in the second organization
-		_, user := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID)
+		_, user := nicloudtest.CreateAnotherUser(t, owner, first.OrganizationID)
 
 		// Use scoped user admin in org to add the user
-		client, userAdmin := coderdtest.CreateAnotherUser(t, owner, org.ID, rbac.ScopedRoleOrgUserAdmin(org.ID))
+		client, userAdmin := nicloudtest.CreateAnotherUser(t, owner, org.ID, rbac.ScopedRoleOrgUserAdmin(org.ID))
 
 		members, err := client.OrganizationMembers(ctx, org.ID)
 		require.NoError(t, err)
@@ -135,22 +135,22 @@ func TestEnterpriseMembers(t *testing.T) {
 
 	t.Run("PostUserNotExists", func(t *testing.T) {
 		t.Parallel()
-		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
-		org := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		org := nicloudenttest.CreateOrganization(t, owner, nicloudenttest.CreateOrganizationOptions{})
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		// Add user to org
 		//nolint:gocritic // Using owner to ensure it's not a 404 error
 		_, err := owner.PostOrganizationMember(ctx, org.ID, uuid.NewString())
 		require.Error(t, err)
-		var apiErr *codersdk.Error
+		var apiErr *nicloudsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Contains(t, apiErr.Message, "Resource not found or you do not have access to this resource")
 	})
@@ -159,16 +159,16 @@ func TestEnterpriseMembers(t *testing.T) {
 	t.Run("ListNotInOrg", func(t *testing.T) {
 		t.Parallel()
 
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
 
-		client, _ := coderdtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
-		org := coderdenttest.CreateOrganization(t, owner, coderdenttest.CreateOrganizationOptions{})
+		client, _ := nicloudtest.CreateAnotherUser(t, owner, first.OrganizationID, rbac.ScopedRoleOrgAdmin(first.OrganizationID))
+		org := nicloudenttest.CreateOrganization(t, owner, nicloudenttest.CreateOrganizationOptions{})
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 
@@ -179,6 +179,6 @@ func TestEnterpriseMembers(t *testing.T) {
 	})
 }
 
-func onlyIDs(u codersdk.OrganizationMemberWithUserData) uuid.UUID {
+func onlyIDs(u nicloudsdk.OrganizationMemberWithUserData) uuid.UUID {
 	return u.UserID
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -22,7 +22,7 @@ func (r *RootCmd) templateVersions() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "List versions of a specific template",
-				Command:     "coder templates versions list my-template",
+				Command:     "neuralinverse templates versions list my-template",
 			},
 		),
 		Handler: func(inv *serpent.Invocation) error {
@@ -105,7 +105,7 @@ func (r *RootCmd) templateVersionsList() *serpent.Command {
 			if err != nil {
 				return xerrors.Errorf("get template by name: %w", err)
 			}
-			req := codersdk.TemplateVersionsByTemplateRequest{
+			req := nicloudsdk.TemplateVersionsByTemplateRequest{
 				TemplateID:      template.ID,
 				IncludeArchived: includeArchived.Value(),
 			}
@@ -138,7 +138,7 @@ func (r *RootCmd) templateVersionsList() *serpent.Command {
 
 type templateVersionRow struct {
 	// For json format:
-	TemplateVersion codersdk.TemplateVersion `table:"-"`
+	TemplateVersion nicloudsdk.TemplateVersion `table:"-"`
 	ActiveJSON      bool                     `json:"active" table:"-"`
 
 	// For table format:
@@ -153,7 +153,7 @@ type templateVersionRow struct {
 
 // templateVersionsToRows converts a list of template versions to a list of rows
 // for outputting.
-func templateVersionsToRows(activeVersionID uuid.UUID, templateVersions ...codersdk.TemplateVersion) []templateVersionRow {
+func templateVersionsToRows(activeVersionID uuid.UUID, templateVersions ...nicloudsdk.TemplateVersion) []templateVersionRow {
 	rows := make([]templateVersionRow, len(templateVersions))
 	for i, templateVersion := range templateVersions {
 		activeStatus := ""
@@ -212,7 +212,7 @@ func (r *RootCmd) templateVersionsPromote() *serpent.Command {
 				return xerrors.Errorf("get template version by name: %w", err)
 			}
 
-			err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, codersdk.UpdateActiveTemplateVersion{
+			err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 				ID: version.ID,
 			})
 			if err != nil {
@@ -228,7 +228,7 @@ func (r *RootCmd) templateVersionsPromote() *serpent.Command {
 		{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_TEMPLATE_NAME",
+			Env:           "NEURALINVERSE_TEMPLATE_NAME",
 			Description:   "Specify the template name.",
 			Required:      true,
 			Value:         serpent.StringOf(&templateName),
@@ -236,7 +236,7 @@ func (r *RootCmd) templateVersionsPromote() *serpent.Command {
 		{
 			Flag:        "template-version",
 			Description: "Specify the template version name to promote.",
-			Env:         "CODER_TEMPLATE_VERSION_NAME",
+			Env:         "NEURALINVERSE_TEMPLATE_VERSION_NAME",
 			Required:    true,
 			Value:       serpent.StringOf(&templateVersionName),
 		},

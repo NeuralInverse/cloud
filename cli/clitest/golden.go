@@ -17,11 +17,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -40,11 +40,11 @@ type CommandHelpCase struct {
 func DefaultCases() []CommandHelpCase {
 	return []CommandHelpCase{
 		{
-			Name: "coder --help",
+			Name: "neuralinverse --help",
 			Cmd:  []string{"--help"},
 		},
 		{
-			Name: "coder server --help",
+			Name: "neuralinverse server --help",
 			Cmd:  []string{"server", "--help"},
 		},
 	}
@@ -60,7 +60,7 @@ func TestCommandHelp(t *testing.T, getRoot func(t *testing.T) *serpent.Command, 
 
 ExtractCommandPathsLoop:
 	for _, cp := range extractVisibleCommandPaths(nil, root.Children) {
-		name := fmt.Sprintf("coder %s --help", strings.Join(cp, " "))
+		name := fmt.Sprintf("neuralinverse %s --help", strings.Join(cp, " "))
 		//nolint:gocritic
 		cmd := append(cp, "--help")
 		for _, tt := range cases {
@@ -83,9 +83,9 @@ ExtractCommandPathsLoop:
 			inv, cfg := NewWithCommand(t, caseCmd, tt.Cmd...)
 			inv.Stderr = &outBuf
 			inv.Stdout = &outBuf
-			inv.Environ.Set("CODER_URL", rootClient.URL.String())
-			inv.Environ.Set("CODER_SESSION_TOKEN", rootClient.SessionToken())
-			inv.Environ.Set("CODER_CACHE_DIRECTORY", "~/.cache")
+			inv.Environ.Set("NEURALINVERSE_URL", rootClient.URL.String())
+			inv.Environ.Set("NEURALINVERSE_SESSION_TOKEN", rootClient.SessionToken())
+			inv.Environ.Set("NEURALINVERSE_CACHE_DIRECTORY", "~/.cache")
 
 			SetupConfig(t, rootClient, cfg)
 
@@ -203,9 +203,9 @@ func normalizeGoldenFile(t *testing.T, byt []byte) []byte {
 	require.NoError(t, err)
 
 	configDir := config.DefaultDir()
-	byt = bytes.ReplaceAll(byt, []byte(configDir), []byte("~/.config/coderv2"))
+	byt = bytes.ReplaceAll(byt, []byte(configDir), []byte("~/.config/niv2"))
 
-	byt = bytes.ReplaceAll(byt, []byte(codersdk.DefaultCacheDir()), []byte("[cache dir]"))
+	byt = bytes.ReplaceAll(byt, []byte(nicloudsdk.DefaultCacheDir()), []byte("[cache dir]"))
 
 	// The home directory changes depending on the test environment.
 	byt = bytes.ReplaceAll(byt, []byte(homeDir), []byte("~"))
@@ -225,7 +225,7 @@ func normalizeGoldenFile(t *testing.T, byt []byte) []byte {
 		new string
 	}{
 		{"\r\n", "\n"},
-		{`~\.cache\coder`, "~/.cache/coder"},
+		{`~\.cache\neuralinverse`, "~/.cache/neuralinverse"},
 		{`C:\Users\RUNNER~1\AppData\Local\Temp`, "/tmp"},
 	} {
 		byt = bytes.ReplaceAll(byt, []byte(r.old), []byte(r.new))
@@ -246,7 +246,7 @@ func extractVisibleCommandPaths(cmdPath []string, cmds []*serpent.Command) [][]s
 	return cmdPaths
 }
 
-func prepareTestData(t *testing.T) (*codersdk.Client, map[string]string) {
+func prepareTestData(t *testing.T) (*nicloudsdk.Client, map[string]string) {
 	t.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
@@ -257,28 +257,28 @@ func prepareTestData(t *testing.T) (*codersdk.Client, map[string]string) {
 	// and differ the table header spacings.
 	//nolint:gocritic
 	db, pubsub := dbtestutil.NewDB(t, dbtestutil.WithTimezone("UTC"))
-	rootClient := coderdtest.New(t, &coderdtest.Options{
+	rootClient := nicloudtest.New(t, &nicloudtest.Options{
 		Database:                 db,
 		Pubsub:                   pubsub,
 		IncludeProvisionerDaemon: true,
 	})
-	firstUser := coderdtest.CreateFirstUser(t, rootClient)
-	secondUser, err := rootClient.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
-		Email:           "testuser2@coder.com",
+	firstUser := nicloudtest.CreateFirstUser(t, rootClient)
+	secondUser, err := rootClient.CreateUserWithOrgs(ctx, nicloudsdk.CreateUserRequestWithOrgs{
+		Email:           "testuser2@cloud.neuralinverse.com",
 		Username:        "testuser2",
-		Password:        coderdtest.FirstUserParams.Password,
+		Password:        nicloudtest.FirstUserParams.Password,
 		OrganizationIDs: []uuid.UUID{firstUser.OrganizationID},
 	})
 	require.NoError(t, err)
-	version := coderdtest.CreateTemplateVersion(t, rootClient, firstUser.OrganizationID, nil)
-	version = coderdtest.AwaitTemplateVersionJobCompleted(t, rootClient, version.ID)
-	template := coderdtest.CreateTemplate(t, rootClient, firstUser.OrganizationID, version.ID, func(req *codersdk.CreateTemplateRequest) {
+	version := nicloudtest.CreateTemplateVersion(t, rootClient, firstUser.OrganizationID, nil)
+	version = nicloudtest.AwaitTemplateVersionJobCompleted(t, rootClient, version.ID)
+	template := nicloudtest.CreateTemplate(t, rootClient, firstUser.OrganizationID, version.ID, func(req *nicloudsdk.CreateTemplateRequest) {
 		req.Name = "test-template"
 	})
-	workspace := coderdtest.CreateWorkspace(t, rootClient, template.ID, func(req *codersdk.CreateWorkspaceRequest) {
+	workspace := nicloudtest.CreateWorkspace(t, rootClient, template.ID, func(req *nicloudsdk.CreateWorkspaceRequest) {
 		req.Name = "test-workspace"
 	})
-	workspaceBuild := coderdtest.AwaitWorkspaceBuildJobCompleted(t, rootClient, workspace.LatestBuild.ID)
+	workspaceBuild := nicloudtest.AwaitWorkspaceBuildJobCompleted(t, rootClient, workspace.LatestBuild.ID)
 
 	replacements := map[string]string{
 		firstUser.UserID.String():            pad("[first user ID]", 36),

@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/httpmw"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/httpmw"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestRecover(t *testing.T) {

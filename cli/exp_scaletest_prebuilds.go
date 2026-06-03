@@ -13,10 +13,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/prebuilds"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/prebuilds"
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 )
@@ -94,7 +94,7 @@ func (r *RootCmd) scaletestPrebuilds() *serpent.Command {
 				<-time.After(prometheusFlags.Wait)
 			}()
 
-			err = client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+			err = client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 				ReconciliationPaused: true,
 			})
 			if err != nil {
@@ -139,7 +139,7 @@ func (r *RootCmd) scaletestPrebuilds() *serpent.Command {
 				}
 
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
@@ -172,7 +172,7 @@ func (r *RootCmd) scaletestPrebuilds() *serpent.Command {
 			setupBarrier.Wait()
 			_, _ = fmt.Fprintln(inv.Stderr, "All templates created")
 
-			err = client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+			err = client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 				ReconciliationPaused: false,
 			})
 			if err != nil {
@@ -183,7 +183,7 @@ func (r *RootCmd) scaletestPrebuilds() *serpent.Command {
 			creationBarrier.Wait()
 			_, _ = fmt.Fprintln(inv.Stderr, "All prebuilds created")
 
-			err = client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+			err = client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 				ReconciliationPaused: true,
 			})
 			if err != nil {
@@ -197,7 +197,7 @@ func (r *RootCmd) scaletestPrebuilds() *serpent.Command {
 			deletionBarrier.Wait()
 			_, _ = fmt.Fprintln(inv.Stderr, "All templates updated")
 
-			err = client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{
+			err = client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{
 				ReconciliationPaused: false,
 			})
 			if err != nil {
@@ -251,42 +251,42 @@ func (r *RootCmd) scaletestPrebuilds() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "num-templates",
-			Env:         "CODER_SCALETEST_PREBUILDS_NUM_TEMPLATES",
+			Env:         "NEURALINVERSE_SCALETEST_PREBUILDS_NUM_TEMPLATES",
 			Default:     "1",
 			Description: "Number of templates to create for the test.",
 			Value:       serpent.Int64Of(&numTemplates),
 		},
 		{
 			Flag:        "num-presets",
-			Env:         "CODER_SCALETEST_PREBUILDS_NUM_PRESETS",
+			Env:         "NEURALINVERSE_SCALETEST_PREBUILDS_NUM_PRESETS",
 			Default:     "1",
 			Description: "Number of presets per template.",
 			Value:       serpent.Int64Of(&numPresets),
 		},
 		{
 			Flag:        "num-preset-prebuilds",
-			Env:         "CODER_SCALETEST_PREBUILDS_NUM_PRESET_PREBUILDS",
+			Env:         "NEURALINVERSE_SCALETEST_PREBUILDS_NUM_PRESET_PREBUILDS",
 			Default:     "1",
 			Description: "Number of prebuilds per preset.",
 			Value:       serpent.Int64Of(&numPresetPrebuilds),
 		},
 		{
 			Flag:        "template-version-job-timeout",
-			Env:         "CODER_SCALETEST_PREBUILDS_TEMPLATE_VERSION_JOB_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_PREBUILDS_TEMPLATE_VERSION_JOB_TIMEOUT",
 			Default:     "5m",
 			Description: "Timeout for template version provisioning jobs.",
 			Value:       serpent.DurationOf(&templateVersionJobTimeout),
 		},
 		{
 			Flag:        "prebuild-workspace-timeout",
-			Env:         "CODER_SCALETEST_PREBUILDS_WORKSPACE_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_PREBUILDS_WORKSPACE_TIMEOUT",
 			Default:     "10m",
 			Description: "Timeout for all prebuild workspaces to be created/deleted.",
 			Value:       serpent.DurationOf(&prebuildWorkspaceTimeout),
 		},
 		{
 			Flag:        "skip-cleanup",
-			Env:         "CODER_SCALETEST_PREBUILDS_SKIP_CLEANUP",
+			Env:         "NEURALINVERSE_SCALETEST_PREBUILDS_SKIP_CLEANUP",
 			Description: "Skip cleanup (deletion test) and leave resources intact.",
 			Value:       serpent.BoolOf(&noCleanup),
 		},

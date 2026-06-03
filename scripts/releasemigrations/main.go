@@ -34,7 +34,7 @@ func main() {
 	flag.StringVar(&versionList, "versions", "", "Comma separated list of versions to use. This skips uses git tag to find tags.")
 	flag.BoolVar(&afterV2, "after-v2", false, "Only include releases after v2.0.0")
 	flag.BoolVar(&listMigs, "list", false, "List migrations")
-	flag.StringVar(&migrationDirectory, "dir", "coderd/database/migrations", "Migration directory")
+	flag.StringVar(&migrationDirectory, "dir", "nicloud/database/migrations", "Migration directory")
 	flag.Parse()
 
 	if !includePatches && !includeMinors && !includeMajors && versionList == "" {
@@ -68,7 +68,7 @@ func main() {
 func usage() {
 	_, _ = fmt.Println("Usage: releasemigrations [--patches] [--minors] [--majors] [--list]")
 	_, _ = fmt.Println("Choose at lease one of --patches, --minors, or --majors. You can choose all!")
-	_, _ = fmt.Println("Must be run from the coder repo at the root.")
+	_, _ = fmt.Println("Must be run from the neuralinverse repo at the root.")
 }
 
 type Options struct {

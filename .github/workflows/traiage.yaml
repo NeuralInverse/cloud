@@ -36,8 +36,8 @@ jobs:
     if: github.event.label.name == 'traiage' || github.event_name == 'workflow_dispatch'
     timeout-minutes: 30
     env:
-      CODER_URL: ${{ secrets.TRAIAGE_CODER_URL }}
-      CODER_SESSION_TOKEN: ${{ secrets.TRAIAGE_CODER_SESSION_TOKEN }}
+      NEURALINVERSE_URL: ${{ secrets.TRAIAGE_NEURALINVERSE_URL }}
+      NEURALINVERSE_SESSION_TOKEN: ${{ secrets.TRAIAGE_NEURALINVERSE_SESSION_TOKEN }}
     permissions:
       contents: read
       issues: write
@@ -167,8 +167,8 @@ jobs:
         id: create_task
         uses: ./.github/actions/create-task-action
         with:
-          coder-url: ${{ secrets.TRAIAGE_CODER_URL }}
-          coder-token: ${{ secrets.TRAIAGE_CODER_SESSION_TOKEN }}
+          coder-url: ${{ secrets.TRAIAGE_NEURALINVERSE_URL }}
+          coder-token: ${{ secrets.TRAIAGE_NEURALINVERSE_SESSION_TOKEN }}
           coder-organization: "default"
           coder-template-name: coder
           coder-template-preset: ${{ steps.determine-inputs.outputs.template_preset }}

@@ -1,27 +1,27 @@
 # Licensing
 
 Some features are only accessible with a Premium license or the [AI Governance Add-On](../../ai-coder/ai-governance.md). See our
-[pricing page](https://coder.com/pricing) for more details. To try paid
-features, you can [request a trial](https://coder.com/trial) or
-[contact sales](https://coder.com/contact).
+[pricing page](https://cloud.neuralinverse.com/pricing) for more details. To try paid
+features, you can [request a trial](https://cloud.neuralinverse.com/trial) or
+[contact sales](https://cloud.neuralinverse.com/contact).
 
 ![Licenses screen shows license information and seat consumption](../../images/admin/licenses/licenses-screen.png)
 
 ## Offline license validation
 
-Coder license keys are signed JWTs that are validated locally using cryptographic
-signatures. No outbound connection to Coder's servers is required for license
+Neural Inverse Cloud license keys are signed JWTs that are validated locally using cryptographic
+signatures. No outbound connection to Neural Inverse Cloud's servers is required for license
 validation. This means licenses work in
 [air-gapped and offline deployments](../../install/airgap.md) without any
 additional configuration.
 
 ## Adding your license key
 
-There are two ways to add a license to a Coder deployment:
+There are two ways to add a license to a Neural Inverse Cloud deployment:
 
 <div class="tabs">
 
-### Coder UI
+### Neural Inverse Cloud UI
 
 1. With an `Owner` account, go to **Admin settings** > **Deployment**.
 
@@ -35,12 +35,12 @@ There are two ways to add a license to a Coder deployment:
 
    ![Add a license screen](../../images/admin/licenses/add-license-ui.png)
 
-### Coder CLI
+### Neural Inverse Cloud CLI
 
-1. Ensure you have the [Coder CLI](../../install/cli.md) installed.
+1. Ensure you have the [Neural Inverse Cloud CLI](../../install/cli.md) installed.
 1. Save your license key to disk and make note of the path.
 1. Open a terminal.
-1. Log in to your Coder deployment:
+1. Log in to your Neural Inverse Cloud deployment:
 
    ```shell
    coder login <access url>
@@ -68,7 +68,7 @@ There are two ways to add a license to a Coder deployment:
 
 You'll need your deployment ID to request a trial or license key.
 
-From your Coder dashboard, select your user avatar, then select the **Copy to
+From your Neural Inverse Cloud dashboard, select your user avatar, then select the **Copy to
 clipboard** icon at the bottom:
 
 ![Copy the deployment ID from the bottom of the user avatar dropdown](../../images/admin/deployment-id-copy-clipboard.png)

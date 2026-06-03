@@ -24,39 +24,39 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/workspaceapps/apptest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/coderd"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck/derphealth"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspaceapps/apptest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/enterprise/wsproxy/wsproxysdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
 func TestDERPOnly(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := nicloudtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{
 		"*",
 	}
 
-	client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, _ := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
 			DeploymentValues:         deploymentValues,
-			AppHostname:              "*.primary.test.coder.com",
+			AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 			IncludeProvisionerDaemon: true,
 			RealIPConfig: &httpmw.RealIPConfig{
 				TrustedOrigins: []*net.IPNet{{
@@ -68,10 +68,10 @@ func TestDERPOnly(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				nicloudsdk.FeatureWorkspaceProxy:        1,
+				nicloudsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -80,7 +80,7 @@ func TestDERPOnly(t *testing.T) {
 	})
 
 	// Create an external proxy.
-	_ = coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	_ = nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 		Name:     "best-proxy",
 		DerpOnly: true,
 	})
@@ -96,9 +96,9 @@ func TestDERPOnly(t *testing.T) {
 func TestDERP(t *testing.T) {
 	t.Parallel()
 
-	client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
-			AppHostname:              "*.primary.test.coder.com",
+	client, closer, api, user := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
+			AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 			IncludeProvisionerDaemon: true,
 			RealIPConfig: &httpmw.RealIPConfig{
 				TrustedOrigins: []*net.IPNet{{
@@ -110,10 +110,10 @@ func TestDERP(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				nicloudsdk.FeatureWorkspaceProxy:        1,
+				nicloudsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -122,22 +122,22 @@ func TestDERP(t *testing.T) {
 	})
 
 	// Create two running external proxies.
-	proxyAPI1 := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	proxyAPI1 := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 		Name: "best-proxy",
 	})
-	proxyAPI2 := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	proxyAPI2 := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 		Name: "worst-proxy",
 	})
 
 	// Create a running external proxy with DERP disabled.
-	proxyAPI3 := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	proxyAPI3 := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 		Name:         "no-derp-proxy",
 		DerpDisabled: true,
 	})
 
 	// Create a proxy that is never started.
 	ctx := testutil.Context(t, testutil.WaitLong)
-	_, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+	_, err := client.CreateWorkspaceProxy(ctx, nicloudsdk.CreateWorkspaceProxyRequest{
 		Name: "never-started-proxy",
 	})
 	require.NoError(t, err)
@@ -171,14 +171,14 @@ func TestDERP(t *testing.T) {
 
 	// Create a workspace + apps
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionGraph: echo.ProvisionGraphWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+	build := nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	workspace.LatestBuild = build
 
 	agentID := uuid.Nil
@@ -193,7 +193,7 @@ resourceLoop:
 
 	// Connect an agent to the workspace
 	_ = agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	t.Run("ReturnedInDERPMap", func(t *testing.T) {
 		t.Parallel()
@@ -322,16 +322,16 @@ resourceLoop:
 func TestDERPEndToEnd(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := nicloudtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{
 		"*",
 	}
 	deploymentValues.DERP.Config.BlockDirect = true
 
-	client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, user := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
 			DeploymentValues:         deploymentValues,
-			AppHostname:              "*.primary.test.coder.com",
+			AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 			IncludeProvisionerDaemon: true,
 			RealIPConfig: &httpmw.RealIPConfig{
 				TrustedOrigins: []*net.IPNet{{
@@ -343,10 +343,10 @@ func TestDERPEndToEnd(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				nicloudsdk.FeatureWorkspaceProxy:        1,
+				nicloudsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -354,7 +354,7 @@ func TestDERPEndToEnd(t *testing.T) {
 		_ = closer.Close()
 	})
 
-	coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 		Name: "best-proxy",
 	})
 
@@ -409,14 +409,14 @@ func TestDERPEndToEnd(t *testing.T) {
 
 	// Create a workspace + apps
 	authToken := uuid.NewString()
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
+	version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, &echo.Responses{
 		Parse:          echo.ParseComplete,
 		ProvisionGraph: echo.ProvisionGraphWithAgent(authToken),
 	})
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	build := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+	build := nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 	workspace.LatestBuild = build
 
 	agentID := uuid.Nil
@@ -431,7 +431,7 @@ resourceLoop:
 
 	// Connect an agent to the workspace
 	_ = agenttest.New(t, client.URL, authToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	// Connect to the workspace agent.
 	conn, err := workspacesdk.New(client).
@@ -461,16 +461,16 @@ resourceLoop:
 func TestDERPMesh(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := nicloudtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{
 		"*",
 	}
 
 	ctx := testutil.Context(t, testutil.WaitLong)
-	client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, _ := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
 			DeploymentValues:         deploymentValues,
-			AppHostname:              "*.primary.test.coder.com",
+			AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 			IncludeProvisionerDaemon: true,
 			RealIPConfig: &httpmw.RealIPConfig{
 				TrustedOrigins: []*net.IPNet{{
@@ -482,10 +482,10 @@ func TestDERPMesh(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy:        1,
-				codersdk.FeatureMultipleOrganizations: 1,
+				nicloudsdk.FeatureWorkspaceProxy:        1,
+				nicloudsdk.FeatureMultipleOrganizations: 1,
 			},
 		},
 	})
@@ -493,7 +493,7 @@ func TestDERPMesh(t *testing.T) {
 		_ = closer.Close()
 	})
 
-	proxyURL, err := url.Parse("https://proxy.test.coder.com")
+	proxyURL, err := url.Parse("https://proxy.test.cloud.neuralinverse.com")
 	require.NoError(t, err)
 
 	// Create 3 proxy replicas.
@@ -546,9 +546,9 @@ func TestDERPMesh(t *testing.T) {
 // replica in the same region as itself periodically.
 func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Parallel()
-	createProxyRegion := func(ctx context.Context, t *testing.T, client *codersdk.Client, name string) codersdk.UpdateWorkspaceProxyResponse {
+	createProxyRegion := func(ctx context.Context, t *testing.T, client *nicloudsdk.Client, name string) nicloudsdk.UpdateWorkspaceProxyResponse {
 		t.Helper()
-		proxyRes, err := client.CreateWorkspaceProxy(ctx, codersdk.CreateWorkspaceProxyRequest{
+		proxyRes, err := client.CreateWorkspaceProxy(ctx, nicloudsdk.CreateWorkspaceProxyRequest{
 			Name: name,
 			Icon: "/emojis/flag.png",
 		})
@@ -588,15 +588,15 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Run("ProbeOK", func(t *testing.T) {
 		t.Parallel()
 
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := nicloudtest.DeploymentValues(t)
 		deploymentValues.Experiments = []string{
 			"*",
 		}
 
-		client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, _ := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues:         deploymentValues,
-				AppHostname:              "*.primary.test.coder.com",
+				AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 				IncludeProvisionerDaemon: true,
 				RealIPConfig: &httpmw.RealIPConfig{
 					TrustedOrigins: []*net.IPNet{{
@@ -608,10 +608,10 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 					},
 				},
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureWorkspaceProxy:        1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -623,9 +623,9 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		// shouldn't affect the mesh since it's in a different region.
 		ctx := testutil.Context(t, testutil.WaitLong)
 		fakeProxyRes := createProxyRegion(ctx, t, client, "fake-proxy")
-		registerBrokenProxy(ctx, t, api.AccessURL, "https://fake-proxy.test.coder.com", fakeProxyRes.ProxyToken)
+		registerBrokenProxy(ctx, t, api.AccessURL, "https://fake-proxy.test.cloud.neuralinverse.com", fakeProxyRes.ProxyToken)
 
-		proxyURL, err := url.Parse("https://proxy1.test.coder.com")
+		proxyURL, err := url.Parse("https://proxy1.test.cloud.neuralinverse.com")
 		require.NoError(t, err)
 
 		// Create 6 proxy replicas.
@@ -648,7 +648,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 			resp, err := httpClient.Do(req)
 			require.NoError(t, err)
 
-			var respJSON codersdk.ProxyHealthReport
+			var respJSON nicloudsdk.ProxyHealthReport
 			err = json.NewDecoder(resp.Body).Decode(&respJSON)
 			resp.Body.Close()
 			require.NoError(t, err)
@@ -662,15 +662,15 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Run("ProbeFail", func(t *testing.T) {
 		t.Parallel()
 
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := nicloudtest.DeploymentValues(t)
 		deploymentValues.Experiments = []string{
 			"*",
 		}
 
-		client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, _ := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues:         deploymentValues,
-				AppHostname:              "*.primary.test.coder.com",
+				AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 				IncludeProvisionerDaemon: true,
 				RealIPConfig: &httpmw.RealIPConfig{
 					TrustedOrigins: []*net.IPNet{{
@@ -682,10 +682,10 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 					},
 				},
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureWorkspaceProxy:        1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -693,16 +693,16 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 			_ = closer.Close()
 		})
 
-		proxyURL, err := url.Parse("https://proxy2.test.coder.com")
+		proxyURL, err := url.Parse("https://proxy2.test.cloud.neuralinverse.com")
 		require.NoError(t, err)
 
 		// Create 1 real proxy replica.
 		const fakeCount = 5
 		replicaPingErr := make(chan string, 4)
-		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxy := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 			Name:     "proxy-2",
 			ProxyURL: proxyURL,
-			ReplicaPingCallback: func(replicas []codersdk.Replica, err string) {
+			ReplicaPingCallback: func(replicas []nicloudsdk.Replica, err string) {
 				if len(replicas) != fakeCount {
 					// Still warming up...
 					return
@@ -736,7 +736,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
 
-		var respJSON codersdk.ProxyHealthReport
+		var respJSON nicloudsdk.ProxyHealthReport
 		err = json.NewDecoder(resp.Body).Decode(&respJSON)
 		resp.Body.Close()
 		require.NoError(t, err)
@@ -751,15 +751,15 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 	t.Run("HealthyZero", func(t *testing.T) {
 		t.Parallel()
 
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := nicloudtest.DeploymentValues(t)
 		deploymentValues.Experiments = []string{
 			"*",
 		}
 
-		client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, _ := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues:         deploymentValues,
-				AppHostname:              "*.primary.test.coder.com",
+				AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 				IncludeProvisionerDaemon: true,
 				RealIPConfig: &httpmw.RealIPConfig{
 					TrustedOrigins: []*net.IPNet{{
@@ -771,10 +771,10 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 					},
 				},
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureWorkspaceProxy:        1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -782,15 +782,15 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 			_ = closer.Close()
 		})
 
-		proxyURL, err := url.Parse("https://proxy2.test.coder.com")
+		proxyURL, err := url.Parse("https://proxy2.test.cloud.neuralinverse.com")
 		require.NoError(t, err)
 
 		// Create 1 real proxy replica.
 		replicaPingRes := make(chan replicaPingCallback, 4)
-		proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxy := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 			Name:     "proxy-2",
 			ProxyURL: proxyURL,
-			ReplicaPingCallback: func(replicas []codersdk.Replica, err string) {
+			ReplicaPingCallback: func(replicas []nicloudsdk.Replica, err string) {
 				t.Logf("got wsproxy ping callback: replica count: %v, ping error: %s", len(replicas), err)
 				replicaPingRes <- replicaPingCallback{
 					replicas: replicas,
@@ -824,7 +824,7 @@ func TestWorkspaceProxyDERPMeshProbe(t *testing.T) {
 		httpClient := &http.Client{}
 		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
-		var respJSON codersdk.ProxyHealthReport
+		var respJSON nicloudsdk.ProxyHealthReport
 		err = json.NewDecoder(resp.Body).Decode(&respJSON)
 		resp.Body.Close()
 		require.NoError(t, err)
@@ -869,7 +869,7 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 	t.Parallel()
 
 	apptest.Run(t, false, func(t *testing.T, opts *apptest.DeploymentOptions) *apptest.Deployment {
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := nicloudtest.DeploymentValues(t)
 		deploymentValues.DisablePathApps = serpent.Bool(opts.DisablePathApps)
 		deploymentValues.Dangerous.AllowPathAppSharing = serpent.Bool(opts.DangerousAllowPathAppSharing)
 		deploymentValues.Dangerous.AllowPathAppSiteOwnerAccess = serpent.Bool(opts.DangerousAllowPathAppSiteOwnerAccess)
@@ -885,13 +885,13 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 		}
 
 		if opts.PrimaryAppHost == "" {
-			opts.PrimaryAppHost = "*.primary.test.coder.com"
+			opts.PrimaryAppHost = "*.primary.test.cloud.neuralinverse.com"
 		}
 
 		db, pubsub := dbtestutil.NewDB(t)
 
-		client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, user := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              opts.PrimaryAppHost,
 				IncludeProvisionerDaemon: true,
@@ -908,10 +908,10 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 				Database:                           db,
 				Pubsub:                             pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureWorkspaceProxy:        1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -930,7 +930,7 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 		if opts.DisableSubdomainApps {
 			opts.AppHost = ""
 		}
-		proxyAPI := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxyAPI := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 			Name:            "best-proxy",
 			AppHostname:     opts.AppHost,
 			DisablePathApps: opts.DisablePathApps,
@@ -948,7 +948,7 @@ func TestWorkspaceProxyWorkspaceApps(t *testing.T) {
 }
 
 type replicaPingCallback struct {
-	replicas []codersdk.Replica
+	replicas []nicloudsdk.Replica
 	err      string
 }
 
@@ -956,7 +956,7 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 	t.Parallel()
 
 	apptest.Run(t, false, func(t *testing.T, opts *apptest.DeploymentOptions) *apptest.Deployment {
-		deploymentValues := coderdtest.DeploymentValues(t)
+		deploymentValues := nicloudtest.DeploymentValues(t)
 		deploymentValues.DisablePathApps = serpent.Bool(opts.DisablePathApps)
 		deploymentValues.Dangerous.AllowPathAppSharing = serpent.Bool(opts.DangerousAllowPathAppSharing)
 		deploymentValues.Dangerous.AllowPathAppSiteOwnerAccess = serpent.Bool(opts.DangerousAllowPathAppSiteOwnerAccess)
@@ -972,12 +972,12 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 		}
 
 		if opts.PrimaryAppHost == "" {
-			opts.PrimaryAppHost = "*.primary.test.coder.com"
+			opts.PrimaryAppHost = "*.primary.test.cloud.neuralinverse.com"
 		}
 
 		db, pubsub := dbtestutil.NewDB(t)
-		client, closer, api, user := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, closer, api, user := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				DeploymentValues:         deploymentValues,
 				AppHostname:              opts.PrimaryAppHost,
 				IncludeProvisionerDaemon: true,
@@ -994,10 +994,10 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 				Database:                           db,
 				Pubsub:                             pubsub,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspaceProxy:        1,
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureWorkspaceProxy:        1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -1016,7 +1016,7 @@ func TestWorkspaceProxyWorkspaceApps_BlockDirect(t *testing.T) {
 		if opts.DisableSubdomainApps {
 			opts.AppHost = ""
 		}
-		proxyAPI := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+		proxyAPI := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 			Name:            "best-proxy",
 			AppHostname:     opts.AppHost,
 			DisablePathApps: opts.DisablePathApps,
@@ -1122,8 +1122,8 @@ func testDERPSend(t *testing.T, ctx context.Context, dstKey key.NodePublic, dstC
 }
 
 type createProxyReplicasOptions struct {
-	API    *coderd.API
-	Client *codersdk.Client
+	API    *nicloud.API
+	Client *nicloudsdk.Client
 
 	Name     string
 	ProxyURL *url.URL
@@ -1135,22 +1135,22 @@ type createProxyReplicasOptions struct {
 
 // createProxyReplicas creates and runs a set of proxy replicas and ensures that
 // they are all functioning correctly and aware of each other with no errors.
-func createProxyReplicas(ctx context.Context, t *testing.T, opts *createProxyReplicasOptions) []coderdenttest.WorkspaceProxy {
+func createProxyReplicas(ctx context.Context, t *testing.T, opts *createProxyReplicasOptions) []nicloudenttest.WorkspaceProxy {
 	t.Helper()
 
 	var (
-		proxies = make([]coderdenttest.WorkspaceProxy, opts.Count)
+		proxies = make([]nicloudenttest.WorkspaceProxy, opts.Count)
 		// replicaPingSuccessful tracks whether the replica ping callback
 		// was called with no errors for each replica.
 		replicaPingMutex      sync.Mutex
 		replicaPingSuccessful = make([]bool, opts.Count)
 	)
 	for i := range proxies {
-		proxies[i] = coderdenttest.NewWorkspaceProxyReplica(t, opts.API, opts.Client, &coderdenttest.ProxyOptions{
+		proxies[i] = nicloudenttest.NewWorkspaceProxyReplica(t, opts.API, opts.Client, &nicloudenttest.ProxyOptions{
 			Name:     opts.Name,
 			Token:    opts.ProxyToken,
 			ProxyURL: opts.ProxyURL,
-			ReplicaPingCallback: func(siblings []codersdk.Replica, err string) {
+			ReplicaPingCallback: func(siblings []nicloudsdk.Replica, err string) {
 				t.Logf("got wsproxy ping callback: i=%d, siblings=%v, err=%s", i, len(siblings), err)
 
 				replicaPingMutex.Lock()
@@ -1227,13 +1227,13 @@ func createProxyReplicas(ctx context.Context, t *testing.T, opts *createProxyRep
 func TestWorkspaceProxyDERPMetrics(t *testing.T) {
 	t.Parallel()
 
-	deploymentValues := coderdtest.DeploymentValues(t)
+	deploymentValues := nicloudtest.DeploymentValues(t)
 	deploymentValues.Experiments = []string{"*"}
 
-	client, closer, api, _ := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, closer, api, _ := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
 			DeploymentValues:         deploymentValues,
-			AppHostname:              "*.primary.test.coder.com",
+			AppHostname:              "*.primary.test.cloud.neuralinverse.com",
 			IncludeProvisionerDaemon: true,
 			RealIPConfig: &httpmw.RealIPConfig{
 				TrustedOrigins: []*net.IPNet{{
@@ -1245,9 +1245,9 @@ func TestWorkspaceProxyDERPMetrics(t *testing.T) {
 				},
 			},
 		},
-		LicenseOptions: &coderdenttest.LicenseOptions{
+		LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureWorkspaceProxy: 1,
+				nicloudsdk.FeatureWorkspaceProxy: 1,
 			},
 		},
 	})
@@ -1255,7 +1255,7 @@ func TestWorkspaceProxyDERPMetrics(t *testing.T) {
 		_ = closer.Close()
 	})
 
-	proxy := coderdenttest.NewWorkspaceProxyReplica(t, api, client, &coderdenttest.ProxyOptions{
+	proxy := nicloudenttest.NewWorkspaceProxyReplica(t, api, client, &nicloudenttest.ProxyOptions{
 		Name: "metrics-test-proxy",
 	})
 

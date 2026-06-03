@@ -6,7 +6,7 @@ set -e
 # can interfere with host.docker.internal DNS resolution, breaking
 # connectivity to the Coder server.
 
-if [ "${CODER_AGENT_URL#*host.docker.internal}" = "$CODER_AGENT_URL" ]; then
+if [ "${NEURALINVERSE_AGENT_URL#*host.docker.internal}" = "$NEURALINVERSE_AGENT_URL" ]; then
 	# External access URL detected, no networking workarounds needed.
 	sudo service docker start
 	exit 0
@@ -31,9 +31,9 @@ host_ip=$(getent hosts host.docker.internal | awk '{print $1}')
 
 echo "Host IP for host.docker.internal: $host_ip"
 
-# Extract the port from CODER_AGENT_URL. The URL format is typically
+# Extract the port from NEURALINVERSE_AGENT_URL. The URL format is typically
 # http://host.docker.internal:port/.
-port="${CODER_AGENT_URL##*:}"
+port="${NEURALINVERSE_AGENT_URL##*:}"
 port="${port%%/*}"
 case "$port" in
 [0-9]*)

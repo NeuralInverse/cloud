@@ -22,11 +22,11 @@ import (
 	tailscalesingleflight "tailscale.com/util/singleflight"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/quartz"
 )
 
@@ -946,7 +946,7 @@ func (m *Manager) connectServer(ctx context.Context, cfg ServerConfig) (*client.
 		Params: mcp.InitializeParams{
 			ProtocolVersion: mcp.LATEST_PROTOCOL_VERSION,
 			ClientInfo: mcp.Implementation{
-				Name:    "coder-agent",
+				Name:    "neuralinverse-agent",
 				Version: buildinfo.Version(),
 			},
 		},

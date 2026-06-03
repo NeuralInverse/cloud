@@ -3,7 +3,7 @@ package placebo
 import (
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
 )
 
 type Config struct {

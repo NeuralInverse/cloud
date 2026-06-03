@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloud/audit"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
 )
 
 func structName(t reflect.Type) string {

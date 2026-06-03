@@ -15,8 +15,8 @@ import (
 	"cdr.dev/slog/v3/sloggers/sloghuman"
 	"cdr.dev/slog/v3/sloggers/slogjson"
 	"cdr.dev/slog/v3/sloggers/slogstackdriver"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -76,7 +76,7 @@ func WithVerbose() Option {
 	}
 }
 
-func FromDeploymentValues(vals *codersdk.DeploymentValues) Option {
+func FromDeploymentValues(vals *nicloudsdk.DeploymentValues) Option {
 	return func(b *Builder) {
 		b.Filter = vals.Logging.Filter.Value()
 		b.Human = vals.Logging.Human.Value()

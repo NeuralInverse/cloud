@@ -2,15 +2,15 @@
 
 > [!NOTE]
 > Organizations requires a
-> [Premium license](https://coder.com/pricing#compare-plans). For more details,
-> [contact your account team](https://coder.com/contact).
+> [Premium license](https://cloud.neuralinverse.com/pricing#compare-plans). For more details,
+> [contact your account team](https://cloud.neuralinverse.com/contact).
 
-Organizations can be used to segment and isolate resources inside a Coder
+Organizations can be used to segment and isolate resources inside a Neural Inverse Cloud
 deployment for different user groups or projects.
 
 ## Example
 
-Here is an example of how one could use organizations to run a Coder deployment
+Here is an example of how one could use organizations to run a Neural Inverse Cloud deployment
 with multiple platform teams, all with unique resources:
 
 ![Organizations Example](../../images/admin/users/organizations/diagram.png)
@@ -21,7 +21,7 @@ guide.
 
 ## The default organization
 
-All Coder deployments start with one organization called `coder`. All new users
+All Neural Inverse Cloud deployments start with one organization called `coder`. All new users
 are added to this organization by default.
 
 To edit the organization details, select **Admin settings** from the top bar, then
@@ -47,8 +47,8 @@ identity provider to avoid manually assigning users to organizations.
 
 ### Prerequisites
 
-- Coder v2.16+ deployment with Premium license and Organizations enabled
-  ([contact your account team](https://coder.com/contact)) for more details.
+- Neural Inverse Cloud v2.16+ deployment with Premium license and Organizations enabled
+  ([contact your account team](https://cloud.neuralinverse.com/contact)) for more details.
 - User with `Owner` role
 
 ### 1. Create the organization
@@ -76,7 +76,7 @@ for executing Terraform/OpenTofu to provision the infrastructure for workspaces
 and testing templates. Before creating templates, we must deploy at least one
 provisioner as the built-in provisioners are scoped to the default organization.
 
-1. Using Coder CLI, run the following command to create a key that will be used
+1. Using Neural Inverse Cloud CLI, run the following command to create a key that will be used
    to authenticate the provisioner:
 
    ```shell
@@ -88,13 +88,13 @@ provisioner as the built-in provisioners are scoped to the default organization.
 
 1. Start the provisioner with the key on your desired platform.
 
-   In this example, start the provisioner using the Coder CLI on a host with
+   In this example, start the provisioner using the Neural Inverse Cloud CLI on a host with
    Docker. For instructions on using other platforms like Kubernetes, see our
    [provisioner documentation](../provisioners/index.md).
 
    ```sh
-   export CODER_URL=https://<your-coder-url>
-   export CODER_PROVISIONER_DAEMON_KEY=<key>
+   export NEURALINVERSE_URL=https://<your-coder-url>
+   export NEURALINVERSE_PROVISIONER_DAEMON_KEY=<key>
    coder provisionerd start --org <org-name>
    ```
 

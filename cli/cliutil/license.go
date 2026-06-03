@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // NewLicenseFormatter returns a new license formatter.
@@ -30,7 +30,7 @@ func NewLicenseFormatter() *cliui.OutputFormatter {
 		cliui.ChangeFormatterData(
 			cliui.TableFormat([]tableLicense{}, []string{"ID", "UUID", "Expires At", "Uploaded At", "Features"}),
 			func(data any) (any, error) {
-				list, ok := data.([]codersdk.License)
+				list, ok := data.([]nicloudsdk.License)
 				if !ok {
 					return nil, xerrors.Errorf("invalid data type %T", data)
 				}
@@ -70,14 +70,14 @@ func NewLicenseFormatter() *cliui.OutputFormatter {
 				return out, nil
 			}),
 		cliui.ChangeFormatterData(cliui.JSONFormat(), func(data any) (any, error) {
-			list, ok := data.([]codersdk.License)
+			list, ok := data.([]nicloudsdk.License)
 			if !ok {
 				return nil, xerrors.Errorf("invalid data type %T", data)
 			}
 			for i := range list {
 				humanExp, err := list[i].ExpiresAt()
 				if err == nil {
-					list[i].Claims[codersdk.LicenseExpiryClaim+"_human"] = humanExp.Format(time.RFC3339)
+					list[i].Claims[nicloudsdk.LicenseExpiryClaim+"_human"] = humanExp.Format(time.RFC3339)
 				}
 			}
 

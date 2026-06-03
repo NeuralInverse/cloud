@@ -34,8 +34,8 @@ export const OneWarning: Story = {
 				message: "You have exceeded the number of seats in your license.",
 				variant: "warningProminent",
 				link: {
-					href: "mailto:sales@coder.com",
-					label: "Contact sales@coder.com.",
+					href: "mailto:sales@cloud.neuralinverse.com",
+					label: "Contact sales@cloud.neuralinverse.com.",
 					showExternalIcon: false,
 				},
 			},
@@ -130,8 +130,8 @@ export const TelemetryRequiredError: Story = {
 				message: LicenseTelemetryRequiredErrorText,
 				variant: "error",
 				link: {
-					href: "mailto:sales@coder.com",
-					label: "Contact sales@coder.com if you need an exception.",
+					href: "mailto:sales@cloud.neuralinverse.com",
+					label: "Contact sales@cloud.neuralinverse.com if you need an exception.",
 					showExternalIcon: false,
 				},
 			},
@@ -146,7 +146,7 @@ export const TelemetryRequiredError: Story = {
 			canvas.getByRole("link", {
 				name: /Contact sales@coder\.com if you need an exception\./i,
 			}),
-		).toHaveAttribute("href", "mailto:sales@coder.com");
+		).toHaveAttribute("href", "mailto:sales@cloud.neuralinverse.com");
 	},
 };
 
@@ -237,7 +237,7 @@ export const AIGovernanceNearLimit: Story = {
 		);
 		await expect(
 			canvas.getByRole("link", { name: /Contact sales@coder\.com/i }),
-		).toHaveAttribute("href", "mailto:sales@coder.com");
+		).toHaveAttribute("href", "mailto:sales@cloud.neuralinverse.com");
 	},
 };
 

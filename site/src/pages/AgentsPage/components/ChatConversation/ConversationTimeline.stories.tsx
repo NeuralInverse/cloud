@@ -2506,7 +2506,7 @@ export const ThinkingBlockWithToolCall: Story = {
 					{
 						type: "tool-result",
 						tool_call_id: "tool-1",
-						result: { content: '{"name":"coder"}' },
+						result: { content: '{"name":"neuralinverse"}' },
 					},
 				],
 			},

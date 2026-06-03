@@ -7,7 +7,7 @@
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/applications/auth-redirect \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/applications/auth-redirect`
@@ -34,7 +34,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/applications/host \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/applications/host`
@@ -53,6 +53,6 @@ curl -X GET http://coder-server:8080/api/v2/applications/host \
 
 | Status | Meaning                                                 | Description | Schema                                                         |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.AppHostResponse](schemas.md#codersdkapphostresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.AppHostResponse](schemas.md#nicloudsdkapphostresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

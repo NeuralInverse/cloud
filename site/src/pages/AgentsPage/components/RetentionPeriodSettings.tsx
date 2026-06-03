@@ -29,7 +29,7 @@ interface RetentionPeriodSettingsProps {
 	isSaveRetentionDaysError: boolean;
 }
 
-// Keep in sync with retentionDaysMaximum in coderd/exp_chats.go.
+// Keep in sync with retentionDaysMaximum in nicloud/exp_chats.go.
 const validationSchema = Yup.object({
 	retention_days: Yup.number()
 		.integer("Retention days must be a whole number.")

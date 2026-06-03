@@ -39,29 +39,29 @@ import (
 
 	"cdr.dev/slog/v3"
 	"github.com/coder/clistat"
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentcontextconfig"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/agentfiles"
-	"github.com/coder/coder/v2/agent/agentgit"
-	"github.com/coder/coder/v2/agent/agentproc"
-	"github.com/coder/coder/v2/agent/agentscripts"
-	"github.com/coder/coder/v2/agent/agentsocket"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/boundarylogproxy"
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/agent/proto/resourcesmonitor"
-	"github.com/coder/coder/v2/agent/reconnectingpty"
-	"github.com/coder/coder/v2/agent/x/agentdesktop"
-	"github.com/coder/coder/v2/agent/x/agentmcp"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/gitauth"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/tailnet"
-	tailnetproto "github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontextconfig"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/agentfiles"
+	"github.com/NeuralInverse/cloud/v2/agent/agentgit"
+	"github.com/NeuralInverse/cloud/v2/agent/agentproc"
+	"github.com/NeuralInverse/cloud/v2/agent/agentscripts"
+	"github.com/NeuralInverse/cloud/v2/agent/agentsocket"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/proto/resourcesmonitor"
+	"github.com/NeuralInverse/cloud/v2/agent/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/agent/x/agentdesktop"
+	"github.com/NeuralInverse/cloud/v2/agent/x/agentmcp"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/gitauth"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	tailnetproto "github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/quartz"
 	"github.com/coder/retry"
 )
@@ -75,8 +75,8 @@ const (
 // EnvProcPrioMgmt determines whether we attempt to manage
 // process CPU and OOM Killer priority.
 const (
-	EnvProcPrioMgmt = "CODER_PROC_PRIO_MGMT"
-	EnvProcOOMScore = "CODER_PROC_OOM_SCORE"
+	EnvProcPrioMgmt = "NEURALINVERSE_PROC_PRIO_MGMT"
+	EnvProcOOMScore = "NEURALINVERSE_PROC_OOM_SCORE"
 )
 
 var ErrAgentClosing = xerrors.New("agent is closing")
@@ -99,7 +99,7 @@ type Options struct {
 	ListeningPortsGetter         ListeningPortsGetter
 	SSHMaxTimeout                time.Duration
 	TailnetListenPort            uint16
-	Subsystems                   []codersdk.AgentSubsystem
+	Subsystems                   []nicloudsdk.AgentSubsystem
 	PrometheusRegistry           *prometheus.Registry
 	ReportMetadataInterval       time.Duration
 	ServiceBannerRefreshInterval time.Duration
@@ -208,8 +208,8 @@ func New(options Options) Agent {
 		tempDir:                 options.TempDir,
 		scriptDataDir:           options.ScriptDataDir,
 		lifecycleUpdate:         make(chan struct{}, 1),
-		lifecycleReported:       make(chan codersdk.WorkspaceAgentLifecycle, 1),
-		lifecycleStates:         []agentsdk.PostLifecycleRequest{{State: codersdk.WorkspaceAgentLifecycleCreated}},
+		lifecycleReported:       make(chan nicloudsdk.WorkspaceAgentLifecycle, 1),
+		lifecycleStates:         []agentsdk.PostLifecycleRequest{{State: nicloudsdk.WorkspaceAgentLifecycleCreated}},
 		reportConnectionsUpdate: make(chan struct{}, 1),
 		listeningPortsHandler: listeningPortsHandler{
 			getter:      options.ListeningPortsGetter,
@@ -242,7 +242,7 @@ func New(options Options) Agent {
 	// that gets closed on disconnection.  This is used to wait for graceful disconnection from the
 	// coordinator during shut down.
 	close(a.coordDisconnected)
-	a.announcementBanners.Store(new([]codersdk.BannerConfig))
+	a.announcementBanners.Store(new([]nicloudsdk.BannerConfig))
 	a.init()
 	return a
 }
@@ -257,7 +257,7 @@ type agent struct {
 	tempDir               string
 	scriptDataDir         string
 	listeningPortsHandler listeningPortsHandler
-	subsystems            []codersdk.AgentSubsystem
+	subsystems            []nicloudsdk.AgentSubsystem
 
 	reconnectingPTYTimeout time.Duration
 	reconnectingPTYServer  *reconnectingpty.Server
@@ -290,7 +290,7 @@ type agent struct {
 	secrets                            atomic.Pointer[[]agentsdk.WorkspaceSecret]
 	reportMetadataInterval             time.Duration
 	scriptRunner                       *agentscripts.Runner
-	announcementBanners                atomic.Pointer[[]codersdk.BannerConfig] // announcementBanners is atomic because it is periodically updated.
+	announcementBanners                atomic.Pointer[[]nicloudsdk.BannerConfig] // announcementBanners is atomic because it is periodically updated.
 	announcementBannersRefreshInterval time.Duration
 	sshServer                          *agentssh.Server
 	sshMaxTimeout                      time.Duration
@@ -299,7 +299,7 @@ type agent struct {
 	blockLocalPortForwarding           bool
 
 	lifecycleUpdate            chan struct{}
-	lifecycleReported          chan codersdk.WorkspaceAgentLifecycle
+	lifecycleReported          chan nicloudsdk.WorkspaceAgentLifecycle
 	lifecycleMu                sync.RWMutex // Protects following.
 	lifecycleStates            []agentsdk.PostLifecycleRequest
 	lifecycleLastReportedIndex int // Keeps track of the last lifecycle state we successfully reported.
@@ -310,7 +310,7 @@ type agent struct {
 
 	logSender *agentsdk.LogSender
 
-	// boundaryLogProxy is a socket server that forwards boundary audit logs to coderd.
+	// boundaryLogProxy is a socket server that forwards boundary audit logs to nicloud.
 	// It may be nil if there is a problem starting the server.
 	boundaryLogProxy           *boundarylogproxy.Server
 	boundaryLogProxySocketPath string
@@ -318,7 +318,7 @@ type agent struct {
 
 	prometheusRegistry *prometheus.Registry
 	// metrics are prometheus registered metrics that will be collected and
-	// labeled in Coder with the agent + workspace.
+	// labeled in Neural Inverse Cloud with the agent + workspace.
 	metrics *agentMetrics
 	execer  agentexec.Execer
 
@@ -353,7 +353,7 @@ func (a *agent) init() {
 	sshSrv, err := agentssh.NewServer(a.hardCtx, a.logger.Named("ssh-server"), a.prometheusRegistry, a.filesystem, a.execer, &agentssh.Config{
 		MaxTimeout:                 a.sshMaxTimeout,
 		MOTDFile:                   func() string { return a.manifest.Load().MOTDFile },
-		AnnouncementBanners:        func() *[]codersdk.BannerConfig { return a.announcementBanners.Load() },
+		AnnouncementBanners:        func() *[]nicloudsdk.BannerConfig { return a.announcementBanners.Load() },
 		UpdateEnv:                  a.updateCommandEnv,
 		WorkingDirectory:           func() string { return a.manifest.Load().Directory },
 		BlockFileTransfer:          a.blockFileTransfer,
@@ -489,7 +489,7 @@ func (a *agent) startBoundaryLogProxyServer() {
 }
 
 // runLoop attempts to start the agent in a retry loop.
-// Coder may be offline temporarily, a connection issue
+// Neural Inverse Cloud may be offline temporarily, a connection issue
 // may be happening, but regardless after the intermittent
 // failure, you'll want the agent to reconnect.
 func (a *agent) runLoop() {
@@ -498,7 +498,7 @@ func (a *agent) runLoop() {
 	ctx := a.hardCtx
 	defer a.logger.Info(ctx, "agent main loop exited")
 	for retrier := retry.New(100*time.Millisecond, 10*time.Second); retrier.Wait(ctx); {
-		a.logger.Info(ctx, "connecting to coderd")
+		a.logger.Info(ctx, "connecting to nicloud")
 		err := a.run()
 		if err == nil {
 			continue
@@ -514,11 +514,11 @@ func (a *agent) runLoop() {
 			return
 		}
 		if errors.Is(err, io.EOF) {
-			a.logger.Info(ctx, "disconnected from coderd",
-				codersdk.ConnectionDirectionServerToAgent.SlogField(),
-				codersdk.DisconnectReasonNetworkError.SlogField(),
-				codersdk.DisconnectReasonNetworkError.SlogExpectedField(),
-				codersdk.DisconnectInitiatorNetwork.SlogField(),
+			a.logger.Info(ctx, "disconnected from nicloud",
+				nicloudsdk.ConnectionDirectionServerToAgent.SlogField(),
+				nicloudsdk.DisconnectReasonNetworkError.SlogField(),
+				nicloudsdk.DisconnectReasonNetworkError.SlogExpectedField(),
+				nicloudsdk.DisconnectInitiatorNetwork.SlogField(),
 			)
 			continue
 		}
@@ -526,11 +526,11 @@ func (a *agent) runLoop() {
 	}
 }
 
-func (a *agent) collectMetadata(ctx context.Context, md codersdk.WorkspaceAgentMetadataDescription, now time.Time) *codersdk.WorkspaceAgentMetadataResult {
+func (a *agent) collectMetadata(ctx context.Context, md nicloudsdk.WorkspaceAgentMetadataDescription, now time.Time) *nicloudsdk.WorkspaceAgentMetadataResult {
 	var out bytes.Buffer
-	result := &codersdk.WorkspaceAgentMetadataResult{
+	result := &nicloudsdk.WorkspaceAgentMetadataResult{
 		// CollectedAt is set here for testing purposes and overrode by
-		// coderd to the time of server receipt to solve clock skew.
+		// nicloud to the time of server receipt to solve clock skew.
 		//
 		// In the future, the server may accept the timestamp from the agent
 		// if it can guarantee the clocks are synchronized.
@@ -576,7 +576,7 @@ func (a *agent) collectMetadata(ctx context.Context, md codersdk.WorkspaceAgentM
 }
 
 type metadataResultAndKey struct {
-	result *codersdk.WorkspaceAgentMetadataResult
+	result *nicloudsdk.WorkspaceAgentMetadataResult
 	key    string
 }
 
@@ -680,7 +680,7 @@ func (a *agent) reportMetadata(ctx context.Context, aAPI proto.DRPCAgentClient28
 			// boundlessly.
 			lastCollectedAtMu.Lock()
 			for key := range lastCollectedAts {
-				if slices.IndexFunc(manifest.Metadata, func(md codersdk.WorkspaceAgentMetadataDescription) bool {
+				if slices.IndexFunc(manifest.Metadata, func(md nicloudsdk.WorkspaceAgentMetadataDescription) bool {
 					return md.Key == key
 				}) < 0 {
 					logger.Debug(ctx, "deleting lastCollected key, missing from manifest",
@@ -761,7 +761,7 @@ func (a *agent) reportMetadata(ctx context.Context, aAPI proto.DRPCAgentClient28
 	// sending a new one. If the network conditions are bad, we won't
 	// benefit from canceling the previous send and starting a new one.
 	var (
-		updatedMetadata = make(map[string]*codersdk.WorkspaceAgentMetadataResult)
+		updatedMetadata = make(map[string]*nicloudsdk.WorkspaceAgentMetadataResult)
 		reportTimeout   = 30 * time.Second
 		reportError     = make(chan error, 1)
 		reportInFlight  = false
@@ -875,7 +875,7 @@ func (a *agent) reportLifecycle(ctx context.Context, aAPI proto.DRPCAgentClient2
 
 // setLifecycle sets the lifecycle state and notifies the lifecycle loop.
 // The state is only updated if it's a valid state transition.
-func (a *agent) setLifecycle(state codersdk.WorkspaceAgentLifecycle) {
+func (a *agent) setLifecycle(state nicloudsdk.WorkspaceAgentLifecycle) {
 	report := agentsdk.PostLifecycleRequest{
 		State:     state,
 		ChangedAt: dbtime.Now(),
@@ -883,7 +883,7 @@ func (a *agent) setLifecycle(state codersdk.WorkspaceAgentLifecycle) {
 
 	a.lifecycleMu.Lock()
 	lastReport := a.lifecycleStates[len(a.lifecycleStates)-1]
-	if slices.Index(codersdk.WorkspaceAgentLifecycleOrder, lastReport.State) >= slices.Index(codersdk.WorkspaceAgentLifecycleOrder, report.State) {
+	if slices.Index(nicloudsdk.WorkspaceAgentLifecycleOrder, lastReport.State) >= slices.Index(nicloudsdk.WorkspaceAgentLifecycleOrder, report.State) {
 		a.logger.Warn(context.Background(), "attempted to set lifecycle state to a previous state", slog.F("last", lastReport), slog.F("current", report))
 		a.lifecycleMu.Unlock()
 		return
@@ -943,7 +943,7 @@ func (a *agent) reportConnectionsLoop(ctx context.Context, aAPI proto.DRPCAgentC
 const (
 	// reportConnectionBufferLimit limits the number of connection reports we
 	// buffer to avoid growing the buffer indefinitely. This should not happen
-	// unless the agent has lost connection to coderd for a long time or if
+	// unless the agent has lost connection to nicloud for a long time or if
 	// the agent is being spammed with connections.
 	//
 	// If we assume ~150 byte per connection report, this would be around 300KB
@@ -956,7 +956,7 @@ func (a *agent) reportConnection(id uuid.UUID, connectionType proto.Connection_T
 	// A blank IP can unfortunately happen if the connection is broken in a data race before we get to introspect it. We
 	// still report it, and the recipient can handle a blank IP.
 	if ip != "" {
-		// Remove the port from the IP because ports are not supported in coderd.
+		// Remove the port from the IP because ports are not supported in nicloud.
 		if host, _, err := net.SplitHostPort(ip); err != nil {
 			a.logger.Error(a.hardCtx, "split host and port for connection report failed", slog.F("ip", ip), slog.Error(err))
 		} else {
@@ -1050,7 +1050,7 @@ func (a *agent) fetchServiceBannerLoop(ctx context.Context, aAPI proto.DRPCAgent
 				a.logger.Error(ctx, "failed to update notification banners", slog.Error(err))
 				return err
 			}
-			banners := make([]codersdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
+			banners := make([]nicloudsdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
 			for _, bannerProto := range bannersProto.AnnouncementBanners {
 				banners = append(banners, agentsdk.BannerConfigFromProto(bannerProto))
 			}
@@ -1083,7 +1083,7 @@ func (a *agent) run() (retErr error) {
 	}()
 
 	// The socket server accepts requests from processes running inside the workspace and forwards
-	// some of the requests to Coderd over the DRPC connection.
+	// some of the requests to Neural Inverse Cloudd over the DRPC connection.
 	if a.socketServer != nil {
 		a.socketServer.SetAgentAPI(aAPI)
 		defer a.socketServer.ClearAgentAPI()
@@ -1091,7 +1091,7 @@ func (a *agent) run() (retErr error) {
 
 	// A lot of routines need the agent API / tailnet API connection.  We run them in their own
 	// goroutines in parallel, but errors in any routine will cause them all to exit so we can
-	// redial the coder server and retry.
+	// redial the neuralinverse server and retry.
 	connMan := newAPIConnRoutineManager(a.gracefulCtx, a.hardCtx, a.logger, aAPI, tAPI)
 
 	connMan.startAgentAPI("init notification banners", gracefulShutdownBehaviorStop,
@@ -1100,7 +1100,7 @@ func (a *agent) run() (retErr error) {
 			if err != nil {
 				return xerrors.Errorf("fetch service banner: %w", err)
 			}
-			banners := make([]codersdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
+			banners := make([]nicloudsdk.BannerConfig, 0, len(bannersProto.AnnouncementBanners))
 			for _, bannerProto := range bannersProto.AnnouncementBanners {
 				banners = append(banners, agentsdk.BannerConfigFromProto(bannerProto))
 			}
@@ -1123,7 +1123,7 @@ func (a *agent) run() (retErr error) {
 			return err
 		})
 
-	// Forward boundary audit logs to coderd if boundary log forwarding is enabled.
+	// Forward boundary audit logs to nicloud if boundary log forwarding is enabled.
 	// These are audit logs so they should continue during graceful shutdown.
 	if a.boundaryLogProxy != nil {
 		proxyFunc := func(ctx context.Context, aAPI proto.DRPCAgentClient28) error {
@@ -1282,7 +1282,7 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 		}
 		a.client.RewriteDERPMap(manifest.DERPMap)
 
-		// Expand the directory and send it back to coderd so external
+		// Expand the directory and send it back to nicloud so external
 		// applications that rely on the directory can use it.
 		//
 		// An example is VS Code Remote, which must know the directory
@@ -1329,7 +1329,7 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 
 		// The startup script should only execute on the first run!
 		if oldManifest == nil {
-			a.setLifecycle(codersdk.WorkspaceAgentLifecycleStarting)
+			a.setLifecycle(nicloudsdk.WorkspaceAgentLifecycleStarting)
 
 			// Perform overrides early so that Git auth can work even if users
 			// connect to a workspace that is not yet ready. We don't run this
@@ -1347,7 +1347,7 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 
 			var (
 				scripts             = manifest.Scripts
-				devcontainerScripts map[uuid.UUID]codersdk.WorkspaceAgentScript
+				devcontainerScripts map[uuid.UUID]nicloudsdk.WorkspaceAgentScript
 			)
 			if a.devcontainers {
 				// Init the container API with the manifest and client so that
@@ -1399,12 +1399,12 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 				if err != nil {
 					a.logger.Warn(ctx, "startup script(s) failed", slog.Error(err))
 					if errors.Is(err, agentscripts.ErrTimeout) {
-						a.setLifecycle(codersdk.WorkspaceAgentLifecycleStartTimeout)
+						a.setLifecycle(nicloudsdk.WorkspaceAgentLifecycleStartTimeout)
 					} else {
-						a.setLifecycle(codersdk.WorkspaceAgentLifecycleStartError)
+						a.setLifecycle(nicloudsdk.WorkspaceAgentLifecycleStartError)
 					}
 				} else {
-					a.setLifecycle(codersdk.WorkspaceAgentLifecycleReady)
+					a.setLifecycle(nicloudsdk.WorkspaceAgentLifecycleReady)
 				}
 
 				label := "false"
@@ -1434,8 +1434,8 @@ func (a *agent) handleManifest(manifestOK *checkpoint) func(ctx context.Context,
 func (a *agent) createDevcontainer(
 	ctx context.Context,
 	aAPI proto.DRPCAgentClient28,
-	dc codersdk.WorkspaceAgentDevcontainer,
-	script codersdk.WorkspaceAgentScript,
+	dc nicloudsdk.WorkspaceAgentDevcontainer,
+	script nicloudsdk.WorkspaceAgentScript,
 ) (err error) {
 	var (
 		exitCode  = int32(0)
@@ -1551,20 +1551,20 @@ func (a *agent) updateCommandEnv(current []string) (updated []string, err error)
 	// Define environment variables that should be set for all commands,
 	// and then merge them with the current environment.
 	envs := map[string]string{
-		// Set env vars indicating we're inside a Coder workspace.
+		// Set env vars indicating we're inside a Neural Inverse Cloud workspace.
 		"CODER":                      "true",
-		"CODER_WORKSPACE_NAME":       manifest.WorkspaceName,
-		"CODER_WORKSPACE_AGENT_NAME": manifest.AgentName,
-		"CODER_WORKSPACE_OWNER_NAME": manifest.OwnerName,
-		"CODER_WORKSPACE_ID":         manifest.WorkspaceID.String(),
+		"NEURALINVERSE_WORKSPACE_NAME":       manifest.WorkspaceName,
+		"NEURALINVERSE_WORKSPACE_AGENT_NAME": manifest.AgentName,
+		"NEURALINVERSE_WORKSPACE_OWNER_NAME": manifest.OwnerName,
+		"NEURALINVERSE_WORKSPACE_ID":         manifest.WorkspaceID.String(),
 
-		// Specific Coder subcommands require the agent token exposed!
-		"CODER_AGENT_TOKEN": a.client.GetSessionToken(),
+		// Specific Neural Inverse Cloud subcommands require the agent token exposed!
+		"NEURALINVERSE_AGENT_TOKEN": a.client.GetSessionToken(),
 
 		// Git on Windows resolves with UNIX-style paths.
 		// If using backslashes, it's unable to find the executable.
 		"GIT_SSH_COMMAND": fmt.Sprintf("%s gitssh --", unixExecutablePath),
-		// Hide Coder message on code-server's "Getting Started" page
+		// Hide Neural Inverse Cloud message on code-server's "Getting Started" page
 		"CS_DISABLE_GETTING_STARTED_OVERRIDE": "true",
 	}
 
@@ -1610,14 +1610,14 @@ func (a *agent) updateCommandEnv(current []string) (updated []string, err error)
 		}
 	}
 	// Agent-level environment variables should take over all. This is
-	// used for setting agent-specific variables like CODER_AGENT_TOKEN
+	// used for setting agent-specific variables like NEURALINVERSE_AGENT_TOKEN
 	// and GIT_ASKPASS.
 	for k, v := range a.environmentVariables {
 		envs[k] = v
 	}
 
 	// Prepend the agent script bin directory to the PATH
-	// (this is where Coder modules place their binaries).
+	// (this is where Neural Inverse Cloud modules place their binaries).
 	if _, ok := envs["PATH"]; !ok {
 		envs["PATH"] = os.Getenv("PATH")
 	}
@@ -1634,7 +1634,7 @@ func (a *agent) updateCommandEnv(current []string) (updated []string, err error)
 func writeSecretFiles(ctx context.Context, logger slog.Logger, fs afero.Fs, homeDir string, secrets []agentsdk.WorkspaceSecret) {
 	// Track resolved paths to detect collisions after ~/ expansion.
 	// Two secrets with different file_path values can resolve to
-	// the same absolute path (e.g. ~/x and /home/coder/x). The API
+	// the same absolute path (e.g. ~/x and /home/neuralinverse/x). The API
 	// layer prevents duplicates on the raw file_path but cannot see
 	// post-resolution collisions. We still write both, with the
 	// later one winning, but log a warning so the conflict is
@@ -1700,9 +1700,9 @@ func (*agent) wireguardAddresses(agentID uuid.UUID) []netip.Prefix {
 	return []netip.Prefix{
 		// This is the IP that should be used primarily.
 		tailnet.TailscaleServicePrefix.PrefixFromUUID(agentID),
-		// We'll need this address for CoderVPN, but aren't using it from clients until that feature
+		// We'll need this address for Neural Inverse CloudVPN, but aren't using it from clients until that feature
 		// is ready
-		tailnet.CoderServicePrefix.PrefixFromUUID(agentID),
+		tailnet.NIServicePrefix.PrefixFromUUID(agentID),
 	}
 }
 
@@ -1727,10 +1727,10 @@ func (a *agent) createTailnet(
 	derpForceWebSockets, disableDirectConnections bool,
 	keySeed int64,
 ) (_ *tailnet.Conn, err error) {
-	// Inject `CODER_AGENT_HEADER` into the DERP header.
+	// Inject `NEURALINVERSE_AGENT_HEADER` into the DERP header.
 	var header http.Header
 	if client, ok := a.client.(*agentsdk.Client); ok {
-		if headerTransport, ok := client.SDK.HTTPClient.Transport.(*codersdk.HeaderTransport); ok {
+		if headerTransport, ok := client.SDK.HTTPClient.Transport.(*nicloudsdk.HeaderTransport); ok {
 			header = headerTransport.Header
 		}
 	}
@@ -1889,15 +1889,15 @@ func (a *agent) createTailnet(
 // local context means the agent itself is shutting down. A non-nil
 // return error without context cancellation means the stream broke
 // unexpectedly.
-func classifyCoordinatorRPCExit(ctx context.Context, retErr error) (codersdk.DisconnectReason, codersdk.DisconnectInitiator) {
+func classifyCoordinatorRPCExit(ctx context.Context, retErr error) (nicloudsdk.DisconnectReason, nicloudsdk.DisconnectInitiator) {
 	localShutdown := ctx.Err() != nil
 	switch {
 	case localShutdown:
-		return codersdk.DisconnectReasonServerShutdown, codersdk.DisconnectInitiatorAgent
+		return nicloudsdk.DisconnectReasonServerShutdown, nicloudsdk.DisconnectInitiatorAgent
 	case retErr == nil:
-		return codersdk.DisconnectReasonGraceful, codersdk.DisconnectInitiatorServer
+		return nicloudsdk.DisconnectReasonGraceful, nicloudsdk.DisconnectInitiatorServer
 	default:
-		return codersdk.DisconnectReasonNetworkError, codersdk.DisconnectInitiatorNetwork
+		return nicloudsdk.DisconnectReasonNetworkError, nicloudsdk.DisconnectInitiatorNetwork
 	}
 }
 
@@ -1913,7 +1913,7 @@ func (a *agent) runCoordinator(ctx context.Context, tClient tailnetproto.DRPCTai
 	defer func() {
 		reason, initiator := classifyCoordinatorRPCExit(ctx, retErr)
 		a.logger.Debug(ctx, "disconnected from coordination RPC",
-			codersdk.ConnectionDirectionServerToAgent.SlogField(),
+			nicloudsdk.ConnectionDirectionServerToAgent.SlogField(),
 			reason.SlogField(),
 			reason.SlogExpectedField(),
 			initiator.SlogField(),
@@ -1982,7 +1982,7 @@ func (a *agent) runDERPMapSubscriber(ctx context.Context, tClient tailnetproto.D
 
 		reason, initiator := classifyCoordinatorRPCExit(ctx, retErr)
 		a.logger.Debug(ctx, "disconnected from derp map RPC",
-			codersdk.ConnectionDirectionServerToAgent.SlogField(),
+			nicloudsdk.ConnectionDirectionServerToAgent.SlogField(),
 			reason.SlogField(),
 			reason.SlogExpectedField(),
 			initiator.SlogField(),
@@ -2155,7 +2155,7 @@ func (a *agent) HandleHTTPDebugManifest(w http.ResponseWriter, r *http.Request) 
 }
 
 func (a *agent) HandleHTTPDebugLogs(w http.ResponseWriter, r *http.Request) {
-	logPath := filepath.Join(a.logDir, "coder-agent.log")
+	logPath := filepath.Join(a.logDir, "neuralinverse-agent.log")
 	f, err := os.Open(logPath)
 	if err != nil {
 		a.logger.Error(r.Context(), "open agent log file", slog.Error(err), slog.F("path", logPath))
@@ -2200,7 +2200,7 @@ func (a *agent) Close() error {
 	}
 
 	a.logger.Info(a.hardCtx, "shutting down agent")
-	a.setLifecycle(codersdk.WorkspaceAgentLifecycleShuttingDown)
+	a.setLifecycle(nicloudsdk.WorkspaceAgentLifecycleShuttingDown)
 
 	// Attempt to gracefully shut down all active SSH connections and
 	// stop accepting new ones. If all processes have not exited after 5
@@ -2225,14 +2225,14 @@ func (a *agent) Close() error {
 	// they might hang instead of being closed.
 	a.gracefulCancel()
 
-	lifecycleState := codersdk.WorkspaceAgentLifecycleOff
+	lifecycleState := nicloudsdk.WorkspaceAgentLifecycleOff
 	err = a.scriptRunner.Execute(a.hardCtx, agentscripts.ExecuteStopScripts)
 	if err != nil {
 		a.logger.Warn(a.hardCtx, "shutdown script(s) failed", slog.Error(err))
 		if errors.Is(err, agentscripts.ErrTimeout) {
-			lifecycleState = codersdk.WorkspaceAgentLifecycleShutdownTimeout
+			lifecycleState = nicloudsdk.WorkspaceAgentLifecycleShutdownTimeout
 		} else {
-			lifecycleState = codersdk.WorkspaceAgentLifecycleShutdownError
+			lifecycleState = nicloudsdk.WorkspaceAgentLifecycleShutdownError
 		}
 	}
 
@@ -2301,18 +2301,18 @@ lifecycleWaitLoop:
 	select {
 	case <-a.hardCtx.Done():
 		a.logger.Warn(context.Background(), "timed out waiting for Coordinator RPC disconnect",
-			codersdk.ConnectionDirectionServerToAgent.SlogField(),
-			codersdk.DisconnectReasonServerShutdown.SlogField(),
-			codersdk.DisconnectReasonServerShutdown.SlogExpectedField(),
-			codersdk.DisconnectInitiatorAgent.SlogField(),
-			codersdk.SlogDisconnectDetail("timed out waiting for coordinator RPC to disconnect"),
+			nicloudsdk.ConnectionDirectionServerToAgent.SlogField(),
+			nicloudsdk.DisconnectReasonServerShutdown.SlogField(),
+			nicloudsdk.DisconnectReasonServerShutdown.SlogExpectedField(),
+			nicloudsdk.DisconnectInitiatorAgent.SlogField(),
+			nicloudsdk.SlogDisconnectDetail("timed out waiting for coordinator RPC to disconnect"),
 		)
 	case <-coordDisconnected:
 		a.logger.Debug(context.Background(), "coordinator RPC disconnected",
-			codersdk.ConnectionDirectionServerToAgent.SlogField(),
-			codersdk.DisconnectReasonServerShutdown.SlogField(),
-			codersdk.DisconnectReasonServerShutdown.SlogExpectedField(),
-			codersdk.DisconnectInitiatorAgent.SlogField(),
+			nicloudsdk.ConnectionDirectionServerToAgent.SlogField(),
+			nicloudsdk.DisconnectReasonServerShutdown.SlogField(),
+			nicloudsdk.DisconnectReasonServerShutdown.SlogExpectedField(),
+			nicloudsdk.DisconnectInitiatorAgent.SlogField(),
 		)
 	}
 
@@ -2376,7 +2376,7 @@ func expandPathToAbs(path string) (string, error) {
 // EnvAgentSubsystem is the environment variable used to denote the
 // specialized environment in which the agent is running
 // (e.g. envbox, envbuilder).
-const EnvAgentSubsystem = "CODER_AGENT_SUBSYSTEM"
+const EnvAgentSubsystem = "NEURALINVERSE_AGENT_SUBSYSTEM"
 
 // eitherContext returns a context that is canceled when either context ends.
 func eitherContext(a, b context.Context) context.Context {
@@ -2506,7 +2506,7 @@ func shouldPropagateError(ctx context.Context, logger slog.Logger, err error) er
 		// graceful context being canceled to halt the work of routines with
 		// gracefulShutdownBehaviorRemain. Unfortunately, the dRPC library closes the stream
 		// when context is canceled on an RPC, so canceling the context can also show up as
-		// io.EOF. Also, when Coderd unilaterally closes the API connection (for example if the
+		// io.EOF. Also, when Neural Inverse Cloudd unilaterally closes the API connection (for example if the
 		// build is outdated), it can sometimes show up as context.Canceled in our RPC calls.
 		// We can't reliably distinguish between a context cancelation and a legit EOF, so we
 		// also check that *our* context is currently canceled. If it is, we can safely ignore
@@ -2556,7 +2556,7 @@ func PrometheusMetricsHandler(prometheusRegistry *prometheus.Registry, logger sl
 // Why owner username, workspace name, and agent name? These are the components that are used in hostnames for the
 // workspace over SSH, and so we want the workspace to have a stable key with respect to these.  We don't use the
 // respective UUIDs.  The workspace UUID would be different if you delete and recreate a workspace with the same name.
-// The agent UUID is regenerated on each build. Since Coder's Tailnet networking is handling the authentication, we
+// The agent UUID is regenerated on each build. Since Neural Inverse Cloud's Tailnet networking is handling the authentication, we
 // should not be showing users warnings about host SSH keys.
 func SSHKeySeed(userName, workspaceName, agentName string) (int64, error) {
 	h := fnv.New64a()

@@ -9,8 +9,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/coderd/aibridged"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridged"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func enabledProvider(name, host string) ReloadedProvider {

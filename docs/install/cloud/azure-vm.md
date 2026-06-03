@@ -1,6 +1,6 @@
 # Microsoft Azure
 
-This guide shows you how to set up the Coder server on Azure which will
+This guide shows you how to set up the Neural Inverse Cloud server on Azure which will
 provision Azure-hosted Linux workspaces.
 
 ## Requirements
@@ -48,38 +48,38 @@ You will need it to SSH into the virtual machine via your local machine.
 
 Follow
 [these instructions](https://learn.microsoft.com/en-us/azure/virtual-machines/linux-vm-connect?tabs=Linux)
-to SSH into the virtual machine. Once on the VM, you can run and install Coder
-using your method of choice. For the fastest install, we recommend running Coder
+to SSH into the virtual machine. Once on the VM, you can run and install Neural Inverse Cloud
+using your method of choice. For the fastest install, we recommend running Neural Inverse Cloud
 as a system service.
 
-## Install Coder
+## Install Neural Inverse Cloud
 
-For this instance, we will run Coder as a system service, however you can run
-Coder a multitude of different ways. You can learn more about those
-[here](https://coder.com/docs/install).
+For this instance, we will run Neural Inverse Cloud as a system service, however you can run
+Neural Inverse Cloud a multitude of different ways. You can learn more about those
+[here](https://cloud.neuralinverse.com/docs/install).
 
-In the Azure VM instance, run the following command to install Coder
+In the Azure VM instance, run the following command to install Neural Inverse Cloud
 
 ```shell
-curl -fsSL https://coder.com/install.sh | sh
+curl -fsSL https://cloud.neuralinverse.com/install.sh | sh
 ```
 
-## Run Coder
+## Run Neural Inverse Cloud
 
-Run the following command to start Coder as a system level service:
+Run the following command to start Neural Inverse Cloud as a system level service:
 
 ```shell
 sudo systemctl enable --now coder
 ```
 
-The following command will get you information about the Coder launch service
+The following command will get you information about the Neural Inverse Cloud launch service
 
 ```shell
 journalctl -u coder.service -b
 ```
 
-This will return a series of logs related to running Coder as a system service.
-Embedded in the logs is the Coder Access URL.
+This will return a series of logs related to running Neural Inverse Cloud as a system service.
+Embedded in the logs is the Neural Inverse Cloud Access URL.
 
 Copy the URL and run the following command to create the first user, either on
 your local machine or in the instance terminal.
@@ -91,29 +91,29 @@ coder login <url***.try.coder.app>
 Fill out the prompts. Be sure to save use email and password as these are your
 admin username and password.
 
-You can now access Coder on your local machine with the relevant
+You can now access Neural Inverse Cloud on your local machine with the relevant
 `***.try.coder.app` URL and logging in with the username and password.
 
 ## Creating and Uploading Your First Template
 
 First, run `coder template init` to create your first template. You’ll be given
 a list of possible templates to use. This tutorial will show you how to set up
-your Coder instance to create a Linux based machine on Azure.
+your Neural Inverse Cloud instance to create a Linux based machine on Azure.
 
-<img src="../../images/platforms/azure/azure9.png" alt="Coder CLI template init">
+<img src="../../images/platforms/azure/azure9.png" alt="Neural Inverse Cloud CLI template init">
 
 Press `enter` to select `Develop in Linux on Azure` template. This will return
 the following:
 
-<img src="../../images/platforms/azure/azure10.png" alt="Coder CLI template init">
+<img src="../../images/platforms/azure/azure10.png" alt="Neural Inverse Cloud CLI template init">
 
 To get started using the Azure template, install the Azure CLI by following the
 instructions
 [here](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt).
 Run `az login` and follow the instructions to configure the Azure command line.
 
-Coder is running as a system service, which creates the system user `coder` for
-handling processes. The Coder user will require access to the Azure credentials
+Neural Inverse Cloud is running as a system service, which creates the system user `coder` for
+handling processes. The Neural Inverse Cloud user will require access to the Azure credentials
 to initialize the template.
 
 Run the following commands to copy the Azure credentials and give the `coder`
@@ -125,11 +125,11 @@ sudo chown -R coder:coder /home/coder/.azure/
 ```
 
 Navigate to the `./azure-linux` folder where you created your template and run
-the following command to put the template on your Coder instance.
+the following command to put the template on your Neural Inverse Cloud instance.
 
 ```shell
 coder templates push
 ```
 
-Congrats! You can now navigate to your Coder dashboard and use this Linux on
+Congrats! You can now navigate to your Neural Inverse Cloud dashboard and use this Linux on
 Azure template to create a new workspace!

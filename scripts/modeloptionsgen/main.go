@@ -9,7 +9,7 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // SchemaField describes a single form field in the generated schema.
@@ -49,7 +49,7 @@ func main() {
 	// General options from ChatModelCallConfig, excluding
 	// the provider_options field which is handled separately.
 	schema.General = extractFields(
-		reflect.TypeOf(codersdk.ChatModelCallConfig{}),
+		reflect.TypeOf(nicloudsdk.ChatModelCallConfig{}),
 		"",
 		map[string]bool{"ProviderOptions": true},
 	)
@@ -60,12 +60,12 @@ func main() {
 		key string
 		typ reflect.Type
 	}{
-		{"openai", reflect.TypeOf(codersdk.ChatModelOpenAIProviderOptions{})},
-		{"anthropic", reflect.TypeOf(codersdk.ChatModelAnthropicProviderOptions{})},
-		{"google", reflect.TypeOf(codersdk.ChatModelGoogleProviderOptions{})},
-		{"openaicompat", reflect.TypeOf(codersdk.ChatModelOpenAICompatProviderOptions{})},
-		{"openrouter", reflect.TypeOf(codersdk.ChatModelOpenRouterProviderOptions{})},
-		{"vercel", reflect.TypeOf(codersdk.ChatModelVercelProviderOptions{})},
+		{"openai", reflect.TypeOf(nicloudsdk.ChatModelOpenAIProviderOptions{})},
+		{"anthropic", reflect.TypeOf(nicloudsdk.ChatModelAnthropicProviderOptions{})},
+		{"google", reflect.TypeOf(nicloudsdk.ChatModelGoogleProviderOptions{})},
+		{"openaicompat", reflect.TypeOf(nicloudsdk.ChatModelOpenAICompatProviderOptions{})},
+		{"openrouter", reflect.TypeOf(nicloudsdk.ChatModelOpenRouterProviderOptions{})},
+		{"vercel", reflect.TypeOf(nicloudsdk.ChatModelVercelProviderOptions{})},
 	}
 
 	for _, p := range providerTypes {

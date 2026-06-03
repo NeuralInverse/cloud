@@ -67,17 +67,17 @@ The Coder binary has been placed in the following location:
 
 EOF
 
-	CODER_COMMAND="$(command -v "$STANDALONE_BINARY_NAME" || true)"
+	NEURALINVERSE_COMMAND="$(command -v "$STANDALONE_BINARY_NAME" || true)"
 
-	if [ -z "${CODER_COMMAND}" ]; then
+	if [ -z "${NEURALINVERSE_COMMAND}" ]; then
 		cath <<EOF
 Extend your path to use Coder:
 
   $ PATH="$STANDALONE_INSTALL_PREFIX/bin:\$PATH"
 
 EOF
-	elif [ "$CODER_COMMAND" != "$STANDALONE_BINARY_LOCATION" ]; then
-		echo_path_conflict "$CODER_COMMAND"
+	elif [ "$NEURALINVERSE_COMMAND" != "$STANDALONE_BINARY_LOCATION" ]; then
+		echo_path_conflict "$NEURALINVERSE_COMMAND"
 	else
 		cath <<EOF
 To run a Coder server:
@@ -278,7 +278,7 @@ install_standalone() {
 
 	BINARY_FILE="$CACHE_DIR/coder-${OS}-${ARCH}-{{ .Version }}"
 
-	fetch "$ORIGIN/bin/coder-${OS}-${ARCH}" "$BINARY_FILE"
+	fetch "$ORIGIN/bin/neuralinverse-${OS}-${ARCH}" "$BINARY_FILE"
 
 	# -w only works if the directory exists so try creating it first. If this
 	# fails we can ignore the error as the -w check will then swap us to sudo.

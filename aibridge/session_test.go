@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/aibridge"
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 func TestGuessSessionID(t *testing.T) {
@@ -173,14 +173,14 @@ func TestGuessSessionID(t *testing.T) {
 		},
 		// Coder Agents.
 		{
-			name:      "coder_agents_with_chat_id",
-			client:    aibridge.ClientCoderAgents,
+			name:      "ni_agents_with_chat_id",
+			client:    aibridge.ClientNIAgents,
 			headers:   map[string]string{"X-Coder-Chat-Id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"},
 			sessionID: utils.PtrTo("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
 		},
 		{
-			name:   "coder_agents_without_chat_id",
-			client: aibridge.ClientCoderAgents,
+			name:   "ni_agents_without_chat_id",
+			client: aibridge.ClientNIAgents,
 		},
 		// Crush.
 		{

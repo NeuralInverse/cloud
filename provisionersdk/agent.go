@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 var (
@@ -39,7 +39,7 @@ var (
 	}
 )
 
-// AgentScriptEnv returns a key-pair of scripts that are consumed by the Coder Terraform Provider.
+// AgentScriptEnv returns a key-pair of scripts that are consumed by the Neural Inverse Cloud Terraform Provider.
 // https://github.com/coder/terraform-provider-coder/blob/main/provider/agent.go (updateInitScript)
 // performs additional string substitutions.
 func AgentScriptEnv() map[string]string {
@@ -47,7 +47,7 @@ func AgentScriptEnv() map[string]string {
 	for operatingSystem, scripts := range agentScripts {
 		for architecture, script := range scripts {
 			script := strings.ReplaceAll(script, "${ARCH}", architecture)
-			env[fmt.Sprintf("CODER_AGENT_SCRIPT_%s_%s", operatingSystem, architecture)] = script
+			env[fmt.Sprintf("NEURALINVERSE_AGENT_SCRIPT_%s_%s", operatingSystem, architecture)] = script
 		}
 	}
 	return env

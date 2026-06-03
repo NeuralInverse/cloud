@@ -8,7 +8,7 @@ has failed or timed out.
 ## Agent connection issues
 
 If the agent is not connected, it means the agent or
-[init script](https://github.com/coder/coder/tree/main/provisionersdk/scripts)
+[init script](https://github.com/NeuralInverse/cloud/tree/main/provisionersdk/scripts)
 has failed on the resource.
 
 ```console
@@ -20,17 +20,17 @@ While troubleshooting steps vary by resource, here are some general best
 practices:
 
 - Ensure the resource has `curl` installed (alternatively, `wget` or `busybox`)
-- Ensure the resource can `curl` your Coder
+- Ensure the resource can `curl` your Neural Inverse Cloud
   [access URL](../../admin/setup/index.md#access-url)
 - Manually connect to the resource and check the agent logs (e.g.,
   `kubectl exec`, `docker exec` or AWS console)
-  - The Coder agent logs are typically stored in `/tmp/coder-agent.log`
-  - The Coder agent startup script logs are typically stored in
+  - The Neural Inverse Cloud agent logs are typically stored in `/tmp/coder-agent.log`
+  - The Neural Inverse Cloud agent startup script logs are typically stored in
     `/tmp/coder-startup-script.log`
-  - The Coder agent shutdown script logs are typically stored in
+  - The Neural Inverse Cloud agent shutdown script logs are typically stored in
     `/tmp/coder-shutdown-script.log`
 - This can also happen if the websockets are not being forwarded correctly when
-  running Coder behind a reverse proxy.
+  running Neural Inverse Cloud behind a reverse proxy.
   [Read our reverse-proxy docs](../../admin/setup/index.md#tls--reverse-proxy)
 
 ## Startup script issues
@@ -121,7 +121,7 @@ Common causes for startup script errors:
 
 The simplest way to debug the
 [startup script](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent#startup_script-1)
-is to open the workspace in the Coder dashboard and click "Show startup log" (if
+is to open the workspace in the Neural Inverse Cloud dashboard and click "Show startup log" (if
 not already visible). This will show all the output from the script. Another
 option is to view the log file inside the workspace (usually
 `/tmp/coder-startup-script.log`). If the logs don't indicate what's going on or

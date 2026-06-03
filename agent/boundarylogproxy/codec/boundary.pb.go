@@ -7,7 +7,7 @@
 package codec
 
 import (
-	proto "github.com/coder/coder/v2/agent/proto"
+	proto "github.com/NeuralInverse/cloud/v2/agent/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -109,7 +109,7 @@ func (*BoundaryMessage_Status) isBoundaryMessage_Msg() {}
 
 // BoundaryStatus carries operational metadata from boundary to the agent.
 // The agent records these values as Prometheus metrics. This message is
-// never forwarded to coderd.
+// never forwarded to nicloud.
 type BoundaryStatus struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -218,10 +218,10 @@ var file_agent_boundarylogproxy_codec_boundary_proto_msgTypes = make([]protoimpl
 var file_agent_boundarylogproxy_codec_boundary_proto_goTypes = []interface{}{
 	(*BoundaryMessage)(nil),                 // 0: coder.boundarylogproxy.codec.v1.BoundaryMessage
 	(*BoundaryStatus)(nil),                  // 1: coder.boundarylogproxy.codec.v1.BoundaryStatus
-	(*proto.ReportBoundaryLogsRequest)(nil), // 2: coder.agent.v2.ReportBoundaryLogsRequest
+	(*proto.ReportBoundaryLogsRequest)(nil), // 2: neuralinverse.agent.v2.ReportBoundaryLogsRequest
 }
 var file_agent_boundarylogproxy_codec_boundary_proto_depIdxs = []int32{
-	2, // 0: coder.boundarylogproxy.codec.v1.BoundaryMessage.logs:type_name -> coder.agent.v2.ReportBoundaryLogsRequest
+	2, // 0: coder.boundarylogproxy.codec.v1.BoundaryMessage.logs:type_name -> neuralinverse.agent.v2.ReportBoundaryLogsRequest
 	1, // 1: coder.boundarylogproxy.codec.v1.BoundaryMessage.status:type_name -> coder.boundarylogproxy.codec.v1.BoundaryStatus
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type

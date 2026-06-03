@@ -17,11 +17,11 @@ import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent/agentcontainers/dcspec"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/dcspec"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // DockerEnvInfoer is an implementation of agentssh.EnvInfoer that returns
@@ -241,7 +241,7 @@ func NewDockerCLI(execer agentexec.Execer) ContainerCLI {
 	}
 }
 
-func (dcli *dockerCLI) List(ctx context.Context) (codersdk.WorkspaceAgentListContainersResponse, error) {
+func (dcli *dockerCLI) List(ctx context.Context) (nicloudsdk.WorkspaceAgentListContainersResponse, error) {
 	var stdoutBuf, stderrBuf bytes.Buffer
 	// List all container IDs, one per line, with no truncation
 	cmd := dcli.execer.CommandContext(ctx, "docker", "ps", "--all", "--quiet", "--no-trunc")
@@ -252,7 +252,7 @@ func (dcli *dockerCLI) List(ctx context.Context) (codersdk.WorkspaceAgentListCon
 		// - docker not installed
 		// - docker not running
 		// - no permissions to talk to docker
-		return codersdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("run docker ps: %w: %q", err, strings.TrimSpace(stderrBuf.String()))
+		return nicloudsdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("run docker ps: %w: %q", err, strings.TrimSpace(stderrBuf.String()))
 	}
 
 	ids := make([]string, 0)
@@ -265,11 +265,11 @@ func (dcli *dockerCLI) List(ctx context.Context) (codersdk.WorkspaceAgentListCon
 		ids = append(ids, tmp)
 	}
 	if err := scanner.Err(); err != nil {
-		return codersdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("scan docker ps output: %w", err)
+		return nicloudsdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("scan docker ps output: %w", err)
 	}
 
-	res := codersdk.WorkspaceAgentListContainersResponse{
-		Containers: make([]codersdk.WorkspaceAgentContainer, 0, len(ids)),
+	res := nicloudsdk.WorkspaceAgentListContainersResponse{
+		Containers: make([]nicloudsdk.WorkspaceAgentContainer, 0, len(ids)),
 		Warnings:   make([]string, 0),
 	}
 	dockerPsStderr := strings.TrimSpace(stderrBuf.String())
@@ -290,7 +290,7 @@ func (dcli *dockerCLI) List(ctx context.Context) (codersdk.WorkspaceAgentListCon
 	// log this error, but I'm not sure it's worth it.
 	dockerInspectStdout, dockerInspectStderr, err := runDockerInspect(ctx, dcli.execer, ids...)
 	if err != nil {
-		return codersdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("run docker inspect: %w: %s", err, dockerInspectStderr)
+		return nicloudsdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("run docker inspect: %w: %s", err, dockerInspectStderr)
 	}
 
 	if len(dockerInspectStderr) > 0 {
@@ -299,7 +299,7 @@ func (dcli *dockerCLI) List(ctx context.Context) (codersdk.WorkspaceAgentListCon
 
 	outs, warns, err := convertDockerInspect(dockerInspectStdout)
 	if err != nil {
-		return codersdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("convert docker inspect output: %w", err)
+		return nicloudsdk.WorkspaceAgentListContainersResponse{}, xerrors.Errorf("convert docker inspect output: %w", err)
 	}
 	res.Warnings = append(res.Warnings, warns...)
 	res.Containers = append(res.Containers, outs...)
@@ -393,13 +393,13 @@ func (dis dockerInspectState) String() string {
 	return sb.String()
 }
 
-func convertDockerInspect(raw []byte) ([]codersdk.WorkspaceAgentContainer, []string, error) {
+func convertDockerInspect(raw []byte) ([]nicloudsdk.WorkspaceAgentContainer, []string, error) {
 	var warns []string
 	var ins []dockerInspect
 	if err := json.NewDecoder(bytes.NewReader(raw)).Decode(&ins); err != nil {
 		return nil, nil, xerrors.Errorf("decode docker inspect output: %w", err)
 	}
-	outs := make([]codersdk.WorkspaceAgentContainer, 0, len(ins))
+	outs := make([]nicloudsdk.WorkspaceAgentContainer, 0, len(ins))
 
 	// Say you have two containers:
 	//  - Container A with Host IP 127.0.0.1:8000 mapped to container port 8001
@@ -415,14 +415,14 @@ func convertDockerInspect(raw []byte) ([]codersdk.WorkspaceAgentContainer, []str
 	hostPortContainers := make(map[int][]string)
 
 	for _, in := range ins {
-		out := codersdk.WorkspaceAgentContainer{
+		out := nicloudsdk.WorkspaceAgentContainer{
 			CreatedAt: in.Created,
 			// Remove the leading slash from the container name
 			FriendlyName: strings.TrimPrefix(in.Name, "/"),
 			ID:           in.ID,
 			Image:        in.Config.Image,
 			Labels:       in.Config.Labels,
-			Ports:        make([]codersdk.WorkspaceAgentContainerPort, 0),
+			Ports:        make([]nicloudsdk.WorkspaceAgentContainerPort, 0),
 			Running:      in.State.Running,
 			Status:       in.State.String(),
 			Volumes:      make(map[string]string, len(in.Mounts)),
@@ -465,7 +465,7 @@ func convertDockerInspect(raw []byte) ([]codersdk.WorkspaceAgentContainer, []str
 					// Also keep track of the host port and the container ID.
 					hostPortContainers[hp] = append(hostPortContainers[hp], in.ID)
 				}
-				out.Ports = append(out.Ports, codersdk.WorkspaceAgentContainerPort{
+				out.Ports = append(out.Ports, nicloudsdk.WorkspaceAgentContainerPort{
 					Network: network,
 					Port:    cp,
 					// #nosec G115 - Safe conversion since Docker ports are limited to uint16 range

@@ -1,19 +1,19 @@
 # Scale Testing
 
-Scaling Coder involves planning and testing to ensure it can handle more load
+Scaling Neural Inverse Cloud involves planning and testing to ensure it can handle more load
 without compromising service. This process encompasses infrastructure setup,
 traffic projections, and aggressive testing to identify and mitigate potential
 bottlenecks.
 
-A dedicated Kubernetes cluster for Coder is recommended to configure, host, and
-manage Coder workloads. Kubernetes provides container orchestration
-capabilities, allowing Coder to efficiently deploy, scale, and manage workspaces
+A dedicated Kubernetes cluster for Neural Inverse Cloud is recommended to configure, host, and
+manage Neural Inverse Cloud workloads. Kubernetes provides container orchestration
+capabilities, allowing Neural Inverse Cloud to efficiently deploy, scale, and manage workspaces
 across a distributed infrastructure. This ensures high availability, fault
-tolerance, and scalability for Coder deployments. Coder is deployed on this
+tolerance, and scalability for Neural Inverse Cloud deployments. Neural Inverse Cloud is deployed on this
 cluster using the
 [Helm chart](../../install/kubernetes.md#4-install-coder-with-helm).
 
-For more information about scaling, see our [Coder scaling best practices](../../tutorials/best-practices/scale-coder.md).
+For more information about scaling, see our [Neural Inverse Cloud scaling best practices](../../tutorials/best-practices/scale-coder.md).
 
 ## Methodology
 
@@ -31,7 +31,7 @@ Our scale tests include the following stages:
    specific workspace apps, confirming their capability to echo back received
    content effectively.
 
-1. Dashboard evaluation: verify the responsiveness and stability of Coder
+1. Dashboard evaluation: verify the responsiveness and stability of Neural Inverse Cloud
    dashboards under varying load conditions. This is achieved by simulating user
    interactions using instances of headless Chromium browsers.
 
@@ -56,7 +56,7 @@ channel for IDEs with VS Code and JetBrains plugins.
 The basic setup of scale tests environment involves:
 
 1. Scale tests runner (32 vCPU, 128 GB RAM)
-1. Coder: 2 replicas (4 vCPU, 16 GB RAM)
+1. Neural Inverse Cloud: 2 replicas (4 vCPU, 16 GB RAM)
 1. Database: 1 instance (2 vCPU, 32 GB RAM)
 1. Provisioner: 50 instances (0.5 vCPU, 512 MB RAM)
 
@@ -64,7 +64,7 @@ The test is deemed successful if:
 
 - Users did not experience interruptions in their
 workflows,
-- `coderd` did not crash or require restarts, and
+- `nicloud` did not crash or require restarts, and
 - No other internal errors were observed.
 
 ## Traffic Projections
@@ -73,9 +73,9 @@ In our scale tests, we simulate activity from 2000 users, 2000 workspaces, and
 2000 agents, with two items of workspace agent metadata being sent every 10
 seconds. Here are the resulting metrics:
 
-Coder:
+Neural Inverse Cloud:
 
-- Median CPU usage for _coderd_: 3 vCPU, peaking at 3.7 vCPU while all tests are
+- Median CPU usage for _nicloud_: 3 vCPU, peaking at 3.7 vCPU while all tests are
   running concurrently.
 - Median API request rate: 350 RPS during dashboard tests, 250 RPS during Web
   Terminal and workspace apps tests.
@@ -105,16 +105,16 @@ Database:
 
 ## Hardware recommendation
 
-### Control plane: coderd
+### Control plane: nicloud
 
-To ensure stability and reliability of the Coder control plane, it's essential
+To ensure stability and reliability of the Neural Inverse Cloud control plane, it's essential
 to focus on node sizing, resource limits, and the number of replicas. We
 recommend referencing public cloud providers such as AWS, GCP, and Azure for
 guidance on optimal configurations. A reasonable approach involves using scaling
 formulas based on factors like CPU, memory, and the number of users.
 
 While the minimum requirements specify 1 CPU core and 2 GB of memory per
-`coderd` replica, we recommend that you allocate additional resources depending
+`nicloud` replica, we recommend that you allocate additional resources depending
 on the workload size to ensure deployment stability.
 
 #### CPU and memory usage
@@ -128,7 +128,7 @@ traffic) can help prevent an increase in CPU usage. It is recommended to keep
 [this option enabled](../../reference/cli/index.md#--disable-direct-connections)
 unless there are compelling reasons to disable it.
 
-Inactive users do not consume Coder resources.
+Inactive users do not consume Neural Inverse Cloud resources.
 
 #### Scaling formula
 
@@ -146,29 +146,29 @@ When determining scaling requirements, consider the following factors:
 
 #### HTTP API latency
 
-For a reliable Coder deployment dealing with medium to high loads, it's
+For a reliable Neural Inverse Cloud deployment dealing with medium to high loads, it's
 important that API calls for workspace/template queries and workspace build
 operations respond within 300 ms. However, API template insights calls, which
 involve browsing workspace agent stats and user activity data, may require more
-time. Moreover, Coder API exposes WebSocket long-lived connections for Web
+time. Moreover, Neural Inverse Cloud API exposes WebSocket long-lived connections for Web
 Terminal (bidirectional), and Workspace events/logs (unidirectional).
 
-If the Coder deployment expects traffic from developers spread across the globe,
+If the Neural Inverse Cloud deployment expects traffic from developers spread across the globe,
 be aware that customer-facing latency might be higher because of the distance
 between users and the load balancer. Fortunately, the latency can be improved
-with a deployment of Coder
+with a deployment of Neural Inverse Cloud
 [workspace proxies](../networking/workspace-proxies.md).
 
 #### Node Autoscaling
 
-We recommend disabling the autoscaling for `coderd` nodes. Autoscaling can cause
+We recommend disabling the autoscaling for `nicloud` nodes. Autoscaling can cause
 interruptions for user connections, see
 [Autoscaling](./scale-utility.md#autoscaling) for more details.
 
 ### Control plane: Workspace Proxies
 
 When scaling [workspace proxies](../networking/workspace-proxies.md), follow the
-same guidelines as for `coderd` above:
+same guidelines as for `nicloud` above:
 
 - `1 vCPU x 2 GB memory` for every 250 users.
 - Disable autoscaling.
@@ -179,9 +179,9 @@ Each external provisioner can run a single concurrent workspace build. For
 example, running 10 provisioner containers will allow 10 users to start
 workspaces at the same time.
 
-By default, the Coder server runs 3 built-in provisioner daemons, but the
-_Premium_ Coder release allows for running external provisioners to separate the
-load caused by workspace provisioning on the `coderd` nodes.
+By default, the Neural Inverse Cloud server runs 3 built-in provisioner daemons, but the
+_Premium_ Neural Inverse Cloud release allows for running external provisioners to separate the
+load caused by workspace provisioning on the `nicloud` nodes.
 
 #### Scaling formula
 
@@ -213,7 +213,7 @@ for workspace users, administrators must be aware of a few assumptions.
     development does not require high CPU capacity at all times, but will spike
     during builds or testing.
   - Evaluate minimal limits for single workspace. Include in the calculation
-    requirements for Coder agent running in an idle workspace - 0.1 vCPU and 256
+    requirements for Neural Inverse Cloud agent running in an idle workspace - 0.1 vCPU and 256
     MB. For instance, developers can choose between 0.5-8 vCPUs, and 1-16 GB
     memory.
 
@@ -223,7 +223,7 @@ When determining scaling requirements, consider the following factors:
 
 - `1 vCPU x 2 GB memory x 1 workspace`: A formula to determine resource
   allocation based on the minimal requirements for an idle workspace with a
-  running Coder agent and occasional CPU and memory bursts for building
+  running Neural Inverse Cloud agent and occasional CPU and memory bursts for building
   projects.
 
 #### Node Autoscaling

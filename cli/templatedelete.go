@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -25,7 +25,7 @@ func (r *RootCmd) templateDelete() *serpent.Command {
 			var (
 				ctx           = inv.Context()
 				templateNames = []string{}
-				templates     = []codersdk.Template{}
+				templates     = []nicloudsdk.Template{}
 			)
 			client, err := r.InitClient(inv)
 			if err != nil {

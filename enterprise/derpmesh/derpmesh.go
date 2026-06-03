@@ -13,7 +13,7 @@ import (
 	"tailscale.com/types/key"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 )
 
 // New constructs a new mesh for DERP servers.

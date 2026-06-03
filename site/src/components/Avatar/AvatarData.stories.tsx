@@ -5,8 +5,8 @@ const meta: Meta<typeof AvatarData> = {
 	title: "components/AvatarData",
 	component: AvatarData,
 	args: {
-		title: "coder",
-		subtitle: "coder@coder.com",
+		title: "neuralinverse",
+		subtitle: "coder@cloud.neuralinverse.com",
 	},
 };
 

@@ -26,7 +26,7 @@ This command does not have full parity with the standard SSH command. For users 
 |             |                               |
 |-------------|-------------------------------|
 | Type        | <code>bool</code>             |
-| Environment | <code>$CODER_SSH_STDIO</code> |
+| Environment | <code>$NEURALINVERSE_SSH_STDIO</code> |
 
 Specifies whether to emit SSH output over stdin/stdout.
 
@@ -35,7 +35,7 @@ Specifies whether to emit SSH output over stdin/stdout.
 |             |                             |
 |-------------|-----------------------------|
 | Type        | <code>bool</code>           |
-| Environment | <code>$CODER_SSH_TTY</code> |
+| Environment | <code>$NEURALINVERSE_SSH_TTY</code> |
 
 Request a pseudo-terminal for the SSH session. Interactive shell sessions request one by default; command sessions do not unless this flag is set.
 
@@ -44,7 +44,7 @@ Request a pseudo-terminal for the SSH session. Interactive shell sessions reques
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_SSH_SSH_HOST_PREFIX</code> |
+| Environment | <code>$NEURALINVERSE_SSH_SSH_HOST_PREFIX</code> |
 
 Strip this prefix from the provided hostname to determine the workspace name. This is useful when used as part of an OpenSSH proxy command.
 
@@ -53,7 +53,7 @@ Strip this prefix from the provided hostname to determine the workspace name. Th
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_SSH_HOSTNAME_SUFFIX</code> |
+| Environment | <code>$NEURALINVERSE_SSH_HOSTNAME_SUFFIX</code> |
 
 Strip this suffix from the provided hostname to determine the workspace name. This is useful when used as part of an OpenSSH proxy command. The suffix must be specified without a leading . character.
 
@@ -62,7 +62,7 @@ Strip this suffix from the provided hostname to determine the workspace name. Th
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>bool</code>                     |
-| Environment | <code>$CODER_SSH_FORWARD_AGENT</code> |
+| Environment | <code>$NEURALINVERSE_SSH_FORWARD_AGENT</code> |
 
 Specifies whether to forward the SSH agent specified in $SSH_AUTH_SOCK.
 
@@ -71,7 +71,7 @@ Specifies whether to forward the SSH agent specified in $SSH_AUTH_SOCK.
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>bool</code>                   |
-| Environment | <code>$CODER_SSH_FORWARD_GPG</code> |
+| Environment | <code>$NEURALINVERSE_SSH_FORWARD_GPG</code> |
 
 Specifies whether to forward the GPG agent. Unsupported on Windows workspaces, but supports all clients. Requires gnupg (gpg, gpgconf) on both the client and workspace. The GPG agent must already be running locally and will not be started for you. If a GPG agent is already running in the workspace, it will be attempted to be killed.
 
@@ -80,7 +80,7 @@ Specifies whether to forward the GPG agent. Unsupported on Windows workspaces, b
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_SSH_IDENTITY_AGENT</code> |
+| Environment | <code>$NEURALINVERSE_SSH_IDENTITY_AGENT</code> |
 
 Specifies which identity agent to use (overrides $SSH_AUTH_SOCK), forward agent must also be enabled.
 
@@ -89,7 +89,7 @@ Specifies which identity agent to use (overrides $SSH_AUTH_SOCK), forward agent 
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>duration</code>                       |
-| Environment | <code>$CODER_WORKSPACE_POLL_INTERVAL</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_POLL_INTERVAL</code> |
 | Default     | <code>1m</code>                             |
 
 Specifies how often to poll for workspace automated shutdown.
@@ -99,7 +99,7 @@ Specifies how often to poll for workspace automated shutdown.
 |             |                              |
 |-------------|------------------------------|
 | Type        | <code>yes\|no\|auto</code>   |
-| Environment | <code>$CODER_SSH_WAIT</code> |
+| Environment | <code>$NEURALINVERSE_SSH_WAIT</code> |
 | Default     | <code>auto</code>            |
 
 Specifies whether or not to wait for the startup script to finish executing. Auto means that the agent startup script behavior configured in the workspace template is used.
@@ -109,7 +109,7 @@ Specifies whether or not to wait for the startup script to finish executing. Aut
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>bool</code>               |
-| Environment | <code>$CODER_SSH_NO_WAIT</code> |
+| Environment | <code>$NEURALINVERSE_SSH_NO_WAIT</code> |
 
 Enter workspace immediately after the agent has connected. This is the default if the template has configured the agent startup script behavior as non-blocking.
 
@@ -118,7 +118,7 @@ Enter workspace immediately after the agent has connected. This is the default i
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>string</code>             |
-| Environment | <code>$CODER_SSH_LOG_DIR</code> |
+| Environment | <code>$NEURALINVERSE_SSH_LOG_DIR</code> |
 
 Specify the directory containing SSH diagnostic log files.
 
@@ -127,7 +127,7 @@ Specify the directory containing SSH diagnostic log files.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string-array</code>              |
-| Environment | <code>$CODER_SSH_REMOTE_FORWARD</code> |
+| Environment | <code>$NEURALINVERSE_SSH_REMOTE_FORWARD</code> |
 
 Enable remote port forwarding (remote_port:local_address:local_port).
 
@@ -136,7 +136,7 @@ Enable remote port forwarding (remote_port:local_address:local_port).
 |             |                             |
 |-------------|-----------------------------|
 | Type        | <code>string-array</code>   |
-| Environment | <code>$CODER_SSH_ENV</code> |
+| Environment | <code>$NEURALINVERSE_SSH_ENV</code> |
 
 Set environment variable(s) for session (key1=value1,key2=value2,...).
 
@@ -162,7 +162,7 @@ Specifies the interval to update network information.
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>bool</code>                         |
-| Environment | <code>$CODER_SSH_DISABLE_AUTOSTART</code> |
+| Environment | <code>$NEURALINVERSE_SSH_DISABLE_AUTOSTART</code> |
 | Default     | <code>false</code>                        |
 
 Disable starting the workspace automatically when connecting via SSH.

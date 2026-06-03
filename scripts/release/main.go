@@ -21,13 +21,13 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/serpent"
 )
 
 const (
-	owner = "coder"
-	repo  = "coder"
+	owner = "neuralinverse"
+	repo  = "neuralinverse"
 )
 
 func main() {
@@ -35,13 +35,13 @@ func main() {
 	toplevel, err := run("git", "rev-parse", "--show-toplevel")
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		_, _ = fmt.Fprintf(os.Stderr, "NOTE: This command must be run in the coder/coder repository.\n")
+		_, _ = fmt.Fprintf(os.Stderr, "NOTE: This command must be run in the NeuralInverse/cloud repository.\n")
 		os.Exit(1)
 	}
 
-	if err = checkCoderRepo(toplevel); err != nil {
+	if err = checkNIRepo(toplevel); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		_, _ = fmt.Fprintf(os.Stderr, "NOTE: This command must be run in the coder/coder repository.\n")
+		_, _ = fmt.Fprintf(os.Stderr, "NOTE: This command must be run in the NeuralInverse/cloud repository.\n")
 		os.Exit(1)
 	}
 
@@ -134,13 +134,13 @@ func main() {
 	}
 }
 
-func checkCoderRepo(path string) error {
+func checkNIRepo(path string) error {
 	remote, err := run("git", "-C", path, "remote", "get-url", "origin")
 	if err != nil {
 		return xerrors.Errorf("get remote failed: %w", err)
 	}
-	if !strings.Contains(remote, "github.com") || !strings.Contains(remote, "coder/coder") {
-		return xerrors.Errorf("origin is not set to the coder/coder repository on github.com")
+	if !strings.Contains(remote, "github.com") || !strings.Contains(remote, "NeuralInverse/cloud") {
+		return xerrors.Errorf("origin is not set to the NeuralInverse/cloud repository on github.com")
 	}
 	return nil
 }
@@ -177,7 +177,7 @@ func (r *releaseCommand) promoteVersionToStable(ctx context.Context, inv *serpen
 	logger.Info(ctx, "checking current stable release")
 
 	// Check if the version is already the latest stable release.
-	currentStable, _, err := client.Repositories.GetLatestRelease(ctx, "coder", "coder")
+	currentStable, _, err := client.Repositories.GetLatestRelease(ctx, "neuralinverse", "neuralinverse")
 	if err != nil {
 		return xerrors.Errorf("get latest release failed: %w", err)
 	}
@@ -281,7 +281,7 @@ func addStableSince(date time.Time, body string) string {
 // Example:
 //
 //	> [!NOTE]
-//	> This is a mainline Coder release. We advise enterprise customers without a staging environment to install our [latest stable release](https://github.com/coder/coder/releases/latest) while we refine this version. Learn more about our [Release Schedule](https://coder.com/docs/install/releases).
+//	> This is a mainline Coder release. We advise enterprise customers without a staging environment to install our [latest stable release](https://github.com/coder/coder/releases/latest) while we refine this version. Learn more about our [Release Schedule](https://cloud.neuralinverse.com/docs/install/releases).
 func removeMainlineBlurb(body string) string {
 	lines := strings.Split(body, "\n")
 
@@ -299,7 +299,7 @@ func removeMainlineBlurb(body string) string {
 			continue
 		}
 		if !found && len(clip) > 0 {
-			if !strings.Contains(strings.ToLower(strings.Join(clip, "\n")), "this is a mainline coder release") {
+			if !strings.Contains(strings.ToLower(strings.Join(clip, "\n")), "this is a mainline neuralinverse release") {
 				newBody = append(newBody, clip...) // This is some other note, restore it.
 			}
 			clip = nil

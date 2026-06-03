@@ -12,11 +12,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/dbcrypt"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/awsiamrds"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/dbcrypt"
 	"github.com/coder/serpent"
 )
 
@@ -91,7 +91,7 @@ func (*RootCmd) dbcryptRotateCmd() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(flags.PostgresAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if nicloudsdk.PostgresAuth(flags.PostgresAuth) == nicloudsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -156,7 +156,7 @@ func (*RootCmd) dbcryptDecryptCmd() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(flags.PostgresAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if nicloudsdk.PostgresAuth(flags.PostgresAuth) == nicloudsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -212,7 +212,7 @@ Are you sure you want to continue?`
 
 			var err error
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(flags.PostgresAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if nicloudsdk.PostgresAuth(flags.PostgresAuth) == nicloudsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -250,7 +250,7 @@ func (f *rotateFlags) attach(opts *serpent.OptionSet) {
 		*opts,
 		serpent.Option{
 			Flag:        "postgres-url",
-			Env:         "CODER_PG_CONNECTION_URL",
+			Env:         "NEURALINVERSE_PG_CONNECTION_URL",
 			Description: "The connection URL for the Postgres database.",
 			Value:       serpent.StringOf(&f.PostgresURL),
 		},
@@ -258,19 +258,19 @@ func (f *rotateFlags) attach(opts *serpent.OptionSet) {
 			Name:        "Postgres Connection Auth",
 			Description: "Type of auth to use when connecting to postgres.",
 			Flag:        "postgres-connection-auth",
-			Env:         "CODER_PG_CONNECTION_AUTH",
+			Env:         "NEURALINVERSE_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&f.PostgresAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&f.PostgresAuth, nicloudsdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
 			Flag:        "new-key",
-			Env:         "CODER_EXTERNAL_TOKEN_ENCRYPTION_ENCRYPT_NEW_KEY",
+			Env:         "NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_ENCRYPT_NEW_KEY",
 			Description: "The new external token encryption key. Must be base64-encoded.",
 			Value:       serpent.StringOf(&f.New),
 		},
 		serpent.Option{
 			Flag:        "old-keys",
-			Env:         "CODER_EXTERNAL_TOKEN_ENCRYPTION_ENCRYPT_OLD_KEYS",
+			Env:         "NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_ENCRYPT_OLD_KEYS",
 			Description: "The old external token encryption keys. Must be a comma-separated list of base64-encoded keys.",
 			Value:       serpent.StringArrayOf(&f.Old),
 		},
@@ -320,7 +320,7 @@ func (f *decryptFlags) attach(opts *serpent.OptionSet) {
 		*opts,
 		serpent.Option{
 			Flag:        "postgres-url",
-			Env:         "CODER_PG_CONNECTION_URL",
+			Env:         "NEURALINVERSE_PG_CONNECTION_URL",
 			Description: "The connection URL for the Postgres database.",
 			Value:       serpent.StringOf(&f.PostgresURL),
 		},
@@ -328,13 +328,13 @@ func (f *decryptFlags) attach(opts *serpent.OptionSet) {
 			Name:        "Postgres Connection Auth",
 			Description: "Type of auth to use when connecting to postgres.",
 			Flag:        "postgres-connection-auth",
-			Env:         "CODER_PG_CONNECTION_AUTH",
+			Env:         "NEURALINVERSE_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&f.PostgresAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&f.PostgresAuth, nicloudsdk.PostgresAuthDrivers...),
 		},
 		serpent.Option{
 			Flag:        "keys",
-			Env:         "CODER_EXTERNAL_TOKEN_ENCRYPTION_DECRYPT_KEYS",
+			Env:         "NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_DECRYPT_KEYS",
 			Description: "Keys required to decrypt existing data. Must be a comma-separated list of base64-encoded keys.",
 			Value:       serpent.StringArrayOf(&f.Keys),
 		},
@@ -373,7 +373,7 @@ func (f *deleteFlags) attach(opts *serpent.OptionSet) {
 		*opts,
 		serpent.Option{
 			Flag:        "postgres-url",
-			Env:         "CODER_EXTERNAL_TOKEN_ENCRYPTION_POSTGRES_URL",
+			Env:         "NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_POSTGRES_URL",
 			Description: "The connection URL for the Postgres database.",
 			Value:       serpent.StringOf(&f.PostgresURL),
 		},
@@ -381,9 +381,9 @@ func (f *deleteFlags) attach(opts *serpent.OptionSet) {
 			Name:        "Postgres Connection Auth",
 			Description: "Type of auth to use when connecting to postgres.",
 			Flag:        "postgres-connection-auth",
-			Env:         "CODER_PG_CONNECTION_AUTH",
+			Env:         "NEURALINVERSE_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&f.PostgresAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&f.PostgresAuth, nicloudsdk.PostgresAuthDrivers...),
 		},
 		cliui.SkipPromptOption(),
 	)

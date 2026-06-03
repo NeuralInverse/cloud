@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script generates swagger description file and required Go docs files
-# from the coderd API.
+# from the nicloud API.
 
 set -euo pipefail
 # shellcheck source=scripts/lib.sh
@@ -13,7 +13,7 @@ API_MD_TMP_FILE=$(mktemp /tmp/coder-apidocgen.XXXXXX)
 # SWAG_OUTPUT_DIR controls where swag writes swagger.json and docs.go.
 # The caller may set it to a temp directory to avoid writing directly
 # into the working tree.
-SWAG_OUTPUT_DIR="${SWAG_OUTPUT_DIR:-./coderd/apidoc}"
+SWAG_OUTPUT_DIR="${SWAG_OUTPUT_DIR:-./nicloud/apidoc}"
 
 cleanup() {
 	rm -f "${API_MD_TMP_FILE}"

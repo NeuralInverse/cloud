@@ -14,8 +14,8 @@ import (
 	"github.com/prometheus/common/expfmt"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/util/maps"
-	"github.com/coder/coder/v2/scripts/atomicwrite"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/maps"
+	"github.com/NeuralInverse/cloud/v2/scripts/atomicwrite"
 )
 
 var (
@@ -88,7 +88,7 @@ func readMetricsFromFile(path string) ([]*dto.MetricFamily, error) {
 
 // readAndMergeMetrics reads metrics from both generated and static files,
 // merges them, and returns a sorted list. Generated metrics are produced
-// by the AST scanner that extracts metric definitions from the coder source
+// by the AST scanner that extracts metric definitions from the neuralinverse source
 // code while static metrics are manually maintained (e.g., go_*, process_*,
 // external dependencies).
 // Note: Static metrics take priority over generated metrics, allowing manual

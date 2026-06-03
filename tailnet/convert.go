@@ -9,8 +9,8 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 func UUIDToByteSlice(u uuid.UUID) []byte {
@@ -276,27 +276,27 @@ func DERPNodeFromProto(node *proto.DERPMap_Region_Node) *tailcfg.DERPNode {
 	}
 }
 
-func WorkspaceStatusToProto(status codersdk.WorkspaceStatus) proto.Workspace_Status {
+func WorkspaceStatusToProto(status nicloudsdk.WorkspaceStatus) proto.Workspace_Status {
 	switch status {
-	case codersdk.WorkspaceStatusCanceled:
+	case nicloudsdk.WorkspaceStatusCanceled:
 		return proto.Workspace_CANCELED
-	case codersdk.WorkspaceStatusCanceling:
+	case nicloudsdk.WorkspaceStatusCanceling:
 		return proto.Workspace_CANCELING
-	case codersdk.WorkspaceStatusDeleted:
+	case nicloudsdk.WorkspaceStatusDeleted:
 		return proto.Workspace_DELETED
-	case codersdk.WorkspaceStatusDeleting:
+	case nicloudsdk.WorkspaceStatusDeleting:
 		return proto.Workspace_DELETING
-	case codersdk.WorkspaceStatusFailed:
+	case nicloudsdk.WorkspaceStatusFailed:
 		return proto.Workspace_FAILED
-	case codersdk.WorkspaceStatusPending:
+	case nicloudsdk.WorkspaceStatusPending:
 		return proto.Workspace_PENDING
-	case codersdk.WorkspaceStatusRunning:
+	case nicloudsdk.WorkspaceStatusRunning:
 		return proto.Workspace_RUNNING
-	case codersdk.WorkspaceStatusStarting:
+	case nicloudsdk.WorkspaceStatusStarting:
 		return proto.Workspace_STARTING
-	case codersdk.WorkspaceStatusStopped:
+	case nicloudsdk.WorkspaceStatusStopped:
 		return proto.Workspace_STOPPED
-	case codersdk.WorkspaceStatusStopping:
+	case nicloudsdk.WorkspaceStatusStopping:
 		return proto.Workspace_STOPPING
 	default:
 		return proto.Workspace_UNKNOWN

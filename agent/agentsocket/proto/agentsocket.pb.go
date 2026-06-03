@@ -7,7 +7,7 @@
 package proto
 
 import (
-	proto "github.com/coder/coder/v2/agent/proto"
+	proto "github.com/NeuralInverse/cloud/v2/agent/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -758,38 +758,38 @@ func file_agent_agentsocket_proto_agentsocket_proto_rawDescGZIP() []byte {
 
 var file_agent_agentsocket_proto_agentsocket_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_agent_agentsocket_proto_agentsocket_proto_goTypes = []interface{}{
-	(*PingRequest)(nil),                   // 0: coder.agentsocket.v1.PingRequest
-	(*PingResponse)(nil),                  // 1: coder.agentsocket.v1.PingResponse
-	(*SyncStartRequest)(nil),              // 2: coder.agentsocket.v1.SyncStartRequest
-	(*SyncStartResponse)(nil),             // 3: coder.agentsocket.v1.SyncStartResponse
-	(*SyncWantRequest)(nil),               // 4: coder.agentsocket.v1.SyncWantRequest
-	(*SyncWantResponse)(nil),              // 5: coder.agentsocket.v1.SyncWantResponse
-	(*SyncCompleteRequest)(nil),           // 6: coder.agentsocket.v1.SyncCompleteRequest
-	(*SyncCompleteResponse)(nil),          // 7: coder.agentsocket.v1.SyncCompleteResponse
-	(*SyncReadyRequest)(nil),              // 8: coder.agentsocket.v1.SyncReadyRequest
-	(*SyncReadyResponse)(nil),             // 9: coder.agentsocket.v1.SyncReadyResponse
-	(*SyncStatusRequest)(nil),             // 10: coder.agentsocket.v1.SyncStatusRequest
-	(*DependencyInfo)(nil),                // 11: coder.agentsocket.v1.DependencyInfo
-	(*SyncStatusResponse)(nil),            // 12: coder.agentsocket.v1.SyncStatusResponse
-	(*proto.UpdateAppStatusRequest)(nil),  // 13: coder.agent.v2.UpdateAppStatusRequest
-	(*proto.UpdateAppStatusResponse)(nil), // 14: coder.agent.v2.UpdateAppStatusResponse
+	(*PingRequest)(nil),                   // 0: neuralinverse.agentsocket.v1.PingRequest
+	(*PingResponse)(nil),                  // 1: neuralinverse.agentsocket.v1.PingResponse
+	(*SyncStartRequest)(nil),              // 2: neuralinverse.agentsocket.v1.SyncStartRequest
+	(*SyncStartResponse)(nil),             // 3: neuralinverse.agentsocket.v1.SyncStartResponse
+	(*SyncWantRequest)(nil),               // 4: neuralinverse.agentsocket.v1.SyncWantRequest
+	(*SyncWantResponse)(nil),              // 5: neuralinverse.agentsocket.v1.SyncWantResponse
+	(*SyncCompleteRequest)(nil),           // 6: neuralinverse.agentsocket.v1.SyncCompleteRequest
+	(*SyncCompleteResponse)(nil),          // 7: neuralinverse.agentsocket.v1.SyncCompleteResponse
+	(*SyncReadyRequest)(nil),              // 8: neuralinverse.agentsocket.v1.SyncReadyRequest
+	(*SyncReadyResponse)(nil),             // 9: neuralinverse.agentsocket.v1.SyncReadyResponse
+	(*SyncStatusRequest)(nil),             // 10: neuralinverse.agentsocket.v1.SyncStatusRequest
+	(*DependencyInfo)(nil),                // 11: neuralinverse.agentsocket.v1.DependencyInfo
+	(*SyncStatusResponse)(nil),            // 12: neuralinverse.agentsocket.v1.SyncStatusResponse
+	(*proto.UpdateAppStatusRequest)(nil),  // 13: neuralinverse.agent.v2.UpdateAppStatusRequest
+	(*proto.UpdateAppStatusResponse)(nil), // 14: neuralinverse.agent.v2.UpdateAppStatusResponse
 }
 var file_agent_agentsocket_proto_agentsocket_proto_depIdxs = []int32{
-	11, // 0: coder.agentsocket.v1.SyncStatusResponse.dependencies:type_name -> coder.agentsocket.v1.DependencyInfo
-	0,  // 1: coder.agentsocket.v1.AgentSocket.Ping:input_type -> coder.agentsocket.v1.PingRequest
-	2,  // 2: coder.agentsocket.v1.AgentSocket.SyncStart:input_type -> coder.agentsocket.v1.SyncStartRequest
-	4,  // 3: coder.agentsocket.v1.AgentSocket.SyncWant:input_type -> coder.agentsocket.v1.SyncWantRequest
-	6,  // 4: coder.agentsocket.v1.AgentSocket.SyncComplete:input_type -> coder.agentsocket.v1.SyncCompleteRequest
-	8,  // 5: coder.agentsocket.v1.AgentSocket.SyncReady:input_type -> coder.agentsocket.v1.SyncReadyRequest
-	10, // 6: coder.agentsocket.v1.AgentSocket.SyncStatus:input_type -> coder.agentsocket.v1.SyncStatusRequest
-	13, // 7: coder.agentsocket.v1.AgentSocket.UpdateAppStatus:input_type -> coder.agent.v2.UpdateAppStatusRequest
-	1,  // 8: coder.agentsocket.v1.AgentSocket.Ping:output_type -> coder.agentsocket.v1.PingResponse
-	3,  // 9: coder.agentsocket.v1.AgentSocket.SyncStart:output_type -> coder.agentsocket.v1.SyncStartResponse
-	5,  // 10: coder.agentsocket.v1.AgentSocket.SyncWant:output_type -> coder.agentsocket.v1.SyncWantResponse
-	7,  // 11: coder.agentsocket.v1.AgentSocket.SyncComplete:output_type -> coder.agentsocket.v1.SyncCompleteResponse
-	9,  // 12: coder.agentsocket.v1.AgentSocket.SyncReady:output_type -> coder.agentsocket.v1.SyncReadyResponse
-	12, // 13: coder.agentsocket.v1.AgentSocket.SyncStatus:output_type -> coder.agentsocket.v1.SyncStatusResponse
-	14, // 14: coder.agentsocket.v1.AgentSocket.UpdateAppStatus:output_type -> coder.agent.v2.UpdateAppStatusResponse
+	11, // 0: neuralinverse.agentsocket.v1.SyncStatusResponse.dependencies:type_name -> neuralinverse.agentsocket.v1.DependencyInfo
+	0,  // 1: neuralinverse.agentsocket.v1.AgentSocket.Ping:input_type -> neuralinverse.agentsocket.v1.PingRequest
+	2,  // 2: neuralinverse.agentsocket.v1.AgentSocket.SyncStart:input_type -> neuralinverse.agentsocket.v1.SyncStartRequest
+	4,  // 3: neuralinverse.agentsocket.v1.AgentSocket.SyncWant:input_type -> neuralinverse.agentsocket.v1.SyncWantRequest
+	6,  // 4: neuralinverse.agentsocket.v1.AgentSocket.SyncComplete:input_type -> neuralinverse.agentsocket.v1.SyncCompleteRequest
+	8,  // 5: neuralinverse.agentsocket.v1.AgentSocket.SyncReady:input_type -> neuralinverse.agentsocket.v1.SyncReadyRequest
+	10, // 6: neuralinverse.agentsocket.v1.AgentSocket.SyncStatus:input_type -> neuralinverse.agentsocket.v1.SyncStatusRequest
+	13, // 7: neuralinverse.agentsocket.v1.AgentSocket.UpdateAppStatus:input_type -> neuralinverse.agent.v2.UpdateAppStatusRequest
+	1,  // 8: neuralinverse.agentsocket.v1.AgentSocket.Ping:output_type -> neuralinverse.agentsocket.v1.PingResponse
+	3,  // 9: neuralinverse.agentsocket.v1.AgentSocket.SyncStart:output_type -> neuralinverse.agentsocket.v1.SyncStartResponse
+	5,  // 10: neuralinverse.agentsocket.v1.AgentSocket.SyncWant:output_type -> neuralinverse.agentsocket.v1.SyncWantResponse
+	7,  // 11: neuralinverse.agentsocket.v1.AgentSocket.SyncComplete:output_type -> neuralinverse.agentsocket.v1.SyncCompleteResponse
+	9,  // 12: neuralinverse.agentsocket.v1.AgentSocket.SyncReady:output_type -> neuralinverse.agentsocket.v1.SyncReadyResponse
+	12, // 13: neuralinverse.agentsocket.v1.AgentSocket.SyncStatus:output_type -> neuralinverse.agentsocket.v1.SyncStatusResponse
+	14, // 14: neuralinverse.agentsocket.v1.AgentSocket.UpdateAppStatus:output_type -> neuralinverse.agent.v2.UpdateAppStatusResponse
 	8,  // [8:15] is the sub-list for method output_type
 	1,  // [1:8] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name

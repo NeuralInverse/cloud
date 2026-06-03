@@ -1,13 +1,13 @@
 package cliui
 
 import (
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
 var defaultQuery = "owner:me"
 
-// WorkspaceFilter wraps codersdk.WorkspaceFilter
+// WorkspaceFilter wraps nicloudsdk.WorkspaceFilter
 // and allows easy integration to a CLI command.
 // Example usage:
 //
@@ -32,8 +32,8 @@ type WorkspaceFilter struct {
 	all         bool
 }
 
-func (w *WorkspaceFilter) Filter() codersdk.WorkspaceFilter {
-	var f codersdk.WorkspaceFilter
+func (w *WorkspaceFilter) Filter() nicloudsdk.WorkspaceFilter {
+	var f nicloudsdk.WorkspaceFilter
 	if w.all {
 		return f
 	}

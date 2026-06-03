@@ -1,9 +1,9 @@
 # Your first template
 
 A common way to create a template is to begin with a starter template then
-modify it for your needs. Coder makes this easy with starter templates for
+modify it for your needs. Neural Inverse Cloud makes this easy with starter templates for
 popular development targets like Docker, Kubernetes, Azure, and so on. Once your
-template is up and running, you can edit it in the Coder dashboard. Coder even
+template is up and running, you can edit it in the Neural Inverse Cloud dashboard. Neural Inverse Cloud even
 handles versioning for you so you can publish official updates or revert to
 previous versions.
 
@@ -13,12 +13,12 @@ template.
 ## Before you start
 
 Use the [previous section](./local-deploy.md) of this guide to set up
-[Docker](https://docs.docker.com/get-docker/) and [Coder](../install/cli.md) on
+[Docker](https://docs.docker.com/get-docker/) and [Neural Inverse Cloud](../install/cli.md) on
 your local machine to continue.
 
-## 1. Log in to Coder
+## 1. Log in to Neural Inverse Cloud
 
-In your web browser, go to your Coder dashboard using the URL provided during
+In your web browser, go to your Neural Inverse Cloud dashboard using the URL provided during
 setup to log in.
 
 ## 2. Choose a starter template
@@ -54,7 +54,7 @@ Workspace**.
 
 ![Create Workspace](../images/start/create-workspace.png)
 
-Coder starts your new workspace from your template.
+Neural Inverse Cloud starts your new workspace from your template.
 
 After a few seconds, your workspace is ready to use.
 
@@ -72,7 +72,7 @@ This starter template lets you connect to your workspace in a few ways:
 - Terminal: Opens a browser-based terminal with a shell in the workspace's
   Docker instance.
 - SSH: Use SSH to log in to the workspace from your local machine. If you
-  haven't already, you'll have to install Coder on your local machine to
+  haven't already, you'll have to install Neural Inverse Cloud on your local machine to
   configure your SSH client.
 
 > [!TIP]
@@ -89,7 +89,7 @@ Let's replace the `golang` package in the Docker image with the `python3`
 package. You can do this by editing the template's `Dockerfile` directly in your
 web browser.
 
-In the Coder dashboard, select **Templates** then your first template.
+In the Neural Inverse Cloud dashboard, select **Templates** then your first template.
 
 ![Selecting the first template](../images/templates/select-template.png)
 
@@ -105,7 +105,7 @@ Edit `build/Dockerfile` to replace `golang` with `python3`.
 
 ![Editing source code](../images/templates/edit-source-code.png)
 
-Select **Build template** and wait for Coder to prepare the template for
+Select **Build template** and wait for Neural Inverse Cloud to prepare the template for
 workspaces.
 
 ![Building a template](../images/templates/build-template.png)
@@ -119,7 +119,7 @@ Now when developers create a new workspace from this template, they can use
 Python 3 instead of Go.
 
 For developers with workspaces that were created with a previous version of your
-template, Coder will notify them that there's a new version of the template.
+template, Neural Inverse Cloud will notify them that there's a new version of the template.
 
 You can also handle
 [change management](../admin/templates/managing-templates/change-management.md)

@@ -24,7 +24,7 @@ const MAX_MEASURE_ENTRIES = 500;
  * In standard production builds, React does not call the onRender
  * callback with timing data, so the hook is effectively inert. It
  * only produces output when built with react-dom/profiling (enabled
- * via CODER_REACT_PROFILING=true).
+ * via NEURALINVERSE_REACT_PROFILING=true).
  */
 export function useOnRenderProfiler(): ProfilerOnRenderCallback {
 	const lastWarnTime = useRef(0);

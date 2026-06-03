@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/pty"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/serpent"
 )
 

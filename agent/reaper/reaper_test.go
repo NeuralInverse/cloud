@@ -15,15 +15,15 @@ import (
 	"github.com/hashicorp/go-reap"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/reaper"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/reaper"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // subprocessEnvKey is set when a test re-execs itself as an
 // isolated subprocess. Tests that call ForkReap or send signals
 // to their own process check this to decide whether to run real
 // test logic or launch the subprocess and wait for it.
-const subprocessEnvKey = "CODER_REAPER_TEST_SUBPROCESS"
+const subprocessEnvKey = "NEURALINVERSE_REAPER_TEST_SUBPROCESS"
 
 // runSubprocess re-execs the current test binary in a new process
 // running only the named test. This isolates ForkReap's

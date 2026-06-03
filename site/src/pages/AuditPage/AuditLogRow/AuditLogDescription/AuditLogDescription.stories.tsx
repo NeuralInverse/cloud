@@ -83,7 +83,7 @@ export const SCIMCreateUser: Story = {
 			resource_target: "colin",
 			description: "{user} created user {target}",
 			additional_fields: {
-				automatic_actor: "coder",
+				automatic_actor: "neuralinverse",
 				automatic_subsystem: "scim",
 			},
 		},
@@ -99,7 +99,7 @@ export const SCIMUpdateUser: Story = {
 			resource_target: "colin",
 			description: "{user} updated user {target}",
 			additional_fields: {
-				automatic_actor: "coder",
+				automatic_actor: "neuralinverse",
 				automatic_subsystem: "scim",
 			},
 		},

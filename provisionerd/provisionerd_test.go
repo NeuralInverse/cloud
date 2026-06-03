@@ -22,14 +22,14 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/provisionerd"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionerd/runner"
-	"github.com/coder/coder/v2/provisionersdk"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/provisionersdk/tfpath"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/provisionerd"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/runner"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/tfpath"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestMain(m *testing.M) {
@@ -677,7 +677,7 @@ func TestProvisionerd(t *testing.T) {
 		assert.True(t, didFail.Load(), "should fail the job")
 	})
 
-	// Simulates when there is no coderd to connect to. So the client connection
+	// Simulates when there is no nicloud to connect to. So the client connection
 	// will never be established.
 	t.Run("ShutdownNoCoderd", func(t *testing.T) {
 		t.Parallel()

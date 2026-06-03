@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 const (
@@ -26,10 +26,10 @@ const (
 )
 
 func ExtractDevcontainerScripts(
-	devcontainers []codersdk.WorkspaceAgentDevcontainer,
-	scripts []codersdk.WorkspaceAgentScript,
-) (filteredScripts []codersdk.WorkspaceAgentScript, devcontainerScripts map[uuid.UUID]codersdk.WorkspaceAgentScript) {
-	devcontainerScripts = make(map[uuid.UUID]codersdk.WorkspaceAgentScript)
+	devcontainers []nicloudsdk.WorkspaceAgentDevcontainer,
+	scripts []nicloudsdk.WorkspaceAgentScript,
+) (filteredScripts []nicloudsdk.WorkspaceAgentScript, devcontainerScripts map[uuid.UUID]nicloudsdk.WorkspaceAgentScript) {
+	devcontainerScripts = make(map[uuid.UUID]nicloudsdk.WorkspaceAgentScript)
 ScriptLoop:
 	for _, script := range scripts {
 		for _, dc := range devcontainers {
@@ -50,15 +50,15 @@ ScriptLoop:
 // ExpandAllDevcontainerPaths expands all devcontainer paths in the given
 // devcontainers. This is required by the devcontainer CLI, which requires
 // absolute paths for the workspace folder and config path.
-func ExpandAllDevcontainerPaths(logger slog.Logger, expandPath func(string) (string, error), devcontainers []codersdk.WorkspaceAgentDevcontainer) []codersdk.WorkspaceAgentDevcontainer {
-	expanded := make([]codersdk.WorkspaceAgentDevcontainer, 0, len(devcontainers))
+func ExpandAllDevcontainerPaths(logger slog.Logger, expandPath func(string) (string, error), devcontainers []nicloudsdk.WorkspaceAgentDevcontainer) []nicloudsdk.WorkspaceAgentDevcontainer {
+	expanded := make([]nicloudsdk.WorkspaceAgentDevcontainer, 0, len(devcontainers))
 	for _, dc := range devcontainers {
 		expanded = append(expanded, expandDevcontainerPaths(logger, expandPath, dc))
 	}
 	return expanded
 }
 
-func expandDevcontainerPaths(logger slog.Logger, expandPath func(string) (string, error), dc codersdk.WorkspaceAgentDevcontainer) codersdk.WorkspaceAgentDevcontainer {
+func expandDevcontainerPaths(logger slog.Logger, expandPath func(string) (string, error), dc nicloudsdk.WorkspaceAgentDevcontainer) nicloudsdk.WorkspaceAgentDevcontainer {
 	logger = logger.With(slog.F("devcontainer", dc.Name), slog.F("workspace_folder", dc.WorkspaceFolder), slog.F("config_path", dc.ConfigPath))
 
 	if wf, err := expandPath(dc.WorkspaceFolder); err != nil {

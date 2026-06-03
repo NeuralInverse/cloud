@@ -11,8 +11,8 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -104,7 +104,7 @@ type logLine struct {
 // the returned channel will stream new logs as they are emitted. Otherwise,
 // the channel will be closed immediately.
 // nolint: revive // control flag is appropriate here
-func workspaceLogs(ctx context.Context, client *codersdk.Client, wb codersdk.WorkspaceBuild, follow bool) ([]logLine, <-chan logLine, error) {
+func workspaceLogs(ctx context.Context, client *nicloudsdk.Client, wb nicloudsdk.WorkspaceBuild, follow bool) ([]logLine, <-chan logLine, error) {
 	logs := make([]logLine, 0)
 	logsCh := make(chan logLine)
 	followCh := make(chan logLine)

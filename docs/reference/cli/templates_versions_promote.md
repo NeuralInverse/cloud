@@ -22,7 +22,7 @@ Promote an existing template version to be the active version for the specified 
 |             |                                   |
 |-------------|-----------------------------------|
 | Type        | <code>string</code>               |
-| Environment | <code>$CODER_TEMPLATE_NAME</code> |
+| Environment | <code>$NEURALINVERSE_TEMPLATE_NAME</code> |
 
 Specify the template name.
 
@@ -31,7 +31,7 @@ Specify the template name.
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_TEMPLATE_VERSION_NAME</code> |
+| Environment | <code>$NEURALINVERSE_TEMPLATE_VERSION_NAME</code> |
 
 Specify the template version name to promote.
 
@@ -40,6 +40,6 @@ Specify the template version name to promote.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.

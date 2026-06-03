@@ -15,7 +15,7 @@ import (
 const (
 	// fixedUsername is the fixed username used for all keychain entries.
 	// Since our interface only uses service names, we use a constant username.
-	fixedUsername = "coder-login-credentials"
+	fixedUsername = "neuralinverse-login-credentials"
 
 	execPathKeychain = "/usr/bin/security"
 	notFoundStr      = "could not be found"

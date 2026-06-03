@@ -9,12 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestSpeedtest(t *testing.T) {
@@ -25,7 +25,7 @@ func TestSpeedtest(t *testing.T) {
 	}
 	client, workspace, agentToken := setupWorkspaceForAgent(t)
 	_ = agenttest.New(t, client.URL, agentToken)
-	coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -36,8 +36,8 @@ func TestSpeedtest(t *testing.T) {
 			return false
 		}
 		a := ws.LatestBuild.Resources[0].Agents[0]
-		return a.Status == codersdk.WorkspaceAgentConnected &&
-			a.LifecycleState == codersdk.WorkspaceAgentLifecycleReady
+		return a.Status == nicloudsdk.WorkspaceAgentConnected &&
+			a.LifecycleState == nicloudsdk.WorkspaceAgentLifecycleReady
 	}, testutil.WaitLong, testutil.IntervalFast, "agent is not ready")
 
 	inv, root := clitest.New(t, "speedtest", workspace.Name)
@@ -62,7 +62,7 @@ func TestSpeedtestJson(t *testing.T) {
 	}
 	client, workspace, agentToken := setupWorkspaceForAgent(t)
 	_ = agenttest.New(t, client.URL, agentToken)
-	coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), testutil.WaitLong)
 	defer cancel()
@@ -73,8 +73,8 @@ func TestSpeedtestJson(t *testing.T) {
 			return false
 		}
 		a := ws.LatestBuild.Resources[0].Agents[0]
-		return a.Status == codersdk.WorkspaceAgentConnected &&
-			a.LifecycleState == codersdk.WorkspaceAgentLifecycleReady
+		return a.Status == nicloudsdk.WorkspaceAgentConnected &&
+			a.LifecycleState == nicloudsdk.WorkspaceAgentLifecycleReady
 	}, testutil.WaitLong, testutil.IntervalFast, "agent is not ready")
 
 	inv, root := clitest.New(t, "speedtest", "--output=json", workspace.Name)

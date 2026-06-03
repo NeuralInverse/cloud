@@ -11,9 +11,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -94,7 +94,7 @@ func (r *RootCmd) licenseAdd() *serpent.Command {
 
 			licResp, err := client.AddLicense(
 				inv.Context(),
-				codersdk.AddLicenseRequest{License: license},
+				nicloudsdk.AddLicenseRequest{License: license},
 			)
 			if err != nil {
 				return err
@@ -158,7 +158,7 @@ func (r *RootCmd) licensesList() *serpent.Command {
 			}
 			// Ensure that we print "[]" instead of "null" when there are no licenses.
 			if licenses == nil {
-				licenses = make([]codersdk.License, 0)
+				licenses = make([]nicloudsdk.License, 0)
 			}
 
 			out, err := formatter.Format(inv.Context(), licenses)

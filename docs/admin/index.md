@@ -2,13 +2,13 @@
 
 ![Admin settings general page](../images/admin/admin-settings-general.png)
 
-These guides contain information on managing the Coder control plane and
+These guides contain information on managing the Neural Inverse Cloud control plane and
 [authoring templates](./templates/index.md).
 
 First time viewers looking to set up control plane access can start with the
 [configuration guide](./setup/index.md). If you're a team lead looking to design
 environments for your developers, check out our
-[templates guides](./templates/index.md). If you are a developer using Coder, we
+[templates guides](./templates/index.md). If you are a developer using Neural Inverse Cloud, we
 recommend the [user guides](../user-guides/index.md).
 
 For automation and scripting workflows, see our [CLI](../reference/cli/index.md)
@@ -22,25 +22,25 @@ For any information not strictly contained in these sections, check out our
 ### Image
 
 - A [base image](./templates/managing-templates/image-management.md) contains
-  OS-level packages and utilities that the Coder workspace is built on. It can
+  OS-level packages and utilities that the Neural Inverse Cloud workspace is built on. It can
   be an [example image](https://github.com/coder/images), custom image in your
   registry, or one from [Docker Hub](https://hub.docker.com/search). It is
   defined in each template.
-- Managed by: Externally to Coder.
+- Managed by: Externally to Neural Inverse Cloud.
 
 ### Template
 
 - [Templates](./templates/index.md) include infrastructure-level dependencies
   for the workspace. For example, a template can include Kubernetes
   PersistentVolumeClaims, Docker containers, or EC2 VMs.
-- Managed by: Template administrators from within the Coder deployment.
+- Managed by: Template administrators from within the Neural Inverse Cloud deployment.
 
 ### Startup scripts
 
 - Agent startup scripts apply to all users of a template. This is an
   intentionally flexible area that template authors have at their disposal to
   manage the "last mile" of workspace creation.
-- Managed by: Coder template administrators.
+- Managed by: Neural Inverse Cloud template administrators.
 
 ### Workspace
 
@@ -62,7 +62,7 @@ For any information not strictly contained in these sections, check out our
 ### Dotfiles / personalization
 
 - Users may have their own specific preferences relating to shell prompt, custom
-  keybindings, color schemes, and more. Users can leverage Coder's
+  keybindings, color schemes, and more. Users can leverage Neural Inverse Cloud's
   [dotfiles support](../user-guides/workspace-dotfiles.md) or create their own
   script to personalize their workspace. Be aware that users with root
   permissions in their workspace can override almost all of the previous

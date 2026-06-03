@@ -14,26 +14,26 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 )
 
-func WorkspaceBuild(ctx context.Context, writer io.Writer, client *codersdk.Client, build uuid.UUID) error {
+func WorkspaceBuild(ctx context.Context, writer io.Writer, client *nicloudsdk.Client, build uuid.UUID) error {
 	return ProvisionerJob(ctx, writer, ProvisionerJobOptions{
-		Fetch: func() (codersdk.ProvisionerJob, error) {
+		Fetch: func() (nicloudsdk.ProvisionerJob, error) {
 			build, err := client.WorkspaceBuild(ctx, build)
 			return build.Job, err
 		},
-		Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
+		Logs: func() (<-chan nicloudsdk.ProvisionerJobLog, io.Closer, error) {
 			return client.WorkspaceBuildLogsAfter(ctx, build, 0)
 		},
 	})
 }
 
 type ProvisionerJobOptions struct {
-	Fetch  func() (codersdk.ProvisionerJob, error)
+	Fetch  func() (nicloudsdk.ProvisionerJob, error)
 	Cancel func() error
-	Logs   func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error)
+	Logs   func() (<-chan nicloudsdk.ProvisionerJobLog, io.Closer, error)
 
 	FetchInterval time.Duration
 	// Verbose determines whether debug and trace logs will be shown.
@@ -45,7 +45,7 @@ type ProvisionerJobOptions struct {
 
 type ProvisionerJobError struct {
 	Message string
-	Code    codersdk.JobErrorCode
+	Code    nicloudsdk.JobErrorCode
 }
 
 var _ error = new(ProvisionerJobError)
@@ -73,7 +73,7 @@ func ProvisionerJob(ctx context.Context, wr io.Writer, opts ProvisionerJobOption
 		currentQueuePos       = -1
 
 		errChan  = make(chan error, 1)
-		job      codersdk.ProvisionerJob
+		job      nicloudsdk.ProvisionerJob
 		jobMutex sync.Mutex
 	)
 
@@ -99,7 +99,7 @@ func ProvisionerJob(ctx context.Context, wr io.Writer, opts ProvisionerJobOption
 	updateStage := func(stage string, startedAt time.Time) {
 		if currentStage != "" {
 			duration := startedAt.Sub(currentStageStartedAt)
-			if job.CompletedAt != nil && job.Status != codersdk.ProvisionerJobSucceeded {
+			if job.CompletedAt != nil && job.Status != nicloudsdk.ProvisionerJobSucceeded {
 				sw.Fail(currentStage, duration)
 			} else {
 				sw.Complete(currentStage, duration)
@@ -202,13 +202,13 @@ func ProvisionerJob(ctx context.Context, wr io.Writer, opts ProvisionerJobOption
 					updateStage("", *job.CompletedAt)
 				}
 				switch job.Status {
-				case codersdk.ProvisionerJobCanceled:
+				case nicloudsdk.ProvisionerJobCanceled:
 					jobMutex.Unlock()
 					return ErrCanceled
-				case codersdk.ProvisionerJobSucceeded:
+				case nicloudsdk.ProvisionerJobSucceeded:
 					jobMutex.Unlock()
 					return nil
-				case codersdk.ProvisionerJobFailed:
+				case nicloudsdk.ProvisionerJobFailed:
 				}
 				err = &ProvisionerJobError{
 					Message: job.Error,
@@ -265,7 +265,7 @@ func (s *stageWriter) end(stage string, duration time.Duration, ok bool) {
 	_, _ = fmt.Fprintf(s.w, "=== %s %s [%dms]\n", mark, stage, duration.Milliseconds())
 }
 
-func (s *stageWriter) Log(createdAt time.Time, level codersdk.LogLevel, line string) {
+func (s *stageWriter) Log(createdAt time.Time, level nicloudsdk.LogLevel, line string) {
 	w := s.w
 	if s.silentLogs {
 		w = &s.logBuf
@@ -280,16 +280,16 @@ func (s *stageWriter) Log(createdAt time.Time, level codersdk.LogLevel, line str
 	lines = append(lines, line)
 
 	switch level {
-	case codersdk.LogLevelTrace, codersdk.LogLevelDebug:
+	case nicloudsdk.LogLevelTrace, nicloudsdk.LogLevelDebug:
 		if !s.verbose {
 			return
 		}
 		style = DefaultStyles.Placeholder
-	case codersdk.LogLevelError:
+	case nicloudsdk.LogLevelError:
 		style = DefaultStyles.Error
-	case codersdk.LogLevelWarn:
+	case nicloudsdk.LogLevelWarn:
 		style = DefaultStyles.Warn
-	case codersdk.LogLevelInfo:
+	case nicloudsdk.LogLevelInfo:
 	}
 	pretty.Fprintf(w, style, "%s\n", strings.Join(lines, " "))
 }

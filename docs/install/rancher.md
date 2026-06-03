@@ -1,26 +1,26 @@
-# Deploy Coder on Rancher
+# Deploy Neural Inverse Cloud on Rancher
 
-You can deploy Coder on Rancher as a
+You can deploy Neural Inverse Cloud on Rancher as a
 [Workload](https://ranchermanager.docs.rancher.com/getting-started/quick-start-guides/deploy-workloads/workload-ingress).
 
 ## Requirements
 
 - [SUSE Rancher Manager](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster) running Kubernetes (K8s) 1.19+ with [SUSE Rancher Prime distribution](https://documentation.suse.com/cloudnative/rancher-manager/latest/en/integrations/kubernetes-distributions.html) (Rancher Manager 2.10+)
 - Helm 3.5+ installed
-- Workload Kubernetes cluster for Coder
+- Workload Kubernetes cluster for Neural Inverse Cloud
 
 ## Overview
 
-Installing Coder on Rancher involves four key steps:
+Installing Neural Inverse Cloud on Rancher involves four key steps:
 
-1. Create a namespace for Coder
+1. Create a namespace for Neural Inverse Cloud
 1. Set up PostgreSQL
 1. Create a database connection secret
-1. Install the Coder application via Rancher UI
+1. Install the Neural Inverse Cloud application via Rancher UI
 
 ## Create a namespace
 
-Create a namespace for the Coder control plane. In this tutorial, we call it `coder`:
+Create a namespace for the Neural Inverse Cloud control plane. In this tutorial, we call it `coder`:
 
 ```shell
 kubectl create namespace coder
@@ -28,7 +28,7 @@ kubectl create namespace coder
 
 ## Set up PostgreSQL
 
-Coder requires a PostgreSQL database to store deployment data.
+Neural Inverse Cloud requires a PostgreSQL database to store deployment data.
 We recommend that you use a managed PostgreSQL service, but you can use an in-cluster PostgreSQL service for non-production deployments:
 
 <div class="tabs">
@@ -46,7 +46,7 @@ Ensure that your PostgreSQL service:
 
 - Is running and accessible from your cluster
 - Is in the same network/project as your cluster
-- Has proper credentials and a database created for Coder
+- Has proper credentials and a database created for Neural Inverse Cloud
 
 ### In-Cluster PostgreSQL (Development/PoC)
 
@@ -86,39 +86,39 @@ kubectl create secret generic coder-db-url -n coder \
 > [!Important]
 > If you're using a managed PostgreSQL service, replace the connection URL with your specific database credentials.
 
-## Install Coder through the Rancher UI
+## Install Neural Inverse Cloud through the Rancher UI
 
-![Coder installed on Rancher](../images/install/coder-rancher.png)
+![Neural Inverse Cloud installed on Rancher](../images/install/coder-rancher.png)
 
-1. In the Rancher Manager console, select your target Kubernetes cluster for Coder.
+1. In the Rancher Manager console, select your target Kubernetes cluster for Neural Inverse Cloud.
 
 1. Navigate to **Apps** > **Charts**
 
-1. From the dropdown menu, select **Partners** and search for `Coder`
+1. From the dropdown menu, select **Partners** and search for `Neural Inverse Cloud`
 
-1. Select **Coder**, then **Install**
+1. Select **Neural Inverse Cloud**, then **Install**
 
 1. Select the `coder` namespace you created earlier and check **Customize Helm options before install**.
 
    Select **Next**
 
-1. On the configuration screen, select **Edit YAML** and enter your Coder configuration settings:
+1. On the configuration screen, select **Edit YAML** and enter your Neural Inverse Cloud configuration settings:
 
    <details>
    <summary>Example values.yaml configuration</summary>
 
    ```yaml
    coder:
-     # Environment variables for Coder
+     # Environment variables for Neural Inverse Cloud
      env:
-       - name: CODER_PG_CONNECTION_URL
+       - name: NEURALINVERSE_PG_CONNECTION_URL
          valueFrom:
            secretKeyRef:
              name: coder-db-url
              key: url
 
        # For production, uncomment and set your access URL
-       # - name: CODER_ACCESS_URL
+       # - name: NEURALINVERSE_ACCESS_URL
        #   value: "https://coder.example.com"
 
      # For TLS configuration (uncomment if needed)
@@ -127,12 +127,12 @@ kubectl create secret generic coder-db-url -n coder \
      #    - my-tls-secret-name
    ```
 
-   For available configuration options, refer to the [Helm chart documentation](https://github.com/coder/coder/blob/main/helm#readme)
-   or [values.yaml file](https://github.com/coder/coder/blob/main/helm/coder/values.yaml).
+   For available configuration options, refer to the [Helm chart documentation](https://github.com/NeuralInverse/cloud/blob/main/helm#readme)
+   or [values.yaml file](https://github.com/NeuralInverse/cloud/blob/main/helm/neuralinverse/values.yaml).
 
    </details>
 
-1. Select a Coder version:
+1. Select a Neural Inverse Cloud version:
 
    - **Mainline**: `2.33.2`
    - **Stable**: `2.32.1`
@@ -148,12 +148,12 @@ kubectl create secret generic coder-db-url -n coder \
 
 1. A Helm install output shell will be displayed and indicates the installation status.
 
-## Manage your Rancher Coder deployment
+## Manage your Rancher Neural Inverse Cloud deployment
 
-To update or manage your Coder deployment later:
+To update or manage your Neural Inverse Cloud deployment later:
 
 1. Navigate to **Apps** > **Installed Apps** in the Rancher UI.
-1. Find and select Coder.
+1. Find and select Neural Inverse Cloud.
 1. Use the options in the **⋮** menu for upgrade, rollback, or other operations.
 
 ## Next steps

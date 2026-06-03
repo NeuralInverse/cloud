@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -35,15 +35,15 @@ func (r *RootCmd) publickey() *serpent.Command {
 				}
 
 				// Reset the public key, let the retrieve re-read it.
-				_, err = client.RegenerateGitSSHKey(inv.Context(), codersdk.Me)
+				_, err = client.RegenerateGitSSHKey(inv.Context(), nicloudsdk.Me)
 				if err != nil {
 					return err
 				}
 			}
 
-			key, err := client.GitSSHKey(inv.Context(), codersdk.Me)
+			key, err := client.GitSSHKey(inv.Context(), nicloudsdk.Me)
 			if err != nil {
-				return xerrors.Errorf("create codersdk client: %w", err)
+				return xerrors.Errorf("create nicloudsdk client: %w", err)
 			}
 
 			cliui.Info(inv.Stdout,

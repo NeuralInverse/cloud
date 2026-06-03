@@ -48,7 +48,7 @@ variable "ssh_key_id" {
   }
 }
 
-data "coder_parameter" "droplet_image" {
+data "ni_parameter" "droplet_image" {
   name         = "droplet_image"
   display_name = "Droplet image"
   description  = "Which Droplet image would you like to use?"
@@ -122,7 +122,7 @@ data "coder_parameter" "droplet_image" {
   }
 }
 
-data "coder_parameter" "droplet_size" {
+data "ni_parameter" "droplet_size" {
   name         = "droplet_size"
   display_name = "Droplet size"
   description  = "Which Droplet configuration would you like to use?"
@@ -154,7 +154,7 @@ data "coder_parameter" "droplet_size" {
   }
 }
 
-data "coder_parameter" "home_volume_size" {
+data "ni_parameter" "home_volume_size" {
   name         = "home_volume_size"
   display_name = "Home volume size"
   description  = "How large would you like your home volume to be (in GB)?"
@@ -167,7 +167,7 @@ data "coder_parameter" "home_volume_size" {
   }
 }
 
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name         = "region"
   display_name = "Region"
   description  = "This is the region where your workspace will be created."
@@ -234,10 +234,10 @@ provider "digitalocean" {
   # alternatively, you can pass the token via a variable.
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os   = "linux"
   arch = "amd64"
 
@@ -260,36 +260,36 @@ resource "coder_agent" "main" {
     display_name = "Home Usage"
     interval     = 600 # every 10 minutes
     timeout      = 30  # df can take a while on large filesystems
-    script       = "coder stat disk --path /home/${lower(data.coder_workspace_owner.me.name)}"
+    script       = "coder stat disk --path /home/${lower(data.ni_workspace_owner.me.name)}"
   }
 }
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 # See https://registry.coder.com/modules/coder/jetbrains
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
-  agent_id   = coder_agent.main.id
+  agent_id   = ni_agent.main.id
   agent_name = "main"
   folder     = "/home/coder"
 }
 
 resource "digitalocean_volume" "home_volume" {
-  region                   = data.coder_parameter.region.value
-  name                     = "coder-${data.coder_workspace.me.id}-home"
-  size                     = data.coder_parameter.home_volume_size.value
+  region                   = data.ni_parameter.region.value
+  name                     = "coder-${data.ni_workspace.me.id}-home"
+  size                     = data.ni_parameter.home_volume_size.value
   initial_filesystem_type  = "ext4"
   initial_filesystem_label = "coder-home"
   # Protect the volume from being deleted due to changes in attributes.
@@ -299,18 +299,18 @@ resource "digitalocean_volume" "home_volume" {
 }
 
 resource "digitalocean_droplet" "workspace" {
-  region = data.coder_parameter.region.value
-  count  = data.coder_workspace.me.start_count
-  name   = "coder-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
-  image  = data.coder_parameter.droplet_image.value
-  size   = data.coder_parameter.droplet_size.value
+  region = data.ni_parameter.region.value
+  count  = data.ni_workspace.me.start_count
+  name   = "coder-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
+  image  = data.ni_parameter.droplet_image.value
+  size   = data.ni_parameter.droplet_size.value
 
   volume_ids = [digitalocean_volume.home_volume.id]
   user_data = templatefile("cloud-config.yaml.tftpl", {
-    username          = lower(data.coder_workspace_owner.me.name)
+    username          = lower(data.ni_workspace_owner.me.name)
     home_volume_label = digitalocean_volume.home_volume.initial_filesystem_label
-    init_script       = base64encode(coder_agent.main.init_script)
-    coder_agent_token = coder_agent.main.token
+    init_script       = base64encode(ni_agent.main.init_script)
+    ni_agent_token = ni_agent.main.token
   })
   # Required to provision Fedora.
   ssh_keys = var.ssh_key_id > 0 ? [var.ssh_key_id] : []
@@ -328,7 +328,7 @@ resource "digitalocean_project_resources" "project" {
 }
 
 resource "coder_metadata" "workspace-info" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = digitalocean_droplet.workspace[0].id
 
   item {

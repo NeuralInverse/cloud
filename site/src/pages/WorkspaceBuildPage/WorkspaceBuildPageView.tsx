@@ -180,7 +180,7 @@ export const WorkspaceBuildPageView: FC<WorkspaceBuildPageViewProps> = ({
 								<TabsTrigger value="build">Build</TabsTrigger>
 								{agents.map((agent) => (
 									<TabsTrigger value={agent.id} key={agent.id}>
-										coder_agent.{agent.name}
+										ni_agent.{agent.name}
 									</TabsTrigger>
 								))}
 							</TabsList>

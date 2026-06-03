@@ -4,7 +4,7 @@ Scheduling helps minimize cloud costs without sacrificing the availability of
 your workspaces.
 
 You can configure each workspace to automatically start in the morning, and
-automatically stop once you log off. Coder also features an inactivity timeout,
+automatically stop once you log off. Neural Inverse Cloud also features an inactivity timeout,
 configured by your template admin, which will stop a workspace when a user's
 absence is detected.
 
@@ -52,14 +52,14 @@ for your workspace.
 
 ### What counts as workspace activity?
 
-A workspace is considered "active" when Coder detects one or more active sessions with your workspace. Coder specifically tracks these session types:
+A workspace is considered "active" when Neural Inverse Cloud detects one or more active sessions with your workspace. Neural Inverse Cloud specifically tracks these session types:
 
 - **VSCode sessions**: Using code-server or VS Code with a remote extension
 - **JetBrains IDE sessions**: Using JetBrains Gateway or remote IDE plugins
 - **Terminal sessions**: Using the web terminal (including reconnecting to the web terminal)
 - **SSH sessions**: Connecting via `coder ssh` or SSH config integration
 - **AI agent task status**: When a coding agent reports "working" status via
-  [Coder Tasks](../ai-coder/tasks.md), the workspace deadline is extended
+  [Neural Inverse Cloud Tasks](../ai-coder/tasks.md), the workspace deadline is extended
 
 Activity is only detected when there is at least one active session. An open session will keep your workspace marked as active and prevent automatic shutdown.
 
@@ -78,7 +78,7 @@ To avoid unexpected cloud costs, close your connections, this includes IDE windo
 
 > [!NOTE]
 > Autostop requirement is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Licensed template admins may enforce a required stop for workspaces to apply
 updates or undergo maintenance. These stops ignore any active connections or
@@ -94,7 +94,7 @@ Autostop Requirement.
 
 > [!NOTE]
 > User quiet hours are a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 User quiet hours can be configured in the user's schedule settings page.
 Workspaces on templates with an autostop requirement will only be forcibly
@@ -137,7 +137,7 @@ hours of inactivity.
 
 > [!NOTE]
 > Dormancy is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Dormancy automatically deletes workspaces that remain unused for long
 durations. Template admins configure a dormancy threshold that determines how long

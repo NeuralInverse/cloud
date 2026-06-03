@@ -10,7 +10,7 @@ I checked the auth flow and found two issues:
 1. Missing provider fallback for unknown IDs.
 2. Error text was not surfaced in the UI.
 
-See [external auth docs](https://coder.com/docs) for expected behavior.
+See [external auth docs](https://cloud.neuralinverse.com/docs) for expected behavior.
 
 Inline command example: \`git fetch origin\`.
 

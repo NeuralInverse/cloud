@@ -1,7 +1,7 @@
 package proto
 
 import (
-	"github.com/coder/coder/v2/apiversion"
+	"github.com/NeuralInverse/cloud/v2/apiversion"
 )
 
 // Version history:
@@ -11,47 +11,47 @@ import (
 //     JSON over websocket coordination and DERP Map APIs for Tailnet
 //
 // API v2.0:
-//   - Shipped in Coder v2.8.0
+//   - Shipped in Neural Inverse Cloud v2.8.0
 //   - first dRPC over yamux over websocket APIs for tailnet and agent
 //
 // API v2.1:
-//   - Shipped in Coder v2.12.0
+//   - Shipped in Neural Inverse Cloud v2.12.0
 //   - Added support for multiple banners via the GetAnnouncementBanners RPC on
 //     the Agent API.
 //   - No changes to the Tailnet API.
 //
 // API v2.2:
-//   - Shipped in Coder v2.13.0
+//   - Shipped in Neural Inverse Cloud v2.13.0
 //   - Added support for network telemetry via the PostTelemetry RPC on the
 //     Tailnet API.
 //   - No changes to the Agent API.
 //
 // API v2.3:
-//   - Shipped in Coder v2.18.0
+//   - Shipped in Neural Inverse Cloud v2.18.0
 //   - Added support for client Resume Tokens on the Tailnet API via the
-//     RefreshResumeToken RPC. (This actually shipped in Coder v2.15.0, but we
+//     RefreshResumeToken RPC. (This actually shipped in Neural Inverse Cloud v2.15.0, but we
 //     forgot to increment the API version. If you dial for API v2.2, you MAY
 //     be connected to a server that supports RefreshResumeToken, but be
 //     prepared to process "unsupported" errors.)
 //   - Added support for WorkspaceUpdates RPC on the Tailnet API.
 //   - Added support for ScriptCompleted RPC on the Agent API. (This actually
-//     shipped in Coder v2.16.0, but we forgot to increment the API version. If
+//     shipped in Neural Inverse Cloud v2.16.0, but we forgot to increment the API version. If
 //     you dial for API v2.2, you MAY be connected to a server that supports
 //     ScriptCompleted, but be prepared to process "unsupported" errors.)
 //
 // API v2.4:
-//   - Shipped in Coder v2.20.0
+//   - Shipped in Neural Inverse Cloud v2.20.0
 //   - Added support for GetResourcesMonitoringConfiguration and
 //     PushResourcesMonitoringUsage RPCs on the Agent API.
 //   - Added support for reporting connection events for auditing via the
 //     ReportConnection RPC on the Agent API.
 //
 // API v2.5:
-//   - Shipped in Coder v2.23.0
+//   - Shipped in Neural Inverse Cloud v2.23.0
 //   - Added `ParentId` to the agent manifest.
 //
 // API v2.6:
-//   - Shipped in Coder v2.24.0
+//   - Shipped in Neural Inverse Cloud v2.24.0
 //   - Added support for CreateSubAgent RPC on the Agent API.
 //   - Added support for DeleteSubAgent RPC on the Agent API.
 //   - Added support for ListSubAgents RPC on the Agent API.
@@ -59,7 +59,7 @@ import (
 //
 // API v2.7:
 //   - Added support for ReportBoundaryLogs RPC on the Agent API for forwarding
-//     boundary audit logs to coderd.
+//     boundary audit logs to nicloud.
 //
 // API v2.8:
 //   - Added support for pre-created sub agents on the Agent API.

@@ -13,7 +13,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -30,7 +30,7 @@ func (r *RootCmd) dotfiles() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Check out and install a dotfiles repository without prompts",
-				Command:     "coder dotfiles --yes git@github.com:example/dotfiles.git",
+				Command:     "neuralinverse dotfiles --yes git@github.com:example/dotfiles.git",
 			},
 		),
 		Handler: func(inv *serpent.Invocation) error {
@@ -260,7 +260,7 @@ func (r *RootCmd) dotfiles() *serpent.Command {
 				}
 
 				// attempt to delete the file before creating a new symlink.  This overwrites any existing symlinks
-				// which are typically leftover from a previous call to coder dotfiles.  We do this best effort and
+				// which are typically leftover from a previous call to neuralinverse dotfiles.  We do this best effort and
 				// ignore errors because the symlink may or may not exist.  Any regular files are backed up above.
 				_ = os.Remove(to)
 				err = os.Symlink(from, to)
@@ -276,7 +276,7 @@ func (r *RootCmd) dotfiles() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "symlink-dir",
-			Env:         "CODER_SYMLINK_DIR",
+			Env:         "NEURALINVERSE_SYMLINK_DIR",
 			Description: "Specifies the directory for the dotfiles symlink destinations. If empty, will use $HOME.",
 			Value:       serpent.StringOf(&symlinkDir),
 		},
@@ -290,7 +290,7 @@ func (r *RootCmd) dotfiles() *serpent.Command {
 		{
 			Flag:        "repo-dir",
 			Default:     "dotfiles",
-			Env:         "CODER_DOTFILES_REPO_DIR",
+			Env:         "NEURALINVERSE_DOTFILES_REPO_DIR",
 			Description: "Specifies the directory for the dotfiles repository, relative to global config directory.",
 			Value:       serpent.StringOf(&dotfilesRepoDir),
 		},

@@ -1,6 +1,6 @@
 
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/provisionersdk/proto";
+option go_package = "github.com/NeuralInverse/cloud/v2/provisionersdk/proto";
 
 import "google/protobuf/timestamp.proto";
 
@@ -226,7 +226,7 @@ message Env {
   string name = 1;
   string value = 2;
   // merge_strategy controls how this env var is merged when multiple
-  // coder_env resources define the same name. Valid values: "replace"
+  // ni_env resources define the same name. Valid values: "replace"
   // (default), "append", "prepend", "error".
   string merge_strategy = 3;
 }
@@ -350,7 +350,7 @@ message AITask {
 
 // Metadata is information about a workspace used in the execution of a build
 message Metadata {
-  string coder_url = 1;
+  string ni_url = 1;
   WorkspaceTransition workspace_transition = 2;
   string workspace_name = 3;
   string workspace_owner = 4;
@@ -434,7 +434,7 @@ message PlanRequest {
   bytes state = 6;
 
   // Reserved 7 for `user_secrets` introduced in v1.17 (#24542) and removed
-  // in v1.18 along with the rest of the `coder_secret` Terraform integration.
+  // in v1.18 along with the rest of the `ni_secret` Terraform integration.
   reserved 7;
 }
 
@@ -479,7 +479,7 @@ message GraphComplete {
   repeated RichParameter parameters = 4;
   repeated ExternalAuthProviderResource external_auth_providers = 5;
   repeated Preset presets = 6;
-  // Whether actual `coder_ai_task` resource instances exist.
+  // Whether actual `ni_ai_task` resource instances exist.
   // Resources defined with count = 0 do not set this flag.
   bool has_ai_tasks = 7;
   repeated provisioner.AITask ai_tasks = 8;

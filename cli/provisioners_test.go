@@ -14,15 +14,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 func TestProvisioners_Golden(t *testing.T) {
@@ -30,9 +30,9 @@ func TestProvisioners_Golden(t *testing.T) {
 
 	// Replace UUIDs with predictable values for golden files.
 	replace := make(map[string]string)
-	updateReplaceUUIDs := func(coderdAPI *coderd.API) {
+	updateReplaceUUIDs := func(nicloudAPI *nicloud.API) {
 		systemCtx := dbauthz.AsSystemRestricted(context.Background())
-		provisioners, err := coderdAPI.Database.GetProvisionerDaemons(systemCtx)
+		provisioners, err := nicloudAPI.Database.GetProvisionerDaemons(systemCtx)
 		require.NoError(t, err)
 		slices.SortFunc(provisioners, func(a, b database.ProvisionerDaemon) int {
 			return cmp.Or(
@@ -47,7 +47,7 @@ func TestProvisioners_Golden(t *testing.T) {
 				pIdx++
 			}
 		}
-		jobs, err := coderdAPI.Database.GetProvisionerJobsCreatedAfter(systemCtx, time.Time{})
+		jobs, err := nicloudAPI.Database.GetProvisionerJobsCreatedAfter(systemCtx, time.Time{})
 		require.NoError(t, err)
 		slices.SortFunc(jobs, func(a, b database.ProvisionerJob) int {
 			return cmp.Or(
@@ -69,27 +69,27 @@ func TestProvisioners_Golden(t *testing.T) {
 		//nolint:gocritic // Use UTC for consistent timestamp length in golden files.
 		dbtestutil.WithTimezone("UTC"),
 	)
-	client, _, coderdAPI := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, _, nicloudAPI := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: false,
 		Database:                 db,
 		Pubsub:                   ps,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	templateAdminClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgTemplateAdmin(owner.OrganizationID))
-	_, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	owner := nicloudtest.CreateFirstUser(t, client)
+	templateAdminClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgTemplateAdmin(owner.OrganizationID))
+	_, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 	// Create initial resources with a running provisioner.
-	firstProvisioner := coderdtest.NewTaggedProvisionerDaemon(t, coderdAPI, "default-provisioner", map[string]string{"owner": "", "scope": "organization"})
+	firstProvisioner := nicloudtest.NewTaggedProvisionerDaemon(t, nicloudAPI, "default-provisioner", map[string]string{"owner": "", "scope": "organization"})
 	t.Cleanup(func() { _ = firstProvisioner.Close() })
-	version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
-	version = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	require.Equal(t, codersdk.ProvisionerJobSucceeded, version.Job.Status,
+	version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, completeWithAgent())
+	version = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	require.Equal(t, nicloudsdk.ProvisionerJobSucceeded, version.Job.Status,
 		"template version import should succeed, got error: %s", version.Job.Error)
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	wb := coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
-	require.Equal(t, codersdk.ProvisionerJobSucceeded, wb.Job.Status,
+	workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+	wb := nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	require.Equal(t, nicloudsdk.ProvisionerJobSucceeded, wb.Job.Status,
 		"workspace build job should succeed, got error: %s", wb.Job.Error)
 
 	// Stop the provisioner so it doesn't grab any more jobs.
@@ -103,7 +103,7 @@ func TestProvisioners_Golden(t *testing.T) {
 	// wall clock. Using dbtime.Now() here is racy because NTP clock
 	// steps can make it return a time before the real jobs' CreatedAt.
 	systemCtx := dbauthz.AsSystemRestricted(context.Background())
-	existingJobs, err := coderdAPI.Database.GetProvisionerJobsCreatedAfter(systemCtx, time.Time{})
+	existingJobs, err := nicloudAPI.Database.GetProvisionerJobsCreatedAfter(systemCtx, time.Time{})
 	require.NoError(t, err)
 	require.NotEmpty(t, existingJobs, "expected at least one provisioner job")
 	latestJob := slices.MaxFunc(existingJobs, func(a, b database.ProvisionerJob) int {
@@ -112,27 +112,27 @@ func TestProvisioners_Golden(t *testing.T) {
 	now := latestJob.CreatedAt.Add(time.Second)
 
 	// Create a provisioner that's working on a job.
-	pd1 := dbgen.ProvisionerDaemon(t, coderdAPI.Database, database.ProvisionerDaemon{
+	pd1 := dbgen.ProvisionerDaemon(t, nicloudAPI.Database, database.ProvisionerDaemon{
 		Name:       "provisioner-1",
 		CreatedAt:  now.Add(time.Second),
-		LastSeenAt: sql.NullTime{Time: coderdAPI.Clock.Now().Add(time.Hour), Valid: true}, // Stale interval can't be adjusted, keep online.
-		KeyID:      codersdk.ProvisionerKeyUUIDBuiltIn,
+		LastSeenAt: sql.NullTime{Time: nicloudAPI.Clock.Now().Add(time.Hour), Valid: true}, // Stale interval can't be adjusted, keep online.
+		KeyID:      nicloudsdk.ProvisionerKeyUUIDBuiltIn,
 		Tags:       database.StringMap{"owner": "", "scope": "organization", "foo": "bar"},
 	})
-	w1 := dbgen.Workspace(t, coderdAPI.Database, database.WorkspaceTable{
+	w1 := dbgen.Workspace(t, nicloudAPI.Database, database.WorkspaceTable{
 		OwnerID:    member.ID,
 		TemplateID: template.ID,
 		CreatedAt:  now.Add(time.Second),
 	})
 	wb1ID := uuid.MustParse("00000000-0000-0000-dddd-000000000001")
-	job1 := dbgen.ProvisionerJob(t, db, coderdAPI.Pubsub, database.ProvisionerJob{
+	job1 := dbgen.ProvisionerJob(t, db, nicloudAPI.Pubsub, database.ProvisionerJob{
 		WorkerID:  uuid.NullUUID{UUID: pd1.ID, Valid: true},
 		Input:     json.RawMessage(`{"workspace_build_id":"` + wb1ID.String() + `"}`),
 		CreatedAt: now.Add(time.Second),
-		StartedAt: sql.NullTime{Time: coderdAPI.Clock.Now(), Valid: true},
+		StartedAt: sql.NullTime{Time: nicloudAPI.Clock.Now(), Valid: true},
 		Tags:      database.StringMap{"owner": "", "scope": "organization", "foo": "bar"},
 	})
-	dbgen.WorkspaceBuild(t, coderdAPI.Database, database.WorkspaceBuild{
+	dbgen.WorkspaceBuild(t, nicloudAPI.Database, database.WorkspaceBuild{
 		ID:                wb1ID,
 		JobID:             job1.ID,
 		WorkspaceID:       w1.ID,
@@ -141,28 +141,28 @@ func TestProvisioners_Golden(t *testing.T) {
 	})
 
 	// Create a provisioner that completed a job previously and is offline.
-	pd2 := dbgen.ProvisionerDaemon(t, coderdAPI.Database, database.ProvisionerDaemon{
+	pd2 := dbgen.ProvisionerDaemon(t, nicloudAPI.Database, database.ProvisionerDaemon{
 		Name:       "provisioner-2",
 		CreatedAt:  now.Add(2 * time.Second),
-		LastSeenAt: sql.NullTime{Time: coderdAPI.Clock.Now().Add(-time.Hour), Valid: true},
-		KeyID:      codersdk.ProvisionerKeyUUIDBuiltIn,
+		LastSeenAt: sql.NullTime{Time: nicloudAPI.Clock.Now().Add(-time.Hour), Valid: true},
+		KeyID:      nicloudsdk.ProvisionerKeyUUIDBuiltIn,
 		Tags:       database.StringMap{"owner": "", "scope": "organization"},
 	})
-	w2 := dbgen.Workspace(t, coderdAPI.Database, database.WorkspaceTable{
+	w2 := dbgen.Workspace(t, nicloudAPI.Database, database.WorkspaceTable{
 		OwnerID:    member.ID,
 		TemplateID: template.ID,
 		CreatedAt:  now.Add(2 * time.Second),
 	})
 	wb2ID := uuid.MustParse("00000000-0000-0000-dddd-000000000002")
-	job2 := dbgen.ProvisionerJob(t, db, coderdAPI.Pubsub, database.ProvisionerJob{
+	job2 := dbgen.ProvisionerJob(t, db, nicloudAPI.Pubsub, database.ProvisionerJob{
 		WorkerID:    uuid.NullUUID{UUID: pd2.ID, Valid: true},
 		Input:       json.RawMessage(`{"workspace_build_id":"` + wb2ID.String() + `"}`),
 		CreatedAt:   now.Add(2 * time.Second),
-		StartedAt:   sql.NullTime{Time: coderdAPI.Clock.Now().Add(-2 * time.Hour), Valid: true},
-		CompletedAt: sql.NullTime{Time: coderdAPI.Clock.Now().Add(-time.Hour), Valid: true},
+		StartedAt:   sql.NullTime{Time: nicloudAPI.Clock.Now().Add(-2 * time.Hour), Valid: true},
+		CompletedAt: sql.NullTime{Time: nicloudAPI.Clock.Now().Add(-time.Hour), Valid: true},
 		Tags:        database.StringMap{"owner": "", "scope": "organization"},
 	})
-	dbgen.WorkspaceBuild(t, coderdAPI.Database, database.WorkspaceBuild{
+	dbgen.WorkspaceBuild(t, nicloudAPI.Database, database.WorkspaceBuild{
 		ID:                wb2ID,
 		JobID:             job2.ID,
 		WorkspaceID:       w2.ID,
@@ -171,18 +171,18 @@ func TestProvisioners_Golden(t *testing.T) {
 	})
 
 	// Create a pending job.
-	w3 := dbgen.Workspace(t, coderdAPI.Database, database.WorkspaceTable{
+	w3 := dbgen.Workspace(t, nicloudAPI.Database, database.WorkspaceTable{
 		OwnerID:    member.ID,
 		TemplateID: template.ID,
 		CreatedAt:  now.Add(3 * time.Second),
 	})
 	wb3ID := uuid.MustParse("00000000-0000-0000-dddd-000000000003")
-	job3 := dbgen.ProvisionerJob(t, db, coderdAPI.Pubsub, database.ProvisionerJob{
+	job3 := dbgen.ProvisionerJob(t, db, nicloudAPI.Pubsub, database.ProvisionerJob{
 		Input:     json.RawMessage(`{"workspace_build_id":"` + wb3ID.String() + `"}`),
 		CreatedAt: now.Add(3 * time.Second),
 		Tags:      database.StringMap{"owner": "", "scope": "organization"},
 	})
-	dbgen.WorkspaceBuild(t, coderdAPI.Database, database.WorkspaceBuild{
+	dbgen.WorkspaceBuild(t, nicloudAPI.Database, database.WorkspaceBuild{
 		ID:                wb3ID,
 		JobID:             job3.ID,
 		WorkspaceID:       w3.ID,
@@ -191,15 +191,15 @@ func TestProvisioners_Golden(t *testing.T) {
 	})
 
 	// Create a provisioner that is idle.
-	_ = dbgen.ProvisionerDaemon(t, coderdAPI.Database, database.ProvisionerDaemon{
+	_ = dbgen.ProvisionerDaemon(t, nicloudAPI.Database, database.ProvisionerDaemon{
 		Name:       "provisioner-3",
 		CreatedAt:  now.Add(4 * time.Second),
-		LastSeenAt: sql.NullTime{Time: coderdAPI.Clock.Now().Add(time.Hour), Valid: true}, // Stale interval can't be adjusted, keep online.
-		KeyID:      codersdk.ProvisionerKeyUUIDBuiltIn,
+		LastSeenAt: sql.NullTime{Time: nicloudAPI.Clock.Now().Add(time.Hour), Valid: true}, // Stale interval can't be adjusted, keep online.
+		KeyID:      nicloudsdk.ProvisionerKeyUUIDBuiltIn,
 		Tags:       database.StringMap{"owner": "", "scope": "organization"},
 	})
 
-	updateReplaceUUIDs(coderdAPI)
+	updateReplaceUUIDs(nicloudAPI)
 
 	for id, replaceID := range replace {
 		t.Logf("replace[%q] = %q", id, replaceID)

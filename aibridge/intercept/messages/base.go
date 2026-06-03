@@ -24,15 +24,15 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	aibconfig "github.com/coder/coder/v2/aibridge/config"
-	aibcontext "github.com/coder/coder/v2/aibridge/context"
-	"github.com/coder/coder/v2/aibridge/intercept"
-	"github.com/coder/coder/v2/aibridge/intercept/apidump"
-	"github.com/coder/coder/v2/aibridge/keypool"
-	"github.com/coder/coder/v2/aibridge/mcp"
-	"github.com/coder/coder/v2/aibridge/recorder"
-	"github.com/coder/coder/v2/aibridge/tracing"
-	"github.com/coder/coder/v2/aibridge/utils"
+	aibconfig "github.com/NeuralInverse/cloud/v2/aibridge/config"
+	aibcontext "github.com/NeuralInverse/cloud/v2/aibridge/context"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept/apidump"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/mcp"
+	"github.com/NeuralInverse/cloud/v2/aibridge/recorder"
+	"github.com/NeuralInverse/cloud/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 	"github.com/coder/quartz"
 )
 
@@ -105,7 +105,7 @@ func (i *interceptionBase) CorrelatingToolCallID() *string {
 
 func (i *interceptionBase) Model() string {
 	if len(i.reqPayload) == 0 {
-		return "coder-aibridge-unknown"
+		return "neuralinverse-aibridge-unknown"
 	}
 
 	if i.bedrockCfg != nil {

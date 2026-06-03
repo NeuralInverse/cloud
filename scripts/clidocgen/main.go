@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/coder/coder/v2/enterprise/cli"
-	"github.com/coder/coder/v2/scripts/atomicwrite"
+	"github.com/NeuralInverse/cloud/v2/enterprise/cli"
+	"github.com/NeuralInverse/cloud/v2/scripts/atomicwrite"
 	"github.com/coder/flog"
 	"github.com/coder/serpent"
 )
@@ -30,9 +30,9 @@ type manifest struct {
 }
 
 func prepareEnv() {
-	// Unset CODER_ environment variables
+	// Unset NEURALINVERSE_ environment variables
 	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, "CODER_") {
+		if strings.HasPrefix(env, "NEURALINVERSE_") {
 			split := strings.SplitN(env, "=", 2)
 			if err := os.Unsetenv(split[0]); err != nil {
 				panic(err)
@@ -45,7 +45,7 @@ func prepareEnv() {
 	if err != nil {
 		panic(err)
 	}
-	err = os.Setenv("CLIDOCGEN_CONFIG_DIRECTORY", "~/.config/coderv2")
+	err = os.Setenv("CLIDOCGEN_CONFIG_DIRECTORY", "~/.config/niv2")
 	if err != nil {
 		panic(err)
 	}

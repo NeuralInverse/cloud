@@ -23,7 +23,7 @@ import (
 	"golang.org/x/sync/singleflight"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/cachecompress"
+	"github.com/NeuralInverse/cloud/v2/nicloud/cachecompress"
 )
 
 const CompressionLevel = 5
@@ -145,11 +145,11 @@ func newBinHandler(options *Options) (*binHandler, error) {
 	return h, nil
 }
 
-// ExtractOrReadBinFS checks the provided fs for compressed coder binaries and
+// ExtractOrReadBinFS checks the provided fs for compressed neuralinverse binaries and
 // extracts them into dest/bin if found. As a fallback, the provided FS is
 // checked for a /bin directory, if it is non-empty it is returned. Finally
 // dest/bin is returned as a fallback allowing binaries to be manually placed in
-// dest (usually ${CODER_CACHE_DIRECTORY}/site/orig/bin).
+// dest (usually ${NEURALINVERSE_CACHE_DIRECTORY}/site/orig/bin).
 //
 // Returns a http.FileSystem that serves unpacked binaries, and a map of binary
 // name to SHA1 hash. The returned hash map may be incomplete or contain hashes
@@ -173,7 +173,7 @@ func ExtractOrReadBinFS(dest string, siteFS fs.FS) (http.FileSystem, map[string]
 		return http.Dir(dest), nil
 	}
 
-	archive, err := siteFS.Open("bin/coder.tar.zst")
+	archive, err := siteFS.Open("bin/neuralinverse.tar.zst")
 	if err != nil {
 		if xerrors.Is(err, fs.ErrNotExist) {
 			files, err := fs.ReadDir(siteFS, "bin")
@@ -207,7 +207,7 @@ func ExtractOrReadBinFS(dest string, siteFS fs.FS) (http.FileSystem, map[string]
 			}
 			return binFS, map[string]string{}, nil
 		}
-		return nil, nil, xerrors.Errorf("open coder binary archive failed: %w", err)
+		return nil, nil, xerrors.Errorf("open neuralinverse binary archive failed: %w", err)
 	}
 	defer archive.Close()
 
@@ -223,15 +223,15 @@ func ExtractOrReadBinFS(dest string, siteFS fs.FS) (http.FileSystem, map[string]
 
 	ok, err := verifyBinSha1IsCurrent(dest, siteFS, shaFiles)
 	if err != nil {
-		return nil, nil, xerrors.Errorf("verify coder binaries sha1 failed: %w", err)
+		return nil, nil, xerrors.Errorf("verify neuralinverse binaries sha1 failed: %w", err)
 	}
 	if !ok {
 		n, err := extractBin(dest, archive)
 		if err != nil {
-			return nil, nil, xerrors.Errorf("extract coder binaries failed: %w", err)
+			return nil, nil, xerrors.Errorf("extract neuralinverse binaries failed: %w", err)
 		}
 		if n == 0 {
-			return nil, nil, xerrors.New("no files were extracted from coder binaries archive")
+			return nil, nil, xerrors.New("no files were extracted from neuralinverse binaries archive")
 		}
 	}
 
@@ -403,16 +403,16 @@ func filterFiles(files []fs.DirEntry, names ...string) []fs.DirEntry {
 }
 
 func verifyBinSha1IsCurrent(dest string, siteFS fs.FS, shaFiles map[string]string) (ok bool, err error) {
-	b1, err := fs.ReadFile(siteFS, "bin/coder.sha1")
+	b1, err := fs.ReadFile(siteFS, "bin/neuralinverse.sha1")
 	if err != nil {
-		return false, xerrors.Errorf("read coder sha1 from embedded fs failed: %w", err)
+		return false, xerrors.Errorf("read neuralinverse sha1 from embedded fs failed: %w", err)
 	}
-	b2, err := os.ReadFile(filepath.Join(dest, "coder.sha1"))
+	b2, err := os.ReadFile(filepath.Join(dest, "neuralinverse.sha1"))
 	if err != nil {
 		if xerrors.Is(err, fs.ErrNotExist) {
 			return false, nil
 		}
-		return false, xerrors.Errorf("read coder sha1 failed: %w", err)
+		return false, xerrors.Errorf("read neuralinverse sha1 failed: %w", err)
 	}
 
 	// Check shasum files for equality for early-exit.
@@ -477,9 +477,9 @@ func sha1HashFile(name string) (string, error) {
 }
 
 func parseSHA1(siteFS fs.FS) (map[string]string, error) {
-	b, err := fs.ReadFile(siteFS, "bin/coder.sha1")
+	b, err := fs.ReadFile(siteFS, "bin/neuralinverse.sha1")
 	if err != nil {
-		return nil, xerrors.Errorf("read coder sha1 from embedded fs failed: %w", err)
+		return nil, xerrors.Errorf("read neuralinverse sha1 from embedded fs failed: %w", err)
 	}
 
 	shaFiles := make(map[string]string)

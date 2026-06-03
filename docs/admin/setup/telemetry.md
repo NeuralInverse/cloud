@@ -1,16 +1,16 @@
 # Telemetry
 
 > [!NOTE]
-> TL;DR: disable telemetry by setting <code>CODER_TELEMETRY_ENABLE=false</code>.
+> TL;DR: disable telemetry by setting <code>NEURALINVERSE_TELEMETRY_ENABLE=false</code>.
 
-Coder collects telemetry from all installations by default. We believe our users
+Neural Inverse Cloud collects telemetry from all installations by default. We believe our users
 should have the right to know what we collect, why we collect it, and how we use
 the data.
 
 ## What we collect
 
 You can find a full list of the data we collect in our source code
-[here](https://github.com/coder/coder/blob/main/coderd/telemetry/telemetry.go).
+[here](https://github.com/NeuralInverse/cloud/blob/main/nicloud/telemetry/telemetry.go).
 In particular, look at the struct types such as `Template` or `Workspace`.
 
 As a rule, we **do not collect** the following types of information:
@@ -34,11 +34,11 @@ build self-hosted, open-source software.
 
 ## Security
 
-In the event we discover a critical security issue with Coder, we will use
+In the event we discover a critical security issue with Neural Inverse Cloud, we will use
 telemetry to identify affected installations and notify their administrators.
 
 ## Toggling
 
 You can turn telemetry on or off using either the
-`CODER_TELEMETRY_ENABLE=[true|false]` environment variable or the
+`NEURALINVERSE_TELEMETRY_ENABLE=[true|false]` environment variable or the
 `--telemetry=[true|false]` command-line flag.

@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentcontainers/watcher"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/watcher"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestFSNotifyWatcher(t *testing.T) {

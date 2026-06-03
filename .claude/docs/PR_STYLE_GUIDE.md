@@ -14,7 +14,7 @@ Examples:
 
 - `feat: add tracing to aibridge`
 - `fix: move contexts to appropriate locations`
-- `perf(coderd/database): add index on workspace_app_statuses.app_id`
+- `perf(nicloud/database): add index on workspace_app_statuses.app_id`
 - `docs: fix swagger tags for license endpoints`
 - `refactor(site): remove redundant client-side sorting of app statuses`
 

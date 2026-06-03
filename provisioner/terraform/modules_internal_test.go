@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 
-	archivefs "github.com/coder/coder/v2/archive/fs"
+	archivefs "github.com/NeuralInverse/cloud/v2/archive/fs"
 )
 
 // The .tar archive is different on Windows because of git converting LF line

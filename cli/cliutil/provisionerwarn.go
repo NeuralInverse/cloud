@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 var (
@@ -27,12 +27,12 @@ Details:
 // WarnMatchedProvisioners warns the user if there are no provisioners that
 // match the requested tags for a given provisioner job.
 // If the job is not pending, it is ignored.
-func WarnMatchedProvisioners(w io.Writer, mp *codersdk.MatchedProvisioners, job codersdk.ProvisionerJob) {
+func WarnMatchedProvisioners(w io.Writer, mp *nicloudsdk.MatchedProvisioners, job nicloudsdk.ProvisionerJob) {
 	if mp == nil {
 		// Nothing in the response, nothing to do here!
 		return
 	}
-	if job.Status != codersdk.ProvisionerJobPending {
+	if job.Status != nicloudsdk.ProvisionerJobPending {
 		// Only warn if the job is pending.
 		return
 	}

@@ -11,10 +11,10 @@ import (
 	"storj.io/drpc/drpcserver"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentsocket/proto"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/agent/unit"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentsocket/proto"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/unit"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
 )
 
 // Server provides access to the DRPCAgentSocketService via a Unix domain socket.
@@ -122,7 +122,7 @@ func (s *Server) Close() error {
 }
 
 // SetAgentAPI sets the agent API client used to forward requests
-// to coderd.
+// to nicloud.
 func (s *Server) SetAgentAPI(api agentproto.DRPCAgentClient28) {
 	s.service.SetAgentAPI(api)
 }

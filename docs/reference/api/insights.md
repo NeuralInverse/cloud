@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/insights/daus?tz_offset=0 \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/insights/daus`
@@ -39,7 +39,7 @@ curl -X GET http://coder-server:8080/api/v2/insights/daus?tz_offset=0 \
 
 | Status | Meaning                                                 | Description | Schema                                                   |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.DAUsResponse](schemas.md#codersdkdausresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.DAUsResponse](schemas.md#nicloudsdkdausresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -51,7 +51,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/insights/templates?start_time=2019-08-24T14%3A15%3A22Z&end_time=2019-08-24T14%3A15%3A22Z&interval=week \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/insights/templates`
@@ -141,7 +141,7 @@ curl -X GET http://coder-server:8080/api/v2/insights/templates?start_time=2019-0
 
 | Status | Meaning                                                 | Description | Schema                                                                           |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.TemplateInsightsResponse](schemas.md#codersdktemplateinsightsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.TemplateInsightsResponse](schemas.md#nicloudsdktemplateinsightsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -153,7 +153,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/insights/user-activity?start_time=2019-08-24T14%3A15%3A22Z&end_time=2019-08-24T14%3A15%3A22Z \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/insights/user-activity`
@@ -197,7 +197,7 @@ curl -X GET http://coder-server:8080/api/v2/insights/user-activity?start_time=20
 
 | Status | Meaning                                                 | Description | Schema                                                                                   |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.UserActivityInsightsResponse](schemas.md#codersdkuseractivityinsightsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.UserActivityInsightsResponse](schemas.md#nicloudsdkuseractivityinsightsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -209,7 +209,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/insights/user-latency?start_time=2019-08-24T14%3A15%3A22Z&end_time=2019-08-24T14%3A15%3A22Z \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/insights/user-latency`
@@ -256,7 +256,7 @@ curl -X GET http://coder-server:8080/api/v2/insights/user-latency?start_time=201
 
 | Status | Meaning                                                 | Description | Schema                                                                                 |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.UserLatencyInsightsResponse](schemas.md#codersdkuserlatencyinsightsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.UserLatencyInsightsResponse](schemas.md#nicloudsdkuserlatencyinsightsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -268,7 +268,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/insights/user-status-counts \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/insights/user-status-counts`
@@ -307,6 +307,6 @@ curl -X GET http://coder-server:8080/api/v2/insights/user-status-counts \
 
 | Status | Meaning                                                 | Description | Schema                                                                                 |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.GetUserStatusCountsResponse](schemas.md#codersdkgetuserstatuscountsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.GetUserStatusCountsResponse](schemas.md#nicloudsdkgetuserstatuscountsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

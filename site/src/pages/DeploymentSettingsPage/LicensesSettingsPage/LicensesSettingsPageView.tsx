@@ -141,8 +141,8 @@ const LicensesSettingsPageView: FC<Props> = ({
 								<span className="text-content-secondary text-center max-w-[464px] mt-2">
 									You&apos;re missing out on high availability, RBAC, quotas,
 									and much more. Contact{" "}
-									<MuiLink href="mailto:sales@coder.com">sales</MuiLink> or{" "}
-									<MuiLink href="https://coder.com/trial">
+									<MuiLink href="mailto:sales@cloud.neuralinverse.com">sales</MuiLink> or{" "}
+									<MuiLink href="https://cloud.neuralinverse.com/trial">
 										request a trial license
 									</MuiLink>{" "}
 									to get started.

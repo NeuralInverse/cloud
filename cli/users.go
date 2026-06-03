@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -20,8 +20,8 @@ func (r *RootCmd) users() *serpent.Command {
 			r.userDelete(),
 			r.userEditRoles(),
 			r.userOIDCClaims(),
-			r.createUserStatusCommand(codersdk.UserStatusActive),
-			r.createUserStatusCommand(codersdk.UserStatusSuspended),
+			r.createUserStatusCommand(nicloudsdk.UserStatusActive),
+			r.createUserStatusCommand(nicloudsdk.UserStatusSuspended),
 		},
 	}
 	return cmd

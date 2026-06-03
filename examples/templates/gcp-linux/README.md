@@ -13,9 +13,9 @@ tags: [vm, linux, gcp]
 
 ### Authentication
 
-This template assumes that coderd is run in an environment that is authenticated
+This template assumes that nicloud is run in an environment that is authenticated
 with Google Cloud. For example, run `gcloud auth application-default login` to
-import credentials on the system and user running coderd. For other ways to
+import credentials on the system and user running nicloud. For other ways to
 authenticate [consult the Terraform
 docs](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/getting_started#adding-credentials).
 
@@ -59,6 +59,6 @@ Coder persists the root volume. The full filesystem is preserved when the worksp
 
 ## code-server
 
-`code-server` is installed via the `startup_script` argument in the `coder_agent`
-resource block. The `coder_app` resource is defined to access `code-server` through
+`code-server` is installed via the `startup_script` argument in the `ni_agent`
+resource block. The `ni_app` resource is defined to access `code-server` through
 the dashboard UI over `localhost:13337`.

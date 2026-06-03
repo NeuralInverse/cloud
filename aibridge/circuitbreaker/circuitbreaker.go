@@ -12,8 +12,8 @@ import (
 	"github.com/sony/gobreaker/v2"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/metrics"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/metrics"
 )
 
 // ErrCircuitOpen is returned by Execute when the circuit breaker is open

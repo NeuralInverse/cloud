@@ -7,7 +7,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/scaletest/workspacetraffic"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacetraffic"
 )
 
 func TestConnMetrics_Concurrent(t *testing.T) {

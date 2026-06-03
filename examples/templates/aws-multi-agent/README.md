@@ -13,9 +13,9 @@ This template verifies the multi-agent instance-identity authentication flow on
 AWS. It provisions a single EC2 instance with two peer root workspace agents,
 `main` and `dev`, that both use AWS instance identity authentication.
 
-The key behavior under test is `CODER_AGENT_NAME` disambiguation. Each agent
+The key behavior under test is `NEURALINVERSE_AGENT_NAME` disambiguation. Each agent
 starts on the same VM with the same EC2 instance identity, but sets a distinct
-`CODER_AGENT_NAME` so the Coder server can issue a separate session token for
+`NEURALINVERSE_AGENT_NAME` so the Coder server can issue a separate session token for
 that specific agent.
 
 ## Prerequisites
@@ -33,7 +33,7 @@ that specific agent.
 - One security group that allows SSH from anywhere for test access.
 - One Ubuntu 24.04 EC2 instance.
 - Two Coder agents, `main` and `dev`, on that single EC2 instance.
-- Two agent startup flows that set `CODER_AGENT_NAME` before launching the
+- Two agent startup flows that set `NEURALINVERSE_AGENT_NAME` before launching the
   corresponding agent init script.
 
 ## How to verify
@@ -60,12 +60,12 @@ coder ssh test-multi-agent -a dev true
 - Both agents authenticate independently using AWS instance identity.
 - Each agent receives its own session token.
 - The workspace shows two connected agents in the Coder Dashboard.
-- If `CODER_AGENT_NAME` is omitted, the server should return `409 Conflict`
+- If `NEURALINVERSE_AGENT_NAME` is omitted, the server should return `409 Conflict`
   because the shared instance identity is ambiguous.
 
 ## Troubleshooting
 
-- If one agent gets `409 Conflict`, `CODER_AGENT_NAME` is not being set
+- If one agent gets `409 Conflict`, `NEURALINVERSE_AGENT_NAME` is not being set
   correctly for that agent.
 - If both agents fail, instance identity authentication is not working. Check
   EC2 metadata service access from the instance.

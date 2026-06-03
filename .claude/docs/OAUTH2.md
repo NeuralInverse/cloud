@@ -135,8 +135,8 @@ roles, err := db.GetAuthorizationUserRoles(dbauthz.AsSystemRestricted(ctx), user
 
 ## OAuth2/Authentication Work Patterns
 
-- Types go in `codersdk/oauth2.go` or similar
-- Handlers go in `coderd/oauth2.go` or `coderd/identityprovider/`
+- Types go in `nicloudsdk/oauth2.go` or similar
+- Handlers go in `nicloud/oauth2.go` or `nicloud/identityprovider/`
 - Database fields need migration + audit table updates
 - Always support backward compatibility
 

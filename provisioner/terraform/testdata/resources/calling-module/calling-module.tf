@@ -7,12 +7,12 @@ terraform {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os   = "linux"
   arch = "amd64"
 }
 
 module "module" {
   source = "./module"
-  script = coder_agent.main.init_script
+  script = ni_agent.main.init_script
 }

@@ -10,9 +10,9 @@ waitonexit() {
 trap waitonexit EXIT
 BINARY_DIR="${BINARY_DIR:-$(mktemp -d -t coder.XXXXXX)}"
 BINARY_NAME=coder
-BINARY_URL=${ACCESS_URL}bin/coder-linux-${ARCH}
+BINARY_URL=${ACCESS_URL}bin/neuralinverse-linux-${ARCH}
 cd "$BINARY_DIR"
-# Attempt to download the coder agent.
+# Attempt to download the neuralinverse agent.
 # This could fail for a number of reasons, many of which are likely transient.
 # So just keep trying!
 while :; do
@@ -32,7 +32,7 @@ while :; do
 		echo "error: no download tool found, please install curl, wget or busybox wget"
 		exit 127
 	fi
-	echo "error: failed to download coder agent"
+	echo "error: failed to download neuralinverse agent"
 	echo "       command returned: ${status}"
 	echo "Trying again in 30 seconds..."
 	sleep 30
@@ -84,8 +84,8 @@ if [ -n "${USE_CAP_NET_ADMIN:-}" ]; then
 	fi
 fi
 
-export CODER_AGENT_AUTH="${AUTH_TYPE}"
-export CODER_AGENT_URL="${ACCESS_URL}"
+export NEURALINVERSE_AGENT_AUTH="${AUTH_TYPE}"
+export NEURALINVERSE_AGENT_URL="${ACCESS_URL}"
 
 output=$(./${BINARY_NAME} --version | head -n1)
 if ! echo "${output}" | grep -q Coder; then

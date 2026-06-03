@@ -13,17 +13,17 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/pubsub"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/quartz"
 )
 
@@ -32,14 +32,14 @@ func TestDelete(t *testing.T) {
 	t.Run("WithParameter", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, member, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		inv, root := clitest.New(t, "delete", workspace.Name, "-y")
 		clitest.SetupConfig(t, member, root)
 		doneChan := make(chan struct{})
@@ -58,14 +58,14 @@ func TestDelete(t *testing.T) {
 
 	t.Run("Orphan", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
-		template := coderdtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, templateAdmin, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, templateAdmin, workspace.LatestBuild.ID)
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, templateAdmin, owner.OrganizationID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
+		template := nicloudtest.CreateTemplate(t, templateAdmin, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, templateAdmin, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, templateAdmin, workspace.LatestBuild.ID)
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 		inv, root := clitest.New(t, "delete", workspace.Name, "-y", "--orphan")
@@ -86,7 +86,7 @@ func TestDelete(t *testing.T) {
 
 		_, err := client.Workspace(ctx, workspace.ID)
 		require.Error(t, err)
-		cerr := coderdtest.SDKError(t, err)
+		cerr := nicloudtest.SDKError(t, err)
 		require.Equal(t, http.StatusGone, cerr.StatusCode())
 	})
 
@@ -97,14 +97,14 @@ func TestDelete(t *testing.T) {
 	// force a delete action on the workspace.
 	t.Run("OrphanDeletedUser", func(t *testing.T) {
 		t.Parallel()
-		client, _, api := coderdtest.NewWithAPI(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		deleteMeClient, deleteMeUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, deleteMeClient, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, deleteMeClient, workspace.LatestBuild.ID)
+		client, _, api := nicloudtest.NewWithAPI(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		deleteMeClient, deleteMeUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, deleteMeClient, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, deleteMeClient, workspace.LatestBuild.ID)
 
 		// The API checks if the user has any workspaces, so we cannot delete a user
 		// this way.
@@ -132,18 +132,18 @@ func TestDelete(t *testing.T) {
 
 	t.Run("DifferentUser", func(t *testing.T) {
 		t.Parallel()
-		adminClient := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		adminUser := coderdtest.CreateFirstUser(t, adminClient)
+		adminClient := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		adminUser := nicloudtest.CreateFirstUser(t, adminClient)
 		orgID := adminUser.OrganizationID
-		client, _ := coderdtest.CreateAnotherUser(t, adminClient, orgID)
-		user, err := client.User(context.Background(), codersdk.Me)
+		client, _ := nicloudtest.CreateAnotherUser(t, adminClient, orgID)
+		user, err := client.User(context.Background(), nicloudsdk.Me)
 		require.NoError(t, err)
 
-		version := coderdtest.CreateTemplateVersion(t, adminClient, orgID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
-		template := coderdtest.CreateTemplate(t, adminClient, orgID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		version := nicloudtest.CreateTemplateVersion(t, adminClient, orgID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, adminClient, version.ID)
+		template := nicloudtest.CreateTemplate(t, adminClient, orgID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		inv, root := clitest.New(t, "delete", user.Username+"/"+workspace.Name, "-y")
@@ -169,7 +169,7 @@ func TestDelete(t *testing.T) {
 
 	t.Run("InvalidWorkspaceIdentifier", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		inv, root := clitest.New(t, "delete", "a/b/c", "-y")
 		clitest.SetupConfig(t, client, root)
 		doneChan := make(chan struct{})
@@ -185,20 +185,20 @@ func TestDelete(t *testing.T) {
 		t.Parallel()
 
 		store, ps, db := dbtestutil.NewDBWithSQLDB(t)
-		client, closeDaemon := coderdtest.NewWithProvisionerCloser(t, &coderdtest.Options{
+		client, closeDaemon := nicloudtest.NewWithProvisionerCloser(t, &nicloudtest.Options{
 			Database:                 store,
 			Pubsub:                   ps,
 			IncludeProvisionerDaemon: true,
 		})
 
 		// Given: a user, template, and workspace
-		user := coderdtest.CreateFirstUser(t, client)
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
-		version := coderdtest.CreateTemplateVersion(t, templateAdmin, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
-		template := coderdtest.CreateTemplate(t, templateAdmin, user.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, templateAdmin, template.ID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, templateAdmin, workspace.LatestBuild.ID)
+		user := nicloudtest.CreateFirstUser(t, client)
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, user.OrganizationID, rbac.RoleTemplateAdmin())
+		version := nicloudtest.CreateTemplateVersion(t, templateAdmin, user.OrganizationID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, templateAdmin, version.ID)
+		template := nicloudtest.CreateTemplate(t, templateAdmin, user.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, templateAdmin, template.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, templateAdmin, workspace.LatestBuild.ID)
 
 		// When: all provisioner daemons disappear
 		require.NoError(t, closeDaemon.Close())
@@ -226,39 +226,39 @@ func TestDelete(t *testing.T) {
 
 		// Setup
 		db, pb := dbtestutil.NewDB(t, dbtestutil.WithDumpOnFailure())
-		client, _ := coderdtest.NewWithProvisionerCloser(t, &coderdtest.Options{
+		client, _ := nicloudtest.NewWithProvisionerCloser(t, &nicloudtest.Options{
 			Database:                 db,
 			Pubsub:                   pb,
 			IncludeProvisionerDaemon: true,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
+		owner := nicloudtest.CreateFirstUser(t, client)
 		orgID := owner.OrganizationID
 
 		// Given a template version with a preset and a template
-		version := coderdtest.CreateTemplateVersion(t, client, orgID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, client, orgID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
 		preset := setupTestDBPreset(t, db, version.ID)
-		template := coderdtest.CreateTemplate(t, client, orgID, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, orgID, version.ID)
 
 		cases := []struct {
 			name                          string
-			client                        *codersdk.Client
+			client                        *nicloudsdk.Client
 			expectedPrebuiltDeleteErrMsg  string
 			expectedWorkspaceDeleteErrMsg string
 		}{
 			// Users with the OrgAdmin role should be able to delete both normal and prebuilt workspaces
 			{
 				name: "OrgAdmin",
-				client: func() *codersdk.Client {
-					client, _ := coderdtest.CreateAnotherUser(t, client, orgID, rbac.ScopedRoleOrgAdmin(orgID))
+				client: func() *nicloudsdk.Client {
+					client, _ := nicloudtest.CreateAnotherUser(t, client, orgID, rbac.ScopedRoleOrgAdmin(orgID))
 					return client
 				}(),
 			},
 			// Users with the TemplateAdmin role should be able to delete prebuilt workspaces, but not normal workspaces
 			{
 				name: "TemplateAdmin",
-				client: func() *codersdk.Client {
-					client, _ := coderdtest.CreateAnotherUser(t, client, orgID, rbac.RoleTemplateAdmin())
+				client: func() *nicloudsdk.Client {
+					client, _ := nicloudtest.CreateAnotherUser(t, client, orgID, rbac.RoleTemplateAdmin())
 					return client
 				}(),
 				expectedWorkspaceDeleteErrMsg: "unexpected status code 403: You do not have permission to delete this workspace.",
@@ -266,8 +266,8 @@ func TestDelete(t *testing.T) {
 			// Users with the OrgTemplateAdmin role should be able to delete prebuilt workspaces, but not normal workspaces
 			{
 				name: "OrgTemplateAdmin",
-				client: func() *codersdk.Client {
-					client, _ := coderdtest.CreateAnotherUser(t, client, orgID, rbac.ScopedRoleOrgTemplateAdmin(orgID))
+				client: func() *nicloudsdk.Client {
+					client, _ := nicloudtest.CreateAnotherUser(t, client, orgID, rbac.ScopedRoleOrgTemplateAdmin(orgID))
 					return client
 				}(),
 				expectedWorkspaceDeleteErrMsg: "unexpected status code 403: You do not have permission to delete this workspace.",
@@ -275,8 +275,8 @@ func TestDelete(t *testing.T) {
 			// Users with the Member role should not be able to delete prebuilt or normal workspaces
 			{
 				name: "Member",
-				client: func() *codersdk.Client {
-					client, _ := coderdtest.CreateAnotherUser(t, client, orgID, rbac.RoleMember())
+				client: func() *nicloudsdk.Client {
+					client, _ := nicloudtest.CreateAnotherUser(t, client, orgID, rbac.RoleMember())
 					return client
 				}(),
 				expectedPrebuiltDeleteErrMsg:  "unexpected status code 404: Resource not found or you do not have access to this resource",
@@ -300,7 +300,7 @@ func TestDelete(t *testing.T) {
 				dbUserWorkspace := setupTestDBWorkspace(t, clock, db, pb, orgID, userWorkspaceOwner.ID, template.ID, version.ID, preset.ID)
 
 				assertWorkspaceDelete := func(
-					runClient *codersdk.Client,
+					runClient *nicloudsdk.Client,
 					workspace database.Workspace,
 					workspaceOwner string,
 					expectedErr string,

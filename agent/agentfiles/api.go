@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/afero"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentgit"
+	"github.com/NeuralInverse/cloud/v2/agent/agentgit"
 )
 
 // API exposes file-related operations performed through the agent.

@@ -10,7 +10,7 @@ import (
 	"tailscale.com/derp"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/tailnet/derpmetrics"
+	"github.com/NeuralInverse/cloud/v2/tailnet/derpmetrics"
 )
 
 func TestDERPExpvarCollector(t *testing.T) {

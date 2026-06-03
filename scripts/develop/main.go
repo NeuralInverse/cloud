@@ -1,6 +1,6 @@
 //go:build !windows
 
-// Command develop orchestrates the Coder development environment. It
+// Command develop orchestrates the Neural Inverse Cloud development environment. It
 // builds the binary, starts the API server and frontend dev server,
 // sets up a first user, and handles graceful shutdown on signals.
 package main
@@ -33,10 +33,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -51,9 +51,9 @@ const (
 	// prometheusContainerName is the Docker container name for
 	// the embedded Prometheus server, used for reuse detection
 	// and explicit cleanup on shutdown.
-	prometheusContainerName = "coder-prometheus"
+	prometheusContainerName = "neuralinverse-prometheus"
 	// defaultPrometheusPort avoids 2112 (agent prometheus) and
-	// 2113 (agent debug) already bound inside Coder workspaces.
+	// 2113 (agent debug) already bound inside Neural Inverse Cloud workspaces.
 	defaultPrometheusPort = "2114"
 	// portOffsetBuckets keeps the offset below 1000 while leaving
 	// enough hash buckets for common multi-worktree use.
@@ -96,61 +96,61 @@ func main() {
 		Options: serpent.OptionSet{
 			{
 				Flag:        "port",
-				Env:         "CODER_DEV_PORT",
+				Env:         "NEURALINVERSE_DEV_PORT",
 				Default:     defaultAPIPort,
 				Description: "API server port.",
 				Value:       serpent.Int64Of(&cfg.apiPort),
 			},
 			{
 				Flag:        "web-port",
-				Env:         "CODER_DEV_WEB_PORT",
+				Env:         "NEURALINVERSE_DEV_WEB_PORT",
 				Default:     defaultWebPort,
 				Description: "Frontend dev server port.",
 				Value:       serpent.Int64Of(&cfg.webPort),
 			},
 			{
 				Flag:        "proxy-port",
-				Env:         "CODER_DEV_PROXY_PORT",
+				Env:         "NEURALINVERSE_DEV_PROXY_PORT",
 				Default:     defaultProxyPort,
 				Description: "Workspace proxy port.",
 				Value:       serpent.Int64Of(&cfg.proxyPort),
 			},
 			{
 				Flag:        "prometheus-port",
-				Env:         "CODER_DEV_PROMETHEUS_PORT",
+				Env:         "NEURALINVERSE_DEV_PROMETHEUS_PORT",
 				Default:     defaultPrometheusPort,
 				Description: "Prometheus metrics port. Set to 0 to disable.",
-				Value:       serpent.Int64Of(&cfg.coderMetricsPort),
+				Value:       serpent.Int64Of(&cfg.niMetricsPort),
 			},
 			{
 				Flag:        "port-offset",
-				Env:         "CODER_DEV_PORT_OFFSET",
+				Env:         "NEURALINVERSE_DEV_PORT_OFFSET",
 				Default:     "false",
 				Description: "Apply a deterministic per-worktree offset to default API, web, proxy, and Coder metrics ports. Useful when running multiple worktrees in parallel.",
 				Value:       serpent.BoolOf(&cfg.portOffsetEnabled),
 			},
 			{
 				Flag:        "prometheus-server",
-				Env:         "CODER_DEV_PROMETHEUS_SERVER",
+				Env:         "NEURALINVERSE_DEV_PROMETHEUS_SERVER",
 				Description: "Run a Prometheus server to scrape and visualize metrics. Requires Docker. Linux only.",
 				Value:       serpent.BoolOf(&cfg.prometheusServer),
 			},
 			{
 				Flag:        "agpl",
-				Env:         "CODER_BUILD_AGPL",
+				Env:         "NEURALINVERSE_BUILD_AGPL",
 				Description: "Build AGPL-licensed code only.",
 				Value:       serpent.BoolOf(&cfg.agpl),
 			},
 			{
 				Flag:        "access-url",
-				Env:         "CODER_DEV_ACCESS_URL",
+				Env:         "NEURALINVERSE_DEV_ACCESS_URL",
 				Default:     defaultAccessURL,
-				Description: "Override access URL. The %d placeholder will be replaced with the API port. Set to empty to enable devtunnel (pit-1.try.coder.app).",
+				Description: "Override access URL. The %d placeholder will be replaced with the API port. Set to empty to enable devtunnel (pit-1.try.neuralinverse.cloud).",
 				Value:       serpent.StringOf(&cfg.accessURL),
 			},
 			{
 				Flag:        "password",
-				Env:         "CODER_DEV_ADMIN_PASSWORD",
+				Env:         "NEURALINVERSE_DEV_ADMIN_PASSWORD",
 				Default:     defaultPassword,
 				Description: "Admin user password.",
 				Value:       serpent.StringOf(&cfg.password),
@@ -167,7 +167,7 @@ func main() {
 			},
 			{
 				Flag:        "skip-setup",
-				Env:         "CODER_DEV_SKIP_SETUP",
+				Env:         "NEURALINVERSE_DEV_SKIP_SETUP",
 				Description: "Don't attempt to create a first user or other resources. Will cause multi-organization, starter-template, and use-proxy to be ignored.",
 				Value:       serpent.BoolOf(&cfg.skipSetup),
 			},
@@ -178,32 +178,32 @@ func main() {
 			},
 			{
 				Flag:        "starter-template",
-				Env:         "CODER_DEV_STARTER_TEMPLATE",
+				Env:         "NEURALINVERSE_DEV_STARTER_TEMPLATE",
 				Default:     defaultStarterTemplate,
 				Description: "Starter template to create (empty to skip).",
 				Value:       serpent.StringOf(&cfg.starterTemplate),
 			},
 			{
 				Flag:        "db-rollback",
-				Env:         "CODER_DEV_DB_ROLLBACK",
+				Env:         "NEURALINVERSE_DEV_DB_ROLLBACK",
 				Description: "Roll back database migrations that no longer exist on the current branch.",
 				Value:       serpent.BoolOf(&cfg.dbRollback),
 			},
 			{
 				Flag:        "db-reset",
-				Env:         "CODER_DEV_DB_RESET",
+				Env:         "NEURALINVERSE_DEV_DB_RESET",
 				Description: "Destroy the development database and start fresh.",
 				Value:       serpent.BoolOf(&cfg.dbReset),
 			},
 			{
 				Flag:        "db-continue",
-				Env:         "CODER_DEV_DB_CONTINUE",
+				Env:         "NEURALINVERSE_DEV_DB_CONTINUE",
 				Description: "Accept changed migration files and update tracking. Use when you've manually fixed the DB to match the new migrations.",
 				Value:       serpent.BoolOf(&cfg.dbContinue),
 			},
 			{
 				Flag:        "env-file",
-				Env:         "CODER_DEV_ENV_FILE",
+				Env:         "NEURALINVERSE_DEV_ENV_FILE",
 				Description: "Path to a .env file to load before starting. Variables in the file do not override existing environment variables. Note: unquoted and double-quoted values undergo $VAR expansion against other entries in the same file (not the process environment); use single quotes for literal dollar signs.",
 				Value:       serpent.StringOf(&cfg.envFile),
 			},
@@ -234,7 +234,7 @@ type devConfig struct {
 	apiPort           int64
 	webPort           int64
 	proxyPort         int64
-	coderMetricsPort  int64
+	niMetricsPort  int64
 	portOffsetEnabled bool
 	prometheusServer  bool
 	agpl              bool
@@ -261,7 +261,7 @@ type devConfig struct {
 	webPortSource     portSource
 	proxyPortSource   portSource
 	metricsPortSource portSource
-	// Extra args after flags forwarded to "coder server".
+	// Extra args after flags forwarded to "neuralinverse server".
 	serverExtraArgs []string
 }
 
@@ -282,10 +282,10 @@ const (
 
 func portExplicitFromInvocation(inv *serpent.Invocation) portExplicit {
 	return portExplicit{
-		api:     isPortExplicit(inv, "port", "CODER_DEV_PORT"),
-		web:     isPortExplicit(inv, "web-port", "CODER_DEV_WEB_PORT"),
-		proxy:   isPortExplicit(inv, "proxy-port", "CODER_DEV_PROXY_PORT"),
-		metrics: isPortExplicit(inv, "prometheus-port", "CODER_DEV_PROMETHEUS_PORT"),
+		api:     isPortExplicit(inv, "port", "NEURALINVERSE_DEV_PORT"),
+		web:     isPortExplicit(inv, "web-port", "NEURALINVERSE_DEV_WEB_PORT"),
+		proxy:   isPortExplicit(inv, "proxy-port", "NEURALINVERSE_DEV_PROXY_PORT"),
+		metrics: isPortExplicit(inv, "prometheus-port", "NEURALINVERSE_DEV_PROMETHEUS_PORT"),
 	}
 }
 
@@ -339,7 +339,7 @@ func (c *devConfig) applyPortOffset() {
 	if c.portExplicit.metrics {
 		c.metricsPortSource = portSourceExplicit
 	} else {
-		c.metricsPortSource = c.applyDefaultPortOffset(&c.coderMetricsPort)
+		c.metricsPortSource = c.applyDefaultPortOffset(&c.niMetricsPort)
 	}
 }
 
@@ -376,7 +376,7 @@ func (c *devConfig) validate() error {
 			return xerrors.Errorf("%s must be between 1 and 65535", p.name)
 		}
 	}
-	if c.coderMetricsPort < 0 || c.coderMetricsPort > 65535 {
+	if c.niMetricsPort < 0 || c.niMetricsPort > 65535 {
 		return xerrors.Errorf("--prometheus-port must be 0 (disabled) or between 1 and 65535")
 	}
 	if c.apiPort == c.webPort {
@@ -388,18 +388,18 @@ func (c *devConfig) validate() error {
 	if c.useProxy && c.webPort == c.proxyPort {
 		return xerrors.Errorf("--web-port %d conflicts with --proxy-port", c.webPort)
 	}
-	if c.coderMetricsPort != 0 {
-		if c.coderMetricsPort == c.apiPort {
-			return xerrors.Errorf("--prometheus-port %d conflicts with API server", c.coderMetricsPort)
+	if c.niMetricsPort != 0 {
+		if c.niMetricsPort == c.apiPort {
+			return xerrors.Errorf("--prometheus-port %d conflicts with API server", c.niMetricsPort)
 		}
-		if c.coderMetricsPort == c.webPort {
-			return xerrors.Errorf("--prometheus-port %d conflicts with frontend dev server", c.coderMetricsPort)
+		if c.niMetricsPort == c.webPort {
+			return xerrors.Errorf("--prometheus-port %d conflicts with frontend dev server", c.niMetricsPort)
 		}
-		if c.useProxy && c.coderMetricsPort == c.proxyPort {
-			return xerrors.Errorf("--prometheus-port %d conflicts with workspace proxy", c.coderMetricsPort)
+		if c.useProxy && c.niMetricsPort == c.proxyPort {
+			return xerrors.Errorf("--prometheus-port %d conflicts with workspace proxy", c.niMetricsPort)
 		}
 	}
-	if c.prometheusServer && c.coderMetricsPort == 0 {
+	if c.prometheusServer && c.niMetricsPort == 0 {
 		return xerrors.New("--prometheus-server requires prometheus to be enabled (--prometheus-port != 0)")
 	}
 	if c.prometheusServer {
@@ -409,7 +409,7 @@ func (c *devConfig) validate() error {
 		}{
 			{"--port", c.apiPort},
 			{"--web-port", c.webPort},
-			{"--prometheus-port", c.coderMetricsPort},
+			{"--prometheus-port", c.niMetricsPort},
 		}
 		if c.useProxy {
 			conflicts = append(conflicts, struct {
@@ -431,8 +431,8 @@ func (c *devConfig) validate() error {
 func (c *devConfig) resolveEnv() error {
 	// Prevent inherited credentials from leaking into child
 	// processes or being picked up by config reads.
-	_ = os.Unsetenv("CODER_SESSION_TOKEN")
-	_ = os.Unsetenv("CODER_URL")
+	_ = os.Unsetenv("NEURALINVERSE_SESSION_TOKEN")
+	_ = os.Unsetenv("NEURALINVERSE_URL")
 
 	var err error
 	c.projectRoot, err = os.Getwd()
@@ -441,7 +441,7 @@ func (c *devConfig) resolveEnv() error {
 	}
 	c.binaryPath = filepath.Join(c.projectRoot, "build",
 		fmt.Sprintf("coder_%s_%s", runtime.GOOS, runtime.GOARCH))
-	c.configDir = filepath.Join(c.projectRoot, ".coderv2")
+	c.configDir = filepath.Join(c.projectRoot, ".niv2")
 
 	c.applyPortOffset()
 	if strings.Contains(c.accessURL, "%d") {
@@ -449,7 +449,7 @@ func (c *devConfig) resolveEnv() error {
 	}
 
 	// Compute once, reused by cmd().
-	c.childEnv = filterEnv(os.Environ(), "CODER_SESSION_TOKEN", "CODER_URL")
+	c.childEnv = filterEnv(os.Environ(), "NEURALINVERSE_SESSION_TOKEN", "NEURALINVERSE_URL")
 
 	return nil
 }
@@ -464,7 +464,7 @@ func (c *devConfig) cmd(ctx context.Context, bin string, args ...string) *exec.C
 }
 
 // parseEnvFileFlag extracts the --env-file value from os.Args and
-// CODER_DEV_ENV_FILE before serpent runs, so that loaded variables
+// NEURALINVERSE_DEV_ENV_FILE before serpent runs, so that loaded variables
 // are visible to serpent's Env-tag resolution for other options.
 func parseEnvFileFlag() (string, error) {
 	for i, arg := range os.Args[1:] {
@@ -478,7 +478,7 @@ func parseEnvFileFlag() (string, error) {
 			return v, nil
 		}
 	}
-	return os.Getenv("CODER_DEV_ENV_FILE"), nil
+	return os.Getenv("NEURALINVERSE_DEV_ENV_FILE"), nil
 }
 
 // loadEnvFile reads the file at path using godotenv and sets any variables
@@ -726,8 +726,8 @@ func preflight(ctx context.Context, logger slog.Logger, cfg *devConfig) error {
 		return xerrors.New("dependency check failed, see above")
 	}
 	apiAddr := fmt.Sprintf("http://127.0.0.1:%d", cfg.apiPort)
-	if isCoderRunning(ctx, apiAddr) {
-		logger.Info(ctx, "coder is already running on this port",
+	if isNIRunning(ctx, apiAddr) {
+		logger.Info(ctx, "neuralinverse is already running on this port",
 			slog.F("port", cfg.apiPort))
 		return nil
 	}
@@ -740,8 +740,8 @@ func preflight(ctx context.Context, logger slog.Logger, cfg *devConfig) error {
 	if cfg.useProxy && isPortBusy(ctx, cfg.proxyPort) {
 		return xerrors.Errorf("port %d is already in use (proxy)", cfg.proxyPort)
 	}
-	if cfg.coderMetricsPort != 0 && isPortBusy(ctx, cfg.coderMetricsPort) {
-		return xerrors.Errorf("port %d is already in use (prometheus)", cfg.coderMetricsPort)
+	if cfg.niMetricsPort != 0 && isPortBusy(ctx, cfg.niMetricsPort) {
+		return xerrors.Errorf("port %d is already in use (prometheus)", cfg.niMetricsPort)
 	}
 	return nil
 }
@@ -760,7 +760,7 @@ func buildBinary(ctx context.Context, logger slog.Logger, cfg *devConfig) error 
 		"MAKE_TIMED=1",
 	)
 	if cfg.agpl {
-		cmd.Env = append(cmd.Env, "CODER_BUILD_AGPL=1")
+		cmd.Env = append(cmd.Env, "NEURALINVERSE_BUILD_AGPL=1")
 	}
 	return cmd.Run()
 }
@@ -775,13 +775,13 @@ func startServer(cfg *devConfig, group *procGroup) error {
 		"--enable-terraform-debug-mode",
 	}
 	if cfg.accessURL != "" {
-		// Setting access url to `""` enables a `try.coder.app` url
+		// Setting access url to `""` enables a `try.neuralinverse.cloud` url
 		serverArgs = append(serverArgs, "--access-url", cfg.accessURL)
 	}
-	if cfg.coderMetricsPort != 0 {
+	if cfg.niMetricsPort != 0 {
 		serverArgs = append(serverArgs,
 			"--prometheus-enable",
-			"--prometheus-address", fmt.Sprintf("0.0.0.0:%d", cfg.coderMetricsPort),
+			"--prometheus-address", fmt.Sprintf("0.0.0.0:%d", cfg.niMetricsPort),
 			"--prometheus-collect-agent-stats",
 			"--prometheus-collect-db-metrics",
 		)
@@ -880,16 +880,16 @@ func waitForHealthy(ctx context.Context, logger slog.Logger, apiURL string) erro
 	return nil
 }
 
-func setupFirstUser(ctx context.Context, logger slog.Logger, cfg *devConfig, apiURL string) (*codersdk.Client, error) {
+func setupFirstUser(ctx context.Context, logger slog.Logger, cfg *devConfig, apiURL string) (*nicloudsdk.Client, error) {
 	serverURL, _ := url.Parse(apiURL)
-	client := codersdk.New(serverURL)
+	client := nicloudsdk.New(serverURL)
 	cfgRoot := config.Root(cfg.configDir)
 
 	// Try reusing an existing session.
 	loggedIn := false
 	if token, err := cfgRoot.Session().Read(); err == nil && token != "" {
 		client.SetSessionToken(token)
-		if _, err := client.User(ctx, codersdk.Me); err == nil {
+		if _, err := client.User(ctx, nicloudsdk.Me); err == nil {
 			loggedIn = true
 		} else {
 			client.SetSessionToken("")
@@ -903,10 +903,10 @@ func setupFirstUser(ctx context.Context, logger slog.Logger, cfg *devConfig, api
 		}
 		if !hasUser {
 			logger.Info(ctx, "creating first user",
-				slog.F("email", "admin@coder.com"),
+				slog.F("email", "admin@cloud.neuralinverse.com"),
 				slog.F("password", cfg.password))
-			_, err := client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
-				Email:    "admin@coder.com",
+			_, err := client.CreateFirstUser(ctx, nicloudsdk.CreateFirstUserRequest{
+				Email:    "admin@cloud.neuralinverse.com",
 				Username: "admin",
 				Name:     "Admin User",
 				Password: cfg.password,
@@ -916,8 +916,8 @@ func setupFirstUser(ctx context.Context, logger slog.Logger, cfg *devConfig, api
 			}
 		}
 
-		loginResp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-			Email:    "admin@coder.com",
+		loginResp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+			Email:    "admin@cloud.neuralinverse.com",
 			Password: cfg.password,
 		})
 		if err != nil {
@@ -932,42 +932,42 @@ func setupFirstUser(ctx context.Context, logger slog.Logger, cfg *devConfig, api
 			return nil, xerrors.Errorf("writing url: %w", err)
 		}
 	}
-	logger.Info(ctx, "authenticated as admin user", slog.F("email", "admin@coder.com"))
+	logger.Info(ctx, "authenticated as admin user", slog.F("email", "admin@cloud.neuralinverse.com"))
 
 	// Look up the default org for member creation.
-	defaultOrg, err := client.OrganizationByName(ctx, codersdk.DefaultOrganization)
+	defaultOrg, err := client.OrganizationByName(ctx, nicloudsdk.DefaultOrganization)
 	if err != nil {
 		return nil, xerrors.Errorf("looking up default org: %w", err)
 	}
 
 	// Member user is best-effort.
 	if _, err := client.User(ctx, "member"); err != nil {
-		_, err = client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
-			Email:           "member@coder.com",
+		_, err = client.CreateUserWithOrgs(ctx, nicloudsdk.CreateUserRequestWithOrgs{
+			Email:           "member@cloud.neuralinverse.com",
 			Username:        "member",
 			Name:            "Regular User",
 			Password:        cfg.password,
-			UserLoginType:   codersdk.LoginTypePassword,
+			UserLoginType:   nicloudsdk.LoginTypePassword,
 			OrganizationIDs: []uuid.UUID{defaultOrg.ID},
 		})
 		if err != nil {
 			logger.Warn(ctx, "failed to create member user", slog.Error(err))
 		} else {
-			logger.Info(ctx, "created member user", slog.F("email", "member@coder.com"))
+			logger.Info(ctx, "created member user", slog.F("email", "member@cloud.neuralinverse.com"))
 		}
 	}
 
 	return client, nil
 }
 
-func setupMultiOrg(ctx context.Context, logger slog.Logger, cfg *devConfig, client *codersdk.Client, group *procGroup) error {
+func setupMultiOrg(ctx context.Context, logger slog.Logger, cfg *devConfig, client *nicloudsdk.Client, group *procGroup) error {
 	const orgName = "second-organization"
 
 	org, err := client.OrganizationByName(ctx, orgName)
 	if err != nil {
 		logger.Info(ctx, "creating organization",
 			slog.F("name", orgName))
-		org, err = client.CreateOrganization(ctx, codersdk.CreateOrganizationRequest{Name: orgName})
+		org, err = client.CreateOrganization(ctx, nicloudsdk.CreateOrganizationRequest{Name: orgName})
 		if err != nil {
 			return xerrors.Errorf("creating org: %w", err)
 		}
@@ -998,11 +998,11 @@ func setupMultiOrg(ctx context.Context, logger slog.Logger, cfg *devConfig, clie
 	return group.Start("ext-provisioner", cmd)
 }
 
-func setupWorkspaceProxy(ctx context.Context, cfg *devConfig, client *codersdk.Client, group *procGroup) error {
+func setupWorkspaceProxy(ctx context.Context, cfg *devConfig, client *nicloudsdk.Client, group *procGroup) error {
 	_ = client.DeleteWorkspaceProxyByName(ctx, "local-proxy")
 
 	resp, err := client.CreateWorkspaceProxy(ctx,
-		codersdk.CreateWorkspaceProxyRequest{
+		nicloudsdk.CreateWorkspaceProxyRequest{
 			Name:        "local-proxy",
 			DisplayName: "Local Proxy",
 			Icon:        "/emojis/1f4bb.png",
@@ -1024,15 +1024,15 @@ func setupWorkspaceProxy(ctx context.Context, cfg *devConfig, client *codersdk.C
 // setupStarterTemplate creates a template from a starter example.
 // For starters tagged with "docker", it checks Docker availability
 // and resolves the Docker host for template variables.
-func setupStarterTemplate(ctx context.Context, logger slog.Logger, cfg *devConfig, client *codersdk.Client) error {
+func setupStarterTemplate(ctx context.Context, logger slog.Logger, cfg *devConfig, client *nicloudsdk.Client) error {
 	templateID := cfg.starterTemplate
 
-	// Fetch starter template metadata from the running coderd.
+	// Fetch starter template metadata from the running nicloud.
 	examples, err := client.StarterTemplates(ctx)
 	if err != nil {
 		return xerrors.Errorf("fetch starter templates failed: %w", err)
 	}
-	example, ok := slice.Find(examples, func(e codersdk.TemplateExample) bool {
+	example, ok := slice.Find(examples, func(e nicloudsdk.TemplateExample) bool {
 		return e.ID == templateID
 	})
 	if !ok {
@@ -1040,7 +1040,7 @@ func setupStarterTemplate(ctx context.Context, logger slog.Logger, cfg *devConfi
 	}
 
 	// Docker-specific: check availability and resolve host.
-	var userVars []codersdk.VariableValue
+	var userVars []nicloudsdk.VariableValue
 	if slices.Contains(example.Tags, "docker") {
 		if err := exec.CommandContext(ctx, "docker", "info").Run(); err != nil {
 			logger.Debug(ctx, "docker not available, skipping template setup")
@@ -1051,13 +1051,13 @@ func setupStarterTemplate(ctx context.Context, logger slog.Logger, cfg *devConfi
 			"--format", "{{ .Endpoints.docker.Host }}").Output(); err == nil {
 			dockerHost = strings.TrimSpace(string(out))
 		}
-		userVars = []codersdk.VariableValue{
+		userVars = []nicloudsdk.VariableValue{
 			{Name: "docker_arch", Value: runtime.GOARCH},
 			{Name: "docker_host", Value: dockerHost},
 		}
 	}
 
-	if err := createTemplateInOrg(ctx, logger, client, codersdk.DefaultOrganization, example, userVars); err != nil {
+	if err := createTemplateInOrg(ctx, logger, client, nicloudsdk.DefaultOrganization, example, userVars); err != nil {
 		return err
 	}
 
@@ -1072,19 +1072,19 @@ func setupStarterTemplate(ctx context.Context, logger slog.Logger, cfg *devConfi
 
 // waitForVersion polls until a template version's provisioner job
 // reaches a terminal state.
-func waitForVersion(ctx context.Context, client *codersdk.Client, id uuid.UUID) (codersdk.TemplateVersion, error) {
+func waitForVersion(ctx context.Context, client *nicloudsdk.Client, id uuid.UUID) (nicloudsdk.TemplateVersion, error) {
 	return poll(ctx, 500*time.Millisecond,
-		func(ctx context.Context) (codersdk.TemplateVersion, bool, error) {
+		func(ctx context.Context) (nicloudsdk.TemplateVersion, bool, error) {
 			v, err := client.TemplateVersion(ctx, id)
 			if err != nil {
 				return v, false, err
 			}
 			switch v.Job.Status {
-			case codersdk.ProvisionerJobSucceeded:
+			case nicloudsdk.ProvisionerJobSucceeded:
 				return v, true, nil
-			case codersdk.ProvisionerJobFailed:
+			case nicloudsdk.ProvisionerJobFailed:
 				return v, false, xerrors.Errorf("job failed: %s", v.Job.Error)
-			case codersdk.ProvisionerJobCanceled:
+			case nicloudsdk.ProvisionerJobCanceled:
 				return v, false, xerrors.New("job was canceled")
 			default:
 				return v, false, nil // Still pending/running.
@@ -1094,7 +1094,7 @@ func waitForVersion(ctx context.Context, client *codersdk.Client, id uuid.UUID) 
 
 // createTemplateInOrg ensures a starter template exists in the
 // given org, creating it from the example if needed.
-func createTemplateInOrg(ctx context.Context, logger slog.Logger, client *codersdk.Client, orgName string, example codersdk.TemplateExample, userVars []codersdk.VariableValue) error {
+func createTemplateInOrg(ctx context.Context, logger slog.Logger, client *nicloudsdk.Client, orgName string, example nicloudsdk.TemplateExample, userVars []nicloudsdk.VariableValue) error {
 	org, err := client.OrganizationByName(ctx, orgName)
 	if err != nil {
 		return xerrors.Errorf("look up org %q failed: %w", orgName, err)
@@ -1105,10 +1105,10 @@ func createTemplateInOrg(ctx context.Context, logger slog.Logger, client *coders
 	}
 
 	version, err := client.CreateTemplateVersion(ctx, org.ID,
-		codersdk.CreateTemplateVersionRequest{
-			StorageMethod:      codersdk.ProvisionerStorageMethodFile,
+		nicloudsdk.CreateTemplateVersionRequest{
+			StorageMethod:      nicloudsdk.ProvisionerStorageMethodFile,
 			ExampleID:          example.ID,
-			Provisioner:        codersdk.ProvisionerTypeTerraform,
+			Provisioner:        nicloudsdk.ProvisionerTypeTerraform,
 			UserVariableValues: userVars,
 		})
 	if err != nil {
@@ -1119,7 +1119,7 @@ func createTemplateInOrg(ctx context.Context, logger slog.Logger, client *coders
 		return err
 	}
 	_, err = client.CreateTemplate(ctx, org.ID,
-		codersdk.CreateTemplateRequest{
+		nicloudsdk.CreateTemplateRequest{
 			Name:        example.ID,
 			DisplayName: example.Name,
 			Description: example.Description,
@@ -1134,7 +1134,7 @@ func createTemplateInOrg(ctx context.Context, logger slog.Logger, client *coders
 }
 
 // startPrometheusServer runs the official Prometheus Docker image
-// with a generated config that scrapes the local Coder metrics
+// with a generated config that scrapes the local Neural Inverse Cloud metrics
 // endpoint. It uses --net=host so the container can reach the
 // host-bound metrics port directly. Only supported on Linux;
 // returns false without error on other platforms.
@@ -1162,7 +1162,7 @@ func startPrometheusServer(ctx context.Context, logger slog.Logger, cfg *devConf
 		if err == nil && strings.TrimSpace(string(out)) == "true" {
 			logger.Info(ctx, "reusing existing prometheus server",
 				slog.F("ui", fmt.Sprintf("http://localhost:%d", prometheusServerPort)),
-				slog.F("note", fmt.Sprintf("scrape target may differ from current --prometheus-port %d; restart to apply", cfg.coderMetricsPort)))
+				slog.F("note", fmt.Sprintf("scrape target may differ from current --prometheus-port %d; restart to apply", cfg.niMetricsPort)))
 			return true, nil
 		}
 		logger.Info(ctx, "prometheus server port already in use, skipping",
@@ -1194,13 +1194,13 @@ func startPrometheusServer(ctx context.Context, logger slog.Logger, cfg *devConf
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: coder
+  - job_name: neuralinverse
     scheme: http
     static_configs:
       - targets: ["127.0.0.1:%d"]
-`, cfg.coderMetricsPort)
+`, cfg.niMetricsPort)
 
-	tmpFile, err := os.CreateTemp("", "coder-prometheus-*.yml")
+	tmpFile, err := os.CreateTemp("", "neuralinverse-prometheus-*.yml")
 	if err != nil {
 		return false, xerrors.Errorf("creating prometheus config: %w", err)
 	}
@@ -1247,7 +1247,7 @@ scrape_configs:
 
 	named.Info(ctx, "starting prometheus server",
 		slog.F("image", prometheusImage),
-		slog.F("scrape_target", fmt.Sprintf("127.0.0.1:%d", cfg.coderMetricsPort)),
+		slog.F("scrape_target", fmt.Sprintf("127.0.0.1:%d", cfg.niMetricsPort)),
 		slog.F("ui", fmt.Sprintf("http://localhost:%d", prometheusServerPort)),
 	)
 
@@ -1278,7 +1278,7 @@ func pnpmCmd(ctx context.Context, cfg *devConfig) *exec.Cmd {
 	cmd := cfg.cmd(ctx, "pnpm", "--dir", "./site", "dev", "--host")
 	cmd.Env = append(cmd.Env,
 		fmt.Sprintf("PORT=%d", cfg.webPort),
-		fmt.Sprintf("CODER_HOST=http://127.0.0.1:%d", cfg.apiPort),
+		fmt.Sprintf("NEURALINVERSE_HOST=http://127.0.0.1:%d", cfg.apiPort),
 	)
 	return cmd
 }
@@ -1291,8 +1291,8 @@ func prometheusBannerEntry(cfg *devConfig, prometheusServerStarted bool) (label 
 	switch {
 	case prometheusServerStarted:
 		return "Prometheus UI:", prometheusServerPort
-	case cfg.coderMetricsPort != 0:
-		return "Metrics:", cfg.coderMetricsPort
+	case cfg.niMetricsPort != 0:
+		return "Metrics:", cfg.niMetricsPort
 	default:
 		return "", 0
 	}
@@ -1330,9 +1330,9 @@ func printBanner(ctx context.Context, logger slog.Logger, cfg *devConfig, promet
 		}
 	}
 	if os.Getenv("CODER") == "true" {
-		// Inside a workspace, add Coder Desktop entry.
-		ifaces = append(ifaces, fmt.Sprintf("%s.%s.me.coder", os.Getenv("CODER_WORKSPACE_AGENT_NAME"), os.Getenv("CODER_WORKSPACE_NAME")))
-		ifaces = append(ifaces, fmt.Sprintf("%s.%s.%s.coder", os.Getenv("CODER_WORKSPACE_AGENT_NAME"), os.Getenv("CODER_WORKSPACE_NAME"), os.Getenv("CODER_WORKSPACE_OWNER_NAME")))
+		// Inside a workspace, add Neural Inverse Cloud Desktop entry.
+		ifaces = append(ifaces, fmt.Sprintf("%s.%s.me.neuralinverse", os.Getenv("NEURALINVERSE_WORKSPACE_AGENT_NAME"), os.Getenv("NEURALINVERSE_WORKSPACE_NAME")))
+		ifaces = append(ifaces, fmt.Sprintf("%s.%s.%s.neuralinverse", os.Getenv("NEURALINVERSE_WORKSPACE_AGENT_NAME"), os.Getenv("NEURALINVERSE_WORKSPACE_NAME"), os.Getenv("NEURALINVERSE_WORKSPACE_OWNER_NAME")))
 	}
 	var b strings.Builder
 	w := 64
@@ -1357,7 +1357,7 @@ func printBanner(ctx context.Context, logger slog.Logger, cfg *devConfig, promet
 		indent(portBannerLine("API", cfg.apiPort, cfg.apiPortSource, cfg.portOffset)),
 		indent(portBannerLine("Web UI", cfg.webPort, cfg.webPortSource, cfg.portOffset)),
 		indent(portBannerLine("Proxy", cfg.proxyPort, cfg.proxyPortSource, cfg.portOffset)),
-		indent(portBannerLine("Coder metrics", cfg.coderMetricsPort, cfg.metricsPortSource, cfg.portOffset)),
+		indent(portBannerLine("Coder metrics", cfg.niMetricsPort, cfg.metricsPortSource, cfg.portOffset)),
 		"",
 		"API:",
 	)
@@ -1392,8 +1392,8 @@ func printBanner(ctx context.Context, logger slog.Logger, cfg *devConfig, promet
 	}
 	line(
 		"",
-		"Use ./scripts/coder-dev.sh to talk to this instance!",
-		fmt.Sprintf("  alias cdr=%s/scripts/coder-dev.sh", cfg.projectRoot),
+		"Use ./scripts/neuralinverse-dev.sh to talk to this instance!",
+		fmt.Sprintf("  alias cdr=%s/scripts/neuralinverse-dev.sh", cfg.projectRoot),
 		"",
 	)
 	_, _ = fmt.Fprintln(&b, bottom)
@@ -1438,7 +1438,7 @@ func isPortBusy(ctx context.Context, port int64) bool {
 	return true
 }
 
-func isCoderRunning(ctx context.Context, baseURL string) bool {
+func isNIRunning(ctx context.Context, baseURL string) bool {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", baseURL+"/api/v2/buildinfo", nil)
@@ -1466,5 +1466,5 @@ func shellBool(b bool) string { //nolint:revive // trivial bool-to-string helper
 }
 
 func developInCoder() bool {
-	return os.Getenv("DEVELOP_IN_CODER") == "1" || os.Getenv("CODER_AGENT_URL") != ""
+	return os.Getenv("DEVELOP_IN_CODER") == "1" || os.Getenv("NEURALINVERSE_AGENT_URL") != ""
 }

@@ -8,7 +8,7 @@ additional requirements outlined further in this document.
 
 > [!NOTE]
 > Workspace process logging is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Workspace process logging adds a sidecar container to workspace pods that will
 log all processes started in the workspace container (e.g., commands executed in
@@ -17,12 +17,12 @@ Processes launched inside containers or nested containers within the workspace
 are also logged. You can view the output from the sidecar or send it to a
 monitoring stack, such as CloudWatch, for further analysis or long-term storage.
 
-Please note that these logs are not recorded or captured by the Coder
+Please note that these logs are not recorded or captured by the Neural Inverse Cloud
 organization in any way, shape, or form.
 
 ## How this works
 
-Coder uses [eBPF](https://ebpf.io/) (which we chose for its minimal performance
+Neural Inverse Cloud uses [eBPF](https://ebpf.io/) (which we chose for its minimal performance
 impact) to perform in-kernel logging and filtering of all exec system calls
 originating from the workspace container.
 
@@ -96,7 +96,7 @@ would like to add workspace process logging to, follow these steps:
 
        # Before we start the script, does curl exist?
        if ! command -v curl >/dev/null 2>&1; then
-         echo "curl is required to download the Coder binary"
+         echo "curl is required to download the Neural Inverse Cloud binary"
          echo "Please install curl to your image and try again"
          # 127 is command not found.
          exit 127
@@ -154,7 +154,7 @@ would like to add workspace process logging to, follow these steps:
          command = [
            "sh",
            "-c",
-           "${local.exectrace_init_script}\n\n${coder_agent.main.init_script}",
+           "${local.exectrace_init_script}\n\n${ni_agent.main.init_script}",
          ]
          ...
        }
@@ -190,11 +190,11 @@ would like to add workspace process logging to, follow these steps:
          command = [
            "/opt/exectrace",
            "--init-address", "127.0.0.1:56123",
-           "--label", "workspace_id=${data.coder_workspace.me.id}",
-           "--label", "workspace_name=${data.coder_workspace.me.name}",
-           "--label", "user_id=${data.coder_workspace_owner.me.id}",
-           "--label", "username=${data.coder_workspace_owner.me.name}",
-           "--label", "user_email=${data.coder_workspace_owner.me.email}",
+           "--label", "workspace_id=${data.ni_workspace.me.id}",
+           "--label", "workspace_name=${data.ni_workspace.me.name}",
+           "--label", "user_id=${data.ni_workspace_owner.me.id}",
+           "--label", "username=${data.ni_workspace_owner.me.name}",
+           "--label", "user_email=${data.ni_workspace_owner.me.email}",
          ]
          security_context {
            // exectrace must be started as root so it can attach probes into the
@@ -230,7 +230,7 @@ would like to add workspace process logging to, follow these steps:
      spec {
        ...
        env {
-         name = "CODER_AGENT_SUBSYSTEM"
+         name = "NEURALINVERSE_AGENT_SUBSYSTEM"
          value = "exectrace"
        }
        ...
@@ -261,7 +261,7 @@ The raw logs will look something like this:
     "msg": "exec",
     "fields": {
         "labels": {
-            "user_email": "jessie@coder.com",
+            "user_email": "jessie@cloud.neuralinverse.com",
             "user_id": "5e876e9a-121663f01ebd1522060d5270",
             "username": "jessie",
             "workspace_id": "621d2e52-a6987ef6c56210058ee2593c",
@@ -306,7 +306,7 @@ fields @timestamp, log_processed.fields.cmdline
   feature. Enabling workspace process logging does _not_ grant extra privileges
   to the workspace container itself, however.
 - `exectrace` will log processes from nested Docker containers (including deeply
-  nested containers) correctly, but Coder does not distinguish between processes
+  nested containers) correctly, but Neural Inverse Cloud does not distinguish between processes
   started in the workspace and processes started in a child container in the
   logs.
 - With `envbox` workspaces, this feature will detect and log startup processes

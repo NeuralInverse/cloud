@@ -1,11 +1,11 @@
 # Feature stages
 
-Some Coder features are released in feature stages before they are generally
+Some Neural Inverse Cloud features are released in feature stages before they are generally
 available.
 
-If you encounter an issue with any Coder feature, please submit a
-[GitHub issue](https://github.com/coder/coder/issues) or join the
-[Coder Discord](https://discord.gg/coder).
+If you encounter an issue with any Neural Inverse Cloud feature, please submit a
+[GitHub issue](https://github.com/NeuralInverse/cloud/issues) or join the
+[Neural Inverse Cloud Discord](https://discord.gg/coder).
 
 ## Feature stages
 
@@ -24,13 +24,13 @@ If you encounter an issue with any Coder feature, please submit a
 Early access features are neither feature-complete nor stable. We do not
 recommend using early access features in production deployments.
 
-Coder sometimes releases early access features that are available for use, but
+Neural Inverse Cloud sometimes releases early access features that are available for use, but
 are disabled by default. You shouldn't use early access features in production
 because they might cause performance or stability issues. Early access features
 can be mostly feature-complete, but require further internal testing and remain
 in the early access stage for at least one month.
 
-Coder may make significant changes or revert features to a feature flag at any
+Neural Inverse Cloud may make significant changes or revert features to a feature flag at any
 time.
 
 If you plan to activate an early access feature, we suggest that you use a
@@ -38,7 +38,7 @@ staging deployment.
 
 <details><summary>To enable early access features:</summary>
 
-Use the [Coder CLI](../../install/cli.md) `--experiments` flag to enable early
+Use the [Neural Inverse Cloud CLI](../../install/cli.md) `--experiments` flag to enable early
 access features:
 
 - Enable all early access features:
@@ -53,7 +53,7 @@ access features:
   coder server --experiments=feature1,feature2
   ```
 
-You can also use the `CODER_EXPERIMENTS`
+You can also use the `NEURALINVERSE_EXPERIMENTS`
 [environment variable](../../admin/setup/index.md).
 
 You can opt-out of a feature after you've enabled it.
@@ -72,7 +72,7 @@ Currently no experimental features are available in the latest mainline or stabl
 - **Stable**: No
 - **Production-ready**: Not fully
 - **Support**: Documentation, [Discord](https://discord.gg/coder), and
-  [GitHub issues](https://github.com/coder/coder/issues)
+  [GitHub issues](https://github.com/NeuralInverse/cloud/issues)
 
 Beta features are open to the public and are tagged with a `Beta` label.
 
@@ -87,15 +87,15 @@ some features may be incomplete.
 We keep documentation about beta features up-to-date with the latest
 information, including planned features, limitations, and workarounds. If you
 encounter an issue, please contact your
-[Coder account team](https://coder.com/contact), reach out on
+[Neural Inverse Cloud account team](https://cloud.neuralinverse.com/contact), reach out on
 [Discord](https://discord.gg/coder), or create a
-[GitHub issues](https://github.com/coder/coder/issues) if there isn't one
+[GitHub issues](https://github.com/NeuralInverse/cloud/issues) if there isn't one
 already. While we will do our best to provide support with beta features, most
 issues will be escalated to the product team. Beta features are not covered
 within service-level agreements (SLA).
 
 Most beta features are enabled by default. Beta features are announced through
-the [Coder Changelog](https://coder.com/changelog), and more information is
+the [Neural Inverse Cloud Changelog](https://cloud.neuralinverse.com/changelog), and more information is
 available in the documentation.
 
 ### Available beta features
@@ -104,9 +104,9 @@ available in the documentation.
 <!-- BEGIN: available-beta-features -->
 | Feature                                                                      | Description                                    | Available in     |
 |------------------------------------------------------------------------------|------------------------------------------------|------------------|
-| [MCP Server](../../ai-coder/mcp-server.md)                                   | Connect to agents Coder with a MCP server      | mainline, stable |
-| [JetBrains Toolbox](../../user-guides/workspace-access/jetbrains/toolbox.md) | Access Coder workspaces from JetBrains Toolbox | mainline, stable |
-| Agent Firewall                                                               | Understanding Agent Firewall in Coder Tasks    | stable           |
+| [MCP Server](../../ai-coder/mcp-server.md)                                   | Connect to agents Neural Inverse Cloud with a MCP server      | mainline, stable |
+| [JetBrains Toolbox](../../user-guides/workspace-access/jetbrains/toolbox.md) | Access Neural Inverse Cloud workspaces from JetBrains Toolbox | mainline, stable |
+| Agent Firewall                                                               | Understanding Agent Firewall in Neural Inverse Cloud Tasks    | stable           |
 | [Workspace Sharing](../../user-guides/shared-workspaces.md)                  | Sharing workspaces                             | mainline, stable |
 <!-- END: available-beta-features -->
 
@@ -114,22 +114,22 @@ available in the documentation.
 
 - **Stable**: Yes
 - **Production-ready**: Yes
-- **Support**: Yes, [based on license](https://coder.com/pricing).
+- **Support**: Yes, [based on license](https://cloud.neuralinverse.com/pricing).
 
 All features that are not explicitly tagged as `Early access` or `Beta` are
 considered generally available (GA). They have been tested, are stable, and are
 enabled by default.
 
-If your Coder license includes an SLA, please consult it for an outline of
+If your Neural Inverse Cloud license includes an SLA, please consult it for an outline of
 specific expectations.
 
 For support, consult our knowledgeable and growing community on
 [Discord](https://discord.gg/coder), or create a
-[GitHub issue](https://github.com/coder/coder/issues) if one doesn't exist
-already. Customers with a valid Coder license, can submit a support request or
-contact your [account team](https://coder.com/contact).
+[GitHub issue](https://github.com/NeuralInverse/cloud/issues) if one doesn't exist
+already. Customers with a valid Neural Inverse Cloud license, can submit a support request or
+contact your [account team](https://cloud.neuralinverse.com/contact).
 
-We intend [Coder documentation](../../about/contributing/documentation.md) to be the
+We intend [Neural Inverse Cloud documentation](../../about/contributing/documentation.md) to be the
 [single source of truth](https://en.wikipedia.org/wiki/Single_source_of_truth)
 and all features should have some form of complete documentation that outlines
 how to use or implement a feature. If you discover an error or if you have a

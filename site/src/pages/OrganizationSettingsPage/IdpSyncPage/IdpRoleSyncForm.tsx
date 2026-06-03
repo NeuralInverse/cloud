@@ -86,7 +86,7 @@ export const IdpRoleSyncForm: FC<IdpRoleSyncFormProps> = ({
 		enableReinitialize: Boolean(roleSyncSettings),
 	});
 	const [idpRoleName, setIdpRoleName] = useState("");
-	const [coderRoles, setCoderRoles] = useState<Option[]>([]);
+	const [niRoles, setCoderRoles] = useState<Option[]>([]);
 	const id = useId();
 	const [comboInputValue, setComboInputValue] = useState("");
 	const [open, setOpen] = useState(false);
@@ -240,7 +240,7 @@ export const IdpRoleSyncForm: FC<IdpRoleSyncFormProps> = ({
 								id: `${id}-coder-role`,
 							}}
 							className="min-w-60 max-w-3xl"
-							value={coderRoles}
+							value={niRoles}
 							onChange={setCoderRoles}
 							options={roles.map((role) => ({
 								label: role.display_name || role.name,
@@ -260,13 +260,13 @@ export const IdpRoleSyncForm: FC<IdpRoleSyncFormProps> = ({
 						<Button
 							type="submit"
 							className="min-w-fit"
-							disabled={!idpRoleName || coderRoles.length === 0}
+							disabled={!idpRoleName || niRoles.length === 0}
 							onClick={() => {
 								const newSyncSettings = {
 									...form.values,
 									mapping: {
 										...form.values.mapping,
-										[idpRoleName]: coderRoles.map((role) => role.value),
+										[idpRoleName]: niRoles.map((role) => role.value),
 									},
 								};
 								void form.setFieldValue("mapping", newSyncSettings.mapping);
@@ -298,7 +298,7 @@ export const IdpRoleSyncForm: FC<IdpRoleSyncFormProps> = ({
 									key={idpRole}
 									idpRole={idpRole}
 									exists={claimFieldValues?.includes(idpRole)}
-									coderRoles={roles}
+									niRoles={roles}
 									onDelete={handleDelete}
 								/>
 							))}
@@ -311,14 +311,14 @@ export const IdpRoleSyncForm: FC<IdpRoleSyncFormProps> = ({
 interface RoleRowProps {
 	idpRole: string;
 	exists: boolean | undefined;
-	coderRoles: readonly string[];
+	niRoles: readonly string[];
 	onDelete: (idpOrg: string) => void;
 }
 
 const RoleRow: FC<RoleRowProps> = ({
 	idpRole,
 	exists = true,
-	coderRoles,
+	niRoles,
 	onDelete,
 }) => {
 	return (
@@ -347,7 +347,7 @@ const RoleRow: FC<RoleRowProps> = ({
 			</TableCell>
 
 			<TableCell>
-				<IdpPillList roles={coderRoles} />
+				<IdpPillList roles={niRoles} />
 			</TableCell>
 
 			<TableCell>

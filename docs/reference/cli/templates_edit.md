@@ -152,7 +152,7 @@ Allow users to customize the autostop TTL for workspaces on this template. This 
 | Type    | <code>bool</code>  |
 | Default | <code>false</code> |
 
-Requires workspace builds to use the active template version. This setting does not apply to template admins. This is an enterprise-only feature. See https://coder.com/docs/admin/templates/managing-templates#require-automatic-updates-enterprise for more details.
+Requires workspace builds to use the active template version. This setting does not apply to template admins. This is an enterprise-only feature. See https://cloud.neuralinverse.com/docs/admin/templates/managing-templates#require-automatic-updates-enterprise for more details.
 
 ### --private
 
@@ -176,6 +176,6 @@ Bypass confirmation prompts.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.

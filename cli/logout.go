@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/sessionstore"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore"
 	"github.com/coder/serpent"
 )
 
@@ -72,7 +72,7 @@ func (r *RootCmd) logout() *serpent.Command {
 				errorString := strings.TrimRight(errorStringBuilder.String(), "\n")
 				return xerrors.New("Failed to log out.\n" + errorString)
 			}
-			_, _ = fmt.Fprint(inv.Stdout, Caret+"You are no longer logged in. You can log in using 'coder login <url>'.\n")
+			_, _ = fmt.Fprint(inv.Stdout, Caret+"You are no longer logged in. You can log in using 'neuralinverse login <url>'.\n")
 			return nil
 		},
 	}

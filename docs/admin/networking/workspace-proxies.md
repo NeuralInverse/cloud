@@ -2,7 +2,7 @@
 
 Workspace proxies provide low-latency experiences for geo-distributed teams.
 
-Coder's networking does a best effort to make direct connections to a workspace.
+Neural Inverse Cloud's networking does a best effort to make direct connections to a workspace.
 In situations where this is not possible, such as connections via the web
 terminal and
 [web IDEs](../../user-guides/workspace-access/index.md#other-web-ides),
@@ -18,7 +18,7 @@ over workspace proxies.
 
 Each workspace proxy should be a unique instance. At no point should two
 workspace proxy instances share the same authentication token. They only require
-port 443 to be open and are expected to have network connectivity to the coderd
+port 443 to be open and are expected to have network connectivity to the nicloud
 dashboard. Workspace proxies **do not** make any database connections.
 
 Workspace proxies can be used in the browser by navigating to the user
@@ -26,14 +26,14 @@ Workspace proxies can be used in the browser by navigating to the user
 
 ## Requirements
 
-- The [Coder CLI](../../reference/cli/index.md) must be installed and
+- The [Neural Inverse Cloud CLI](../../reference/cli/index.md) must be installed and
   authenticated as a user with the Owner role.
 
 ## Step 1: Create the proxy
 
 Create the workspace proxy and make sure to save the returned authentication
 token for said proxy. This is the token the workspace proxy will use to
-authenticate back to primary coderd.
+authenticate back to primary nicloud.
 
 ```bash
 $ coder wsproxy create --name=newyork --display-name="USA East" --icon="/emojis/2194.png"
@@ -51,14 +51,14 @@ newyork                             unregistered
 
 ## Step 2: Deploy the proxy
 
-Deploying the workspace proxy will also register the proxy with coderd and make
+Deploying the workspace proxy will also register the proxy with nicloud and make
 the workspace proxy usable. If the proxy deployment is successful,
 `coder wsproxy ls` will show an `ok` status code:
 
 ```shell
 $ coder wsproxy ls
 NAME              URL                         STATUS STATUS
-primary           https://dev.coder.com        ok
+primary           https://dev.cloud.neuralinverse.com        ok
 brazil-saopaulo   https://brazil.example.com   ok
 europe-frankfurt  https://europe.example.com   ok
 sydney            https://sydney.example.com   ok
@@ -76,28 +76,28 @@ Other Status codes:
 
 ### Configuration
 
-Workspace proxy configuration overlaps with a subset of the coderd
+Workspace proxy configuration overlaps with a subset of the nicloud
 configuration. To see the full list of configuration options:
 `coder wsproxy server --help`
 
 ```bash
 # Proxy specific configuration. These are REQUIRED
-# Example: https://coderd.example.com
-CODER_PRIMARY_ACCESS_URL="https://<url_of_coderd_dashboard>"
-CODER_PROXY_SESSION_TOKEN="<session_token_from_proxy_create>"
+# Example: https://nicloud.example.com
+NEURALINVERSE_PRIMARY_ACCESS_URL="https://<url_of_nicloud_dashboard>"
+NEURALINVERSE_PROXY_SESSION_TOKEN="<session_token_from_proxy_create>"
 
 # Runtime variables for "coder start".
-CODER_HTTP_ADDRESS=0.0.0.0:80
-CODER_TLS_ADDRESS=0.0.0.0:443
-# Example: https://east.coderd.example.com
-CODER_ACCESS_URL="https://<access_url_of_proxy>"
-# Example: *.east.coderd.example.com
-CODER_WILDCARD_ACCESS_URL="*.<app_hostname_of_proxy>"
+NEURALINVERSE_HTTP_ADDRESS=0.0.0.0:80
+NEURALINVERSE_TLS_ADDRESS=0.0.0.0:443
+# Example: https://east.nicloud.example.com
+NEURALINVERSE_ACCESS_URL="https://<access_url_of_proxy>"
+# Example: *.east.nicloud.example.com
+NEURALINVERSE_WILDCARD_ACCESS_URL="*.<app_hostname_of_proxy>"
 
-CODER_TLS_ENABLE=true
-CODER_TLS_CLIENT_AUTH=none
-CODER_TLS_CERT_FILE="<cert_file_location>"
-CODER_TLS_KEY_FILE="<key_file_location>"
+NEURALINVERSE_TLS_ENABLE=true
+NEURALINVERSE_TLS_CLIENT_AUTH=none
+NEURALINVERSE_TLS_CERT_FILE="<cert_file_location>"
+NEURALINVERSE_TLS_KEY_FILE="<key_file_location>"
 
 # Additional configuration options are available.
 ```
@@ -107,20 +107,20 @@ CODER_TLS_KEY_FILE="<key_file_location>"
 Make a `values-wsproxy.yaml` with the workspace proxy configuration.
 
 Notice the `workspaceProxy` configuration which is `false` by default in the
-Coder Helm chart:
+Neural Inverse Cloud Helm chart:
 
 ```yaml
 coder:
   env:
-    - name: CODER_PRIMARY_ACCESS_URL
-      value: "https://<url_of_coderd_dashboard>"
-    - name: CODER_PROXY_SESSION_TOKEN
+    - name: NEURALINVERSE_PRIMARY_ACCESS_URL
+      value: "https://<url_of_nicloud_dashboard>"
+    - name: NEURALINVERSE_PROXY_SESSION_TOKEN
       value: "<session_token_from_proxy_create>"
-    # Example: https://east.coderd.example.com
-    - name: CODER_ACCESS_URL
+    # Example: https://east.nicloud.example.com
+    - name: NEURALINVERSE_ACCESS_URL
       value: "https://<access_url_of_proxy>"
-    # Example: *.east.coderd.example.com
-    - name: CODER_WILDCARD_ACCESS_URL
+    # Example: *.east.nicloud.example.com
+    - name: NEURALINVERSE_WILDCARD_ACCESS_URL
       value: "*.<app_hostname_of_proxy>"
 
   tls:
@@ -138,7 +138,7 @@ helm install coder coder-v2/coder --namespace <your workspace proxy namespace> -
 ```
 
 Test that the workspace proxy is reachable with `curl -vvv`. If for some reason,
-the Coder dashboard still shows the workspace proxy is `UNHEALTHY`, scale down
+the Neural Inverse Cloud dashboard still shows the workspace proxy is `UNHEALTHY`, scale down
 and up the deployment's replicas.
 
 ### Running on a VM
@@ -150,7 +150,7 @@ coder wsproxy server
 
 ### Running as a system service
 
-If you've installed Coder via a [system package](../../install/index.md), you
+If you've installed Neural Inverse Cloud via a [system package](../../install/index.md), you
 can configure the workspace proxy by settings in
 `/etc/coder.d/coder-workspace-proxy.env`
 
@@ -173,16 +173,16 @@ sudo systemctl restart coder-workspace-proxy
 ### Running in Docker
 
 Modify the default entrypoint to run a workspace proxy server instead of a
-regular Coder server.
+regular Neural Inverse Cloud server.
 
 #### Docker Compose
 
 Change the provided
-[`compose.yml`](https://github.com/coder/coder/blob/main/compose.yaml)
+[`compose.yml`](https://github.com/NeuralInverse/cloud/blob/main/compose.yaml)
 file to include a custom entrypoint:
 
 ```diff
-  image: ghcr.io/coder/coder:${CODER_VERSION:-latest}
+  image: ghcr.io/coder/coder:${NEURALINVERSE_VERSION:-latest}
 + entrypoint: /opt/coder wsproxy server
 ```
 
@@ -201,7 +201,7 @@ ENTRYPOINT ["/opt/coder", "wsproxy", "server"]
 
 ### Selecting a proxy
 
-Users can select a workspace proxy at the top-right of the browser-based Coder
+Users can select a workspace proxy at the top-right of the browser-based Neural Inverse Cloud
 dashboard. Workspace proxy preferences are cached by the web browser. If a proxy
 goes offline, the session will fall back to the primary proxy. This could take
 up to 60 seconds.
@@ -219,11 +219,11 @@ When multiple workspace proxies are deployed:
 
 ## Observability
 
-Coder workspace proxy exports metrics via the HTTP endpoint, which can be
-enabled using either the environment variable `CODER_PROMETHEUS_ENABLE` or the
+Neural Inverse Cloud workspace proxy exports metrics via the HTTP endpoint, which can be
+enabled using either the environment variable `NEURALINVERSE_PROMETHEUS_ENABLE` or the
 flag `--prometheus-enable`.
 
 The Prometheus endpoint address is `http://localhost:2112/` by default. You can
-use either the environment variable `CODER_PROMETHEUS_ADDRESS` or the flag
+use either the environment variable `NEURALINVERSE_PROMETHEUS_ADDRESS` or the flag
 `--prometheus-address <network-interface>:<port>` to select a different listen
 address.

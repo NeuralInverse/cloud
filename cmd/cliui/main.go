@@ -15,9 +15,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -83,7 +83,7 @@ func main() {
 				Text:    "What is our " + cliui.Field("company name") + "?",
 				Default: "acme-corp",
 				Validate: func(s string) error {
-					if !strings.EqualFold(s, "coder") {
+					if !strings.EqualFold(s, "neuralinverse") {
 						return xerrors.New("Err... nope!")
 					}
 					return nil
@@ -129,33 +129,33 @@ func main() {
 	root.Children = append(root.Children, &serpent.Command{
 		Use: "job",
 		Handler: func(inv *serpent.Invocation) error {
-			job := codersdk.ProvisionerJob{
-				Status:    codersdk.ProvisionerJobPending,
+			job := nicloudsdk.ProvisionerJob{
+				Status:    nicloudsdk.ProvisionerJobPending,
 				CreatedAt: dbtime.Now(),
 			}
 			go func() {
 				time.Sleep(time.Second)
-				if job.Status != codersdk.ProvisionerJobPending {
+				if job.Status != nicloudsdk.ProvisionerJobPending {
 					return
 				}
 				started := dbtime.Now()
 				job.StartedAt = &started
-				job.Status = codersdk.ProvisionerJobRunning
+				job.Status = nicloudsdk.ProvisionerJobRunning
 				time.Sleep(3 * time.Second)
-				if job.Status != codersdk.ProvisionerJobRunning {
+				if job.Status != nicloudsdk.ProvisionerJobRunning {
 					return
 				}
 				completed := dbtime.Now()
 				job.CompletedAt = &completed
-				job.Status = codersdk.ProvisionerJobSucceeded
+				job.Status = nicloudsdk.ProvisionerJobSucceeded
 			}()
 
 			err := cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
-				Fetch: func() (codersdk.ProvisionerJob, error) {
+				Fetch: func() (nicloudsdk.ProvisionerJob, error) {
 					return job, nil
 				},
-				Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
-					logs := make(chan codersdk.ProvisionerJobLog)
+				Logs: func() (<-chan nicloudsdk.ProvisionerJobLog, io.Closer, error) {
+					logs := make(chan nicloudsdk.ProvisionerJobLog)
 					go func() {
 						defer close(logs)
 						ticker := time.NewTicker(100 * time.Millisecond)
@@ -166,13 +166,13 @@ func main() {
 							case <-inv.Context().Done():
 								return
 							case <-ticker.C:
-								if job.Status == codersdk.ProvisionerJobSucceeded || job.Status == codersdk.ProvisionerJobCanceled {
+								if job.Status == nicloudsdk.ProvisionerJobSucceeded || job.Status == nicloudsdk.ProvisionerJobCanceled {
 									return
 								}
-								log := codersdk.ProvisionerJobLog{
+								log := nicloudsdk.ProvisionerJobLog{
 									CreatedAt: time.Now(),
 									Output:    fmt.Sprintf("Some log %d", count),
-									Level:     codersdk.LogLevelInfo,
+									Level:     nicloudsdk.LogLevelInfo,
 								}
 								switch {
 								case count == 10:
@@ -187,7 +187,7 @@ func main() {
 									log.Stage = "Cleaning Up"
 								}
 								if count%5 == 0 {
-									log.Level = codersdk.LogLevelWarn
+									log.Level = nicloudsdk.LogLevelWarn
 								}
 								count++
 								if log.Output == "" && log.Stage == "" {
@@ -200,9 +200,9 @@ func main() {
 					return logs, io.NopCloser(strings.NewReader("")), nil
 				},
 				Cancel: func() error {
-					job.Status = codersdk.ProvisionerJobCanceling
+					job.Status = nicloudsdk.ProvisionerJobCanceling
 					time.Sleep(time.Second)
-					job.Status = codersdk.ProvisionerJobCanceled
+					job.Status = nicloudsdk.ProvisionerJobCanceled
 					completed := dbtime.Now()
 					job.CompletedAt = &completed
 					return nil
@@ -215,32 +215,32 @@ func main() {
 	root.Children = append(root.Children, &serpent.Command{
 		Use: "agent",
 		Handler: func(inv *serpent.Invocation) error {
-			var agent codersdk.WorkspaceAgent
-			var logs []codersdk.WorkspaceAgentLog
+			var agent nicloudsdk.WorkspaceAgent
+			var logs []nicloudsdk.WorkspaceAgentLog
 
 			fetchSteps := []func(){
 				func() {
 					createdAt := time.Now().Add(-time.Minute)
-					agent = codersdk.WorkspaceAgent{
+					agent = nicloudsdk.WorkspaceAgent{
 						CreatedAt:      createdAt,
-						Status:         codersdk.WorkspaceAgentConnecting,
-						LifecycleState: codersdk.WorkspaceAgentLifecycleCreated,
+						Status:         nicloudsdk.WorkspaceAgentConnecting,
+						LifecycleState: nicloudsdk.WorkspaceAgentLifecycleCreated,
 					}
 				},
 				func() {
 					time.Sleep(time.Second)
-					agent.Status = codersdk.WorkspaceAgentTimeout
+					agent.Status = nicloudsdk.WorkspaceAgentTimeout
 				},
 				func() {
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStarting
 					startingAt := time.Now()
 					agent.StartedAt = &startingAt
 					for i := 0; i < 10; i++ {
-						level := codersdk.LogLevelInfo
+						level := nicloudsdk.LogLevelInfo
 						if rand.Float64() > 0.75 { //nolint:gosec
-							level = codersdk.LogLevelError
+							level = nicloudsdk.LogLevelError
 						}
-						logs = append(logs, codersdk.WorkspaceAgentLog{
+						logs = append(logs, nicloudsdk.WorkspaceAgentLog{
 							CreatedAt: time.Now().Add(-time.Duration(10-i) * 144 * time.Millisecond),
 							Output:    fmt.Sprintf("Some log %d", i),
 							Level:     level,
@@ -253,12 +253,12 @@ func main() {
 					agent.FirstConnectedAt = &firstConnectedAt
 					lastConnectedAt := firstConnectedAt.Add(0)
 					agent.LastConnectedAt = &lastConnectedAt
-					agent.Status = codersdk.WorkspaceAgentConnected
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 				},
 				func() {},
 				func() {
 					time.Sleep(5 * time.Second)
-					agent.Status = codersdk.WorkspaceAgentConnected
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					lastConnectedAt := time.Now()
 					agent.LastConnectedAt = &lastConnectedAt
 				},
@@ -266,7 +266,7 @@ func main() {
 			err := cliui.Agent(inv.Context(), inv.Stdout, uuid.Nil, cliui.AgentOptions{
 				FetchInterval: 100 * time.Millisecond,
 				Wait:          true,
-				Fetch: func(_ context.Context, _ uuid.UUID) (codersdk.WorkspaceAgent, error) {
+				Fetch: func(_ context.Context, _ uuid.UUID) (nicloudsdk.WorkspaceAgent, error) {
 					if len(fetchSteps) == 0 {
 						return agent, nil
 					}
@@ -275,16 +275,16 @@ func main() {
 					step()
 					return agent, nil
 				},
-				FetchLogs: func(_ context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error) {
-					logsC := make(chan []codersdk.WorkspaceAgentLog, len(logs))
+				FetchLogs: func(_ context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []nicloudsdk.WorkspaceAgentLog, io.Closer, error) {
+					logsC := make(chan []nicloudsdk.WorkspaceAgentLog, len(logs))
 					if follow {
 						go func() {
 							defer close(logsC)
 							for _, log := range logs {
-								logsC <- []codersdk.WorkspaceAgentLog{log}
+								logsC <- []nicloudsdk.WorkspaceAgentLog{log}
 								time.Sleep(144 * time.Millisecond)
 							}
-							agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+							agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleReady
 							readyAt := dbtime.Now()
 							agent.ReadyAt = &readyAt
 						}()
@@ -308,40 +308,40 @@ func main() {
 		Use: "resources",
 		Handler: func(inv *serpent.Invocation) error {
 			disconnected := dbtime.Now().Add(-4 * time.Second)
-			return cliui.WorkspaceResources(inv.Stdout, []codersdk.WorkspaceResource{{
-				Transition: codersdk.WorkspaceTransitionStart,
+			return cliui.WorkspaceResources(inv.Stdout, []nicloudsdk.WorkspaceResource{{
+				Transition: nicloudsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStop,
+				Transition: nicloudsdk.WorkspaceTransitionStop,
 				Type:       "google_compute_disk",
 				Name:       "root",
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: nicloudsdk.WorkspaceTransitionStart,
 				Type:       "google_compute_instance",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
+				Agents: []nicloudsdk.WorkspaceAgent{{
 					CreatedAt:       dbtime.Now().Add(-10 * time.Second),
-					Status:          codersdk.WorkspaceAgentConnecting,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleCreated,
+					Status:          nicloudsdk.WorkspaceAgentConnecting,
+					LifecycleState:  nicloudsdk.WorkspaceAgentLifecycleCreated,
 					Name:            "dev",
 					OperatingSystem: "linux",
 					Architecture:    "amd64",
 				}},
 			}, {
-				Transition: codersdk.WorkspaceTransitionStart,
+				Transition: nicloudsdk.WorkspaceTransitionStart,
 				Type:       "kubernetes_pod",
 				Name:       "dev",
-				Agents: []codersdk.WorkspaceAgent{{
-					Status:          codersdk.WorkspaceAgentConnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+				Agents: []nicloudsdk.WorkspaceAgent{{
+					Status:          nicloudsdk.WorkspaceAgentConnected,
+					LifecycleState:  nicloudsdk.WorkspaceAgentLifecycleReady,
 					Name:            "go",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
 				}, {
 					DisconnectedAt:  &disconnected,
-					Status:          codersdk.WorkspaceAgentDisconnected,
-					LifecycleState:  codersdk.WorkspaceAgentLifecycleReady,
+					Status:          nicloudsdk.WorkspaceAgentDisconnected,
+					LifecycleState:  nicloudsdk.WorkspaceAgentLifecycleReady,
 					Name:            "postgres",
 					Architecture:    "amd64",
 					OperatingSystem: "linux",
@@ -371,16 +371,16 @@ func main() {
 				gitlabAuthed.Store(true)
 			}()
 			return cliui.ExternalAuth(inv.Context(), inv.Stdout, cliui.ExternalAuthOptions{
-				Fetch: func(_ context.Context) ([]codersdk.TemplateVersionExternalAuth, error) {
+				Fetch: func(_ context.Context) ([]nicloudsdk.TemplateVersionExternalAuth, error) {
 					count.Add(1)
-					return []codersdk.TemplateVersionExternalAuth{{
+					return []nicloudsdk.TemplateVersionExternalAuth{{
 						ID:              "github",
-						Type:            codersdk.EnhancedExternalAuthProviderGitHub.String(),
+						Type:            nicloudsdk.EnhancedExternalAuthProviderGitHub.String(),
 						Authenticated:   githubAuthed.Load(),
 						AuthenticateURL: "https://example.com/gitauth/github?redirect=" + url.QueryEscape("/gitauth?notify"),
 					}, {
 						ID:              "gitlab",
-						Type:            codersdk.EnhancedExternalAuthProviderGitLab.String(),
+						Type:            nicloudsdk.EnhancedExternalAuthProviderGitLab.String(),
 						Authenticated:   gitlabAuthed.Load(),
 						AuthenticateURL: "https://example.com/gitauth/gitlab?redirect=" + url.QueryEscape("/gitauth?notify"),
 					}}, nil

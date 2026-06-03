@@ -9,7 +9,7 @@ terraform {
   }
 }
 
-data "coder_parameter" "home_disk" {
+data "ni_parameter" "home_disk" {
   name        = "Disk Size"
   description = "How large should the disk storing the home directory be?"
   icon        = "https://cdn-icons-png.flaticon.com/512/2344/2344147.png"
@@ -78,10 +78,10 @@ provider "kubernetes" {
   config_path = var.use_kubeconfig == true ? "~/.kube/config" : null
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os             = "linux"
   arch           = "amd64"
   startup_script = <<EOT
@@ -100,29 +100,29 @@ resource "coder_agent" "main" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 # See https://registry.coder.com/modules/coder/jetbrains
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
-  agent_id   = coder_agent.main.id
+  agent_id   = ni_agent.main.id
   agent_name = "main"
   folder     = "/home/coder"
 }
 
 resource "kubernetes_persistent_volume_claim_v1" "home" {
   metadata {
-    name      = "coder-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}-home"
+    name      = "coder-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}-home"
     namespace = var.namespace
   }
   wait_until_bound = false
@@ -130,17 +130,17 @@ resource "kubernetes_persistent_volume_claim_v1" "home" {
     access_modes = ["ReadWriteOnce"]
     resources {
       requests = {
-        storage = "${data.coder_parameter.home_disk.value}Gi"
+        storage = "${data.ni_parameter.home_disk.value}Gi"
       }
     }
   }
 }
 
 resource "kubernetes_pod_v1" "main" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
 
   metadata {
-    name      = "coder-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
+    name      = "coder-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
     namespace = var.namespace
   }
 
@@ -172,12 +172,12 @@ resource "kubernetes_pod_v1" "main" {
 
       env {
         name  = "CODER_AGENT_TOKEN"
-        value = coder_agent.main.token
+        value = ni_agent.main.token
       }
 
       env {
         name  = "CODER_AGENT_URL"
-        value = data.coder_workspace.me.access_url
+        value = data.ni_workspace.me.access_url
       }
 
       env {
@@ -192,7 +192,7 @@ resource "kubernetes_pod_v1" "main" {
 
       env {
         name  = "CODER_BOOTSTRAP_SCRIPT"
-        value = coder_agent.main.init_script
+        value = ni_agent.main.init_script
       }
 
       env {
@@ -207,7 +207,7 @@ resource "kubernetes_pod_v1" "main" {
 
       env {
         name  = "CODER_INNER_HOSTNAME"
-        value = data.coder_workspace.me.name
+        value = data.ni_workspace.me.name
       }
 
       env {

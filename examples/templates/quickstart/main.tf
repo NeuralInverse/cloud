@@ -23,12 +23,12 @@ provider "docker" {
 }
 
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 # --- Parameters ---
 
-data "coder_parameter" "languages" {
+data "ni_parameter" "languages" {
   name         = "languages"
   display_name = "Programming Languages"
   description  = "Select the languages to pre-install in your workspace"
@@ -71,7 +71,7 @@ data "coder_parameter" "languages" {
   }
 }
 
-data "coder_parameter" "ides" {
+data "ni_parameter" "ides" {
   name         = "ides"
   display_name = "IDEs & Editors"
   description  = "Select the development environments for your workspace"
@@ -116,7 +116,7 @@ data "coder_parameter" "ides" {
 
 # Shown only when "JetBrains IDEs" is selected in the IDEs parameter.
 # Pre-selects IDEs that match the chosen languages.
-data "coder_parameter" "jetbrains_ides" {
+data "ni_parameter" "jetbrains_ides" {
   count        = contains(local.ides, "jetbrains") ? 1 : 0
   name         = "jetbrains_ides"
   display_name = "JetBrains IDEs"
@@ -175,7 +175,7 @@ data "coder_parameter" "jetbrains_ides" {
   }
 }
 
-data "coder_parameter" "git_repo" {
+data "ni_parameter" "git_repo" {
   name         = "git_repo"
   display_name = "Git Repository (Optional)"
   description  = "URL of a Git repository to clone into your workspace (leave empty to skip)"
@@ -189,9 +189,9 @@ data "coder_parameter" "git_repo" {
 # --- Locals ---
 
 locals {
-  username  = data.coder_workspace_owner.me.name
-  languages = jsondecode(data.coder_parameter.languages.value)
-  ides      = jsondecode(data.coder_parameter.ides.value)
+  username  = data.ni_workspace_owner.me.name
+  languages = jsondecode(data.ni_parameter.languages.value)
+  ides      = jsondecode(data.ni_parameter.ides.value)
 
   # Map selected languages to the relevant JetBrains IDE product codes.
   # Used as the default for the JetBrains IDE selector parameter.
@@ -209,12 +209,12 @@ locals {
 
   # The actual JetBrains IDEs to install, from the user's selection
   # in the conditional JetBrains parameter (or empty if not shown).
-  jetbrains_selected = contains(local.ides, "jetbrains") ? jsondecode(data.coder_parameter.jetbrains_ides[0].value) : []
+  jetbrains_selected = contains(local.ides, "jetbrains") ? jsondecode(data.ni_parameter.jetbrains_ides[0].value) : []
 }
 
 # --- Agent ---
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   startup_script = <<-EOT
@@ -226,10 +226,10 @@ resource "coder_agent" "main" {
   EOT
 
   env = {
-    GIT_AUTHOR_NAME     = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_AUTHOR_EMAIL    = "${data.coder_workspace_owner.me.email}"
-    GIT_COMMITTER_NAME  = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
+    GIT_AUTHOR_NAME     = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_AUTHOR_EMAIL    = "${data.ni_workspace_owner.me.email}"
+    GIT_COMMITTER_NAME  = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_COMMITTER_EMAIL = "${data.ni_workspace_owner.me.email}"
   }
 
   metadata {
@@ -263,7 +263,7 @@ resource "coder_agent" "main" {
 
 resource "coder_script" "install_languages" {
   count              = length(local.languages) > 0 ? 1 : 0
-  agent_id           = coder_agent.main.id
+  agent_id           = ni_agent.main.id
   display_name       = "Install Languages"
   icon               = "/icon/code.svg"
   run_on_start       = true
@@ -276,58 +276,58 @@ resource "coder_script" "install_languages" {
 # --- IDE modules ---
 
 module "code-server" {
-  count    = data.coder_workspace.me.start_count * (contains(local.ides, "code-server") ? 1 : 0)
+  count    = data.ni_workspace.me.start_count * (contains(local.ides, "code-server") ? 1 : 0)
   source   = "registry.coder.com/coder/code-server/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 module "vscode-desktop" {
-  count    = data.coder_workspace.me.start_count * (contains(local.ides, "vscode-desktop") ? 1 : 0)
+  count    = data.ni_workspace.me.start_count * (contains(local.ides, "vscode-desktop") ? 1 : 0)
   source   = "registry.coder.com/coder/vscode-desktop/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   folder   = "/home/coder"
   order    = 2
 }
 
 module "cursor" {
-  count    = data.coder_workspace.me.start_count * (contains(local.ides, "cursor") ? 1 : 0)
+  count    = data.ni_workspace.me.start_count * (contains(local.ides, "cursor") ? 1 : 0)
   source   = "registry.coder.com/coder/cursor/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   folder   = "/home/coder"
   order    = 3
 }
 
 # TODO: Re-add the coder/jetbrains module once Coder's dynamic
 # parameter system respects module count for parameter visibility.
-# The module's internal coder_parameter appears even when count = 0,
+# The module's internal ni_parameter appears even when count = 0,
 # creating a ghost parameter in the workspace creation form.
 # module "jetbrains" {
-#   count    = data.coder_workspace.me.start_count * (contains(local.ides, "jetbrains") && length(local.jetbrains_selected) > 0 ? 1 : 0)
+#   count    = data.ni_workspace.me.start_count * (contains(local.ides, "jetbrains") && length(local.jetbrains_selected) > 0 ? 1 : 0)
 #   source   = "registry.coder.com/coder/jetbrains/coder"
 #   version  = "~> 1.0"
-#   agent_id = coder_agent.main.id
+#   agent_id = ni_agent.main.id
 #   folder   = "/home/coder"
 #   default  = toset(local.jetbrains_selected)
 # }
 
 module "zed" {
-  count    = data.coder_workspace.me.start_count * (contains(local.ides, "zed") ? 1 : 0)
+  count    = data.ni_workspace.me.start_count * (contains(local.ides, "zed") ? 1 : 0)
   source   = "registry.coder.com/coder/zed/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   folder   = "/home/coder"
   order    = 5
 }
 
 module "windsurf" {
-  count    = data.coder_workspace.me.start_count * (contains(local.ides, "windsurf") ? 1 : 0)
+  count    = data.ni_workspace.me.start_count * (contains(local.ides, "windsurf") ? 1 : 0)
   source   = "registry.coder.com/coder/windsurf/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   folder   = "/home/coder"
   order    = 6
 }
@@ -335,16 +335,16 @@ module "windsurf" {
 # --- Git clone ---
 
 module "git-clone" {
-  count    = data.coder_workspace.me.start_count * (data.coder_parameter.git_repo.value != "" ? 1 : 0)
+  count    = data.ni_workspace.me.start_count * (data.ni_parameter.git_repo.value != "" ? 1 : 0)
   source   = "registry.coder.com/coder/git-clone/coder"
   version  = "~> 2.0"
-  agent_id = coder_agent.main.id
-  url      = data.coder_parameter.git_repo.value
+  agent_id = ni_agent.main.id
+  url      = data.ni_parameter.git_repo.value
 }
 
 # --- Presets ---
 
-data "coder_workspace_preset" "web_dev" {
+data "ni_workspace_preset" "web_dev" {
   name = "Web Development"
   icon = "/icon/nodejs.svg"
   parameters = {
@@ -354,7 +354,7 @@ data "coder_workspace_preset" "web_dev" {
   }
 }
 
-data "coder_workspace_preset" "backend_go" {
+data "ni_workspace_preset" "backend_go" {
   name = "Backend (Go)"
   icon = "/icon/go.svg"
   parameters = {
@@ -365,7 +365,7 @@ data "coder_workspace_preset" "backend_go" {
   }
 }
 
-data "coder_workspace_preset" "data_science" {
+data "ni_workspace_preset" "data_science" {
   name = "Data Science"
   icon = "/icon/python.svg"
   parameters = {
@@ -375,7 +375,7 @@ data "coder_workspace_preset" "data_science" {
   }
 }
 
-data "coder_workspace_preset" "full_stack" {
+data "ni_workspace_preset" "full_stack" {
   name = "Full Stack"
   icon = "/icon/code.svg"
   parameters = {
@@ -388,39 +388,39 @@ data "coder_workspace_preset" "full_stack" {
 # --- Docker resources ---
 
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   lifecycle {
     ignore_changes = all
   }
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name_at_creation"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
   depends_on = []
 }
 
 resource "docker_container" "workspace" {
-  count    = data.coder_workspace.me.start_count
+  count    = data.ni_workspace.me.start_count
   image    = "codercom/enterprise-base:ubuntu"
-  name     = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
-  hostname = data.coder_workspace.me.name
+  name     = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
+  hostname = data.ni_workspace.me.name
   entrypoint = [
     "sh", "-c",
-    replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
+    replace(ni_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
   ]
-  env = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+  env = ["CODER_AGENT_TOKEN=${ni_agent.main.token}"]
   host {
     host = "host.docker.internal"
     ip   = "host-gateway"
@@ -432,19 +432,19 @@ resource "docker_container" "workspace" {
   }
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
   depends_on = []
 }

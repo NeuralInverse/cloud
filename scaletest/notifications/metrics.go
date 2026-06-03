@@ -24,7 +24,7 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 	}
 
 	latency := prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "scaletest",
 		Name:      "notification_delivery_latency_seconds",
 		Help:      "Time between notification-creating action and receipt of notification by client",
@@ -36,7 +36,7 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 		},
 	}, []string{"notification_id", "notification_type"})
 	errors := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "scaletest",
 		Name:      "notification_delivery_errors_total",
 		Help:      "Total number of notification delivery errors",

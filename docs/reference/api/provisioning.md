@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/provisionerdaemons \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/organizations/{organization}/provisionerdaemons`
@@ -75,7 +75,7 @@ curl -X GET http://coder-server:8080/api/v2/organizations/{organization}/provisi
 
 | Status | Meaning                                                 | Description | Schema                                                                      |
 |--------|---------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.ProvisionerDaemon](schemas.md#codersdkprovisionerdaemon) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.ProvisionerDaemon](schemas.md#nicloudsdkprovisionerdaemon) |
 
 <h3 id="get-provisioner-daemons-responseschema">Response Schema</h3>
 
@@ -86,9 +86,9 @@ Status Code **200**
 | `[array item]`             | array                                                                          | false    |              |                  |
 | `» api_version`            | string                                                                         | false    |              |                  |
 | `» created_at`             | string(date-time)                                                              | false    |              |                  |
-| `» current_job`            | [codersdk.ProvisionerDaemonJob](schemas.md#codersdkprovisionerdaemonjob)       | false    |              |                  |
+| `» current_job`            | [nicloudsdk.ProvisionerDaemonJob](schemas.md#nicloudsdkprovisionerdaemonjob)       | false    |              |                  |
 | `»» id`                    | string(uuid)                                                                   | false    |              |                  |
-| `»» status`                | [codersdk.ProvisionerJobStatus](schemas.md#codersdkprovisionerjobstatus)       | false    |              |                  |
+| `»» status`                | [nicloudsdk.ProvisionerJobStatus](schemas.md#nicloudsdkprovisionerjobstatus)       | false    |              |                  |
 | `»» template_display_name` | string                                                                         | false    |              |                  |
 | `»» template_icon`         | string                                                                         | false    |              |                  |
 | `»» template_name`         | string                                                                         | false    |              |                  |
@@ -98,9 +98,9 @@ Status Code **200**
 | `» last_seen_at`           | string(date-time)                                                              | false    |              |                  |
 | `» name`                   | string                                                                         | false    |              |                  |
 | `» organization_id`        | string(uuid)                                                                   | false    |              |                  |
-| `» previous_job`           | [codersdk.ProvisionerDaemonJob](schemas.md#codersdkprovisionerdaemonjob)       | false    |              |                  |
+| `» previous_job`           | [nicloudsdk.ProvisionerDaemonJob](schemas.md#nicloudsdkprovisionerdaemonjob)       | false    |              |                  |
 | `» provisioners`           | array                                                                          | false    |              |                  |
-| `» status`                 | [codersdk.ProvisionerDaemonStatus](schemas.md#codersdkprovisionerdaemonstatus) | false    |              |                  |
+| `» status`                 | [nicloudsdk.ProvisionerDaemonStatus](schemas.md#nicloudsdkprovisionerdaemonstatus) | false    |              |                  |
 | `» tags`                   | object                                                                         | false    |              |                  |
 | `»» [any property]`        | string                                                                         | false    |              |                  |
 | `» version`                | string                                                                         | false    |              |                  |

@@ -1,7 +1,7 @@
 # Releases
 
-Coder releases are cut directly from main in our
-[GitHub](https://github.com/coder/coder) on the first Tuesday of each month.
+Neural Inverse Cloud releases are cut directly from main in our
+[GitHub](https://github.com/NeuralInverse/cloud) on the first Tuesday of each month.
 
 We recommend enterprise customers test the compatibility of new releases with
 their infrastructure on a staging environment before upgrading a production
@@ -11,10 +11,10 @@ deployment.
 
 We support four primary release channels, as well as ad-hoc release candidates:
 
-- **Mainline:** The bleeding edge version of Coder
+- **Mainline:** The bleeding edge version of Neural Inverse Cloud
 - **Stable:** N-1 of the mainline release
 - **Security Support:** N-2 of the mainline release
-- **Extended Support Release:** Biannually released version of Coder
+- **Extended Support Release:** Biannually released version of Neural Inverse Cloud
 - **Release Candidates:** Ad-hoc builds to validate in-development features
 
 We field our mainline releases publicly for one month before promoting them to stable. The security support version, so n-2 from mainline, receives patches
@@ -46,32 +46,32 @@ For more information on feature rollout, see our
 - Receives only critical bugfixes and security patches
 - Ideal for regulated environments or large deployments with strict upgrade cycles
 
-ESR releases will be updated with critical bugfixes and security patches that are available to paying customers. This extended support model provides predictable, long-term maintenance for organizations that require enhanced stability. Because ESR forgoes new features in favor of maintenance and stability, it is best suited for teams with strict upgrade constraints. The latest ESR version is [Coder 2.34](https://github.com/coder/coder/releases/tag/v2.34.0).
+ESR releases will be updated with critical bugfixes and security patches that are available to paying customers. This extended support model provides predictable, long-term maintenance for organizations that require enhanced stability. Because ESR forgoes new features in favor of maintenance and stability, it is best suited for teams with strict upgrade constraints. The latest ESR version is [Neural Inverse Cloud 2.34](https://github.com/NeuralInverse/cloud/releases/tag/v2.34.0).
 
-For more information, see the [Coder ESR announcement](https://coder.com/blog/esr) or the [2.29 to 2.34 ESR Upgrade Guide](./esr-2.29-2.34-upgrade.md).
+For more information, see the [Neural Inverse Cloud ESR announcement](https://cloud.neuralinverse.com/blog/esr) or the [2.29 to 2.34 ESR Upgrade Guide](./esr-2.29-2.34-upgrade.md).
 
 ### Release Candidates
 
-- Ad-hoc builds that Coder releases to validate in-development features with select customers
+- Ad-hoc builds that Neural Inverse Cloud releases to validate in-development features with select customers
 - Not guaranteed to be stable or free of bugs
 - Features introduced in an RC are not guaranteed to be included in a mainline or stable release
 - Not intended for production use
 
-Release candidates give Coder a way to push out builds for customers and other users to try out new, under-development functionality without cutting a new minor version. Unlike mainline and stable releases, RCs do not follow a fixed schedule and carry no guarantees around stability or long-term support. They exist purely as a feedback mechanism: Coder can ship targeted builds, gather real-world input, and iterate before committing changes to the standard release channels.
+Release candidates give Neural Inverse Cloud a way to push out builds for customers and other users to try out new, under-development functionality without cutting a new minor version. Unlike mainline and stable releases, RCs do not follow a fixed schedule and carry no guarantees around stability or long-term support. They exist purely as a feedback mechanism: Neural Inverse Cloud can ship targeted builds, gather real-world input, and iterate before committing changes to the standard release channels.
 
 ## Installing stable
 
-When installing Coder, we generally advise specifying the desired version from
-our GitHub [releases page](https://github.com/coder/coder/releases).
+When installing Neural Inverse Cloud, we generally advise specifying the desired version from
+our GitHub [releases page](https://github.com/NeuralInverse/cloud/releases).
 
 You can also use our `install.sh` script with the `stable` flag to install the
 latest stable release:
 
 ```shell
-curl -fsSL https://coder.com/install.sh | sh -s -- --stable
+curl -fsSL https://cloud.neuralinverse.com/install.sh | sh -s -- --stable
 ```
 
-Best practices for installing Coder can be found on our [install](../index.md)
+Best practices for installing Neural Inverse Cloud can be found on our [install](../index.md)
 pages.
 
 ## Release schedule
@@ -79,19 +79,19 @@ pages.
 <!-- RELEASE_CALENDAR_START -->
 | Release name                                   | Release Date      | Status                   | Latest Release                                                   |
 |------------------------------------------------|-------------------|--------------------------|------------------------------------------------------------------|
-| [2.24](https://coder.com/changelog/coder-2-24) | July 01, 2025     | Extended Support Release | [v2.24.4](https://github.com/coder/coder/releases/tag/v2.24.4)   |
-| [2.28](https://coder.com/changelog/coder-2-28) | November 04, 2025 | Not Supported            | [v2.28.11](https://github.com/coder/coder/releases/tag/v2.28.11) |
-| [2.29](https://coder.com/changelog/coder-2-29) | December 02, 2025 | Extended Support Release | [v2.29.12](https://github.com/coder/coder/releases/tag/v2.29.12) |
-| [2.30](https://coder.com/changelog/coder-2-30) | February 03, 2026 | Not Supported            | [v2.30.7](https://github.com/coder/coder/releases/tag/v2.30.7)   |
-| [2.31](https://coder.com/changelog/coder-2-31) | February 23, 2026 | Security Support         | [v2.31.11](https://github.com/coder/coder/releases/tag/v2.31.11) |
-| [2.32](https://coder.com/changelog/coder-2-32) | April 14, 2026    | Stable                   | [v2.32.1](https://github.com/coder/coder/releases/tag/v2.32.1)   |
-| [2.33](https://coder.com/changelog/coder-2-33) | May 05, 2026      | Mainline                 | [v2.33.2](https://github.com/coder/coder/releases/tag/v2.33.2)   |
+| [2.24](https://cloud.neuralinverse.com/changelog/coder-2-24) | July 01, 2025     | Extended Support Release | [v2.24.4](https://github.com/NeuralInverse/cloud/releases/tag/v2.24.4)   |
+| [2.28](https://cloud.neuralinverse.com/changelog/coder-2-28) | November 04, 2025 | Not Supported            | [v2.28.11](https://github.com/NeuralInverse/cloud/releases/tag/v2.28.11) |
+| [2.29](https://cloud.neuralinverse.com/changelog/coder-2-29) | December 02, 2025 | Extended Support Release | [v2.29.12](https://github.com/NeuralInverse/cloud/releases/tag/v2.29.12) |
+| [2.30](https://cloud.neuralinverse.com/changelog/coder-2-30) | February 03, 2026 | Not Supported            | [v2.30.7](https://github.com/NeuralInverse/cloud/releases/tag/v2.30.7)   |
+| [2.31](https://cloud.neuralinverse.com/changelog/coder-2-31) | February 23, 2026 | Security Support         | [v2.31.11](https://github.com/NeuralInverse/cloud/releases/tag/v2.31.11) |
+| [2.32](https://cloud.neuralinverse.com/changelog/coder-2-32) | April 14, 2026    | Stable                   | [v2.32.1](https://github.com/NeuralInverse/cloud/releases/tag/v2.32.1)   |
+| [2.33](https://cloud.neuralinverse.com/changelog/coder-2-33) | May 05, 2026      | Mainline                 | [v2.33.2](https://github.com/NeuralInverse/cloud/releases/tag/v2.33.2)   |
 | 2.34                                           |                   | Not Released             | N/A                                                              |
 <!-- RELEASE_CALENDAR_END -->
 
 > [!TIP]
 > We publish a
-> [`preview`](https://github.com/coder/coder/pkgs/container/coder-preview) image
+> [`preview`](https://github.com/NeuralInverse/cloud/pkgs/container/coder-preview) image
 > `ghcr.io/coder/coder-preview` on each commit to the `main` branch. This can be
 > used to test under-development features and bug fixes that have not yet been
 > released to [`mainline`](#mainline-releases) or [`stable`](#stable-releases).
@@ -100,4 +100,4 @@ pages.
 
 ### January Releases
 
-Releases on the first Tuesday of January **are not guaranteed to occur** because most of our team is out for the December holiday period. That being said, an ad-hoc release might still occur. We advise not relying on a January release, or reaching out to Coder directly to determine if one will be occurring closer to the release date.
+Releases on the first Tuesday of January **are not guaranteed to occur** because most of our team is out for the December holiday period. That being said, an ad-hoc release might still occur. We advise not relying on a January release, or reaching out to Neural Inverse Cloud directly to determine if one will be occurring closer to the release date.

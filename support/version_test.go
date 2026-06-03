@@ -3,7 +3,7 @@ package support_test
 import (
 	"testing"
 
-	"github.com/coder/coder/v2/support"
+	"github.com/NeuralInverse/cloud/v2/support"
 )
 
 func TestVersionSupportsPprof(t *testing.T) {

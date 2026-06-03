@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
 )
 
 const testPanicMessage = "expected test panic"

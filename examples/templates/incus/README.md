@@ -17,13 +17,13 @@ This template uses the [Incus guest API](https://linuxcontainers.org/incus/docs/
 
 - **The provisioner does not need to run on the Incus host.** There are no bind mounts or local file writes. All configuration is passed via Incus `user.*` config keys and read from inside the container at runtime.
 - **The agent binary is downloaded automatically.** The standard Coder init script fetches the correct binary from the Coder server on every boot, keeping it in sync with the server version.
-- **The agent token is refreshed on every start.** Terraform updates the `user.coder_agent_token` config key each workspace start. A watcher service inside the container listens for config changes via the guest API events endpoint and restarts the agent when a new token arrives.
+- **The agent token is refreshed on every start.** Terraform updates the `user.ni_agent_token` config key each workspace start. A watcher service inside the container listens for config changes via the guest API events endpoint and restarts the agent when a new token arrives.
 
 ### Boot sequence
 
 1. **First boot (cloud-init):** Creates the workspace user, writes the bootstrap scripts and systemd units, installs `curl` and `git`, and enables the services. Cloud-init only runs once.
 2. **Every boot (systemd):**
-   - `coder-agent-config.service` (oneshot) reads `CODER_AGENT_TOKEN` and `CODER_AGENT_URL` from the Incus guest API and writes them to `/opt/coder/init.env`.
+   - `coder-agent-config.service` (oneshot) reads `NEURALINVERSE_AGENT_TOKEN` and `NEURALINVERSE_AGENT_URL` from the Incus guest API and writes them to `/opt/coder/init.env`.
    - `coder-agent.service` loads the env file and runs the Coder init script, which downloads the agent binary and starts it.
    - `coder-agent-watcher.service` streams config change events from the guest API. If the Incus provider updates the token *after* the container has already booted (a known provider ordering issue), the watcher detects the change, re-fetches the config, and restarts the agent.
 

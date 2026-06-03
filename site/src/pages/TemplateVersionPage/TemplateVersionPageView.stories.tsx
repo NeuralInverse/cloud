@@ -17,7 +17,7 @@ name:Template test
 ## Instructions
 You can add instructions here
 
-[Some link info](https://coder.com)
+[Some link info](https://cloud.neuralinverse.com)
 \`\`\`
 # This is a really long sentence to test that the code block wraps into a new line properly.
 \`\`\``;

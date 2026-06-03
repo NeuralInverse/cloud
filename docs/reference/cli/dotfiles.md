@@ -24,7 +24,7 @@ coder dotfiles [flags] <git_repo_url>
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>string</code>             |
-| Environment | <code>$CODER_SYMLINK_DIR</code> |
+| Environment | <code>$NEURALINVERSE_SYMLINK_DIR</code> |
 
 Specifies the directory for the dotfiles symlink destinations. If empty, will use $HOME.
 
@@ -41,7 +41,7 @@ Specifies which branch to clone. If empty, will default to cloning the default b
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string</code>                   |
-| Environment | <code>$CODER_DOTFILES_REPO_DIR</code> |
+| Environment | <code>$NEURALINVERSE_DOTFILES_REPO_DIR</code> |
 | Default     | <code>dotfiles</code>                 |
 
 Specifies the directory for the dotfiles repository, relative to global config directory.

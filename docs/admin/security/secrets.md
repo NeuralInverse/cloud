@@ -1,20 +1,20 @@
 # Secrets
 
-Coder is open-minded about how you get your secrets into your workspaces. For
+Neural Inverse Cloud is open-minded about how you get your secrets into your workspaces. For
 more information about how to use secrets and other security tips, visit our
 guide to
 [security best practices](../../tutorials/best-practices/security-best-practices.md#secrets).
 
-Use this guide to configure how templates make secrets available to Coder
-workspaces. To authenticate workspace provisioners with Coder, see the
+Use this guide to configure how templates make secrets available to Neural Inverse Cloud
+workspaces. To authenticate workspace provisioners with Neural Inverse Cloud, see the
 <a href="../provisioners/index.md#authentication">provisioners documentation</a>.
 For secret values that developers manage themselves, see
 [User secrets](../../user-guides/user-secrets.md).
 
 ## Before you begin
 
-Your first attempt to use secrets with Coder should be your local method. You
-can do everything you can locally and more with your Coder workspace, so
+Your first attempt to use secrets with Neural Inverse Cloud should be your local method. You
+can do everything you can locally and more with your Neural Inverse Cloud workspace, so
 whatever workflow and tools you already use to manage secrets may be brought
 over.
 
@@ -31,7 +31,7 @@ parameters.
 
 ## SSH Keys
 
-Coder generates SSH key pairs for each user. This can be used as an
+Neural Inverse Cloud generates SSH key pairs for each user. This can be used as an
 authentication mechanism for git providers or other tools. Within workspaces,
 git will attempt to use this key within workspaces via the `$GIT_SSH_COMMAND`
 environment variable.
@@ -41,14 +41,14 @@ Users can view their public key in their account settings:
 ![SSH keys in account settings](../../images/ssh-keys.png)
 
 > [!NOTE]
-> SSH keys are never stored in Coder workspaces, and are fetched only when
+> SSH keys are never stored in Neural Inverse Cloud workspaces, and are fetched only when
 > SSH is invoked. The keys are held in-memory and never written to disk.
 
 ## User secrets (Beta)
 
-User secrets are developer-managed values that Coder injects at workspace start.
+User secrets are developer-managed values that Neural Inverse Cloud injects at workspace start.
 If a user secret targets the same environment variable name or file path as a
-template-provided variable or file, Coder injects the user secret into that
+template-provided variable or file, Neural Inverse Cloud injects the user secret into that
 workspace. See the [User secrets guide](../../user-guides/user-secrets.md).
 
 ## Dynamic Secrets
@@ -69,7 +69,7 @@ resource "twilio_iam_api_key" "api_key" {
   friendly_name = "Test API Key"
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   # ...
   env = {
     # Let users access the secret via $TWILIO_API_SECRET
@@ -123,7 +123,7 @@ store and retrieve secrets in your workspace. For example, you can use
 workspace.
 
 Refer to our [HashiCorp Vault Integration](../integrations/vault.md) guide for
-more information on how to integrate HashiCorp Vault with Coder.
+more information on how to integrate HashiCorp Vault with Neural Inverse Cloud.
 
 ## Next steps
 

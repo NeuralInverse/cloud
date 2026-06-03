@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 // HandleResolvePath resolves the existing portion of an absolute path through
@@ -25,7 +25,7 @@ func (api *API) HandleResolvePath(rw http.ResponseWriter, r *http.Request) {
 	path := parser.String(query, "", "path")
 	parser.ErrorExcessParams(query)
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: parser.Errors,
 		})
@@ -41,7 +41,7 @@ func (api *API) HandleResolvePath(rw http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, os.ErrPermission):
 			status = http.StatusForbidden
 		}
-		httpapi.Write(ctx, rw, status, codersdk.Response{Message: err.Error()})
+		httpapi.Write(ctx, rw, status, nicloudsdk.Response{Message: err.Error()})
 		return
 	}
 

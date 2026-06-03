@@ -26,29 +26,29 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/autostart"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/createworkspaces"
-	"github.com/coder/coder/v2/scaletest/dashboard"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/prebuilds"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
-	"github.com/coder/coder/v2/scaletest/workspacetraffic"
-	"github.com/coder/coder/v2/scaletest/workspaceupdates"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/agentconn"
+	"github.com/NeuralInverse/cloud/v2/scaletest/autostart"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createworkspaces"
+	"github.com/NeuralInverse/cloud/v2/scaletest/dashboard"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/prebuilds"
+	"github.com/NeuralInverse/cloud/v2/scaletest/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacetraffic"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspaceupdates"
 	"github.com/coder/serpent"
 )
 
 const scaletestTracerName = "coder_scaletest"
 
-var BypassHeader = map[string][]string{codersdk.BypassRatelimitHeader: {"true"}}
+var BypassHeader = map[string][]string{nicloudsdk.BypassRatelimitHeader: {"true"}}
 
 func (r *RootCmd) scaletestCmd() *serpent.Command {
 	cmd := &serpent.Command{
@@ -90,25 +90,25 @@ func (s *scaletestTracingFlags) attach(opts *serpent.OptionSet) {
 		*opts,
 		serpent.Option{
 			Flag:        "trace",
-			Env:         "CODER_SCALETEST_TRACE",
+			Env:         "NEURALINVERSE_SCALETEST_TRACE",
 			Description: "Whether application tracing data is collected. It exports to a backend configured by environment variables. See: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md.",
 			Value:       serpent.BoolOf(&s.traceEnable),
 		},
 		serpent.Option{
-			Flag:        "trace-coder",
-			Env:         "CODER_SCALETEST_TRACE_CODER",
+			Flag:        "trace-ni",
+			Env:         "NEURALINVERSE_SCALETEST_TRACE_CODER",
 			Description: "Whether opentelemetry traces are sent to Coder. We recommend keeping this disabled unless we advise you to enable it.",
 			Value:       serpent.BoolOf(&s.traceCoder),
 		},
 		serpent.Option{
 			Flag:        "trace-honeycomb-api-key",
-			Env:         "CODER_SCALETEST_TRACE_HONEYCOMB_API_KEY",
+			Env:         "NEURALINVERSE_SCALETEST_TRACE_HONEYCOMB_API_KEY",
 			Description: "Enables trace exporting to Honeycomb.io using the provided API key.",
 			Value:       serpent.StringOf(&s.traceHoneycombAPIKey),
 		},
 		serpent.Option{
 			Flag:        "trace-propagate",
-			Env:         "CODER_SCALETEST_TRACE_PROPAGATE",
+			Env:         "NEURALINVERSE_SCALETEST_TRACE_PROPAGATE",
 			Description: "Enables trace propagation to the Coder backend, which will be used to correlate server-side spans with client-side spans. Only enable this if the server is configured with the exact same tracing configuration as the client.",
 			Value:       serpent.BoolOf(&s.tracePropagate),
 		},
@@ -152,9 +152,9 @@ type concurrencyFlags struct {
 }
 
 func (c *concurrencyFlags) attach(opts *serpent.OptionSet) {
-	concurrencyLong, concurrencyEnv, concurrencyDescription := "concurrency", "CODER_SCALETEST_CONCURRENCY", "Number of concurrent jobs to run. 0 means unlimited."
+	concurrencyLong, concurrencyEnv, concurrencyDescription := "concurrency", "NEURALINVERSE_SCALETEST_CONCURRENCY", "Number of concurrent jobs to run. 0 means unlimited."
 	if c.cleanup {
-		concurrencyLong, concurrencyEnv, concurrencyDescription = "cleanup-"+concurrencyLong, "CODER_SCALETEST_CLEANUP_CONCURRENCY", strings.ReplaceAll(concurrencyDescription, "jobs", "cleanup jobs")
+		concurrencyLong, concurrencyEnv, concurrencyDescription = "cleanup-"+concurrencyLong, "NEURALINVERSE_SCALETEST_CLEANUP_CONCURRENCY", strings.ReplaceAll(concurrencyDescription, "jobs", "cleanup jobs")
 	}
 
 	*opts = append(*opts, serpent.Option{
@@ -186,11 +186,11 @@ type timeoutFlags struct {
 }
 
 func (t *timeoutFlags) attach(opts *serpent.OptionSet) {
-	timeoutLong, timeoutEnv, timeoutDescription := "timeout", "CODER_SCALETEST_TIMEOUT", "Timeout for the entire test run. 0 means unlimited."
-	jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription := "job-timeout", "CODER_SCALETEST_JOB_TIMEOUT", "Timeout per job. Jobs may take longer to complete under higher concurrency limits."
+	timeoutLong, timeoutEnv, timeoutDescription := "timeout", "NEURALINVERSE_SCALETEST_TIMEOUT", "Timeout for the entire test run. 0 means unlimited."
+	jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription := "job-timeout", "NEURALINVERSE_SCALETEST_JOB_TIMEOUT", "Timeout per job. Jobs may take longer to complete under higher concurrency limits."
 	if t.cleanup {
-		timeoutLong, timeoutEnv, timeoutDescription = "cleanup-"+timeoutLong, "CODER_SCALETEST_CLEANUP_TIMEOUT", strings.ReplaceAll(timeoutDescription, "test", "cleanup")
-		jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription = "cleanup-"+jobTimeoutLong, "CODER_SCALETEST_CLEANUP_JOB_TIMEOUT", strings.ReplaceAll(jobTimeoutDescription, "jobs", "cleanup jobs")
+		timeoutLong, timeoutEnv, timeoutDescription = "cleanup-"+timeoutLong, "NEURALINVERSE_SCALETEST_CLEANUP_TIMEOUT", strings.ReplaceAll(timeoutDescription, "test", "cleanup")
+		jobTimeoutLong, jobTimeoutEnv, jobTimeoutDescription = "cleanup-"+jobTimeoutLong, "NEURALINVERSE_SCALETEST_CLEANUP_JOB_TIMEOUT", strings.ReplaceAll(jobTimeoutDescription, "jobs", "cleanup jobs")
 	}
 
 	*opts = append(
@@ -312,7 +312,7 @@ type scaletestOutputFlags struct {
 func (s *scaletestOutputFlags) attach(opts *serpent.OptionSet) {
 	*opts = append(*opts, serpent.Option{
 		Flag:        "output",
-		Env:         "CODER_SCALETEST_OUTPUTS",
+		Env:         "NEURALINVERSE_SCALETEST_OUTPUTS",
 		Description: `Output format specs in the format "<format>[:<path>]". Not specifying a path will default to stdout. Available formats: text, json.`,
 		Default:     "text",
 		Value:       serpent.StringArrayOf(&s.outputSpecs),
@@ -376,14 +376,14 @@ func (s *scaletestPrometheusFlags) attach(opts *serpent.OptionSet) {
 	*opts = append(*opts,
 		serpent.Option{
 			Flag:        "scaletest-prometheus-address",
-			Env:         "CODER_SCALETEST_PROMETHEUS_ADDRESS",
+			Env:         "NEURALINVERSE_SCALETEST_PROMETHEUS_ADDRESS",
 			Default:     "0.0.0.0:21112",
 			Description: "Address on which to expose scaletest Prometheus metrics.",
 			Value:       serpent.StringOf(&s.Address),
 		},
 		serpent.Option{
 			Flag:        "scaletest-prometheus-wait",
-			Env:         "CODER_SCALETEST_PROMETHEUS_WAIT",
+			Env:         "NEURALINVERSE_SCALETEST_PROMETHEUS_WAIT",
 			Default:     "15s",
 			Description: "How long to wait before exiting in order to allow Prometheus metrics to be scraped.",
 			Value:       serpent.DurationOf(&s.Wait),
@@ -404,19 +404,19 @@ func (f *workspaceTargetFlags) attach(opts *serpent.OptionSet) {
 		serpent.Option{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_SCALETEST_TEMPLATE",
+			Env:           "NEURALINVERSE_SCALETEST_TEMPLATE",
 			Description:   "Name or ID of the template. Only workspaces created from this template are targeted.",
 			Value:         serpent.StringOf(&f.template),
 		},
 		serpent.Option{
 			Flag:        "target-workspaces",
-			Env:         "CODER_SCALETEST_TARGET_WORKSPACES",
+			Env:         "NEURALINVERSE_SCALETEST_TARGET_WORKSPACES",
 			Description: "Target a specific range of matching workspaces in the format [START]:[END] (exclusive). Example: 0:10 targets the first 10 matching workspaces returned by the workspace query.",
 			Value:       serpent.StringOf(&f.targetWorkspaces),
 		},
 		serpent.Option{
 			Flag:        "use-host-login",
-			Env:         "CODER_SCALETEST_USE_HOST_LOGIN",
+			Env:         "NEURALINVERSE_SCALETEST_USE_HOST_LOGIN",
 			Default:     "false",
 			Description: "Connect as the currently logged in user.",
 			Value:       serpent.BoolOf(&f.useHostLogin),
@@ -426,7 +426,7 @@ func (f *workspaceTargetFlags) attach(opts *serpent.OptionSet) {
 
 // getTargetedWorkspaces retrieves the workspaces based on the template filter and target range. warnWriter is where to
 // write a warning message if any workspaces were skipped due to ownership mismatch.
-func (f *workspaceTargetFlags) getTargetedWorkspaces(ctx context.Context, client *codersdk.Client, organizationIDs []uuid.UUID, warnWriter io.Writer) ([]codersdk.Workspace, error) {
+func (f *workspaceTargetFlags) getTargetedWorkspaces(ctx context.Context, client *nicloudsdk.Client, organizationIDs []uuid.UUID, warnWriter io.Writer) ([]nicloudsdk.Workspace, error) {
 	// Validate template if provided
 	if f.template != "" {
 		_, err := parseTemplate(ctx, client, organizationIDs, f.template)
@@ -444,7 +444,7 @@ func (f *workspaceTargetFlags) getTargetedWorkspaces(ctx context.Context, client
 	// Determine owner based on useHostLogin
 	var owner string
 	if f.useHostLogin {
-		owner = codersdk.Me
+		owner = nicloudsdk.Me
 	}
 
 	// Get workspaces
@@ -453,7 +453,7 @@ func (f *workspaceTargetFlags) getTargetedWorkspaces(ctx context.Context, client
 		return nil, err
 	}
 	if numSkipped > 0 {
-		cliui.Warnf(warnWriter, "CODER_DISABLE_OWNER_WORKSPACE_ACCESS is set on the deployment.\n\t%d workspace(s) were skipped due to ownership mismatch.\n\tSet --use-host-login to only target workspaces you own.", numSkipped)
+		cliui.Warnf(warnWriter, "NEURALINVERSE_DISABLE_OWNER_WORKSPACE_ACCESS is set on the deployment.\n\t%d workspace(s) were skipped due to ownership mismatch.\n\tSet --use-host-login to only target workspaces you own.", numSkipped)
 	}
 
 	// Adjust targetEnd if not specified
@@ -473,10 +473,10 @@ func (f *workspaceTargetFlags) getTargetedWorkspaces(ctx context.Context, client
 	return workspaces[targetStart:targetEnd], nil
 }
 
-func RequireAdmin(ctx context.Context, client *codersdk.Client) (codersdk.User, error) {
-	me, err := client.User(ctx, codersdk.Me)
+func RequireAdmin(ctx context.Context, client *nicloudsdk.Client) (nicloudsdk.User, error) {
+	me, err := client.User(ctx, nicloudsdk.Me)
 	if err != nil {
-		return codersdk.User{}, xerrors.Errorf("fetch current user: %w", err)
+		return nicloudsdk.User{}, xerrors.Errorf("fetch current user: %w", err)
 	}
 
 	// Only owners can do scaletests. This isn't a very strong check but there's
@@ -499,7 +499,7 @@ func RequireAdmin(ctx context.Context, client *codersdk.Client) (codersdk.User, 
 
 // userCleanupRunner is a runner that deletes a user in the Run phase.
 type userCleanupRunner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	userID uuid.UUID
 }
 
@@ -524,8 +524,8 @@ func (r *userCleanupRunner) Run(ctx context.Context, _ string, _ io.Writer) erro
 // prebuildTemplateCleanupRunner deletes a single scaletest prebuilds template.
 // All prebuild workspaces must be deleted before this runs.
 type prebuildTemplateCleanupRunner struct {
-	client   *codersdk.Client
-	template codersdk.Template
+	client   *nicloudsdk.Client
+	template nicloudsdk.Template
 }
 
 var _ harness.Runnable = &prebuildTemplateCleanupRunner{}
@@ -546,7 +546,7 @@ func (r *prebuildTemplateCleanupRunner) Run(ctx context.Context, _ string, _ io.
 // query so that legitimate (non-scaletest) prebuilds on the deployment are not
 // caught in the cleanup. If template is non-empty only workspaces for that
 // template are returned.
-func getScaletestPrebuildWorkspaces(ctx context.Context, client *codersdk.Client, template string) ([]codersdk.Workspace, error) {
+func getScaletestPrebuildWorkspaces(ctx context.Context, client *nicloudsdk.Client, template string) ([]nicloudsdk.Workspace, error) {
 	const pageSize = 100
 
 	templates, err := getScaletestPrebuildsTemplates(ctx, client, template)
@@ -555,11 +555,11 @@ func getScaletestPrebuildWorkspaces(ctx context.Context, client *codersdk.Client
 	}
 
 	seen := make(map[uuid.UUID]struct{})
-	var result []codersdk.Workspace
+	var result []nicloudsdk.Workspace
 
 	for _, tmpl := range templates {
 		for page := 0; ; page++ {
-			resp, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+			resp, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{
 				Template: tmpl.Name,
 				Offset:   page * pageSize,
 				Limit:    pageSize,
@@ -586,15 +586,15 @@ func getScaletestPrebuildWorkspaces(ctx context.Context, client *codersdk.Client
 // prebuilds runner (identified by prebuilds.TemplatePrefix). If template is
 // non-empty only that named template is returned; it must start with
 // prebuilds.TemplatePrefix or an error is returned.
-func getScaletestPrebuildsTemplates(ctx context.Context, client *codersdk.Client, template string) ([]codersdk.Template, error) {
-	var filter codersdk.TemplateFilter
+func getScaletestPrebuildsTemplates(ctx context.Context, client *nicloudsdk.Client, template string) ([]nicloudsdk.Template, error) {
+	var filter nicloudsdk.TemplateFilter
 	if template != "" {
 		if !strings.HasPrefix(template, prebuilds.TemplatePrefix) {
 			return nil, xerrors.Errorf("template %q is not a scaletest prebuilds template (expected prefix %q)", template, prebuilds.TemplatePrefix)
 		}
-		filter = codersdk.TemplateFilter{ExactName: template}
+		filter = nicloudsdk.TemplateFilter{ExactName: template}
 	} else {
-		filter = codersdk.TemplateFilter{FuzzyName: prebuilds.TemplatePrefix}
+		filter = nicloudsdk.TemplateFilter{FuzzyName: prebuilds.TemplatePrefix}
 	}
 	templates, err := client.Templates(ctx, filter)
 	if err != nil {
@@ -624,10 +624,10 @@ func (r *RootCmd) scaletestCleanup() *serpent.Command {
 			}
 
 			client.HTTPClient = &http.Client{
-				Transport: &codersdk.HeaderTransport{
+				Transport: &nicloudsdk.HeaderTransport{
 					Transport: http.DefaultTransport,
 					Header: map[string][]string{
-						codersdk.BypassRatelimitHeader: {"true"},
+						nicloudsdk.BypassRatelimitHeader: {"true"},
 					},
 				},
 			}
@@ -641,7 +641,7 @@ func (r *RootCmd) scaletestCleanup() *serpent.Command {
 
 			cliui.Infof(inv.Stdout, "Pausing prebuilds reconciler...")
 			setPrebuild := func(val bool) error {
-				return client.PutPrebuildsSettings(ctx, codersdk.PrebuildsSettings{ReconciliationPaused: val})
+				return client.PutPrebuildsSettings(ctx, nicloudsdk.PrebuildsSettings{ReconciliationPaused: val})
 			}
 			if err = setPrebuild(true); err != nil {
 				return xerrors.Errorf("pause prebuilds reconciler: %w", err)
@@ -794,7 +794,7 @@ func (r *RootCmd) scaletestCleanup() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "template",
-			Env:         "CODER_SCALETEST_CLEANUP_TEMPLATE",
+			Env:         "NEURALINVERSE_SCALETEST_CLEANUP_TEMPLATE",
 			Description: "Name or ID of the template. Only delete workspaces created from the given template.",
 			Value:       serpent.StringOf(&template),
 		},
@@ -882,7 +882,7 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 				Action:            WorkspaceCreate,
 				TemplateVersionID: tpl.ActiveVersionID,
 				NewWorkspaceName:  "scaletest-N", // TODO: the scaletest runner will pass in a different name here. Does this matter?
-				Owner:             codersdk.Me,
+				Owner:             nicloudsdk.Me,
 
 				RichParameterFile: parameterFlags.richParameterFile,
 				RichParameters:    cliRichParameters,
@@ -918,7 +918,7 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 					Workspace: workspacebuild.Config{
 						OrganizationID: me.OrganizationIDs[0],
 						// UserID is set by the test automatically.
-						Request: codersdk.CreateWorkspaceRequest{
+						Request: nicloudsdk.CreateWorkspaceRequest{
 							TemplateID:          tpl.ID,
 							RichParameterValues: richParameters,
 						},
@@ -970,7 +970,7 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 				}
 
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
@@ -1024,14 +1024,14 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 		{
 			Flag:          "count",
 			FlagShorthand: "c",
-			Env:           "CODER_SCALETEST_COUNT",
+			Env:           "NEURALINVERSE_SCALETEST_COUNT",
 			Default:       "1",
 			Description:   "Required: Number of workspaces to create.",
 			Value:         serpent.Int64Of(&count),
 		},
 		{
 			Flag:        "retry",
-			Env:         "CODER_SCALETEST_RETRY",
+			Env:         "NEURALINVERSE_SCALETEST_RETRY",
 			Default:     "0",
 			Description: "Number of tries to create and bring up the workspace.",
 			Value:       serpent.Int64Of(&retry),
@@ -1039,98 +1039,98 @@ func (r *RootCmd) scaletestCreateWorkspaces() *serpent.Command {
 		{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_SCALETEST_TEMPLATE",
+			Env:           "NEURALINVERSE_SCALETEST_TEMPLATE",
 			Description:   "Required: Name or ID of the template to use for workspaces.",
 			Value:         serpent.StringOf(&template),
 		},
 		{
 			Flag:        "no-cleanup",
-			Env:         "CODER_SCALETEST_NO_CLEANUP",
-			Description: "Do not clean up resources after the test completes. You can cleanup manually using coder scaletest cleanup.",
+			Env:         "NEURALINVERSE_SCALETEST_NO_CLEANUP",
+			Description: "Do not clean up resources after the test completes. You can cleanup manually using neuralinverse scaletest cleanup.",
 			Value:       serpent.BoolOf(&noCleanup),
 		},
 		{
 			Flag:        "no-wait-for-agents",
-			Env:         "CODER_SCALETEST_NO_WAIT_FOR_AGENTS",
-			Description: `Do not wait for agents to start before marking the test as succeeded. This can be useful if you are running the test against a template that does not start the agent quickly. This is REQUIRED for templates whose workspaces use coder_external_agent resources, since external agents never connect on their own; pair with "coder exp scaletest agentfake" to drive those agents.`,
+			Env:         "NEURALINVERSE_SCALETEST_NO_WAIT_FOR_AGENTS",
+			Description: `Do not wait for agents to start before marking the test as succeeded. This can be useful if you are running the test against a template that does not start the agent quickly. This is REQUIRED for templates whose workspaces use ni_external_agent resources, since external agents never connect on their own; pair with "neuralinverse exp scaletest agentfake" to drive those agents.`,
 			Value:       serpent.BoolOf(&noWaitForAgents),
 		},
 		{
 			Flag:        "run-command",
-			Env:         "CODER_SCALETEST_RUN_COMMAND",
+			Env:         "NEURALINVERSE_SCALETEST_RUN_COMMAND",
 			Description: "Command to run inside each workspace using reconnecting-pty (i.e. web terminal protocol). " + "If not specified, no command will be run.",
 			Value:       serpent.StringOf(&runCommand),
 		},
 		{
 			Flag:        "run-timeout",
-			Env:         "CODER_SCALETEST_RUN_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_RUN_TIMEOUT",
 			Default:     "5s",
 			Description: "Timeout for the command to complete.",
 			Value:       serpent.DurationOf(&runTimeout),
 		},
 		{
 			Flag: "run-expect-timeout",
-			Env:  "CODER_SCALETEST_RUN_EXPECT_TIMEOUT",
+			Env:  "NEURALINVERSE_SCALETEST_RUN_EXPECT_TIMEOUT",
 
 			Description: "Expect the command to timeout." + " If the command does not finish within the given --run-timeout, it will be marked as succeeded." + " If the command finishes before the timeout, it will be marked as failed.",
 			Value:       serpent.BoolOf(&runExpectTimeout),
 		},
 		{
 			Flag:        "run-expect-output",
-			Env:         "CODER_SCALETEST_RUN_EXPECT_OUTPUT",
+			Env:         "NEURALINVERSE_SCALETEST_RUN_EXPECT_OUTPUT",
 			Description: "Expect the command to output the given string (on a single line). " + "If the command does not output the given string, it will be marked as failed.",
 			Value:       serpent.StringOf(&runExpectOutput),
 		},
 		{
 			Flag:        "run-log-output",
-			Env:         "CODER_SCALETEST_RUN_LOG_OUTPUT",
+			Env:         "NEURALINVERSE_SCALETEST_RUN_LOG_OUTPUT",
 			Description: "Log the output of the command to the test logs. " + "This should be left off unless you expect small amounts of output. " + "Large amounts of output will cause high memory usage.",
 			Value:       serpent.BoolOf(&runLogOutput),
 		},
 		{
 			Flag:        "connect-url",
-			Env:         "CODER_SCALETEST_CONNECT_URL",
+			Env:         "NEURALINVERSE_SCALETEST_CONNECT_URL",
 			Description: "URL to connect to inside the the workspace over WireGuard. " + "If not specified, no connections will be made over WireGuard.",
 			Value:       serpent.StringOf(&connectURL),
 		},
 		{
 			Flag:        "connect-mode",
-			Env:         "CODER_SCALETEST_CONNECT_MODE",
+			Env:         "NEURALINVERSE_SCALETEST_CONNECT_MODE",
 			Default:     "derp",
 			Description: "Mode to use for connecting to the workspace.",
 			Value:       serpent.EnumOf(&connectMode, "derp", "direct"),
 		},
 		{
 			Flag:        "connect-hold",
-			Env:         "CODER_SCALETEST_CONNECT_HOLD",
+			Env:         "NEURALINVERSE_SCALETEST_CONNECT_HOLD",
 			Default:     "30s",
 			Description: "How long to hold the WireGuard connection open for.",
 			Value:       serpent.DurationOf(&connectHold),
 		},
 		{
 			Flag:        "connect-interval",
-			Env:         "CODER_SCALETEST_CONNECT_INTERVAL",
+			Env:         "NEURALINVERSE_SCALETEST_CONNECT_INTERVAL",
 			Default:     "1s",
 			Value:       serpent.DurationOf(&connectInterval),
 			Description: "How long to wait between making requests to the --connect-url once the connection is established.",
 		},
 		{
 			Flag:        "connect-timeout",
-			Env:         "CODER_SCALETEST_CONNECT_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_CONNECT_TIMEOUT",
 			Default:     "5s",
 			Description: "Timeout for each request to the --connect-url.",
 			Value:       serpent.DurationOf(&connectTimeout),
 		},
 		{
 			Flag:        "use-host-login",
-			Env:         "CODER_SCALETEST_USE_HOST_LOGIN",
+			Env:         "NEURALINVERSE_SCALETEST_USE_HOST_LOGIN",
 			Default:     "false",
 			Description: "Use the user logged in on the host machine, instead of creating users.",
 			Value:       serpent.BoolOf(&useHostUser),
 		},
 		{
 			Flag:        "max-failures",
-			Env:         "CODER_SCALETEST_MAX_FAILURES",
+			Env:         "NEURALINVERSE_SCALETEST_MAX_FAILURES",
 			Default:     "0",
 			Description: "Maximum number of runs that are allowed to fail before the entire test is considered failed. 0 means any failure will cause the test to fail.",
 			Value:       serpent.Int64Of(&maxFailures),
@@ -1229,7 +1229,7 @@ func (r *RootCmd) scaletestWorkspaceUpdates() *serpent.Command {
 			richParameters, err := prepWorkspaceBuild(inv, client, prepWorkspaceBuildArgs{
 				Action:            WorkspaceCreate,
 				TemplateVersionID: tpl.ActiveVersionID,
-				Owner:             codersdk.Me,
+				Owner:             nicloudsdk.Me,
 
 				RichParameterFile: parameterFlags.richParameterFile,
 				RichParameters:    cliRichParameters,
@@ -1275,7 +1275,7 @@ func (r *RootCmd) scaletestWorkspaceUpdates() *serpent.Command {
 					},
 					Workspace: workspacebuild.Config{
 						OrganizationID: me.OrganizationIDs[0],
-						Request: codersdk.CreateWorkspaceRequest{
+						Request: nicloudsdk.CreateWorkspaceRequest{
 							TemplateID:          tpl.ID,
 							RichParameterValues: richParameters,
 						},
@@ -1300,7 +1300,7 @@ func (r *RootCmd) scaletestWorkspaceUpdates() *serpent.Command {
 					},
 					Workspace: workspacebuild.Config{
 						OrganizationID: me.OrganizationIDs[0],
-						Request: codersdk.CreateWorkspaceRequest{
+						Request: nicloudsdk.CreateWorkspaceRequest{
 							TemplateID:          tpl.ID,
 							RichParameterValues: richParameters,
 						},
@@ -1324,7 +1324,7 @@ func (r *RootCmd) scaletestWorkspaceUpdates() *serpent.Command {
 				id := strconv.Itoa(i)
 
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
@@ -1384,35 +1384,35 @@ func (r *RootCmd) scaletestWorkspaceUpdates() *serpent.Command {
 		{
 			Flag:          "workspace-count",
 			FlagShorthand: "c",
-			Env:           "CODER_SCALETEST_WORKSPACE_COUNT",
+			Env:           "NEURALINVERSE_SCALETEST_WORKSPACE_COUNT",
 			Description:   "Required: Total number of workspaces to create.",
 			Value:         serpent.Int64Of(&workspaceCount),
 			Required:      true,
 		},
 		{
 			Flag:        "power-user-workspaces",
-			Env:         "CODER_SCALETEST_POWER_USER_WORKSPACES",
+			Env:         "NEURALINVERSE_SCALETEST_POWER_USER_WORKSPACES",
 			Description: "Number of workspaces each power-user owns.",
 			Value:       serpent.Int64Of(&powerUserWorkspaces),
 			Required:    true,
 		},
 		{
 			Flag:        "power-user-percentage",
-			Env:         "CODER_SCALETEST_POWER_USER_PERCENTAGE",
+			Env:         "NEURALINVERSE_SCALETEST_POWER_USER_PERCENTAGE",
 			Default:     "50.0",
 			Description: "Percentage of total workspaces owned by power-users (0-100).",
 			Value:       serpent.Float64Of(&powerUserPercentage),
 		},
 		{
 			Flag:        "workspace-updates-timeout",
-			Env:         "CODER_SCALETEST_WORKSPACE_UPDATES_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_UPDATES_TIMEOUT",
 			Default:     "5m",
 			Description: "How long to wait for all expected workspace updates.",
 			Value:       serpent.DurationOf(&workspaceUpdatesTimeout),
 		},
 		{
 			Flag:        "dial-timeout",
-			Env:         "CODER_SCALETEST_DIAL_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_DIAL_TIMEOUT",
 			Default:     "2m",
 			Description: "Timeout for dialing the tailnet endpoint.",
 			Value:       serpent.DurationOf(&dialTimeout),
@@ -1420,14 +1420,14 @@ func (r *RootCmd) scaletestWorkspaceUpdates() *serpent.Command {
 		{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_SCALETEST_TEMPLATE",
+			Env:           "NEURALINVERSE_SCALETEST_TEMPLATE",
 			Description:   "Required: Name or ID of the template to use for workspaces.",
 			Value:         serpent.StringOf(&template),
 			Required:      true,
 		},
 		{
 			Flag:        "no-cleanup",
-			Env:         "CODER_SCALETEST_NO_CLEANUP",
+			Env:         "NEURALINVERSE_SCALETEST_NO_CLEANUP",
 			Description: "Do not clean up resources after the test completes.",
 			Value:       serpent.BoolOf(&noCleanup),
 		},
@@ -1461,7 +1461,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 
 	cmd := &serpent.Command{
 		Use:   "workspace-traffic",
-		Short: "Generate traffic to scaletest workspaces through coderd",
+		Short: "Generate traffic to scaletest workspaces through nicloud",
 		Handler: func(inv *serpent.Invocation) (err error) {
 			client, err := r.InitClient(inv)
 			if err != nil {
@@ -1521,7 +1521,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 			th := harness.NewTestHarness(strategy.toStrategy(), cleanupStrategy.toStrategy())
 			for idx, ws := range workspaces {
 				var (
-					agent codersdk.WorkspaceAgent
+					agent nicloudsdk.WorkspaceAgent
 					name  = "workspace-traffic"
 					id    = strconv.Itoa(idx)
 				)
@@ -1543,16 +1543,16 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 					return xerrors.Errorf("configure workspace app: %w", err)
 				}
 
-				var webClient *codersdk.Client
+				var webClient *nicloudsdk.Client
 				if workspaceProxyURL != "" {
 					u, err := url.Parse(workspaceProxyURL)
 					if err != nil {
 						return xerrors.Errorf("parse workspace proxy URL: %w", err)
 					}
 
-					webClient = codersdk.New(u,
-						codersdk.WithHTTPClient(client.HTTPClient),
-						codersdk.WithSessionToken(client.SessionToken()),
+					webClient = nicloudsdk.New(u,
+						nicloudsdk.WithHTTPClient(client.HTTPClient),
+						nicloudsdk.WithSessionToken(client.SessionToken()),
 					)
 
 					appConfig, err = createWorkspaceAppConfig(webClient, appHost.Host, app, ws, agent)
@@ -1586,7 +1586,7 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 					return xerrors.Errorf("validate config: %w", err)
 				}
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
@@ -1635,42 +1635,42 @@ func (r *RootCmd) scaletestWorkspaceTraffic() *serpent.Command {
 	cmd.Options = []serpent.Option{
 		{
 			Flag:        "bytes-per-tick",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_BYTES_PER_TICK",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_TRAFFIC_BYTES_PER_TICK",
 			Default:     "1024",
 			Description: "How much traffic to generate per tick.",
 			Value:       serpent.Int64Of(&bytesPerTick),
 		},
 		{
 			Flag:        "tick-interval",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_TICK_INTERVAL",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_TRAFFIC_TICK_INTERVAL",
 			Default:     "100ms",
 			Description: "How often to send traffic.",
 			Value:       serpent.DurationOf(&tickInterval),
 		},
 		{
 			Flag:        "ssh",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_SSH",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_TRAFFIC_SSH",
 			Default:     "",
 			Description: "Send traffic over SSH, cannot be used with --app.",
 			Value:       serpent.BoolOf(&ssh),
 		},
 		{
 			Flag:        "disable-direct",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_DISABLE_DIRECT_CONNECTIONS",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_TRAFFIC_DISABLE_DIRECT_CONNECTIONS",
 			Default:     "false",
 			Description: "Disable direct connections for SSH traffic to workspaces. Does nothing if `--ssh` is not also set.",
 			Value:       serpent.BoolOf(&disableDirect),
 		},
 		{
 			Flag:        "app",
-			Env:         "CODER_SCALETEST_WORKSPACE_TRAFFIC_APP",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_TRAFFIC_APP",
 			Default:     "",
-			Description: "Send WebSocket traffic to a workspace app (proxied via coderd), cannot be used with --ssh.",
+			Description: "Send WebSocket traffic to a workspace app (proxied via nicloud), cannot be used with --ssh.",
 			Value:       serpent.StringOf(&app),
 		},
 		{
 			Flag:        "workspace-proxy-url",
-			Env:         "CODER_SCALETEST_WORKSPACE_PROXY_URL",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_PROXY_URL",
 			Default:     "",
 			Description: "URL for workspace proxy to send web traffic to.",
 			Value:       serpent.StringOf(&workspaceProxyURL),
@@ -1770,7 +1770,7 @@ func (r *RootCmd) scaletestDashboard() *serpent.Command {
 				//nolint:gosec // not used for cryptographic purposes
 				rndGen := rand.New(rand.NewSource(randSeed))
 				name := fmt.Sprintf("dashboard-%s", usr.Username)
-				userTokResp, err := client.CreateToken(ctx, usr.ID.String(), codersdk.CreateTokenRequest{
+				userTokResp, err := client.CreateToken(ctx, usr.ID.String(), nicloudsdk.CreateTokenRequest{
 					Lifetime:  30 * 24 * time.Hour,
 					Scope:     "",
 					TokenName: fmt.Sprintf("scaletest-%d", time.Now().Unix()),
@@ -1780,12 +1780,12 @@ func (r *RootCmd) scaletestDashboard() *serpent.Command {
 				}
 
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				userClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
 				}
-				codersdk.WithSessionToken(userTokResp.Key)(userClient)
+				nicloudsdk.WithSessionToken(userTokResp.Key)(userClient)
 
 				config := dashboard.Config{
 					Interval: interval,
@@ -1849,34 +1849,34 @@ func (r *RootCmd) scaletestDashboard() *serpent.Command {
 	cmd.Options = []serpent.Option{
 		{
 			Flag:        "target-users",
-			Env:         "CODER_SCALETEST_DASHBOARD_TARGET_USERS",
+			Env:         "NEURALINVERSE_SCALETEST_DASHBOARD_TARGET_USERS",
 			Description: "Target a specific range of users in the format [START]:[END] (exclusive). Example: 0:10 will target the 10 first alphabetically sorted users (0-9).",
 			Value:       serpent.StringOf(&targetUsers),
 		},
 		{
 			Flag:        "interval",
-			Env:         "CODER_SCALETEST_DASHBOARD_INTERVAL",
+			Env:         "NEURALINVERSE_SCALETEST_DASHBOARD_INTERVAL",
 			Default:     "10s",
 			Description: "Interval between actions.",
 			Value:       serpent.DurationOf(&interval),
 		},
 		{
 			Flag:        "jitter",
-			Env:         "CODER_SCALETEST_DASHBOARD_JITTER",
+			Env:         "NEURALINVERSE_SCALETEST_DASHBOARD_JITTER",
 			Default:     "5s",
 			Description: "Jitter between actions.",
 			Value:       serpent.DurationOf(&jitter),
 		},
 		{
 			Flag:        "headless",
-			Env:         "CODER_SCALETEST_DASHBOARD_HEADLESS",
+			Env:         "NEURALINVERSE_SCALETEST_DASHBOARD_HEADLESS",
 			Default:     "true",
 			Description: "Controls headless mode. Setting to false is useful for debugging.",
 			Value:       serpent.BoolOf(&headless),
 		},
 		{
 			Flag:        "rand-seed",
-			Env:         "CODER_SCALETEST_DASHBOARD_RAND_SEED",
+			Env:         "NEURALINVERSE_SCALETEST_DASHBOARD_RAND_SEED",
 			Default:     "0",
 			Description: "Seed for the random number generator.",
 			Value:       serpent.Int64Of(&randSeed),
@@ -1953,7 +1953,7 @@ func (r *RootCmd) scaletestAutostart() *serpent.Command {
 			richParameters, err := prepWorkspaceBuild(inv, client, prepWorkspaceBuildArgs{
 				Action:            WorkspaceCreate,
 				TemplateVersionID: tpl.ActiveVersionID,
-				Owner:             codersdk.Me,
+				Owner:             nicloudsdk.Me,
 
 				RichParameterFile: parameterFlags.richParameterFile,
 				RichParameters:    cliRichParameters,
@@ -1977,7 +1977,7 @@ func (r *RootCmd) scaletestAutostart() *serpent.Command {
 			if err != nil {
 				return xerrors.Errorf("get experiments: %w", err)
 			}
-			if !experiments.Enabled(codersdk.ExperimentWorkspaceBuildUpdates) {
+			if !experiments.Enabled(nicloudsdk.ExperimentWorkspaceBuildUpdates) {
 				return xerrors.New("the workspace-build-updates experiment must be enabled to run the autostart scaletest")
 			}
 
@@ -2009,7 +2009,7 @@ func (r *RootCmd) scaletestAutostart() *serpent.Command {
 					},
 					Workspace: workspacebuild.Config{
 						OrganizationID: me.OrganizationIDs[0],
-						Request: codersdk.CreateWorkspaceRequest{
+						Request: nicloudsdk.CreateWorkspaceRequest{
 							TemplateID:          tpl.ID,
 							RichParameterValues: richParameters,
 							// Use deterministic workspace name so we can pre-create the channel.
@@ -2027,7 +2027,7 @@ func (r *RootCmd) scaletestAutostart() *serpent.Command {
 					return xerrors.Errorf("validate config: %w", err)
 				}
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
@@ -2102,28 +2102,28 @@ func (r *RootCmd) scaletestAutostart() *serpent.Command {
 		{
 			Flag:          "workspace-count",
 			FlagShorthand: "c",
-			Env:           "CODER_SCALETEST_WORKSPACE_COUNT",
+			Env:           "NEURALINVERSE_SCALETEST_WORKSPACE_COUNT",
 			Description:   "Required: Total number of workspaces to create.",
 			Value:         serpent.Int64Of(&workspaceCount),
 			Required:      true,
 		},
 		{
 			Flag:        "workspace-job-timeout",
-			Env:         "CODER_SCALETEST_WORKSPACE_JOB_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_WORKSPACE_JOB_TIMEOUT",
 			Default:     "5m",
 			Description: "Timeout for workspace jobs (e.g. build, start).",
 			Value:       serpent.DurationOf(&workspaceJobTimeout),
 		},
 		{
 			Flag:        "autostart-build-timeout",
-			Env:         "CODER_SCALETEST_AUTOSTART_BUILD_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_AUTOSTART_BUILD_TIMEOUT",
 			Default:     "15m",
 			Description: "Timeout for the autostart build to complete. Must be longer than workspace-job-timeout to account for queueing time in high-load scenarios.",
 			Value:       serpent.DurationOf(&autostartBuildTimeout),
 		},
 		{
 			Flag:        "autostart-delay",
-			Env:         "CODER_SCALETEST_AUTOSTART_DELAY",
+			Env:         "NEURALINVERSE_SCALETEST_AUTOSTART_DELAY",
 			Default:     "2m",
 			Description: "How long after all the workspaces have been stopped to schedule them to be started again.",
 			Value:       serpent.DurationOf(&autostartDelay),
@@ -2131,14 +2131,14 @@ func (r *RootCmd) scaletestAutostart() *serpent.Command {
 		{
 			Flag:          "template",
 			FlagShorthand: "t",
-			Env:           "CODER_SCALETEST_TEMPLATE",
+			Env:           "NEURALINVERSE_SCALETEST_TEMPLATE",
 			Description:   "Required: Name or ID of the template to use for workspaces.",
 			Value:         serpent.StringOf(&template),
 			Required:      true,
 		},
 		{
 			Flag:        "no-cleanup",
-			Env:         "CODER_SCALETEST_NO_CLEANUP",
+			Env:         "NEURALINVERSE_SCALETEST_NO_CLEANUP",
 			Description: "Do not clean up resources after the test completes.",
 			Value:       serpent.BoolOf(&noCleanup),
 		},
@@ -2213,15 +2213,15 @@ func (r *runnableTraceWrapper) GetMetrics() map[string]any {
 	return c.GetMetrics()
 }
 
-func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner, template string) ([]codersdk.Workspace, int, error) {
+func getScaletestWorkspaces(ctx context.Context, client *nicloudsdk.Client, owner, template string) ([]nicloudsdk.Workspace, int, error) {
 	var (
 		pageNumber = 0
 		limit      = 100
-		workspaces []codersdk.Workspace
+		workspaces []nicloudsdk.Workspace
 		skipped    int
 	)
 
-	me, err := client.User(ctx, codersdk.Me)
+	me, err := client.User(ctx, nicloudsdk.Me)
 	if err != nil {
 		return nil, 0, xerrors.Errorf("check logged-in user")
 	}
@@ -2233,7 +2233,7 @@ func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner,
 	noOwnerAccess := dv.Values != nil && dv.Values.DisableOwnerWorkspaceExec.Value()
 
 	for {
-		page, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		page, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{
 			Name:     "scaletest-",
 			Template: template,
 			Owner:    owner,
@@ -2249,7 +2249,7 @@ func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner,
 			break
 		}
 
-		pageWorkspaces := make([]codersdk.Workspace, 0, len(page.Workspaces))
+		pageWorkspaces := make([]nicloudsdk.Workspace, 0, len(page.Workspaces))
 		for _, w := range page.Workspaces {
 			if !loadtestutil.IsScaleTestWorkspace(w.Name, w.OwnerName) {
 				continue
@@ -2265,17 +2265,17 @@ func getScaletestWorkspaces(ctx context.Context, client *codersdk.Client, owner,
 	return workspaces, skipped, nil
 }
 
-func getScaletestUsers(ctx context.Context, client *codersdk.Client) ([]codersdk.User, error) {
+func getScaletestUsers(ctx context.Context, client *nicloudsdk.Client) ([]nicloudsdk.User, error) {
 	var (
 		pageNumber = 0
 		limit      = 100
-		users      []codersdk.User
+		users      []nicloudsdk.User
 	)
 
 	for {
-		page, err := client.Users(ctx, codersdk.UsersRequest{
+		page, err := client.Users(ctx, nicloudsdk.UsersRequest{
 			Search: "scaletest-",
-			Pagination: codersdk.Pagination{
+			Pagination: nicloudsdk.Pagination{
 				Offset: pageNumber * limit,
 				Limit:  limit,
 			},
@@ -2289,7 +2289,7 @@ func getScaletestUsers(ctx context.Context, client *codersdk.Client) ([]codersdk
 			break
 		}
 
-		pageUsers := make([]codersdk.User, 0, len(page.Users))
+		pageUsers := make([]nicloudsdk.User, 0, len(page.Users))
 		for _, u := range page.Users {
 			if loadtestutil.IsScaleTestUser(u.Username, u.Email) {
 				pageUsers = append(pageUsers, u)
@@ -2301,7 +2301,7 @@ func getScaletestUsers(ctx context.Context, client *codersdk.Client) ([]codersdk
 	return users, nil
 }
 
-func parseTemplate(ctx context.Context, client *codersdk.Client, organizationIDs []uuid.UUID, template string) (tpl codersdk.Template, err error) {
+func parseTemplate(ctx context.Context, client *nicloudsdk.Client, organizationIDs []uuid.UUID, template string) (tpl nicloudsdk.Template, err error) {
 	if id, err := uuid.Parse(template); err == nil && id != uuid.Nil {
 		tpl, err = client.Template(ctx, id)
 		if err != nil {
@@ -2361,12 +2361,12 @@ func parseTargetRange(name, targets string) (start, end int, err error) {
 	return start, end, nil
 }
 
-func createWorkspaceAppConfig(client *codersdk.Client, appHost, app string, workspace codersdk.Workspace, agent codersdk.WorkspaceAgent) (workspacetraffic.AppConfig, error) {
+func createWorkspaceAppConfig(client *nicloudsdk.Client, appHost, app string, workspace nicloudsdk.Workspace, agent nicloudsdk.WorkspaceAgent) (workspacetraffic.AppConfig, error) {
 	if app == "" {
 		return workspacetraffic.AppConfig{}, nil
 	}
 
-	i := slices.IndexFunc(agent.Apps, func(a codersdk.WorkspaceApp) bool { return a.Slug == app })
+	i := slices.IndexFunc(agent.Apps, func(a nicloudsdk.WorkspaceApp) bool { return a.Slug == app })
 	if i == -1 {
 		return workspacetraffic.AppConfig{}, xerrors.Errorf("app %q not found in workspace %q", app, workspace.Name)
 	}

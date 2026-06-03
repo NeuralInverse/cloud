@@ -18,20 +18,20 @@ import (
 	"golang.org/x/xerrors"
 
 	agentapi "github.com/coder/agentapi-sdk-go"
-	"github.com/coder/coder/v2/agent/agentsocket"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/toolsdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentsocket"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/toolsdk"
 	"github.com/coder/retry"
 	"github.com/coder/serpent"
 )
 
 const (
-	envAppStatusSlug = "CODER_MCP_APP_STATUS_SLUG"
-	envAIAgentAPIURL = "CODER_MCP_AI_AGENTAPI_URL"
+	envAppStatusSlug = "NEURALINVERSE_MCP_APP_STATUS_SLUG"
+	envAIAgentAPIURL = "NEURALINVERSE_MCP_AI_AGENTAPI_URL"
 )
 
 func (r *RootCmd) mcpCommand() *serpent.Command {
@@ -104,7 +104,7 @@ func (*RootCmd) mcpConfigureClaudeDesktop() *serpent.Command {
 				return err
 			}
 			contents["mcpServers"] = map[string]any{
-				"coder": map[string]any{"command": binPath, "args": []string{"exp", "mcp", "server"}},
+				"neuralinverse": map[string]any{"command": binPath, "args": []string{"exp", "mcp", "server"}},
 			}
 			data, err = json.MarshalIndent(contents, "", "  ")
 			if err != nil {
@@ -126,13 +126,13 @@ func mcpConfigureClaudeCode() *serpent.Command {
 		claudeConfigPath string
 		claudeMDPath     string
 		systemPrompt     string
-		coderPrompt      string
+		niPrompt      string
 		appStatusSlug    string
 		testBinaryName   string
 		aiAgentAPIURL    url.URL
 		claudeUseBedrock string
 
-		deprecatedCoderMCPClaudeAPIKey string
+		deprecatedNIMCPClaudeAPIKey string
 	)
 	cmd := &serpent.Command{
 		Use:   "claude-code <project-directory>",
@@ -152,9 +152,9 @@ func mcpConfigureClaudeCode() *serpent.Command {
 			}
 			configureClaudeEnv := map[string]string{}
 
-			if deprecatedCoderMCPClaudeAPIKey != "" {
-				cliui.Warnf(inv.Stderr, "CODER_MCP_CLAUDE_API_KEY is deprecated, use CLAUDE_API_KEY instead")
-				claudeAPIKey = deprecatedCoderMCPClaudeAPIKey
+			if deprecatedNIMCPClaudeAPIKey != "" {
+				cliui.Warnf(inv.Stderr, "NEURALINVERSE_MCP_CLAUDE_API_KEY is deprecated, use CLAUDE_API_KEY instead")
+				claudeAPIKey = deprecatedNIMCPClaudeAPIKey
 			}
 			if claudeAPIKey == "" && claudeUseBedrock != "1" {
 				cliui.Warnf(inv.Stderr, "CLAUDE_API_KEY is not set.")
@@ -167,7 +167,7 @@ func mcpConfigureClaudeCode() *serpent.Command {
 				configureClaudeEnv[envAIAgentAPIURL] = aiAgentAPIURL.String()
 			}
 			if deprecatedSystemPromptEnv, ok := os.LookupEnv("SYSTEM_PROMPT"); ok {
-				cliui.Warnf(inv.Stderr, "SYSTEM_PROMPT is deprecated, use CODER_MCP_CLAUDE_SYSTEM_PROMPT instead")
+				cliui.Warnf(inv.Stderr, "SYSTEM_PROMPT is deprecated, use NEURALINVERSE_MCP_CLAUDE_SYSTEM_PROMPT instead")
 				systemPrompt = deprecatedSystemPromptEnv
 			}
 
@@ -178,7 +178,7 @@ func mcpConfigureClaudeCode() *serpent.Command {
 				ConfigPath:       claudeConfigPath,
 				ProjectDirectory: projectDirectory,
 				MCPServers: map[string]ClaudeConfigMCP{
-					"coder": {
+					"neuralinverse": {
 						Command: binPath,
 						Args:    []string{"exp", "mcp", "server"},
 						Env:     configureClaudeEnv,
@@ -197,9 +197,9 @@ func mcpConfigureClaudeCode() *serpent.Command {
 				reportTaskPrompt = defaultReportTaskPrompt
 			}
 
-			// The Coder Prompt just allows users to extend our
-			if coderPrompt != "" {
-				reportTaskPrompt += "\n\n" + coderPrompt
+			// The Neural Inverse Cloud Prompt just allows users to extend our
+			if niPrompt != "" {
+				reportTaskPrompt += "\n\n" + niPrompt
 			}
 
 			// We also write the system prompt to the CLAUDE.md file.
@@ -213,7 +213,7 @@ func mcpConfigureClaudeCode() *serpent.Command {
 			{
 				Name:        "claude-config-path",
 				Description: "The path to the Claude config file.",
-				Env:         "CODER_MCP_CLAUDE_CONFIG_PATH",
+				Env:         "NEURALINVERSE_MCP_CLAUDE_CONFIG_PATH",
 				Flag:        "claude-config-path",
 				Value:       serpent.StringOf(&claudeConfigPath),
 				Default:     filepath.Join(os.Getenv("HOME"), ".claude.json"),
@@ -221,7 +221,7 @@ func mcpConfigureClaudeCode() *serpent.Command {
 			{
 				Name:        "claude-md-path",
 				Description: "The path to CLAUDE.md.",
-				Env:         "CODER_MCP_CLAUDE_MD_PATH",
+				Env:         "NEURALINVERSE_MCP_CLAUDE_MD_PATH",
 				Flag:        "claude-md-path",
 				Value:       serpent.StringOf(&claudeMDPath),
 				Default:     filepath.Join(os.Getenv("HOME"), ".claude", "CLAUDE.md"),
@@ -236,25 +236,25 @@ func mcpConfigureClaudeCode() *serpent.Command {
 			{
 				Name:        "mcp-claude-api-key",
 				Description: "Hidden alias for CLAUDE_API_KEY. This will be removed in a future version.",
-				Env:         "CODER_MCP_CLAUDE_API_KEY",
-				Value:       serpent.StringOf(&deprecatedCoderMCPClaudeAPIKey),
+				Env:         "NEURALINVERSE_MCP_CLAUDE_API_KEY",
+				Value:       serpent.StringOf(&deprecatedNIMCPClaudeAPIKey),
 				Hidden:      true,
 			},
 			{
 				Name:        "system-prompt",
 				Description: "The system prompt to use for the Claude Code server.",
-				Env:         "CODER_MCP_CLAUDE_SYSTEM_PROMPT",
+				Env:         "NEURALINVERSE_MCP_CLAUDE_SYSTEM_PROMPT",
 				Flag:        "claude-system-prompt",
 				Value:       serpent.StringOf(&systemPrompt),
 				Default:     "Send a task status update to notify the user that you are ready for input, and then wait for user input.",
 			},
 			{
-				Name:        "coder-prompt",
-				Description: "The coder prompt to use for the Claude Code server.",
-				Env:         "CODER_MCP_CLAUDE_CODER_PROMPT",
-				Flag:        "claude-coder-prompt",
-				Value:       serpent.StringOf(&coderPrompt),
-				Default:     "", // Empty default means we'll use defaultCoderPrompt from the variable
+				Name:        "neuralinverse-prompt",
+				Description: "The neuralinverse prompt to use for the Claude Code server.",
+				Env:         "NEURALINVERSE_MCP_CLAUDE_NEURALINVERSE_PROMPT",
+				Flag:        "claude-ni-prompt",
+				Value:       serpent.StringOf(&niPrompt),
+				Default:     "", // Empty default means we'll use defaultNeural Inverse CloudPrompt from the variable
 			},
 			{
 				Name:        "app-status-slug",
@@ -272,7 +272,7 @@ func mcpConfigureClaudeCode() *serpent.Command {
 			{
 				Name:        "test-binary-name",
 				Description: "Only used for testing.",
-				Env:         "CODER_MCP_CLAUDE_TEST_BINARY_NAME",
+				Env:         "NEURALINVERSE_MCP_CLAUDE_TEST_BINARY_NAME",
 				Flag:        "claude-test-binary-name",
 				Value:       serpent.StringOf(&testBinaryName),
 				Hidden:      true,
@@ -298,7 +298,7 @@ func (*RootCmd) mcpConfigureCursor() *serpent.Command {
 		Options: serpent.OptionSet{
 			serpent.Option{
 				Flag:        "project",
-				Env:         "CODER_MCP_CURSOR_PROJECT",
+				Env:         "NEURALINVERSE_MCP_CURSOR_PROJECT",
 				Description: "Use to configure a local project to use the Cursor MCP.",
 				Value:       serpent.BoolOf(&project),
 			},
@@ -347,7 +347,7 @@ func (*RootCmd) mcpConfigureCursor() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			mcpServers["coder"] = map[string]any{
+			mcpServers["neuralinverse"] = map[string]any{
 				"command": binPath,
 				"args":    []string{"exp", "mcp", "server"},
 			}
@@ -377,7 +377,7 @@ type taskReport struct {
 	// (as opposed to the screen watcher).
 	selfReported bool
 	// state must always be set.
-	state codersdk.WorkspaceAppStatusState
+	state nicloudsdk.WorkspaceAppStatusState
 	// summary is optional.
 	summary string
 }
@@ -385,7 +385,7 @@ type taskReport struct {
 type mcpServer struct {
 	socketClient     *agentsocket.Client
 	appStatusSlug    string
-	client           *codersdk.Client
+	client           *nicloudsdk.Client
 	aiAgentAPIClient *agentapi.Client
 	queue            *cliutil.Queue[taskReport]
 }
@@ -439,7 +439,7 @@ func (r *RootCmd) mcpServer() *serpent.Command {
 				// (and does not update itself), but it avoids spamming useless status
 				// updates as the user is typing, so the tradeoff is worth it.
 				if report.messageID == nil &&
-					report.state == codersdk.WorkspaceAppStatusStateWorking &&
+					report.state == nicloudsdk.WorkspaceAppStatusStateWorking &&
 					!report.selfReported && lastReport.state != "" {
 					return report, false
 				}
@@ -479,7 +479,7 @@ func (r *RootCmd) mcpServer() *serpent.Command {
 
 			// Validate the client.
 			if client != nil && client.URL != nil && client.SessionToken() != "" {
-				me, err := client.User(inv.Context(), codersdk.Me)
+				me, err := client.User(inv.Context(), nicloudsdk.Me)
 				if err == nil {
 					username := me.Username
 					cliui.Infof(inv.Stderr, "Authentication : Successful")
@@ -556,19 +556,19 @@ func (r *RootCmd) mcpServer() *serpent.Command {
 				Name:        "instructions",
 				Description: "The instructions to pass to the MCP server.",
 				Flag:        "instructions",
-				Env:         "CODER_MCP_INSTRUCTIONS",
+				Env:         "NEURALINVERSE_MCP_INSTRUCTIONS",
 				Value:       serpent.StringOf(&instructions),
 			},
 			{
 				Name:        "allowed-tools",
 				Description: "Comma-separated list of allowed tools. If not specified, all tools are allowed.",
 				Flag:        "allowed-tools",
-				Env:         "CODER_MCP_ALLOWED_TOOLS",
+				Env:         "NEURALINVERSE_MCP_ALLOWED_TOOLS",
 				Value:       serpent.StringArrayOf(&allowedTools),
 			},
 			{
 				Name:        "app-status-slug",
-				Description: "When reporting a task, the coder_app slug under which to report the task.",
+				Description: "When reporting a task, the ni_app slug under which to report the task.",
 				Flag:        "app-status-slug",
 				Env:         envAppStatusSlug,
 				Value:       serpent.StringOf(&appStatusSlug),
@@ -583,7 +583,7 @@ func (r *RootCmd) mcpServer() *serpent.Command {
 			{
 				Flag:        "socket-path",
 				Description: "Specify the path for the agent socket.",
-				Env:         "CODER_AGENT_SOCKET_PATH",
+				Env:         "NEURALINVERSE_AGENT_SOCKET_PATH",
 				Value:       serpent.StringOf(&socketPath),
 			},
 		},
@@ -635,9 +635,9 @@ func (s *mcpServer) startWatcher(ctx context.Context, inv *serpent.Invocation) {
 					case event := <-eventsCh:
 						switch ev := event.(type) {
 						case agentapi.EventStatusChange:
-							state := codersdk.WorkspaceAppStatusStateWorking
+							state := nicloudsdk.WorkspaceAppStatusStateWorking
 							if ev.Status == agentapi.StatusStable {
-								state = codersdk.WorkspaceAppStatusStateIdle
+								state = nicloudsdk.WorkspaceAppStatusStateIdle
 							}
 							err := s.queue.Push(taskReport{
 								state: state,
@@ -650,7 +650,7 @@ func (s *mcpServer) startWatcher(ctx context.Context, inv *serpent.Invocation) {
 							if ev.Role == agentapi.RoleUser {
 								err := s.queue.Push(taskReport{
 									messageID: &ev.Id,
-									state:     codersdk.WorkspaceAppStatusStateWorking,
+									state:     nicloudsdk.WorkspaceAppStatusStateWorking,
 								})
 								if err != nil {
 									cliui.Warnf(inv.Stderr, "Failed to queue update: %s", err)
@@ -705,14 +705,14 @@ func (s *mcpServer) startServer(ctx context.Context, inv *serpent.Invocation, in
 	// Add tool dependencies.
 	toolOpts := []func(*toolsdk.Deps){
 		toolsdk.WithTaskReporter(func(args toolsdk.ReportTaskArgs) error {
-			state := codersdk.WorkspaceAppStatusState(args.State)
+			state := nicloudsdk.WorkspaceAppStatusState(args.State)
 			// The agent does not reliably report idle, so when AgentAPI is
 			// enabled we override idle to working and let the screen watcher
 			// detect the real idle via StatusStable.  Final states (failure,
 			// complete) are trusted from the agent since the screen watcher
 			// cannot produce them.
-			if s.aiAgentAPIClient != nil && state == codersdk.WorkspaceAppStatusStateIdle {
-				state = codersdk.WorkspaceAppStatusStateWorking
+			if s.aiAgentAPIClient != nil && state == nicloudsdk.WorkspaceAppStatusStateIdle {
+				state = nicloudsdk.WorkspaceAppStatusStateWorking
 			}
 			return s.queue.Push(taskReport{
 				link:         args.Link,
@@ -891,13 +891,13 @@ var (
 	defaultReportTaskPrompt = `Respect the requirements of the "coder_report_task" tool. It is pertinent to provide a fantastic user-experience.`
 
 	// Define the guard strings
-	coderPromptStartGuard  = "<coder-prompt>"
-	coderPromptEndGuard    = "</coder-prompt>"
+	niPromptStartGuard  = "<ni-prompt>"
+	niPromptEndGuard    = "</ni-prompt>"
 	systemPromptStartGuard = "<system-prompt>"
 	systemPromptEndGuard   = "</system-prompt>"
 )
 
-func injectClaudeMD(fs afero.Fs, coderPrompt, systemPrompt, claudeMDPath string) error {
+func injectClaudeMD(fs afero.Fs, niPrompt, systemPrompt, claudeMDPath string) error {
 	_, err := fs.Stat(claudeMDPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -908,7 +908,7 @@ func injectClaudeMD(fs afero.Fs, coderPrompt, systemPrompt, claudeMDPath string)
 			return xerrors.Errorf("failed to create claude config directory: %w", err)
 		}
 
-		return afero.WriteFile(fs, claudeMDPath, []byte(promptsBlock(coderPrompt, systemPrompt, "")), 0o600)
+		return afero.WriteFile(fs, claudeMDPath, []byte(promptsBlock(niPrompt, systemPrompt, "")), 0o600)
 	}
 
 	bs, err := afero.ReadFile(fs, claudeMDPath)
@@ -919,13 +919,13 @@ func injectClaudeMD(fs afero.Fs, coderPrompt, systemPrompt, claudeMDPath string)
 	// Extract the content without the guarded sections
 	cleanContent := string(bs)
 
-	// Remove existing coder prompt section if it exists
-	coderStartIdx := indexOf(cleanContent, coderPromptStartGuard)
-	coderEndIdx := indexOf(cleanContent, coderPromptEndGuard)
-	if coderStartIdx != -1 && coderEndIdx != -1 && coderStartIdx < coderEndIdx {
-		beforeCoderPrompt := cleanContent[:coderStartIdx]
-		afterCoderPrompt := cleanContent[coderEndIdx+len(coderPromptEndGuard):]
-		cleanContent = beforeCoderPrompt + afterCoderPrompt
+	// Remove existing neuralinverse prompt section if it exists
+	niStartIdx := indexOf(cleanContent, niPromptStartGuard)
+	niEndIdx := indexOf(cleanContent, niPromptEndGuard)
+	if niStartIdx != -1 && niEndIdx != -1 && niStartIdx < niEndIdx {
+		beforeNIPrompt := cleanContent[:niStartIdx]
+		afterNIPrompt := cleanContent[niEndIdx+len(niPromptEndGuard):]
+		cleanContent = beforeNIPrompt + afterNIPrompt
 	}
 
 	// Remove existing system prompt section if it exists
@@ -940,8 +940,8 @@ func injectClaudeMD(fs afero.Fs, coderPrompt, systemPrompt, claudeMDPath string)
 	// Trim any leading whitespace from the clean content
 	cleanContent = strings.TrimSpace(cleanContent)
 
-	// Create the new content with coder and system prompt prepended
-	newContent := promptsBlock(coderPrompt, systemPrompt, cleanContent)
+	// Create the new content with neuralinverse and system prompt prepended
+	newContent := promptsBlock(niPrompt, systemPrompt, cleanContent)
 
 	// Write the updated content back to the file
 	err = afero.WriteFile(fs, claudeMDPath, []byte(newContent), 0o600)
@@ -952,13 +952,13 @@ func injectClaudeMD(fs afero.Fs, coderPrompt, systemPrompt, claudeMDPath string)
 	return nil
 }
 
-func promptsBlock(coderPrompt, systemPrompt, existingContent string) string {
+func promptsBlock(niPrompt, systemPrompt, existingContent string) string {
 	var newContent strings.Builder
-	_, _ = newContent.WriteString(coderPromptStartGuard)
+	_, _ = newContent.WriteString(niPromptStartGuard)
 	_, _ = newContent.WriteRune('\n')
-	_, _ = newContent.WriteString(coderPrompt)
+	_, _ = newContent.WriteString(niPrompt)
 	_, _ = newContent.WriteRune('\n')
-	_, _ = newContent.WriteString(coderPromptEndGuard)
+	_, _ = newContent.WriteString(niPromptEndGuard)
 	_, _ = newContent.WriteRune('\n')
 	_, _ = newContent.WriteString(systemPromptStartGuard)
 	_, _ = newContent.WriteRune('\n')

@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent/agentcontextconfig"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontextconfig"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
 	"github.com/coder/serpent"
 )
 
@@ -120,8 +120,8 @@ func (*RootCmd) chatContextAddCommand() *serpent.Command {
 			{
 				Name:        "Chat ID",
 				Flag:        "chat",
-				Env:         "CODER_CHAT_ID",
-				Description: "Chat ID to add context to. Auto-detected from CODER_CHAT_ID, the only active chat, or the only top-level active chat.",
+				Env:         "NEURALINVERSE_CHAT_ID",
+				Description: "Chat ID to add context to. Auto-detected from NEURALINVERSE_CHAT_ID, the only active chat, or the only top-level active chat.",
 				Value:       serpent.StringOf(&chatID),
 			},
 		},
@@ -170,8 +170,8 @@ func (*RootCmd) chatContextClearCommand() *serpent.Command {
 		Options: serpent.OptionSet{{
 			Name:        "Chat ID",
 			Flag:        "chat",
-			Env:         "CODER_CHAT_ID",
-			Description: "Chat ID to clear context from. Auto-detected from CODER_CHAT_ID, the only active chat, or the only top-level active chat.",
+			Env:         "NEURALINVERSE_CHAT_ID",
+			Description: "Chat ID to clear context from. Auto-detected from NEURALINVERSE_CHAT_ID, the only active chat, or the only top-level active chat.",
 			Value:       serpent.StringOf(&chatID),
 		}},
 	}
@@ -180,7 +180,7 @@ func (*RootCmd) chatContextClearCommand() *serpent.Command {
 }
 
 // parseChatID returns the chat UUID from the flag value (which
-// serpent already populates from --chat or CODER_CHAT_ID). Returns
+// serpent already populates from --chat or NEURALINVERSE_CHAT_ID). Returns
 // uuid.Nil if empty (the server will auto-detect).
 func parseChatID(flagValue string) (uuid.UUID, error) {
 	if flagValue == "" {

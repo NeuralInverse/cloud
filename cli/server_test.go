@@ -42,24 +42,24 @@ import (
 	"tailscale.com/types/key"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/migrations"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/pty/ptytest"
-	"github.com/coder/coder/v2/tailnet/tailnettest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/migrations"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/telemetry"
+	"github.com/NeuralInverse/cloud/v2/nicloud/userpassword"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/pty/ptytest"
+	"github.com/NeuralInverse/cloud/v2/tailnet/tailnettest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/serpent"
 )
 
@@ -74,18 +74,18 @@ func TestReadExternalAuthProvidersFromEnv(t *testing.T) {
 	t.Run("Valid", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_EXTERNAL_AUTH_0_ID=1",
-			"CODER_EXTERNAL_AUTH_0_TYPE=gitlab",
-			"CODER_EXTERNAL_AUTH_1_ID=2",
-			"CODER_EXTERNAL_AUTH_1_CLIENT_ID=sid",
-			"CODER_EXTERNAL_AUTH_1_CLIENT_SECRET=hunter12",
-			"CODER_EXTERNAL_AUTH_1_TOKEN_URL=google.com",
-			"CODER_EXTERNAL_AUTH_1_VALIDATE_URL=bing.com",
-			"CODER_EXTERNAL_AUTH_1_REVOKE_URL=revoke.url",
-			"CODER_EXTERNAL_AUTH_1_SCOPES=repo:read repo:write",
-			"CODER_EXTERNAL_AUTH_1_NO_REFRESH=true",
-			"CODER_EXTERNAL_AUTH_1_DISPLAY_NAME=Google",
-			"CODER_EXTERNAL_AUTH_1_DISPLAY_ICON=/icon/google.svg",
+			"NEURALINVERSE_EXTERNAL_AUTH_0_ID=1",
+			"NEURALINVERSE_EXTERNAL_AUTH_0_TYPE=gitlab",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_ID=2",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_CLIENT_ID=sid",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_CLIENT_SECRET=hunter12",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_TOKEN_URL=google.com",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_VALIDATE_URL=bing.com",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_REVOKE_URL=revoke.url",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_SCOPES=repo:read repo:write",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_NO_REFRESH=true",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_DISPLAY_NAME=Google",
+			"NEURALINVERSE_EXTERNAL_AUTH_1_DISPLAY_ICON=/icon/google.svg",
 		})
 		require.NoError(t, err)
 		require.Len(t, providers, 2)
@@ -112,9 +112,9 @@ func TestReadExternalAuthProvidersFromEnv(t *testing.T) {
 func TestReadExternalAuthProvidersFromEnv_APIBaseURL(t *testing.T) {
 	t.Parallel()
 	providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-		"CODER_EXTERNAL_AUTH_0_TYPE=github",
-		"CODER_EXTERNAL_AUTH_0_CLIENT_ID=xxx",
-		"CODER_EXTERNAL_AUTH_0_API_BASE_URL=https://ghes.corp.com/api/v3",
+		"NEURALINVERSE_EXTERNAL_AUTH_0_TYPE=github",
+		"NEURALINVERSE_EXTERNAL_AUTH_0_CLIENT_ID=xxx",
+		"NEURALINVERSE_EXTERNAL_AUTH_0_API_BASE_URL=https://ghes.corp.com/api/v3",
 	})
 	require.NoError(t, err)
 	require.Len(t, providers, 1)
@@ -124,15 +124,15 @@ func TestReadExternalAuthProvidersFromEnv_APIBaseURL(t *testing.T) {
 func TestReadExternalAuthProvidersFromEnv_APIBaseURLDefault(t *testing.T) {
 	t.Parallel()
 	providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-		"CODER_EXTERNAL_AUTH_0_TYPE=github",
-		"CODER_EXTERNAL_AUTH_0_CLIENT_ID=xxx",
+		"NEURALINVERSE_EXTERNAL_AUTH_0_TYPE=github",
+		"NEURALINVERSE_EXTERNAL_AUTH_0_CLIENT_ID=xxx",
 	})
 	require.NoError(t, err)
 	require.Len(t, providers, 1)
 	assert.Equal(t, "", providers[0].APIBaseURL)
 }
 
-// TestReadGitAuthProvidersFromEnv ensures that the deprecated `CODER_GITAUTH_`
+// TestReadGitAuthProvidersFromEnv ensures that the deprecated `NEURALINVERSE_GITAUTH_`
 // environment variables are still supported.
 func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Parallel()
@@ -147,7 +147,7 @@ func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Run("InvalidKey", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_GITAUTH_XXX=invalid",
+			"NEURALINVERSE_GITAUTH_XXX=invalid",
 		})
 		require.Error(t, err, "providers: %+v", providers)
 		require.Empty(t, providers)
@@ -155,8 +155,8 @@ func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Run("SkipKey", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_GITAUTH_0_ID=invalid",
-			"CODER_GITAUTH_2_ID=invalid",
+			"NEURALINVERSE_GITAUTH_0_ID=invalid",
+			"NEURALINVERSE_GITAUTH_2_ID=invalid",
 		})
 		require.Error(t, err, "%+v", providers)
 		require.Empty(t, providers)
@@ -164,15 +164,15 @@ func TestReadGitAuthProvidersFromEnv(t *testing.T) {
 	t.Run("Valid", func(t *testing.T) {
 		t.Parallel()
 		providers, err := cli.ReadExternalAuthProvidersFromEnv([]string{
-			"CODER_GITAUTH_0_ID=1",
-			"CODER_GITAUTH_0_TYPE=gitlab",
-			"CODER_GITAUTH_1_ID=2",
-			"CODER_GITAUTH_1_CLIENT_ID=sid",
-			"CODER_GITAUTH_1_CLIENT_SECRET=hunter12",
-			"CODER_GITAUTH_1_TOKEN_URL=google.com",
-			"CODER_GITAUTH_1_VALIDATE_URL=bing.com",
-			"CODER_GITAUTH_1_SCOPES=repo:read repo:write",
-			"CODER_GITAUTH_1_NO_REFRESH=true",
+			"NEURALINVERSE_GITAUTH_0_ID=1",
+			"NEURALINVERSE_GITAUTH_0_TYPE=gitlab",
+			"NEURALINVERSE_GITAUTH_1_ID=2",
+			"NEURALINVERSE_GITAUTH_1_CLIENT_ID=sid",
+			"NEURALINVERSE_GITAUTH_1_CLIENT_SECRET=hunter12",
+			"NEURALINVERSE_GITAUTH_1_TOKEN_URL=google.com",
+			"NEURALINVERSE_GITAUTH_1_VALIDATE_URL=bing.com",
+			"NEURALINVERSE_GITAUTH_1_SCOPES=repo:read repo:write",
+			"NEURALINVERSE_GITAUTH_1_NO_REFRESH=true",
 		})
 		require.NoError(t, err)
 		require.Len(t, providers, 2)
@@ -424,7 +424,7 @@ func TestServer(t *testing.T) {
 				require.NotNil(t, accessURL)
 			}
 
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 
 			authMethods, err := client.AuthMethods(ctx)
 			require.NoError(t, err)
@@ -447,7 +447,7 @@ func TestServer(t *testing.T) {
 			inv, cfg = clitest.New(t, args...)
 			clitest.Start(t, inv)
 			accessURL = waitAccessURL(t, cfg)
-			client = codersdk.New(accessURL)
+			client = nicloudsdk.New(accessURL)
 
 			ctx = testutil.Context(t, testutil.WaitLong)
 			authMethods, err = client.AuthMethods(ctx)
@@ -705,7 +705,7 @@ func TestServer(t *testing.T) {
 		// Verify HTTPS
 		accessURL := waitAccessURL(t, cfg)
 		require.Equal(t, "https", accessURL.Scheme)
-		client := codersdk.New(accessURL)
+		client := nicloudsdk.New(accessURL)
 		client.HTTPClient = &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
@@ -748,7 +748,7 @@ func TestServer(t *testing.T) {
 			expectAddr string
 			dials      atomic.Int64
 		)
-		client := codersdk.New(accessURL)
+		client := nicloudsdk.New(accessURL)
 		client.HTTPClient = &http.Client{
 			Transport: &http.Transport{
 				DialTLSContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -833,7 +833,7 @@ func TestServer(t *testing.T) {
 		// Verify HTTP
 		httpURL, err := url.Parse(httpAddr)
 		require.NoError(t, err)
-		client := codersdk.New(httpURL)
+		client := nicloudsdk.New(httpURL)
 		client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}
@@ -843,7 +843,7 @@ func TestServer(t *testing.T) {
 		// Verify TLS
 		tlsURL, err := url.Parse(tlsAddr)
 		require.NoError(t, err)
-		client = codersdk.New(tlsURL)
+		client = nicloudsdk.New(tlsURL)
 		client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}
@@ -980,7 +980,7 @@ func TestServer(t *testing.T) {
 				if c.httpListener {
 					httpURL, err := url.Parse(httpAddr)
 					require.NoError(t, err)
-					client := codersdk.New(httpURL)
+					client := nicloudsdk.New(httpURL)
 					client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 						return http.ErrUseLastResponse
 					}
@@ -1137,7 +1137,7 @@ func TestServer(t *testing.T) {
 
 			accessURL := waitAccessURL(t, cfg)
 			require.Equal(t, "http", accessURL.Scheme)
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 			_, err := client.HasFirstUser(ctx)
 			require.NoError(t, err)
 		})
@@ -1165,7 +1165,7 @@ func TestServer(t *testing.T) {
 
 			accessURL := waitAccessURL(t, cfg)
 			require.Equal(t, "https", accessURL.Scheme)
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 			client.HTTPClient = &http.Client{
 				Transport: &http.Transport{
 					TLSClientConfig: &tls.Config{
@@ -1222,7 +1222,7 @@ func TestServer(t *testing.T) {
 		accessURL := waitAccessURL(t, cfg)
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := codersdk.New(accessURL)
+		client := nicloudsdk.New(accessURL)
 		body, err := client.Request(ctx, http.MethodGet, "/", nil)
 		require.NoError(t, err)
 		require.NoError(t, body.Body.Close())
@@ -1289,17 +1289,17 @@ func TestServer(t *testing.T) {
 						t.Logf("scanned: %s", line) // avoid spamming logs
 						scannedOnce = true
 					}
-					if strings.HasPrefix(line, "coderd_db_query_latencies_seconds") {
+					if strings.HasPrefix(line, "nicloud_db_query_latencies_seconds") {
 						t.Errorf("db metrics should not be tracked when --prometheus-collect-db-metrics is not enabled")
 					}
 					// This metric is manually registered to be tracked in the server. That's
 					// why we test it's tracked here.
-					if strings.HasPrefix(line, "coderd_api_active_users_duration_hour") {
+					if strings.HasPrefix(line, "nicloud_api_active_users_duration_hour") {
 						activeUsersFound = true
 					}
 				}
 				return activeUsersFound
-			}, testutil.IntervalSlow, "didn't find coderd_api_active_users_duration_hour in time")
+			}, testutil.IntervalSlow, "didn't find nicloud_api_active_users_duration_hour in time")
 		})
 
 		t.Run("DBMetricsEnabled", func(t *testing.T) {
@@ -1350,12 +1350,12 @@ func TestServer(t *testing.T) {
 						t.Logf("scanned: %s", line) // avoid spamming logs
 						scannedOnce = true
 					}
-					if strings.HasPrefix(line, "coderd_db_query_latencies_seconds") {
+					if strings.HasPrefix(line, "nicloud_db_query_latencies_seconds") {
 						dbMetricsFound = true
 					}
 				}
 				return dbMetricsFound
-			}, testutil.IntervalSlow, "didn't find coderd_db_query_latencies_seconds in time")
+			}, testutil.IntervalSlow, "didn't find nicloud_db_query_latencies_seconds in time")
 		})
 	})
 	t.Run("GitHubOAuth", func(t *testing.T) {
@@ -1374,7 +1374,7 @@ func TestServer(t *testing.T) {
 		)
 		clitest.Start(t, inv)
 		accessURL := waitAccessURL(t, cfg)
-		client := codersdk.New(accessURL)
+		client := nicloudsdk.New(accessURL)
 		client.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}
@@ -1423,21 +1423,21 @@ func TestServer(t *testing.T) {
 			// Ensure that the server starts up without error.
 			clitest.Start(t, inv)
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 
 			randPassword, err := cryptorand.String(24)
 			require.NoError(t, err)
 
-			_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
-				Email:    "admin@coder.com",
+			_, err = client.CreateFirstUser(ctx, nicloudsdk.CreateFirstUserRequest{
+				Email:    "admin@cloud.neuralinverse.com",
 				Password: randPassword,
 				Username: "admin",
 				Trial:    true,
 			})
 			require.NoError(t, err)
 
-			loginResp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-				Email:    "admin@coder.com",
+			loginResp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+				Email:    "admin@cloud.neuralinverse.com",
 				Password: randPassword,
 			})
 			require.NoError(t, err)
@@ -1451,7 +1451,7 @@ func TestServer(t *testing.T) {
 			// The client secret is not returned from the API.
 			require.Empty(t, deploymentConfig.Values.OIDC.ClientSecret.Value())
 			require.Equal(t, oidcServer.URL, deploymentConfig.Values.OIDC.IssuerURL.Value())
-			// These are the default values returned from the API. See codersdk/deployment.go for the default values.
+			// These are the default values returned from the API. See nicloudsdk/deployment.go for the default values.
 			require.True(t, deploymentConfig.Values.OIDC.AllowSignups.Value())
 			require.Empty(t, deploymentConfig.Values.OIDC.EmailDomain.Value())
 			require.Equal(t, []string{"openid", "profile", "email"}, deploymentConfig.Values.OIDC.Scopes.Value())
@@ -1511,21 +1511,21 @@ func TestServer(t *testing.T) {
 			// Ensure that the server starts up without error.
 			clitest.Start(t, inv)
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 
 			randPassword, err := cryptorand.String(24)
 			require.NoError(t, err)
 
-			_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
-				Email:    "admin@coder.com",
+			_, err = client.CreateFirstUser(ctx, nicloudsdk.CreateFirstUserRequest{
+				Email:    "admin@cloud.neuralinverse.com",
 				Password: randPassword,
 				Username: "admin",
 				Trial:    true,
 			})
 			require.NoError(t, err)
 
-			loginResp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
-				Email:    "admin@coder.com",
+			loginResp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
+				Email:    "admin@cloud.neuralinverse.com",
 				Password: randPassword,
 			})
 			require.NoError(t, err)
@@ -1590,7 +1590,7 @@ func TestServer(t *testing.T) {
 				serverErr <- root.WithContext(ctx).Run()
 			}()
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 
 			resp, err := client.Request(ctx, http.MethodGet, "/api/v2/buildinfo", nil)
 			require.NoError(t, err)
@@ -1619,7 +1619,7 @@ func TestServer(t *testing.T) {
 				serverErr <- root.WithContext(ctx).Run()
 			}()
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 
 			resp, err := client.Request(ctx, http.MethodGet, "/api/v2/buildinfo", nil)
 			require.NoError(t, err)
@@ -1647,7 +1647,7 @@ func TestServer(t *testing.T) {
 				serverErr <- root.WithContext(ctx).Run()
 			}()
 			accessURL := waitAccessURL(t, cfg)
-			client := codersdk.New(accessURL)
+			client := nicloudsdk.New(accessURL)
 
 			resp, err := client.Request(ctx, http.MethodGet, "/api/v2/buildinfo", nil)
 			require.NoError(t, err)
@@ -1748,9 +1748,9 @@ func TestServer(t *testing.T) {
 			inv = inv.WithContext(ctx)
 			w := clitest.StartWithWaiter(t, inv)
 			gotURL := waitAccessURL(t, cfg)
-			client := codersdk.New(gotURL)
+			client := nicloudsdk.New(gotURL)
 
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = nicloudtest.CreateFirstUser(t, client)
 			wantConfig, err := client.DeploymentConfig(ctx)
 			require.NoError(t, err)
 			cancel()
@@ -1788,8 +1788,8 @@ func TestServer(t *testing.T) {
 			// and ensure that the live configuration is equivalent.
 			inv, cfg = clitest.New(t, "server", "--config="+fi.Name(), dbArg(t))
 			w = clitest.StartWithWaiter(t, inv)
-			client = codersdk.New(waitAccessURL(t, cfg))
-			_ = coderdtest.CreateFirstUser(t, client)
+			client = nicloudsdk.New(waitAccessURL(t, cfg))
+			_ = nicloudtest.CreateFirstUser(t, client)
 			gotConfig, err := client.DeploymentConfig(ctx)
 			require.NoError(t, err, "config:\n%s\nargs: %+v", conf.String(), inv.Args)
 			gotConfig.Options.ByName("Config Path").Value.Set("")
@@ -1856,15 +1856,15 @@ func TestServer_ExternalAuthGitHubDefaultProvider(t *testing.T) {
 				})
 			}
 		}
-		unsetPrefixedEnv("CODER_EXTERNAL_AUTH_")
-		unsetPrefixedEnv("CODER_GITAUTH_")
+		unsetPrefixedEnv("NEURALINVERSE_EXTERNAL_AUTH_")
+		unsetPrefixedEnv("NEURALINVERSE_GITAUTH_")
 
 		dbURL, err := dbtestutil.Open(t)
 		require.NoError(t, err)
 		db, _ := dbtestutil.NewDB(t, dbtestutil.WithURL(dbURL))
 
 		const (
-			existingUserEmail    = "existing-user@coder.com"
+			existingUserEmail    = "existing-user@cloud.neuralinverse.com"
 			existingUserUsername = "existing-user"
 			existingUserPassword = "SomeSecurePassword!"
 		)
@@ -1893,23 +1893,23 @@ func TestServer_ExternalAuthGitHubDefaultProvider(t *testing.T) {
 		clitest.Start(t, inv)
 
 		accessURL := waitAccessURL(t, cfg)
-		client := codersdk.New(accessURL)
+		client := nicloudsdk.New(accessURL)
 
 		if tc.createUserPreStart {
-			loginResp, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+			loginResp, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
 				Email:    existingUserEmail,
 				Password: existingUserPassword,
 			})
 			require.NoError(t, err)
 			client.SetSessionToken(loginResp.SessionToken)
 		} else {
-			_ = coderdtest.CreateFirstUser(t, client)
+			_ = nicloudtest.CreateFirstUser(t, client)
 		}
 
 		externalAuthResp, err := client.ListExternalAuths(ctx)
 		require.NoError(t, err)
 
-		gotProviders := map[string]codersdk.ExternalAuthLinkProvider{}
+		gotProviders := map[string]nicloudsdk.ExternalAuthLinkProvider{}
 		for _, provider := range externalAuthResp.Providers {
 			gotProviders[provider.ID] = provider
 		}
@@ -1918,8 +1918,8 @@ func TestServer_ExternalAuthGitHubDefaultProvider(t *testing.T) {
 		for _, providerID := range tc.expectedProviders {
 			provider, ok := gotProviders[providerID]
 			require.Truef(t, ok, "expected provider %q to be configured", providerID)
-			if providerID == codersdk.EnhancedExternalAuthProviderGitHub.String() {
-				require.Equal(t, codersdk.EnhancedExternalAuthProviderGitHub.String(), provider.Type)
+			if providerID == nicloudsdk.EnhancedExternalAuthProviderGitHub.String() {
+				require.Equal(t, nicloudsdk.EnhancedExternalAuthProviderGitHub.String(), provider.Type)
 				require.True(t, provider.Device)
 			}
 		}
@@ -1928,7 +1928,7 @@ func TestServer_ExternalAuthGitHubDefaultProvider(t *testing.T) {
 	for _, tc := range []testCase{
 		{
 			name:              "NewDeployment_NoExplicitProviders_InjectsDefaultGithub",
-			expectedProviders: []string{codersdk.EnhancedExternalAuthProviderGitHub.String()},
+			expectedProviders: []string{nicloudsdk.EnhancedExternalAuthProviderGitHub.String()},
 		},
 		{
 			name:               "ExistingDeployment_DoesNotInjectDefaultGithub",
@@ -1947,23 +1947,23 @@ func TestServer_ExternalAuthGitHubDefaultProvider(t *testing.T) {
 			args: []string{
 				`--external-auth-providers=[{"type":"gitlab","client_id":"config-client-id"}]`,
 			},
-			expectedProviders: []string{codersdk.EnhancedExternalAuthProviderGitLab.String()},
+			expectedProviders: []string{nicloudsdk.EnhancedExternalAuthProviderGitLab.String()},
 		},
 		{
 			name: "ExplicitProviderViaEnv_DoesNotInjectDefaultGithub",
 			env: map[string]string{
-				"CODER_EXTERNAL_AUTH_0_TYPE":      codersdk.EnhancedExternalAuthProviderGitLab.String(),
-				"CODER_EXTERNAL_AUTH_0_CLIENT_ID": "env-client-id",
+				"NEURALINVERSE_EXTERNAL_AUTH_0_TYPE":      nicloudsdk.EnhancedExternalAuthProviderGitLab.String(),
+				"NEURALINVERSE_EXTERNAL_AUTH_0_CLIENT_ID": "env-client-id",
 			},
-			expectedProviders: []string{codersdk.EnhancedExternalAuthProviderGitLab.String()},
+			expectedProviders: []string{nicloudsdk.EnhancedExternalAuthProviderGitLab.String()},
 		},
 		{
 			name: "ExplicitProviderViaLegacyEnv_DoesNotInjectDefaultGithub",
 			env: map[string]string{
-				"CODER_GITAUTH_0_TYPE":      codersdk.EnhancedExternalAuthProviderGitLab.String(),
-				"CODER_GITAUTH_0_CLIENT_ID": "legacy-env-client-id",
+				"NEURALINVERSE_GITAUTH_0_TYPE":      nicloudsdk.EnhancedExternalAuthProviderGitLab.String(),
+				"NEURALINVERSE_GITAUTH_0_CLIENT_ID": "legacy-env-client-id",
 			},
-			expectedProviders: []string{codersdk.EnhancedExternalAuthProviderGitLab.String()},
+			expectedProviders: []string{nicloudsdk.EnhancedExternalAuthProviderGitLab.String()},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -2105,16 +2105,16 @@ func TestServer_Production(t *testing.T) {
 	)
 	clitest.Start(t, inv.WithContext(ctx))
 	accessURL := waitAccessURL(t, cfg)
-	client := codersdk.New(accessURL)
+	client := nicloudsdk.New(accessURL)
 
-	_, err := client.CreateFirstUser(ctx, coderdtest.FirstUserParams)
+	_, err := client.CreateFirstUser(ctx, nicloudtest.FirstUserParams)
 	require.NoError(t, err)
 }
 
 //nolint:tparallel,paralleltest // This test sets environment variables.
 func TestServer_TelemetryDisable(t *testing.T) {
 	// Set the default telemetry to true (normally disabled in tests).
-	t.Setenv("CODER_TEST_TELEMETRY_DEFAULT_ENABLE", "true")
+	t.Setenv("NEURALINVERSE_TEST_TELEMETRY_DEFAULT_ENABLE", "true")
 
 	for _, tt := range []struct {
 		key  string
@@ -2122,10 +2122,10 @@ func TestServer_TelemetryDisable(t *testing.T) {
 		want bool
 	}{
 		{"", "", true},
-		{"CODER_TELEMETRY_ENABLE", "true", true},
-		{"CODER_TELEMETRY_ENABLE", "false", false},
-		{"CODER_TELEMETRY", "true", true},
-		{"CODER_TELEMETRY", "false", false},
+		{"NEURALINVERSE_TELEMETRY_ENABLE", "true", true},
+		{"NEURALINVERSE_TELEMETRY_ENABLE", "false", false},
+		{"NEURALINVERSE_TELEMETRY", "true", true},
+		{"NEURALINVERSE_TELEMETRY", "false", false},
 	} {
 		t.Run(fmt.Sprintf("%s=%s", tt.key, tt.val), func(t *testing.T) {
 			t.Parallel()
@@ -2135,7 +2135,7 @@ func TestServer_TelemetryDisable(t *testing.T) {
 			inv.Environ.Set(tt.key, tt.val)
 			clitest.Run(t, inv)
 
-			var dv codersdk.DeploymentValues
+			var dv nicloudsdk.DeploymentValues
 			err := yaml.Unmarshal(b.Bytes(), &dv)
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, dv.Telemetry.Enable.Value())
@@ -2179,7 +2179,7 @@ func TestServer_InterruptShutdown(t *testing.T) {
 
 // TestServer_AIGatewayShutdownOrdering is a regression test for a shutdown
 // ordering bug. The in-memory AI Gateway daemon registers itself with the
-// API WebsocketWaitGroup, so it must be closed before coderAPICloser.Close()
+// API WebsocketWaitGroup, so it must be closed before niAPICloser.Close()
 // waits on that group. If it isn't, API.Close() blocks for the full 10s
 // WebsocketWaitGroup timeout, logs "websocket shutdown timed out after 10
 // seconds", and keeps heavy server-test state live for an extra 10s. On
@@ -2211,7 +2211,7 @@ func TestServer_AIGatewayShutdownOrdering(t *testing.T) {
 	// is registered with the API and the WebsocketWaitGroup is nonzero.
 	_ = waitAccessURL(t, cfg)
 
-	// The WebsocketWaitGroup timeout in coderd.API.Close() is hard coded
+	// The WebsocketWaitGroup timeout in nicloud.API.Close() is hard coded
 	// to 10s, so any value comfortably below 10s catches the regression
 	// while leaving headroom for slow CI runners.
 	shutdownStart := time.Now()
@@ -2221,7 +2221,7 @@ func TestServer_AIGatewayShutdownOrdering(t *testing.T) {
 	}
 	require.Less(t, time.Since(shutdownStart), 8*time.Second,
 		"graceful shutdown took too long; the in-memory AI Gateway daemon is "+
-			"likely not being closed before coderAPICloser.Close()")
+			"likely not being closed before niAPICloser.Close()")
 }
 
 func TestServer_GracefulShutdown(t *testing.T) {
@@ -2339,7 +2339,7 @@ func waitAccessURL(t *testing.T, cfg config.Root) *url.URL {
 func TestServerYAMLConfig(t *testing.T) {
 	t.Parallel()
 
-	var deployValues codersdk.DeploymentValues
+	var deployValues nicloudsdk.DeploymentValues
 	opts := deployValues.Options()
 
 	err := opts.SetDefaults()

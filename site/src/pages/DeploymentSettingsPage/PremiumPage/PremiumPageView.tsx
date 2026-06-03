@@ -28,7 +28,7 @@ const EnterpriseVersion: FC = () => {
 					</p>
 				</div>
 				<Button asChild>
-					<a href="https://coder.com/contact/sales" className="no-underline">
+					<a href="https://cloud.neuralinverse.com/contact/sales" className="no-underline">
 						<SquareArrowOutUpRightIcon />
 						Contact sales
 					</a>
@@ -97,7 +97,7 @@ const OSSVersion: FC = () => {
 					</p>
 				</div>
 				<Button asChild>
-					<a href="https://coder.com/contact/sales" className="no-underline">
+					<a href="https://cloud.neuralinverse.com/contact/sales" className="no-underline">
 						<SquareArrowOutUpRightIcon />
 						Contact sales
 					</a>

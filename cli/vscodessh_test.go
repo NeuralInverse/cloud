@@ -9,15 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agenttest"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/workspacestats/workspacestatstest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspacestats/workspacestatstest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // TestVSCodeSSH ensures the agent connects properly with SSH
@@ -25,18 +25,18 @@ import (
 func TestVSCodeSSH(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitLong)
-	dv := coderdtest.DeploymentValues(t)
-	dv.Experiments = []string{string(codersdk.ExperimentWorkspaceUsage)}
+	dv := nicloudtest.DeploymentValues(t)
+	dv.Experiments = []string{string(nicloudsdk.ExperimentWorkspaceUsage)}
 	batcher := &workspacestatstest.StatsBatcher{
 		LastStats: &agentproto.Stats{},
 	}
-	admin, store := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+	admin, store := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{
 		DeploymentValues: dv,
 		StatsBatcher:     batcher,
 	})
 	admin.SetLogger(testutil.Logger(t).Named("client"))
-	first := coderdtest.CreateFirstUser(t, admin)
-	client, user := coderdtest.CreateAnotherUser(t, admin, first.OrganizationID)
+	first := nicloudtest.CreateFirstUser(t, admin)
+	client, user := nicloudtest.CreateAnotherUser(t, admin, first.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 		OrganizationID: first.OrganizationID,
 		OwnerID:        user.ID,
@@ -44,11 +44,11 @@ func TestVSCodeSSH(t *testing.T) {
 	workspace := r.Workspace
 	agentToken := r.AgentToken
 
-	user, err := client.User(ctx, codersdk.Me)
+	user, err := client.User(ctx, nicloudsdk.Me)
 	require.NoError(t, err)
 
 	_ = agenttest.New(t, client.URL, agentToken)
-	_ = coderdtest.AwaitWorkspaceAgents(t, client, workspace.ID)
+	_ = nicloudtest.AwaitWorkspaceAgents(t, client, workspace.ID)
 
 	fs := afero.NewMemMapFs()
 	err = afero.WriteFile(fs, "/url", []byte(client.URL.String()), 0o600)

@@ -8,15 +8,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/trialer"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/trialer"
 )
 
 func TestTrialer(t *testing.T) {
 	t.Parallel()
-	license := coderdenttest.GenerateLicense(t, coderdenttest.LicenseOptions{
+	license := nicloudenttest.GenerateLicense(t, nicloudenttest.LicenseOptions{
 		Trial: true,
 	})
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -28,8 +28,8 @@ func TestTrialer(t *testing.T) {
 	err := db.InsertDeploymentID(context.Background(), "test-deployment")
 	require.NoError(t, err)
 
-	gen := trialer.New(db, srv.URL, coderdenttest.Keys)
-	err = gen(context.Background(), codersdk.LicensorTrialRequest{Email: "kyle+colin@coder.com"})
+	gen := trialer.New(db, srv.URL, nicloudenttest.Keys)
+	err = gen(context.Background(), nicloudsdk.LicensorTrialRequest{Email: "kyle+colin@cloud.neuralinverse.com"})
 	require.NoError(t, err)
 	licenses, err := db.GetLicenses(context.Background())
 	require.NoError(t, err)

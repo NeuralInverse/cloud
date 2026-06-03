@@ -105,12 +105,12 @@ options are acceptable:
 
 ## Product-specific references
 
-Below summarizes the guidelines regarding how Coder terms should be used.
+Below summarizes the guidelines regarding how Neural Inverse Cloud terms should be used.
 
 ### Capitalized terms
 
-The only Coder-specific terms that should be capitalized are the names of
-products (e.g., Coder).
+The only Neural Inverse Cloud-specific terms that should be capitalized are the names of
+products (e.g., Neural Inverse Cloud).
 
 The exception is **code-server**, which is always lowercase. If it appears at
 the beginning of the sentence, rewrite the sentence to avoid this usage.

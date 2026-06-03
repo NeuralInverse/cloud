@@ -6,10 +6,10 @@ import (
 	"net/url"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/cryptokeys"
-	"github.com/coder/coder/v2/coderd/jwtutils"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/cryptokeys"
+	"github.com/NeuralInverse/cloud/v2/nicloud/jwtutils"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspaceapps"
+	"github.com/NeuralInverse/cloud/v2/enterprise/wsproxy/wsproxysdk"
 )
 
 var _ workspaceapps.SignedTokenProvider = (*TokenProvider)(nil)

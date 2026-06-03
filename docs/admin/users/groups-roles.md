@@ -1,11 +1,11 @@
 # Groups and Roles
 
-Groups and roles can be manually assigned in Coder. For production deployments,
+Groups and roles can be manually assigned in Neural Inverse Cloud. For production deployments,
 these can also be [managed and synced by the identity provider](./idp-sync.md).
 
 ## Groups
 
-Groups are logical segmentations of users in Coder and can be used to control
+Groups are logical segmentations of users in Neural Inverse Cloud and can be used to control
 which templates developers can use. For example:
 
 - Users within the `devops` group can access the `AWS-VM` template
@@ -35,9 +35,9 @@ may use personal workspaces.
 
 > [!NOTE]
 > Custom roles are a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
-Starting in v2.16.0, Premium Coder deployments can configure custom roles on the
+Starting in v2.16.0, Premium Neural Inverse Cloud deployments can configure custom roles on the
 [Organization](./organizations.md) level. You can create and assign custom roles
 in the dashboard under **Organizations** -> **My Organization** -> **Roles**.
 
@@ -79,7 +79,7 @@ Note that these permissions only apply to the scope of an
 
 A malicious Template Admin could write a template that executes commands on the
 host (or `coder server` container), which potentially escalates their privileges
-or shuts down the Coder server. To avoid this, run
+or shuts down the Neural Inverse Cloud server. To avoid this, run
 [external provisioners](../provisioners/index.md).
 
 In low-trust environments, we do not recommend giving users direct access to

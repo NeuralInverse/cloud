@@ -29,10 +29,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/tailnet/tailnettest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/tailnettest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -1640,7 +1640,7 @@ func TestTunnelAllWorkspaceUpdatesController_Initial(t *testing.T) {
 	w2a1IP := netip.MustParseAddr("fd60:627a:a42b:0201::")
 	w2a2IP := netip.MustParseAddr("fd60:627a:a42b:0202::")
 
-	expectedCoderConnectFQDN, err := dnsname.ToFQDN(fmt.Sprintf(tailnet.IsCoderConnectEnabledFmtString, "mctest"))
+	expectedNIConnectFQDN, err := dnsname.ToFQDN(fmt.Sprintf(tailnet.IsNIConnectEnabledFmtString, "mctest"))
 	require.NoError(t, err)
 
 	// Also triggers setting DNS hosts
@@ -1652,7 +1652,7 @@ func TestTunnelAllWorkspaceUpdatesController_Initial(t *testing.T) {
 		"w2a1.w2.testy.mctest.":  {w2a1IP},
 		"w2a2.w2.testy.mctest.":  {w2a2IP},
 		"w1.mctest.":             {ws1a1IP},
-		expectedCoderConnectFQDN: {tsaddr.CoderServiceIPv6()},
+		expectedNIConnectFQDN: {tsaddr.NIServiceIPv6()},
 	}
 	dnsCall := testutil.TryReceive(ctx, t, fDNS.calls)
 	require.Equal(t, expectedDNS, dnsCall.hosts)
@@ -1719,7 +1719,7 @@ func TestTunnelAllWorkspaceUpdatesController_DeleteAgent(t *testing.T) {
 	fUH := newFakeUpdateHandler(ctx, t)
 	fDNS := newFakeDNSSetter(ctx, t)
 	coordC, updateC, updateCtrl := setupConnectedAllWorkspaceUpdatesController(ctx, t, logger,
-		tailnet.WithDNS(fDNS, "testy", tailnet.DNSNameOptions{Suffix: tailnet.CoderDNSSuffix}),
+		tailnet.WithDNS(fDNS, "testy", tailnet.DNSNameOptions{Suffix: tailnet.NIDNSSuffix}),
 		tailnet.WithHandler(fUH),
 	)
 
@@ -1746,8 +1746,8 @@ func TestTunnelAllWorkspaceUpdatesController_DeleteAgent(t *testing.T) {
 	require.Equal(t, w1a1ID[:], coordCall.req.GetAddTunnel().GetId())
 	testutil.RequireSend(ctx, t, coordCall.err, nil)
 
-	expectedCoderConnectFQDN, err := dnsname.ToFQDN(
-		fmt.Sprintf(tailnet.IsCoderConnectEnabledFmtString, tailnet.CoderDNSSuffix))
+	expectedNIConnectFQDN, err := dnsname.ToFQDN(
+		fmt.Sprintf(tailnet.IsNIConnectEnabledFmtString, tailnet.NIDNSSuffix))
 	require.NoError(t, err)
 
 	// DNS for w1a1
@@ -1755,7 +1755,7 @@ func TestTunnelAllWorkspaceUpdatesController_DeleteAgent(t *testing.T) {
 		"w1a1.w1.testy.coder.":   {ws1a1IP},
 		"w1a1.w1.me.coder.":      {ws1a1IP},
 		"w1.coder.":              {ws1a1IP},
-		expectedCoderConnectFQDN: {tsaddr.CoderServiceIPv6()},
+		expectedNIConnectFQDN: {tsaddr.NIServiceIPv6()},
 	}
 	dnsCall := testutil.TryReceive(ctx, t, fDNS.calls)
 	require.Equal(t, expectedDNS, dnsCall.hosts)
@@ -1814,7 +1814,7 @@ func TestTunnelAllWorkspaceUpdatesController_DeleteAgent(t *testing.T) {
 		"w1a2.w1.testy.coder.":   {ws1a2IP},
 		"w1a2.w1.me.coder.":      {ws1a2IP},
 		"w1.coder.":              {ws1a2IP},
-		expectedCoderConnectFQDN: {tsaddr.CoderServiceIPv6()},
+		expectedNIConnectFQDN: {tsaddr.NIServiceIPv6()},
 	}
 	dnsCall = testutil.TryReceive(ctx, t, fDNS.calls)
 	require.Equal(t, expectedDNS, dnsCall.hosts)
@@ -1871,7 +1871,7 @@ func TestTunnelAllWorkspaceUpdatesController_DNSError(t *testing.T) {
 	fConn := &fakeCoordinatee{}
 	tsc := tailnet.NewTunnelSrcCoordController(logger, fConn)
 	uut := tailnet.NewTunnelAllWorkspaceUpdatesController(logger, tsc,
-		tailnet.WithDNS(fDNS, "testy", tailnet.DNSNameOptions{Suffix: tailnet.CoderDNSSuffix}),
+		tailnet.WithDNS(fDNS, "testy", tailnet.DNSNameOptions{Suffix: tailnet.NIDNSSuffix}),
 	)
 
 	updateC := newFakeWorkspaceUpdateClient(ctx, t)
@@ -1892,8 +1892,8 @@ func TestTunnelAllWorkspaceUpdatesController_DNSError(t *testing.T) {
 	upRecvCall := testutil.TryReceive(ctx, t, updateC.recv)
 	testutil.RequireSend(ctx, t, upRecvCall.resp, initUp)
 
-	expectedCoderConnectFQDN, err := dnsname.ToFQDN(
-		fmt.Sprintf(tailnet.IsCoderConnectEnabledFmtString, tailnet.CoderDNSSuffix))
+	expectedNIConnectFQDN, err := dnsname.ToFQDN(
+		fmt.Sprintf(tailnet.IsNIConnectEnabledFmtString, tailnet.NIDNSSuffix))
 	require.NoError(t, err)
 
 	// DNS for w1a1
@@ -1901,7 +1901,7 @@ func TestTunnelAllWorkspaceUpdatesController_DNSError(t *testing.T) {
 		"w1a1.w1.me.coder.":      {ws1a1IP},
 		"w1a1.w1.testy.coder.":   {ws1a1IP},
 		"w1.coder.":              {ws1a1IP},
-		expectedCoderConnectFQDN: {tsaddr.CoderServiceIPv6()},
+		expectedNIConnectFQDN: {tsaddr.NIServiceIPv6()},
 	}
 	dnsCall := testutil.TryReceive(ctx, t, fDNS.calls)
 	require.Equal(t, expectedDNS, dnsCall.hosts)

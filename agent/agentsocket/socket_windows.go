@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-const defaultSocketPath = `\\.\pipe\com.coder.agentsocket`
+const defaultSocketPath = `\\.\pipe\com.neuralinverse.agentsocket`
 
 func createSocket(path string) (net.Listener, error) {
 	if path == "" {
@@ -41,7 +41,7 @@ func createSocket(path string) (net.Listener, error) {
 	// Note that although Microsoft docs at https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipes warns that
 	// named pipes are accessible from remote machines in the general case, the `winio` package sets the flag
 	// windows.FILE_PIPE_REJECT_REMOTE_CLIENTS when creating pipes, so connections from remote machines are always
-	// denied. This is important because we sort of expect customers to run the Coder agent under a generic user
+	// denied. This is important because we sort of expect customers to run the Neural Inverse Cloud agent under a generic user
 	// account unless they are very sophisticated. We don't want this socket to cross the boundary of the local machine.
 	configuration := &winio.PipeConfig{
 		SecurityDescriptor: fmt.Sprintf("D:P(A;;GA;;;%s)", sid),

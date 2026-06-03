@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	agpl "github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	agpl "github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -43,10 +43,10 @@ func (r *RootCmd) externalWorkspaces() *serpent.Command {
 	return cmd
 }
 
-// externalWorkspaceCreate extends `coder create` to create an external workspace.
+// externalWorkspaceCreate extends `neuralinverse create` to create an external workspace.
 func (r *RootCmd) externalWorkspaceCreate() *serpent.Command {
 	opts := agpl.CreateOptions{
-		BeforeCreate: func(ctx context.Context, client *codersdk.Client, _ codersdk.Template, templateVersionID uuid.UUID) error {
+		BeforeCreate: func(ctx context.Context, client *nicloudsdk.Client, _ nicloudsdk.Template, templateVersionID uuid.UUID) error {
 			version, err := client.TemplateVersion(ctx, templateVersionID)
 			if err != nil {
 				return xerrors.Errorf("get template version: %w", err)
@@ -57,8 +57,8 @@ func (r *RootCmd) externalWorkspaceCreate() *serpent.Command {
 
 			return nil
 		},
-		AfterCreate: func(ctx context.Context, inv *serpent.Invocation, client *codersdk.Client, workspace codersdk.Workspace) error {
-			workspace, err := client.WorkspaceByOwnerAndName(ctx, codersdk.Me, workspace.Name, codersdk.WorkspaceOptions{})
+		AfterCreate: func(ctx context.Context, inv *serpent.Invocation, client *nicloudsdk.Client, workspace nicloudsdk.Workspace) error {
+			workspace, err := client.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, workspace.Name, nicloudsdk.WorkspaceOptions{})
 			if err != nil {
 				return xerrors.Errorf("get workspace by name: %w", err)
 			}
@@ -205,7 +205,7 @@ func (r *RootCmd) externalWorkspaceList() *serpent.Command {
 			if out == "" {
 				pretty.Fprintf(inv.Stderr, cliui.DefaultStyles.Prompt, "No workspaces found! Create one:\n")
 				_, _ = fmt.Fprintln(inv.Stderr)
-				_, _ = fmt.Fprintln(inv.Stderr, "  "+pretty.Sprint(cliui.DefaultStyles.Code, "coder external-workspaces create <name>"))
+				_, _ = fmt.Fprintln(inv.Stderr, "  "+pretty.Sprint(cliui.DefaultStyles.Code, "neuralinverse external-workspaces create <name>"))
 				_, _ = fmt.Fprintln(inv.Stderr)
 				return nil
 			}
@@ -220,7 +220,7 @@ func (r *RootCmd) externalWorkspaceList() *serpent.Command {
 }
 
 // fetchExternalAgents fetches the external agents for a workspace.
-func fetchExternalAgents(inv *serpent.Invocation, client *codersdk.Client, workspace codersdk.Workspace, resources []codersdk.WorkspaceResource) ([]externalAgent, error) {
+func fetchExternalAgents(inv *serpent.Invocation, client *nicloudsdk.Client, workspace nicloudsdk.Workspace, resources []nicloudsdk.WorkspaceResource) ([]externalAgent, error) {
 	if len(resources) == 0 {
 		return nil, xerrors.Errorf("no resources found for workspace")
 	}
@@ -228,7 +228,7 @@ func fetchExternalAgents(inv *serpent.Invocation, client *codersdk.Client, works
 	var externalAgents []externalAgent
 
 	for _, resource := range resources {
-		if resource.Type != "coder_external_agent" || len(resource.Agents) == 0 {
+		if resource.Type != "ni_external_agent" || len(resource.Agents) == 0 {
 			continue
 		}
 

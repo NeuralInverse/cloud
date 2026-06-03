@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
 )
 
 func TestMutateTags(t *testing.T) {

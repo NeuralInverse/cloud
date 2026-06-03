@@ -145,7 +145,7 @@ for scenario in "${SCALETEST_PARAM_LOAD_SCENARIOS[@]}"; do
 			target_start=0
 			target_end=${target_count}
 		fi
-		run_scenario_cmd "${scenario}" coder exp scaletest workspace-traffic \
+		run_scenario_cmd "${scenario}" neuralinverse exp scaletest workspace-traffic \
 			--template "${SCALETEST_PARAM_TEMPLATE}" \
 			--ssh \
 			--bytes-per-tick "${SCALETEST_PARAM_LOAD_SCENARIO_SSH_TRAFFIC_BYTES_PER_TICK}" \
@@ -181,7 +181,7 @@ for scenario in "${SCALETEST_PARAM_LOAD_SCENARIOS[@]}"; do
 			target_start=0
 			target_end=${target_count}
 		fi
-		run_scenario_cmd "${scenario}" coder exp scaletest workspace-traffic \
+		run_scenario_cmd "${scenario}" neuralinverse exp scaletest workspace-traffic \
 			--template "${SCALETEST_PARAM_TEMPLATE}" \
 			--bytes-per-tick "${SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_BYTES_PER_TICK}" \
 			--tick-interval "${SCALETEST_PARAM_LOAD_SCENARIO_WEB_TERMINAL_TRAFFIC_TICK_INTERVAL}ms" \
@@ -216,7 +216,7 @@ for scenario in "${SCALETEST_PARAM_LOAD_SCENARIOS[@]}"; do
 			target_start=0
 			target_end=${target_count}
 		fi
-		run_scenario_cmd "${scenario}" coder exp scaletest workspace-traffic \
+		run_scenario_cmd "${scenario}" neuralinverse exp scaletest workspace-traffic \
 			--template "${SCALETEST_PARAM_TEMPLATE}" \
 			--bytes-per-tick "${SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_BYTES_PER_TICK}" \
 			--tick-interval "${SCALETEST_PARAM_LOAD_SCENARIO_APP_TRAFFIC_TICK_INTERVAL}ms" \
@@ -253,7 +253,7 @@ for scenario in "${SCALETEST_PARAM_LOAD_SCENARIOS[@]}"; do
 		# (i.e. once images are no longer dumped into PWD).
 		mkdir -p dashboard
 		pushd dashboard
-		run_scenario_cmd "${scenario}" coder exp scaletest dashboard \
+		run_scenario_cmd "${scenario}" neuralinverse exp scaletest dashboard \
 			--timeout "${SCALETEST_PARAM_LOAD_SCENARIO_DASHBOARD_TRAFFIC_DURATION}m" \
 			--job-timeout "${SCALETEST_PARAM_LOAD_SCENARIO_DASHBOARD_TRAFFIC_DURATION}m30s" \
 			--output json:"${SCALETEST_RESULTS_DIR}/traffic-dashboard.json" \

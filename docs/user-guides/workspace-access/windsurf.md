@@ -3,14 +3,14 @@
 [Windsurf](https://codeium.com/windsurf) is Codeium's code editor designed for AI-assisted
 development.
 
-Follow this guide to use Windsurf to access your Coder workspaces.
+Follow this guide to use Windsurf to access your Neural Inverse Cloud workspaces.
 
-If your team uses Windsurf regularly, ask your Coder administrator to add Windsurf as a workspace application in your template.
-You can also use the [Windsurf module](https://registry.coder.com/modules/coder/windsurf) to easily add Windsurf to your Coder templates.
+If your team uses Windsurf regularly, ask your Neural Inverse Cloud administrator to add Windsurf as a workspace application in your template.
+You can also use the [Windsurf module](https://registry.cloud.neuralinverse.com/modules/coder/windsurf) to easily add Windsurf to your Neural Inverse Cloud templates.
 
 ## Install Windsurf
 
-Windsurf can connect to your Coder workspaces via SSH:
+Windsurf can connect to your Neural Inverse Cloud workspaces via SSH:
 
 1. [Install Windsurf](https://docs.codeium.com/windsurf/getting-started) on your local machine.
 
@@ -21,17 +21,17 @@ Windsurf can connect to your Coder workspaces via SSH:
 1. Complete the setup flow and log in or [create a Codeium account](https://codeium.com/windsurf/signup)
    if you don't have one already.
 
-## Install the Coder extension
+## Install the Neural Inverse Cloud extension
 
-![Coder extension in Windsurf](../../images/user-guides/ides/windsurf-coder-extension.png)
+![Neural Inverse Cloud extension in Windsurf](../../images/user-guides/ides/windsurf-coder-extension.png)
 
-1. You can install the Coder extension through the Marketplace built in to Windsurf or manually.
+1. You can install the Neural Inverse Cloud extension through the Marketplace built in to Windsurf or manually.
 
    <div class="tabs">
 
    ## Extension Marketplace
 
-   Search for Coder from the Extensions Pane and select **Install**.
+   Search for Neural Inverse Cloud from the Extensions Pane and select **Install**.
 
    ## Manually
 
@@ -51,10 +51,10 @@ Windsurf can connect to your Coder workspaces via SSH:
 ## Open a workspace in Windsurf
 
 1. From the Windsurf Command Palette (<kdb>Ctrl</kdb>+<kdb>Shift</kdb>+<kdb>P</kdb> or <kdb>Cmd</kdb>+<kdb>Shift</kdb>+<kdb>P</kdb>),
-   enter `coder` and select **Coder: Login**.
+   enter `coder` and select **Neural Inverse Cloud: Login**.
 
 1. Follow the prompts to login and copy your session token.
 
-   Paste the session token in the **Coder API Key** dialogue in Windsurf.
+   Paste the session token in the **Neural Inverse Cloud API Key** dialogue in Windsurf.
 
-1. Windsurf prompts you to open a workspace, or you can use the Command Palette to run **Coder: Open Workspace**.
+1. Windsurf prompts you to open a workspace, or you can use the Command Palette to run **Neural Inverse Cloud: Open Workspace**.

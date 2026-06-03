@@ -4,8 +4,8 @@ import { cn } from "#/utils/cn";
 import { ExternalImage } from "../ExternalImage/ExternalImage";
 
 /**
- * Enterprise customers can set a custom logo for their Coder application. Use
- * the custom logo wherever the Coder logo is used, if a custom one is provided.
+ * Enterprise customers can set a custom logo for their Neural Inverse Cloud application. Use
+ * the custom logo wherever the Neural Inverse Cloud logo is used, if a custom one is provided.
  */
 export const ProductLogo: FC<{ className?: string }> = ({ className }) => {
 	const applicationName = getApplicationName();
@@ -43,7 +43,7 @@ const CoderLogo: FC<React.ComponentProps<"svg">> = ({
 		viewBox="0 0 120 60"
 		xmlns="http://www.w3.org/2000/svg"
 	>
-		<title>Coder logo</title>
+		<title>Neural Inverse Cloud logo</title>
 		<path d="M34.5381 0C54.5335 6.29882e-05 65.7432 10.1355 66.122 25.0544L48.853 25.6216C48.3984 17.3514 41.544 11.9189 34.5381 12.0809C24.919 12.2836 17.7989 19.1351 17.7988 29.9999C17.7988 40.8648 24.919 47.5951 34.5381 47.5951C41.544 47.5945 48.2468 42.4055 49.0043 34.1352L66.2733 34.5408C65.8189 49.7027 53.9276 60 34.5381 60C15.1484 60 0 48.2433 0 29.9999C7.1014e-05 11.6757 14.5426 0 34.5381 0ZM120 1.7728V58.5299H74.5559V1.7728H120Z" />
 	</svg>
 );

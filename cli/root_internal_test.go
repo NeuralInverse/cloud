@@ -17,10 +17,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/telemetry"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/telemetry"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -108,7 +108,7 @@ func Test_wrapTransportWithVersionCheck(t *testing.T) {
 				StatusCode: http.StatusOK,
 				Header: http.Header{
 					// Provider a version that will not match!
-					codersdk.BuildVersionHeader: []string{"v2.0.0"},
+					nicloudsdk.BuildVersionHeader: []string{"v2.0.0"},
 				},
 				Body: io.NopCloser(nil),
 			}, nil
@@ -137,12 +137,12 @@ func Test_wrapTransportWithVersionCheck(t *testing.T) {
 				StatusCode: http.StatusOK,
 				Header: http.Header{
 					// Provider a version that will not match!
-					codersdk.BuildVersionHeader: []string{"v1.0.0"},
+					nicloudsdk.BuildVersionHeader: []string{"v1.0.0"},
 				},
 				Body: io.NopCloser(nil),
 			}, nil
-		}), inv, "v2.0.0", func(ctx context.Context) (codersdk.BuildInfoResponse, error) {
-			return codersdk.BuildInfoResponse{
+		}), inv, "v2.0.0", func(ctx context.Context) (nicloudsdk.BuildInfoResponse, error) {
+			return nicloudsdk.BuildInfoResponse{
 				UpgradeMessage: expectedUpgradeMessage,
 			}, nil
 		})
@@ -173,7 +173,7 @@ func Test_wrapTransportWithVersionCheck(t *testing.T) {
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Header: http.Header{
-					codersdk.BuildVersionHeader: []string{"v2.31.0"},
+					nicloudsdk.BuildVersionHeader: []string{"v2.31.0"},
 				},
 				Body: io.NopCloser(nil),
 			}, nil
@@ -229,7 +229,7 @@ func Test_wrapTransportWithTelemetryHeader(t *testing.T) {
 	res, err := rt.RoundTrip(req)
 	require.NoError(t, err)
 	defer res.Body.Close()
-	resp := req.Header.Get(codersdk.CLITelemetryHeader)
+	resp := req.Header.Get(nicloudsdk.CLITelemetryHeader)
 	require.NotEmpty(t, resp)
 	data, err := base64.StdEncoding.DecodeString(resp)
 	require.NoError(t, err)
@@ -244,18 +244,18 @@ func TestPrintDeprecatedOptions(t *testing.T) {
 	newValue := serpent.StringOf(new(string))
 
 	// Both the "new" option and the deprecated option point at the
-	// same Value, mirroring how codersdk/deployment.go wires the
-	// CODER_EMAIL_* / CODER_NOTIFICATIONS_EMAIL_* pairs.
+	// same Value, mirroring how nicloudsdk/deployment.go wires the
+	// NEURALINVERSE_EMAIL_* / NEURALINVERSE_NOTIFICATIONS_EMAIL_* pairs.
 	newOpt := serpent.Option{
 		Name:  "new-option",
 		Flag:  "new-option",
-		Env:   "CODER_TEST_NEW_OPTION",
+		Env:   "NEURALINVERSE_TEST_NEW_OPTION",
 		Value: newValue,
 	}
 	deprecatedOpt := serpent.Option{
 		Name:       "old-option",
 		Flag:       "old-option",
-		Env:        "CODER_TEST_OLD_OPTION",
+		Env:        "NEURALINVERSE_TEST_OLD_OPTION",
 		Value:      newValue, // same pointer
 		UseInstead: serpent.OptionSet{newOpt},
 	}
@@ -272,7 +272,7 @@ func TestPrintDeprecatedOptions(t *testing.T) {
 	}
 
 	t.Run("EnvOnlyNew_NoWarning", func(t *testing.T) {
-		t.Setenv("CODER_TEST_NEW_OPTION", "val")
+		t.Setenv("NEURALINVERSE_TEST_NEW_OPTION", "val")
 
 		cmd := makeCmd(serpent.OptionSet{newOpt, deprecatedOpt})
 		var stderr bytes.Buffer
@@ -286,7 +286,7 @@ func TestPrintDeprecatedOptions(t *testing.T) {
 	})
 
 	t.Run("EnvOnlyOld_Warning", func(t *testing.T) {
-		t.Setenv("CODER_TEST_OLD_OPTION", "val")
+		t.Setenv("NEURALINVERSE_TEST_OLD_OPTION", "val")
 
 		cmd := makeCmd(serpent.OptionSet{newOpt, deprecatedOpt})
 		var stderr bytes.Buffer
@@ -300,8 +300,8 @@ func TestPrintDeprecatedOptions(t *testing.T) {
 	})
 
 	t.Run("EnvBothSet_Warning", func(t *testing.T) {
-		t.Setenv("CODER_TEST_NEW_OPTION", "new")
-		t.Setenv("CODER_TEST_OLD_OPTION", "old")
+		t.Setenv("NEURALINVERSE_TEST_NEW_OPTION", "new")
+		t.Setenv("NEURALINVERSE_TEST_OLD_OPTION", "old")
 
 		cmd := makeCmd(serpent.OptionSet{newOpt, deprecatedOpt})
 		var stderr bytes.Buffer
@@ -315,7 +315,7 @@ func TestPrintDeprecatedOptions(t *testing.T) {
 	})
 
 	t.Run("DeprecatedEnvAndNewFlag_Warning", func(t *testing.T) {
-		t.Setenv("CODER_TEST_OLD_OPTION", "val")
+		t.Setenv("NEURALINVERSE_TEST_OLD_OPTION", "val")
 
 		cmd := makeCmd(serpent.OptionSet{newOpt, deprecatedOpt})
 		var stderr bytes.Buffer
@@ -324,7 +324,7 @@ func TestPrintDeprecatedOptions(t *testing.T) {
 		inv.Stderr = &stderr
 		err := inv.Run()
 		require.NoError(t, err)
-		require.Contains(t, stderr.String(), "`CODER_TEST_OLD_OPTION` is deprecated",
+		require.Contains(t, stderr.String(), "`NEURALINVERSE_TEST_OLD_OPTION` is deprecated",
 			"setting the deprecated env var should still warn even if the replacement flag overrides the value")
 		require.NotContains(t, stderr.String(), "`--old-option` is deprecated",
 			"the deprecated environment variable should not be misreported as a deprecated flag")
@@ -352,19 +352,19 @@ func TestPrintDeprecatedOptions(t *testing.T) {
 			"passing the deprecated flag should produce a warning")
 	})
 
-	t.Run("CODER_EMAIL_FROM_NoWarning", func(t *testing.T) {
-		t.Setenv("CODER_EMAIL_FROM", "noreply@example.com")
+	t.Run("NEURALINVERSE_EMAIL_FROM_NoWarning", func(t *testing.T) {
+		t.Setenv("NEURALINVERSE_EMAIL_FROM", "noreply@example.com")
 
-		deploymentValues := new(codersdk.DeploymentValues)
+		deploymentValues := new(nicloudsdk.DeploymentValues)
 		cmd := makeCmd(deploymentValues.Options())
 		var stderr bytes.Buffer
 		inv := cmd.Invoke()
-		inv.Environ = serpent.ParseEnviron([]string{"CODER_EMAIL_FROM=noreply@example.com"}, "")
+		inv.Environ = serpent.ParseEnviron([]string{"NEURALINVERSE_EMAIL_FROM=noreply@example.com"}, "")
 		inv.Stderr = &stderr
 		err := inv.Run()
 		require.NoError(t, err)
 		require.NotContains(t, stderr.String(), "is deprecated",
-			"setting only CODER_EMAIL_FROM should not produce any deprecation warning")
+			"setting only NEURALINVERSE_EMAIL_FROM should not produce any deprecation warning")
 	})
 
 	t.Run("NothingSet_NoWarning", func(t *testing.T) {
@@ -390,7 +390,7 @@ func Test_wrapTransportWithEntitlementsCheck(t *testing.T) {
 		return &http.Response{
 			StatusCode: http.StatusOK,
 			Header: http.Header{
-				codersdk.EntitlementsWarningHeader: lines,
+				nicloudsdk.EntitlementsWarningHeader: lines,
 			},
 			Body: io.NopCloser(nil),
 		}, nil

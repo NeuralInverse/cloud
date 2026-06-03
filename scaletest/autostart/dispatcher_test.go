@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/autostart"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/autostart"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestWorkspaceDispatcher(t *testing.T) {
@@ -27,13 +27,13 @@ func TestWorkspaceDispatcher(t *testing.T) {
 	require.Len(t, dispatcher.Channels, 3)
 
 	// Create source channel for updates.
-	source := make(chan codersdk.WorkspaceBuildUpdate, 10)
+	source := make(chan nicloudsdk.WorkspaceBuildUpdate, 10)
 
 	// Start the dispatcher.
 	dispatcher.Start(ctx, source)
 
 	// Send updates for each workspace.
-	updates := []codersdk.WorkspaceBuildUpdate{
+	updates := []nicloudsdk.WorkspaceBuildUpdate{
 		{
 			WorkspaceName: "workspace-1",
 			Transition:    "start",
@@ -107,13 +107,13 @@ func TestWorkspaceDispatcher_UnknownWorkspace(t *testing.T) {
 	dispatcher := autostart.NewWorkspaceDispatcher(workspaceNames)
 
 	// Create source channel.
-	source := make(chan codersdk.WorkspaceBuildUpdate, 10)
+	source := make(chan nicloudsdk.WorkspaceBuildUpdate, 10)
 
 	// Start the dispatcher.
 	dispatcher.Start(ctx, source)
 
 	// Send update for unknown workspace - should be ignored.
-	source <- codersdk.WorkspaceBuildUpdate{
+	source <- nicloudsdk.WorkspaceBuildUpdate{
 		WorkspaceName: "unknown-workspace",
 		Transition:    "start",
 		JobStatus:     "pending",
@@ -121,7 +121,7 @@ func TestWorkspaceDispatcher_UnknownWorkspace(t *testing.T) {
 	}
 
 	// Send update for known workspace.
-	source <- codersdk.WorkspaceBuildUpdate{
+	source <- nicloudsdk.WorkspaceBuildUpdate{
 		WorkspaceName: "workspace-1",
 		Transition:    "start",
 		JobStatus:     "succeeded",
@@ -156,14 +156,14 @@ func TestWorkspaceDispatcher_ContextCancellation(t *testing.T) {
 	dispatcher := autostart.NewWorkspaceDispatcher(workspaceNames)
 
 	// Create source channel.
-	source := make(chan codersdk.WorkspaceBuildUpdate, 10)
+	source := make(chan nicloudsdk.WorkspaceBuildUpdate, 10)
 
 	// Start the dispatcher.
 	dispatcher.Start(ctx, source)
 
 	// Fill up the channel buffer.
 	for i := int32(0); i < 20; i++ {
-		source <- codersdk.WorkspaceBuildUpdate{
+		source <- nicloudsdk.WorkspaceBuildUpdate{
 			WorkspaceID:   uuid.New(),
 			WorkspaceName: "workspace-1",
 			Transition:    "start",

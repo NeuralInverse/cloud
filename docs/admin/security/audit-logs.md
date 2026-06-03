@@ -4,8 +4,8 @@
 
 > [!NOTE]
 > Audit logs require a
-> [Premium license](https://coder.com/pricing#compare-plans).
-> For more details, [contact your account team](https://coder.com/contact).
+> [Premium license](https://cloud.neuralinverse.com/pricing#compare-plans).
+> For more details, [contact your account team](https://cloud.neuralinverse.com/contact).
 
 ## Tracked Events
 
@@ -56,13 +56,13 @@ You can filter audit logs by the following parameters:
 
 - `resource_type` - The type of the resource, such as a workspace, template,
   or user. For more resource types, refer to the
-  [CoderSDK package documentation](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#ResourceType).
+  [Neural Inverse CloudSDK package documentation](https://pkg.go.dev/github.com/NeuralInverse/cloud/v2/nicloudsdk#ResourceType).
 - `resource_id` - The ID of the resource.
 - `resource_target` - The name of the resource. Can be used instead of
   `resource_id`.
 - `action`- The action applied to a resource, such as `create` or `delete`.
   For more actions, refer to the
-  [CoderSDK package documentation](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#AuditAction).
+  [Neural Inverse CloudSDK package documentation](https://pkg.go.dev/github.com/NeuralInverse/cloud/v2/nicloudsdk#AuditAction).
 - `username` - The username of the user who triggered the action. You can also
   use `me` as a convenient alias for the logged-in user.
 - `email` - The email of the user who triggered the action.
@@ -70,17 +70,17 @@ You can filter audit logs by the following parameters:
 - `date_to` - The inclusive end date with format `YYYY-MM-DD`.
 - `build_reason` - The reason for the workspace build, if `resource_type` is
   `workspace_build`. Refer to the
-  [CoderSDK package documentation](https://pkg.go.dev/github.com/coder/coder/v2/codersdk#BuildReason)
+  [Neural Inverse CloudSDK package documentation](https://pkg.go.dev/github.com/NeuralInverse/cloud/v2/nicloudsdk#BuildReason)
   for a list of valid build reasons.
 
 ## Capturing/Exporting Audit Logs
 
-In addition to the Coder dashboard, there are multiple ways to consume or query
+In addition to the Neural Inverse Cloud dashboard, there are multiple ways to consume or query
 audit trails.
 
 ### REST API
 
-You can retrieve audit logs via the Coder API.
+You can retrieve audit logs via the Neural Inverse Cloud API.
 
 Visit the
 [`get-audit-logs` endpoint documentation](../../reference/api/audit.md#get-audit-logs)
@@ -100,8 +100,8 @@ log entry:
     "level": "INFO",
     "msg": "audit_log",
     "caller": "/home/coder/coder/enterprise/audit/backends/slog.go:38",
-    "func": "github.com/coder/coder/v2/enterprise/audit/backends.(*SlogExporter).ExportStruct",
-    "logger_names": ["coderd"],
+    "func": "github.com/NeuralInverse/cloud/v2/enterprise/audit/backends.(*SlogExporter).ExportStruct",
+    "logger_names": ["nicloud"],
     "fields": {
         "ID": "033a9ffa-b54d-4c10-8ec3-2aaf9e6d741a",
         "Time": "2023-06-13T03:45:37.288506Z",
@@ -131,7 +131,7 @@ Example of a [human readable](../../reference/cli/server.md#--log-human) audit
 log entry:
 
 ```console
-2023-06-13 03:43:29.233 [info]  coderd: audit_log  ID=95f7c392-da3e-480c-a579-8909f145fbe2  Time="2023-06-13T03:43:29.230422Z"  UserID=6c405053-27e3-484a-9ad7-bcb64e7bfde6  OrganizationID=00000000-0000-0000-0000-000000000000  Ip=<nil>  UserAgent=<nil>  ResourceType=workspace_build  ResourceID=988ae133-5b73-41e3-a55e-e1e9d3ef0b66  ResourceTarget=""  Action=start  Diff="{}"  StatusCode=200  AdditionalFields="{\"workspace_name\":\"linux-container\",\"build_number\":\"7\",\"build_reason\":\"initiator\",\"workspace_owner\":\"\"}"  RequestID=9682b1b5-7b9f-4bf2-9a39-9463f8e41cd6  ResourceIcon=""
+2023-06-13 03:43:29.233 [info]  nicloud: audit_log  ID=95f7c392-da3e-480c-a579-8909f145fbe2  Time="2023-06-13T03:43:29.230422Z"  UserID=6c405053-27e3-484a-9ad7-bcb64e7bfde6  OrganizationID=00000000-0000-0000-0000-000000000000  Ip=<nil>  UserAgent=<nil>  ResourceType=workspace_build  ResourceID=988ae133-5b73-41e3-a55e-e1e9d3ef0b66  ResourceTarget=""  Action=start  Diff="{}"  StatusCode=200  AdditionalFields="{\"workspace_name\":\"linux-container\",\"build_number\":\"7\",\"build_reason\":\"initiator\",\"workspace_owner\":\"\"}"  RequestID=9682b1b5-7b9f-4bf2-9a39-9463f8e41cd6  ResourceIcon=""
 ```
 
 ## Purging Old Audit Logs
@@ -142,9 +142,9 @@ log entry:
 
 ### Data Retention
 
-Coder supports configurable retention policies that automatically purge old
+Neural Inverse Cloud supports configurable retention policies that automatically purge old
 Audit Logs. To enable automated purging, configure the
-`--audit-logs-retention` flag or `CODER_AUDIT_LOGS_RETENTION` environment
+`--audit-logs-retention` flag or `NEURALINVERSE_AUDIT_LOGS_RETENTION` environment
 variable. For comprehensive configuration options, see
 [Data Retention](../setup/data-retention.md).
 
@@ -180,7 +180,7 @@ and in accordance with your compliance requirements.
 You may choose to run a `VACUUM` or `VACUUM FULL` operation on the audit logs table to reclaim disk space. If you choose to run the `FULL` operation, consider the following when doing so:
 
 - **Run during a planned maintenance window** to ensure ample time for the operation to complete and minimize impact to users
-- **Stop all running instances of `coderd`** to prevent connection errors while the table is locked. The actual steps for this will depend on your particular deployment setup. For example, if your `coderd` deployment is running on Kubernetes:
+- **Stop all running instances of `nicloud`** to prevent connection errors while the table is locked. The actual steps for this will depend on your particular deployment setup. For example, if your `nicloud` deployment is running on Kubernetes:
 
   ```bash
   kubectl scale deployment coder --replicas=0 -n coder
@@ -194,9 +194,9 @@ You may choose to run a `VACUUM` or `VACUUM FULL` operation on the audit logs ta
   WHERE pg_stat_activity.datname = 'coder' AND pid <> pg_backend_pid();
   ```
 
-- **Only `coderd` needs to scale down** - external provisioner daemons, workspace proxies, and workspace agents don't connect to the database directly.
+- **Only `nicloud` needs to scale down** - external provisioner daemons, workspace proxies, and workspace agents don't connect to the database directly.
 
-After the vacuum completes, scale coderd back up:
+After the vacuum completes, scale nicloud back up:
 
 ```bash
 kubectl scale deployment coder --replicas= -n coder

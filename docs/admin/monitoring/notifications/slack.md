@@ -2,26 +2,26 @@
 
 [Slack](https://slack.com/) is a popular messaging platform designed for teams
 and businesses, enabling real-time collaboration through channels, direct
-messages, and integrations with external tools. With Coder's integration, you
+messages, and integrations with external tools. With Neural Inverse Cloud's integration, you
 can enable automated notifications directly within a self-hosted
 [Slack app](https://api.slack.com/apps), keeping your team updated on key events
-in your Coder environment.
+in your Neural Inverse Cloud environment.
 
-Administrators can configure Coder to send notifications via an incoming webhook
+Administrators can configure Neural Inverse Cloud to send notifications via an incoming webhook
 endpoint. These notifications will be delivered as Slack messages direct to the
 user. Routing is based on the user's email address, and this should be
-consistent between Slack and their Coder login.
+consistent between Slack and their Neural Inverse Cloud login.
 
 ## Requirements
 
 Before setting up Slack notifications, ensure that you have the following:
 
 - Administrator access to the Slack platform to create apps
-- Coder platform >=v2.16.0
+- Neural Inverse Cloud platform >=v2.16.0
 
 ## Create Slack Application
 
-To integrate Slack with Coder, follow these steps to create a Slack application:
+To integrate Slack with Neural Inverse Cloud, follow these steps to create a Slack application:
 
 1. Go to the [Slack Apps](https://api.slack.com/apps) dashboard and create a new
    Slack App.
@@ -42,7 +42,7 @@ To integrate Slack with Coder, follow these steps to create a Slack application:
 
 ## Build a Webserver to Receive Webhooks
 
-The Slack bot for Coder runs as a _Bolt application_, which is a framework
+The Slack bot for Neural Inverse Cloud runs as a _Bolt application_, which is a framework
 designed for building Slack apps using the Slack API.
 [Bolt for JavaScript](https://github.com/slackapi/bolt-js) provides an
 easy-to-use API for responding to events, commands, and interactions from Slack.
@@ -159,7 +159,7 @@ To build the server to receive webhooks and interact with Slack:
    // Start the Bolt app
    (async () => {
        await app.start(port);
-       console.log("⚡️ Coder Slack bot is running!");
+       console.log("⚡️ Neural Inverse Cloud Slack bot is running!");
    })();
    ```
 
@@ -190,14 +190,14 @@ For temporary testing, you can set it to `https://httpbin.org/status/200`.
 Once this is set, Slack will send interaction payloads to your server, which
 must respond appropriately.
 
-## Enable Webhook Integration in Coder
+## Enable Webhook Integration in Neural Inverse Cloud
 
-To enable webhook integration in Coder, define the POST webhook endpoint
+To enable webhook integration in Neural Inverse Cloud, define the POST webhook endpoint
 matching the deployed Slack bot:
 
 ```bash
-export CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT=http://localhost:6000/v1/webhook`
+export NEURALINVERSE_NOTIFICATIONS_WEBHOOK_ENDPOINT=http://localhost:6000/v1/webhook`
 ```
 
-Finally, go to the **Notification Settings** in Coder and switch the notifier to
+Finally, go to the **Notification Settings** in Neural Inverse Cloud and switch the notifier to
 **Webhook**.

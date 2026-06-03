@@ -110,7 +110,7 @@ else
 fi
 
 if contains .claude/docs/DEV_ISOLATION.md 'port' &&
-	contains .claude/docs/DEV_ISOLATION.md 'CODER_DEV|override'; then
+	contains .claude/docs/DEV_ISOLATION.md 'NEURALINVERSE_DEV|override'; then
 	ok "Development isolation doc mentions ports and overrides."
 else
 	warn "Development isolation doc may be missing ports or override coverage."

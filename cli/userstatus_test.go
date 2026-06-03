@@ -7,10 +7,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 func TestUserStatus(t *testing.T) {
@@ -19,8 +19,8 @@ func TestUserStatus(t *testing.T) {
 	t.Run("StatusSelf", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 
 		inv, root := clitest.New(t, "users", "suspend", "me")
 		clitest.SetupConfig(t, client, root)
@@ -35,11 +35,11 @@ func TestUserStatus(t *testing.T) {
 	t.Run("StatusOther", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
-		other, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		otherUser, err := other.User(context.Background(), codersdk.Me)
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		other, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		otherUser, err := other.User(context.Background(), nicloudsdk.Me)
 		require.NoError(t, err, "fetch user")
 
 		inv, root := clitest.New(t, "users", "suspend", otherUser.Username)
@@ -52,7 +52,7 @@ func TestUserStatus(t *testing.T) {
 		// Check the user status
 		otherUser, err = client.User(context.Background(), otherUser.Username)
 		require.NoError(t, err, "fetch suspended user")
-		require.Equal(t, codersdk.UserStatusSuspended, otherUser.Status, "suspended user")
+		require.Equal(t, nicloudsdk.UserStatusSuspended, otherUser.Status, "suspended user")
 
 		// Set back to active. Try using a uuid as well
 		inv, root = clitest.New(t, "users", "activate", otherUser.ID.String())
@@ -65,6 +65,6 @@ func TestUserStatus(t *testing.T) {
 		// Check the user status
 		otherUser, err = client.User(context.Background(), otherUser.ID.String())
 		require.NoError(t, err, "fetch active user")
-		require.Equal(t, codersdk.UserStatusActive, otherUser.Status, "active user")
+		require.Equal(t, nicloudsdk.UserStatusActive, otherUser.Status, "active user")
 	})
 }

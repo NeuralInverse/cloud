@@ -9,11 +9,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/awsiamrds"
+	"github.com/NeuralInverse/cloud/v2/nicloud/userpassword"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -37,7 +37,7 @@ func (*RootCmd) resetPassword() *serpent.Command {
 			}
 
 			sqlDriver := "postgres"
-			if codersdk.PostgresAuth(postgresAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if nicloudsdk.PostgresAuth(postgresAuth) == nicloudsdk.PostgresAuthAWSIAMRDS {
 				var err error
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
@@ -102,16 +102,16 @@ func (*RootCmd) resetPassword() *serpent.Command {
 		{
 			Flag:        "postgres-url",
 			Description: "URL of a PostgreSQL database to connect to.",
-			Env:         "CODER_PG_CONNECTION_URL",
+			Env:         "NEURALINVERSE_PG_CONNECTION_URL",
 			Value:       serpent.StringOf(&postgresURL),
 		},
 		serpent.Option{
 			Name:        "Postgres Connection Auth",
 			Description: "Type of auth to use when connecting to postgres.",
 			Flag:        "postgres-connection-auth",
-			Env:         "CODER_PG_CONNECTION_AUTH",
+			Env:         "NEURALINVERSE_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&postgresAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&postgresAuth, nicloudsdk.PostgresAuthDrivers...),
 		},
 	}
 

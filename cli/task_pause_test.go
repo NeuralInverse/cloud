@@ -6,10 +6,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestExpTaskPause(t *testing.T) {
@@ -35,7 +35,7 @@ func TestExpTaskPause(t *testing.T) {
 
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusPaused, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusPaused, updated.Status)
 	})
 
 	// OtherUserTask verifies that an admin can pause a task owned by
@@ -61,7 +61,7 @@ func TestExpTaskPause(t *testing.T) {
 
 		updated, err := setup.ownerClient.TaskByIdentifier(ctx, identifier)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusPaused, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusPaused, updated.Status)
 	})
 
 	t.Run("PromptConfirm", func(t *testing.T) {
@@ -91,7 +91,7 @@ func TestExpTaskPause(t *testing.T) {
 
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusPaused, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusPaused, updated.Status)
 	})
 
 	t.Run("PromptDecline", func(t *testing.T) {
@@ -119,7 +119,7 @@ func TestExpTaskPause(t *testing.T) {
 		// Then: We expect the task to not be paused
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.NotEqual(t, codersdk.TaskStatusPaused, updated.Status)
+		require.NotEqual(t, nicloudsdk.TaskStatusPaused, updated.Status)
 	})
 
 	t.Run("TaskAlreadyPaused", func(t *testing.T) {

@@ -18,10 +18,10 @@ import (
 	"tailscale.com/wgengine/router"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/quartz"
 	"github.com/coder/websocket"
 )
@@ -102,9 +102,9 @@ func (*client) NewConn(initCtx context.Context, serverURL *url.URL, token string
 	}
 
 	headers := options.Headers
-	sdk := codersdk.New(serverURL)
+	sdk := nicloudsdk.New(serverURL)
 	sdk.SetSessionToken(token)
-	sdk.HTTPClient.Transport = &codersdk.HeaderTransport{
+	sdk.HTTPClient.Transport = &nicloudsdk.HeaderTransport{
 		Transport: http.DefaultTransport,
 		Header:    headers.Clone(),
 	}
@@ -123,7 +123,7 @@ func (*client) NewConn(initCtx context.Context, serverURL *url.URL, token string
 		return nil, xerrors.Errorf("parse rpc url: %w", err)
 	}
 
-	me, err := sdk.User(initCtx, codersdk.Me)
+	me, err := sdk.User(initCtx, nicloudsdk.Me)
 	if err != nil {
 		return nil, xerrors.Errorf("get user: %w", err)
 	}
@@ -132,15 +132,15 @@ func (*client) NewConn(initCtx context.Context, serverURL *url.URL, token string
 	if err != nil {
 		return nil, xerrors.Errorf("get connection info: %w", err)
 	}
-	// default to DNS suffix of "coder" if the server hasn't set it (might be too old).
-	dnsNameOptions := tailnet.DNSNameOptions{Suffix: tailnet.CoderDNSSuffix}
-	dnsMatch := tailnet.CoderDNSSuffix
+	// default to DNS suffix of "neuralinverse" if the server hasn't set it (might be too old).
+	dnsNameOptions := tailnet.DNSNameOptions{Suffix: tailnet.NIDNSSuffix}
+	dnsMatch := tailnet.NIDNSSuffix
 	if connInfo.HostnameSuffix != "" {
 		dnsNameOptions.Suffix = connInfo.HostnameSuffix
 		dnsMatch = connInfo.HostnameSuffix
 	}
 
-	headers.Set(codersdk.SessionTokenHeader, token)
+	headers.Set(nicloudsdk.SessionTokenHeader, token)
 	dialer := workspacesdk.NewWebsocketDialer(options.Logger, rpcURL, &websocket.DialOptions{
 		HTTPClient:      sdk.HTTPClient,
 		HTTPHeader:      headers.Clone(),
@@ -156,7 +156,7 @@ func (*client) NewConn(initCtx context.Context, serverURL *url.URL, token string
 	derpMapRewriter.RewriteDERPMap(connInfo.DERPMap)
 
 	clonedHeaders := headers.Clone()
-	ip := tailnet.CoderServicePrefix.RandomAddr()
+	ip := tailnet.NIServicePrefix.RandomAddr()
 	conn, err := tailnet.NewConn(&tailnet.Options{
 		Addresses:           []netip.Prefix{netip.PrefixFrom(ip, 128)},
 		DERPMap:             connInfo.DERPMap,

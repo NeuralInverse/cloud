@@ -6,13 +6,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw/loggermw"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/httpmw"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw/loggermw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/httpmw"
 )
 
 func (a *agent) apiHandler() http.Handler {
@@ -24,7 +24,7 @@ func (a *agent) apiHandler() http.Handler {
 		agentchat.Middleware,
 	)
 	r.Get("/", func(rw http.ResponseWriter, r *http.Request) {
-		httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusOK, nicloudsdk.Response{
 			Message: "Hello from the agent!",
 		})
 	})
@@ -40,16 +40,16 @@ func (a *agent) apiHandler() http.Handler {
 		r.Mount("/api/v0/containers", a.containerAPI.Routes())
 	} else if manifest := a.manifest.Load(); manifest != nil && manifest.ParentID != uuid.Nil {
 		r.HandleFunc("/api/v0/containers", func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(r.Context(), w, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(r.Context(), w, http.StatusForbidden, nicloudsdk.Response{
 				Message: "Dev Container feature not supported.",
 				Detail:  "Dev Container integration inside other Dev Containers is explicitly not supported.",
 			})
 		})
 	} else {
 		r.HandleFunc("/api/v0/containers", func(w http.ResponseWriter, r *http.Request) {
-			httpapi.Write(r.Context(), w, http.StatusForbidden, codersdk.Response{
+			httpapi.Write(r.Context(), w, http.StatusForbidden, nicloudsdk.Response{
 				Message: "Dev Container feature not enabled.",
-				Detail:  "To enable this feature, set CODER_AGENT_DEVCONTAINERS_ENABLE=true in your template.",
+				Detail:  "To enable this feature, set NEURALINVERSE_AGENT_DEVCONTAINERS_ENABLE=true in your template.",
 			})
 		})
 	}
@@ -68,7 +68,7 @@ func (a *agent) apiHandler() http.Handler {
 }
 
 type ListeningPortsGetter interface {
-	GetListeningPorts() ([]codersdk.WorkspaceAgentListeningPort, error)
+	GetListeningPorts() ([]nicloudsdk.WorkspaceAgentListeningPort, error)
 }
 
 type listeningPortsHandler struct {
@@ -78,19 +78,19 @@ type listeningPortsHandler struct {
 	ignorePorts map[int]string
 }
 
-// handler returns a list of listening ports. This is tested by coderd's
+// handler returns a list of listening ports. This is tested by nicloud's
 // TestWorkspaceAgentListeningPorts test.
 func (lp *listeningPortsHandler) handler(rw http.ResponseWriter, r *http.Request) {
 	ports, err := lp.getter.GetListeningPorts()
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Could not scan for listening ports.",
 			Detail:  err.Error(),
 		})
 		return
 	}
 
-	filteredPorts := make([]codersdk.WorkspaceAgentListeningPort, 0, len(ports))
+	filteredPorts := make([]nicloudsdk.WorkspaceAgentListeningPort, 0, len(ports))
 	for _, port := range ports {
 		if port.Port < workspacesdk.AgentMinimumListeningPort {
 			continue
@@ -103,7 +103,7 @@ func (lp *listeningPortsHandler) handler(rw http.ResponseWriter, r *http.Request
 		filteredPorts = append(filteredPorts, port)
 	}
 
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.WorkspaceAgentListeningPortsResponse{
+	httpapi.Write(r.Context(), rw, http.StatusOK, nicloudsdk.WorkspaceAgentListeningPortsResponse{
 		Ports: filteredPorts,
 	})
 }

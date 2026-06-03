@@ -27,8 +27,8 @@ import (
 	"tailscale.com/wgengine/router"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 	"github.com/coder/quartz"
 )
 
@@ -132,8 +132,8 @@ func (t *Tunnel) handleRPC(req *request[*TunnelMessage, *ManagerMessage]) {
 		return
 	case *ManagerMessage_Start:
 		startReq := msg.Start
-		t.logger.Info(t.ctx, "starting CoderVPN tunnel",
-			slog.F("url", startReq.CoderUrl),
+		t.logger.Info(t.ctx, "starting NIVPN tunnel",
+			slog.F("url", startReq.NIUrl),
 			slog.F("tunnel_fd", startReq.TunnelFileDescriptor),
 		)
 		err := t.start(startReq)
@@ -149,7 +149,7 @@ func (t *Tunnel) handleRPC(req *request[*TunnelMessage, *ManagerMessage]) {
 			},
 		}
 	case *ManagerMessage_Stop:
-		t.logger.Info(t.ctx, "stopping CoderVPN tunnel")
+		t.logger.Info(t.ctx, "stopping NIVPN tunnel")
 		err := t.stop(msg.Stop)
 		var errStr string
 		if err != nil {
@@ -215,9 +215,9 @@ func (t *Tunnel) ApplyNetworkSettings(ctx context.Context, ns *NetworkSettingsRe
 }
 
 func (t *Tunnel) start(req *StartRequest) error {
-	rawURL := req.GetCoderUrl()
+	rawURL := req.GetNIUrl()
 	if rawURL == "" {
-		return xerrors.New("missing coder url")
+		return xerrors.New("missing neuralinverse url")
 	}
 	svrURL, err := url.Parse(rawURL)
 	if err != nil {
@@ -233,15 +233,15 @@ func (t *Tunnel) start(req *StartRequest) error {
 	}
 
 	// Add desktop telemetry if any fields are provided
-	telemetryData := codersdk.CoderDesktopTelemetry{
+	telemetryData := nicloudsdk.CoderDesktopTelemetry{
 		DeviceID:            req.GetDeviceId(),
 		DeviceOS:            req.GetDeviceOs(),
-		CoderDesktopVersion: req.GetCoderDesktopVersion(),
+		NIDesktopVersion: req.GetNIDesktopVersion(),
 	}
 	if !telemetryData.IsEmpty() {
 		headerValue, err := json.Marshal(telemetryData)
 		if err == nil {
-			header.Set(codersdk.CoderDesktopTelemetryHeader, string(headerValue))
+			header.Set(nicloudsdk.CoderDesktopTelemetryHeader, string(headerValue))
 			t.logger.Debug(t.ctx, "added desktop telemetry header",
 				slog.F("data", telemetryData))
 		} else {

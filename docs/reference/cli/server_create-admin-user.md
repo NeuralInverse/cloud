@@ -16,16 +16,16 @@ coder server create-admin-user [flags]
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string</code>                   |
-| Environment | <code>$CODER_PG_CONNECTION_URL</code> |
+| Environment | <code>$NEURALINVERSE_PG_CONNECTION_URL</code> |
 
-URL of a PostgreSQL database. If empty, the built-in PostgreSQL deployment will be used (Coder must not be already running in this case).
+URL of a PostgreSQL database. If empty, the built-in PostgreSQL deployment will be used (Neural Inverse Cloud must not be already running in this case).
 
 ### --postgres-connection-auth
 
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>password\|awsiamrds</code>       |
-| Environment | <code>$CODER_PG_CONNECTION_AUTH</code> |
+| Environment | <code>$NEURALINVERSE_PG_CONNECTION_AUTH</code> |
 | Default     | <code>password</code>                  |
 
 Type of auth to use when connecting to postgres.
@@ -35,7 +35,7 @@ Type of auth to use when connecting to postgres.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_SSH_KEYGEN_ALGORITHM</code> |
+| Environment | <code>$NEURALINVERSE_SSH_KEYGEN_ALGORITHM</code> |
 | Default     | <code>ed25519</code>                     |
 
 The algorithm to use for generating ssh keys. Accepted values are "ed25519", "ecdsa", or "rsa4096".
@@ -45,7 +45,7 @@ The algorithm to use for generating ssh keys. Accepted values are "ed25519", "ec
 |             |                              |
 |-------------|------------------------------|
 | Type        | <code>string</code>          |
-| Environment | <code>$CODER_USERNAME</code> |
+| Environment | <code>$NEURALINVERSE_USERNAME</code> |
 
 The username of the new user. If not specified, you will be prompted via stdin.
 
@@ -54,7 +54,7 @@ The username of the new user. If not specified, you will be prompted via stdin.
 |             |                           |
 |-------------|---------------------------|
 | Type        | <code>string</code>       |
-| Environment | <code>$CODER_EMAIL</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL</code> |
 
 The email of the new user. If not specified, you will be prompted via stdin.
 
@@ -63,7 +63,7 @@ The email of the new user. If not specified, you will be prompted via stdin.
 |             |                              |
 |-------------|------------------------------|
 | Type        | <code>string</code>          |
-| Environment | <code>$CODER_PASSWORD</code> |
+| Environment | <code>$NEURALINVERSE_PASSWORD</code> |
 
 The password of the new user. If not specified, you will be prompted via stdin.
 

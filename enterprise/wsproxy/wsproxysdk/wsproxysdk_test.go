@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/workspaceapps"
-	"github.com/coder/coder/v2/enterprise/wsproxy/wsproxysdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspaceapps"
+	"github.com/NeuralInverse/cloud/v2/enterprise/wsproxy/wsproxysdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func Test_IssueSignedAppTokenHTML(t *testing.T) {

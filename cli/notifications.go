@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -16,19 +16,19 @@ func (r *RootCmd) notifications() *serpent.Command {
 		Long: "Administrators can use these commands to change notification settings.\n" + FormatExamples(
 			Example{
 				Description: "Pause Coder notifications. Administrators can temporarily stop notifiers from dispatching messages in case of the target outage (for example: unavailable SMTP server or Webhook not responding)",
-				Command:     "coder notifications pause",
+				Command:     "neuralinverse notifications pause",
 			},
 			Example{
 				Description: "Resume Coder notifications",
-				Command:     "coder notifications resume",
+				Command:     "neuralinverse notifications resume",
 			},
 			Example{
 				Description: "Send a test notification. Administrators can use this to verify the notification target settings",
-				Command:     "coder notifications test",
+				Command:     "neuralinverse notifications test",
 			},
 			Example{
 				Description: "Send a custom notification to the requesting user. Sending notifications targeting other users or groups is currently not supported",
-				Command:     "coder notifications custom \"Custom Title\" \"Custom Message\"",
+				Command:     "neuralinverse notifications custom \"Custom Title\" \"Custom Message\"",
 			},
 		),
 		Aliases: []string{"notification"},
@@ -58,7 +58,7 @@ func (r *RootCmd) pauseNotifications() *serpent.Command {
 				return err
 			}
 
-			err = client.PutNotificationsSettings(inv.Context(), codersdk.NotificationsSettings{
+			err = client.PutNotificationsSettings(inv.Context(), nicloudsdk.NotificationsSettings{
 				NotifierPaused: true,
 			})
 			if err != nil {
@@ -85,7 +85,7 @@ func (r *RootCmd) resumeNotifications() *serpent.Command {
 				return err
 			}
 
-			err = client.PutNotificationsSettings(inv.Context(), codersdk.NotificationsSettings{
+			err = client.PutNotificationsSettings(inv.Context(), nicloudsdk.NotificationsSettings{
 				NotifierPaused: false,
 			})
 			if err != nil {
@@ -135,8 +135,8 @@ func (r *RootCmd) customNotifications() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			err = client.PostCustomNotification(inv.Context(), codersdk.CustomNotificationRequest{
-				Content: &codersdk.CustomNotificationContent{
+			err = client.PostCustomNotification(inv.Context(), nicloudsdk.CustomNotificationRequest{
+				Content: &nicloudsdk.CustomNotificationContent{
 					Title:   inv.Args[0],
 					Message: inv.Args[1],
 				},

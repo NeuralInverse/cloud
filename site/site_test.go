@@ -27,25 +27,25 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/exp/maps"
 
-	"github.com/coder/coder/v2/coderd/appearance"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/site"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/appearance"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/db2sdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/telemetry"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/site"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 type staticAppearanceFetcher struct {
-	cfg codersdk.AppearanceConfig
+	cfg nicloudsdk.AppearanceConfig
 }
 
-func (f staticAppearanceFetcher) Fetch(context.Context) (codersdk.AppearanceConfig, error) {
+func (f staticAppearanceFetcher) Fetch(context.Context) (nicloudsdk.AppearanceConfig, error) {
 	return f.cfg, nil
 }
 
@@ -81,7 +81,7 @@ func TestInjectionAppearanceEscapesMetaAttributes(t *testing.T) {
 			}
 			db, _ := dbtestutil.NewDB(t)
 			var appearanceFetcher atomic.Pointer[appearance.Fetcher]
-			fetcher := appearance.Fetcher(staticAppearanceFetcher{cfg: codersdk.AppearanceConfig{
+			fetcher := appearance.Fetcher(staticAppearanceFetcher{cfg: nicloudsdk.AppearanceConfig{
 				ApplicationName: applicationName,
 				LogoURL:         logoURL,
 			}})
@@ -101,7 +101,7 @@ func TestInjectionAppearanceEscapesMetaAttributes(t *testing.T) {
 					UserID:    user.ID,
 					ExpiresAt: time.Now().Add(time.Hour),
 				})
-				r.Header.Set(codersdk.SessionTokenHeader, token)
+				r.Header.Set(nicloudsdk.SessionTokenHeader, token)
 			}
 			rw := httptest.NewRecorder()
 
@@ -140,12 +140,12 @@ func TestInjection(t *testing.T) {
 	})
 
 	r := httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, token)
+	r.Header.Set(nicloudsdk.SessionTokenHeader, token)
 	rw := httptest.NewRecorder()
 
 	handler.ServeHTTP(rw, r)
 	require.Equal(t, http.StatusOK, rw.Code)
-	var got codersdk.User
+	var got nicloudsdk.User
 	err = json.Unmarshal([]byte(html.UnescapeString(rw.Body.String())), &got)
 	require.NoError(t, err)
 
@@ -184,7 +184,7 @@ func TestInjectionUserAppearance(t *testing.T) {
 	require.NoError(t, err)
 	_, err = db.UpdateUserThemeMode(ctx, database.UpdateUserThemeModeParams{
 		UserID:    user.ID,
-		ThemeMode: string(codersdk.ThemeModeSync),
+		ThemeMode: string(nicloudsdk.ThemeModeSync),
 	})
 	require.NoError(t, err)
 	_, err = db.UpdateUserThemeLight(ctx, database.UpdateUserThemeLightParams{
@@ -199,7 +199,7 @@ func TestInjectionUserAppearance(t *testing.T) {
 	require.NoError(t, err)
 	_, err = db.UpdateUserTerminalFont(ctx, database.UpdateUserTerminalFontParams{
 		UserID:       user.ID,
-		TerminalFont: string(codersdk.TerminalFontFiraCode),
+		TerminalFont: string(nicloudsdk.TerminalFontFiraCode),
 	})
 	require.NoError(t, err)
 	_, token := dbgen.APIKey(t, db, database.APIKey{
@@ -208,20 +208,20 @@ func TestInjectionUserAppearance(t *testing.T) {
 	})
 
 	r := httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, token)
+	r.Header.Set(nicloudsdk.SessionTokenHeader, token)
 	rw := httptest.NewRecorder()
 
 	handler.ServeHTTP(rw, r)
 	require.Equal(t, http.StatusOK, rw.Code)
-	var got codersdk.UserAppearanceSettings
+	var got nicloudsdk.UserAppearanceSettings
 	err = json.Unmarshal([]byte(html.UnescapeString(rw.Body.String())), &got)
 	require.NoError(t, err)
-	require.Equal(t, codersdk.UserAppearanceSettings{
+	require.Equal(t, nicloudsdk.UserAppearanceSettings{
 		ThemePreference: "dark-tritan",
-		ThemeMode:       codersdk.ThemeModeSync,
+		ThemeMode:       nicloudsdk.ThemeModeSync,
 		ThemeLight:      "light-tritan",
 		ThemeDark:       "dark-tritan",
-		TerminalFont:    codersdk.TerminalFontFiraCode,
+		TerminalFont:    nicloudsdk.TerminalFontFiraCode,
 	}, got)
 }
 
@@ -261,7 +261,7 @@ func TestRenderPermissionsResolvesMe(t *testing.T) {
 
 	// WHEN: the user loads the page.
 	r := httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, tokenWithRole)
+	r.Header.Set(nicloudsdk.SessionTokenHeader, tokenWithRole)
 	rw := httptest.NewRecorder()
 	handler.ServeHTTP(rw, r)
 	require.Equal(t, http.StatusOK, rw.Code)
@@ -269,7 +269,7 @@ func TestRenderPermissionsResolvesMe(t *testing.T) {
 	// THEN: the SSR-rendered permissions include createChat = true
 	// because the agents-access role grants org-scoped chat create
 	// permission, and the any_org check picks it up.
-	var permsWithRole codersdk.AuthorizationResponse
+	var permsWithRole nicloudsdk.AuthorizationResponse
 	err = json.Unmarshal([]byte(html.UnescapeString(rw.Body.String())), &permsWithRole)
 	require.NoError(t, err)
 	assert.True(t, permsWithRole["createChat"], "user with agents-access role should have createChat = true")
@@ -283,14 +283,14 @@ func TestRenderPermissionsResolvesMe(t *testing.T) {
 
 	// WHEN: the user loads the page.
 	r = httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, tokenWithoutRole)
+	r.Header.Set(nicloudsdk.SessionTokenHeader, tokenWithoutRole)
 	rw = httptest.NewRecorder()
 	handler.ServeHTTP(rw, r)
 	require.Equal(t, http.StatusOK, rw.Code)
 
 	// THEN: createChat = false because the member role does not
 	// grant chat permissions.
-	var permsWithoutRole codersdk.AuthorizationResponse
+	var permsWithoutRole nicloudsdk.AuthorizationResponse
 	err = json.Unmarshal([]byte(html.UnescapeString(rw.Body.String())), &permsWithoutRole)
 	require.NoError(t, err)
 	assert.False(t, permsWithoutRole["createChat"], "user without agents-access role should have createChat = false")
@@ -337,7 +337,7 @@ func TestInjectionFailureProducesCleanHTML(t *testing.T) {
 	require.NoError(t, err)
 
 	r := httptest.NewRequest("GET", "/", nil)
-	r.Header.Set(codersdk.SessionTokenHeader, token)
+	r.Header.Set(nicloudsdk.SessionTokenHeader, token)
 	rw := httptest.NewRecorder()
 
 	handler.ServeHTTP(rw, r)
@@ -526,8 +526,8 @@ func TestShouldCacheFile(t *testing.T) {
 }
 
 const (
-	binCoderSha1    = "bin/coder.sha1"
-	binCoderTarZstd = "bin/coder.tar.zst"
+	binCoderSha1    = "bin/neuralinverse.sha1"
+	binCoderTarZstd = "bin/neuralinverse.tar.zst"
 )
 
 var sampleBinSHAs = map[string]string{
@@ -613,7 +613,7 @@ func TestServingBin(t *testing.T) {
 			fs:   sampleBinFS(),
 			reqs: []req{
 				{
-					url:              "/bin/coder-linux-amd64",
+					url:              "/bin/neuralinverse-linux-amd64",
 					wantStatus:       http.StatusOK,
 					wantBody:         []byte("compressed"),
 					wantOriginalSize: 10,
@@ -621,7 +621,7 @@ func TestServingBin(t *testing.T) {
 				},
 				// Test ETag support.
 				{
-					url:              "/bin/coder-linux-amd64",
+					url:              "/bin/neuralinverse-linux-amd64",
 					ifNoneMatch:      fmt.Sprintf("%q", sampleBinSHAs["coder-linux-amd64"]),
 					wantStatus:       http.StatusNotModified,
 					wantOriginalSize: 10,
@@ -630,7 +630,7 @@ func TestServingBin(t *testing.T) {
 				// Test compression support with X-Original-Content-Length
 				// header.
 				{
-					url:              "/bin/coder-linux-amd64",
+					url:              "/bin/neuralinverse-linux-amd64",
 					wantStatus:       http.StatusOK,
 					wantOriginalSize: 10,
 					compression:      true,
@@ -671,7 +671,7 @@ func TestServingBin(t *testing.T) {
 				"bin/GITKEEP": &fstest.MapFile{},
 			},
 			reqs: []req{
-				{url: "/bin/coder-linux-amd64", wantStatus: http.StatusNotFound},
+				{url: "/bin/neuralinverse-linux-amd64", wantStatus: http.StatusNotFound},
 				{url: "/bin/GITKEEP", wantStatus: http.StatusNotFound},
 			},
 		},
@@ -679,7 +679,7 @@ func TestServingBin(t *testing.T) {
 			name: "Serve local fs when embed fs empty",
 			fs:   fstest.MapFS{},
 			reqs: []req{
-				{url: "/bin/coder-linux-amd64", wantStatus: http.StatusNotFound},
+				{url: "/bin/neuralinverse-linux-amd64", wantStatus: http.StatusNotFound},
 				{url: "/bin/GITKEEP", wantStatus: http.StatusNotFound},
 			},
 		},
@@ -689,20 +689,20 @@ func TestServingBin(t *testing.T) {
 				"bin/GITKEEP": &fstest.MapFile{
 					Data: []byte(""),
 				},
-				"bin/coder-linux-amd64": &fstest.MapFile{
+				"bin/neuralinverse-linux-amd64": &fstest.MapFile{
 					Data: []byte("embed"),
 				},
 			},
 			reqs: []req{
 				// We support both hyphens and underscores for compatibility.
 				{
-					url:              "/bin/coder-linux-amd64",
+					url:              "/bin/neuralinverse-linux-amd64",
 					wantStatus:       http.StatusOK,
 					wantBody:         []byte("embed"),
 					wantOriginalSize: 5,
 				},
 				{
-					url:              "/bin/coder_linux_amd64",
+					url:              "/bin/neuralinverse_linux_amd64",
 					wantStatus:       http.StatusOK,
 					wantBody:         []byte("embed"),
 					wantOriginalSize: 5,

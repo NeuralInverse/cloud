@@ -17,7 +17,7 @@
 # DAC_OVERRIDE is retained so the sandbox process (running as root)
 # can read and write files owned by uid 1000 (coder) on the shared
 # home volume without chowning them. This preserves correct
-# ownership for the dev agent, which runs as the coder user.
+# ownership for the dev agent, which runs as the neuralinverse user.
 #
 # The container must run as root with CAP_SYS_ADMIN and CAP_NET_ADMIN
 # so bwrap can create the mount namespace and this wrapper can install
@@ -32,8 +32,8 @@ fail() {
 }
 
 discover_control_plane_url() {
-	if [ -n "${CODER_SANDBOX_CONTROL_PLANE_URL:-}" ]; then
-		printf '%s\n' "$CODER_SANDBOX_CONTROL_PLANE_URL"
+	if [ -n "${NEURALINVERSE_SANDBOX_CONTROL_PLANE_URL:-}" ]; then
+		printf '%s\n' "$NEURALINVERSE_SANDBOX_CONTROL_PLANE_URL"
 		return 0
 	fi
 
@@ -114,11 +114,11 @@ install_family_tcp_egress_rules() {
 
 	case "$family" in
 	ipv4)
-		chain="CODER_CHAT_SANDBOX_OUT4"
+		chain="NEURALINVERSE_CHAT_SANDBOX_OUT4"
 		table_cmd=(iptables -w 5)
 		;;
 	ipv6)
-		chain="CODER_CHAT_SANDBOX_OUT6"
+		chain="NEURALINVERSE_CHAT_SANDBOX_OUT6"
 		table_cmd=(ip6tables -w 5)
 		;;
 	*)

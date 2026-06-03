@@ -19,7 +19,7 @@ enter. This will open up Dired on the workspace's home directory.
 
 ### Using SSH
 
-By default Emacs TRAMP is setup to use SCP to access files on the Coder
+By default Emacs TRAMP is setup to use SCP to access files on the Neural Inverse Cloud
 workspace instance. However you might want to use SSH if you have a jumpbox or
 some other complex network setup.
 
@@ -46,14 +46,14 @@ To fix this:
 1. In your workspace Terraform template be sure to add the following:
 
    ```tf
-   data "coder_workspace" "me" {
+   data "ni_workspace" "me" {
    }
 
-   resource "coder_agent" "main" {
+   resource "ni_agent" "main" {
      # ...
      env = {
-       name = "CODER_WORKSPACE_NAME"
-       value = data.coder_workspace.me.name
+       name = "NEURALINVERSE_WORKSPACE_NAME"
+       value = data.ni_workspace.me.name
      }
    }
    ```
@@ -63,7 +63,7 @@ To fix this:
 
    ```bash
    ansi_term_announce_host() {
-       printf '\033AnSiTh %s\n' "coder.$CODER_WORKSPACE_NAME"
+       printf '\033AnSiTh %s\n' "coder.$NEURALINVERSE_WORKSPACE_NAME"
    }
 
    ansi_term_announce_user() {

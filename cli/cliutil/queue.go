@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // Queue is a FIFO queue with a fixed size.  If the size is exceeded, the first
@@ -94,7 +94,7 @@ type reportTask struct {
 	link         string
 	messageID    int64
 	selfReported bool
-	state        codersdk.WorkspaceAppStatusState
+	state        nicloudsdk.WorkspaceAppStatusState
 	summary      string
 }
 
@@ -132,8 +132,8 @@ func (q *StatusQueue) Push(report reportTask) error {
 	//    is typing, so the tradeoff is worth it.  In the future, if we can
 	//    reliably distinguish between user and LLM activity, we can change this.
 	if report.messageID > q.lastMessageID {
-		report.state = codersdk.WorkspaceAppStatusStateWorking
-	} else if report.state == codersdk.WorkspaceAppStatusStateWorking && !report.selfReported {
+		report.state = nicloudsdk.WorkspaceAppStatusStateWorking
+	} else if report.state == nicloudsdk.WorkspaceAppStatusStateWorking && !report.selfReported {
 		q.mu.Unlock()
 		return nil
 	}

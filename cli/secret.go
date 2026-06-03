@@ -9,8 +9,8 @@ import (
 	"github.com/dustin/go-humanize"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -23,23 +23,23 @@ func (r *RootCmd) secrets() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Create a secret",
-				Command:     "printf %s \"$MYCLI_API_KEY\" | coder secret create api-key --description \"API key for workspace tools\" --env API_KEY --file \"~/.api-key\"",
+				Command:     "printf %s \"$MYCLI_API_KEY\" | neuralinverse secret create api-key --description \"API key for workspace tools\" --env API_KEY --file \"~/.api-key\"",
 			},
 			Example{
 				Description: "Update a secret",
-				Command:     "echo -n \"$NEW_SECRET_VALUE\" | coder secret update api-key --description \"Rotated API key\" --env API_KEY --file \"~/.api-key\"",
+				Command:     "echo -n \"$NEW_SECRET_VALUE\" | neuralinverse secret update api-key --description \"Rotated API key\" --env API_KEY --file \"~/.api-key\"",
 			},
 			Example{
 				Description: "List your secrets",
-				Command:     "coder secret list",
+				Command:     "neuralinverse secret list",
 			},
 			Example{
 				Description: "Show a specific secret",
-				Command:     "coder secret list api-key",
+				Command:     "neuralinverse secret list api-key",
 			},
 			Example{
 				Description: "Delete a secret",
-				Command:     "coder secret delete api-key",
+				Command:     "neuralinverse secret delete api-key",
 			},
 		),
 		Handler: func(inv *serpent.Invocation) error {
@@ -114,7 +114,7 @@ func (r *RootCmd) secretCreate() *serpent.Command {
 				return xerrors.New("secret value must be provided by exactly one of --value or non-interactive stdin (pipe or redirect)")
 			}
 
-			secret, err := client.CreateUserSecret(inv.Context(), codersdk.Me, codersdk.CreateUserSecretRequest{
+			secret, err := client.CreateUserSecret(inv.Context(), nicloudsdk.Me, nicloudsdk.CreateUserSecretRequest{
 				Name:        inv.Args[0],
 				Value:       resolvedValue,
 				Description: description,
@@ -183,7 +183,7 @@ func (r *RootCmd) secretUpdate() *serpent.Command {
 				return err
 			}
 
-			req := codersdk.UpdateUserSecretRequest{}
+			req := nicloudsdk.UpdateUserSecretRequest{}
 			resolvedValue, ok, err := secretValue(inv, value)
 			if err != nil {
 				return err
@@ -201,7 +201,7 @@ func (r *RootCmd) secretUpdate() *serpent.Command {
 				req.FilePath = &file
 			}
 
-			secret, err := client.UpdateUserSecret(inv.Context(), codersdk.Me, inv.Args[0], req)
+			secret, err := client.UpdateUserSecret(inv.Context(), nicloudsdk.Me, inv.Args[0], req)
 			if err != nil {
 				return xerrors.Errorf("update secret %q: %w", inv.Args[0], err)
 			}
@@ -288,7 +288,7 @@ func warnSuspiciousTrailingNewline(w io.Writer, value string) {
 }
 
 type secretListRow struct {
-	codersdk.UserSecret `table:"-"`
+	nicloudsdk.UserSecret `table:"-"`
 
 	Created     string `json:"-" table:"created"`
 	Name        string `json:"-" table:"name,default_sort"`
@@ -298,7 +298,7 @@ type secretListRow struct {
 	Description string `json:"-" table:"description"`
 }
 
-func secretListRowFromSecret(secret codersdk.UserSecret) secretListRow {
+func secretListRowFromSecret(secret nicloudsdk.UserSecret) secretListRow {
 	return secretListRow{
 		UserSecret:  secret,
 		Created:     humanize.Time(secret.CreatedAt),
@@ -333,13 +333,13 @@ func (r *RootCmd) secretList() *serpent.Command {
 			func(data any) (any, error) {
 				switch rows := data.(type) {
 				case []secretListRow:
-					secrets := make([]codersdk.UserSecret, len(rows))
+					secrets := make([]nicloudsdk.UserSecret, len(rows))
 					for i := range rows {
 						secrets[i] = rows[i].UserSecret
 					}
 					return secrets, nil
 				case secretListRow:
-					return []codersdk.UserSecret{rows.UserSecret}, nil
+					return []nicloudsdk.UserSecret{rows.UserSecret}, nil
 				default:
 					return nil, xerrors.Errorf("expected []secretListRow or secretListRow, got %T", data)
 				}
@@ -361,13 +361,13 @@ func (r *RootCmd) secretList() *serpent.Command {
 
 			var data any
 			if len(inv.Args) == 1 {
-				secret, err := client.UserSecretByName(inv.Context(), codersdk.Me, inv.Args[0])
+				secret, err := client.UserSecretByName(inv.Context(), nicloudsdk.Me, inv.Args[0])
 				if err != nil {
 					return xerrors.Errorf("get secret %q: %w", inv.Args[0], err)
 				}
 				data = secretListRowFromSecret(secret)
 			} else {
-				secrets, err := client.UserSecrets(inv.Context(), codersdk.Me)
+				secrets, err := client.UserSecrets(inv.Context(), nicloudsdk.Me)
 				if err != nil {
 					return xerrors.Errorf("list secrets: %w", err)
 				}
@@ -424,7 +424,7 @@ func (r *RootCmd) secretDelete() *serpent.Command {
 				return err
 			}
 
-			if err = client.DeleteUserSecret(inv.Context(), codersdk.Me, name); err != nil {
+			if err = client.DeleteUserSecret(inv.Context(), nicloudsdk.Me, name); err != nil {
 				return xerrors.Errorf("delete secret %q: %w", name, err)
 			}
 

@@ -1,4 +1,4 @@
-# coder -- Common configuration options.
+# neuralinverse -- Common configuration options.
 coder:
   # coder.env -- The environment variables to set. These can be used to
   # configure all aspects of Coder provisioner daemon. Please see
@@ -6,13 +6,13 @@ coder:
   # variables can be set.
   # Note: The following environment variables are set by default and cannot be
   # overridden:
-  # - CODER_PROMETHEUS_ADDRESS: set to 0.0.0.0:2112 and cannot be changed.
-  #   Prometheus must still be enabled by setting CODER_PROMETHEUS_ENABLE.
+  # - NEURALINVERSE_PROMETHEUS_ADDRESS: set to 0.0.0.0:2112 and cannot be changed.
+  #   Prometheus must still be enabled by setting NEURALINVERSE_PROMETHEUS_ENABLE.
   #
-  # We will additionally set CODER_URL, if unset, to the cluster service
+  # We will additionally set NEURALINVERSE_URL, if unset, to the cluster service
   # URL.
   env: []
-  # - name: "CODER_URL"
+  # - name: "NEURALINVERSE_URL"
   #   value: "https://coder.example.com"
 
   # coder.image -- The image to use for Coder provisioner daemon.
@@ -51,7 +51,7 @@ coder:
   # coder.podAnnotations -- The Coder pod annotations. See:
   # https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   # The annotation `app.kubernetes.io/component` is automatically added to identify
-  # the component type (coderd, wsproxy, or provisionerd).
+  # the component type (nicloud, wsproxy, or provisionerd).
   podAnnotations: {}
 
   # coder.podLabels -- The Coder pod labels. See:
@@ -83,7 +83,7 @@ coder:
   # context (as opposed to the pod). Some fields are also present in the pod
   # security context, in which case these values will take precedence.
   securityContext:
-    # coder.securityContext.runAsNonRoot -- Requires that the coder container
+    # coder.securityContext.runAsNonRoot -- Requires that the neuralinverse container
     # runs as an unprivileged user. If setting runAsUser to 0 (root), this
     # will need to be set to false.
     runAsNonRoot: true
@@ -97,7 +97,7 @@ coder:
     # root filesystem as read-only.
     readOnlyRootFilesystem: null
     # coder.securityContext.seccompProfile -- Sets the seccomp profile for
-    # the coder container.
+    # the neuralinverse container.
     seccompProfile:
       type: RuntimeDefault
     # coder.securityContext.allowPrivilegeEscalation -- Controls whether
@@ -181,7 +181,7 @@ coder:
     #   value: "value"
     #   effect: "NoSchedule"
 
-  # coder.nodeSelector -- Node labels for constraining coder pods to nodes.
+  # coder.nodeSelector -- Node labels for constraining neuralinverse pods to nodes.
   # See: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
   nodeSelector: {}
   #  kubernetes.io/os: linux

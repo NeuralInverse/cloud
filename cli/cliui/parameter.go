@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
 
-func RichParameter(inv *serpent.Invocation, templateVersionParameter codersdk.TemplateVersionParameter, name, defaultValue string) (string, error) {
+func RichParameter(inv *serpent.Invocation, templateVersionParameter nicloudsdk.TemplateVersionParameter, name, defaultValue string) (string, error) {
 	label := name
 	if templateVersionParameter.Ephemeral {
 		label += pretty.Sprint(DefaultStyles.Warn, " (build option)")
@@ -62,7 +62,7 @@ func RichParameter(inv *serpent.Invocation, templateVersionParameter codersdk.Te
 	case len(templateVersionParameter.Options) > 0:
 		// Move the cursor up a single line for nicer display!
 		_, _ = fmt.Fprint(inv.Stdout, "\033[1A")
-		var richParameterOption *codersdk.TemplateVersionParameterOption
+		var richParameterOption *nicloudsdk.TemplateVersionParameterOption
 		richParameterOption, err = RichSelect(inv, RichSelectOptions{
 			Options:    templateVersionParameter.Options,
 			Default:    defaultValue,
@@ -104,8 +104,8 @@ func RichParameter(inv *serpent.Invocation, templateVersionParameter codersdk.Te
 	return value, nil
 }
 
-func validateRichPrompt(value string, p codersdk.TemplateVersionParameter) error {
-	return codersdk.ValidateWorkspaceBuildParameter(p, &codersdk.WorkspaceBuildParameter{
+func validateRichPrompt(value string, p nicloudsdk.TemplateVersionParameter) error {
+	return nicloudsdk.ValidateWorkspaceBuildParameter(p, &nicloudsdk.WorkspaceBuildParameter{
 		Name:  p.Name,
 		Value: value,
 	}, nil)

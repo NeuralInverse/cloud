@@ -7,10 +7,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 var roles = []string{"auditor", "user-admin"}
@@ -21,10 +21,10 @@ func TestUserEditRoles(t *testing.T) {
 	t.Run("UpdateUserRoles", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleOwner())
-		_, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleMember())
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleOwner())
+		_, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleMember())
 
 		inv, root := clitest.New(t, "users", "edit-roles", member.Username, fmt.Sprintf("--roles=%s", strings.Join(roles, ",")))
 		clitest.SetupConfig(t, userAdmin, root)
@@ -44,9 +44,9 @@ func TestUserEditRoles(t *testing.T) {
 	t.Run("UserNotFound", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
 
 		// Setup command with non-existent user
 		inv, root := clitest.New(t, "users", "edit-roles", "nonexistentuser")

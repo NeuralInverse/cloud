@@ -18,7 +18,7 @@ import (
 	"golang.org/x/xerrors"
 	"kernel.org/pub/linux/libs/security/libcap/cap"
 
-	"github.com/coder/coder/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
 )
 
 // CLI runs the agent-exec command. It should only be called by the cli package.
@@ -32,21 +32,21 @@ func CLI() error {
 
 	var (
 		fs   = flag.NewFlagSet("agent-exec", flag.ExitOnError)
-		nice = fs.Int("coder-nice", unset, "")
-		oom  = fs.Int("coder-oom", unset, "")
+		nice = fs.Int("ni-nice", unset, "")
+		oom  = fs.Int("ni-oom", unset, "")
 	)
 
 	if len(os.Args) < 3 {
 		return xerrors.Errorf("malformed command %+v", os.Args)
 	}
 
-	// Parse everything after "coder agent-exec".
+	// Parse everything after "neuralinverse agent-exec".
 	err := fs.Parse(os.Args[2:])
 	if err != nil {
 		return xerrors.Errorf("parse flags: %w", err)
 	}
 
-	// Get everything after "coder agent-exec --"
+	// Get everything after "neuralinverse agent-exec --"
 	args := execArgs(os.Args)
 	if len(args) == 0 {
 		return xerrors.Errorf("no exec command provided %+v", os.Args)
@@ -115,7 +115,7 @@ func CLI() error {
 	}
 
 	// Remove environment variables specific to the agentexec command. This is
-	// especially important for environments that are attempting to develop Coder in Coder.
+	// especially important for environments that are attempting to develop Coder in Neural Inverse Cloud.
 	ei := usershell.SystemEnvInfo{}
 	env := ei.Environ()
 	env = slices.DeleteFunc(env, func(e string) bool {
@@ -188,7 +188,7 @@ func execArgs(args []string) []string {
 }
 
 func printfStdErr(format string, a ...any) {
-	_, _ = fmt.Fprintf(os.Stderr, "coder-agent: %s\n", fmt.Sprintf(format, a...))
+	_, _ = fmt.Fprintf(os.Stderr, "neuralinverse-agent: %s\n", fmt.Sprintf(format, a...))
 }
 
 func dropEffectiveCaps() error {

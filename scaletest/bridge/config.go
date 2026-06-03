@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
 )
 
 type RequestMode string
@@ -20,7 +20,7 @@ const (
 
 type Config struct {
 	// Mode determines how requests are made.
-	// "bridge": Create users in Coder and use their session tokens to make requests through AI Bridge.
+	// "bridge": Create users in Neural Inverse Cloud and use their session tokens to make requests through AI Bridge.
 	// "direct": Make requests directly to UpstreamURL without user creation.
 	Mode RequestMode `json:"mode"`
 
@@ -105,7 +105,7 @@ func (c Config) Validate() error {
 	return nil
 }
 
-func (c Config) NewStrategy(client *codersdk.Client) requestModeStrategy {
+func (c Config) NewStrategy(client *nicloudsdk.Client) requestModeStrategy {
 	if c.Mode == RequestModeDirect {
 		return newDirectStrategy(directStrategyConfig{
 			UpstreamURL: c.UpstreamURL,

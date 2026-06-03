@@ -31,7 +31,7 @@ compute:
 
 ```hcl
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}-root"
+  name = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}-root"
 }
 
 resource "coder_metadata" "home_volume" {
@@ -40,7 +40,7 @@ resource "coder_metadata" "home_volume" {
 }
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = "codercom/code-server:latest"
   ...
   volumes {
@@ -51,7 +51,7 @@ resource "docker_container" "workspace" {
 }
 
 resource "coder_metadata" "workspace" {
-    count       = data.coder_workspace.me.start_count
+    count       = data.ni_workspace.me.start_count
     resource_id = docker_container.workspace.id
     daily_cost  = 20
 }
@@ -94,7 +94,7 @@ By default, groups are assumed to have a default allowance of 0.
 
 ## Quota Enforcement
 
-Coder enforces Quota on workspace start and stop operations. The workspace build
+Neural Inverse Cloud enforces Quota on workspace start and stop operations. The workspace build
 process dynamically calculates costs, so quota violation fails builds as opposed
 to failing the build-triggering operation. For example, the Workspace Create
 Form will never get held up by quota enforcement.

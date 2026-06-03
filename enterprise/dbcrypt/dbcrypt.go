@@ -9,13 +9,13 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
 )
 
 // testValue is the value that is stored in dbcrypt_keys.test.
 // This is used to determine if the key is valid.
-const testValue = "coder"
+const testValue = "neuralinverse"
 
 var (
 	b64encode = base64.StdEncoding.EncodeToString

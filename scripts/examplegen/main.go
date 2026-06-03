@@ -18,7 +18,7 @@ import (
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 const (
@@ -78,7 +78,7 @@ func run(lint bool) error {
 		}
 	}
 
-	var examples []codersdk.TemplateExample
+	var examples []nicloudsdk.TemplateExample
 	var errs []error
 	for _, name := range paths {
 		te, err := parseTemplateExample(projectFS, examplesFS, name)
@@ -122,7 +122,7 @@ func isTemplateExampleDir(examplesFS fs.FS, name string) bool {
 	return true
 }
 
-func parseTemplateExample(projectFS, examplesFS fs.FS, name string) (te *codersdk.TemplateExample, err error) {
+func parseTemplateExample(projectFS, examplesFS fs.FS, name string) (te *nicloudsdk.TemplateExample, err error) {
 	var errs []error
 	defer func() {
 		if err != nil {
@@ -215,7 +215,7 @@ func parseTemplateExample(projectFS, examplesFS fs.FS, name string) (te *codersd
 		return nil, xerrors.New("front matter validation failed")
 	}
 
-	return &codersdk.TemplateExample{
+	return &nicloudsdk.TemplateExample{
 		ID:          exampleID,
 		Name:        displayName,
 		Description: description,

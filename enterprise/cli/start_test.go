@@ -7,14 +7,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // TestStart also tests restart since the tests are virtually identical.
@@ -25,64 +25,64 @@ func TestStart(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAccessControl:              1,
-					codersdk.FeatureTemplateRBAC:               1,
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					nicloudsdk.FeatureAccessControl:              1,
+					nicloudsdk.FeatureTemplateRBAC:               1,
+					nicloudsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
-		templateAdminClient, templateAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdminClient, templateAdmin := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 		// Create an initial version.
-		oldVersion := coderdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil)
+		oldVersion := nicloudtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil)
 		// Create a template that mandates the promoted version.
 		// This should be enforced for everyone except template admins.
-		template := coderdtest.CreateTemplate(t, templateAdminClient, owner.OrganizationID, oldVersion.ID)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, oldVersion.ID)
+		template := nicloudtest.CreateTemplate(t, templateAdminClient, owner.OrganizationID, oldVersion.ID)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, oldVersion.ID)
 		require.Equal(t, oldVersion.ID, template.ActiveVersionID)
-		template = coderdtest.UpdateTemplateMeta(t, templateAdminClient, template.ID, codersdk.UpdateTemplateMeta{
+		template = nicloudtest.UpdateTemplateMeta(t, templateAdminClient, template.ID, nicloudsdk.UpdateTemplateMeta{
 			RequireActiveVersion: ptr.Ref(true),
 		})
 		require.True(t, template.RequireActiveVersion)
 
 		// Create a new version that we will promote.
-		activeVersion := coderdtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		activeVersion := nicloudtest.CreateTemplateVersion(t, templateAdminClient, owner.OrganizationID, nil, func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
-		coderdtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, activeVersion.ID)
-		err := templateAdminClient.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, templateAdminClient, activeVersion.ID)
+		err := templateAdminClient.UpdateActiveTemplateVersion(ctx, template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 			ID: activeVersion.ID,
 		})
 		require.NoError(t, err)
 
-		templateACLAdminClient, templateACLAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		templateGroupACLAdminClient, templateGroupACLAdmin := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		memberClient, member := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		templateACLAdminClient, templateACLAdmin := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		templateGroupACLAdminClient, templateGroupACLAdmin := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		memberClient, member := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 		// Create a group so we can also test group template admin ownership.
 		// Add the user who gains template admin via group membership.
-		group := coderdtest.CreateGroup(t, ownerClient, owner.OrganizationID, "test", templateGroupACLAdmin)
+		group := nicloudtest.CreateGroup(t, ownerClient, owner.OrganizationID, "test", templateGroupACLAdmin)
 
 		// Update the template for both users and groups.
-		err = ownerClient.UpdateTemplateACL(ctx, template.ID, codersdk.UpdateTemplateACL{
-			UserPerms: map[string]codersdk.TemplateRole{
-				templateACLAdmin.ID.String(): codersdk.TemplateRoleAdmin,
+		err = ownerClient.UpdateTemplateACL(ctx, template.ID, nicloudsdk.UpdateTemplateACL{
+			UserPerms: map[string]nicloudsdk.TemplateRole{
+				templateACLAdmin.ID.String(): nicloudsdk.TemplateRoleAdmin,
 			},
-			GroupPerms: map[string]codersdk.TemplateRole{
-				group.ID.String(): codersdk.TemplateRoleAdmin,
+			GroupPerms: map[string]nicloudsdk.TemplateRole{
+				group.ID.String(): nicloudsdk.TemplateRoleAdmin,
 			},
 		})
 		require.NoError(t, err)
 
 		type testcase struct {
 			Name            string
-			Client          *codersdk.Client
+			Client          *nicloudsdk.Client
 			WorkspaceOwner  uuid.UUID
 			ExpectedVersion uuid.UUID
 		}
@@ -134,19 +134,19 @@ func TestStart(t *testing.T) {
 						ctx := testutil.Context(t, testutil.WaitMedium)
 						// Create the workspace using the admin since we want
 						// to force the old version.
-						ws, err := ownerClient.CreateWorkspace(ctx, owner.OrganizationID, c.WorkspaceOwner.String(), codersdk.CreateWorkspaceRequest{
+						ws, err := ownerClient.CreateWorkspace(ctx, owner.OrganizationID, c.WorkspaceOwner.String(), nicloudsdk.CreateWorkspaceRequest{
 							TemplateVersionID: oldVersion.ID,
-							Name:              coderdtest.RandomUsername(t),
-							AutomaticUpdates:  codersdk.AutomaticUpdatesNever,
+							Name:              nicloudtest.RandomUsername(t),
+							AutomaticUpdates:  nicloudsdk.AutomaticUpdatesNever,
 						})
 						require.NoError(t, err)
-						coderdtest.AwaitWorkspaceBuildJobCompleted(t, c.Client, ws.LatestBuild.ID)
+						nicloudtest.AwaitWorkspaceBuildJobCompleted(t, c.Client, ws.LatestBuild.ID)
 
 						initialTemplateVersion := ws.LatestBuild.TemplateVersionID
 
 						if cmd == "start" {
 							// Stop the workspace so that we can start it.
-							coderdtest.MustTransitionWorkspace(t, c.Client, ws.ID, codersdk.WorkspaceTransitionStart, codersdk.WorkspaceTransitionStop)
+							nicloudtest.MustTransitionWorkspace(t, c.Client, ws.ID, nicloudsdk.WorkspaceTransitionStart, nicloudsdk.WorkspaceTransitionStop)
 						}
 						// Start the workspace. Every test permutation should
 						// pass.
@@ -157,7 +157,7 @@ func TestStart(t *testing.T) {
 						err = inv.Run()
 						require.NoError(t, err)
 
-						ws = coderdtest.MustWorkspace(t, c.Client, ws.ID)
+						ws = nicloudtest.MustWorkspace(t, c.Client, ws.ID)
 						require.Equal(t, c.ExpectedVersion, ws.LatestBuild.TemplateVersionID)
 						// The CLI should proactively use the active version
 						// without hitting the 403→retry path.
@@ -175,26 +175,26 @@ func TestStart(t *testing.T) {
 		t.Parallel()
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		ownerClient, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		ownerClient, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureAdvancedTemplateScheduling: 1,
+					nicloudsdk.FeatureAdvancedTemplateScheduling: 1,
 				},
 			},
 		})
 
-		version := coderdtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
-		template := coderdtest.CreateTemplate(t, ownerClient, owner.OrganizationID, version.ID)
+		version := nicloudtest.CreateTemplateVersion(t, ownerClient, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, ownerClient, version.ID)
+		template := nicloudtest.CreateTemplate(t, ownerClient, owner.OrganizationID, version.ID)
 
-		memberClient, _ := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-		workspace := coderdtest.CreateWorkspace(t, memberClient, template.ID)
-		_ = coderdtest.AwaitWorkspaceBuildJobCompleted(t, memberClient, workspace.LatestBuild.ID)
-		_ = coderdtest.MustTransitionWorkspace(t, memberClient, workspace.ID, codersdk.WorkspaceTransitionStart, codersdk.WorkspaceTransitionStop)
-		err := memberClient.UpdateWorkspaceDormancy(ctx, workspace.ID, codersdk.UpdateWorkspaceDormancy{
+		memberClient, _ := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+		workspace := nicloudtest.CreateWorkspace(t, memberClient, template.ID)
+		_ = nicloudtest.AwaitWorkspaceBuildJobCompleted(t, memberClient, workspace.LatestBuild.ID)
+		_ = nicloudtest.MustTransitionWorkspace(t, memberClient, workspace.ID, nicloudsdk.WorkspaceTransitionStart, nicloudsdk.WorkspaceTransitionStop)
+		err := memberClient.UpdateWorkspaceDormancy(ctx, workspace.ID, nicloudsdk.UpdateWorkspaceDormancy{
 			Dormant: true,
 		})
 		require.NoError(t, err)
@@ -209,7 +209,7 @@ func TestStart(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, buf.String(), "Activating dormant workspace...")
 
-		workspace = coderdtest.MustWorkspace(t, memberClient, workspace.ID)
-		require.Equal(t, codersdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
+		workspace = nicloudtest.MustWorkspace(t, memberClient, workspace.ID)
+		require.Equal(t, nicloudsdk.WorkspaceTransitionStart, workspace.LatestBuild.Transition)
 	})
 }

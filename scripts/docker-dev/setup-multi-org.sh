@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-CODER="go run ./enterprise/cmd/coder"
+CODER="go run ./enterprise/cmd/neuralinverse"
 TOKEN_FILE="/bootstrap/token"
 LICENSE_FILE="/license.txt"
 ORG_NAME="${ORG_NAME:-second-organization}"
@@ -9,19 +9,19 @@ ORG_NAME="${ORG_NAME:-second-organization}"
 echo "=== Multi-Organization Setup ==="
 
 # Load bootstrap token
-CODER_SESSION_TOKEN=$(cat "$TOKEN_FILE")
-if [ -z "${CODER_SESSION_TOKEN}" ]; then
+NEURALINVERSE_SESSION_TOKEN=$(cat "$TOKEN_FILE")
+if [ -z "${NEURALINVERSE_SESSION_TOKEN}" ]; then
 	echo "Bootstrap token not found in ${TOKEN_FILE}"
 	exit 1
 fi
-export CODER_SESSION_TOKEN
+export NEURALINVERSE_SESSION_TOKEN
 
 # Check if a license has not yet been added
 LICENSES=$($CODER license list | tail -n +2)
 if [ -z "${LICENSES}" ]; then
 	echo "No existing license found."
 	if [ ! -f "${LICENSE_FILE}" ]; then
-		echo "License required, set CODER_DEV_LICENSE_FILE=path/to/license.txt"
+		echo "License required, set NEURALINVERSE_DEV_LICENSE_FILE=path/to/license.txt"
 		exit 1
 	fi
 	echo "Adding license..."

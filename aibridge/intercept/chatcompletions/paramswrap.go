@@ -6,7 +6,7 @@ import (
 	"github.com/tidwall/gjson"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 // ChatCompletionNewParamsWrapper exists because the "stream" param is not included in openai.ChatCompletionNewParams.

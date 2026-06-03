@@ -20,7 +20,7 @@ coder provisioner list [flags]
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>int</code>                           |
-| Environment | <code>$CODER_PROVISIONER_LIST_LIMIT</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_LIST_LIMIT</code> |
 | Default     | <code>50</code>                            |
 
 Limit the number of provisioners returned.
@@ -30,7 +30,7 @@ Limit the number of provisioners returned.
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>bool</code>                            |
-| Environment | <code>$CODER_PROVISIONER_SHOW_OFFLINE</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_SHOW_OFFLINE</code> |
 
 Show offline provisioners.
 
@@ -39,7 +39,7 @@ Show offline provisioners.
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>[offline\|idle\|busy]</code>          |
-| Environment | <code>$CODER_PROVISIONER_LIST_STATUS</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_LIST_STATUS</code> |
 
 Filter by provisioner status.
 
@@ -48,7 +48,7 @@ Filter by provisioner status.
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>duration</code>                        |
-| Environment | <code>$CODER_PROVISIONER_LIST_MAX_AGE</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_LIST_MAX_AGE</code> |
 
 Filter provisioners by maximum age.
 
@@ -57,7 +57,7 @@ Filter provisioners by maximum age.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.
 

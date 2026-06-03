@@ -61,20 +61,20 @@
 ### Migration Guidelines
 
 1. **Create migration files**:
-   - Location: `coderd/database/migrations/`
+   - Location: `nicloud/database/migrations/`
    - Format: `{number}_{description}.{up|down}.sql`
    - Number must be unique and sequential
    - Always include both up and down migrations
 
 2. **Use helper scripts**:
-   - `./coderd/database/migrations/create_migration.sh "migration name"` - Creates new migration files
-   - `./coderd/database/migrations/fix_migration_numbers.sh` - Renumbers migrations to avoid conflicts
-   - `./coderd/database/migrations/create_fixture.sh "fixture name"` - Creates test fixtures for migrations
+   - `./nicloud/database/migrations/create_migration.sh "migration name"` - Creates new migration files
+   - `./nicloud/database/migrations/fix_migration_numbers.sh` - Renumbers migrations to avoid conflicts
+   - `./nicloud/database/migrations/create_fixture.sh "fixture name"` - Creates test fixtures for migrations
 
 3. **Update database queries**:
-   - **MUST DO**: Any changes to database - adding queries, modifying queries should be done in the `coderd/database/queries/*.sql` files
+   - **MUST DO**: Any changes to database - adding queries, modifying queries should be done in the `nicloud/database/queries/*.sql` files
    - **MUST DO**: Queries are grouped in files relating to context - e.g. `prebuilds.sql`, `users.sql`, `oauth2.sql`
-   - After making changes to any `coderd/database/queries/*.sql` files you must run `make gen` to generate respective ORM changes
+   - After making changes to any `nicloud/database/queries/*.sql` files you must run `make gen` to generate respective ORM changes
 
 4. **Handle nullable fields**:
    - Use `sql.NullString`, `sql.NullBool`, etc. for optional database fields
@@ -87,7 +87,7 @@
 
 ### Database Generation Process
 
-1. Modify SQL files in `coderd/database/queries/`
+1. Modify SQL files in `nicloud/database/queries/`
 2. Run `make gen`
 3. If errors about audit table, update `enterprise/audit/table.go`
 4. Run `make gen` again
@@ -97,10 +97,10 @@
 
 ### Adding New API Endpoints
 
-1. **Define types** in `codersdk/` package
-2. **Add handler** in appropriate `coderd/` file
-3. **Register route** in `coderd/coderd.go`
-4. **Add tests** in `coderd/*_test.go` files
+1. **Define types** in `nicloudsdk/` package
+2. **Add handler** in appropriate `nicloud/` file
+3. **Register route** in `nicloud/nicloud.go`
+4. **Add tests** in `nicloud/*_test.go` files
 5. **Update OpenAPI** by running `make gen`
 
 ### API Design Guardrails
@@ -154,7 +154,7 @@ Two hooks run automatically:
   the full `make pre-commit` or the lightweight `make pre-commit-light`
   depending on whether Go, TypeScript, SQL, proto, or Makefile
   changes are present. Falls back to the full target when
-  `CODER_HOOK_RUN_ALL=1` is set. A markdown-only commit takes
+  `NEURALINVERSE_HOOK_RUN_ALL=1` is set. A markdown-only commit takes
   seconds; a Go change takes several minutes.
 - **pre-push**: Classifies changed files (vs remote branch or
   merge-base) and runs `make pre-push` when Go, TypeScript, SQL,
@@ -162,7 +162,7 @@ Two hooks run automatically:
   for lightweight changes. Allowlisted in
   `scripts/githooks/pre-push`. Runs only for developers who opt
   in. Falls back to `make pre-push` when the diff range can't
-  be determined or `CODER_HOOK_RUN_ALL=1` is set. Allow at least
+  be determined or `NEURALINVERSE_HOOK_RUN_ALL=1` is set. Allow at least
   15 minutes for a full run.
 
 `git commit` and `git push` will appear to hang while hooks run.
@@ -245,7 +245,7 @@ Format: `type(scope): message`. See [CONTRIBUTING.md](docs/about/contributing/CO
 
 #### Backend Investigation (Go)
 
-1. **Start with route registration** in `coderd/coderd.go` to understand API endpoints
+1. **Start with route registration** in `nicloud/nicloud.go` to understand API endpoints
 2. **Use Go LSP `definition` lookup** to trace from route handlers to actual implementations
 3. **Use Go LSP `references`** to understand how functions are called throughout the codebase
 4. **Follow the middleware chain** using LSP tools to understand request processing flow

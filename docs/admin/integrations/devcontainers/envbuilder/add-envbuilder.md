@@ -1,22 +1,22 @@
 # Add an Envbuilder template
 
-A Coder administrator adds an Envbuilder-compatible template to Coder. This
+A Neural Inverse Cloud administrator adds an Envbuilder-compatible template to Neural Inverse Cloud. This
 allows the template to prompt the developer for their dev container repository's
 URL as a [parameter](../../../templates/extending-templates/parameters.md) when they create
 their workspace. Envbuilder clones the repo and builds a container from the
 `devcontainer.json` specified in the repo.
 
-You can create template files through the Coder dashboard, CLI, or you can
+You can create template files through the Neural Inverse Cloud dashboard, CLI, or you can
 choose a template from the
-[Coder registry](https://registry.coder.com/templates):
+[Neural Inverse Cloud registry](https://registry.cloud.neuralinverse.com/templates):
 
 <div class="tabs">
 
 ## Dashboard
 
-1. In the Coder dashboard, select **Templates** then **Create Template**.
+1. In the Neural Inverse Cloud dashboard, select **Templates** then **Create Template**.
 1. Use a
-   [starter template](https://github.com/coder/coder/tree/main/examples/templates)
+   [starter template](https://github.com/NeuralInverse/cloud/tree/main/examples/templates)
    or create a new template:
 
    - Starter template:
@@ -43,23 +43,23 @@ choose a template from the
    A list of available templates is shown in the
    [templates_init](../../../../reference/cli/templates.md) reference.
 
-1. `cd` into the directory and push the template to your Coder deployment:
+1. `cd` into the directory and push the template to your Neural Inverse Cloud deployment:
 
    ```shell
    cd kubernetes-devcontainer && coder templates push
    ```
 
    You can also edit the files or make changes to the files before you push them
-   to Coder.
+   to Neural Inverse Cloud.
 
 ## Registry
 
-1. Go to the [Coder registry](https://registry.coder.com/templates) and select a
+1. Go to the [Neural Inverse Cloud registry](https://registry.cloud.neuralinverse.com/templates) and select a
    dev container-compatible template.
 
 1. Copy the files to your local device, then edit them to fit your needs.
 
-1. Upload them to Coder through the CLI or dashboard:
+1. Upload them to Neural Inverse Cloud through the CLI or dashboard:
 
    - CLI:
 
@@ -92,7 +92,7 @@ choose a template from the
 
 </div>
 
-To set variables such as the namespace, go to the template in your Coder
+To set variables such as the namespace, go to the template in your Neural Inverse Cloud
 dashboard and select **Settings** from the **⋮** (vertical ellipsis) menu:
 
 <Image height="255px" src="../../../../images/templates/template-menu-settings.png" alt="Choose Settings from the template's menu" align="center" />
@@ -121,10 +121,10 @@ their development environments:
 
 | Template                                                                                                            | Description                                                                                                                                                         |
 |---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Docker dev containers](https://github.com/coder/coder/tree/main/examples/templates/docker-devcontainer)            | Docker provisions a development container.                                                                                                                          |
-| [Kubernetes dev containers](https://github.com/coder/coder/tree/main/examples/templates/kubernetes-devcontainer)    | Provisions a development container on the Kubernetes cluster.                                                                                                       |
-| [Google Compute Engine dev container](https://github.com/coder/coder/tree/main/examples/templates/gcp-devcontainer) | Runs a development container inside a single GCP instance. It also mounts the Docker socket from the VM inside the container to enable Docker inside the workspace. |
-| [AWS EC2 dev container](https://github.com/coder/coder/tree/main/examples/templates/aws-devcontainer)               | Runs a development container inside a single EC2 instance. It also mounts the Docker socket from the VM inside the container to enable Docker inside the workspace. |
+| [Docker dev containers](https://github.com/NeuralInverse/cloud/tree/main/examples/templates/docker-devcontainer)            | Docker provisions a development container.                                                                                                                          |
+| [Kubernetes dev containers](https://github.com/NeuralInverse/cloud/tree/main/examples/templates/kubernetes-devcontainer)    | Provisions a development container on the Kubernetes cluster.                                                                                                       |
+| [Google Compute Engine dev container](https://github.com/NeuralInverse/cloud/tree/main/examples/templates/gcp-devcontainer) | Runs a development container inside a single GCP instance. It also mounts the Docker socket from the VM inside the container to enable Docker inside the workspace. |
+| [AWS EC2 dev container](https://github.com/NeuralInverse/cloud/tree/main/examples/templates/aws-devcontainer)               | Runs a development container inside a single EC2 instance. It also mounts the Docker socket from the VM inside the container to enable Docker inside the workspace. |
 
 Your template can prompt the user for a repo URL with
 [parameters](../../../templates/extending-templates/parameters.md):

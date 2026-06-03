@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 func TestCoordinateResponse_Chunked(t *testing.T) {

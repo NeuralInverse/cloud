@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestExpTaskResume(t *testing.T) {
@@ -37,7 +37,7 @@ func TestExpTaskResume(t *testing.T) {
 
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusInitializing, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusInitializing, updated.Status)
 	})
 
 	// OtherUserTask verifies that an admin can resume a task owned by
@@ -64,7 +64,7 @@ func TestExpTaskResume(t *testing.T) {
 
 		updated, err := setup.ownerClient.TaskByIdentifier(ctx, identifier)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusInitializing, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusInitializing, updated.Status)
 	})
 
 	t.Run("NoWait", func(t *testing.T) {
@@ -88,12 +88,12 @@ func TestExpTaskResume(t *testing.T) {
 
 		// And: The task to eventually be resumed
 		require.True(t, setup.task.WorkspaceID.Valid, "task should have a workspace ID")
-		ws := coderdtest.MustWorkspace(t, setup.userClient, setup.task.WorkspaceID.UUID)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, setup.userClient, ws.LatestBuild.ID)
+		ws := nicloudtest.MustWorkspace(t, setup.userClient, setup.task.WorkspaceID.UUID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, setup.userClient, ws.LatestBuild.ID)
 
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusInitializing, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusInitializing, updated.Status)
 	})
 
 	t.Run("PromptConfirm", func(t *testing.T) {
@@ -124,7 +124,7 @@ func TestExpTaskResume(t *testing.T) {
 
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusInitializing, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusInitializing, updated.Status)
 	})
 
 	t.Run("PromptDecline", func(t *testing.T) {
@@ -153,7 +153,7 @@ func TestExpTaskResume(t *testing.T) {
 		// Then: We expect the task to still be paused
 		updated, err := setup.userClient.TaskByIdentifier(ctx, setup.task.Name)
 		require.NoError(t, err)
-		require.Equal(t, codersdk.TaskStatusPaused, updated.Status)
+		require.Equal(t, nicloudsdk.TaskStatusPaused, updated.Status)
 	})
 
 	t.Run("TaskNotPaused", func(t *testing.T) {

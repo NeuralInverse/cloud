@@ -19,20 +19,20 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 
-	"github.com/coder/coder/v2/aibridge"
-	"github.com/coder/coder/v2/aibridge/config"
-	aibtracing "github.com/coder/coder/v2/aibridge/tracing"
-	"github.com/coder/coder/v2/coderd/aibridged"
-	"github.com/coder/coder/v2/coderd/aibridgedserver"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/aibridge"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	aibtracing "github.com/NeuralInverse/cloud/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridged"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridgedserver"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/externalauth"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 var testTracer = otel.Tracer("aibridged_inttest")
@@ -140,8 +140,8 @@ func TestIntegration(t *testing.T) {
 	t.Cleanup(mockOpenAI.Close)
 
 	db, ps := dbtestutil.NewDB(t)
-	client, _, api, firstUser := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, _, api, firstUser := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
 			Database: db,
 			Pubsub:   ps,
 			ExternalAuthConfigs: []*externalauth.Config{
@@ -156,13 +156,13 @@ func TestIntegration(t *testing.T) {
 		},
 	})
 
-	userClient, user := coderdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
+	userClient, user := nicloudtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
 
 	// Create an API token for the user.
-	apiKey, err := userClient.CreateToken(ctx, "me", codersdk.CreateTokenRequest{
+	apiKey, err := userClient.CreateToken(ctx, "me", nicloudsdk.CreateTokenRequest{
 		TokenName: fmt.Sprintf("test-key-%d", time.Now().UnixNano()),
 		Lifetime:  time.Hour,
-		Scope:     codersdk.APIKeyScopeAll,
+		Scope:     nicloudsdk.APIKeyScopeAll,
 	})
 	require.NoError(t, err)
 
@@ -359,22 +359,22 @@ func TestIntegrationWithMetrics(t *testing.T) {
 	}))
 	t.Cleanup(mockOpenAI.Close)
 
-	// Database and coderd setup.
+	// Database and nicloud setup.
 	db, ps := dbtestutil.NewDB(t)
-	client, _, api, firstUser := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, _, api, firstUser := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
 			Database: db,
 			Pubsub:   ps,
 		},
 	})
 
-	userClient, _ := coderdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
+	userClient, _ := nicloudtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
 
 	// Create an API token for the user.
-	apiKey, err := userClient.CreateToken(ctx, "me", codersdk.CreateTokenRequest{
+	apiKey, err := userClient.CreateToken(ctx, "me", nicloudsdk.CreateTokenRequest{
 		TokenName: fmt.Sprintf("test-key-%d", time.Now().UnixNano()),
 		Lifetime:  time.Hour,
-		Scope:     codersdk.APIKeyScopeCoderAll,
+		Scope:     nicloudsdk.APIKeyScopeNIAll,
 	})
 	require.NoError(t, err)
 
@@ -456,22 +456,22 @@ func TestIntegrationCircuitBreaker(t *testing.T) {
 	}))
 	t.Cleanup(mockAnthropic.Close)
 
-	// Database and coderd setup.
+	// Database and nicloud setup.
 	db, ps := dbtestutil.NewDB(t)
-	client, _, api, firstUser := coderdenttest.NewWithAPI(t, &coderdenttest.Options{
-		Options: &coderdtest.Options{
+	client, _, api, firstUser := nicloudenttest.NewWithAPI(t, &nicloudenttest.Options{
+		Options: &nicloudtest.Options{
 			Database: db,
 			Pubsub:   ps,
 		},
 	})
 
-	userClient, _ := coderdtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
+	userClient, _ := nicloudtest.CreateAnotherUser(t, client, firstUser.OrganizationID)
 
 	// Create an API token for the user.
-	apiKey, err := userClient.CreateToken(ctx, "me", codersdk.CreateTokenRequest{
+	apiKey, err := userClient.CreateToken(ctx, "me", nicloudsdk.CreateTokenRequest{
 		TokenName: fmt.Sprintf("test-key-%d", time.Now().UnixNano()),
 		Lifetime:  time.Hour,
-		Scope:     codersdk.APIKeyScopeCoderAll,
+		Scope:     nicloudsdk.APIKeyScopeNIAll,
 	})
 	require.NoError(t, err)
 

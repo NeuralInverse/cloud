@@ -105,7 +105,7 @@ export const AppearanceSettingsPageView: FC<
 			>
 				<Input
 					{...applicationNameFieldHelpers("application_name")}
-					placeholder='Leave empty to display "Coder".'
+					placeholder='Leave empty to display "Neural Inverse Cloud".'
 					disabled={!isEntitled}
 					aria-label="Application name"
 				/>

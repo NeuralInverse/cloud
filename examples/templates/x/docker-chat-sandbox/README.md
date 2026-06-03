@@ -6,7 +6,7 @@ maintainer_github: coder
 tags: [docker, container, chat]
 ---
 
-> **Experimental**: This template depends on the `-coderd-chat` agent
+> **Experimental**: This template depends on the `-nicloud-chat` agent
 > naming convention, which is an internal PoC mechanism subject to
 > change. Do not rely on this for production workloads.
 
@@ -17,7 +17,7 @@ This template provisions a workspace with two agents:
 | Agent             | Purpose                                           | Visible in UI |
 |-------------------|---------------------------------------------------|---------------|
 | `dev`             | Regular development agent with code-server        | Yes           |
-| `dev-coderd-chat` | AI chat agent running inside a bubblewrap sandbox | Yes           |
+| `dev-nicloud-chat` | AI chat agent running inside a bubblewrap sandbox | Yes           |
 
 ## How it works
 
@@ -25,8 +25,8 @@ The `dev` agent is a standard workspace agent with code-server and
 full filesystem access. Users interact with it normally through the
 dashboard, SSH, and Coder Connect.
 
-The `dev-coderd-chat` agent is designated for AI chat sessions via the
-`-coderd-chat` naming suffix. Chatd routes chat traffic to this agent
+The `dev-nicloud-chat` agent is designated for AI chat sessions via the
+`-nicloud-chat` naming suffix. Chatd routes chat traffic to this agent
 automatically. The dashboard and REST API still expose it like any other
 agent, but this template treats it as a chatd-managed sandbox rather
 than a normal user interaction surface.

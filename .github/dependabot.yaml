@@ -40,8 +40,8 @@ updates:
   # Update our Dockerfile.
   - package-ecosystem: "docker"
     directories:
-      - "/dogfood/coder"
-      - "/dogfood/coder-envbuilder"
+      - "/dogfood/neuralinverse"
+      - "/dogfood/neuralinverse-envbuilder"
       - "/scripts"
       - "/examples/templates/docker/build"
       - "/examples/parameters/build"

@@ -1,8 +1,8 @@
-# Deploy Coder on Azure with an Application Gateway
+# Deploy Neural Inverse Cloud on Azure with an Application Gateway
 
 In certain enterprise environments, the [Azure Application Gateway](https://learn.microsoft.com/en-us/azure/application-gateway/ingress-controller-overview) is required.
 
-These steps serve as a proof-of-concept example so that you can get Coder running with Kubernetes on Azure. Your deployment might require a separate Postgres server or signed certificates.
+These steps serve as a proof-of-concept example so that you can get Neural Inverse Cloud running with Kubernetes on Azure. Your deployment might require a separate Postgres server or signed certificates.
 
 The Application Gateway supports:
 
@@ -10,9 +10,9 @@ The Application Gateway supports:
 - TLS termination
 
 Refer to Microsoft's documentation on how to [enable application gateway ingress controller add-on for an existing AKS cluster with an existing application gateway](https://learn.microsoft.com/en-us/azure/application-gateway/tutorial-ingress-controller-add-on-existing).
-The steps here follow the Microsoft tutorial for a Coder deployment.
+The steps here follow the Microsoft tutorial for a Neural Inverse Cloud deployment.
 
-## Deploy Coder on Azure with an Application Gateway
+## Deploy Neural Inverse Cloud on Azure with an Application Gateway
 
 1. Create Azure resource group:
 
@@ -98,7 +98,7 @@ The steps here follow the Microsoft tutorial for a Coder deployment.
    az aks get-credentials --name myCluster --resource-group myResourceGroup
    ```
 
-1. Create Coder namespace:
+1. Create Neural Inverse Cloud namespace:
 
    ```shell
    kubectl create ns coder
@@ -123,10 +123,10 @@ The steps here follow the Microsoft tutorial for a Coder deployment.
    kubectl create secret generic coder-db-url -n coder --from-literal=url="postgres://coder:coder@coder-db-postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
    ```
 
-1. Deploy Coder to AKS cluster:
+1. Deploy Neural Inverse Cloud to AKS cluster:
 
    ```shell
-   helm repo add coder-v2 https://helm.coder.com/v2
+   helm repo add coder-v2 https://helm.cloud.neuralinverse.com/v2
    helm install coder coder-v2/coder \
        --namespace coder \
     --values values.yaml \
@@ -142,7 +142,7 @@ The steps here follow the Microsoft tutorial for a Coder deployment.
 
 1. Deploy the gateway - this needs clarification
 
-1. After you deploy the gateway, add the following entries to Helm's `values.yaml` file before you deploy Coder:
+1. After you deploy the gateway, add the following entries to Helm's `values.yaml` file before you deploy Neural Inverse Cloud:
 
    ```yaml
      service:

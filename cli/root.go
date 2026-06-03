@@ -32,14 +32,14 @@ import (
 	"golang.org/x/mod/semver"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/cli/gitauth"
-	"github.com/coder/coder/v2/cli/sessionstore"
-	"github.com/coder/coder/v2/cli/telemetry"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/cli/gitauth"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore"
+	"github.com/NeuralInverse/cloud/v2/cli/telemetry"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
@@ -80,21 +80,21 @@ const (
 
 	notLoggedInMessage = "You are not logged in. Try logging in using '%s login <url>'."
 
-	envNoVersionCheck    = "CODER_NO_VERSION_WARNING"
-	envNoFeatureWarning  = "CODER_NO_FEATURE_WARNING"
-	envSessionToken      = "CODER_SESSION_TOKEN"
-	envUseKeyring        = "CODER_USE_KEYRING"
-	envClientTLSCAFile   = "CODER_CLIENT_TLS_CA_FILE"
-	envClientTLSCertFile = "CODER_CLIENT_TLS_CERT_FILE"
-	envClientTLSKeyFile  = "CODER_CLIENT_TLS_KEY_FILE"
+	envNoVersionCheck    = "NEURALINVERSE_NO_VERSION_WARNING"
+	envNoFeatureWarning  = "NEURALINVERSE_NO_FEATURE_WARNING"
+	envSessionToken      = "NEURALINVERSE_SESSION_TOKEN"
+	envUseKeyring        = "NEURALINVERSE_USE_KEYRING"
+	envClientTLSCAFile   = "NEURALINVERSE_CLIENT_TLS_CA_FILE"
+	envClientTLSCertFile = "NEURALINVERSE_CLIENT_TLS_CERT_FILE"
+	envClientTLSKeyFile  = "NEURALINVERSE_CLIENT_TLS_KEY_FILE"
 	//nolint:gosec
-	envAgentToken = "CODER_AGENT_TOKEN"
+	envAgentToken = "NEURALINVERSE_AGENT_TOKEN"
 	//nolint:gosec
-	envAgentTokenFile = "CODER_AGENT_TOKEN_FILE"
-	envAgentURL       = "CODER_AGENT_URL"
-	envAgentAuth      = "CODER_AGENT_AUTH"
-	envAgentName      = "CODER_AGENT_NAME"
-	envURL            = "CODER_URL"
+	envAgentTokenFile = "NEURALINVERSE_AGENT_TOKEN_FILE"
+	envAgentURL       = "NEURALINVERSE_AGENT_URL"
+	envAgentAuth      = "NEURALINVERSE_AGENT_AUTH"
+	envAgentName      = "NEURALINVERSE_AGENT_NAME"
+	envURL            = "NEURALINVERSE_URL"
 )
 
 func (r *RootCmd) CoreSubcommands() []*serpent.Command {
@@ -171,7 +171,7 @@ func (r *RootCmd) AGPLExperimental() []*serpent.Command {
 func (r *RootCmd) AGPL() []*serpent.Command {
 	all := append(
 		r.CoreSubcommands(),
-		r.Server( /* Do not import coderd here. */ nil),
+		r.Server( /* Do not import nicloud here. */ nil),
 		r.Provisioners(),
 		ExperimentalCommand(r.AGPLExperimental()),
 	)
@@ -198,7 +198,7 @@ func ExperimentalCommand(subcommands []*serpent.Command) *serpent.Command {
 func (r *RootCmd) RunWithSubcommands(subcommands []*serpent.Command) {
 	// This configuration is not available as a standard option because we
 	// want to trace the entire program, including Options parsing.
-	goTraceFilePath, ok := os.LookupEnv("CODER_GO_TRACE")
+	goTraceFilePath, ok := os.LookupEnv("NEURALINVERSE_GO_TRACE")
 	if ok {
 		traceFile, err := os.OpenFile(goTraceFilePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
 		if err != nil {
@@ -250,15 +250,15 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 `
 	hiddenAgentAuth := &AgentAuth{}
 	cmd := &serpent.Command{
-		Use: "coder [global-flags] <subcommand>",
+		Use: "neuralinverse [global-flags] <subcommand>",
 		Long: fmt.Sprintf(fmtLong, buildinfo.Version()) + FormatExamples(
 			Example{
 				Description: "Start a Coder server",
-				Command:     "coder server",
+				Command:     "neuralinverse server",
 			},
 			Example{
 				Description: "Get started by creating a template from an example",
-				Command:     "coder templates init",
+				Command:     "neuralinverse templates init",
 			},
 		),
 		Handler: func(i *serpent.Invocation) error {
@@ -267,7 +267,7 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 			}
 			// The GIT_ASKPASS environment variable must point at
 			// a binary with no arguments. To prevent writing
-			// cross-platform scripts to invoke the Coder binary
+			// cross-platform scripts to invoke the Neural Inverse Cloud binary
 			// with a `gitaskpass` subcommand, we override the entrypoint
 			// to check if the command was invoked.
 			if gitauth.CheckCommand(i.Args, i.Environ.ToOS()) {
@@ -446,21 +446,21 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        varHeader,
-			Env:         "CODER_HEADER",
+			Env:         "NEURALINVERSE_HEADER",
 			Description: "Additional HTTP headers added to all requests. Provide as " + `key=value` + ". Can be specified multiple times.",
 			Value:       serpent.StringArrayOf(&r.header),
 			Group:       globalGroup,
 		},
 		{
 			Flag:        varHeaderCommand,
-			Env:         "CODER_HEADER_COMMAND",
+			Env:         "NEURALINVERSE_HEADER_COMMAND",
 			Description: "An external command that outputs additional HTTP headers added to all requests. The command must output each header as `key=value` on its own line.",
 			Value:       serpent.StringOf(&r.headerCommand),
 			Group:       globalGroup,
 		},
 		{
 			Flag:        varNoOpen,
-			Env:         "CODER_NO_OPEN",
+			Env:         "NEURALINVERSE_NO_OPEN",
 			Description: "Suppress opening the browser when logging in, or starting the server.",
 			Value:       serpent.BoolOf(&r.noOpen),
 			Hidden:      true,
@@ -468,7 +468,7 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        varForceTty,
-			Env:         "CODER_FORCE_TTY",
+			Env:         "NEURALINVERSE_FORCE_TTY",
 			Hidden:      false,
 			Description: "Force the use of a TTY.",
 			Value:       serpent.BoolOf(&r.forceTTY),
@@ -477,21 +477,21 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		{
 			Flag:          varVerbose,
 			FlagShorthand: "v",
-			Env:           "CODER_VERBOSE",
+			Env:           "NEURALINVERSE_VERBOSE",
 			Description:   "Enable verbose output.",
 			Value:         serpent.BoolOf(&r.verbose),
 			Group:         globalGroup,
 		},
 		{
 			Flag:        varDisableDirect,
-			Env:         "CODER_DISABLE_DIRECT_CONNECTIONS",
+			Env:         "NEURALINVERSE_DISABLE_DIRECT_CONNECTIONS",
 			Description: "Disable direct (P2P) connections to workspaces.",
 			Value:       serpent.BoolOf(&r.disableDirect),
 			Group:       globalGroup,
 		},
 		{
 			Flag:        varDisableNetworkTelemetry,
-			Env:         "CODER_DISABLE_NETWORK_TELEMETRY",
+			Env:         "NEURALINVERSE_DISABLE_NETWORK_TELEMETRY",
 			Description: "Disable network telemetry. Network telemetry is collected when connecting to workspaces using the CLI, and is forwarded to the server. If telemetry is also enabled on the server, it may be sent to Coder. Network telemetry is used to measure network quality and detect regressions.",
 			Value:       serpent.BoolOf(&r.disableNetworkTelemetry),
 			Group:       globalGroup,
@@ -530,15 +530,15 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		},
 		{
 			Flag:        "debug-http",
-			Description: "Debug codersdk HTTP requests.",
+			Description: "Debug nicloudsdk HTTP requests.",
 			Value:       serpent.BoolOf(&r.debugHTTP),
 			Group:       globalGroup,
 			Hidden:      true,
 		},
 		{
 			Flag:        config.FlagName,
-			Env:         "CODER_CONFIG_DIR",
-			Description: "Path to the global `coder` config directory.",
+			Env:         "NEURALINVERSE_CONFIG_DIR",
+			Description: "Path to the global `neuralinverse` config directory.",
 			Default:     config.DefaultDir(),
 			Value:       serpent.StringOf(&r.globalConfig),
 			Group:       globalGroup,
@@ -546,7 +546,7 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		{
 			Flag: "version",
 			// This was requested by a customer to assist with their migration.
-			// They have two Coder CLIs, and want to tell the difference by running
+			// They have two Neural Inverse Cloud CLIs, and want to tell the difference by running
 			// the same base command.
 			Description: "Run the version command. Useful for v1 customers migrating to v2.",
 			Value:       serpent.BoolOf(&r.versionFlag),
@@ -599,7 +599,7 @@ func (r *RootCmd) SetClock(clk quartz.Clock) {
 }
 
 // ensureClientURL loads the client URL from the config file if it
-// wasn't provided via --url or CODER_URL.
+// wasn't provided via --url or NEURALINVERSE_URL.
 func (r *RootCmd) ensureClientURL() error {
 	if r.clientURL != nil && r.clientURL.String() != "" {
 		return nil
@@ -609,7 +609,7 @@ func (r *RootCmd) ensureClientURL() error {
 	if os.IsNotExist(err) {
 		binPath, err := os.Executable()
 		if err != nil {
-			binPath = "coder"
+			binPath = "neuralinverse"
 		}
 		return xerrors.Errorf(notLoggedInMessage, binPath)
 	}
@@ -671,7 +671,7 @@ func (r *RootCmd) ensureTLSConfig() error {
 
 // InitClient creates and configures a new client with authentication, telemetry,
 // and version checks.
-func (r *RootCmd) InitClient(inv *serpent.Invocation) (*codersdk.Client, error) {
+func (r *RootCmd) InitClient(inv *serpent.Invocation) (*nicloudsdk.Client, error) {
 	if err := r.ensureClientURL(); err != nil {
 		return nil, err
 	}
@@ -701,32 +701,32 @@ func (r *RootCmd) InitClient(inv *serpent.Invocation) (*codersdk.Client, error) 
 		return nil, err
 	}
 
-	clientOpts := []codersdk.ClientOption{
-		codersdk.WithSessionToken(r.token),
-		codersdk.WithHTTPClient(httpClient),
+	clientOpts := []nicloudsdk.ClientOption{
+		nicloudsdk.WithSessionToken(r.token),
+		nicloudsdk.WithHTTPClient(httpClient),
 	}
 
 	if r.disableDirect {
-		clientOpts = append(clientOpts, codersdk.WithDisableDirectConnections())
+		clientOpts = append(clientOpts, nicloudsdk.WithDisableDirectConnections())
 	}
 
 	if r.tlsConfig != nil {
-		clientOpts = append(clientOpts, codersdk.WithDERPTLSConfig(r.tlsConfig))
+		clientOpts = append(clientOpts, nicloudsdk.WithDERPTLSConfig(r.tlsConfig))
 	}
 
 	if r.debugHTTP {
 		clientOpts = append(clientOpts,
-			codersdk.WithPlainLogger(os.Stderr),
-			codersdk.WithLogBodies(),
+			nicloudsdk.WithPlainLogger(os.Stderr),
+			nicloudsdk.WithLogBodies(),
 		)
 	}
 
-	return codersdk.New(r.clientURL, clientOpts...), nil
+	return nicloudsdk.New(r.clientURL, clientOpts...), nil
 }
 
 // TryInitClient is similar to InitClient but doesn't error when credentials are missing.
 // This allows commands to run without requiring authentication, but still use auth if available.
-func (r *RootCmd) TryInitClient(inv *serpent.Invocation) (*codersdk.Client, error) {
+func (r *RootCmd) TryInitClient(inv *serpent.Invocation) (*nicloudsdk.Client, error) {
 	conf := r.createConfig()
 	// Read the client URL stored on disk.
 	if r.clientURL == nil || r.clientURL.String() == "" {
@@ -772,36 +772,36 @@ func (r *RootCmd) TryInitClient(inv *serpent.Invocation) (*codersdk.Client, erro
 			return nil, err
 		}
 
-		clientOpts := []codersdk.ClientOption{
-			codersdk.WithSessionToken(r.token),
-			codersdk.WithHTTPClient(httpClient),
+		clientOpts := []nicloudsdk.ClientOption{
+			nicloudsdk.WithSessionToken(r.token),
+			nicloudsdk.WithHTTPClient(httpClient),
 		}
 
 		if r.disableDirect {
-			clientOpts = append(clientOpts, codersdk.WithDisableDirectConnections())
+			clientOpts = append(clientOpts, nicloudsdk.WithDisableDirectConnections())
 		}
 
 		if r.tlsConfig != nil {
-			clientOpts = append(clientOpts, codersdk.WithDERPTLSConfig(r.tlsConfig))
+			clientOpts = append(clientOpts, nicloudsdk.WithDERPTLSConfig(r.tlsConfig))
 		}
 
 		if r.debugHTTP {
 			clientOpts = append(clientOpts,
-				codersdk.WithPlainLogger(os.Stderr),
-				codersdk.WithLogBodies(),
+				nicloudsdk.WithPlainLogger(os.Stderr),
+				nicloudsdk.WithLogBodies(),
 			)
 		}
 
-		return codersdk.New(r.clientURL, clientOpts...), nil
+		return nicloudsdk.New(r.clientURL, clientOpts...), nil
 	}
 
 	// Return a minimal client if no URL is available
-	return &codersdk.Client{}, nil
+	return &nicloudsdk.Client{}, nil
 }
 
 // HeaderTransport creates a new transport that executes `--header-command`
 // if it is set to add headers for all outbound requests.
-func (r *RootCmd) HeaderTransport(ctx context.Context, serverURL *url.URL) (*codersdk.HeaderTransport, error) {
+func (r *RootCmd) HeaderTransport(ctx context.Context, serverURL *url.URL) (*nicloudsdk.HeaderTransport, error) {
 	return headerTransport(ctx, serverURL, r.header, r.headerCommand)
 }
 
@@ -819,10 +819,10 @@ func (r *RootCmd) createHTTPClient(ctx context.Context, serverURL *url.URL, inv 
 		if err != nil {
 			return nil, err
 		}
-		transport = wrapTransportWithVersionCheck(transport, inv, buildinfo.Version(), func(ctx context.Context) (codersdk.BuildInfoResponse, error) {
+		transport = wrapTransportWithVersionCheck(transport, inv, buildinfo.Version(), func(ctx context.Context) (nicloudsdk.BuildInfoResponse, error) {
 			// Create a new client without any wrapped transport
 			// otherwise it creates an infinite loop!
-			basicClient := codersdk.New(serverURL, codersdk.WithHTTPClient(&http.Client{Transport: buildInfoTransport}))
+			basicClient := nicloudsdk.New(serverURL, nicloudsdk.WithHTTPClient(&http.Client{Transport: buildInfoTransport}))
 			return basicClient.BuildInfo(ctx)
 		})
 	}
@@ -834,7 +834,7 @@ func (r *RootCmd) createHTTPClient(ctx context.Context, serverURL *url.URL, inv 
 		return nil, xerrors.Errorf("create header transport: %w", err)
 	}
 	// The header transport has to come last.
-	// codersdk checks for the header transport to get headers
+	// nicloudsdk checks for the header transport to get headers
 	// to clone on the DERP client.
 	headerTransport.Transport = transport
 	return &http.Client{
@@ -861,7 +861,7 @@ func newHTTPTransport(tlsConfig *tls.Config) (http.RoundTripper, error) {
 	return transport, nil
 }
 
-func (r *RootCmd) createUnauthenticatedClient(ctx context.Context, serverURL *url.URL, inv *serpent.Invocation) (*codersdk.Client, error) {
+func (r *RootCmd) createUnauthenticatedClient(ctx context.Context, serverURL *url.URL, inv *serpent.Invocation) (*nicloudsdk.Client, error) {
 	// Load TLS config for login and other unauthenticated requests
 	if err := r.ensureTLSConfig(); err != nil {
 		return nil, err
@@ -871,7 +871,7 @@ func (r *RootCmd) createUnauthenticatedClient(ctx context.Context, serverURL *ur
 	if err != nil {
 		return nil, err
 	}
-	client := codersdk.New(serverURL, codersdk.WithHTTPClient(httpClient))
+	client := nicloudsdk.New(serverURL, nicloudsdk.WithHTTPClient(httpClient))
 	return client, nil
 }
 
@@ -883,7 +883,7 @@ func (r *RootCmd) ensureTokenBackend() sessionstore.Backend {
 		// Checking for the --global-config directory being set is a bit wonky but necessary
 		// to allow extensions that invoke the CLI with this flag (e.g. VS code) to continue
 		// working without modification. In the future we should modify these extensions to
-		// either access the credential in the keyring (like Coder Desktop) or some other
+		// either access the credential in the keyring (like Neural Inverse Cloud Desktop) or some other
 		// approach that doesn't rely on the session token being stored on disk.
 		assumeExtensionInUse := r.globalConfig != config.DefaultDir() && !r.useKeyringWithGlobalConfig
 		keyringSupported := runtime.GOOS == "windows" || runtime.GOOS == "darwin"
@@ -990,7 +990,7 @@ func (a *AgentAuth) CreateClient() (*agentsdk.Client, error) {
 			token = strings.TrimSpace(string(tokenBytes))
 		}
 		if token == "" {
-			return nil, xerrors.Errorf("CODER_AGENT_TOKEN or CODER_AGENT_TOKEN_FILE must be set for token auth")
+			return nil, xerrors.Errorf("NEURALINVERSE_AGENT_TOKEN or NEURALINVERSE_AGENT_TOKEN_FILE must be set for token auth")
 		}
 		return agentsdk.New(&a.agentURL, agentsdk.WithFixedToken(token)), nil
 	case "google-instance-identity":
@@ -1023,7 +1023,7 @@ func (o *OrganizationContext) AttachOptions(cmd *serpent.Command) {
 		Required:      false,
 		Flag:          "org",
 		FlagShorthand: "O",
-		Env:           "CODER_ORGANIZATION",
+		Env:           "NEURALINVERSE_ORGANIZATION",
 		Value:         serpent.StringOf(&o.FlagSelect),
 	})
 }
@@ -1036,16 +1036,16 @@ func (o *OrganizationContext) ValueSource(inv *serpent.Invocation) (string, serp
 	return o.FlagSelect, opt.ValueSource
 }
 
-func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *codersdk.Client) (codersdk.Organization, error) {
+func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *nicloudsdk.Client) (nicloudsdk.Organization, error) {
 	// Fetch the set of organizations the user is a member of.
-	orgs, err := client.OrganizationsByUser(inv.Context(), codersdk.Me)
+	orgs, err := client.OrganizationsByUser(inv.Context(), nicloudsdk.Me)
 	if err != nil {
-		return codersdk.Organization{}, xerrors.Errorf("get organizations: %w", err)
+		return nicloudsdk.Organization{}, xerrors.Errorf("get organizations: %w", err)
 	}
 
 	// User manually selected an organization
 	if o.FlagSelect != "" {
-		index := slices.IndexFunc(orgs, func(org codersdk.Organization) bool {
+		index := slices.IndexFunc(orgs, func(org nicloudsdk.Organization) bool {
 			return org.Name == o.FlagSelect || org.ID.String() == o.FlagSelect
 		})
 		if index >= 0 {
@@ -1061,12 +1061,12 @@ func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *codersdk
 			for _, org := range orgs {
 				names = append(names, org.Name)
 			}
-			var sdkErr *codersdk.Error
+			var sdkErr *nicloudsdk.Error
 			if errors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound {
-				return codersdk.Organization{}, xerrors.Errorf("organization %q not found, are you sure you are a member of this organization? "+
+				return nicloudsdk.Organization{}, xerrors.Errorf("organization %q not found, are you sure you are a member of this organization? "+
 					"Valid options for '--org=' are [%s].", o.FlagSelect, strings.Join(names, ", "))
 			}
-			return codersdk.Organization{}, xerrors.Errorf("get organization %q: %w", o.FlagSelect, err)
+			return nicloudsdk.Organization{}, xerrors.Errorf("get organization %q: %w", o.FlagSelect, err)
 		}
 		return org, nil
 	}
@@ -1081,14 +1081,14 @@ func (o *OrganizationContext) Selected(inv *serpent.Invocation, client *codersdk
 		validOrgs = append(validOrgs, org.Name)
 	}
 
-	return codersdk.Organization{}, xerrors.Errorf("Must select an organization with --org=<org_name>. Choose from: %s", strings.Join(validOrgs, ", "))
+	return nicloudsdk.Organization{}, xerrors.Errorf("Must select an organization with --org=<org_name>. Choose from: %s", strings.Join(validOrgs, ", "))
 }
 
-func initAppearance(ctx context.Context, client *codersdk.Client) codersdk.AppearanceConfig {
+func initAppearance(ctx context.Context, client *nicloudsdk.Client) nicloudsdk.AppearanceConfig {
 	// best effort
 	cfg, _ := client.Appearance(ctx)
 	if cfg.DocsURL == "" {
-		cfg.DocsURL = codersdk.DefaultDocsURL()
+		cfg.DocsURL = nicloudsdk.DefaultDocsURL()
 	}
 	return cfg
 }
@@ -1248,7 +1248,7 @@ func DumpHandler(ctx context.Context, name string) {
 		// permitted on many filesystems. Note that Z here only appends
 		// Z to the string, it does not actually change the time zone.
 		filesystemSafeTime := time.Now().UTC().Format("2006-01-02T15-04-05.000Z")
-		fpath := filepath.Join(dir, fmt.Sprintf("coder-%s-%s.dump", name, filesystemSafeTime))
+		fpath := filepath.Join(dir, fmt.Sprintf("neuralinverse-%s-%s.dump", name, filesystemSafeTime))
 		_, _ = fmt.Fprintf(os.Stderr, "writing dump to %q\n", fpath)
 
 		f, err := os.Create(fpath)
@@ -1364,7 +1364,7 @@ func cliHumanFormatError(from string, err error, opts *formatOpts) (string, bool
 
 	// First check for sentinel errors that we want to handle specially.
 	// Order does matter! We want to check for the most specific errors first.
-	if sdkError, ok := err.(*codersdk.Error); ok {
+	if sdkError, ok := err.(*nicloudsdk.Error); ok {
 		return formatCoderSDKError(from, sdkError, opts), true
 	}
 
@@ -1439,7 +1439,7 @@ func formatMultiError(from string, multi []error, opts *formatOpts) string {
 
 // formatRunCommandError are cli command errors. This kind of error is very
 // broad, as it contains all errors that occur when running a command.
-// If you know the error is something else, like a codersdk.Error, make a new
+// If you know the error is something else, like a nicloudsdk.Error, make a new
 // formatter and add it to cliHumanFormatError function.
 func formatRunCommandError(err *serpent.RunCommandError, opts *formatOpts) string {
 	var str strings.Builder
@@ -1459,9 +1459,9 @@ func formatRunCommandError(err *serpent.RunCommandError, opts *formatOpts) strin
 	return str.String()
 }
 
-// formatCoderSDKError come from API requests. In verbose mode, add the
+// formatNeural Inverse CloudSDKError come from API requests. In verbose mode, add the
 // request debug information.
-func formatCoderSDKError(from string, err *codersdk.Error, opts *formatOpts) string {
+func formatCoderSDKError(from string, err *nicloudsdk.Error, opts *formatOpts) string {
 	var str strings.Builder
 	if opts.Verbose {
 		// If all these fields are empty, then do not print this information.
@@ -1553,7 +1553,7 @@ func defaultUpgradeMessage(version string) string {
 	if runtime.GOOS == "windows" {
 		return fmt.Sprintf("download the server version from: https://github.com/coder/coder/releases/v%s", version)
 	}
-	return fmt.Sprintf("download the server version with: 'curl -L https://coder.com/install.sh | sh -s -- --version %s'", version)
+	return fmt.Sprintf("download the server version with: 'curl -L https://cloud.neuralinverse.com/install.sh | sh -s -- --version %s'", version)
 }
 
 // serverVersionMessage returns a warning message if the server version
@@ -1581,7 +1581,7 @@ func wrapTransportWithEntitlementsCheck(rt http.RoundTripper, w io.Writer) http.
 			return res, err
 		}
 		once.Do(func() {
-			for _, warning := range res.Header.Values(codersdk.EntitlementsWarningHeader) {
+			for _, warning := range res.Header.Values(nicloudsdk.EntitlementsWarningHeader) {
 				_, _ = fmt.Fprintln(w, pretty.Sprint(cliui.DefaultStyles.Warn, warning))
 			}
 		})
@@ -1592,7 +1592,7 @@ func wrapTransportWithEntitlementsCheck(rt http.RoundTripper, w io.Writer) http.
 // wrapTransportWithVersionCheck adds a middleware to the HTTP transport
 // that checks the server version and warns about development builds,
 // release candidates, and client/server version mismatches.
-func wrapTransportWithVersionCheck(rt http.RoundTripper, inv *serpent.Invocation, clientVersion string, getBuildInfo func(ctx context.Context) (codersdk.BuildInfoResponse, error)) http.RoundTripper {
+func wrapTransportWithVersionCheck(rt http.RoundTripper, inv *serpent.Invocation, clientVersion string, getBuildInfo func(ctx context.Context) (nicloudsdk.BuildInfoResponse, error)) http.RoundTripper {
 	var once sync.Once
 	return roundTripper(func(req *http.Request) (*http.Response, error) {
 		res, err := rt.RoundTrip(req)
@@ -1600,7 +1600,7 @@ func wrapTransportWithVersionCheck(rt http.RoundTripper, inv *serpent.Invocation
 			return res, err
 		}
 		once.Do(func() {
-			serverVersion := res.Header.Get(codersdk.BuildVersionHeader)
+			serverVersion := res.Header.Get(nicloudsdk.BuildVersionHeader)
 			if serverVersion == "" {
 				return
 			}
@@ -1673,7 +1673,7 @@ func wrapTransportWithTelemetryHeader(transport http.RoundTripper, inv *serpent.
 			}
 		})
 		if value != "" {
-			req.Header.Add(codersdk.CLITelemetryHeader, value)
+			req.Header.Add(nicloudsdk.CLITelemetryHeader, value)
 		}
 		return transport.RoundTrip(req)
 	})
@@ -1688,7 +1688,7 @@ func wrapTransportWithUserAgentHeader(transport http.RoundTripper, inv *serpent.
 	)
 	return roundTripper(func(req *http.Request) (*http.Response, error) {
 		once.Do(func() {
-			userAgent = fmt.Sprintf("coder-cli/%s (%s/%s; %s)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH, inv.Command.FullName())
+			userAgent = fmt.Sprintf("neuralinverse-cli/%s (%s/%s; %s)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH, inv.Command.FullName())
 		})
 		req.Header.Set("User-Agent", userAgent)
 		return transport.RoundTrip(req)
@@ -1703,8 +1703,8 @@ func (r roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 // HeaderTransport creates a new transport that executes `--header-command`
 // if it is set to add headers for all outbound requests.
-func headerTransport(ctx context.Context, serverURL *url.URL, header []string, headerCommand string) (*codersdk.HeaderTransport, error) {
-	transport := &codersdk.HeaderTransport{
+func headerTransport(ctx context.Context, serverURL *url.URL, header []string, headerCommand string) (*nicloudsdk.HeaderTransport, error) {
+	transport := &nicloudsdk.HeaderTransport{
 		Transport: http.DefaultTransport,
 		Header:    http.Header{},
 	}
@@ -1719,7 +1719,7 @@ func headerTransport(ctx context.Context, serverURL *url.URL, header []string, h
 		var outBuf bytes.Buffer
 		// #nosec
 		cmd := exec.CommandContext(ctx, shell, caller, headerCommand)
-		cmd.Env = append(os.Environ(), "CODER_URL="+serverURL.String())
+		cmd.Env = append(os.Environ(), "NEURALINVERSE_URL="+serverURL.String())
 		cmd.Stdout = &outBuf
 		cmd.Stderr = io.Discard
 		err := cmd.Run()

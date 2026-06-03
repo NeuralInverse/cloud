@@ -65,7 +65,7 @@ const TemplateFilesPage: FC = () => {
 					<div className="flex items-center gap-2 mt-4">
 						<Button asChild size="sm" variant="default">
 							<a
-								href="https://registry.coder.com/skills/coder-templates"
+								href="https://registry.cloud.neuralinverse.com/skills/coder-templates"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="flex items-center"

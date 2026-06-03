@@ -13,13 +13,13 @@ all: lint
 lint: lint/helm
 .PHONY: lint
 
-lint/helm: lint/helm/coder lint/helm/provisioner
+lint/helm: lint/helm/neuralinverse lint/helm/provisioner
 .PHONY: lint/helm
 
-lint/helm/coder:
+lint/helm/neuralinverse:
 	helm dependency update --skip-refresh coder/
 	helm lint --strict --set coder.image.tag=v0.0.1 coder/
-.PHONY: lint/helm/coder
+.PHONY: lint/helm/neuralinverse
 
 lint/helm/provisioner:
 	helm dependency update --skip-refresh provisioner/

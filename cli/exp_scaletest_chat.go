@@ -13,10 +13,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/chat"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/chat"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 	"github.com/coder/serpent"
 )
 
@@ -62,7 +62,7 @@ func (r *RootCmd) scaletestChat() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			client.HTTPClient.Transport = &codersdk.HeaderTransport{
+			client.HTTPClient.Transport = &nicloudsdk.HeaderTransport{
 				Transport: client.HTTPClient.Transport,
 				Header:    BypassHeader,
 			}
@@ -73,7 +73,7 @@ func (r *RootCmd) scaletestChat() *serpent.Command {
 			}
 
 			logger := slog.Make(sloghuman.Sink(inv.Stderr)).Leveled(slog.LevelDebug)
-			modelConfigID, err := chat.EnsureScaletestModelConfig(ctx, codersdk.NewExperimentalClient(client), logger, llmMockURL)
+			modelConfigID, err := chat.EnsureScaletestModelConfig(ctx, nicloudsdk.NewExperimentalClient(client), logger, llmMockURL)
 			if err != nil {
 				return err
 			}

@@ -8,7 +8,7 @@ import (
 
 	tfjson "github.com/hashicorp/terraform-json"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 type resourceReplacementPaths map[string][]string
@@ -75,12 +75,12 @@ func findResourceReplacementsWithPaths(plan *tfjson.Plan) resourceReplacementPat
 
 		// Replacing our resources: could be a problem - but we ignore since they're "virtual" resources. If any of these
 		// resources' attributes are referenced by non-coder resources, those will show up as transitive changes there.
-		// i.e. if the coder_agent.id attribute is used in docker_container.env
+		// i.e. if the ni_agent.id attribute is used in docker_container.env
 		//
 		// Replacing our resources is not strictly a problem in and of itself.
 		//
 		// NOTE:
-		// We may need to special-case coder_agent in the future. Currently, coder_agent is replaced on every build
+		// We may need to special-case ni_agent in the future. Currently, ni_agent is replaced on every build
 		// because it only supports Create but not Update: https://github.com/coder/terraform-provider-coder/blob/5648efb/provider/agent.go#L28
 		// When we can modify an agent's attributes, some of which may be immutable (like "arch") and some may not (like "env"),
 		// then we'll have to handle this specifically.
@@ -116,7 +116,7 @@ func findAllResourceReplacements(plan *tfjson.Plan) []replacementLogEntry {
 	replacements := make([]replacementLogEntry, 0, len(plan.ResourceChanges))
 
 	for _, ch := range plan.ResourceChanges {
-		if !isNonCoderResourceReplacement(ch) {
+		if !isNonNIResourceReplacement(ch) {
 			continue
 		}
 		paths, values := replacementPathsAndValues(ch.Change)
@@ -136,14 +136,14 @@ func hasResourceReplacement(plan *tfjson.Plan) bool {
 	}
 
 	for _, ch := range plan.ResourceChanges {
-		if isNonCoderResourceReplacement(ch) {
+		if isNonNIResourceReplacement(ch) {
 			return true
 		}
 	}
 	return false
 }
 
-func isNonCoderResourceReplacement(ch *tfjson.ResourceChange) bool {
+func isNonNIResourceReplacement(ch *tfjson.ResourceChange) bool {
 	if ch == nil || ch.Change == nil || !ch.Change.Actions.Replace() {
 		return false
 	}

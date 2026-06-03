@@ -119,7 +119,7 @@ export const WithOutput: Story = {
 /** A command currently running shows a spinner in the header. */
 export const Running: Story = {
 	args: {
-		command: "go test -race -count=1 ./coderd/...",
+		command: "go test -race -count=1 ./nicloud/...",
 		status: "running",
 		transcriptBlocks: [
 			{
@@ -140,8 +140,8 @@ export const ErrorOutput: Story = {
 			{
 				kind: "output",
 				text: [
-					"coderd/workspaces.go:142:6: cannot use ws (variable of type *database.Workspace) as database.Store value in argument to api.Authorize",
-					"coderd/workspaces.go:155:19: ws.OwnerID undefined (type *database.Workspace has no field or method OwnerID)",
+					"nicloud/workspaces.go:142:6: cannot use ws (variable of type *database.Workspace) as database.Store value in argument to api.Authorize",
+					"nicloud/workspaces.go:155:19: ws.OwnerID undefined (type *database.Workspace has no field or method OwnerID)",
 					"make: *** [build] Error 1",
 				].join("\n"),
 			},
@@ -205,7 +205,7 @@ export const ParsedCommands: Story = {
 /** parsedCommands paired with modelIntent. */
 export const ParsedCommandsWithIntent: Story = {
 	args: {
-		command: "cd /repo && go test -race ./coderd/...",
+		command: "cd /repo && go test -race ./nicloud/...",
 		status: "running",
 		modelIntent: "Running the unit tests",
 		parsedCommands: [

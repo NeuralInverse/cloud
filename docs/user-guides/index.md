@@ -8,6 +8,6 @@ refer to our docs on configuring [templates](../admin/index.md) or the
 [control plane](../admin/index.md).
 
 Check out [Dev Containers integration](./devcontainers/index.md) for running
-containerized development environments in your Coder workspace.
+containerized development environments in your Neural Inverse Cloud workspace.
 
 <children></children>

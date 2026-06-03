@@ -65,7 +65,7 @@ api.Database.GetResource(ctx, id)
 writeOAuth2Error(ctx, rw, http.StatusBadRequest, "invalid_grant", "description")
 
 // Regular endpoints use httpapi
-httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{...})
+httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{...})
 ```
 
 ### Shell Scripts

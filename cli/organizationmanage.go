@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -29,7 +29,7 @@ func (r *RootCmd) createOrganization() *serpent.Command {
 
 			orgName := inv.Args[0]
 
-			err = codersdk.NameValid(orgName)
+			err = nicloudsdk.NameValid(orgName)
 			if err != nil {
 				return xerrors.Errorf("organization name %q is invalid: %w", orgName, err)
 			}
@@ -42,7 +42,7 @@ func (r *RootCmd) createOrganization() *serpent.Command {
 				return xerrors.Errorf("organization %q already exists", orgName)
 			}
 
-			organization, err := client.CreateOrganization(inv.Context(), codersdk.CreateOrganizationRequest{
+			organization, err := client.CreateOrganization(inv.Context(), nicloudsdk.CreateOrganizationRequest{
 				Name: orgName,
 			})
 			if err != nil {

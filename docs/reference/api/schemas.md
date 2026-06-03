@@ -121,7 +121,7 @@
 | Name         | Type                                   | Required | Restrictions | Description |
 |--------------|----------------------------------------|----------|--------------|-------------|
 | `created_at` | string                                 | false    |              |             |
-| `level`      | [codersdk.LogLevel](#codersdkloglevel) | false    |              |             |
+| `level`      | [nicloudsdk.LogLevel](#nicloudsdkloglevel) | false    |              |             |
 | `output`     | string                                 | false    |              |             |
 
 ## agentsdk.PatchAppStatus
@@ -145,7 +145,7 @@
 | `icon`                 | string                                                               | false    |              | Deprecated: this field is unused and will be removed in a future version. |
 | `message`              | string                                                               | false    |              |                                                                           |
 | `needs_user_attention` | boolean                                                              | false    |              | Deprecated: this field is unused and will be removed in a future version. |
-| `state`                | [codersdk.WorkspaceAppStatusState](#codersdkworkspaceappstatusstate) | false    |              |                                                                           |
+| `state`                | [nicloudsdk.WorkspaceAppStatusState](#nicloudsdkworkspaceappstatusstate) | false    |              |                                                                           |
 | `uri`                  | string                                                               | false    |              |                                                                           |
 
 ## agentsdk.PatchLogs
@@ -220,7 +220,7 @@
 |--------------------|
 | `prebuild_claimed` |
 
-## coderd.cspViolation
+## nicloud.cspViolation
 
 ```json
 {
@@ -234,7 +234,7 @@
 |--------------|--------|----------|--------------|-------------|
 | `csp-report` | object | false    |              |             |
 
-## codersdk.ACLAvailable
+## nicloudsdk.ACLAvailable
 
 ```json
 {
@@ -291,10 +291,10 @@
 
 | Name     | Type                                                  | Required | Restrictions | Description |
 |----------|-------------------------------------------------------|----------|--------------|-------------|
-| `groups` | array of [codersdk.Group](#codersdkgroup)             | false    |              |             |
-| `users`  | array of [codersdk.ReducedUser](#codersdkreduceduser) | false    |              |             |
+| `groups` | array of [nicloudsdk.Group](#nicloudsdkgroup)             | false    |              |             |
+| `users`  | array of [nicloudsdk.ReducedUser](#nicloudsdkreduceduser) | false    |              |             |
 
-## codersdk.AIBridgeAgenticAction
+## nicloudsdk.AIBridgeAgenticAction
 
 ```json
 {
@@ -338,11 +338,11 @@
 | Name          | Type                                                                                   | Required | Restrictions | Description |
 |---------------|----------------------------------------------------------------------------------------|----------|--------------|-------------|
 | `model`       | string                                                                                 | false    |              |             |
-| `thinking`    | array of [codersdk.AIBridgeModelThought](#codersdkaibridgemodelthought)                | false    |              |             |
-| `token_usage` | [codersdk.AIBridgeSessionThreadsTokenUsage](#codersdkaibridgesessionthreadstokenusage) | false    |              |             |
-| `tool_calls`  | array of [codersdk.AIBridgeToolCall](#codersdkaibridgetoolcall)                        | false    |              |             |
+| `thinking`    | array of [nicloudsdk.AIBridgeModelThought](#nicloudsdkaibridgemodelthought)                | false    |              |             |
+| `token_usage` | [nicloudsdk.AIBridgeSessionThreadsTokenUsage](#nicloudsdkaibridgesessionthreadstokenusage) | false    |              |             |
+| `tool_calls`  | array of [nicloudsdk.AIBridgeToolCall](#nicloudsdkaibridgetoolcall)                        | false    |              |             |
 
-## codersdk.AIBridgeAnthropicConfig
+## nicloudsdk.AIBridgeAnthropicConfig
 
 ```json
 {
@@ -358,7 +358,7 @@
 | `base_url` | string | false    |              |             |
 | `key`      | string | false    |              |             |
 
-## codersdk.AIBridgeBedrockConfig
+## nicloudsdk.AIBridgeBedrockConfig
 
 ```json
 {
@@ -382,7 +382,7 @@
 | `region`            | string | false    |              |             |
 | `small_fast_model`  | string | false    |              |             |
 
-## codersdk.AIBridgeConfig
+## nicloudsdk.AIBridgeConfig
 
 ```json
 {
@@ -436,9 +436,9 @@
 | Name                                | Type                                                                 | Required | Restrictions | Description                                                                                                                                                                   |
 |-------------------------------------|----------------------------------------------------------------------|----------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `allow_byok`                        | boolean                                                              | false    |              |                                                                                                                                                                               |
-| `anthropic`                         | [codersdk.AIBridgeAnthropicConfig](#codersdkaibridgeanthropicconfig) | false    |              | Deprecated: Use Providers with indexed CODER_AI_GATEWAY_PROVIDER_<N>_* env vars instead.                                                                                      |
+| `anthropic`                         | [nicloudsdk.AIBridgeAnthropicConfig](#nicloudsdkaibridgeanthropicconfig) | false    |              | Deprecated: Use Providers with indexed NEURALINVERSE_AI_GATEWAY_PROVIDER_<N>_* env vars instead.                                                                                      |
 | `api_dump_dir`                      | string                                                               | false    |              | Api dump dir is the base directory under which each provider's request/response dumps are written, in a subdirectory named after the provider. Empty disables dumping.        |
-| `bedrock`                           | [codersdk.AIBridgeBedrockConfig](#codersdkaibridgebedrockconfig)     | false    |              | Deprecated: Use Providers with indexed CODER_AI_GATEWAY_PROVIDER_<N>_* env vars instead.                                                                                      |
+| `bedrock`                           | [nicloudsdk.AIBridgeBedrockConfig](#nicloudsdkaibridgebedrockconfig)     | false    |              | Deprecated: Use Providers with indexed NEURALINVERSE_AI_GATEWAY_PROVIDER_<N>_* env vars instead.                                                                                      |
 | `budget_period`                     | string                                                               | false    |              |                                                                                                                                                                               |
 | `budget_policy`                     | string                                                               | false    |              | Budget settings for AI Governance cost controls.                                                                                                                              |
 | `circuit_breaker_enabled`           | boolean                                                              | false    |              | Circuit breaker protects against cascading failures from upstream AI provider overload (503, 529).                                                                            |
@@ -449,14 +449,14 @@
 | `enabled`                           | boolean                                                              | false    |              |                                                                                                                                                                               |
 | `inject_coder_mcp_tools`            | boolean                                                              | false    |              | Deprecated: Injected MCP in AI Bridge is deprecated and will be removed in a future release.                                                                                  |
 | `max_concurrency`                   | integer                                                              | false    |              |                                                                                                                                                                               |
-| `openai`                            | [codersdk.AIBridgeOpenAIConfig](#codersdkaibridgeopenaiconfig)       | false    |              | Deprecated: Use Providers with indexed CODER_AI_GATEWAY_PROVIDER_<N>_* env vars instead.                                                                                      |
-| `providers`                         | array of [codersdk.AIProviderConfig](#codersdkaiproviderconfig)      | false    |              | Providers holds provider instances populated from CODER_AI_GATEWAY_PROVIDER_<N>_<KEY> env vars and/or the deprecated LegacyOpenAI/LegacyAnthropic/LegacyBedrock fields above. |
+| `openai`                            | [nicloudsdk.AIBridgeOpenAIConfig](#nicloudsdkaibridgeopenaiconfig)       | false    |              | Deprecated: Use Providers with indexed NEURALINVERSE_AI_GATEWAY_PROVIDER_<N>_* env vars instead.                                                                                      |
+| `providers`                         | array of [nicloudsdk.AIProviderConfig](#nicloudsdkaiproviderconfig)      | false    |              | Providers holds provider instances populated from NEURALINVERSE_AI_GATEWAY_PROVIDER_<N>_<KEY> env vars and/or the deprecated LegacyOpenAI/LegacyAnthropic/LegacyBedrock fields above. |
 | `rate_limit`                        | integer                                                              | false    |              |                                                                                                                                                                               |
 | `retention`                         | integer                                                              | false    |              |                                                                                                                                                                               |
 | `send_actor_headers`                | boolean                                                              | false    |              |                                                                                                                                                                               |
 | `structured_logging`                | boolean                                                              | false    |              |                                                                                                                                                                               |
 
-## codersdk.AIBridgeInterception
+## nicloudsdk.AIBridgeInterception
 
 ```json
 {
@@ -535,18 +535,18 @@
 | `client`           | string                                                              | false    |              |             |
 | `ended_at`         | string                                                              | false    |              |             |
 | `id`               | string                                                              | false    |              |             |
-| `initiator`        | [codersdk.MinimalUser](#codersdkminimaluser)                        | false    |              |             |
+| `initiator`        | [nicloudsdk.MinimalUser](#nicloudsdkminimaluser)                        | false    |              |             |
 | `metadata`         | object                                                              | false    |              |             |
 | » `[any property]` | any                                                                 | false    |              |             |
 | `model`            | string                                                              | false    |              |             |
 | `provider`         | string                                                              | false    |              |             |
 | `provider_name`    | string                                                              | false    |              |             |
 | `started_at`       | string                                                              | false    |              |             |
-| `token_usages`     | array of [codersdk.AIBridgeTokenUsage](#codersdkaibridgetokenusage) | false    |              |             |
-| `tool_usages`      | array of [codersdk.AIBridgeToolUsage](#codersdkaibridgetoolusage)   | false    |              |             |
-| `user_prompts`     | array of [codersdk.AIBridgeUserPrompt](#codersdkaibridgeuserprompt) | false    |              |             |
+| `token_usages`     | array of [nicloudsdk.AIBridgeTokenUsage](#nicloudsdkaibridgetokenusage) | false    |              |             |
+| `tool_usages`      | array of [nicloudsdk.AIBridgeToolUsage](#nicloudsdkaibridgetoolusage)   | false    |              |             |
+| `user_prompts`     | array of [nicloudsdk.AIBridgeUserPrompt](#nicloudsdkaibridgeuserprompt) | false    |              |             |
 
-## codersdk.AIBridgeListInterceptionsResponse
+## nicloudsdk.AIBridgeListInterceptionsResponse
 
 ```json
 {
@@ -627,9 +627,9 @@
 | Name      | Type                                                                    | Required | Restrictions | Description |
 |-----------|-------------------------------------------------------------------------|----------|--------------|-------------|
 | `count`   | integer                                                                 | false    |              |             |
-| `results` | array of [codersdk.AIBridgeInterception](#codersdkaibridgeinterception) | false    |              |             |
+| `results` | array of [nicloudsdk.AIBridgeInterception](#nicloudsdkaibridgeinterception) | false    |              |             |
 
-## codersdk.AIBridgeListSessionsResponse
+## nicloudsdk.AIBridgeListSessionsResponse
 
 ```json
 {
@@ -675,9 +675,9 @@
 | Name       | Type                                                          | Required | Restrictions | Description |
 |------------|---------------------------------------------------------------|----------|--------------|-------------|
 | `count`    | integer                                                       | false    |              |             |
-| `sessions` | array of [codersdk.AIBridgeSession](#codersdkaibridgesession) | false    |              |             |
+| `sessions` | array of [nicloudsdk.AIBridgeSession](#nicloudsdkaibridgesession) | false    |              |             |
 
-## codersdk.AIBridgeModelThought
+## nicloudsdk.AIBridgeModelThought
 
 ```json
 {
@@ -691,7 +691,7 @@
 |--------|--------|----------|--------------|-------------|
 | `text` | string | false    |              |             |
 
-## codersdk.AIBridgeOpenAIConfig
+## nicloudsdk.AIBridgeOpenAIConfig
 
 ```json
 {
@@ -707,7 +707,7 @@
 | `base_url` | string | false    |              |             |
 | `key`      | string | false    |              |             |
 
-## codersdk.AIBridgeProxyConfig
+## nicloudsdk.AIBridgeProxyConfig
 
 ```json
 {
@@ -745,7 +745,7 @@
 | `upstream_proxy`        | string          | false    |              |             |
 | `upstream_proxy_ca`     | string          | false    |              |             |
 
-## codersdk.AIBridgeSession
+## nicloudsdk.AIBridgeSession
 
 ```json
 {
@@ -788,7 +788,7 @@
 | `client`              | string                                                                                 | false    |              |             |
 | `ended_at`            | string                                                                                 | false    |              |             |
 | `id`                  | string                                                                                 | false    |              |             |
-| `initiator`           | [codersdk.MinimalUser](#codersdkminimaluser)                                           | false    |              |             |
+| `initiator`           | [nicloudsdk.MinimalUser](#nicloudsdkminimaluser)                                           | false    |              |             |
 | `last_active_at`      | string                                                                                 | false    |              |             |
 | `last_prompt`         | string                                                                                 | false    |              |             |
 | `metadata`            | object                                                                                 | false    |              |             |
@@ -797,9 +797,9 @@
 | `providers`           | array of string                                                                        | false    |              |             |
 | `started_at`          | string                                                                                 | false    |              |             |
 | `threads`             | integer                                                                                | false    |              |             |
-| `token_usage_summary` | [codersdk.AIBridgeSessionTokenUsageSummary](#codersdkaibridgesessiontokenusagesummary) | false    |              |             |
+| `token_usage_summary` | [nicloudsdk.AIBridgeSessionTokenUsageSummary](#nicloudsdkaibridgesessiontokenusagesummary) | false    |              |             |
 
-## codersdk.AIBridgeSessionThreadsResponse
+## nicloudsdk.AIBridgeSessionThreadsResponse
 
 ```json
 {
@@ -903,7 +903,7 @@
 | `client`              | string                                                                                 | false    |              |             |
 | `ended_at`            | string                                                                                 | false    |              |             |
 | `id`                  | string                                                                                 | false    |              |             |
-| `initiator`           | [codersdk.MinimalUser](#codersdkminimaluser)                                           | false    |              |             |
+| `initiator`           | [nicloudsdk.MinimalUser](#nicloudsdkminimaluser)                                           | false    |              |             |
 | `metadata`            | object                                                                                 | false    |              |             |
 | » `[any property]`    | any                                                                                    | false    |              |             |
 | `models`              | array of string                                                                        | false    |              |             |
@@ -911,10 +911,10 @@
 | `page_started_at`     | string                                                                                 | false    |              |             |
 | `providers`           | array of string                                                                        | false    |              |             |
 | `started_at`          | string                                                                                 | false    |              |             |
-| `threads`             | array of [codersdk.AIBridgeThread](#codersdkaibridgethread)                            | false    |              |             |
-| `token_usage_summary` | [codersdk.AIBridgeSessionThreadsTokenUsage](#codersdkaibridgesessionthreadstokenusage) | false    |              |             |
+| `threads`             | array of [nicloudsdk.AIBridgeThread](#nicloudsdkaibridgethread)                            | false    |              |             |
+| `token_usage_summary` | [nicloudsdk.AIBridgeSessionThreadsTokenUsage](#nicloudsdkaibridgesessionthreadstokenusage) | false    |              |             |
 
-## codersdk.AIBridgeSessionThreadsTokenUsage
+## nicloudsdk.AIBridgeSessionThreadsTokenUsage
 
 ```json
 {
@@ -940,7 +940,7 @@
 | » `[any property]`         | any     | false    |              |             |
 | `output_tokens`            | integer | false    |              |             |
 
-## codersdk.AIBridgeSessionTokenUsageSummary
+## nicloudsdk.AIBridgeSessionTokenUsageSummary
 
 ```json
 {
@@ -960,7 +960,7 @@
 | `input_tokens`             | integer | false    |              |             |
 | `output_tokens`            | integer | false    |              |             |
 
-## codersdk.AIBridgeThread
+## nicloudsdk.AIBridgeThread
 
 ```json
 {
@@ -1025,7 +1025,7 @@
 
 | Name              | Type                                                                                   | Required | Restrictions | Description |
 |-------------------|----------------------------------------------------------------------------------------|----------|--------------|-------------|
-| `agentic_actions` | array of [codersdk.AIBridgeAgenticAction](#codersdkaibridgeagenticaction)              | false    |              |             |
+| `agentic_actions` | array of [nicloudsdk.AIBridgeAgenticAction](#nicloudsdkaibridgeagenticaction)              | false    |              |             |
 | `credential_hint` | string                                                                                 | false    |              |             |
 | `credential_kind` | string                                                                                 | false    |              |             |
 | `ended_at`        | string                                                                                 | false    |              |             |
@@ -1034,9 +1034,9 @@
 | `prompt`          | string                                                                                 | false    |              |             |
 | `provider`        | string                                                                                 | false    |              |             |
 | `started_at`      | string                                                                                 | false    |              |             |
-| `token_usage`     | [codersdk.AIBridgeSessionThreadsTokenUsage](#codersdkaibridgesessionthreadstokenusage) | false    |              |             |
+| `token_usage`     | [nicloudsdk.AIBridgeSessionThreadsTokenUsage](#nicloudsdkaibridgesessionthreadstokenusage) | false    |              |             |
 
-## codersdk.AIBridgeTokenUsage
+## nicloudsdk.AIBridgeTokenUsage
 
 ```json
 {
@@ -1070,7 +1070,7 @@
 | `output_tokens`            | integer | false    |              |             |
 | `provider_response_id`     | string  | false    |              |             |
 
-## codersdk.AIBridgeToolCall
+## nicloudsdk.AIBridgeToolCall
 
 ```json
 {
@@ -1104,7 +1104,7 @@
 | `server_url`           | string  | false    |              |             |
 | `tool`                 | string  | false    |              |             |
 
-## codersdk.AIBridgeToolUsage
+## nicloudsdk.AIBridgeToolUsage
 
 ```json
 {
@@ -1140,7 +1140,7 @@
 | `server_url`           | string  | false    |              |             |
 | `tool`                 | string  | false    |              |             |
 
-## codersdk.AIBridgeUserPrompt
+## nicloudsdk.AIBridgeUserPrompt
 
 ```json
 {
@@ -1168,7 +1168,7 @@
 | `prompt`               | string | false    |              |             |
 | `provider_response_id` | string | false    |              |             |
 
-## codersdk.AIConfig
+## nicloudsdk.AIConfig
 
 ```json
 {
@@ -1244,11 +1244,11 @@
 
 | Name             | Type                                                         | Required | Restrictions | Description |
 |------------------|--------------------------------------------------------------|----------|--------------|-------------|
-| `aibridge_proxy` | [codersdk.AIBridgeProxyConfig](#codersdkaibridgeproxyconfig) | false    |              |             |
-| `bridge`         | [codersdk.AIBridgeConfig](#codersdkaibridgeconfig)           | false    |              |             |
-| `chat`           | [codersdk.ChatConfig](#codersdkchatconfig)                   | false    |              |             |
+| `aibridge_proxy` | [nicloudsdk.AIBridgeProxyConfig](#nicloudsdkaibridgeproxyconfig) | false    |              |             |
+| `bridge`         | [nicloudsdk.AIBridgeConfig](#nicloudsdkaibridgeconfig)           | false    |              |             |
+| `chat`           | [nicloudsdk.ChatConfig](#nicloudsdkchatconfig)                   | false    |              |             |
 
-## codersdk.AIGatewayKey
+## nicloudsdk.AIGatewayKey
 
 ```json
 {
@@ -1270,7 +1270,7 @@
 | `last_used_at` | string | false    |              |             |
 | `name`         | string | false    |              |             |
 
-## codersdk.AIProvider
+## nicloudsdk.AIProvider
 
 ```json
 {
@@ -1297,18 +1297,18 @@
 
 | Name           | Type                                                       | Required | Restrictions | Description |
 |----------------|------------------------------------------------------------|----------|--------------|-------------|
-| `api_keys`     | array of [codersdk.AIProviderKey](#codersdkaiproviderkey)  | false    |              |             |
+| `api_keys`     | array of [nicloudsdk.AIProviderKey](#nicloudsdkaiproviderkey)  | false    |              |             |
 | `base_url`     | string                                                     | false    |              |             |
 | `created_at`   | string                                                     | false    |              |             |
 | `display_name` | string                                                     | false    |              |             |
 | `enabled`      | boolean                                                    | false    |              |             |
 | `id`           | string                                                     | false    |              |             |
 | `name`         | string                                                     | false    |              |             |
-| `settings`     | [codersdk.AIProviderSettings](#codersdkaiprovidersettings) | false    |              |             |
-| `type`         | [codersdk.AIProviderType](#codersdkaiprovidertype)         | false    |              |             |
+| `settings`     | [nicloudsdk.AIProviderSettings](#nicloudsdkaiprovidersettings) | false    |              |             |
+| `type`         | [nicloudsdk.AIProviderType](#nicloudsdkaiprovidertype)         | false    |              |             |
 | `updated_at`   | string                                                     | false    |              |             |
 
-## codersdk.AIProviderConfig
+## nicloudsdk.AIProviderConfig
 
 ```json
 {
@@ -1332,7 +1332,7 @@
 | `name`                     | string | false    |              | Name is the unique instance identifier used for routing. Defaults to Type if not provided.                                                            |
 | `type`                     | string | false    |              | Type is the provider type. Valid values are: "openai", "anthropic", "azure", "bedrock", "google", "openai-compat", "openrouter", "vercel", "copilot". |
 
-## codersdk.AIProviderKey
+## nicloudsdk.AIProviderKey
 
 ```json
 {
@@ -1350,7 +1350,7 @@
 | `id`         | string | false    |              |             |
 | `masked`     | string | false    |              |             |
 
-## codersdk.AIProviderKeyMutation
+## nicloudsdk.AIProviderKeyMutation
 
 ```json
 {
@@ -1366,7 +1366,7 @@
 | `api_key` | string | false    |              |             |
 | `id`      | string | false    |              |             |
 
-## codersdk.AIProviderSettings
+## nicloudsdk.AIProviderSettings
 
 ```json
 {}
@@ -1376,7 +1376,7 @@
 
 None
 
-## codersdk.AIProviderType
+## nicloudsdk.AIProviderType
 
 ```json
 "openai"
@@ -1390,7 +1390,7 @@ None
 |---------------------------------------------------------------------------------------------------------|
 | `anthropic`, `azure`, `bedrock`, `copilot`, `google`, `openai`, `openai-compat`, `openrouter`, `vercel` |
 
-## codersdk.APIAllowListTarget
+## nicloudsdk.APIAllowListTarget
 
 ```json
 {
@@ -1404,9 +1404,9 @@ None
 | Name   | Type                                           | Required | Restrictions | Description |
 |--------|------------------------------------------------|----------|--------------|-------------|
 | `id`   | string                                         | false    |              |             |
-| `type` | [codersdk.RBACResource](#codersdkrbacresource) | false    |              |             |
+| `type` | [nicloudsdk.RBACResource](#nicloudsdkrbacresource) | false    |              |             |
 
-## codersdk.APIKey
+## nicloudsdk.APIKey
 
 ```json
 {
@@ -1436,15 +1436,15 @@ None
 
 | Name               | Type                                                                | Required | Restrictions | Description                     |
 |--------------------|---------------------------------------------------------------------|----------|--------------|---------------------------------|
-| `allow_list`       | array of [codersdk.APIAllowListTarget](#codersdkapiallowlisttarget) | false    |              |                                 |
+| `allow_list`       | array of [nicloudsdk.APIAllowListTarget](#nicloudsdkapiallowlisttarget) | false    |              |                                 |
 | `created_at`       | string                                                              | true     |              |                                 |
 | `expires_at`       | string                                                              | true     |              |                                 |
 | `id`               | string                                                              | true     |              |                                 |
 | `last_used`        | string                                                              | true     |              |                                 |
 | `lifetime_seconds` | integer                                                             | true     |              |                                 |
-| `login_type`       | [codersdk.LoginType](#codersdklogintype)                            | true     |              |                                 |
-| `scope`            | [codersdk.APIKeyScope](#codersdkapikeyscope)                        | false    |              | Deprecated: use Scopes instead. |
-| `scopes`           | array of [codersdk.APIKeyScope](#codersdkapikeyscope)               | false    |              |                                 |
+| `login_type`       | [nicloudsdk.LoginType](#nicloudsdklogintype)                            | true     |              |                                 |
+| `scope`            | [nicloudsdk.APIKeyScope](#nicloudsdkapikeyscope)                        | false    |              | Deprecated: use Scopes instead. |
+| `scopes`           | array of [nicloudsdk.APIKeyScope](#nicloudsdkapikeyscope)               | false    |              |                                 |
 | `token_name`       | string                                                              | true     |              |                                 |
 | `updated_at`       | string                                                              | true     |              |                                 |
 | `user_id`          | string                                                              | true     |              |                                 |
@@ -1456,7 +1456,7 @@ None
 | `login_type` | `github`, `oidc`, `password`, `token` |
 | `scope`      | `all`, `application_connect`          |
 
-## codersdk.APIKeyScope
+## nicloudsdk.APIKeyScope
 
 ```json
 "all"
@@ -1470,7 +1470,7 @@ None
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ai_gateway_key:*`, `ai_gateway_key:create`, `ai_gateway_key:delete`, `ai_gateway_key:read`, `ai_model_price:*`, `ai_model_price:read`, `ai_model_price:update`, `ai_provider:*`, `ai_provider:create`, `ai_provider:delete`, `ai_provider:read`, `ai_provider:update`, `ai_seat:*`, `ai_seat:create`, `ai_seat:read`, `aibridge_interception:*`, `aibridge_interception:create`, `aibridge_interception:read`, `aibridge_interception:update`, `all`, `api_key:*`, `api_key:create`, `api_key:delete`, `api_key:read`, `api_key:update`, `application_connect`, `assign_org_role:*`, `assign_org_role:assign`, `assign_org_role:create`, `assign_org_role:delete`, `assign_org_role:read`, `assign_org_role:unassign`, `assign_org_role:update`, `assign_role:*`, `assign_role:assign`, `assign_role:read`, `assign_role:unassign`, `audit_log:*`, `audit_log:create`, `audit_log:read`, `boundary_log:*`, `boundary_log:create`, `boundary_log:delete`, `boundary_log:read`, `boundary_usage:*`, `boundary_usage:delete`, `boundary_usage:read`, `boundary_usage:update`, `chat:*`, `chat:create`, `chat:delete`, `chat:read`, `chat:share`, `chat:update`, `coder:all`, `coder:apikeys.manage_self`, `coder:application_connect`, `coder:templates.author`, `coder:templates.build`, `coder:workspaces.access`, `coder:workspaces.create`, `coder:workspaces.delete`, `coder:workspaces.operate`, `connection_log:*`, `connection_log:read`, `connection_log:update`, `crypto_key:*`, `crypto_key:create`, `crypto_key:delete`, `crypto_key:read`, `crypto_key:update`, `debug_info:*`, `debug_info:read`, `deployment_config:*`, `deployment_config:read`, `deployment_config:update`, `deployment_stats:*`, `deployment_stats:read`, `file:*`, `file:create`, `file:read`, `group:*`, `group:create`, `group:delete`, `group:read`, `group:update`, `group_member:*`, `group_member:read`, `idpsync_settings:*`, `idpsync_settings:read`, `idpsync_settings:update`, `inbox_notification:*`, `inbox_notification:create`, `inbox_notification:read`, `inbox_notification:update`, `license:*`, `license:create`, `license:delete`, `license:read`, `notification_message:*`, `notification_message:create`, `notification_message:delete`, `notification_message:read`, `notification_message:update`, `notification_preference:*`, `notification_preference:read`, `notification_preference:update`, `notification_template:*`, `notification_template:read`, `notification_template:update`, `oauth2_app:*`, `oauth2_app:create`, `oauth2_app:delete`, `oauth2_app:read`, `oauth2_app:update`, `oauth2_app_code_token:*`, `oauth2_app_code_token:create`, `oauth2_app_code_token:delete`, `oauth2_app_code_token:read`, `oauth2_app_secret:*`, `oauth2_app_secret:create`, `oauth2_app_secret:delete`, `oauth2_app_secret:read`, `oauth2_app_secret:update`, `organization:*`, `organization:create`, `organization:delete`, `organization:read`, `organization:update`, `organization_member:*`, `organization_member:create`, `organization_member:delete`, `organization_member:read`, `organization_member:update`, `prebuilt_workspace:*`, `prebuilt_workspace:delete`, `prebuilt_workspace:update`, `provisioner_daemon:*`, `provisioner_daemon:create`, `provisioner_daemon:delete`, `provisioner_daemon:read`, `provisioner_daemon:update`, `provisioner_jobs:*`, `provisioner_jobs:create`, `provisioner_jobs:read`, `provisioner_jobs:update`, `replicas:*`, `replicas:read`, `system:*`, `system:create`, `system:delete`, `system:read`, `system:update`, `tailnet_coordinator:*`, `tailnet_coordinator:create`, `tailnet_coordinator:delete`, `tailnet_coordinator:read`, `tailnet_coordinator:update`, `task:*`, `task:create`, `task:delete`, `task:read`, `task:update`, `template:*`, `template:create`, `template:delete`, `template:read`, `template:update`, `template:use`, `template:view_insights`, `usage_event:*`, `usage_event:create`, `usage_event:read`, `usage_event:update`, `user:*`, `user:create`, `user:delete`, `user:read`, `user:read_personal`, `user:update`, `user:update_personal`, `user_secret:*`, `user_secret:create`, `user_secret:delete`, `user_secret:read`, `user_secret:update`, `user_skill:*`, `user_skill:create`, `user_skill:delete`, `user_skill:read`, `user_skill:update`, `webpush_subscription:*`, `webpush_subscription:create`, `webpush_subscription:delete`, `webpush_subscription:read`, `workspace:*`, `workspace:application_connect`, `workspace:create`, `workspace:create_agent`, `workspace:delete`, `workspace:delete_agent`, `workspace:read`, `workspace:share`, `workspace:ssh`, `workspace:start`, `workspace:stop`, `workspace:update`, `workspace:update_agent`, `workspace_agent_devcontainers:*`, `workspace_agent_devcontainers:create`, `workspace_agent_resource_monitor:*`, `workspace_agent_resource_monitor:create`, `workspace_agent_resource_monitor:read`, `workspace_agent_resource_monitor:update`, `workspace_dormant:*`, `workspace_dormant:application_connect`, `workspace_dormant:create`, `workspace_dormant:create_agent`, `workspace_dormant:delete`, `workspace_dormant:delete_agent`, `workspace_dormant:read`, `workspace_dormant:share`, `workspace_dormant:ssh`, `workspace_dormant:start`, `workspace_dormant:stop`, `workspace_dormant:update`, `workspace_dormant:update_agent`, `workspace_proxy:*`, `workspace_proxy:create`, `workspace_proxy:delete`, `workspace_proxy:read`, `workspace_proxy:update` |
 
-## codersdk.AddLicenseRequest
+## nicloudsdk.AddLicenseRequest
 
 ```json
 {
@@ -1484,7 +1484,7 @@ None
 |-----------|--------|----------|--------------|-------------|
 | `license` | string | true     |              |             |
 
-## codersdk.AgentChatSendShortcut
+## nicloudsdk.AgentChatSendShortcut
 
 ```json
 "enter"
@@ -1498,7 +1498,7 @@ None
 |---------------------------|
 | `enter`, `modifier_enter` |
 
-## codersdk.AgentConnectionTiming
+## nicloudsdk.AgentConnectionTiming
 
 ```json
 {
@@ -1515,12 +1515,12 @@ None
 | Name                   | Type                                         | Required | Restrictions | Description |
 |------------------------|----------------------------------------------|----------|--------------|-------------|
 | `ended_at`             | string                                       | false    |              |             |
-| `stage`                | [codersdk.TimingStage](#codersdktimingstage) | false    |              |             |
+| `stage`                | [nicloudsdk.TimingStage](#nicloudsdktimingstage) | false    |              |             |
 | `started_at`           | string                                       | false    |              |             |
 | `workspace_agent_id`   | string                                       | false    |              |             |
 | `workspace_agent_name` | string                                       | false    |              |             |
 
-## codersdk.AgentDisplayMode
+## nicloudsdk.AgentDisplayMode
 
 ```json
 "auto"
@@ -1534,7 +1534,7 @@ None
 |-----------------------------------------------|
 | `always_collapsed`, `always_expanded`, `auto` |
 
-## codersdk.AgentScriptTiming
+## nicloudsdk.AgentScriptTiming
 
 ```json
 {
@@ -1556,13 +1556,13 @@ None
 | `display_name`         | string                                       | false    |              |             |
 | `ended_at`             | string                                       | false    |              |             |
 | `exit_code`            | integer                                      | false    |              |             |
-| `stage`                | [codersdk.TimingStage](#codersdktimingstage) | false    |              |             |
+| `stage`                | [nicloudsdk.TimingStage](#nicloudsdktimingstage) | false    |              |             |
 | `started_at`           | string                                       | false    |              |             |
 | `status`               | string                                       | false    |              |             |
 | `workspace_agent_id`   | string                                       | false    |              |             |
 | `workspace_agent_name` | string                                       | false    |              |             |
 
-## codersdk.AgentSubsystem
+## nicloudsdk.AgentSubsystem
 
 ```json
 "envbox"
@@ -1576,7 +1576,7 @@ None
 |-------------------------------------|
 | `envbox`, `envbuilder`, `exectrace` |
 
-## codersdk.AppHostResponse
+## nicloudsdk.AppHostResponse
 
 ```json
 {
@@ -1588,9 +1588,9 @@ None
 
 | Name   | Type   | Required | Restrictions | Description                                                   |
 |--------|--------|----------|--------------|---------------------------------------------------------------|
-| `host` | string | false    |              | Host is the externally accessible URL for the Coder instance. |
+| `host` | string | false    |              | Host is the externally accessible URL for the Neural Inverse Cloud instance. |
 
-## codersdk.AppearanceConfig
+## nicloudsdk.AppearanceConfig
 
 ```json
 {
@@ -1624,14 +1624,14 @@ None
 
 | Name                   | Type                                                    | Required | Restrictions | Description                                                         |
 |------------------------|---------------------------------------------------------|----------|--------------|---------------------------------------------------------------------|
-| `announcement_banners` | array of [codersdk.BannerConfig](#codersdkbannerconfig) | false    |              |                                                                     |
+| `announcement_banners` | array of [nicloudsdk.BannerConfig](#nicloudsdkbannerconfig) | false    |              |                                                                     |
 | `application_name`     | string                                                  | false    |              |                                                                     |
 | `docs_url`             | string                                                  | false    |              |                                                                     |
 | `logo_url`             | string                                                  | false    |              |                                                                     |
-| `service_banner`       | [codersdk.BannerConfig](#codersdkbannerconfig)          | false    |              | Deprecated: ServiceBanner has been replaced by AnnouncementBanners. |
-| `support_links`        | array of [codersdk.LinkConfig](#codersdklinkconfig)     | false    |              |                                                                     |
+| `service_banner`       | [nicloudsdk.BannerConfig](#nicloudsdkbannerconfig)          | false    |              | Deprecated: ServiceBanner has been replaced by AnnouncementBanners. |
+| `support_links`        | array of [nicloudsdk.LinkConfig](#nicloudsdklinkconfig)     | false    |              |                                                                     |
 
-## codersdk.ArchiveTemplateVersionsRequest
+## nicloudsdk.ArchiveTemplateVersionsRequest
 
 ```json
 {
@@ -1645,7 +1645,7 @@ None
 |-------|---------|----------|--------------|--------------------------------------------------------------------------------------------------------------------------|
 | `all` | boolean | false    |              | By default, only failed versions are archived. Set this to true to archive all unused versions regardless of job status. |
 
-## codersdk.AssignableRoles
+## nicloudsdk.AssignableRoles
 
 ```json
 {
@@ -1694,12 +1694,12 @@ None
 | `display_name`                    | string                                              | false    |              |                                                                                                        |
 | `name`                            | string                                              | false    |              |                                                                                                        |
 | `organization_id`                 | string                                              | false    |              |                                                                                                        |
-| `organization_member_permissions` | array of [codersdk.Permission](#codersdkpermission) | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
-| `organization_permissions`        | array of [codersdk.Permission](#codersdkpermission) | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
-| `site_permissions`                | array of [codersdk.Permission](#codersdkpermission) | false    |              |                                                                                                        |
-| `user_permissions`                | array of [codersdk.Permission](#codersdkpermission) | false    |              |                                                                                                        |
+| `organization_member_permissions` | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
+| `organization_permissions`        | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
+| `site_permissions`                | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              |                                                                                                        |
+| `user_permissions`                | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              |                                                                                                        |
 
-## codersdk.AuditAction
+## nicloudsdk.AuditAction
 
 ```json
 "create"
@@ -1713,7 +1713,7 @@ None
 |-------------------------------------------------------------------------------------------------------------------------------------------------|
 | `close`, `connect`, `create`, `delete`, `disconnect`, `login`, `logout`, `open`, `register`, `request_password_reset`, `start`, `stop`, `write` |
 
-## codersdk.AuditDiff
+## nicloudsdk.AuditDiff
 
 ```json
 {
@@ -1734,9 +1734,9 @@ None
 
 | Name             | Type                                               | Required | Restrictions | Description |
 |------------------|----------------------------------------------------|----------|--------------|-------------|
-| `[any property]` | [codersdk.AuditDiffField](#codersdkauditdifffield) | false    |              |             |
+| `[any property]` | [nicloudsdk.AuditDiffField](#nicloudsdkauditdifffield) | false    |              |             |
 
-## codersdk.AuditDiffField
+## nicloudsdk.AuditDiffField
 
 ```json
 {
@@ -1754,7 +1754,7 @@ None
 | `old`    | any     | false    |              |             |
 | `secret` | boolean | false    |              |             |
 
-## codersdk.AuditLog
+## nicloudsdk.AuditLog
 
 ```json
 {
@@ -1824,27 +1824,27 @@ None
 
 | Name                | Type                                                         | Required | Restrictions | Description                                  |
 |---------------------|--------------------------------------------------------------|----------|--------------|----------------------------------------------|
-| `action`            | [codersdk.AuditAction](#codersdkauditaction)                 | false    |              |                                              |
+| `action`            | [nicloudsdk.AuditAction](#nicloudsdkauditaction)                 | false    |              |                                              |
 | `additional_fields` | object                                                       | false    |              |                                              |
 | `description`       | string                                                       | false    |              |                                              |
-| `diff`              | [codersdk.AuditDiff](#codersdkauditdiff)                     | false    |              |                                              |
+| `diff`              | [nicloudsdk.AuditDiff](#nicloudsdkauditdiff)                     | false    |              |                                              |
 | `id`                | string                                                       | false    |              |                                              |
 | `ip`                | string                                                       | false    |              |                                              |
 | `is_deleted`        | boolean                                                      | false    |              |                                              |
-| `organization`      | [codersdk.MinimalOrganization](#codersdkminimalorganization) | false    |              |                                              |
+| `organization`      | [nicloudsdk.MinimalOrganization](#nicloudsdkminimalorganization) | false    |              |                                              |
 | `organization_id`   | string                                                       | false    |              | Deprecated: Use 'organization.id' instead.   |
 | `request_id`        | string                                                       | false    |              |                                              |
 | `resource_icon`     | string                                                       | false    |              |                                              |
 | `resource_id`       | string                                                       | false    |              |                                              |
 | `resource_link`     | string                                                       | false    |              |                                              |
 | `resource_target`   | string                                                       | false    |              | Resource target is the name of the resource. |
-| `resource_type`     | [codersdk.ResourceType](#codersdkresourcetype)               | false    |              |                                              |
+| `resource_type`     | [nicloudsdk.ResourceType](#nicloudsdkresourcetype)               | false    |              |                                              |
 | `status_code`       | integer                                                      | false    |              |                                              |
 | `time`              | string                                                       | false    |              |                                              |
-| `user`              | [codersdk.User](#codersdkuser)                               | false    |              |                                              |
+| `user`              | [nicloudsdk.User](#nicloudsdkuser)                               | false    |              |                                              |
 | `user_agent`        | string                                                       | false    |              |                                              |
 
-## codersdk.AuditLogResponse
+## nicloudsdk.AuditLogResponse
 
 ```json
 {
@@ -1920,11 +1920,11 @@ None
 
 | Name         | Type                                            | Required | Restrictions | Description |
 |--------------|-------------------------------------------------|----------|--------------|-------------|
-| `audit_logs` | array of [codersdk.AuditLog](#codersdkauditlog) | false    |              |             |
+| `audit_logs` | array of [nicloudsdk.AuditLog](#nicloudsdkauditlog) | false    |              |             |
 | `count`      | integer                                         | false    |              |             |
 | `count_cap`  | integer                                         | false    |              |             |
 
-## codersdk.AuthMethod
+## nicloudsdk.AuthMethod
 
 ```json
 {
@@ -1938,7 +1938,7 @@ None
 |-----------|---------|----------|--------------|-------------|
 | `enabled` | boolean | false    |              |             |
 
-## codersdk.AuthMethods
+## nicloudsdk.AuthMethods
 
 ```json
 {
@@ -1962,12 +1962,12 @@ None
 
 | Name                   | Type                                                   | Required | Restrictions | Description |
 |------------------------|--------------------------------------------------------|----------|--------------|-------------|
-| `github`               | [codersdk.GithubAuthMethod](#codersdkgithubauthmethod) | false    |              |             |
-| `oidc`                 | [codersdk.OIDCAuthMethod](#codersdkoidcauthmethod)     | false    |              |             |
-| `password`             | [codersdk.AuthMethod](#codersdkauthmethod)             | false    |              |             |
+| `github`               | [nicloudsdk.GithubAuthMethod](#nicloudsdkgithubauthmethod) | false    |              |             |
+| `oidc`                 | [nicloudsdk.OIDCAuthMethod](#nicloudsdkoidcauthmethod)     | false    |              |             |
+| `password`             | [nicloudsdk.AuthMethod](#nicloudsdkauthmethod)             | false    |              |             |
 | `terms_of_service_url` | string                                                 | false    |              |             |
 
-## codersdk.AuthorizationCheck
+## nicloudsdk.AuthorizationCheck
 
 ```json
 {
@@ -1988,8 +1988,8 @@ AuthorizationCheck is used to check if the currently authenticated user (or the 
 
 | Name     | Type                                                         | Required | Restrictions | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |----------|--------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `action` | [codersdk.RBACAction](#codersdkrbacaction)                   | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `object` | [codersdk.AuthorizationObject](#codersdkauthorizationobject) | false    |              | Object can represent a "set" of objects, such as: all workspaces in an organization, all workspaces owned by me, and all workspaces across the entire product. When defining an object, use the most specific language when possible to produce the smallest set. Meaning to set as many fields on 'Object' as you can. Example, if you want to check if you can update all workspaces owned by 'me', try to also add an 'OrganizationID' to the settings. Omitting the 'OrganizationID' could produce the incorrect value, as workspaces have both `user` and `organization` owners. |
+| `action` | [nicloudsdk.RBACAction](#nicloudsdkrbacaction)                   | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `object` | [nicloudsdk.AuthorizationObject](#nicloudsdkauthorizationobject) | false    |              | Object can represent a "set" of objects, such as: all workspaces in an organization, all workspaces owned by me, and all workspaces across the entire product. When defining an object, use the most specific language when possible to produce the smallest set. Meaning to set as many fields on 'Object' as you can. Example, if you want to check if you can update all workspaces owned by 'me', try to also add an 'OrganizationID' to the settings. Omitting the 'OrganizationID' could produce the incorrect value, as workspaces have both `user` and `organization` owners. |
 
 #### Enumerated Values
 
@@ -1997,7 +1997,7 @@ AuthorizationCheck is used to check if the currently authenticated user (or the 
 |----------|--------------------------------------|
 | `action` | `create`, `delete`, `read`, `update` |
 
-## codersdk.AuthorizationObject
+## nicloudsdk.AuthorizationObject
 
 ```json
 {
@@ -2019,9 +2019,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `organization_id` | string                                         | false    |              | Organization ID (optional) adds the set constraint to all resources owned by a given organization.                                                                                                                                                                                                                                                                   |
 | `owner_id`        | string                                         | false    |              | Owner ID (optional) adds the set constraint to all resources owned by a given user.                                                                                                                                                                                                                                                                                  |
 | `resource_id`     | string                                         | false    |              | Resource ID (optional) reduces the set to a singular resource. This assigns a resource ID to the resource type, eg: a single workspace. The rbac library will not fetch the resource from the database, so if you are using this option, you should also set the owner ID and organization ID if possible. Be as specific as possible using all the fields relevant. |
-| `resource_type`   | [codersdk.RBACResource](#codersdkrbacresource) | false    |              | Resource type is the name of the resource. `./coderd/rbac/object.go` has the list of valid resource types.                                                                                                                                                                                                                                                           |
+| `resource_type`   | [nicloudsdk.RBACResource](#nicloudsdkrbacresource) | false    |              | Resource type is the name of the resource. `./nicloud/rbac/object.go` has the list of valid resource types.                                                                                                                                                                                                                                                           |
 
-## codersdk.AuthorizationRequest
+## nicloudsdk.AuthorizationRequest
 
 ```json
 {
@@ -2055,9 +2055,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name               | Type                                                       | Required | Restrictions | Description                                                                                                                                                                                                                                                                      |
 |--------------------|------------------------------------------------------------|----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `checks`           | object                                                     | false    |              | Checks is a map keyed with an arbitrary string to a permission check. The key can be any string that is helpful to the caller, and allows multiple permission checks to be run in a single request. The key ensures that each permission check has the same key in the response. |
-| » `[any property]` | [codersdk.AuthorizationCheck](#codersdkauthorizationcheck) | false    |              | It is used to check if the currently authenticated user (or the specified user) can do a given action to a given set of objects.                                                                                                                                                 |
+| » `[any property]` | [nicloudsdk.AuthorizationCheck](#nicloudsdkauthorizationcheck) | false    |              | It is used to check if the currently authenticated user (or the specified user) can do a given action to a given set of objects.                                                                                                                                                 |
 
-## codersdk.AuthorizationResponse
+## nicloudsdk.AuthorizationResponse
 
 ```json
 {
@@ -2072,7 +2072,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------------|---------|----------|--------------|-------------|
 | `[any property]` | boolean | false    |              |             |
 
-## codersdk.AutomaticUpdates
+## nicloudsdk.AutomaticUpdates
 
 ```json
 "always"
@@ -2086,7 +2086,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |-------------------|
 | `always`, `never` |
 
-## codersdk.BannerConfig
+## nicloudsdk.BannerConfig
 
 ```json
 {
@@ -2104,7 +2104,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `enabled`          | boolean | false    |              |             |
 | `message`          | string  | false    |              |             |
 
-## codersdk.BuildInfoResponse
+## nicloudsdk.BuildInfoResponse
 
 ```json
 {
@@ -2126,9 +2126,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name                      | Type    | Required | Restrictions | Description                                                                                                                                                         |
 |---------------------------|---------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `agent_api_version`       | string  | false    |              | Agent api version is the current version of the Agent API (back versions MAY still be supported).                                                                   |
-| `dashboard_url`           | string  | false    |              | Dashboard URL is the URL to hit the deployment's dashboard. For external workspace proxies, this is the coderd they are connected to.                               |
+| `dashboard_url`           | string  | false    |              | Dashboard URL is the URL to hit the deployment's dashboard. For external workspace proxies, this is the nicloud they are connected to.                               |
 | `deployment_id`           | string  | false    |              | Deployment ID is the unique identifier for this deployment.                                                                                                         |
-| `external_url`            | string  | false    |              | External URL references the current Coder version. For production builds, this will link directly to a release. For development builds, this will link to a commit. |
+| `external_url`            | string  | false    |              | External URL references the current Neural Inverse Cloud version. For production builds, this will link directly to a release. For development builds, this will link to a commit. |
 | `provisioner_api_version` | string  | false    |              | Provisioner api version is the current version of the Provisioner API                                                                                               |
 | `telemetry`               | boolean | false    |              | Telemetry is a boolean that indicates whether telemetry is enabled.                                                                                                 |
 | `upgrade_message`         | string  | false    |              | Upgrade message is the message displayed to users when an outdated client is detected.                                                                              |
@@ -2136,7 +2136,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `webpush_public_key`      | string  | false    |              | Webpush public key is the public key for push notifications via Web Push.                                                                                           |
 | `workspace_proxy`         | boolean | false    |              |                                                                                                                                                                     |
 
-## codersdk.BuildReason
+## nicloudsdk.BuildReason
 
 ```json
 "initiator"
@@ -2150,7 +2150,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `autostart`, `autostop`, `cli`, `dashboard`, `dormancy`, `initiator`, `jetbrains_connection`, `ssh_connection`, `task_auto_pause`, `task_manual_pause`, `task_resume`, `vscode_connection` |
 
-## codersdk.CORSBehavior
+## nicloudsdk.CORSBehavior
 
 ```json
 "simple"
@@ -2164,7 +2164,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |----------------------|
 | `passthru`, `simple` |
 
-## codersdk.ChangePasswordWithOneTimePasscodeRequest
+## nicloudsdk.ChangePasswordWithOneTimePasscodeRequest
 
 ```json
 {
@@ -2182,7 +2182,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `one_time_passcode` | string | true     |              |             |
 | `password`          | string | true     |              |             |
 
-## codersdk.Chat
+## nicloudsdk.Chat
 
 ```json
 {
@@ -2469,17 +2469,17 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `agent_id`              | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `archived`              | boolean                                                         | false    |              |                                                                                                                                                                                                                                                                            |
 | `build_id`              | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
-| `children`              | array of [codersdk.Chat](#codersdkchat)                         | false    |              | Children holds child (subagent) chats nested under this root chat. Always initialized to an empty slice so the JSON field is present as []. Child chats cannot create their own subagents, so nesting depth is capped at 1 and this slice is always empty for child chats. |
-| `client_type`           | [codersdk.ChatClientType](#codersdkchatclienttype)              | false    |              |                                                                                                                                                                                                                                                                            |
+| `children`              | array of [nicloudsdk.Chat](#nicloudsdkchat)                         | false    |              | Children holds child (subagent) chats nested under this root chat. Always initialized to an empty slice so the JSON field is present as []. Child chats cannot create their own subagents, so nesting depth is capped at 1 and this slice is always empty for child chats. |
+| `client_type`           | [nicloudsdk.ChatClientType](#nicloudsdkchatclienttype)              | false    |              |                                                                                                                                                                                                                                                                            |
 | `created_at`            | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
-| `diff_status`           | [codersdk.ChatDiffStatus](#codersdkchatdiffstatus)              | false    |              |                                                                                                                                                                                                                                                                            |
-| `files`                 | array of [codersdk.ChatFileMetadata](#codersdkchatfilemetadata) | false    |              |                                                                                                                                                                                                                                                                            |
+| `diff_status`           | [nicloudsdk.ChatDiffStatus](#nicloudsdkchatdiffstatus)              | false    |              |                                                                                                                                                                                                                                                                            |
+| `files`                 | array of [nicloudsdk.ChatFileMetadata](#nicloudsdkchatfilemetadata) | false    |              |                                                                                                                                                                                                                                                                            |
 | `has_unread`            | boolean                                                         | false    |              | Has unread is true when assistant messages exist beyond the owner's read cursor, which updates on stream connect and disconnect.                                                                                                                                           |
 | `id`                    | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `labels`                | object                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | » `[any property]`      | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
-| `last_error`            | [codersdk.ChatError](#codersdkchaterror)                        | false    |              |                                                                                                                                                                                                                                                                            |
-| `last_injected_context` | array of [codersdk.ChatMessagePart](#codersdkchatmessagepart)   | false    |              | Last injected context holds the most recently persisted injected context parts (AGENTS.md files and skills). It is updated only when context changes, on first workspace attach or agent change.                                                                           |
+| `last_error`            | [nicloudsdk.ChatError](#nicloudsdkchaterror)                        | false    |              |                                                                                                                                                                                                                                                                            |
+| `last_injected_context` | array of [nicloudsdk.ChatMessagePart](#nicloudsdkchatmessagepart)   | false    |              | Last injected context holds the most recently persisted injected context parts (AGENTS.md files and skills). It is updated only when context changes, on first workspace attach or agent change.                                                                           |
 | `last_model_config_id`  | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `last_turn_summary`     | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `mcp_server_ids`        | array of string                                                 | false    |              |                                                                                                                                                                                                                                                                            |
@@ -2489,15 +2489,15 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `owner_username`        | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `parent_chat_id`        | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `pin_order`             | integer                                                         | false    |              |                                                                                                                                                                                                                                                                            |
-| `plan_mode`             | [codersdk.ChatPlanMode](#codersdkchatplanmode)                  | false    |              |                                                                                                                                                                                                                                                                            |
+| `plan_mode`             | [nicloudsdk.ChatPlanMode](#nicloudsdkchatplanmode)                  | false    |              |                                                                                                                                                                                                                                                                            |
 | `root_chat_id`          | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
-| `status`                | [codersdk.ChatStatus](#codersdkchatstatus)                      | false    |              |                                                                                                                                                                                                                                                                            |
+| `status`                | [nicloudsdk.ChatStatus](#nicloudsdkchatstatus)                      | false    |              |                                                                                                                                                                                                                                                                            |
 | `title`                 | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `updated_at`            | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 | `warnings`              | array of string                                                 | false    |              |                                                                                                                                                                                                                                                                            |
 | `workspace_id`          | string                                                          | false    |              |                                                                                                                                                                                                                                                                            |
 
-## codersdk.ChatACL
+## nicloudsdk.ChatACL
 
 ```json
 {
@@ -2548,10 +2548,10 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name     | Type                                              | Required | Restrictions | Description |
 |----------|---------------------------------------------------|----------|--------------|-------------|
-| `groups` | array of [codersdk.ChatGroup](#codersdkchatgroup) | false    |              |             |
-| `users`  | array of [codersdk.ChatUser](#codersdkchatuser)   | false    |              |             |
+| `groups` | array of [nicloudsdk.ChatGroup](#nicloudsdkchatgroup) | false    |              |             |
+| `users`  | array of [nicloudsdk.ChatUser](#nicloudsdkchatuser)   | false    |              |             |
 
-## codersdk.ChatBusyBehavior
+## nicloudsdk.ChatBusyBehavior
 
 ```json
 "queue"
@@ -2565,7 +2565,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |----------------------|
 | `interrupt`, `queue` |
 
-## codersdk.ChatClientType
+## nicloudsdk.ChatClientType
 
 ```json
 "ui"
@@ -2579,7 +2579,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |-------------|
 | `api`, `ui` |
 
-## codersdk.ChatConfig
+## nicloudsdk.ChatConfig
 
 ```json
 {
@@ -2595,7 +2595,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `acquire_batch_size`    | integer | false    |              |             |
 | `debug_logging_enabled` | boolean | false    |              |             |
 
-## codersdk.ChatDiffContents
+## nicloudsdk.ChatDiffContents
 
 ```json
 {
@@ -2619,7 +2619,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `pull_request_url` | string | false    |              |             |
 | `remote_origin`    | string | false    |              |             |
 
-## codersdk.ChatDiffStatus
+## nicloudsdk.ChatDiffStatus
 
 ```json
 {
@@ -2669,7 +2669,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `stale_at`           | string  | false    |              |             |
 | `url`                | string  | false    |              |             |
 
-## codersdk.ChatError
+## nicloudsdk.ChatError
 
 ```json
 {
@@ -2687,13 +2687,13 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name          | Type                                             | Required | Restrictions | Description                                                                                               |
 |---------------|--------------------------------------------------|----------|--------------|-----------------------------------------------------------------------------------------------------------|
 | `detail`      | string                                           | false    |              | Detail is optional provider-specific context shown alongside the normalized error message when available. |
-| `kind`        | [codersdk.ChatErrorKind](#codersdkchaterrorkind) | false    |              | Kind classifies the error for consistent client rendering.                                                |
+| `kind`        | [nicloudsdk.ChatErrorKind](#nicloudsdkchaterrorkind) | false    |              | Kind classifies the error for consistent client rendering.                                                |
 | `message`     | string                                           | false    |              | Message is the normalized, user-facing error message.                                                     |
 | `provider`    | string                                           | false    |              | Provider identifies the upstream model provider when known.                                               |
 | `retryable`   | boolean                                          | false    |              | Retryable reports whether the underlying error is transient.                                              |
 | `status_code` | integer                                          | false    |              | Status code is the best-effort upstream HTTP status code.                                                 |
 
-## codersdk.ChatErrorKind
+## nicloudsdk.ChatErrorKind
 
 ```json
 "generic"
@@ -2707,7 +2707,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------------------------------------------------------------------------------------------------------------------------------------|
 | `auth`, `config`, `generic`, `missing_key`, `overloaded`, `provider_disabled`, `rate_limit`, `startup_timeout`, `timeout`, `usage_limit` |
 
-## codersdk.ChatFileMetadata
+## nicloudsdk.ChatFileMetadata
 
 ```json
 {
@@ -2731,7 +2731,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `organization_id` | string | false    |              |             |
 | `owner_id`        | string | false    |              |             |
 
-## codersdk.ChatGroup
+## nicloudsdk.ChatGroup
 
 ```json
 {
@@ -2772,14 +2772,14 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `avatar_url`                | string                                                | false    |              |                                                                                                                                                                       |
 | `display_name`              | string                                                | false    |              |                                                                                                                                                                       |
 | `id`                        | string                                                | false    |              |                                                                                                                                                                       |
-| `members`                   | array of [codersdk.ReducedUser](#codersdkreduceduser) | false    |              |                                                                                                                                                                       |
+| `members`                   | array of [nicloudsdk.ReducedUser](#nicloudsdkreduceduser) | false    |              |                                                                                                                                                                       |
 | `name`                      | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_display_name` | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_id`           | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_name`         | string                                                | false    |              |                                                                                                                                                                       |
 | `quota_allowance`           | integer                                               | false    |              |                                                                                                                                                                       |
-| `role`                      | [codersdk.ChatRole](#codersdkchatrole)                | false    |              |                                                                                                                                                                       |
-| `source`                    | [codersdk.GroupSource](#codersdkgroupsource)          | false    |              |                                                                                                                                                                       |
+| `role`                      | [nicloudsdk.ChatRole](#nicloudsdkchatrole)                | false    |              |                                                                                                                                                                       |
+| `source`                    | [nicloudsdk.GroupSource](#nicloudsdkgroupsource)          | false    |              |                                                                                                                                                                       |
 | `total_member_count`        | integer                                               | false    |              | How many members are in this group. Shows the total count, even if the user is not authorized to read group member details. May be greater than `len(Group.Members)`. |
 
 #### Enumerated Values
@@ -2788,7 +2788,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |----------|----------|
 | `role`   | `read`   |
 
-## codersdk.ChatInputPart
+## nicloudsdk.ChatInputPart
 
 ```json
 {
@@ -2812,9 +2812,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `file_name`  | string                                                   | false    |              | The following fields are only set when Type is ChatInputPartTypeFileReference. |
 | `start_line` | integer                                                  | false    |              |                                                                                |
 | `text`       | string                                                   | false    |              |                                                                                |
-| `type`       | [codersdk.ChatInputPartType](#codersdkchatinputparttype) | false    |              |                                                                                |
+| `type`       | [nicloudsdk.ChatInputPartType](#nicloudsdkchatinputparttype) | false    |              |                                                                                |
 
-## codersdk.ChatInputPartType
+## nicloudsdk.ChatInputPartType
 
 ```json
 "text"
@@ -2828,7 +2828,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |----------------------------------|
 | `file`, `file-reference`, `text` |
 
-## codersdk.ChatMessage
+## nicloudsdk.ChatMessage
 
 ```json
 {
@@ -2919,15 +2919,15 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name              | Type                                                          | Required | Restrictions | Description |
 |-------------------|---------------------------------------------------------------|----------|--------------|-------------|
 | `chat_id`         | string                                                        | false    |              |             |
-| `content`         | array of [codersdk.ChatMessagePart](#codersdkchatmessagepart) | false    |              |             |
+| `content`         | array of [nicloudsdk.ChatMessagePart](#nicloudsdkchatmessagepart) | false    |              |             |
 | `created_at`      | string                                                        | false    |              |             |
 | `created_by`      | string                                                        | false    |              |             |
 | `id`              | integer                                                       | false    |              |             |
 | `model_config_id` | string                                                        | false    |              |             |
-| `role`            | [codersdk.ChatMessageRole](#codersdkchatmessagerole)          | false    |              |             |
-| `usage`           | [codersdk.ChatMessageUsage](#codersdkchatmessageusage)        | false    |              |             |
+| `role`            | [nicloudsdk.ChatMessageRole](#nicloudsdkchatmessagerole)          | false    |              |             |
+| `usage`           | [nicloudsdk.ChatMessageUsage](#nicloudsdkchatmessageusage)        | false    |              |             |
 
-## codersdk.ChatMessagePart
+## nicloudsdk.ChatMessagePart
 
 ```json
 {
@@ -3035,10 +3035,10 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `title`                        | string                                                       | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `tool_call_id`                 | string                                                       | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `tool_name`                    | string                                                       | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `type`                         | [codersdk.ChatMessagePartType](#codersdkchatmessageparttype) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `type`                         | [nicloudsdk.ChatMessagePartType](#nicloudsdkchatmessageparttype) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `url`                          | string                                                       | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 
-## codersdk.ChatMessagePartType
+## nicloudsdk.ChatMessagePartType
 
 ```json
 "text"
@@ -3052,7 +3052,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |--------------------------------------------------------------------------------------------------------------|
 | `context-file`, `file`, `file-reference`, `reasoning`, `skill`, `source`, `text`, `tool-call`, `tool-result` |
 
-## codersdk.ChatMessageRole
+## nicloudsdk.ChatMessageRole
 
 ```json
 "system"
@@ -3066,7 +3066,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |---------------------------------------|
 | `assistant`, `system`, `tool`, `user` |
 
-## codersdk.ChatMessageUsage
+## nicloudsdk.ChatMessageUsage
 
 ```json
 {
@@ -3092,7 +3092,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `reasoning_tokens`      | integer | false    |              |             |
 | `total_tokens`          | integer | false    |              |             |
 
-## codersdk.ChatMessagesResponse
+## nicloudsdk.ChatMessagesResponse
 
 ```json
 {
@@ -3260,10 +3260,10 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name              | Type                                                              | Required | Restrictions | Description |
 |-------------------|-------------------------------------------------------------------|----------|--------------|-------------|
 | `has_more`        | boolean                                                           | false    |              |             |
-| `messages`        | array of [codersdk.ChatMessage](#codersdkchatmessage)             | false    |              |             |
-| `queued_messages` | array of [codersdk.ChatQueuedMessage](#codersdkchatqueuedmessage) | false    |              |             |
+| `messages`        | array of [nicloudsdk.ChatMessage](#nicloudsdkchatmessage)             | false    |              |             |
+| `queued_messages` | array of [nicloudsdk.ChatQueuedMessage](#nicloudsdkchatqueuedmessage) | false    |              |             |
 
-## codersdk.ChatModel
+## nicloudsdk.ChatModel
 
 ```json
 {
@@ -3283,7 +3283,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `model`        | string | false    |              |             |
 | `provider`     | string | false    |              |             |
 
-## codersdk.ChatModelProvider
+## nicloudsdk.ChatModelProvider
 
 ```json
 {
@@ -3306,11 +3306,11 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name                 | Type                                                                                       | Required | Restrictions | Description |
 |----------------------|--------------------------------------------------------------------------------------------|----------|--------------|-------------|
 | `available`          | boolean                                                                                    | false    |              |             |
-| `models`             | array of [codersdk.ChatModel](#codersdkchatmodel)                                          | false    |              |             |
+| `models`             | array of [nicloudsdk.ChatModel](#nicloudsdkchatmodel)                                          | false    |              |             |
 | `provider`           | string                                                                                     | false    |              |             |
-| `unavailable_reason` | [codersdk.ChatModelProviderUnavailableReason](#codersdkchatmodelproviderunavailablereason) | false    |              |             |
+| `unavailable_reason` | [nicloudsdk.ChatModelProviderUnavailableReason](#nicloudsdkchatmodelproviderunavailablereason) | false    |              |             |
 
-## codersdk.ChatModelProviderUnavailableReason
+## nicloudsdk.ChatModelProviderUnavailableReason
 
 ```json
 "missing_api_key"
@@ -3324,7 +3324,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------------------------------------------------------|
 | `fetch_failed`, `missing_api_key`, `user_api_key_required` |
 
-## codersdk.ChatModelsResponse
+## nicloudsdk.ChatModelsResponse
 
 ```json
 {
@@ -3350,9 +3350,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name        | Type                                                              | Required | Restrictions | Description |
 |-------------|-------------------------------------------------------------------|----------|--------------|-------------|
-| `providers` | array of [codersdk.ChatModelProvider](#codersdkchatmodelprovider) | false    |              |             |
+| `providers` | array of [nicloudsdk.ChatModelProvider](#nicloudsdkchatmodelprovider) | false    |              |             |
 
-## codersdk.ChatPlanMode
+## nicloudsdk.ChatPlanMode
 
 ```json
 "plan"
@@ -3366,7 +3366,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |----------|
 | `plan`   |
 
-## codersdk.ChatPrompt
+## nicloudsdk.ChatPrompt
 
 ```json
 {
@@ -3382,7 +3382,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `id`   | integer | false    |              |             |
 | `text` | string  | false    |              |             |
 
-## codersdk.ChatPromptsResponse
+## nicloudsdk.ChatPromptsResponse
 
 ```json
 {
@@ -3399,9 +3399,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name      | Type                                                | Required | Restrictions | Description |
 |-----------|-----------------------------------------------------|----------|--------------|-------------|
-| `prompts` | array of [codersdk.ChatPrompt](#codersdkchatprompt) | false    |              |             |
+| `prompts` | array of [nicloudsdk.ChatPrompt](#nicloudsdkchatprompt) | false    |              |             |
 
-## codersdk.ChatQueuedMessage
+## nicloudsdk.ChatQueuedMessage
 
 ```json
 {
@@ -3481,12 +3481,12 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name              | Type                                                          | Required | Restrictions | Description |
 |-------------------|---------------------------------------------------------------|----------|--------------|-------------|
 | `chat_id`         | string                                                        | false    |              |             |
-| `content`         | array of [codersdk.ChatMessagePart](#codersdkchatmessagepart) | false    |              |             |
+| `content`         | array of [nicloudsdk.ChatMessagePart](#nicloudsdkchatmessagepart) | false    |              |             |
 | `created_at`      | string                                                        | false    |              |             |
 | `id`              | integer                                                       | false    |              |             |
 | `model_config_id` | string                                                        | false    |              |             |
 
-## codersdk.ChatRetentionDaysResponse
+## nicloudsdk.ChatRetentionDaysResponse
 
 ```json
 {
@@ -3500,7 +3500,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------------|---------|----------|--------------|-------------|
 | `retention_days` | integer | false    |              |             |
 
-## codersdk.ChatRole
+## nicloudsdk.ChatRole
 
 ```json
 "read"
@@ -3514,7 +3514,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------|
 | ``, `read` |
 
-## codersdk.ChatStatus
+## nicloudsdk.ChatStatus
 
 ```json
 "waiting"
@@ -3528,7 +3528,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------------------------------------------------------------------------------|
 | `completed`, `error`, `paused`, `pending`, `requires_action`, `running`, `waiting` |
 
-## codersdk.ChatStreamActionRequired
+## nicloudsdk.ChatStreamActionRequired
 
 ```json
 {
@@ -3546,9 +3546,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name         | Type                                                                | Required | Restrictions | Description |
 |--------------|---------------------------------------------------------------------|----------|--------------|-------------|
-| `tool_calls` | array of [codersdk.ChatStreamToolCall](#codersdkchatstreamtoolcall) | false    |              |             |
+| `tool_calls` | array of [nicloudsdk.ChatStreamToolCall](#nicloudsdkchatstreamtoolcall) | false    |              |             |
 
-## codersdk.ChatStreamEvent
+## nicloudsdk.ChatStreamEvent
 
 ```json
 {
@@ -3808,17 +3808,17 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name              | Type                                                                   | Required | Restrictions | Description |
 |-------------------|------------------------------------------------------------------------|----------|--------------|-------------|
-| `action_required` | [codersdk.ChatStreamActionRequired](#codersdkchatstreamactionrequired) | false    |              |             |
+| `action_required` | [nicloudsdk.ChatStreamActionRequired](#nicloudsdkchatstreamactionrequired) | false    |              |             |
 | `chat_id`         | string                                                                 | false    |              |             |
-| `error`           | [codersdk.ChatError](#codersdkchaterror)                               | false    |              |             |
-| `message`         | [codersdk.ChatMessage](#codersdkchatmessage)                           | false    |              |             |
-| `message_part`    | [codersdk.ChatStreamMessagePart](#codersdkchatstreammessagepart)       | false    |              |             |
-| `queued_messages` | array of [codersdk.ChatQueuedMessage](#codersdkchatqueuedmessage)      | false    |              |             |
-| `retry`           | [codersdk.ChatStreamRetry](#codersdkchatstreamretry)                   | false    |              |             |
-| `status`          | [codersdk.ChatStreamStatus](#codersdkchatstreamstatus)                 | false    |              |             |
-| `type`            | [codersdk.ChatStreamEventType](#codersdkchatstreameventtype)           | false    |              |             |
+| `error`           | [nicloudsdk.ChatError](#nicloudsdkchaterror)                               | false    |              |             |
+| `message`         | [nicloudsdk.ChatMessage](#nicloudsdkchatmessage)                           | false    |              |             |
+| `message_part`    | [nicloudsdk.ChatStreamMessagePart](#nicloudsdkchatstreammessagepart)       | false    |              |             |
+| `queued_messages` | array of [nicloudsdk.ChatQueuedMessage](#nicloudsdkchatqueuedmessage)      | false    |              |             |
+| `retry`           | [nicloudsdk.ChatStreamRetry](#nicloudsdkchatstreamretry)                   | false    |              |             |
+| `status`          | [nicloudsdk.ChatStreamStatus](#nicloudsdkchatstreamstatus)                 | false    |              |             |
+| `type`            | [nicloudsdk.ChatStreamEventType](#nicloudsdkchatstreameventtype)           | false    |              |             |
 
-## codersdk.ChatStreamEventType
+## nicloudsdk.ChatStreamEventType
 
 ```json
 "message_part"
@@ -3832,7 +3832,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------------------------------------------------------------------------------------|
 | `action_required`, `error`, `message`, `message_part`, `queue_update`, `retry`, `status` |
 
-## codersdk.ChatStreamMessagePart
+## nicloudsdk.ChatStreamMessagePart
 
 ```json
 {
@@ -3906,10 +3906,10 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name   | Type                                                 | Required | Restrictions | Description |
 |--------|------------------------------------------------------|----------|--------------|-------------|
-| `part` | [codersdk.ChatMessagePart](#codersdkchatmessagepart) | false    |              |             |
-| `role` | [codersdk.ChatMessageRole](#codersdkchatmessagerole) | false    |              |             |
+| `part` | [nicloudsdk.ChatMessagePart](#nicloudsdkchatmessagepart) | false    |              |             |
+| `role` | [nicloudsdk.ChatMessageRole](#nicloudsdkchatmessagerole) | false    |              |             |
 
-## codersdk.ChatStreamRetry
+## nicloudsdk.ChatStreamRetry
 
 ```json
 {
@@ -3930,12 +3930,12 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `attempt`     | integer                                          | false    |              | Attempt is the 1-indexed retry attempt number.                    |
 | `delay_ms`    | integer                                          | false    |              | Delay ms is the backoff delay in milliseconds before the retry.   |
 | `error`       | string                                           | false    |              | Error is the normalized error message from the failed attempt.    |
-| `kind`        | [codersdk.ChatErrorKind](#codersdkchaterrorkind) | false    |              | Kind classifies the retry reason for consistent client rendering. |
+| `kind`        | [nicloudsdk.ChatErrorKind](#nicloudsdkchaterrorkind) | false    |              | Kind classifies the retry reason for consistent client rendering. |
 | `provider`    | string                                           | false    |              | Provider identifies the upstream model provider when known.       |
 | `retrying_at` | string                                           | false    |              | Retrying at is the timestamp when the retry will be attempted.    |
 | `status_code` | integer                                          | false    |              | Status code is the best-effort upstream HTTP status code.         |
 
-## codersdk.ChatStreamStatus
+## nicloudsdk.ChatStreamStatus
 
 ```json
 {
@@ -3947,9 +3947,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name     | Type                                       | Required | Restrictions | Description |
 |----------|--------------------------------------------|----------|--------------|-------------|
-| `status` | [codersdk.ChatStatus](#codersdkchatstatus) | false    |              |             |
+| `status` | [nicloudsdk.ChatStatus](#nicloudsdkchatstatus) | false    |              |             |
 
-## codersdk.ChatStreamToolCall
+## nicloudsdk.ChatStreamToolCall
 
 ```json
 {
@@ -3967,7 +3967,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `tool_call_id` | string | false    |              |             |
 | `tool_name`    | string | false    |              |             |
 
-## codersdk.ChatUser
+## nicloudsdk.ChatUser
 
 ```json
 {
@@ -3986,7 +3986,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `avatar_url` | string                                 | false    |              |             |
 | `id`         | string                                 | true     |              |             |
 | `name`       | string                                 | false    |              |             |
-| `role`       | [codersdk.ChatRole](#codersdkchatrole) | false    |              |             |
+| `role`       | [nicloudsdk.ChatRole](#nicloudsdkchatrole) | false    |              |             |
 | `username`   | string                                 | true     |              |             |
 
 #### Enumerated Values
@@ -3995,7 +3995,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |----------|----------|
 | `role`   | `read`   |
 
-## codersdk.ChatWatchEvent
+## nicloudsdk.ChatWatchEvent
 
 ```json
 {
@@ -4153,11 +4153,11 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name         | Type                                                                | Required | Restrictions | Description |
 |--------------|---------------------------------------------------------------------|----------|--------------|-------------|
-| `chat`       | [codersdk.Chat](#codersdkchat)                                      | false    |              |             |
-| `kind`       | [codersdk.ChatWatchEventKind](#codersdkchatwatcheventkind)          | false    |              |             |
-| `tool_calls` | array of [codersdk.ChatStreamToolCall](#codersdkchatstreamtoolcall) | false    |              |             |
+| `chat`       | [nicloudsdk.Chat](#nicloudsdkchat)                                      | false    |              |             |
+| `kind`       | [nicloudsdk.ChatWatchEventKind](#nicloudsdkchatwatcheventkind)          | false    |              |             |
+| `tool_calls` | array of [nicloudsdk.ChatStreamToolCall](#nicloudsdkchatstreamtoolcall) | false    |              |             |
 
-## codersdk.ChatWatchEventKind
+## nicloudsdk.ChatWatchEventKind
 
 ```json
 "status_change"
@@ -4171,7 +4171,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |------------------------------------------------------------------------------------------------------------------|
 | `action_required`, `created`, `deleted`, `diff_status_change`, `status_change`, `summary_change`, `title_change` |
 
-## codersdk.ConnectionLatency
+## nicloudsdk.ConnectionLatency
 
 ```json
 {
@@ -4187,7 +4187,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `p50` | number | false    |              |             |
 | `p95` | number | false    |              |             |
 
-## codersdk.ConnectionLog
+## nicloudsdk.ConnectionLog
 
 ```json
 {
@@ -4253,16 +4253,16 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `connect_time`             | string                                                         | false    |              |                                                                                                                                                          |
 | `id`                       | string                                                         | false    |              |                                                                                                                                                          |
 | `ip`                       | string                                                         | false    |              |                                                                                                                                                          |
-| `organization`             | [codersdk.MinimalOrganization](#codersdkminimalorganization)   | false    |              |                                                                                                                                                          |
-| `ssh_info`                 | [codersdk.ConnectionLogSSHInfo](#codersdkconnectionlogsshinfo) | false    |              | Ssh info is only set when `type` is one of: - `ConnectionTypeSSH` - `ConnectionTypeReconnectingPTY` - `ConnectionTypeVSCode` - `ConnectionTypeJetBrains` |
-| `type`                     | [codersdk.ConnectionType](#codersdkconnectiontype)             | false    |              |                                                                                                                                                          |
-| `web_info`                 | [codersdk.ConnectionLogWebInfo](#codersdkconnectionlogwebinfo) | false    |              | Web info is only set when `type` is one of: - `ConnectionTypePortForwarding` - `ConnectionTypeWorkspaceApp`                                              |
+| `organization`             | [nicloudsdk.MinimalOrganization](#nicloudsdkminimalorganization)   | false    |              |                                                                                                                                                          |
+| `ssh_info`                 | [nicloudsdk.ConnectionLogSSHInfo](#nicloudsdkconnectionlogsshinfo) | false    |              | Ssh info is only set when `type` is one of: - `ConnectionTypeSSH` - `ConnectionTypeReconnectingPTY` - `ConnectionTypeVSCode` - `ConnectionTypeJetBrains` |
+| `type`                     | [nicloudsdk.ConnectionType](#nicloudsdkconnectiontype)             | false    |              |                                                                                                                                                          |
+| `web_info`                 | [nicloudsdk.ConnectionLogWebInfo](#nicloudsdkconnectionlogwebinfo) | false    |              | Web info is only set when `type` is one of: - `ConnectionTypePortForwarding` - `ConnectionTypeWorkspaceApp`                                              |
 | `workspace_id`             | string                                                         | false    |              |                                                                                                                                                          |
 | `workspace_name`           | string                                                         | false    |              |                                                                                                                                                          |
 | `workspace_owner_id`       | string                                                         | false    |              |                                                                                                                                                          |
 | `workspace_owner_username` | string                                                         | false    |              |                                                                                                                                                          |
 
-## codersdk.ConnectionLogResponse
+## nicloudsdk.ConnectionLogResponse
 
 ```json
 {
@@ -4330,11 +4330,11 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name              | Type                                                      | Required | Restrictions | Description |
 |-------------------|-----------------------------------------------------------|----------|--------------|-------------|
-| `connection_logs` | array of [codersdk.ConnectionLog](#codersdkconnectionlog) | false    |              |             |
+| `connection_logs` | array of [nicloudsdk.ConnectionLog](#nicloudsdkconnectionlog) | false    |              |             |
 | `count`           | integer                                                   | false    |              |             |
 | `count_cap`       | integer                                                   | false    |              |             |
 
-## codersdk.ConnectionLogSSHInfo
+## nicloudsdk.ConnectionLogSSHInfo
 
 ```json
 {
@@ -4354,7 +4354,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `disconnect_time`   | string  | false    |              | Disconnect time is omitted if a disconnect event with the same connection ID has not yet been seen.                                   |
 | `exit_code`         | integer | false    |              | Exit code is the exit code of the SSH session. It is omitted if a disconnect event with the same connection ID has not yet been seen. |
 
-## codersdk.ConnectionLogWebInfo
+## nicloudsdk.ConnectionLogWebInfo
 
 ```json
 {
@@ -4395,10 +4395,10 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |----------------|--------------------------------|----------|--------------|---------------------------------------------------------------------------|
 | `slug_or_port` | string                         | false    |              |                                                                           |
 | `status_code`  | integer                        | false    |              | Status code is the HTTP status code of the request.                       |
-| `user`         | [codersdk.User](#codersdkuser) | false    |              | User is omitted if the connection event was from an unauthenticated user. |
+| `user`         | [nicloudsdk.User](#nicloudsdkuser) | false    |              | User is omitted if the connection event was from an unauthenticated user. |
 | `user_agent`   | string                         | false    |              |                                                                           |
 
-## codersdk.ConnectionType
+## nicloudsdk.ConnectionType
 
 ```json
 "ssh"
@@ -4412,7 +4412,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |--------------------------------------------------------------------------------------|
 | `jetbrains`, `port_forwarding`, `reconnecting_pty`, `ssh`, `vscode`, `workspace_app` |
 
-## codersdk.ConvertLoginRequest
+## nicloudsdk.ConvertLoginRequest
 
 ```json
 {
@@ -4426,9 +4426,9 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | Name       | Type                                     | Required | Restrictions | Description                              |
 |------------|------------------------------------------|----------|--------------|------------------------------------------|
 | `password` | string                                   | true     |              |                                          |
-| `to_type`  | [codersdk.LoginType](#codersdklogintype) | true     |              | To type is the login type to convert to. |
+| `to_type`  | [nicloudsdk.LoginType](#nicloudsdklogintype) | true     |              | To type is the login type to convert to. |
 
-## codersdk.CreateAIGatewayKeyRequest
+## nicloudsdk.CreateAIGatewayKeyRequest
 
 ```json
 {
@@ -4442,7 +4442,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |--------|--------|----------|--------------|-------------|
 | `name` | string | true     |              |             |
 
-## codersdk.CreateAIGatewayKeyResponse
+## nicloudsdk.CreateAIGatewayKeyResponse
 
 ```json
 {
@@ -4464,7 +4464,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `key_prefix` | string | false    |              |             |
 | `name`       | string | false    |              |             |
 
-## codersdk.CreateAIProviderRequest
+## nicloudsdk.CreateAIProviderRequest
 
 ```json
 {
@@ -4489,10 +4489,10 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `display_name` | string                                                     | false    |              |             |
 | `enabled`      | boolean                                                    | false    |              |             |
 | `name`         | string                                                     | false    |              |             |
-| `settings`     | [codersdk.AIProviderSettings](#codersdkaiprovidersettings) | false    |              |             |
-| `type`         | [codersdk.AIProviderType](#codersdkaiprovidertype)         | false    |              |             |
+| `settings`     | [nicloudsdk.AIProviderSettings](#nicloudsdkaiprovidersettings) | false    |              |             |
+| `type`         | [nicloudsdk.AIProviderType](#nicloudsdkaiprovidertype)         | false    |              |             |
 
-## codersdk.CreateChatMessageRequest
+## nicloudsdk.CreateChatMessageRequest
 
 ```json
 {
@@ -4520,11 +4520,11 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name              | Type                                                      | Required | Restrictions | Description                                                                                                  |
 |-------------------|-----------------------------------------------------------|----------|--------------|--------------------------------------------------------------------------------------------------------------|
-| `busy_behavior`   | [codersdk.ChatBusyBehavior](#codersdkchatbusybehavior)    | false    |              |                                                                                                              |
-| `content`         | array of [codersdk.ChatInputPart](#codersdkchatinputpart) | false    |              |                                                                                                              |
+| `busy_behavior`   | [nicloudsdk.ChatBusyBehavior](#nicloudsdkchatbusybehavior)    | false    |              |                                                                                                              |
+| `content`         | array of [nicloudsdk.ChatInputPart](#nicloudsdkchatinputpart) | false    |              |                                                                                                              |
 | `mcp_server_ids`  | array of string                                           | false    |              |                                                                                                              |
 | `model_config_id` | string                                                    | false    |              |                                                                                                              |
-| `plan_mode`       | [codersdk.ChatPlanMode](#codersdkchatplanmode)            | false    |              | Plan mode switches the chat's persistent plan mode. nil: no change, ptr to "plan": enable, ptr to "": clear. |
+| `plan_mode`       | [nicloudsdk.ChatPlanMode](#nicloudsdkchatplanmode)            | false    |              | Plan mode switches the chat's persistent plan mode. nil: no change, ptr to "plan": enable, ptr to "": clear. |
 
 #### Enumerated Values
 
@@ -4532,7 +4532,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |-----------------|----------------------|
 | `busy_behavior` | `interrupt`, `queue` |
 
-## codersdk.CreateChatMessageResponse
+## nicloudsdk.CreateChatMessageResponse
 
 ```json
 {
@@ -4698,12 +4698,12 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name             | Type                                                     | Required | Restrictions | Description |
 |------------------|----------------------------------------------------------|----------|--------------|-------------|
-| `message`        | [codersdk.ChatMessage](#codersdkchatmessage)             | false    |              |             |
+| `message`        | [nicloudsdk.ChatMessage](#nicloudsdkchatmessage)             | false    |              |             |
 | `queued`         | boolean                                                  | false    |              |             |
-| `queued_message` | [codersdk.ChatQueuedMessage](#codersdkchatqueuedmessage) | false    |              |             |
+| `queued_message` | [nicloudsdk.ChatQueuedMessage](#nicloudsdkchatqueuedmessage) | false    |              |             |
 | `warnings`       | array of string                                          | false    |              |             |
 
-## codersdk.CreateChatRequest
+## nicloudsdk.CreateChatRequest
 
 ```json
 {
@@ -4747,19 +4747,19 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 
 | Name                   | Type                                                      | Required | Restrictions | Description                                                                                                                                |
 |------------------------|-----------------------------------------------------------|----------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| `client_type`          | [codersdk.ChatClientType](#codersdkchatclienttype)        | false    |              |                                                                                                                                            |
-| `content`              | array of [codersdk.ChatInputPart](#codersdkchatinputpart) | false    |              |                                                                                                                                            |
+| `client_type`          | [nicloudsdk.ChatClientType](#nicloudsdkchatclienttype)        | false    |              |                                                                                                                                            |
+| `content`              | array of [nicloudsdk.ChatInputPart](#nicloudsdkchatinputpart) | false    |              |                                                                                                                                            |
 | `labels`               | object                                                    | false    |              |                                                                                                                                            |
 | » `[any property]`     | string                                                    | false    |              |                                                                                                                                            |
 | `mcp_server_ids`       | array of string                                           | false    |              |                                                                                                                                            |
 | `model_config_id`      | string                                                    | false    |              |                                                                                                                                            |
 | `organization_id`      | string                                                    | false    |              |                                                                                                                                            |
-| `plan_mode`            | [codersdk.ChatPlanMode](#codersdkchatplanmode)            | false    |              |                                                                                                                                            |
+| `plan_mode`            | [nicloudsdk.ChatPlanMode](#nicloudsdkchatplanmode)            | false    |              |                                                                                                                                            |
 | `system_prompt`        | string                                                    | false    |              |                                                                                                                                            |
-| `unsafe_dynamic_tools` | array of [codersdk.DynamicTool](#codersdkdynamictool)     | false    |              | Unsafe dynamic tools declares client-executed tools that the LLM can invoke. This API is highly experimental and highly subject to change. |
+| `unsafe_dynamic_tools` | array of [nicloudsdk.DynamicTool](#nicloudsdkdynamictool)     | false    |              | Unsafe dynamic tools declares client-executed tools that the LLM can invoke. This API is highly experimental and highly subject to change. |
 | `workspace_id`         | string                                                    | false    |              |                                                                                                                                            |
 
-## codersdk.CreateFirstUserOnboardingInfo
+## nicloudsdk.CreateFirstUserOnboardingInfo
 
 ```json
 {
@@ -4775,7 +4775,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `newsletter_marketing` | boolean | false    |              |             |
 | `newsletter_releases`  | boolean | false    |              |             |
 
-## codersdk.CreateFirstUserRequest
+## nicloudsdk.CreateFirstUserRequest
 
 ```json
 {
@@ -4806,13 +4806,13 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |-------------------|----------------------------------------------------------------------------------|----------|--------------|-------------|
 | `email`           | string                                                                           | true     |              |             |
 | `name`            | string                                                                           | false    |              |             |
-| `onboarding_info` | [codersdk.CreateFirstUserOnboardingInfo](#codersdkcreatefirstuseronboardinginfo) | false    |              |             |
+| `onboarding_info` | [nicloudsdk.CreateFirstUserOnboardingInfo](#nicloudsdkcreatefirstuseronboardinginfo) | false    |              |             |
 | `password`        | string                                                                           | true     |              |             |
 | `trial`           | boolean                                                                          | false    |              |             |
-| `trial_info`      | [codersdk.CreateFirstUserTrialInfo](#codersdkcreatefirstusertrialinfo)           | false    |              |             |
+| `trial_info`      | [nicloudsdk.CreateFirstUserTrialInfo](#nicloudsdkcreatefirstusertrialinfo)           | false    |              |             |
 | `username`        | string                                                                           | true     |              |             |
 
-## codersdk.CreateFirstUserResponse
+## nicloudsdk.CreateFirstUserResponse
 
 ```json
 {
@@ -4828,7 +4828,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `organization_id` | string | false    |              |             |
 | `user_id`         | string | false    |              |             |
 
-## codersdk.CreateFirstUserTrialInfo
+## nicloudsdk.CreateFirstUserTrialInfo
 
 ```json
 {
@@ -4854,7 +4854,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `last_name`    | string | false    |              |             |
 | `phone_number` | string | false    |              |             |
 
-## codersdk.CreateGroupRequest
+## nicloudsdk.CreateGroupRequest
 
 ```json
 {
@@ -4874,7 +4874,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `name`            | string  | true     |              |             |
 | `quota_allowance` | integer | false    |              |             |
 
-## codersdk.CreateOrganizationRequest
+## nicloudsdk.CreateOrganizationRequest
 
 ```json
 {
@@ -4894,7 +4894,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `icon`         | string | false    |              |                                                                        |
 | `name`         | string | true     |              |                                                                        |
 
-## codersdk.CreateProvisionerKeyResponse
+## nicloudsdk.CreateProvisionerKeyResponse
 
 ```json
 {
@@ -4908,7 +4908,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 |-------|--------|----------|--------------|-------------|
 | `key` | string | false    |              |             |
 
-## codersdk.CreateTaskRequest
+## nicloudsdk.CreateTaskRequest
 
 ```json
 {
@@ -4930,7 +4930,7 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `template_version_id`        | string | false    |              |             |
 | `template_version_preset_id` | string | false    |              |             |
 
-## codersdk.CreateTemplateRequest
+## nicloudsdk.CreateTemplateRequest
 
 ```json
 {
@@ -4974,25 +4974,25 @@ AuthorizationObject can represent a "set" of objects, such as: all workspaces in
 | `allow_user_autostart`                | boolean                                                                        | false    |              | Allow user autostart allows users to set a schedule for autostarting their workspace. By default this is true. This can only be disabled when using an enterprise license.                                                                                                                                          |
 | `allow_user_autostop`                 | boolean                                                                        | false    |              | Allow user autostop allows users to set a custom workspace TTL to use in place of the template's DefaultTTL field. By default this is true. If false, the DefaultTTL will always be used. This can only be disabled when using an enterprise license.                                                               |
 | `allow_user_cancel_workspace_jobs`    | boolean                                                                        | false    |              | Allow users to cancel in-progress workspace jobs. *bool as the default value is "true".                                                                                                                                                                                                                             |
-| `autostart_requirement`               | [codersdk.TemplateAutostartRequirement](#codersdktemplateautostartrequirement) | false    |              | Autostart requirement allows optionally specifying the autostart allowed days for workspaces created from this template. This is an enterprise feature.                                                                                                                                                             |
-| `autostop_requirement`                | [codersdk.TemplateAutostopRequirement](#codersdktemplateautostoprequirement)   | false    |              | Autostop requirement allows optionally specifying the autostop requirement for workspaces created from this template. This is an enterprise feature.                                                                                                                                                                |
-| `cors_behavior`                       | [codersdk.CORSBehavior](#codersdkcorsbehavior)                                 | false    |              | Cors behavior allows optionally specifying the CORS behavior for all shared ports.                                                                                                                                                                                                                                  |
+| `autostart_requirement`               | [nicloudsdk.TemplateAutostartRequirement](#nicloudsdktemplateautostartrequirement) | false    |              | Autostart requirement allows optionally specifying the autostart allowed days for workspaces created from this template. This is an enterprise feature.                                                                                                                                                             |
+| `autostop_requirement`                | [nicloudsdk.TemplateAutostopRequirement](#nicloudsdktemplateautostoprequirement)   | false    |              | Autostop requirement allows optionally specifying the autostop requirement for workspaces created from this template. This is an enterprise feature.                                                                                                                                                                |
+| `cors_behavior`                       | [nicloudsdk.CORSBehavior](#nicloudsdkcorsbehavior)                                 | false    |              | Cors behavior allows optionally specifying the CORS behavior for all shared ports.                                                                                                                                                                                                                                  |
 | `default_ttl_ms`                      | integer                                                                        | false    |              | Default ttl ms allows optionally specifying the default TTL for all workspaces created from this template.                                                                                                                                                                                                          |
-| `delete_ttl_ms`                       | integer                                                                        | false    |              | Delete ttl ms allows optionally specifying the max lifetime before Coder permanently deletes dormant workspaces created from this template.                                                                                                                                                                         |
+| `delete_ttl_ms`                       | integer                                                                        | false    |              | Delete ttl ms allows optionally specifying the max lifetime before Neural Inverse Cloud permanently deletes dormant workspaces created from this template.                                                                                                                                                                         |
 | `description`                         | string                                                                         | false    |              | Description is a description of what the template contains. It must be less than 128 bytes.                                                                                                                                                                                                                         |
 | `disable_everyone_group_access`       | boolean                                                                        | false    |              | Disable everyone group access allows optionally disabling the default behavior of granting the 'everyone' group access to use the template. If this is set to true, the template will not be available to all users, and must be explicitly granted to users or groups in the permissions settings of the template. |
 | `display_name`                        | string                                                                         | false    |              | Display name is the displayed name of the template.                                                                                                                                                                                                                                                                 |
-| `dormant_ttl_ms`                      | integer                                                                        | false    |              | Dormant ttl ms allows optionally specifying the max lifetime before Coder locks inactive workspaces created from this template.                                                                                                                                                                                     |
-| `failure_ttl_ms`                      | integer                                                                        | false    |              | Failure ttl ms allows optionally specifying the max lifetime before Coder stops all resources for failed workspaces created from this template.                                                                                                                                                                     |
+| `dormant_ttl_ms`                      | integer                                                                        | false    |              | Dormant ttl ms allows optionally specifying the max lifetime before Neural Inverse Cloud locks inactive workspaces created from this template.                                                                                                                                                                                     |
+| `failure_ttl_ms`                      | integer                                                                        | false    |              | Failure ttl ms allows optionally specifying the max lifetime before Neural Inverse Cloud stops all resources for failed workspaces created from this template.                                                                                                                                                                     |
 | `icon`                                | string                                                                         | false    |              | Icon is a relative path or external URL that specifies an icon to be displayed in the dashboard.                                                                                                                                                                                                                    |
-| `max_port_share_level`                | [codersdk.WorkspaceAgentPortShareLevel](#codersdkworkspaceagentportsharelevel) | false    |              | Max port share level allows optionally specifying the maximum port share level for workspaces created from the template.                                                                                                                                                                                            |
+| `max_port_share_level`                | [nicloudsdk.WorkspaceAgentPortShareLevel](#nicloudsdkworkspaceagentportsharelevel) | false    |              | Max port share level allows optionally specifying the maximum port share level for workspaces created from the template.                                                                                                                                                                                            |
 | `name`                                | string                                                                         | true     |              | Name is the name of the template.                                                                                                                                                                                                                                                                                   |
 | `require_active_version`              | boolean                                                                        | false    |              | Require active version mandates that workspaces are built with the active template version.                                                                                                                                                                                                                         |
 | `template_use_classic_parameter_flow` | boolean                                                                        | false    |              | Template use classic parameter flow allows optionally specifying whether the template should use the classic parameter flow. The default if unset is true, and is why `*bool` is used here. When dynamic parameters becomes the default, this will default to false.                                                |
 |`template_version_id`|string|true||Template version ID is an in-progress or completed job to use as an initial version of the template.
 This is required on creation to enable a user-flow of validating a template works. There is no reason the data-model cannot support empty templates, but it doesn't make sense for users.|
 
-## codersdk.CreateTemplateVersionDryRunRequest
+## nicloudsdk.CreateTemplateVersionDryRunRequest
 
 ```json
 {
@@ -5016,11 +5016,11 @@ This is required on creation to enable a user-flow of validating a template work
 
 | Name                    | Type                                                                          | Required | Restrictions | Description |
 |-------------------------|-------------------------------------------------------------------------------|----------|--------------|-------------|
-| `rich_parameter_values` | array of [codersdk.WorkspaceBuildParameter](#codersdkworkspacebuildparameter) | false    |              |             |
-| `user_variable_values`  | array of [codersdk.VariableValue](#codersdkvariablevalue)                     | false    |              |             |
+| `rich_parameter_values` | array of [nicloudsdk.WorkspaceBuildParameter](#nicloudsdkworkspacebuildparameter) | false    |              |             |
+| `user_variable_values`  | array of [nicloudsdk.VariableValue](#nicloudsdkvariablevalue)                     | false    |              |             |
 | `workspace_name`        | string                                                                        | false    |              |             |
 
-## codersdk.CreateTemplateVersionRequest
+## nicloudsdk.CreateTemplateVersionRequest
 
 ```json
 {
@@ -5053,11 +5053,11 @@ This is required on creation to enable a user-flow of validating a template work
 | `message`              | string                                                                 | false    |              |                                                              |
 | `name`                 | string                                                                 | false    |              |                                                              |
 | `provisioner`          | string                                                                 | true     |              |                                                              |
-| `storage_method`       | [codersdk.ProvisionerStorageMethod](#codersdkprovisionerstoragemethod) | true     |              |                                                              |
+| `storage_method`       | [nicloudsdk.ProvisionerStorageMethod](#nicloudsdkprovisionerstoragemethod) | true     |              |                                                              |
 | `tags`                 | object                                                                 | false    |              |                                                              |
 | » `[any property]`     | string                                                                 | false    |              |                                                              |
 | `template_id`          | string                                                                 | false    |              | Template ID optionally associates a version with a template. |
-| `user_variable_values` | array of [codersdk.VariableValue](#codersdkvariablevalue)              | false    |              |                                                              |
+| `user_variable_values` | array of [nicloudsdk.VariableValue](#nicloudsdkvariablevalue)              | false    |              |                                                              |
 
 #### Enumerated Values
 
@@ -5066,7 +5066,7 @@ This is required on creation to enable a user-flow of validating a template work
 | `provisioner`    | `echo`, `terraform` |
 | `storage_method` | `file`              |
 
-## codersdk.CreateTestAuditLogRequest
+## nicloudsdk.CreateTestAuditLogRequest
 
 ```json
 {
@@ -5087,13 +5087,13 @@ This is required on creation to enable a user-flow of validating a template work
 
 | Name                | Type                                           | Required | Restrictions | Description |
 |---------------------|------------------------------------------------|----------|--------------|-------------|
-| `action`            | [codersdk.AuditAction](#codersdkauditaction)   | false    |              |             |
+| `action`            | [nicloudsdk.AuditAction](#nicloudsdkauditaction)   | false    |              |             |
 | `additional_fields` | array of integer                               | false    |              |             |
-| `build_reason`      | [codersdk.BuildReason](#codersdkbuildreason)   | false    |              |             |
+| `build_reason`      | [nicloudsdk.BuildReason](#nicloudsdkbuildreason)   | false    |              |             |
 | `organization_id`   | string                                         | false    |              |             |
 | `request_id`        | string                                         | false    |              |             |
 | `resource_id`       | string                                         | false    |              |             |
-| `resource_type`     | [codersdk.ResourceType](#codersdkresourcetype) | false    |              |             |
+| `resource_type`     | [nicloudsdk.ResourceType](#nicloudsdkresourcetype) | false    |              |             |
 | `time`              | string                                         | false    |              |             |
 
 #### Enumerated Values
@@ -5104,7 +5104,7 @@ This is required on creation to enable a user-flow of validating a template work
 | `build_reason`  | `autostart`, `autostop`, `initiator`                                                                     |
 | `resource_type` | `auditable_group`, `git_ssh_key`, `template`, `template_version`, `user`, `workspace`, `workspace_build` |
 
-## codersdk.CreateTokenRequest
+## nicloudsdk.CreateTokenRequest
 
 ```json
 {
@@ -5127,13 +5127,13 @@ This is required on creation to enable a user-flow of validating a template work
 
 | Name         | Type                                                                | Required | Restrictions | Description                     |
 |--------------|---------------------------------------------------------------------|----------|--------------|---------------------------------|
-| `allow_list` | array of [codersdk.APIAllowListTarget](#codersdkapiallowlisttarget) | false    |              |                                 |
+| `allow_list` | array of [nicloudsdk.APIAllowListTarget](#nicloudsdkapiallowlisttarget) | false    |              |                                 |
 | `lifetime`   | integer                                                             | false    |              |                                 |
-| `scope`      | [codersdk.APIKeyScope](#codersdkapikeyscope)                        | false    |              | Deprecated: use Scopes instead. |
-| `scopes`     | array of [codersdk.APIKeyScope](#codersdkapikeyscope)               | false    |              |                                 |
+| `scope`      | [nicloudsdk.APIKeyScope](#nicloudsdkapikeyscope)                        | false    |              | Deprecated: use Scopes instead. |
+| `scopes`     | array of [nicloudsdk.APIKeyScope](#nicloudsdkapikeyscope)               | false    |              |                                 |
 | `token_name` | string                                                              | false    |              |                                 |
 
-## codersdk.CreateUserRequestWithOrgs
+## nicloudsdk.CreateUserRequestWithOrgs
 
 ```json
 {
@@ -5158,16 +5158,16 @@ This is required on creation to enable a user-flow of validating a template work
 | Name               | Type                                       | Required | Restrictions | Description                                                                         |
 |--------------------|--------------------------------------------|----------|--------------|-------------------------------------------------------------------------------------|
 | `email`            | string                                     | false    |              |                                                                                     |
-| `login_type`       | [codersdk.LoginType](#codersdklogintype)   | false    |              | Login type defaults to LoginTypePassword.                                           |
+| `login_type`       | [nicloudsdk.LoginType](#nicloudsdklogintype)   | false    |              | Login type defaults to LoginTypePassword.                                           |
 | `name`             | string                                     | false    |              |                                                                                     |
 | `organization_ids` | array of string                            | false    |              | Organization ids is a list of organization IDs that the user should be a member of. |
 | `password`         | string                                     | false    |              |                                                                                     |
 | `roles`            | array of string                            | false    |              | Roles is an optional list of site-level roles to assign at creation.                |
 | `service_account`  | boolean                                    | false    |              | Service accounts are admin-managed accounts that cannot login.                      |
-| `user_status`      | [codersdk.UserStatus](#codersdkuserstatus) | false    |              | User status defaults to UserStatusDormant.                                          |
+| `user_status`      | [nicloudsdk.UserStatus](#nicloudsdkuserstatus) | false    |              | User status defaults to UserStatusDormant.                                          |
 | `username`         | string                                     | true     |              |                                                                                     |
 
-## codersdk.CreateUserSecretRequest
+## nicloudsdk.CreateUserSecretRequest
 
 ```json
 {
@@ -5189,7 +5189,7 @@ This is required on creation to enable a user-flow of validating a template work
 | `name`        | string | false    |              |             |
 | `value`       | string | false    |              |             |
 
-## codersdk.CreateUserSkillRequest
+## nicloudsdk.CreateUserSkillRequest
 
 ```json
 {
@@ -5203,7 +5203,7 @@ This is required on creation to enable a user-flow of validating a template work
 |-----------|--------|----------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `content` | string | false    |              | Content must be SKILL.md-format Markdown with YAML frontmatter. The frontmatter must include name, may include description, and must be followed by a non-empty body. |
 
-## codersdk.CreateWorkspaceBuildReason
+## nicloudsdk.CreateWorkspaceBuildReason
 
 ```json
 "dashboard"
@@ -5217,7 +5217,7 @@ This is required on creation to enable a user-flow of validating a template work
 |-----------------------------------------------------------------------------------------------------------------------|
 | `cli`, `dashboard`, `jetbrains_connection`, `ssh_connection`, `task_manual_pause`, `task_resume`, `vscode_connection` |
 
-## codersdk.CreateWorkspaceBuildRequest
+## nicloudsdk.CreateWorkspaceBuildRequest
 
 ```json
 {
@@ -5245,14 +5245,14 @@ This is required on creation to enable a user-flow of validating a template work
 | Name                         | Type                                                                          | Required | Restrictions | Description                                                                                                                                                                                                   |
 |------------------------------|-------------------------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dry_run`                    | boolean                                                                       | false    |              |                                                                                                                                                                                                               |
-| `log_level`                  | [codersdk.ProvisionerLogLevel](#codersdkprovisionerloglevel)                  | false    |              | Log level changes the default logging verbosity of a provider ("info" if empty).                                                                                                                              |
+| `log_level`                  | [nicloudsdk.ProvisionerLogLevel](#nicloudsdkprovisionerloglevel)                  | false    |              | Log level changes the default logging verbosity of a provider ("info" if empty).                                                                                                                              |
 | `orphan`                     | boolean                                                                       | false    |              | Orphan may be set for the Destroy transition.                                                                                                                                                                 |
-| `reason`                     | [codersdk.CreateWorkspaceBuildReason](#codersdkcreateworkspacebuildreason)    | false    |              | Reason sets the reason for the workspace build.                                                                                                                                                               |
-| `rich_parameter_values`      | array of [codersdk.WorkspaceBuildParameter](#codersdkworkspacebuildparameter) | false    |              | Rich parameter values are optional. It will write params to the 'workspace' scope. This will overwrite any existing parameters with the same name. This will not delete old params not included in this list. |
+| `reason`                     | [nicloudsdk.CreateWorkspaceBuildReason](#nicloudsdkcreateworkspacebuildreason)    | false    |              | Reason sets the reason for the workspace build.                                                                                                                                                               |
+| `rich_parameter_values`      | array of [nicloudsdk.WorkspaceBuildParameter](#nicloudsdkworkspacebuildparameter) | false    |              | Rich parameter values are optional. It will write params to the 'workspace' scope. This will overwrite any existing parameters with the same name. This will not delete old params not included in this list. |
 | `state`                      | array of integer                                                              | false    |              |                                                                                                                                                                                                               |
 | `template_version_id`        | string                                                                        | false    |              |                                                                                                                                                                                                               |
 | `template_version_preset_id` | string                                                                        | false    |              | Template version preset ID is the ID of the template version preset to use for the build.                                                                                                                     |
-| `transition`                 | [codersdk.WorkspaceTransition](#codersdkworkspacetransition)                  | true     |              |                                                                                                                                                                                                               |
+| `transition`                 | [nicloudsdk.WorkspaceTransition](#nicloudsdkworkspacetransition)                  | true     |              |                                                                                                                                                                                                               |
 
 #### Enumerated Values
 
@@ -5262,7 +5262,7 @@ This is required on creation to enable a user-flow of validating a template work
 | `reason`     | `cli`, `dashboard`, `jetbrains_connection`, `ssh_connection`, `task_manual_pause`, `vscode_connection` |
 | `transition` | `delete`, `start`, `stop`                                                                              |
 
-## codersdk.CreateWorkspaceProxyRequest
+## nicloudsdk.CreateWorkspaceProxyRequest
 
 ```json
 {
@@ -5280,7 +5280,7 @@ This is required on creation to enable a user-flow of validating a template work
 | `icon`         | string | false    |              |             |
 | `name`         | string | true     |              |             |
 
-## codersdk.CreateWorkspaceRequest
+## nicloudsdk.CreateWorkspaceRequest
 
 ```json
 {
@@ -5306,16 +5306,16 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name                         | Type                                                                          | Required | Restrictions | Description                                                                                             |
 |------------------------------|-------------------------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------|
-| `automatic_updates`          | [codersdk.AutomaticUpdates](#codersdkautomaticupdates)                        | false    |              |                                                                                                         |
+| `automatic_updates`          | [nicloudsdk.AutomaticUpdates](#nicloudsdkautomaticupdates)                        | false    |              |                                                                                                         |
 | `autostart_schedule`         | string                                                                        | false    |              |                                                                                                         |
 | `name`                       | string                                                                        | true     |              |                                                                                                         |
-| `rich_parameter_values`      | array of [codersdk.WorkspaceBuildParameter](#codersdkworkspacebuildparameter) | false    |              | Rich parameter values allows for additional parameters to be provided during the initial provision.     |
+| `rich_parameter_values`      | array of [nicloudsdk.WorkspaceBuildParameter](#nicloudsdkworkspacebuildparameter) | false    |              | Rich parameter values allows for additional parameters to be provided during the initial provision.     |
 | `template_id`                | string                                                                        | false    |              | Template ID specifies which template should be used for creating the workspace.                         |
 | `template_version_id`        | string                                                                        | false    |              | Template version ID can be used to specify a specific version of a template for creating the workspace. |
 | `template_version_preset_id` | string                                                                        | false    |              |                                                                                                         |
 | `ttl_ms`                     | integer                                                                       | false    |              |                                                                                                         |
 
-## codersdk.CryptoKey
+## nicloudsdk.CryptoKey
 
 ```json
 {
@@ -5332,12 +5332,12 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | Name         | Type                                                   | Required | Restrictions | Description |
 |--------------|--------------------------------------------------------|----------|--------------|-------------|
 | `deletes_at` | string                                                 | false    |              |             |
-| `feature`    | [codersdk.CryptoKeyFeature](#codersdkcryptokeyfeature) | false    |              |             |
+| `feature`    | [nicloudsdk.CryptoKeyFeature](#nicloudsdkcryptokeyfeature) | false    |              |             |
 | `secret`     | string                                                 | false    |              |             |
 | `sequence`   | integer                                                | false    |              |             |
 | `starts_at`  | string                                                 | false    |              |             |
 
-## codersdk.CryptoKeyFeature
+## nicloudsdk.CryptoKeyFeature
 
 ```json
 "workspace_apps_api_key"
@@ -5351,7 +5351,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |------------------------------------------------------------------------------------|
 | `oidc_convert`, `tailnet_resume`, `workspace_apps_api_key`, `workspace_apps_token` |
 
-## codersdk.CustomNotificationContent
+## nicloudsdk.CustomNotificationContent
 
 ```json
 {
@@ -5367,7 +5367,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `message` | string | false    |              |             |
 | `title`   | string | false    |              |             |
 
-## codersdk.CustomNotificationRequest
+## nicloudsdk.CustomNotificationRequest
 
 ```json
 {
@@ -5382,9 +5382,9 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name      | Type                                                                     | Required | Restrictions | Description |
 |-----------|--------------------------------------------------------------------------|----------|--------------|-------------|
-| `content` | [codersdk.CustomNotificationContent](#codersdkcustomnotificationcontent) | false    |              |             |
+| `content` | [nicloudsdk.CustomNotificationContent](#nicloudsdkcustomnotificationcontent) | false    |              |             |
 
-## codersdk.CustomRoleRequest
+## nicloudsdk.CustomRoleRequest
 
 ```json
 {
@@ -5427,12 +5427,12 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |-----------------------------------|-----------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------|
 | `display_name`                    | string                                              | false    |              |                                                                                       |
 | `name`                            | string                                              | false    |              |                                                                                       |
-| `organization_member_permissions` | array of [codersdk.Permission](#codersdkpermission) | false    |              | Organization member permissions are specific to the organization the role belongs to. |
-| `organization_permissions`        | array of [codersdk.Permission](#codersdkpermission) | false    |              | Organization permissions are specific to the organization the role belongs to.        |
-| `site_permissions`                | array of [codersdk.Permission](#codersdkpermission) | false    |              |                                                                                       |
-| `user_permissions`                | array of [codersdk.Permission](#codersdkpermission) | false    |              |                                                                                       |
+| `organization_member_permissions` | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              | Organization member permissions are specific to the organization the role belongs to. |
+| `organization_permissions`        | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              | Organization permissions are specific to the organization the role belongs to.        |
+| `site_permissions`                | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              |                                                                                       |
+| `user_permissions`                | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              |                                                                                       |
 
-## codersdk.DAUEntry
+## nicloudsdk.DAUEntry
 
 ```json
 {
@@ -5448,7 +5448,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `amount` | integer | false    |              |                                                                                          |
 | `date`   | string  | false    |              | Date is a string formatted as 2024-01-31. Timezone and time information is not included. |
 
-## codersdk.DAUsResponse
+## nicloudsdk.DAUsResponse
 
 ```json
 {
@@ -5466,10 +5466,10 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name             | Type                                            | Required | Restrictions | Description |
 |------------------|-------------------------------------------------|----------|--------------|-------------|
-| `entries`        | array of [codersdk.DAUEntry](#codersdkdauentry) | false    |              |             |
+| `entries`        | array of [nicloudsdk.DAUEntry](#nicloudsdkdauentry) | false    |              |             |
 | `tz_hour_offset` | integer                                         | false    |              |             |
 
-## codersdk.DERP
+## nicloudsdk.DERP
 
 ```json
 {
@@ -5508,10 +5508,10 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name     | Type                                                   | Required | Restrictions | Description |
 |----------|--------------------------------------------------------|----------|--------------|-------------|
-| `config` | [codersdk.DERPConfig](#codersdkderpconfig)             | false    |              |             |
-| `server` | [codersdk.DERPServerConfig](#codersdkderpserverconfig) | false    |              |             |
+| `config` | [nicloudsdk.DERPConfig](#nicloudsdkderpconfig)             | false    |              |             |
+| `server` | [nicloudsdk.DERPServerConfig](#nicloudsdkderpserverconfig) | false    |              |             |
 
-## codersdk.DERPConfig
+## nicloudsdk.DERPConfig
 
 ```json
 {
@@ -5531,7 +5531,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `path`             | string  | false    |              |             |
 | `url`              | string  | false    |              |             |
 
-## codersdk.DERPRegion
+## nicloudsdk.DERPRegion
 
 ```json
 {
@@ -5547,7 +5547,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `latency_ms` | number  | false    |              |             |
 | `preferred`  | boolean | false    |              |             |
 
-## codersdk.DERPServerConfig
+## nicloudsdk.DERPServerConfig
 
 ```json
 {
@@ -5585,7 +5585,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `relay_url`      | [serpent.URL](#serpenturl) | false    |              |             |
 | `stun_addresses` | array of string            | false    |              |             |
 
-## codersdk.DangerousConfig
+## nicloudsdk.DangerousConfig
 
 ```json
 {
@@ -5603,7 +5603,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `allow_path_app_sharing`           | boolean | false    |              |             |
 | `allow_path_app_site_owner_access` | boolean | false    |              |             |
 
-## codersdk.DeleteExternalAuthByIDResponse
+## nicloudsdk.DeleteExternalAuthByIDResponse
 
 ```json
 {
@@ -5619,7 +5619,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `token_revocation_error` | string  | false    |              |                                                                                |
 | `token_revoked`          | boolean | false    |              | Token revoked set to true if token revocation was attempted and was successful |
 
-## codersdk.DeleteWebpushSubscription
+## nicloudsdk.DeleteWebpushSubscription
 
 ```json
 {
@@ -5633,7 +5633,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |------------|--------|----------|--------------|-------------|
 | `endpoint` | string | false    |              |             |
 
-## codersdk.DeleteWorkspaceAgentPortShareRequest
+## nicloudsdk.DeleteWorkspaceAgentPortShareRequest
 
 ```json
 {
@@ -5649,7 +5649,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `agent_name` | string  | false    |              |             |
 | `port`       | integer | false    |              |             |
 
-## codersdk.DeploymentConfig
+## nicloudsdk.DeploymentConfig
 
 ```json
 {
@@ -6208,10 +6208,10 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name      | Type                                                   | Required | Restrictions | Description |
 |-----------|--------------------------------------------------------|----------|--------------|-------------|
-| `config`  | [codersdk.DeploymentValues](#codersdkdeploymentvalues) | false    |              |             |
+| `config`  | [nicloudsdk.DeploymentValues](#nicloudsdkdeploymentvalues) | false    |              |             |
 | `options` | array of [serpent.Option](#serpentoption)              | false    |              |             |
 
-## codersdk.DeploymentStats
+## nicloudsdk.DeploymentStats
 
 ```json
 {
@@ -6247,10 +6247,10 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `aggregated_from` | string                                                                       | false    |              | Aggregated from is the time in which stats are aggregated from. This might be back in time a specific duration or interval. |
 | `collected_at`    | string                                                                       | false    |              | Collected at is the time in which stats are collected at.                                                                   |
 | `next_update_at`  | string                                                                       | false    |              | Next update at is the time when the next batch of stats will be updated.                                                    |
-| `session_count`   | [codersdk.SessionCountDeploymentStats](#codersdksessioncountdeploymentstats) | false    |              |                                                                                                                             |
-| `workspaces`      | [codersdk.WorkspaceDeploymentStats](#codersdkworkspacedeploymentstats)       | false    |              |                                                                                                                             |
+| `session_count`   | [nicloudsdk.SessionCountDeploymentStats](#nicloudsdksessioncountdeploymentstats) | false    |              |                                                                                                                             |
+| `workspaces`      | [nicloudsdk.WorkspaceDeploymentStats](#nicloudsdkworkspacedeploymentstats)       | false    |              |                                                                                                                             |
 
-## codersdk.DeploymentValues
+## nicloudsdk.DeploymentValues
 
 ```json
 {
@@ -6779,16 +6779,16 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `address`                                      | [serpent.HostPort](#serpenthostport)                                                                 | false    |              | Deprecated: Use HTTPAddress or TLS.Address instead.                |
 | `agent_fallback_troubleshooting_url`           | [serpent.URL](#serpenturl)                                                                           | false    |              |                                                                    |
 | `agent_stat_refresh_interval`                  | integer                                                                                              | false    |              |                                                                    |
-| `ai`                                           | [codersdk.AIConfig](#codersdkaiconfig)                                                               | false    |              |                                                                    |
+| `ai`                                           | [nicloudsdk.AIConfig](#nicloudsdkaiconfig)                                                               | false    |              |                                                                    |
 | `allow_workspace_renames`                      | boolean                                                                                              | false    |              |                                                                    |
 | `autobuild_poll_interval`                      | integer                                                                                              | false    |              |                                                                    |
 | `browser_only`                                 | boolean                                                                                              | false    |              |                                                                    |
 | `cache_directory`                              | string                                                                                               | false    |              |                                                                    |
 | `cli_upgrade_message`                          | string                                                                                               | false    |              |                                                                    |
 | `config`                                       | string                                                                                               | false    |              |                                                                    |
-| `config_ssh`                                   | [codersdk.SSHConfig](#codersdksshconfig)                                                             | false    |              |                                                                    |
-| `dangerous`                                    | [codersdk.DangerousConfig](#codersdkdangerousconfig)                                                 | false    |              |                                                                    |
-| `derp`                                         | [codersdk.DERP](#codersdkderp)                                                                       | false    |              |                                                                    |
+| `config_ssh`                                   | [nicloudsdk.SSHConfig](#nicloudsdksshconfig)                                                             | false    |              |                                                                    |
+| `dangerous`                                    | [nicloudsdk.DangerousConfig](#nicloudsdkdangerousconfig)                                                 | false    |              |                                                                    |
+| `derp`                                         | [nicloudsdk.DERP](#nicloudsdkderp)                                                                       | false    |              |                                                                    |
 | `disable_chat_sharing`                         | boolean                                                                                              | false    |              |                                                                    |
 | `disable_owner_workspace_exec`                 | boolean                                                                                              | false    |              |                                                                    |
 | `disable_password_auth`                        | boolean                                                                                              | false    |              |                                                                    |
@@ -6799,57 +6799,57 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `enable_terraform_debug_mode`                  | boolean                                                                                              | false    |              |                                                                    |
 | `ephemeral_deployment`                         | boolean                                                                                              | false    |              |                                                                    |
 | `experiments`                                  | array of string                                                                                      | false    |              |                                                                    |
-| `external_auth`                                | [serpent.Struct-array_codersdk_ExternalAuthConfig](#serpentstruct-array_codersdk_externalauthconfig) | false    |              |                                                                    |
+| `external_auth`                                | [serpent.Struct-array_nicloudsdk_ExternalAuthConfig](#serpentstruct-array_nicloudsdk_externalauthconfig) | false    |              |                                                                    |
 | `external_auth_github_default_provider_enable` | boolean                                                                                              | false    |              |                                                                    |
 | `external_token_encryption_keys`               | array of string                                                                                      | false    |              |                                                                    |
-| `healthcheck`                                  | [codersdk.HealthcheckConfig](#codersdkhealthcheckconfig)                                             | false    |              |                                                                    |
+| `healthcheck`                                  | [nicloudsdk.HealthcheckConfig](#nicloudsdkhealthcheckconfig)                                             | false    |              |                                                                    |
 | `hide_ai_tasks`                                | boolean                                                                                              | false    |              |                                                                    |
 | `http_address`                                 | string                                                                                               | false    |              | Http address is a string because it may be set to zero to disable. |
-| `http_cookies`                                 | [codersdk.HTTPCookieConfig](#codersdkhttpcookieconfig)                                               | false    |              |                                                                    |
+| `http_cookies`                                 | [nicloudsdk.HTTPCookieConfig](#nicloudsdkhttpcookieconfig)                                               | false    |              |                                                                    |
 | `job_hang_detector_interval`                   | integer                                                                                              | false    |              |                                                                    |
-| `logging`                                      | [codersdk.LoggingConfig](#codersdkloggingconfig)                                                     | false    |              |                                                                    |
+| `logging`                                      | [nicloudsdk.LoggingConfig](#nicloudsdkloggingconfig)                                                     | false    |              |                                                                    |
 | `metrics_cache_refresh_interval`               | integer                                                                                              | false    |              |                                                                    |
-| `notifications`                                | [codersdk.NotificationsConfig](#codersdknotificationsconfig)                                         | false    |              |                                                                    |
-| `oauth2`                                       | [codersdk.OAuth2Config](#codersdkoauth2config)                                                       | false    |              |                                                                    |
-| `oidc`                                         | [codersdk.OIDCConfig](#codersdkoidcconfig)                                                           | false    |              |                                                                    |
+| `notifications`                                | [nicloudsdk.NotificationsConfig](#nicloudsdknotificationsconfig)                                         | false    |              |                                                                    |
+| `oauth2`                                       | [nicloudsdk.OAuth2Config](#nicloudsdkoauth2config)                                                       | false    |              |                                                                    |
+| `oidc`                                         | [nicloudsdk.OIDCConfig](#nicloudsdkoidcconfig)                                                           | false    |              |                                                                    |
 | `pg_auth`                                      | string                                                                                               | false    |              |                                                                    |
 | `pg_conn_max_idle`                             | string                                                                                               | false    |              |                                                                    |
 | `pg_conn_max_open`                             | integer                                                                                              | false    |              |                                                                    |
 | `pg_connection_url`                            | string                                                                                               | false    |              |                                                                    |
-| `pprof`                                        | [codersdk.PprofConfig](#codersdkpprofconfig)                                                         | false    |              |                                                                    |
-| `prometheus`                                   | [codersdk.PrometheusConfig](#codersdkprometheusconfig)                                               | false    |              |                                                                    |
-| `provisioner`                                  | [codersdk.ProvisionerConfig](#codersdkprovisionerconfig)                                             | false    |              |                                                                    |
+| `pprof`                                        | [nicloudsdk.PprofConfig](#nicloudsdkpprofconfig)                                                         | false    |              |                                                                    |
+| `prometheus`                                   | [nicloudsdk.PrometheusConfig](#nicloudsdkprometheusconfig)                                               | false    |              |                                                                    |
+| `provisioner`                                  | [nicloudsdk.ProvisionerConfig](#nicloudsdkprovisionerconfig)                                             | false    |              |                                                                    |
 | `proxy_health_status_interval`                 | integer                                                                                              | false    |              |                                                                    |
 | `proxy_trusted_headers`                        | array of string                                                                                      | false    |              |                                                                    |
 | `proxy_trusted_origins`                        | array of string                                                                                      | false    |              |                                                                    |
-| `rate_limit`                                   | [codersdk.RateLimitConfig](#codersdkratelimitconfig)                                                 | false    |              |                                                                    |
+| `rate_limit`                                   | [nicloudsdk.RateLimitConfig](#nicloudsdkratelimitconfig)                                                 | false    |              |                                                                    |
 | `redirect_to_access_url`                       | boolean                                                                                              | false    |              |                                                                    |
-| `retention`                                    | [codersdk.RetentionConfig](#codersdkretentionconfig)                                                 | false    |              |                                                                    |
+| `retention`                                    | [nicloudsdk.RetentionConfig](#nicloudsdkretentionconfig)                                                 | false    |              |                                                                    |
 | `scim_api_key`                                 | string                                                                                               | false    |              |                                                                    |
 | `scim_use_legacy`                              | boolean                                                                                              | false    |              |                                                                    |
-| `session_lifetime`                             | [codersdk.SessionLifetime](#codersdksessionlifetime)                                                 | false    |              |                                                                    |
+| `session_lifetime`                             | [nicloudsdk.SessionLifetime](#nicloudsdksessionlifetime)                                                 | false    |              |                                                                    |
 | `ssh_keygen_algorithm`                         | string                                                                                               | false    |              |                                                                    |
-| `stats_collection`                             | [codersdk.StatsCollectionConfig](#codersdkstatscollectionconfig)                                     | false    |              |                                                                    |
+| `stats_collection`                             | [nicloudsdk.StatsCollectionConfig](#nicloudsdkstatscollectionconfig)                                     | false    |              |                                                                    |
 | `strict_transport_security`                    | integer                                                                                              | false    |              |                                                                    |
 | `strict_transport_security_options`            | array of string                                                                                      | false    |              |                                                                    |
-| `support`                                      | [codersdk.SupportConfig](#codersdksupportconfig)                                                     | false    |              |                                                                    |
-| `swagger`                                      | [codersdk.SwaggerConfig](#codersdkswaggerconfig)                                                     | false    |              |                                                                    |
-| `telemetry`                                    | [codersdk.TelemetryConfig](#codersdktelemetryconfig)                                                 | false    |              |                                                                    |
-| `template_builder`                             | [codersdk.TemplateBuilderConfig](#codersdktemplatebuilderconfig)                                     | false    |              |                                                                    |
+| `support`                                      | [nicloudsdk.SupportConfig](#nicloudsdksupportconfig)                                                     | false    |              |                                                                    |
+| `swagger`                                      | [nicloudsdk.SwaggerConfig](#nicloudsdkswaggerconfig)                                                     | false    |              |                                                                    |
+| `telemetry`                                    | [nicloudsdk.TelemetryConfig](#nicloudsdktelemetryconfig)                                                 | false    |              |                                                                    |
+| `template_builder`                             | [nicloudsdk.TemplateBuilderConfig](#nicloudsdktemplatebuilderconfig)                                     | false    |              |                                                                    |
 | `terms_of_service_url`                         | string                                                                                               | false    |              |                                                                    |
-| `tls`                                          | [codersdk.TLSConfig](#codersdktlsconfig)                                                             | false    |              |                                                                    |
-| `trace`                                        | [codersdk.TraceConfig](#codersdktraceconfig)                                                         | false    |              |                                                                    |
+| `tls`                                          | [nicloudsdk.TLSConfig](#nicloudsdktlsconfig)                                                             | false    |              |                                                                    |
+| `trace`                                        | [nicloudsdk.TraceConfig](#nicloudsdktraceconfig)                                                         | false    |              |                                                                    |
 | `update_check`                                 | boolean                                                                                              | false    |              |                                                                    |
-| `user_quiet_hours_schedule`                    | [codersdk.UserQuietHoursScheduleConfig](#codersdkuserquiethoursscheduleconfig)                       | false    |              |                                                                    |
+| `user_quiet_hours_schedule`                    | [nicloudsdk.UserQuietHoursScheduleConfig](#nicloudsdkuserquiethoursscheduleconfig)                       | false    |              |                                                                    |
 | `verbose`                                      | boolean                                                                                              | false    |              |                                                                    |
 | `web_terminal_renderer`                        | string                                                                                               | false    |              |                                                                    |
 | `wgtunnel_host`                                | string                                                                                               | false    |              |                                                                    |
 | `wildcard_access_url`                          | string                                                                                               | false    |              |                                                                    |
 | `workspace_hostname_suffix`                    | string                                                                                               | false    |              |                                                                    |
-| `workspace_prebuilds`                          | [codersdk.PrebuildsConfig](#codersdkprebuildsconfig)                                                 | false    |              |                                                                    |
+| `workspace_prebuilds`                          | [nicloudsdk.PrebuildsConfig](#nicloudsdkprebuildsconfig)                                                 | false    |              |                                                                    |
 | `write_config`                                 | boolean                                                                                              | false    |              |                                                                    |
 
-## codersdk.DiagnosticExtra
+## nicloudsdk.DiagnosticExtra
 
 ```json
 {
@@ -6863,7 +6863,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |--------|--------|----------|--------------|-------------|
 | `code` | string | false    |              |             |
 
-## codersdk.DiagnosticSeverityString
+## nicloudsdk.DiagnosticSeverityString
 
 ```json
 "error"
@@ -6877,7 +6877,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |--------------------|
 | `error`, `warning` |
 
-## codersdk.DisplayApp
+## nicloudsdk.DisplayApp
 
 ```json
 "vscode"
@@ -6891,7 +6891,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |-------------------------------------------------------------------------------------|
 | `port_forwarding_helper`, `ssh_helper`, `vscode`, `vscode_insiders`, `web_terminal` |
 
-## codersdk.DynamicParametersRequest
+## nicloudsdk.DynamicParametersRequest
 
 ```json
 {
@@ -6911,9 +6911,9 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `id`               | integer | false    |              | ID identifies the request. The response contains the same ID so that the client can match it to the request. |
 | `inputs`           | object  | false    |              |                                                                                                              |
 | » `[any property]` | string  | false    |              |                                                                                                              |
-| `owner_id`         | string  | false    |              | Owner ID if uuid.Nil, it defaults to `codersdk.Me`                                                           |
+| `owner_id`         | string  | false    |              | Owner ID if uuid.Nil, it defaults to `nicloudsdk.Me`                                                           |
 
-## codersdk.DynamicParametersResponse
+## nicloudsdk.DynamicParametersResponse
 
 ```json
 {
@@ -6993,11 +6993,11 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name          | Type                                                                | Required | Restrictions | Description |
 |---------------|---------------------------------------------------------------------|----------|--------------|-------------|
-| `diagnostics` | array of [codersdk.FriendlyDiagnostic](#codersdkfriendlydiagnostic) | false    |              |             |
+| `diagnostics` | array of [nicloudsdk.FriendlyDiagnostic](#nicloudsdkfriendlydiagnostic) | false    |              |             |
 | `id`          | integer                                                             | false    |              |             |
-| `parameters`  | array of [codersdk.PreviewParameter](#codersdkpreviewparameter)     | false    |              |             |
+| `parameters`  | array of [nicloudsdk.PreviewParameter](#nicloudsdkpreviewparameter)     | false    |              |             |
 
-## codersdk.DynamicTool
+## nicloudsdk.DynamicTool
 
 ```json
 {
@@ -7017,7 +7017,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `input_schema` | array of integer | false    |              | Input schema JSON key "input_schema" uses snake_case for SDK consistency, deviating from the camelCase "inputSchema" convention used by MCP. |
 | `name`         | string           | false    |              |                                                                                                                                              |
 
-## codersdk.EditChatMessageRequest
+## nicloudsdk.EditChatMessageRequest
 
 ```json
 {
@@ -7040,10 +7040,10 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name              | Type                                                      | Required | Restrictions | Description                                                                                                                                                                  |
 |-------------------|-----------------------------------------------------------|----------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `content`         | array of [codersdk.ChatInputPart](#codersdkchatinputpart) | false    |              |                                                                                                                                                                              |
+| `content`         | array of [nicloudsdk.ChatInputPart](#nicloudsdkchatinputpart) | false    |              |                                                                                                                                                                              |
 | `model_config_id` | string                                                    | false    |              | Model config ID when set, overrides the model used for the replacement user message and the assistant turn that follows. When nil the original message's model is preserved. |
 
-## codersdk.EditChatMessageResponse
+## nicloudsdk.EditChatMessageResponse
 
 ```json
 {
@@ -7138,10 +7138,10 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name       | Type                                         | Required | Restrictions | Description |
 |------------|----------------------------------------------|----------|--------------|-------------|
-| `message`  | [codersdk.ChatMessage](#codersdkchatmessage) | false    |              |             |
+| `message`  | [nicloudsdk.ChatMessage](#nicloudsdkchatmessage) | false    |              |             |
 | `warnings` | array of string                              | false    |              |             |
 
-## codersdk.Entitlement
+## nicloudsdk.Entitlement
 
 ```json
 "entitled"
@@ -7155,7 +7155,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |--------------------------------------------|
 | `entitled`, `grace_period`, `not_entitled` |
 
-## codersdk.Entitlements
+## nicloudsdk.Entitlements
 
 ```json
 {
@@ -7202,14 +7202,14 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |---------------------|--------------------------------------|----------|--------------|-------------|
 | `errors`            | array of string                      | false    |              |             |
 | `features`          | object                               | false    |              |             |
-| » `[any property]`  | [codersdk.Feature](#codersdkfeature) | false    |              |             |
+| » `[any property]`  | [nicloudsdk.Feature](#nicloudsdkfeature) | false    |              |             |
 | `has_license`       | boolean                              | false    |              |             |
 | `refreshed_at`      | string                               | false    |              |             |
 | `require_telemetry` | boolean                              | false    |              |             |
 | `trial`             | boolean                              | false    |              |             |
 | `warnings`          | array of string                      | false    |              |             |
 
-## codersdk.Experiment
+## nicloudsdk.Experiment
 
 ```json
 "example"
@@ -7223,7 +7223,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 |-------------------------------------------------------------------------------------------------------------------------------|
 | `auto-fill-parameters`, `example`, `mcp-server-http`, `notifications`, `oauth2`, `workspace-build-updates`, `workspace-usage` |
 
-## codersdk.ExternalAPIKeyScopes
+## nicloudsdk.ExternalAPIKeyScopes
 
 ```json
 {
@@ -7237,9 +7237,9 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name       | Type                                                  | Required | Restrictions | Description |
 |------------|-------------------------------------------------------|----------|--------------|-------------|
-| `external` | array of [codersdk.APIKeyScope](#codersdkapikeyscope) | false    |              |             |
+| `external` | array of [nicloudsdk.APIKeyScope](#nicloudsdkapikeyscope) | false    |              |             |
 
-## codersdk.ExternalAgentCredentials
+## nicloudsdk.ExternalAgentCredentials
 
 ```json
 {
@@ -7255,7 +7255,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `agent_token` | string | false    |              |             |
 | `command`     | string | false    |              |             |
 
-## codersdk.ExternalAuth
+## nicloudsdk.ExternalAuth
 
 ```json
 {
@@ -7297,11 +7297,11 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `authenticated`       | boolean                                                                               | false    |              |                                                                         |
 | `device`              | boolean                                                                               | false    |              |                                                                         |
 | `display_name`        | string                                                                                | false    |              |                                                                         |
-| `installations`       | array of [codersdk.ExternalAuthAppInstallation](#codersdkexternalauthappinstallation) | false    |              | Installations are the installations that the user has access to.        |
+| `installations`       | array of [nicloudsdk.ExternalAuthAppInstallation](#nicloudsdkexternalauthappinstallation) | false    |              | Installations are the installations that the user has access to.        |
 | `supports_revocation` | boolean                                                                               | false    |              |                                                                         |
-| `user`                | [codersdk.ExternalAuthUser](#codersdkexternalauthuser)                                | false    |              | User is the user that authenticated with the provider.                  |
+| `user`                | [nicloudsdk.ExternalAuthUser](#nicloudsdkexternalauthuser)                                | false    |              | User is the user that authenticated with the provider.                  |
 
-## codersdk.ExternalAuthAppInstallation
+## nicloudsdk.ExternalAuthAppInstallation
 
 ```json
 {
@@ -7321,11 +7321,11 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 
 | Name            | Type                                                   | Required | Restrictions | Description |
 |-----------------|--------------------------------------------------------|----------|--------------|-------------|
-| `account`       | [codersdk.ExternalAuthUser](#codersdkexternalauthuser) | false    |              |             |
+| `account`       | [nicloudsdk.ExternalAuthUser](#nicloudsdkexternalauthuser) | false    |              |             |
 | `configure_url` | string                                                 | false    |              |             |
 | `id`            | integer                                                | false    |              |             |
 
-## codersdk.ExternalAuthConfig
+## nicloudsdk.ExternalAuthConfig
 
 ```json
 {
@@ -7366,7 +7366,7 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `app_installations_url`            | string          | false    |              |                                                                                                                                                             |
 | `auth_url`                         | string          | false    |              |                                                                                                                                                             |
 | `client_id`                        | string          | false    |              |                                                                                                                                                             |
-| `code_challenge_methods_supported` | array of string | false    |              | Code challenge methods supported lists the PKCE code challenge methods The only one supported by Coder is "S256".                                           |
+| `code_challenge_methods_supported` | array of string | false    |              | Code challenge methods supported lists the PKCE code challenge methods The only one supported by Neural Inverse Cloud is "S256".                                           |
 | `device_code_url`                  | string          | false    |              |                                                                                                                                                             |
 | `device_flow`                      | boolean         | false    |              |                                                                                                                                                             |
 | `display_icon`                     | string          | false    |              | Display icon is a URL to an icon to display in the UI.                                                                                                      |
@@ -7376,15 +7376,15 @@ CreateWorkspaceRequest provides options for creating a new workspace. Only one o
 | `mcp_tool_deny_regex`              | string          | false    |              | Deprecated: Injected MCP in AI Bridge is deprecated and will be removed in a future release.                                                                |
 | `mcp_url`                          | string          | false    |              | Deprecated: Injected MCP in AI Bridge is deprecated and will be removed in a future release.                                                                |
 | `no_refresh`                       | boolean         | false    |              |                                                                                                                                                             |
-|`regex`|string|false||Regex allows API requesters to match an auth config by a string (e.g. coder.com) instead of by it's type.
-Git clone makes use of this by parsing the URL from: 'Username for "https://github.com":' And sending it to the Coder server to match against the Regex.|
+|`regex`|string|false||Regex allows API requesters to match an auth config by a string (e.g. cloud.neuralinverse.com) instead of by it's type.
+Git clone makes use of this by parsing the URL from: 'Username for "https://github.com":' And sending it to the Neural Inverse Cloud server to match against the Regex.|
 |`revoke_url`|string|false|||
 |`scopes`|array of string|false|||
 |`token_url`|string|false|||
 |`type`|string|false||Type is the type of external auth config.|
 |`validate_url`|string|false|||
 
-## codersdk.ExternalAuthDevice
+## nicloudsdk.ExternalAuthDevice
 
 ```json
 {
@@ -7406,7 +7406,7 @@ Git clone makes use of this by parsing the URL from: 'Username for "https://gith
 | `user_code`        | string  | false    |              |             |
 | `verification_uri` | string  | false    |              |             |
 
-## codersdk.ExternalAuthLink
+## nicloudsdk.ExternalAuthLink
 
 ```json
 {
@@ -7432,7 +7432,7 @@ Git clone makes use of this by parsing the URL from: 'Username for "https://gith
 | `updated_at`        | string  | false    |              |             |
 | `validate_error`    | string  | false    |              |             |
 
-## codersdk.ExternalAuthUser
+## nicloudsdk.ExternalAuthUser
 
 ```json
 {
@@ -7454,7 +7454,7 @@ Git clone makes use of this by parsing the URL from: 'Username for "https://gith
 | `name`        | string  | false    |              |             |
 | `profile_url` | string  | false    |              |             |
 
-## codersdk.Feature
+## nicloudsdk.Feature
 
 ```json
 {
@@ -7476,13 +7476,13 @@ Git clone makes use of this by parsing the URL from: 'Username for "https://gith
 |---------------|----------------------------------------------|----------|--------------|-------------|
 | `actual`      | integer                                      | false    |              |             |
 | `enabled`     | boolean                                      | false    |              |             |
-| `entitlement` | [codersdk.Entitlement](#codersdkentitlement) | false    |              |             |
+| `entitlement` | [nicloudsdk.Entitlement](#nicloudsdkentitlement) | false    |              |             |
 | `limit`       | integer                                      | false    |              |             |
-|`usage_period`|[codersdk.UsagePeriod](#codersdkusageperiod)|false||Usage period denotes that the usage is a counter that accumulates over this period (and most likely resets with the issuance of the next license).
-These dates are determined from the license that this entitlement comes from, see enterprise/coderd/license/license.go.
+|`usage_period`|[nicloudsdk.UsagePeriod](#nicloudsdkusageperiod)|false||Usage period denotes that the usage is a counter that accumulates over this period (and most likely resets with the issuance of the next license).
+These dates are determined from the license that this entitlement comes from, see enterprise/nicloud/license/license.go.
 Only certain features set these fields: - FeatureManagedAgentLimit|
 
-## codersdk.FriendlyDiagnostic
+## nicloudsdk.FriendlyDiagnostic
 
 ```json
 {
@@ -7500,11 +7500,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name       | Type                                                                   | Required | Restrictions | Description |
 |------------|------------------------------------------------------------------------|----------|--------------|-------------|
 | `detail`   | string                                                                 | false    |              |             |
-| `extra`    | [codersdk.DiagnosticExtra](#codersdkdiagnosticextra)                   | false    |              |             |
-| `severity` | [codersdk.DiagnosticSeverityString](#codersdkdiagnosticseveritystring) | false    |              |             |
+| `extra`    | [nicloudsdk.DiagnosticExtra](#nicloudsdkdiagnosticextra)                   | false    |              |             |
+| `severity` | [nicloudsdk.DiagnosticSeverityString](#nicloudsdkdiagnosticseveritystring) | false    |              |             |
 | `summary`  | string                                                                 | false    |              |             |
 
-## codersdk.GenerateAPIKeyResponse
+## nicloudsdk.GenerateAPIKeyResponse
 
 ```json
 {
@@ -7518,7 +7518,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------|--------|----------|--------------|-------------|
 | `key` | string | false    |              |             |
 
-## codersdk.GetInboxNotificationResponse
+## nicloudsdk.GetInboxNotificationResponse
 
 ```json
 {
@@ -7549,10 +7549,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name           | Type                                                     | Required | Restrictions | Description |
 |----------------|----------------------------------------------------------|----------|--------------|-------------|
-| `notification` | [codersdk.InboxNotification](#codersdkinboxnotification) | false    |              |             |
+| `notification` | [nicloudsdk.InboxNotification](#nicloudsdkinboxnotification) | false    |              |             |
 | `unread_count` | integer                                                  | false    |              |             |
 
-## codersdk.GetUserStatusCountsResponse
+## nicloudsdk.GetUserStatusCountsResponse
 
 ```json
 {
@@ -7578,9 +7578,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name               | Type                                                                      | Required | Restrictions | Description |
 |--------------------|---------------------------------------------------------------------------|----------|--------------|-------------|
 | `status_counts`    | object                                                                    | false    |              |             |
-| » `[any property]` | array of [codersdk.UserStatusChangeCount](#codersdkuserstatuschangecount) | false    |              |             |
+| » `[any property]` | array of [nicloudsdk.UserStatusChangeCount](#nicloudsdkuserstatuschangecount) | false    |              |             |
 
-## codersdk.GetUsersResponse
+## nicloudsdk.GetUsersResponse
 
 ```json
 {
@@ -7620,9 +7620,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name    | Type                                    | Required | Restrictions | Description |
 |---------|-----------------------------------------|----------|--------------|-------------|
 | `count` | integer                                 | false    |              |             |
-| `users` | array of [codersdk.User](#codersdkuser) | false    |              |             |
+| `users` | array of [nicloudsdk.User](#nicloudsdkuser) | false    |              |             |
 
-## codersdk.GitSSHKey
+## nicloudsdk.GitSSHKey
 
 ```json
 {
@@ -7642,7 +7642,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `updated_at` | string | false    |              |                                                                                                                                                                                                   |
 | `user_id`    | string | false    |              |                                                                                                                                                                                                   |
 
-## codersdk.GithubAuthMethod
+## nicloudsdk.GithubAuthMethod
 
 ```json
 {
@@ -7658,7 +7658,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `default_provider_configured` | boolean | false    |              |             |
 | `enabled`                     | boolean | false    |              |             |
 
-## codersdk.Group
+## nicloudsdk.Group
 
 ```json
 {
@@ -7698,16 +7698,16 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `avatar_url`                | string                                                | false    |              |                                                                                                                                                                       |
 | `display_name`              | string                                                | false    |              |                                                                                                                                                                       |
 | `id`                        | string                                                | false    |              |                                                                                                                                                                       |
-| `members`                   | array of [codersdk.ReducedUser](#codersdkreduceduser) | false    |              |                                                                                                                                                                       |
+| `members`                   | array of [nicloudsdk.ReducedUser](#nicloudsdkreduceduser) | false    |              |                                                                                                                                                                       |
 | `name`                      | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_display_name` | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_id`           | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_name`         | string                                                | false    |              |                                                                                                                                                                       |
 | `quota_allowance`           | integer                                               | false    |              |                                                                                                                                                                       |
-| `source`                    | [codersdk.GroupSource](#codersdkgroupsource)          | false    |              |                                                                                                                                                                       |
+| `source`                    | [nicloudsdk.GroupSource](#nicloudsdkgroupsource)          | false    |              |                                                                                                                                                                       |
 | `total_member_count`        | integer                                               | false    |              | How many members are in this group. Shows the total count, even if the user is not authorized to read group member details. May be greater than `len(Group.Members)`. |
 
-## codersdk.GroupAIBudget
+## nicloudsdk.GroupAIBudget
 
 ```json
 {
@@ -7727,7 +7727,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `spend_limit_micros` | integer | false    |              |             |
 | `updated_at`         | string  | false    |              |             |
 
-## codersdk.GroupMembersResponse
+## nicloudsdk.GroupMembersResponse
 
 ```json
 {
@@ -7756,9 +7756,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name    | Type                                                  | Required | Restrictions | Description |
 |---------|-------------------------------------------------------|----------|--------------|-------------|
 | `count` | integer                                               | false    |              |             |
-| `users` | array of [codersdk.ReducedUser](#codersdkreduceduser) | false    |              |             |
+| `users` | array of [nicloudsdk.ReducedUser](#nicloudsdkreduceduser) | false    |              |             |
 
-## codersdk.GroupSource
+## nicloudsdk.GroupSource
 
 ```json
 "user"
@@ -7772,7 +7772,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------------|
 | `oidc`, `user` |
 
-## codersdk.GroupSyncSettings
+## nicloudsdk.GroupSyncSettings
 
 ```json
 {
@@ -7798,15 +7798,15 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name                         | Type                           | Required | Restrictions | Description                                                                                                                                                                                                                                                                            |
 |------------------------------|--------------------------------|----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `auto_create_missing_groups` | boolean                        | false    |              | Auto create missing groups controls whether groups returned by the OIDC provider are automatically created in Coder if they are missing.                                                                                                                                               |
+| `auto_create_missing_groups` | boolean                        | false    |              | Auto create missing groups controls whether groups returned by the OIDC provider are automatically created in Neural Inverse Cloud if they are missing.                                                                                                                                               |
 | `field`                      | string                         | false    |              | Field is the name of the claim field that specifies what groups a user should be in. If empty, no groups will be synced.                                                                                                                                                               |
-| `legacy_group_name_mapping`  | object                         | false    |              | Legacy group name mapping is deprecated. It remaps an IDP group name to a Coder group name. Since configuration is now done at runtime, group IDs are used to account for group renames. For legacy configurations, this config option has to remain. Deprecated: Use Mapping instead. |
+| `legacy_group_name_mapping`  | object                         | false    |              | Legacy group name mapping is deprecated. It remaps an IDP group name to a Neural Inverse Cloud group name. Since configuration is now done at runtime, group IDs are used to account for group renames. For legacy configurations, this config option has to remain. Deprecated: Use Mapping instead. |
 | » `[any property]`           | string                         | false    |              |                                                                                                                                                                                                                                                                                        |
-| `mapping`                    | object                         | false    |              | Mapping is a map from OIDC groups to Coder group IDs                                                                                                                                                                                                                                   |
+| `mapping`                    | object                         | false    |              | Mapping is a map from OIDC groups to Neural Inverse Cloud group IDs                                                                                                                                                                                                                                   |
 | » `[any property]`           | array of string                | false    |              |                                                                                                                                                                                                                                                                                        |
 | `regex_filter`               | [regexp.Regexp](#regexpregexp) | false    |              | Regex filter is a regular expression that filters the groups returned by the OIDC provider. Any group not matched by this regex will be ignored. If the group filter is nil, then no group filtering will occur.                                                                       |
 
-## codersdk.HTTPCookieConfig
+## nicloudsdk.HTTPCookieConfig
 
 ```json
 {
@@ -7824,7 +7824,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `same_site`          | string  | false    |              |             |
 | `secure_auth_cookie` | boolean | false    |              |             |
 
-## codersdk.Healthcheck
+## nicloudsdk.Healthcheck
 
 ```json
 {
@@ -7842,7 +7842,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `threshold` | integer | false    |              | Threshold specifies the number of consecutive failed health checks before returning "unhealthy". |
 | `url`       | string  | false    |              | URL specifies the endpoint to check for the app health.                                          |
 
-## codersdk.HealthcheckConfig
+## nicloudsdk.HealthcheckConfig
 
 ```json
 {
@@ -7858,7 +7858,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `refresh`            | integer | false    |              |             |
 | `threshold_database` | integer | false    |              |             |
 
-## codersdk.InboxNotification
+## nicloudsdk.InboxNotification
 
 ```json
 {
@@ -7886,7 +7886,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name          | Type                                                                          | Required | Restrictions | Description |
 |---------------|-------------------------------------------------------------------------------|----------|--------------|-------------|
-| `actions`     | array of [codersdk.InboxNotificationAction](#codersdkinboxnotificationaction) | false    |              |             |
+| `actions`     | array of [nicloudsdk.InboxNotificationAction](#nicloudsdkinboxnotificationaction) | false    |              |             |
 | `content`     | string                                                                        | false    |              |             |
 | `created_at`  | string                                                                        | false    |              |             |
 | `icon`        | string                                                                        | false    |              |             |
@@ -7897,7 +7897,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `title`       | string                                                                        | false    |              |             |
 | `user_id`     | string                                                                        | false    |              |             |
 
-## codersdk.InboxNotificationAction
+## nicloudsdk.InboxNotificationAction
 
 ```json
 {
@@ -7913,7 +7913,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `label` | string | false    |              |             |
 | `url`   | string | false    |              |             |
 
-## codersdk.InsightsReportInterval
+## nicloudsdk.InsightsReportInterval
 
 ```json
 "day"
@@ -7927,7 +7927,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------|
 | `day`, `week` |
 
-## codersdk.InvalidatePresetsResponse
+## nicloudsdk.InvalidatePresetsResponse
 
 ```json
 {
@@ -7945,9 +7945,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name          | Type                                                              | Required | Restrictions | Description |
 |---------------|-------------------------------------------------------------------|----------|--------------|-------------|
-| `invalidated` | array of [codersdk.InvalidatedPreset](#codersdkinvalidatedpreset) | false    |              |             |
+| `invalidated` | array of [nicloudsdk.InvalidatedPreset](#nicloudsdkinvalidatedpreset) | false    |              |             |
 
-## codersdk.InvalidatedPreset
+## nicloudsdk.InvalidatedPreset
 
 ```json
 {
@@ -7965,7 +7965,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `template_name`         | string | false    |              |             |
 | `template_version_name` | string | false    |              |             |
 
-## codersdk.IssueReconnectingPTYSignedTokenRequest
+## nicloudsdk.IssueReconnectingPTYSignedTokenRequest
 
 ```json
 {
@@ -7981,7 +7981,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `agentID` | string | true     |              |                                                                        |
 | `url`     | string | true     |              | URL is the URL of the reconnecting-pty endpoint you are connecting to. |
 
-## codersdk.IssueReconnectingPTYSignedTokenResponse
+## nicloudsdk.IssueReconnectingPTYSignedTokenResponse
 
 ```json
 {
@@ -7995,7 +7995,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------------|--------|----------|--------------|-------------|
 | `signed_token` | string | false    |              |             |
 
-## codersdk.JobErrorCode
+## nicloudsdk.JobErrorCode
 
 ```json
 "REQUIRED_TEMPLATE_VARIABLES"
@@ -8009,7 +8009,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------------------------------------------------|
 | `INSUFFICIENT_QUOTA`, `REQUIRED_TEMPLATE_VARIABLES` |
 
-## codersdk.License
+## nicloudsdk.License
 
 ```json
 {
@@ -8024,12 +8024,12 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name          | Type    | Required | Restrictions | Description                                                                                                                                                                                             |
 |---------------|---------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `claims`      | object  | false    |              | Claims are the JWT claims asserted by the license.  Here we use a generic string map to ensure that all data from the server is parsed verbatim, not just the fields this version of Coder understands. |
+| `claims`      | object  | false    |              | Claims are the JWT claims asserted by the license.  Here we use a generic string map to ensure that all data from the server is parsed verbatim, not just the fields this version of Neural Inverse Cloud understands. |
 | `id`          | integer | false    |              |                                                                                                                                                                                                         |
 | `uploaded_at` | string  | false    |              |                                                                                                                                                                                                         |
 | `uuid`        | string  | false    |              |                                                                                                                                                                                                         |
 
-## codersdk.LinkConfig
+## nicloudsdk.LinkConfig
 
 ```json
 {
@@ -8056,7 +8056,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `icon`     | `bug`, `chat`, `docs`, `star` |
 | `location` | `dropdown`, `navbar`          |
 
-## codersdk.ListInboxNotificationsResponse
+## nicloudsdk.ListInboxNotificationsResponse
 
 ```json
 {
@@ -8089,10 +8089,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name            | Type                                                              | Required | Restrictions | Description |
 |-----------------|-------------------------------------------------------------------|----------|--------------|-------------|
-| `notifications` | array of [codersdk.InboxNotification](#codersdkinboxnotification) | false    |              |             |
+| `notifications` | array of [nicloudsdk.InboxNotification](#nicloudsdkinboxnotification) | false    |              |             |
 | `unread_count`  | integer                                                           | false    |              |             |
 
-## codersdk.LogLevel
+## nicloudsdk.LogLevel
 
 ```json
 "trace"
@@ -8106,7 +8106,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------------------------------|
 | `debug`, `error`, `info`, `trace`, `warn` |
 
-## codersdk.LogSource
+## nicloudsdk.LogSource
 
 ```json
 "provisioner_daemon"
@@ -8120,7 +8120,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------------------------|
 | `provisioner`, `provisioner_daemon` |
 
-## codersdk.LoggingConfig
+## nicloudsdk.LoggingConfig
 
 ```json
 {
@@ -8142,7 +8142,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `log_filter`  | array of string | false    |              |             |
 | `stackdriver` | string          | false    |              |             |
 
-## codersdk.LoginType
+## nicloudsdk.LoginType
 
 ```json
 ""
@@ -8156,7 +8156,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------------------------------------------|
 | ``, `github`, `none`, `oidc`, `password`, `token` |
 
-## codersdk.LoginWithPasswordRequest
+## nicloudsdk.LoginWithPasswordRequest
 
 ```json
 {
@@ -8172,7 +8172,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `email`    | string | true     |              |             |
 | `password` | string | true     |              |             |
 
-## codersdk.LoginWithPasswordResponse
+## nicloudsdk.LoginWithPasswordResponse
 
 ```json
 {
@@ -8186,7 +8186,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------------|--------|----------|--------------|-------------|
 | `session_token` | string | true     |              |             |
 
-## codersdk.MatchedProvisioners
+## nicloudsdk.MatchedProvisioners
 
 ```json
 {
@@ -8204,7 +8204,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `count`              | integer | false    |              | Count is the number of provisioner daemons that matched the given tags. If the count is 0, it means no provisioner daemons matched the requested tags.              |
 | `most_recently_seen` | string  | false    |              | Most recently seen is the most recently seen time of the set of matched provisioners. If no provisioners matched, this field will be null.                          |
 
-## codersdk.MinimalOrganization
+## nicloudsdk.MinimalOrganization
 
 ```json
 {
@@ -8224,7 +8224,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `id`           | string | true     |              |             |
 | `name`         | string | false    |              |             |
 
-## codersdk.MinimalUser
+## nicloudsdk.MinimalUser
 
 ```json
 {
@@ -8244,7 +8244,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `name`       | string | false    |              |             |
 | `username`   | string | true     |              |             |
 
-## codersdk.NotificationMethodsResponse
+## nicloudsdk.NotificationMethodsResponse
 
 ```json
 {
@@ -8262,7 +8262,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `available` | array of string | false    |              |             |
 | `default`   | string          | false    |              |             |
 
-## codersdk.NotificationPreference
+## nicloudsdk.NotificationPreference
 
 ```json
 {
@@ -8280,7 +8280,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `id`         | string  | false    |              |             |
 | `updated_at` | string  | false    |              |             |
 
-## codersdk.NotificationTemplate
+## nicloudsdk.NotificationTemplate
 
 ```json
 {
@@ -8310,7 +8310,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `name`               | string  | false    |              |             |
 | `title_template`     | string  | false    |              |             |
 
-## codersdk.NotificationsConfig
+## nicloudsdk.NotificationsConfig
 
 ```json
 {
@@ -8369,9 +8369,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name                | Type                                                                       | Required | Restrictions | Description                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 |---------------------|----------------------------------------------------------------------------|----------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dispatch_timeout`  | integer                                                                    | false    |              | How long to wait while a notification is being sent before giving up.                                                                                                                                                                                                                                                                                                                                                                               |
-| `email`             | [codersdk.NotificationsEmailConfig](#codersdknotificationsemailconfig)     | false    |              | Email settings.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `email`             | [nicloudsdk.NotificationsEmailConfig](#nicloudsdknotificationsemailconfig)     | false    |              | Email settings.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `fetch_interval`    | integer                                                                    | false    |              | How often to query the database for queued notifications.                                                                                                                                                                                                                                                                                                                                                                                           |
-| `inbox`             | [codersdk.NotificationsInboxConfig](#codersdknotificationsinboxconfig)     | false    |              | Inbox settings.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `inbox`             | [nicloudsdk.NotificationsInboxConfig](#nicloudsdknotificationsinboxconfig)     | false    |              | Inbox settings.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `lease_count`       | integer                                                                    | false    |              | How many notifications a notifier should lease per fetch interval.                                                                                                                                                                                                                                                                                                                                                                                  |
 | `lease_period`      | integer                                                                    | false    |              | How long a notifier should lease a message. This is effectively how long a notification is 'owned' by a notifier, and once this period expires it will be available for lease by another notifier. Leasing is important in order for multiple running notifiers to not pick the same messages to deliver concurrently. This lease period will only expire if a notifier shuts down ungracefully; a dispatch of the notification releases the lease. |
 | `max_send_attempts` | integer                                                                    | false    |              | The upper limit of attempts to send a notification.                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -8379,9 +8379,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `retry_interval`    | integer                                                                    | false    |              | The minimum time between retries.                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `sync_buffer_size`  | integer                                                                    | false    |              | The notifications system buffers message updates in memory to ease pressure on the database. This option controls how many updates are kept in memory. The lower this value the lower the change of state inconsistency in a non-graceful shutdown - but it also increases load on the database. It is recommended to keep this option at its default value.                                                                                        |
 | `sync_interval`     | integer                                                                    | false    |              | The notifications system buffers message updates in memory to ease pressure on the database. This option controls how often it synchronizes its state with the database. The shorter this value the lower the change of state inconsistency in a non-graceful shutdown - but it also increases load on the database. It is recommended to keep this option at its default value.                                                                    |
-| `webhook`           | [codersdk.NotificationsWebhookConfig](#codersdknotificationswebhookconfig) | false    |              | Webhook settings.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `webhook`           | [nicloudsdk.NotificationsWebhookConfig](#nicloudsdknotificationswebhookconfig) | false    |              | Webhook settings.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
-## codersdk.NotificationsEmailAuthConfig
+## nicloudsdk.NotificationsEmailAuthConfig
 
 ```json
 {
@@ -8401,7 +8401,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `password_file` | string | false    |              | File from which to load the password for LOGIN/PLAIN auth. |
 | `username`      | string | false    |              | Username for LOGIN/PLAIN auth.                             |
 
-## codersdk.NotificationsEmailConfig
+## nicloudsdk.NotificationsEmailConfig
 
 ```json
 {
@@ -8430,14 +8430,14 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name        | Type                                                                           | Required | Restrictions | Description                                                           |
 |-------------|--------------------------------------------------------------------------------|----------|--------------|-----------------------------------------------------------------------|
-| `auth`      | [codersdk.NotificationsEmailAuthConfig](#codersdknotificationsemailauthconfig) | false    |              | Authentication details.                                               |
+| `auth`      | [nicloudsdk.NotificationsEmailAuthConfig](#nicloudsdknotificationsemailauthconfig) | false    |              | Authentication details.                                               |
 | `force_tls` | boolean                                                                        | false    |              | Force tls causes a TLS connection to be attempted.                    |
 | `from`      | string                                                                         | false    |              | The sender's address.                                                 |
 | `hello`     | string                                                                         | false    |              | The hostname identifying the SMTP server.                             |
 | `smarthost` | string                                                                         | false    |              | The intermediary SMTP host through which emails are sent (host:port). |
-| `tls`       | [codersdk.NotificationsEmailTLSConfig](#codersdknotificationsemailtlsconfig)   | false    |              | Tls details.                                                          |
+| `tls`       | [nicloudsdk.NotificationsEmailTLSConfig](#nicloudsdknotificationsemailtlsconfig)   | false    |              | Tls details.                                                          |
 
-## codersdk.NotificationsEmailTLSConfig
+## nicloudsdk.NotificationsEmailTLSConfig
 
 ```json
 {
@@ -8461,7 +8461,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `server_name`          | string  | false    |              | Server name to verify the hostname for the targets.          |
 | `start_tls`            | boolean | false    |              | Start tls attempts to upgrade plain connections to TLS.      |
 
-## codersdk.NotificationsInboxConfig
+## nicloudsdk.NotificationsInboxConfig
 
 ```json
 {
@@ -8475,7 +8475,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------|---------|----------|--------------|-------------|
 | `enabled` | boolean | false    |              |             |
 
-## codersdk.NotificationsSettings
+## nicloudsdk.NotificationsSettings
 
 ```json
 {
@@ -8489,7 +8489,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------|---------|----------|--------------|-------------|
 | `notifier_paused` | boolean | false    |              |             |
 
-## codersdk.NotificationsWebhookConfig
+## nicloudsdk.NotificationsWebhookConfig
 
 ```json
 {
@@ -8515,7 +8515,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |------------|----------------------------|----------|--------------|----------------------------------------------------------------------|
 | `endpoint` | [serpent.URL](#serpenturl) | false    |              | The URL to which the payload will be sent with an HTTP POST request. |
 
-## codersdk.NullHCLString
+## nicloudsdk.NullHCLString
 
 ```json
 {
@@ -8531,7 +8531,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `valid` | boolean | false    |              |             |
 | `value` | string  | false    |              |             |
 
-## codersdk.OAuth2AppEndpoints
+## nicloudsdk.OAuth2AppEndpoints
 
 ```json
 {
@@ -8551,7 +8551,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `token`                | string | false    |              |                                   |
 | `token_revoke`         | string | false    |              |                                   |
 
-## codersdk.OAuth2AuthorizationServerMetadata
+## nicloudsdk.OAuth2AuthorizationServerMetadata
 
 ```json
 {
@@ -8583,17 +8583,17 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name                                    | Type                                                                                      | Required | Restrictions | Description |
 |-----------------------------------------|-------------------------------------------------------------------------------------------|----------|--------------|-------------|
 | `authorization_endpoint`                | string                                                                                    | false    |              |             |
-| `code_challenge_methods_supported`      | array of [codersdk.OAuth2PKCECodeChallengeMethod](#codersdkoauth2pkcecodechallengemethod) | false    |              |             |
-| `grant_types_supported`                 | array of [codersdk.OAuth2ProviderGrantType](#codersdkoauth2providergranttype)             | false    |              |             |
+| `code_challenge_methods_supported`      | array of [nicloudsdk.OAuth2PKCECodeChallengeMethod](#nicloudsdkoauth2pkcecodechallengemethod) | false    |              |             |
+| `grant_types_supported`                 | array of [nicloudsdk.OAuth2ProviderGrantType](#nicloudsdkoauth2providergranttype)             | false    |              |             |
 | `issuer`                                | string                                                                                    | false    |              |             |
 | `registration_endpoint`                 | string                                                                                    | false    |              |             |
-| `response_types_supported`              | array of [codersdk.OAuth2ProviderResponseType](#codersdkoauth2providerresponsetype)       | false    |              |             |
+| `response_types_supported`              | array of [nicloudsdk.OAuth2ProviderResponseType](#nicloudsdkoauth2providerresponsetype)       | false    |              |             |
 | `revocation_endpoint`                   | string                                                                                    | false    |              |             |
 | `scopes_supported`                      | array of string                                                                           | false    |              |             |
 | `token_endpoint`                        | string                                                                                    | false    |              |             |
-| `token_endpoint_auth_methods_supported` | array of [codersdk.OAuth2TokenEndpointAuthMethod](#codersdkoauth2tokenendpointauthmethod) | false    |              |             |
+| `token_endpoint_auth_methods_supported` | array of [nicloudsdk.OAuth2TokenEndpointAuthMethod](#nicloudsdkoauth2tokenendpointauthmethod) | false    |              |             |
 
-## codersdk.OAuth2ClientConfiguration
+## nicloudsdk.OAuth2ClientConfiguration
 
 ```json
 {
@@ -8638,7 +8638,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `client_secret_expires_at`   | integer                                                                             | false    |              |             |
 | `client_uri`                 | string                                                                              | false    |              |             |
 | `contacts`                   | array of string                                                                     | false    |              |             |
-| `grant_types`                | array of [codersdk.OAuth2ProviderGrantType](#codersdkoauth2providergranttype)       | false    |              |             |
+| `grant_types`                | array of [nicloudsdk.OAuth2ProviderGrantType](#nicloudsdkoauth2providergranttype)       | false    |              |             |
 | `jwks`                       | object                                                                              | false    |              |             |
 | `jwks_uri`                   | string                                                                              | false    |              |             |
 | `logo_uri`                   | string                                                                              | false    |              |             |
@@ -8646,14 +8646,14 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `redirect_uris`              | array of string                                                                     | false    |              |             |
 | `registration_access_token`  | string                                                                              | false    |              |             |
 | `registration_client_uri`    | string                                                                              | false    |              |             |
-| `response_types`             | array of [codersdk.OAuth2ProviderResponseType](#codersdkoauth2providerresponsetype) | false    |              |             |
+| `response_types`             | array of [nicloudsdk.OAuth2ProviderResponseType](#nicloudsdkoauth2providerresponsetype) | false    |              |             |
 | `scope`                      | string                                                                              | false    |              |             |
 | `software_id`                | string                                                                              | false    |              |             |
 | `software_version`           | string                                                                              | false    |              |             |
-| `token_endpoint_auth_method` | [codersdk.OAuth2TokenEndpointAuthMethod](#codersdkoauth2tokenendpointauthmethod)    | false    |              |             |
+| `token_endpoint_auth_method` | [nicloudsdk.OAuth2TokenEndpointAuthMethod](#nicloudsdkoauth2tokenendpointauthmethod)    | false    |              |             |
 | `tos_uri`                    | string                                                                              | false    |              |             |
 
-## codersdk.OAuth2ClientRegistrationRequest
+## nicloudsdk.OAuth2ClientRegistrationRequest
 
 ```json
 {
@@ -8691,21 +8691,21 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `client_name`                | string                                                                              | false    |              |             |
 | `client_uri`                 | string                                                                              | false    |              |             |
 | `contacts`                   | array of string                                                                     | false    |              |             |
-| `grant_types`                | array of [codersdk.OAuth2ProviderGrantType](#codersdkoauth2providergranttype)       | false    |              |             |
+| `grant_types`                | array of [nicloudsdk.OAuth2ProviderGrantType](#nicloudsdkoauth2providergranttype)       | false    |              |             |
 | `jwks`                       | object                                                                              | false    |              |             |
 | `jwks_uri`                   | string                                                                              | false    |              |             |
 | `logo_uri`                   | string                                                                              | false    |              |             |
 | `policy_uri`                 | string                                                                              | false    |              |             |
 | `redirect_uris`              | array of string                                                                     | false    |              |             |
-| `response_types`             | array of [codersdk.OAuth2ProviderResponseType](#codersdkoauth2providerresponsetype) | false    |              |             |
+| `response_types`             | array of [nicloudsdk.OAuth2ProviderResponseType](#nicloudsdkoauth2providerresponsetype) | false    |              |             |
 | `scope`                      | string                                                                              | false    |              |             |
 | `software_id`                | string                                                                              | false    |              |             |
 | `software_statement`         | string                                                                              | false    |              |             |
 | `software_version`           | string                                                                              | false    |              |             |
-| `token_endpoint_auth_method` | [codersdk.OAuth2TokenEndpointAuthMethod](#codersdkoauth2tokenendpointauthmethod)    | false    |              |             |
+| `token_endpoint_auth_method` | [nicloudsdk.OAuth2TokenEndpointAuthMethod](#nicloudsdkoauth2tokenendpointauthmethod)    | false    |              |             |
 | `tos_uri`                    | string                                                                              | false    |              |             |
 
-## codersdk.OAuth2ClientRegistrationResponse
+## nicloudsdk.OAuth2ClientRegistrationResponse
 
 ```json
 {
@@ -8752,7 +8752,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `client_secret_expires_at`   | integer                                                                             | false    |              |             |
 | `client_uri`                 | string                                                                              | false    |              |             |
 | `contacts`                   | array of string                                                                     | false    |              |             |
-| `grant_types`                | array of [codersdk.OAuth2ProviderGrantType](#codersdkoauth2providergranttype)       | false    |              |             |
+| `grant_types`                | array of [nicloudsdk.OAuth2ProviderGrantType](#nicloudsdkoauth2providergranttype)       | false    |              |             |
 | `jwks`                       | object                                                                              | false    |              |             |
 | `jwks_uri`                   | string                                                                              | false    |              |             |
 | `logo_uri`                   | string                                                                              | false    |              |             |
@@ -8760,14 +8760,14 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `redirect_uris`              | array of string                                                                     | false    |              |             |
 | `registration_access_token`  | string                                                                              | false    |              |             |
 | `registration_client_uri`    | string                                                                              | false    |              |             |
-| `response_types`             | array of [codersdk.OAuth2ProviderResponseType](#codersdkoauth2providerresponsetype) | false    |              |             |
+| `response_types`             | array of [nicloudsdk.OAuth2ProviderResponseType](#nicloudsdkoauth2providerresponsetype) | false    |              |             |
 | `scope`                      | string                                                                              | false    |              |             |
 | `software_id`                | string                                                                              | false    |              |             |
 | `software_version`           | string                                                                              | false    |              |             |
-| `token_endpoint_auth_method` | [codersdk.OAuth2TokenEndpointAuthMethod](#codersdkoauth2tokenendpointauthmethod)    | false    |              |             |
+| `token_endpoint_auth_method` | [nicloudsdk.OAuth2TokenEndpointAuthMethod](#nicloudsdkoauth2tokenendpointauthmethod)    | false    |              |             |
 | `tos_uri`                    | string                                                                              | false    |              |             |
 
-## codersdk.OAuth2Config
+## nicloudsdk.OAuth2Config
 
 ```json
 {
@@ -8793,9 +8793,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name     | Type                                                       | Required | Restrictions | Description |
 |----------|------------------------------------------------------------|----------|--------------|-------------|
-| `github` | [codersdk.OAuth2GithubConfig](#codersdkoauth2githubconfig) | false    |              |             |
+| `github` | [nicloudsdk.OAuth2GithubConfig](#nicloudsdkoauth2githubconfig) | false    |              |             |
 
-## codersdk.OAuth2GithubConfig
+## nicloudsdk.OAuth2GithubConfig
 
 ```json
 {
@@ -8829,7 +8829,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `device_flow`             | boolean         | false    |              |             |
 | `enterprise_base_url`     | string          | false    |              |             |
 
-## codersdk.OAuth2PKCECodeChallengeMethod
+## nicloudsdk.OAuth2PKCECodeChallengeMethod
 
 ```json
 "S256"
@@ -8843,7 +8843,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------------|
 | `S256`, `plain` |
 
-## codersdk.OAuth2ProtectedResourceMetadata
+## nicloudsdk.OAuth2ProtectedResourceMetadata
 
 ```json
 {
@@ -8869,7 +8869,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `resource`                 | string          | false    |              |             |
 | `scopes_supported`         | array of string | false    |              |             |
 
-## codersdk.OAuth2ProviderApp
+## nicloudsdk.OAuth2ProviderApp
 
 ```json
 {
@@ -8891,12 +8891,12 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name           | Type                                                       | Required | Restrictions | Description                                                                                                                                                                                             |
 |----------------|------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `callback_url` | string                                                     | false    |              |                                                                                                                                                                                                         |
-| `endpoints`    | [codersdk.OAuth2AppEndpoints](#codersdkoauth2appendpoints) | false    |              | Endpoints are included in the app response for easier discovery. The OAuth2 spec does not have a defined place to find these (for comparison, OIDC has a '/.well-known/openid-configuration' endpoint). |
+| `endpoints`    | [nicloudsdk.OAuth2AppEndpoints](#nicloudsdkoauth2appendpoints) | false    |              | Endpoints are included in the app response for easier discovery. The OAuth2 spec does not have a defined place to find these (for comparison, OIDC has a '/.well-known/openid-configuration' endpoint). |
 | `icon`         | string                                                     | false    |              |                                                                                                                                                                                                         |
 | `id`           | string                                                     | false    |              |                                                                                                                                                                                                         |
 | `name`         | string                                                     | false    |              |                                                                                                                                                                                                         |
 
-## codersdk.OAuth2ProviderAppSecret
+## nicloudsdk.OAuth2ProviderAppSecret
 
 ```json
 {
@@ -8914,7 +8914,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `id`                      | string | false    |              |             |
 | `last_used_at`            | string | false    |              |             |
 
-## codersdk.OAuth2ProviderAppSecretFull
+## nicloudsdk.OAuth2ProviderAppSecretFull
 
 ```json
 {
@@ -8930,7 +8930,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `client_secret_full` | string | false    |              |             |
 | `id`                 | string | false    |              |             |
 
-## codersdk.OAuth2ProviderGrantType
+## nicloudsdk.OAuth2ProviderGrantType
 
 ```json
 "authorization_code"
@@ -8944,7 +8944,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------------------------------------------------------------------------|
 | `authorization_code`, `client_credentials`, `implicit`, `password`, `refresh_token` |
 
-## codersdk.OAuth2ProviderResponseType
+## nicloudsdk.OAuth2ProviderResponseType
 
 ```json
 "code"
@@ -8958,7 +8958,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------------|
 | `code`, `token` |
 
-## codersdk.OAuth2TokenEndpointAuthMethod
+## nicloudsdk.OAuth2TokenEndpointAuthMethod
 
 ```json
 "client_secret_basic"
@@ -8972,7 +8972,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------------------------------------------------|
 | `client_secret_basic`, `client_secret_post`, `none` |
 
-## codersdk.OAuthConversionResponse
+## nicloudsdk.OAuthConversionResponse
 
 ```json
 {
@@ -8989,10 +8989,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------------|------------------------------------------|----------|--------------|-------------|
 | `expires_at`   | string                                   | false    |              |             |
 | `state_string` | string                                   | false    |              |             |
-| `to_type`      | [codersdk.LoginType](#codersdklogintype) | false    |              |             |
+| `to_type`      | [nicloudsdk.LoginType](#nicloudsdklogintype) | false    |              |             |
 | `user_id`      | string                                   | false    |              |             |
 
-## codersdk.OIDCAuthMethod
+## nicloudsdk.OIDCAuthMethod
 
 ```json
 {
@@ -9010,7 +9010,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `iconUrl`    | string  | false    |              |             |
 | `signInText` | string  | false    |              |             |
 
-## codersdk.OIDCClaimsResponse
+## nicloudsdk.OIDCClaimsResponse
 
 ```json
 {
@@ -9024,7 +9024,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|--------|----------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `claims` | object | false    |              | Claims are the merged claims from the OIDC provider. These are the union of the ID token claims and the userinfo claims, where userinfo claims take precedence on conflict. |
 
-## codersdk.OIDCConfig
+## nicloudsdk.OIDCConfig
 
 ```json
 {
@@ -9130,7 +9130,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `user_roles_default`                 | array of string                  | false    |              |                                                                                                                                                                                                                                                                                                                                                                    |
 | `username_field`                     | string                           | false    |              |                                                                                                                                                                                                                                                                                                                                                                    |
 
-## codersdk.OptionType
+## nicloudsdk.OptionType
 
 ```json
 "string"
@@ -9144,7 +9144,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |--------------------------------------------|
 | `bool`, `list(string)`, `number`, `string` |
 
-## codersdk.Organization
+## nicloudsdk.Organization
 
 ```json
 {
@@ -9172,7 +9172,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `name`         | string  | false    |              |             |
 | `updated_at`   | string  | true     |              |             |
 
-## codersdk.OrganizationMember
+## nicloudsdk.OrganizationMember
 
 ```json
 {
@@ -9196,11 +9196,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------|-------------------------------------------------|----------|--------------|-------------|
 | `created_at`      | string                                          | false    |              |             |
 | `organization_id` | string                                          | false    |              |             |
-| `roles`           | array of [codersdk.SlimRole](#codersdkslimrole) | false    |              |             |
+| `roles`           | array of [nicloudsdk.SlimRole](#nicloudsdkslimrole) | false    |              |             |
 | `updated_at`      | string                                          | false    |              |             |
 | `user_id`         | string                                          | false    |              |             |
 
-## codersdk.OrganizationMemberWithUserData
+## nicloudsdk.OrganizationMemberWithUserData
 
 ```json
 {
@@ -9243,15 +9243,15 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `avatar_url`         | string                                          | false    |              |                                                                                                  |
 | `created_at`         | string                                          | false    |              |                                                                                                  |
 | `email`              | string                                          | false    |              |                                                                                                  |
-| `global_roles`       | array of [codersdk.SlimRole](#codersdkslimrole) | false    |              |                                                                                                  |
+| `global_roles`       | array of [nicloudsdk.SlimRole](#nicloudsdkslimrole) | false    |              |                                                                                                  |
 | `has_ai_seat`        | boolean                                         | false    |              | Has ai seat intentionally omits omitempty so the API always includes the field, even when false. |
 | `is_service_account` | boolean                                         | false    |              |                                                                                                  |
 | `last_seen_at`       | string                                          | false    |              |                                                                                                  |
-| `login_type`         | [codersdk.LoginType](#codersdklogintype)        | false    |              |                                                                                                  |
+| `login_type`         | [nicloudsdk.LoginType](#nicloudsdklogintype)        | false    |              |                                                                                                  |
 | `name`               | string                                          | false    |              |                                                                                                  |
 | `organization_id`    | string                                          | false    |              |                                                                                                  |
-| `roles`              | array of [codersdk.SlimRole](#codersdkslimrole) | false    |              |                                                                                                  |
-| `status`             | [codersdk.UserStatus](#codersdkuserstatus)      | false    |              |                                                                                                  |
+| `roles`              | array of [nicloudsdk.SlimRole](#nicloudsdkslimrole) | false    |              |                                                                                                  |
+| `status`             | [nicloudsdk.UserStatus](#nicloudsdkuserstatus)      | false    |              |                                                                                                  |
 | `updated_at`         | string                                          | false    |              |                                                                                                  |
 | `user_created_at`    | string                                          | false    |              |                                                                                                  |
 | `user_id`            | string                                          | false    |              |                                                                                                  |
@@ -9264,7 +9264,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|-----------------------|
 | `status` | `active`, `suspended` |
 
-## codersdk.OrganizationSyncSettings
+## nicloudsdk.OrganizationSyncSettings
 
 ```json
 {
@@ -9286,11 +9286,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name                          | Type            | Required | Restrictions | Description                                                                                                                                                                         |
 |-------------------------------|-----------------|----------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `field`                       | string          | false    |              | Field selects the claim field to be used as the created user's organizations. If the field is the empty string, then no organization updates will ever come from the OIDC provider. |
-| `mapping`                     | object          | false    |              | Mapping maps from an OIDC claim --> Coder organization uuid                                                                                                                         |
+| `mapping`                     | object          | false    |              | Mapping maps from an OIDC claim --> Neural Inverse Cloud organization uuid                                                                                                                         |
 | » `[any property]`            | array of string | false    |              |                                                                                                                                                                                     |
 | `organization_assign_default` | boolean         | false    |              | Organization assign default will ensure the default org is always included for every user, regardless of their claims. This preserves legacy behavior.                              |
 
-## codersdk.PRInsightsModelBreakdown
+## nicloudsdk.PRInsightsModelBreakdown
 
 ```json
 {
@@ -9322,7 +9322,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `total_deletions`           | integer | false    |              |             |
 | `total_prs`                 | integer | false    |              |             |
 
-## codersdk.PRInsightsPullRequest
+## nicloudsdk.PRInsightsPullRequest
 
 ```json
 {
@@ -9372,7 +9372,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `reviewer_count`     | integer | false    |              |             |
 | `state`              | string  | false    |              |             |
 
-## codersdk.PRInsightsResponse
+## nicloudsdk.PRInsightsResponse
 
 ```json
 {
@@ -9442,12 +9442,12 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name          | Type                                                                              | Required | Restrictions | Description |
 |---------------|-----------------------------------------------------------------------------------|----------|--------------|-------------|
-| `by_model`    | array of [codersdk.PRInsightsModelBreakdown](#codersdkprinsightsmodelbreakdown)   | false    |              |             |
-| `recent_prs`  | array of [codersdk.PRInsightsPullRequest](#codersdkprinsightspullrequest)         | false    |              |             |
-| `summary`     | [codersdk.PRInsightsSummary](#codersdkprinsightssummary)                          | false    |              |             |
-| `time_series` | array of [codersdk.PRInsightsTimeSeriesEntry](#codersdkprinsightstimeseriesentry) | false    |              |             |
+| `by_model`    | array of [nicloudsdk.PRInsightsModelBreakdown](#nicloudsdkprinsightsmodelbreakdown)   | false    |              |             |
+| `recent_prs`  | array of [nicloudsdk.PRInsightsPullRequest](#nicloudsdkprinsightspullrequest)         | false    |              |             |
+| `summary`     | [nicloudsdk.PRInsightsSummary](#nicloudsdkprinsightssummary)                          | false    |              |             |
+| `time_series` | array of [nicloudsdk.PRInsightsTimeSeriesEntry](#nicloudsdkprinsightstimeseriesentry) | false    |              |             |
 
-## codersdk.PRInsightsSummary
+## nicloudsdk.PRInsightsSummary
 
 ```json
 {
@@ -9483,7 +9483,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `total_prs_created`              | integer | false    |              |             |
 | `total_prs_merged`               | integer | false    |              |             |
 
-## codersdk.PRInsightsTimeSeriesEntry
+## nicloudsdk.PRInsightsTimeSeriesEntry
 
 ```json
 {
@@ -9503,7 +9503,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `prs_created` | integer | false    |              |             |
 | `prs_merged`  | integer | false    |              |             |
 
-## codersdk.PaginatedMembersResponse
+## nicloudsdk.PaginatedMembersResponse
 
 ```json
 {
@@ -9549,9 +9549,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name      | Type                                                                                        | Required | Restrictions | Description |
 |-----------|---------------------------------------------------------------------------------------------|----------|--------------|-------------|
 | `count`   | integer                                                                                     | false    |              |             |
-| `members` | array of [codersdk.OrganizationMemberWithUserData](#codersdkorganizationmemberwithuserdata) | false    |              |             |
+| `members` | array of [nicloudsdk.OrganizationMemberWithUserData](#nicloudsdkorganizationmemberwithuserdata) | false    |              |             |
 
-## codersdk.ParameterFormType
+## nicloudsdk.ParameterFormType
 
 ```json
 ""
@@ -9565,7 +9565,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------------------------------------------------------------------------------------------------------------|
 | ``, `checkbox`, `dropdown`, `error`, `input`, `multi-select`, `radio`, `slider`, `switch`, `tag-select`, `textarea` |
 
-## codersdk.PatchGroupIDPSyncConfigRequest
+## nicloudsdk.PatchGroupIDPSyncConfigRequest
 
 ```json
 {
@@ -9583,7 +9583,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `field`                      | string                         | false    |              |             |
 | `regex_filter`               | [regexp.Regexp](#regexpregexp) | false    |              |             |
 
-## codersdk.PatchGroupIDPSyncMappingRequest
+## nicloudsdk.PatchGroupIDPSyncMappingRequest
 
 ```json
 {
@@ -9607,13 +9607,13 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name      | Type            | Required | Restrictions | Description                                              |
 |-----------|-----------------|----------|--------------|----------------------------------------------------------|
 | `add`     | array of object | false    |              |                                                          |
-| `» gets`  | string          | false    |              | The ID of the Coder resource the user should be added to |
+| `» gets`  | string          | false    |              | The ID of the Neural Inverse Cloud resource the user should be added to |
 | `» given` | string          | false    |              | The IdP claim the user has                               |
 | `remove`  | array of object | false    |              |                                                          |
-| `» gets`  | string          | false    |              | The ID of the Coder resource the user should be added to |
+| `» gets`  | string          | false    |              | The ID of the Neural Inverse Cloud resource the user should be added to |
 | `» given` | string          | false    |              | The IdP claim the user has                               |
 
-## codersdk.PatchGroupRequest
+## nicloudsdk.PatchGroupRequest
 
 ```json
 {
@@ -9641,7 +9641,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `quota_allowance` | integer         | false    |              |             |
 | `remove_users`    | array of string | false    |              |             |
 
-## codersdk.PatchOrganizationIDPSyncConfigRequest
+## nicloudsdk.PatchOrganizationIDPSyncConfigRequest
 
 ```json
 {
@@ -9657,7 +9657,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `assign_default` | boolean | false    |              |             |
 | `field`          | string  | false    |              |             |
 
-## codersdk.PatchOrganizationIDPSyncMappingRequest
+## nicloudsdk.PatchOrganizationIDPSyncMappingRequest
 
 ```json
 {
@@ -9681,13 +9681,13 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name      | Type            | Required | Restrictions | Description                                              |
 |-----------|-----------------|----------|--------------|----------------------------------------------------------|
 | `add`     | array of object | false    |              |                                                          |
-| `» gets`  | string          | false    |              | The ID of the Coder resource the user should be added to |
+| `» gets`  | string          | false    |              | The ID of the Neural Inverse Cloud resource the user should be added to |
 | `» given` | string          | false    |              | The IdP claim the user has                               |
 | `remove`  | array of object | false    |              |                                                          |
-| `» gets`  | string          | false    |              | The ID of the Coder resource the user should be added to |
+| `» gets`  | string          | false    |              | The ID of the Neural Inverse Cloud resource the user should be added to |
 | `» given` | string          | false    |              | The IdP claim the user has                               |
 
-## codersdk.PatchRoleIDPSyncConfigRequest
+## nicloudsdk.PatchRoleIDPSyncConfigRequest
 
 ```json
 {
@@ -9701,7 +9701,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------|--------|----------|--------------|-------------|
 | `field` | string | false    |              |             |
 
-## codersdk.PatchRoleIDPSyncMappingRequest
+## nicloudsdk.PatchRoleIDPSyncMappingRequest
 
 ```json
 {
@@ -9725,13 +9725,13 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name      | Type            | Required | Restrictions | Description                                              |
 |-----------|-----------------|----------|--------------|----------------------------------------------------------|
 | `add`     | array of object | false    |              |                                                          |
-| `» gets`  | string          | false    |              | The ID of the Coder resource the user should be added to |
+| `» gets`  | string          | false    |              | The ID of the Neural Inverse Cloud resource the user should be added to |
 | `» given` | string          | false    |              | The IdP claim the user has                               |
 | `remove`  | array of object | false    |              |                                                          |
-| `» gets`  | string          | false    |              | The ID of the Coder resource the user should be added to |
+| `» gets`  | string          | false    |              | The ID of the Neural Inverse Cloud resource the user should be added to |
 | `» given` | string          | false    |              | The IdP claim the user has                               |
 
-## codersdk.PatchTemplateVersionRequest
+## nicloudsdk.PatchTemplateVersionRequest
 
 ```json
 {
@@ -9747,7 +9747,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `message` | string | false    |              |             |
 | `name`    | string | false    |              |             |
 
-## codersdk.PatchWorkspaceProxy
+## nicloudsdk.PatchWorkspaceProxy
 
 ```json
 {
@@ -9769,7 +9769,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `name`             | string  | true     |              |             |
 | `regenerate_token` | boolean | false    |              |             |
 
-## codersdk.PauseTaskResponse
+## nicloudsdk.PauseTaskResponse
 
 ```json
 {
@@ -9989,9 +9989,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name              | Type                                               | Required | Restrictions | Description |
 |-------------------|----------------------------------------------------|----------|--------------|-------------|
-| `workspace_build` | [codersdk.WorkspaceBuild](#codersdkworkspacebuild) | false    |              |             |
+| `workspace_build` | [nicloudsdk.WorkspaceBuild](#nicloudsdkworkspacebuild) | false    |              |             |
 
-## codersdk.Permission
+## nicloudsdk.Permission
 
 ```json
 {
@@ -10005,11 +10005,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name            | Type                                           | Required | Restrictions | Description                             |
 |-----------------|------------------------------------------------|----------|--------------|-----------------------------------------|
-| `action`        | [codersdk.RBACAction](#codersdkrbacaction)     | false    |              |                                         |
+| `action`        | [nicloudsdk.RBACAction](#nicloudsdkrbacaction)     | false    |              |                                         |
 | `negate`        | boolean                                        | false    |              | Negate makes this a negative permission |
-| `resource_type` | [codersdk.RBACResource](#codersdkrbacresource) | false    |              |                                         |
+| `resource_type` | [nicloudsdk.RBACResource](#nicloudsdkrbacresource) | false    |              |                                         |
 
-## codersdk.PostOAuth2ProviderAppRequest
+## nicloudsdk.PostOAuth2ProviderAppRequest
 
 ```json
 {
@@ -10027,7 +10027,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `icon`         | string | false    |              |             |
 | `name`         | string | true     |              |             |
 
-## codersdk.PostWorkspaceUsageRequest
+## nicloudsdk.PostWorkspaceUsageRequest
 
 ```json
 {
@@ -10041,9 +10041,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name       | Type                                           | Required | Restrictions | Description |
 |------------|------------------------------------------------|----------|--------------|-------------|
 | `agent_id` | string                                         | false    |              |             |
-| `app_name` | [codersdk.UsageAppName](#codersdkusageappname) | false    |              |             |
+| `app_name` | [nicloudsdk.UsageAppName](#nicloudsdkusageappname) | false    |              |             |
 
-## codersdk.PprofConfig
+## nicloudsdk.PprofConfig
 
 ```json
 {
@@ -10062,7 +10062,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `address` | [serpent.HostPort](#serpenthostport) | false    |              |             |
 | `enable`  | boolean                              | false    |              |             |
 
-## codersdk.PrebuildsConfig
+## nicloudsdk.PrebuildsConfig
 
 ```json
 {
@@ -10082,7 +10082,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `reconciliation_backoff_lookback` | integer | false    |              | Reconciliation backoff lookback determines the time window to look back when calculating the number of failed prebuilds, which influences the backoff strategy.                                                                                                                                   |
 | `reconciliation_interval`         | integer | false    |              | Reconciliation interval defines how often the workspace prebuilds state should be reconciled.                                                                                                                                                                                                     |
 
-## codersdk.PrebuildsSettings
+## nicloudsdk.PrebuildsSettings
 
 ```json
 {
@@ -10096,7 +10096,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------------|---------|----------|--------------|-------------|
 | `reconciliation_paused` | boolean | false    |              |             |
 
-## codersdk.Preset
+## nicloudsdk.Preset
 
 ```json
 {
@@ -10125,9 +10125,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `icon`                     | string                                                        | false    |              |             |
 | `id`                       | string                                                        | false    |              |             |
 | `name`                     | string                                                        | false    |              |             |
-| `parameters`               | array of [codersdk.PresetParameter](#codersdkpresetparameter) | false    |              |             |
+| `parameters`               | array of [nicloudsdk.PresetParameter](#nicloudsdkpresetparameter) | false    |              |             |
 
-## codersdk.PresetParameter
+## nicloudsdk.PresetParameter
 
 ```json
 {
@@ -10143,7 +10143,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `name`  | string | false    |              |             |
 | `value` | string | false    |              |             |
 
-## codersdk.PreviewParameter
+## nicloudsdk.PreviewParameter
 
 ```json
 {
@@ -10208,24 +10208,24 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name            | Type                                                                                | Required | Restrictions | Description                             |
 |-----------------|-------------------------------------------------------------------------------------|----------|--------------|-----------------------------------------|
-| `default_value` | [codersdk.NullHCLString](#codersdknullhclstring)                                    | false    |              |                                         |
+| `default_value` | [nicloudsdk.NullHCLString](#nicloudsdknullhclstring)                                    | false    |              |                                         |
 | `description`   | string                                                                              | false    |              |                                         |
-| `diagnostics`   | array of [codersdk.FriendlyDiagnostic](#codersdkfriendlydiagnostic)                 | false    |              |                                         |
+| `diagnostics`   | array of [nicloudsdk.FriendlyDiagnostic](#nicloudsdkfriendlydiagnostic)                 | false    |              |                                         |
 | `display_name`  | string                                                                              | false    |              |                                         |
 | `ephemeral`     | boolean                                                                             | false    |              |                                         |
-| `form_type`     | [codersdk.ParameterFormType](#codersdkparameterformtype)                            | false    |              |                                         |
+| `form_type`     | [nicloudsdk.ParameterFormType](#nicloudsdkparameterformtype)                            | false    |              |                                         |
 | `icon`          | string                                                                              | false    |              |                                         |
 | `mutable`       | boolean                                                                             | false    |              |                                         |
 | `name`          | string                                                                              | false    |              |                                         |
-| `options`       | array of [codersdk.PreviewParameterOption](#codersdkpreviewparameteroption)         | false    |              |                                         |
+| `options`       | array of [nicloudsdk.PreviewParameterOption](#nicloudsdkpreviewparameteroption)         | false    |              |                                         |
 | `order`         | integer                                                                             | false    |              | legacy_variable_name was removed (= 14) |
 | `required`      | boolean                                                                             | false    |              |                                         |
-| `styling`       | [codersdk.PreviewParameterStyling](#codersdkpreviewparameterstyling)                | false    |              |                                         |
-| `type`          | [codersdk.OptionType](#codersdkoptiontype)                                          | false    |              |                                         |
-| `validations`   | array of [codersdk.PreviewParameterValidation](#codersdkpreviewparametervalidation) | false    |              |                                         |
-| `value`         | [codersdk.NullHCLString](#codersdknullhclstring)                                    | false    |              |                                         |
+| `styling`       | [nicloudsdk.PreviewParameterStyling](#nicloudsdkpreviewparameterstyling)                | false    |              |                                         |
+| `type`          | [nicloudsdk.OptionType](#nicloudsdkoptiontype)                                          | false    |              |                                         |
+| `validations`   | array of [nicloudsdk.PreviewParameterValidation](#nicloudsdkpreviewparametervalidation) | false    |              |                                         |
+| `value`         | [nicloudsdk.NullHCLString](#nicloudsdknullhclstring)                                    | false    |              |                                         |
 
-## codersdk.PreviewParameterOption
+## nicloudsdk.PreviewParameterOption
 
 ```json
 {
@@ -10246,9 +10246,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `description` | string                                           | false    |              |             |
 | `icon`        | string                                           | false    |              |             |
 | `name`        | string                                           | false    |              |             |
-| `value`       | [codersdk.NullHCLString](#codersdknullhclstring) | false    |              |             |
+| `value`       | [nicloudsdk.NullHCLString](#nicloudsdknullhclstring) | false    |              |             |
 
-## codersdk.PreviewParameterStyling
+## nicloudsdk.PreviewParameterStyling
 
 ```json
 {
@@ -10268,7 +10268,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `mask_input`  | boolean | false    |              |             |
 | `placeholder` | string  | false    |              |             |
 
-## codersdk.PreviewParameterValidation
+## nicloudsdk.PreviewParameterValidation
 
 ```json
 {
@@ -10290,7 +10290,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `validation_monotonic` | string  | false    |              |                                         |
 | `validation_regex`     | string  | false    |              | All validation attributes are optional. |
 
-## codersdk.PrometheusConfig
+## nicloudsdk.PrometheusConfig
 
 ```json
 {
@@ -10317,7 +10317,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `collect_db_metrics`       | boolean                              | false    |              |             |
 | `enable`                   | boolean                              | false    |              |             |
 
-## codersdk.ProvisionerConfig
+## nicloudsdk.ProvisionerConfig
 
 ```json
 {
@@ -10343,7 +10343,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `daemons`               | integer         | false    |              | Daemons is the number of built-in terraform provisioners. |
 | `force_cancel_interval` | integer         | false    |              |                                                           |
 
-## codersdk.ProvisionerDaemon
+## nicloudsdk.ProvisionerDaemon
 
 ```json
 {
@@ -10387,16 +10387,16 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |--------------------|----------------------------------------------------------------------|----------|--------------|------------------|
 | `api_version`      | string                                                               | false    |              |                  |
 | `created_at`       | string                                                               | false    |              |                  |
-| `current_job`      | [codersdk.ProvisionerDaemonJob](#codersdkprovisionerdaemonjob)       | false    |              |                  |
+| `current_job`      | [nicloudsdk.ProvisionerDaemonJob](#nicloudsdkprovisionerdaemonjob)       | false    |              |                  |
 | `id`               | string                                                               | false    |              |                  |
 | `key_id`           | string                                                               | false    |              |                  |
 | `key_name`         | string                                                               | false    |              | Optional fields. |
 | `last_seen_at`     | string                                                               | false    |              |                  |
 | `name`             | string                                                               | false    |              |                  |
 | `organization_id`  | string                                                               | false    |              |                  |
-| `previous_job`     | [codersdk.ProvisionerDaemonJob](#codersdkprovisionerdaemonjob)       | false    |              |                  |
+| `previous_job`     | [nicloudsdk.ProvisionerDaemonJob](#nicloudsdkprovisionerdaemonjob)       | false    |              |                  |
 | `provisioners`     | array of string                                                      | false    |              |                  |
-| `status`           | [codersdk.ProvisionerDaemonStatus](#codersdkprovisionerdaemonstatus) | false    |              |                  |
+| `status`           | [nicloudsdk.ProvisionerDaemonStatus](#nicloudsdkprovisionerdaemonstatus) | false    |              |                  |
 | `tags`             | object                                                               | false    |              |                  |
 | » `[any property]` | string                                                               | false    |              |                  |
 | `version`          | string                                                               | false    |              |                  |
@@ -10407,7 +10407,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|---------------------------|
 | `status` | `busy`, `idle`, `offline` |
 
-## codersdk.ProvisionerDaemonJob
+## nicloudsdk.ProvisionerDaemonJob
 
 ```json
 {
@@ -10424,7 +10424,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name                    | Type                                                           | Required | Restrictions | Description |
 |-------------------------|----------------------------------------------------------------|----------|--------------|-------------|
 | `id`                    | string                                                         | false    |              |             |
-| `status`                | [codersdk.ProvisionerJobStatus](#codersdkprovisionerjobstatus) | false    |              |             |
+| `status`                | [nicloudsdk.ProvisionerJobStatus](#nicloudsdkprovisionerjobstatus) | false    |              |             |
 | `template_display_name` | string                                                         | false    |              |             |
 | `template_icon`         | string                                                         | false    |              |             |
 | `template_name`         | string                                                         | false    |              |             |
@@ -10435,7 +10435,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|----------------------------------------------------------------------|
 | `status` | `canceled`, `canceling`, `failed`, `pending`, `running`, `succeeded` |
 
-## codersdk.ProvisionerDaemonStatus
+## nicloudsdk.ProvisionerDaemonStatus
 
 ```json
 "offline"
@@ -10449,7 +10449,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------------------|
 | `busy`, `idle`, `offline` |
 
-## codersdk.ProvisionerJob
+## nicloudsdk.ProvisionerJob
 
 ```json
 {
@@ -10504,21 +10504,21 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `completed_at`      | string                                                             | false    |              |             |
 | `created_at`        | string                                                             | false    |              |             |
 | `error`             | string                                                             | false    |              |             |
-| `error_code`        | [codersdk.JobErrorCode](#codersdkjoberrorcode)                     | false    |              |             |
+| `error_code`        | [nicloudsdk.JobErrorCode](#nicloudsdkjoberrorcode)                     | false    |              |             |
 | `file_id`           | string                                                             | false    |              |             |
 | `id`                | string                                                             | false    |              |             |
 | `initiator_id`      | string                                                             | false    |              |             |
-| `input`             | [codersdk.ProvisionerJobInput](#codersdkprovisionerjobinput)       | false    |              |             |
+| `input`             | [nicloudsdk.ProvisionerJobInput](#nicloudsdkprovisionerjobinput)       | false    |              |             |
 | `logs_overflowed`   | boolean                                                            | false    |              |             |
-| `metadata`          | [codersdk.ProvisionerJobMetadata](#codersdkprovisionerjobmetadata) | false    |              |             |
+| `metadata`          | [nicloudsdk.ProvisionerJobMetadata](#nicloudsdkprovisionerjobmetadata) | false    |              |             |
 | `organization_id`   | string                                                             | false    |              |             |
 | `queue_position`    | integer                                                            | false    |              |             |
 | `queue_size`        | integer                                                            | false    |              |             |
 | `started_at`        | string                                                             | false    |              |             |
-| `status`            | [codersdk.ProvisionerJobStatus](#codersdkprovisionerjobstatus)     | false    |              |             |
+| `status`            | [nicloudsdk.ProvisionerJobStatus](#nicloudsdkprovisionerjobstatus)     | false    |              |             |
 | `tags`              | object                                                             | false    |              |             |
 | » `[any property]`  | string                                                             | false    |              |             |
-| `type`              | [codersdk.ProvisionerJobType](#codersdkprovisionerjobtype)         | false    |              |             |
+| `type`              | [nicloudsdk.ProvisionerJobType](#nicloudsdkprovisionerjobtype)         | false    |              |             |
 | `worker_id`         | string                                                             | false    |              |             |
 | `worker_name`       | string                                                             | false    |              |             |
 
@@ -10529,7 +10529,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `error_code` | `INSUFFICIENT_QUOTA`, `REQUIRED_TEMPLATE_VARIABLES`                  |
 | `status`     | `canceled`, `canceling`, `failed`, `pending`, `running`, `succeeded` |
 
-## codersdk.ProvisionerJobInput
+## nicloudsdk.ProvisionerJobInput
 
 ```json
 {
@@ -10547,7 +10547,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `template_version_id` | string | false    |              |             |
 | `workspace_build_id`  | string | false    |              |             |
 
-## codersdk.ProvisionerJobLog
+## nicloudsdk.ProvisionerJobLog
 
 ```json
 {
@@ -10566,8 +10566,8 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |--------------|------------------------------------------|----------|--------------|-------------|
 | `created_at` | string                                   | false    |              |             |
 | `id`         | integer                                  | false    |              |             |
-| `log_level`  | [codersdk.LogLevel](#codersdkloglevel)   | false    |              |             |
-| `log_source` | [codersdk.LogSource](#codersdklogsource) | false    |              |             |
+| `log_level`  | [nicloudsdk.LogLevel](#nicloudsdkloglevel)   | false    |              |             |
+| `log_source` | [nicloudsdk.LogSource](#nicloudsdklogsource) | false    |              |             |
 | `output`     | string                                   | false    |              |             |
 | `stage`      | string                                   | false    |              |             |
 
@@ -10577,7 +10577,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------|-------------------------------------------|
 | `log_level` | `debug`, `error`, `info`, `trace`, `warn` |
 
-## codersdk.ProvisionerJobMetadata
+## nicloudsdk.ProvisionerJobMetadata
 
 ```json
 {
@@ -10601,11 +10601,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `template_id`                | string                                                       | false    |              |             |
 | `template_name`              | string                                                       | false    |              |             |
 | `template_version_name`      | string                                                       | false    |              |             |
-| `workspace_build_transition` | [codersdk.WorkspaceTransition](#codersdkworkspacetransition) | false    |              |             |
+| `workspace_build_transition` | [nicloudsdk.WorkspaceTransition](#nicloudsdkworkspacetransition) | false    |              |             |
 | `workspace_id`               | string                                                       | false    |              |             |
 | `workspace_name`             | string                                                       | false    |              |             |
 
-## codersdk.ProvisionerJobStatus
+## nicloudsdk.ProvisionerJobStatus
 
 ```json
 "pending"
@@ -10619,7 +10619,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------------------------------------------------------------------------|
 | `canceled`, `canceling`, `failed`, `pending`, `running`, `succeeded`, `unknown` |
 
-## codersdk.ProvisionerJobType
+## nicloudsdk.ProvisionerJobType
 
 ```json
 "template_version_import"
@@ -10633,7 +10633,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |--------------------------------------------------------------------------|
 | `template_version_dry_run`, `template_version_import`, `workspace_build` |
 
-## codersdk.ProvisionerKey
+## nicloudsdk.ProvisionerKey
 
 ```json
 {
@@ -10656,9 +10656,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `id`           | string                                                     | false    |              |             |
 | `name`         | string                                                     | false    |              |             |
 | `organization` | string                                                     | false    |              |             |
-| `tags`         | [codersdk.ProvisionerKeyTags](#codersdkprovisionerkeytags) | false    |              |             |
+| `tags`         | [nicloudsdk.ProvisionerKeyTags](#nicloudsdkprovisionerkeytags) | false    |              |             |
 
-## codersdk.ProvisionerKeyDaemons
+## nicloudsdk.ProvisionerKeyDaemons
 
 ```json
 {
@@ -10714,10 +10714,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name      | Type                                                              | Required | Restrictions | Description |
 |-----------|-------------------------------------------------------------------|----------|--------------|-------------|
-| `daemons` | array of [codersdk.ProvisionerDaemon](#codersdkprovisionerdaemon) | false    |              |             |
-| `key`     | [codersdk.ProvisionerKey](#codersdkprovisionerkey)                | false    |              |             |
+| `daemons` | array of [nicloudsdk.ProvisionerDaemon](#nicloudsdkprovisionerdaemon) | false    |              |             |
+| `key`     | [nicloudsdk.ProvisionerKey](#nicloudsdkprovisionerkey)                | false    |              |             |
 
-## codersdk.ProvisionerKeyTags
+## nicloudsdk.ProvisionerKeyTags
 
 ```json
 {
@@ -10732,7 +10732,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |------------------|--------|----------|--------------|-------------|
 | `[any property]` | string | false    |              |             |
 
-## codersdk.ProvisionerLogLevel
+## nicloudsdk.ProvisionerLogLevel
 
 ```json
 "debug"
@@ -10746,7 +10746,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|
 | `debug`  |
 
-## codersdk.ProvisionerStorageMethod
+## nicloudsdk.ProvisionerStorageMethod
 
 ```json
 "file"
@@ -10760,7 +10760,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|
 | `file`   |
 
-## codersdk.ProvisionerTiming
+## nicloudsdk.ProvisionerTiming
 
 ```json
 {
@@ -10783,10 +10783,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `job_id`     | string                                       | false    |              |             |
 | `resource`   | string                                       | false    |              |             |
 | `source`     | string                                       | false    |              |             |
-| `stage`      | [codersdk.TimingStage](#codersdktimingstage) | false    |              |             |
+| `stage`      | [nicloudsdk.TimingStage](#nicloudsdktimingstage) | false    |              |             |
 | `started_at` | string                                       | false    |              |             |
 
-## codersdk.ProxyHealthReport
+## nicloudsdk.ProxyHealthReport
 
 ```json
 {
@@ -10806,7 +10806,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `errors`   | array of string | false    |              | Errors are problems that prevent the workspace proxy from being healthy                  |
 | `warnings` | array of string | false    |              | Warnings do not prevent the workspace proxy from being healthy, but should be addressed. |
 
-## codersdk.ProxyHealthStatus
+## nicloudsdk.ProxyHealthStatus
 
 ```json
 "ok"
@@ -10820,7 +10820,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |--------------------------------------------------|
 | `ok`, `unhealthy`, `unreachable`, `unregistered` |
 
-## codersdk.PutExtendWorkspaceRequest
+## nicloudsdk.PutExtendWorkspaceRequest
 
 ```json
 {
@@ -10834,7 +10834,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |------------|--------|----------|--------------|-------------|
 | `deadline` | string | true     |              |             |
 
-## codersdk.PutOAuth2ProviderAppRequest
+## nicloudsdk.PutOAuth2ProviderAppRequest
 
 ```json
 {
@@ -10852,7 +10852,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `icon`         | string | false    |              |             |
 | `name`         | string | true     |              |             |
 
-## codersdk.RBACAction
+## nicloudsdk.RBACAction
 
 ```json
 "application_connect"
@@ -10866,7 +10866,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `application_connect`, `assign`, `create`, `create_agent`, `delete`, `delete_agent`, `read`, `read_personal`, `share`, `ssh`, `start`, `stop`, `unassign`, `update`, `update_agent`, `update_personal`, `use`, `view_insights` |
 
-## codersdk.RBACResource
+## nicloudsdk.RBACResource
 
 ```json
 "*"
@@ -10880,7 +10880,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `*`, `ai_gateway_key`, `ai_model_price`, `ai_provider`, `ai_seat`, `aibridge_interception`, `api_key`, `assign_org_role`, `assign_role`, `audit_log`, `boundary_log`, `boundary_usage`, `chat`, `connection_log`, `crypto_key`, `debug_info`, `deployment_config`, `deployment_stats`, `file`, `group`, `group_member`, `idpsync_settings`, `inbox_notification`, `license`, `notification_message`, `notification_preference`, `notification_template`, `oauth2_app`, `oauth2_app_code_token`, `oauth2_app_secret`, `organization`, `organization_member`, `prebuilt_workspace`, `provisioner_daemon`, `provisioner_jobs`, `replicas`, `system`, `tailnet_coordinator`, `task`, `template`, `usage_event`, `user`, `user_secret`, `user_skill`, `webpush_subscription`, `workspace`, `workspace_agent_devcontainers`, `workspace_agent_resource_monitor`, `workspace_dormant`, `workspace_proxy` |
 
-## codersdk.RateLimitConfig
+## nicloudsdk.RateLimitConfig
 
 ```json
 {
@@ -10896,7 +10896,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `api`         | integer | false    |              |             |
 | `disable_all` | boolean | false    |              |             |
 
-## codersdk.ReducedUser
+## nicloudsdk.ReducedUser
 
 ```json
 {
@@ -10925,10 +10925,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `id`                 | string                                     | true     |              |                                                                                            |
 | `is_service_account` | boolean                                    | false    |              |                                                                                            |
 | `last_seen_at`       | string                                     | false    |              |                                                                                            |
-| `login_type`         | [codersdk.LoginType](#codersdklogintype)   | false    |              |                                                                                            |
+| `login_type`         | [nicloudsdk.LoginType](#nicloudsdklogintype)   | false    |              |                                                                                            |
 | `name`               | string                                     | false    |              |                                                                                            |
-| `status`             | [codersdk.UserStatus](#codersdkuserstatus) | false    |              |                                                                                            |
-| `theme_preference`   | string                                     | false    |              | Deprecated: this value should be retrieved from `codersdk.UserPreferenceSettings` instead. |
+| `status`             | [nicloudsdk.UserStatus](#nicloudsdkuserstatus) | false    |              |                                                                                            |
+| `theme_preference`   | string                                     | false    |              | Deprecated: this value should be retrieved from `nicloudsdk.UserPreferenceSettings` instead. |
 | `updated_at`         | string                                     | false    |              |                                                                                            |
 | `username`           | string                                     | true     |              |                                                                                            |
 
@@ -10938,7 +10938,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|-----------------------|
 | `status` | `active`, `suspended` |
 
-## codersdk.Region
+## nicloudsdk.Region
 
 ```json
 {
@@ -10964,7 +10964,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `path_app_url`      | string  | false    |              | Path app URL is the URL to the base path for path apps. Optional unless wildcard_hostname is set. E.g. https://us.example.com                                                     |
 | `wildcard_hostname` | string  | false    |              | Wildcard hostname is the wildcard hostname for subdomain apps. E.g. *.us.example.com E.g.*--suffix.au.example.com Optional. Does not need to be on the same domain as PathAppURL. |
 
-## codersdk.RegionsResponse-codersdk_Region
+## nicloudsdk.RegionsResponse-nicloudsdk_Region
 
 ```json
 {
@@ -10986,9 +10986,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name      | Type                                        | Required | Restrictions | Description |
 |-----------|---------------------------------------------|----------|--------------|-------------|
-| `regions` | array of [codersdk.Region](#codersdkregion) | false    |              |             |
+| `regions` | array of [nicloudsdk.Region](#nicloudsdkregion) | false    |              |             |
 
-## codersdk.RegionsResponse-codersdk_WorkspaceProxy
+## nicloudsdk.RegionsResponse-nicloudsdk_WorkspaceProxy
 
 ```json
 {
@@ -11028,9 +11028,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name      | Type                                                        | Required | Restrictions | Description |
 |-----------|-------------------------------------------------------------|----------|--------------|-------------|
-| `regions` | array of [codersdk.WorkspaceProxy](#codersdkworkspaceproxy) | false    |              |             |
+| `regions` | array of [nicloudsdk.WorkspaceProxy](#nicloudsdkworkspaceproxy) | false    |              |             |
 
-## codersdk.Replica
+## nicloudsdk.Replica
 
 ```json
 {
@@ -11056,7 +11056,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `region_id`        | integer | false    |              | Region ID is the region of the replica.                            |
 | `relay_address`    | string  | false    |              | Relay address is the accessible address to relay DERP connections. |
 
-## codersdk.RequestOneTimePasscodeRequest
+## nicloudsdk.RequestOneTimePasscodeRequest
 
 ```json
 {
@@ -11070,7 +11070,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------|--------|----------|--------------|-------------|
 | `email` | string | true     |              |             |
 
-## codersdk.ResolveAutostartResponse
+## nicloudsdk.ResolveAutostartResponse
 
 ```json
 {
@@ -11084,7 +11084,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------------------|---------|----------|--------------|-------------|
 | `parameter_mismatch` | boolean | false    |              |             |
 
-## codersdk.ResourceType
+## nicloudsdk.ResourceType
 
 ```json
 "template"
@@ -11098,7 +11098,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ai_gateway_key`, `ai_provider`, `ai_provider_key`, `ai_seat`, `api_key`, `chat`, `convert_login`, `custom_role`, `git_ssh_key`, `group`, `group_ai_budget`, `health_settings`, `idp_sync_settings_group`, `idp_sync_settings_organization`, `idp_sync_settings_role`, `license`, `notification_template`, `notifications_settings`, `oauth2_provider_app`, `oauth2_provider_app_secret`, `organization`, `organization_member`, `prebuilds_settings`, `task`, `template`, `template_version`, `user`, `user_secret`, `user_skill`, `workspace`, `workspace_agent`, `workspace_app`, `workspace_build`, `workspace_proxy` |
 
-## codersdk.Response
+## nicloudsdk.Response
 
 ```json
 {
@@ -11119,9 +11119,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------|---------------------------------------------------------------|----------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `detail`      | string                                                        | false    |              | Detail is a debug message that provides further insight into why the action failed. This information can be technical and a regular golang err.Error() text. - "database: too many open connections" - "stat: too many open files" |
 | `message`     | string                                                        | false    |              | Message is an actionable message that depicts actions the request took. These messages should be fully formed sentences with proper punctuation. Examples: - "A user has been created." - "Failed to create a user."               |
-| `validations` | array of [codersdk.ValidationError](#codersdkvalidationerror) | false    |              | Validations are form field-specific friendly error messages. They will be shown on a form field in the UI. These can also be used to add additional context if there is a set of errors in the primary 'Message'.                  |
+| `validations` | array of [nicloudsdk.ValidationError](#nicloudsdkvalidationerror) | false    |              | Validations are form field-specific friendly error messages. They will be shown on a form field in the UI. These can also be used to add additional context if there is a set of errors in the primary 'Message'.                  |
 
-## codersdk.ResumeTaskResponse
+## nicloudsdk.ResumeTaskResponse
 
 ```json
 {
@@ -11341,9 +11341,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name              | Type                                               | Required | Restrictions | Description |
 |-------------------|----------------------------------------------------|----------|--------------|-------------|
-| `workspace_build` | [codersdk.WorkspaceBuild](#codersdkworkspacebuild) | false    |              |             |
+| `workspace_build` | [nicloudsdk.WorkspaceBuild](#nicloudsdkworkspacebuild) | false    |              |             |
 
-## codersdk.RetentionConfig
+## nicloudsdk.RetentionConfig
 
 ```json
 {
@@ -11363,7 +11363,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `connection_logs`      | integer | false    |              | Connection logs controls how long connection log entries are retained. Set to 0 to disable (keep indefinitely).                                                                                                                                                  |
 | `workspace_agent_logs` | integer | false    |              | Workspace agent logs controls how long workspace agent logs are retained. Logs are deleted if the agent hasn't connected within this period. Logs from the latest build are always retained regardless of age. Defaults to 7 days to preserve existing behavior. |
 
-## codersdk.Role
+## nicloudsdk.Role
 
 ```json
 {
@@ -11408,12 +11408,12 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `display_name`                    | string                                              | false    |              |                                                                                                        |
 | `name`                            | string                                              | false    |              |                                                                                                        |
 | `organization_id`                 | string                                              | false    |              |                                                                                                        |
-| `organization_member_permissions` | array of [codersdk.Permission](#codersdkpermission) | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
-| `organization_permissions`        | array of [codersdk.Permission](#codersdkpermission) | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
-| `site_permissions`                | array of [codersdk.Permission](#codersdkpermission) | false    |              |                                                                                                        |
-| `user_permissions`                | array of [codersdk.Permission](#codersdkpermission) | false    |              |                                                                                                        |
+| `organization_member_permissions` | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              | Organization member permissions are specific for the organization in the field 'OrganizationID' above. |
+| `organization_permissions`        | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              | Organization permissions are specific for the organization in the field 'OrganizationID' above.        |
+| `site_permissions`                | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              |                                                                                                        |
+| `user_permissions`                | array of [nicloudsdk.Permission](#nicloudsdkpermission) | false    |              |                                                                                                        |
 
-## codersdk.RoleSyncSettings
+## nicloudsdk.RoleSyncSettings
 
 ```json
 {
@@ -11434,10 +11434,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name               | Type            | Required | Restrictions | Description                                                                                                                            |
 |--------------------|-----------------|----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | `field`            | string          | false    |              | Field is the name of the claim field that specifies what organization roles a user should be given. If empty, no roles will be synced. |
-| `mapping`          | object          | false    |              | Mapping is a map from OIDC groups to Coder organization roles.                                                                         |
+| `mapping`          | object          | false    |              | Mapping is a map from OIDC groups to Neural Inverse Cloud organization roles.                                                                         |
 | » `[any property]` | array of string | false    |              |                                                                                                                                        |
 
-## codersdk.SSHConfig
+## nicloudsdk.SSHConfig
 
 ```json
 {
@@ -11455,7 +11455,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `deploymentName`   | string          | false    |              | Deploymentname is the config-ssh Hostname prefix                                                    |
 | `sshconfigOptions` | array of string | false    |              | Sshconfigoptions are additional options to add to the ssh config file. This will override defaults. |
 
-## codersdk.SSHConfigResponse
+## nicloudsdk.SSHConfigResponse
 
 ```json
 {
@@ -11477,7 +11477,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `ssh_config_options` | object | false    |              |                                                                                                                       |
 | » `[any property]`   | string | false    |              |                                                                                                                       |
 
-## codersdk.ServerSentEvent
+## nicloudsdk.ServerSentEvent
 
 ```json
 {
@@ -11491,9 +11491,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name   | Type                                                         | Required | Restrictions | Description |
 |--------|--------------------------------------------------------------|----------|--------------|-------------|
 | `data` | any                                                          | false    |              |             |
-| `type` | [codersdk.ServerSentEventType](#codersdkserversenteventtype) | false    |              |             |
+| `type` | [nicloudsdk.ServerSentEventType](#nicloudsdkserversenteventtype) | false    |              |             |
 
-## codersdk.ServerSentEventType
+## nicloudsdk.ServerSentEventType
 
 ```json
 "ping"
@@ -11507,7 +11507,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------------|
 | `data`, `error`, `ping` |
 
-## codersdk.SessionCountDeploymentStats
+## nicloudsdk.SessionCountDeploymentStats
 
 ```json
 {
@@ -11527,7 +11527,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `ssh`              | integer | false    |              |             |
 | `vscode`           | integer | false    |              |             |
 
-## codersdk.SessionLifetime
+## nicloudsdk.SessionLifetime
 
 ```json
 {
@@ -11551,7 +11551,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `max_token_lifetime`       | integer | false    |              |                                                                                                                                                                                        |
 | `refresh_default_duration` | integer | false    |              | Refresh default duration is the default lifetime for OAuth2 refresh tokens. This should generally be longer than access token lifetimes to allow refreshing after access token expiry. |
 
-## codersdk.ShareableWorkspaceOwners
+## nicloudsdk.ShareableWorkspaceOwners
 
 ```json
 "none"
@@ -11565,7 +11565,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------------------------------------|
 | `everyone`, `none`, `service_accounts` |
 
-## codersdk.SharedWorkspaceActor
+## nicloudsdk.SharedWorkspaceActor
 
 ```json
 {
@@ -11583,11 +11583,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name         | Type                                                                   | Required | Restrictions | Description |
 |--------------|------------------------------------------------------------------------|----------|--------------|-------------|
-| `actor_type` | [codersdk.SharedWorkspaceActorType](#codersdksharedworkspaceactortype) | false    |              |             |
+| `actor_type` | [nicloudsdk.SharedWorkspaceActorType](#nicloudsdksharedworkspaceactortype) | false    |              |             |
 | `avatar_url` | string                                                                 | false    |              |             |
 | `id`         | string                                                                 | false    |              |             |
 | `name`       | string                                                                 | false    |              |             |
-| `roles`      | array of [codersdk.WorkspaceRole](#codersdkworkspacerole)              | false    |              |             |
+| `roles`      | array of [nicloudsdk.WorkspaceRole](#nicloudsdkworkspacerole)              | false    |              |             |
 
 #### Enumerated Values
 
@@ -11595,7 +11595,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |--------------|-----------------|
 | `actor_type` | `group`, `user` |
 
-## codersdk.SharedWorkspaceActorType
+## nicloudsdk.SharedWorkspaceActorType
 
 ```json
 "group"
@@ -11609,7 +11609,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------------|
 | `group`, `user` |
 
-## codersdk.SlimRole
+## nicloudsdk.SlimRole
 
 ```json
 {
@@ -11627,7 +11627,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `name`            | string | false    |              |             |
 | `organization_id` | string | false    |              |             |
 
-## codersdk.StatsCollectionConfig
+## nicloudsdk.StatsCollectionConfig
 
 ```json
 {
@@ -11641,9 +11641,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name          | Type                                                   | Required | Restrictions | Description |
 |---------------|--------------------------------------------------------|----------|--------------|-------------|
-| `usage_stats` | [codersdk.UsageStatsConfig](#codersdkusagestatsconfig) | false    |              |             |
+| `usage_stats` | [nicloudsdk.UsageStatsConfig](#nicloudsdkusagestatsconfig) | false    |              |             |
 
-## codersdk.SupportConfig
+## nicloudsdk.SupportConfig
 
 ```json
 {
@@ -11664,9 +11664,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name    | Type                                                                                 | Required | Restrictions | Description |
 |---------|--------------------------------------------------------------------------------------|----------|--------------|-------------|
-| `links` | [serpent.Struct-array_codersdk_LinkConfig](#serpentstruct-array_codersdk_linkconfig) | false    |              |             |
+| `links` | [serpent.Struct-array_nicloudsdk_LinkConfig](#serpentstruct-array_nicloudsdk_linkconfig) | false    |              |             |
 
-## codersdk.SwaggerConfig
+## nicloudsdk.SwaggerConfig
 
 ```json
 {
@@ -11680,7 +11680,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------|---------|----------|--------------|-------------|
 | `enable` | boolean | false    |              |             |
 
-## codersdk.TLSConfig
+## nicloudsdk.TLSConfig
 
 ```json
 {
@@ -11725,7 +11725,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `redirect_http`          | boolean                              | false    |              |             |
 | `supported_ciphers`      | array of string                      | false    |              |             |
 
-## codersdk.Task
+## nicloudsdk.Task
 
 ```json
 {
@@ -11779,7 +11779,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name                        | Type                                                                 | Required | Restrictions | Description |
 |-----------------------------|----------------------------------------------------------------------|----------|--------------|-------------|
 | `created_at`                | string                                                               | false    |              |             |
-| `current_state`             | [codersdk.TaskStateEntry](#codersdktaskstateentry)                   | false    |              |             |
+| `current_state`             | [nicloudsdk.TaskStateEntry](#nicloudsdktaskstateentry)                   | false    |              |             |
 | `display_name`              | string                                                               | false    |              |             |
 | `id`                        | string                                                               | false    |              |             |
 | `initial_prompt`            | string                                                               | false    |              |             |
@@ -11788,21 +11788,21 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `owner_avatar_url`          | string                                                               | false    |              |             |
 | `owner_id`                  | string                                                               | false    |              |             |
 | `owner_name`                | string                                                               | false    |              |             |
-| `status`                    | [codersdk.TaskStatus](#codersdktaskstatus)                           | false    |              |             |
+| `status`                    | [nicloudsdk.TaskStatus](#nicloudsdktaskstatus)                           | false    |              |             |
 | `template_display_name`     | string                                                               | false    |              |             |
 | `template_icon`             | string                                                               | false    |              |             |
 | `template_id`               | string                                                               | false    |              |             |
 | `template_name`             | string                                                               | false    |              |             |
 | `template_version_id`       | string                                                               | false    |              |             |
 | `updated_at`                | string                                                               | false    |              |             |
-| `workspace_agent_health`    | [codersdk.WorkspaceAgentHealth](#codersdkworkspaceagenthealth)       | false    |              |             |
+| `workspace_agent_health`    | [nicloudsdk.WorkspaceAgentHealth](#nicloudsdkworkspaceagenthealth)       | false    |              |             |
 | `workspace_agent_id`        | [uuid.NullUUID](#uuidnulluuid)                                       | false    |              |             |
-| `workspace_agent_lifecycle` | [codersdk.WorkspaceAgentLifecycle](#codersdkworkspaceagentlifecycle) | false    |              |             |
+| `workspace_agent_lifecycle` | [nicloudsdk.WorkspaceAgentLifecycle](#nicloudsdkworkspaceagentlifecycle) | false    |              |             |
 | `workspace_app_id`          | [uuid.NullUUID](#uuidnulluuid)                                       | false    |              |             |
 | `workspace_build_number`    | integer                                                              | false    |              |             |
 | `workspace_id`              | [uuid.NullUUID](#uuidnulluuid)                                       | false    |              |             |
 | `workspace_name`            | string                                                               | false    |              |             |
-| `workspace_status`          | [codersdk.WorkspaceStatus](#codersdkworkspacestatus)                 | false    |              |             |
+| `workspace_status`          | [nicloudsdk.WorkspaceStatus](#nicloudsdkworkspacestatus)                 | false    |              |             |
 
 #### Enumerated Values
 
@@ -11811,7 +11811,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `status`           | `active`, `error`, `initializing`, `paused`, `pending`, `unknown`                                                 |
 | `workspace_status` | `canceled`, `canceling`, `deleted`, `deleting`, `failed`, `pending`, `running`, `starting`, `stopped`, `stopping` |
 
-## codersdk.TaskLogEntry
+## nicloudsdk.TaskLogEntry
 
 ```json
 {
@@ -11829,9 +11829,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `content` | string                                       | false    |              |             |
 | `id`      | integer                                      | false    |              |             |
 | `time`    | string                                       | false    |              |             |
-| `type`    | [codersdk.TaskLogType](#codersdktasklogtype) | false    |              |             |
+| `type`    | [nicloudsdk.TaskLogType](#nicloudsdktasklogtype) | false    |              |             |
 
-## codersdk.TaskLogType
+## nicloudsdk.TaskLogType
 
 ```json
 "input"
@@ -11845,7 +11845,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------|
 | `input`, `output` |
 
-## codersdk.TaskLogsResponse
+## nicloudsdk.TaskLogsResponse
 
 ```json
 {
@@ -11866,11 +11866,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name          | Type                                                    | Required | Restrictions | Description |
 |---------------|---------------------------------------------------------|----------|--------------|-------------|
-| `logs`        | array of [codersdk.TaskLogEntry](#codersdktasklogentry) | false    |              |             |
+| `logs`        | array of [nicloudsdk.TaskLogEntry](#nicloudsdktasklogentry) | false    |              |             |
 | `snapshot`    | boolean                                                 | false    |              |             |
 | `snapshot_at` | string                                                  | false    |              |             |
 
-## codersdk.TaskSendRequest
+## nicloudsdk.TaskSendRequest
 
 ```json
 {
@@ -11884,7 +11884,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------|--------|----------|--------------|-------------|
 | `input` | string | false    |              |             |
 
-## codersdk.TaskState
+## nicloudsdk.TaskState
 
 ```json
 "working"
@@ -11898,7 +11898,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-----------------------------------------|
 | `complete`, `failed`, `idle`, `working` |
 
-## codersdk.TaskStateEntry
+## nicloudsdk.TaskStateEntry
 
 ```json
 {
@@ -11914,11 +11914,11 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name        | Type                                     | Required | Restrictions | Description |
 |-------------|------------------------------------------|----------|--------------|-------------|
 | `message`   | string                                   | false    |              |             |
-| `state`     | [codersdk.TaskState](#codersdktaskstate) | false    |              |             |
+| `state`     | [nicloudsdk.TaskState](#nicloudsdktaskstate) | false    |              |             |
 | `timestamp` | string                                   | false    |              |             |
 | `uri`       | string                                   | false    |              |             |
 
-## codersdk.TaskStatus
+## nicloudsdk.TaskStatus
 
 ```json
 "pending"
@@ -11932,7 +11932,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |-------------------------------------------------------------------|
 | `active`, `error`, `initializing`, `paused`, `pending`, `unknown` |
 
-## codersdk.TasksListResponse
+## nicloudsdk.TasksListResponse
 
 ```json
 {
@@ -11991,9 +11991,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | Name    | Type                                    | Required | Restrictions | Description |
 |---------|-----------------------------------------|----------|--------------|-------------|
 | `count` | integer                                 | false    |              |             |
-| `tasks` | array of [codersdk.Task](#codersdktask) | false    |              |             |
+| `tasks` | array of [nicloudsdk.Task](#nicloudsdktask) | false    |              |             |
 
-## codersdk.TelemetryConfig
+## nicloudsdk.TelemetryConfig
 
 ```json
 {
@@ -12023,7 +12023,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `trace`  | boolean                    | false    |              |             |
 | `url`    | [serpent.URL](#serpenturl) | false    |              |             |
 
-## codersdk.Template
+## nicloudsdk.Template
 
 ```json
 {
@@ -12093,10 +12093,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `allow_user_autostart`             | boolean                                                                        | false    |              | Allow user autostart and AllowUserAutostop are enterprise-only. Their values are only used if your license is entitled to use the advanced template scheduling feature.                         |
 | `allow_user_autostop`              | boolean                                                                        | false    |              |                                                                                                                                                                                                 |
 | `allow_user_cancel_workspace_jobs` | boolean                                                                        | false    |              |                                                                                                                                                                                                 |
-| `autostart_requirement`            | [codersdk.TemplateAutostartRequirement](#codersdktemplateautostartrequirement) | false    |              |                                                                                                                                                                                                 |
-| `autostop_requirement`             | [codersdk.TemplateAutostopRequirement](#codersdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement are enterprise features. Its value is only used if your license is entitled to use the advanced template scheduling feature.                      |
-| `build_time_stats`                 | [codersdk.TemplateBuildTimeStats](#codersdktemplatebuildtimestats)             | false    |              |                                                                                                                                                                                                 |
-| `cors_behavior`                    | [codersdk.CORSBehavior](#codersdkcorsbehavior)                                 | false    |              |                                                                                                                                                                                                 |
+| `autostart_requirement`            | [nicloudsdk.TemplateAutostartRequirement](#nicloudsdktemplateautostartrequirement) | false    |              |                                                                                                                                                                                                 |
+| `autostop_requirement`             | [nicloudsdk.TemplateAutostopRequirement](#nicloudsdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement are enterprise features. Its value is only used if your license is entitled to use the advanced template scheduling feature.                      |
+| `build_time_stats`                 | [nicloudsdk.TemplateBuildTimeStats](#nicloudsdktemplatebuildtimestats)             | false    |              |                                                                                                                                                                                                 |
+| `cors_behavior`                    | [nicloudsdk.CORSBehavior](#nicloudsdkcorsbehavior)                                 | false    |              |                                                                                                                                                                                                 |
 | `created_at`                       | string                                                                         | false    |              |                                                                                                                                                                                                 |
 | `created_by_id`                    | string                                                                         | false    |              |                                                                                                                                                                                                 |
 | `created_by_name`                  | string                                                                         | false    |              |                                                                                                                                                                                                 |
@@ -12110,7 +12110,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `failure_ttl_ms`                   | integer                                                                        | false    |              | Failure ttl ms TimeTilDormantMillis, and TimeTilDormantAutoDeleteMillis are enterprise-only. Their values are used if your license is entitled to use the advanced template scheduling feature. |
 | `icon`                             | string                                                                         | false    |              |                                                                                                                                                                                                 |
 | `id`                               | string                                                                         | false    |              |                                                                                                                                                                                                 |
-| `max_port_share_level`             | [codersdk.WorkspaceAgentPortShareLevel](#codersdkworkspaceagentportsharelevel) | false    |              |                                                                                                                                                                                                 |
+| `max_port_share_level`             | [nicloudsdk.WorkspaceAgentPortShareLevel](#nicloudsdkworkspaceagentportsharelevel) | false    |              |                                                                                                                                                                                                 |
 | `name`                             | string                                                                         | false    |              |                                                                                                                                                                                                 |
 | `organization_display_name`        | string                                                                         | false    |              |                                                                                                                                                                                                 |
 | `organization_icon`                | string                                                                         | false    |              |                                                                                                                                                                                                 |
@@ -12129,7 +12129,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---------------|-------------|
 | `provisioner` | `terraform` |
 
-## codersdk.TemplateACL
+## nicloudsdk.TemplateACL
 
 ```json
 {
@@ -12199,10 +12199,10 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 
 | Name    | Type                                                      | Required | Restrictions | Description |
 |---------|-----------------------------------------------------------|----------|--------------|-------------|
-| `group` | array of [codersdk.TemplateGroup](#codersdktemplategroup) | false    |              |             |
-| `users` | array of [codersdk.TemplateUser](#codersdktemplateuser)   | false    |              |             |
+| `group` | array of [nicloudsdk.TemplateGroup](#nicloudsdktemplategroup) | false    |              |             |
+| `users` | array of [nicloudsdk.TemplateUser](#nicloudsdktemplateuser)   | false    |              |             |
 
-## codersdk.TemplateAppUsage
+## nicloudsdk.TemplateAppUsage
 
 ```json
 {
@@ -12228,9 +12228,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 | `slug`         | string                                                 | false    |              |             |
 | `template_ids` | array of string                                        | false    |              |             |
 | `times_used`   | integer                                                | false    |              |             |
-| `type`         | [codersdk.TemplateAppsType](#codersdktemplateappstype) | false    |              |             |
+| `type`         | [nicloudsdk.TemplateAppsType](#nicloudsdktemplateappstype) | false    |              |             |
 
-## codersdk.TemplateAppsType
+## nicloudsdk.TemplateAppsType
 
 ```json
 "builtin"
@@ -12244,7 +12244,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |------------------|
 | `app`, `builtin` |
 
-## codersdk.TemplateAutostartRequirement
+## nicloudsdk.TemplateAutostartRequirement
 
 ```json
 {
@@ -12260,7 +12260,7 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |----------------|-----------------|----------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | `days_of_week` | array of string | false    |              | Days of week is a list of days of the week in which autostart is allowed to happen. If no days are specified, autostart is not allowed. |
 
-## codersdk.TemplateAutostopRequirement
+## nicloudsdk.TemplateAutostopRequirement
 
 ```json
 {
@@ -12277,9 +12277,9 @@ Only certain features set these fields: - FeatureManagedAgentLimit|
 |---|---|---|---|---|
 |`days_of_week`|array of string|false||Days of week is a list of days of the week on which restarts are required. Restarts happen within the user's quiet hours (in their configured timezone). If no days are specified, restarts are not required. Weekdays cannot be specified twice.
 Restarts will only happen on weekdays in this list on weeks which line up with Weeks.|
-|`weeks`|integer|false||Weeks is the number of weeks between required restarts. Weeks are synced across all workspaces (and Coder deployments) using modulo math on a hardcoded epoch week of January 2nd, 2023 (the first Monday of 2023). Values of 0 or 1 indicate weekly restarts. Values of 2 indicate fortnightly restarts, etc.|
+|`weeks`|integer|false||Weeks is the number of weeks between required restarts. Weeks are synced across all workspaces (and Neural Inverse Cloud deployments) using modulo math on a hardcoded epoch week of January 2nd, 2023 (the first Monday of 2023). Values of 0 or 1 indicate weekly restarts. Values of 2 indicate fortnightly restarts, etc.|
 
-## codersdk.TemplateBuildTimeStats
+## nicloudsdk.TemplateBuildTimeStats
 
 ```json
 {
@@ -12298,9 +12298,9 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 
 | Name             | Type                                                 | Required | Restrictions | Description |
 |------------------|------------------------------------------------------|----------|--------------|-------------|
-| `[any property]` | [codersdk.TransitionStats](#codersdktransitionstats) | false    |              |             |
+| `[any property]` | [nicloudsdk.TransitionStats](#nicloudsdktransitionstats) | false    |              |             |
 
-## codersdk.TemplateBuilderConfig
+## nicloudsdk.TemplateBuilderConfig
 
 ```json
 {
@@ -12316,7 +12316,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `disabled`     | boolean | false    |              |             |
 | `registry_url` | string  | false    |              |             |
 
-## codersdk.TemplateExample
+## nicloudsdk.TemplateExample
 
 ```json
 {
@@ -12344,7 +12344,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `tags`        | array of string | false    |              |             |
 | `url`         | string          | false    |              |             |
 
-## codersdk.TemplateGroup
+## nicloudsdk.TemplateGroup
 
 ```json
 {
@@ -12385,14 +12385,14 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `avatar_url`                | string                                                | false    |              |                                                                                                                                                                       |
 | `display_name`              | string                                                | false    |              |                                                                                                                                                                       |
 | `id`                        | string                                                | false    |              |                                                                                                                                                                       |
-| `members`                   | array of [codersdk.ReducedUser](#codersdkreduceduser) | false    |              |                                                                                                                                                                       |
+| `members`                   | array of [nicloudsdk.ReducedUser](#nicloudsdkreduceduser) | false    |              |                                                                                                                                                                       |
 | `name`                      | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_display_name` | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_id`           | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_name`         | string                                                | false    |              |                                                                                                                                                                       |
 | `quota_allowance`           | integer                                               | false    |              |                                                                                                                                                                       |
-| `role`                      | [codersdk.TemplateRole](#codersdktemplaterole)        | false    |              |                                                                                                                                                                       |
-| `source`                    | [codersdk.GroupSource](#codersdkgroupsource)          | false    |              |                                                                                                                                                                       |
+| `role`                      | [nicloudsdk.TemplateRole](#nicloudsdktemplaterole)        | false    |              |                                                                                                                                                                       |
+| `source`                    | [nicloudsdk.GroupSource](#nicloudsdkgroupsource)          | false    |              |                                                                                                                                                                       |
 | `total_member_count`        | integer                                               | false    |              | How many members are in this group. Shows the total count, even if the user is not authorized to read group member details. May be greater than `len(Group.Members)`. |
 
 #### Enumerated Values
@@ -12401,7 +12401,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |----------|----------------|
 | `role`   | `admin`, `use` |
 
-## codersdk.TemplateInsightsIntervalReport
+## nicloudsdk.TemplateInsightsIntervalReport
 
 ```json
 {
@@ -12421,11 +12421,11 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |----------------|--------------------------------------------------------------------|----------|--------------|-------------|
 | `active_users` | integer                                                            | false    |              |             |
 | `end_time`     | string                                                             | false    |              |             |
-| `interval`     | [codersdk.InsightsReportInterval](#codersdkinsightsreportinterval) | false    |              |             |
+| `interval`     | [nicloudsdk.InsightsReportInterval](#nicloudsdkinsightsreportinterval) | false    |              |             |
 | `start_time`   | string                                                             | false    |              |             |
 | `template_ids` | array of string                                                    | false    |              |             |
 
-## codersdk.TemplateInsightsReport
+## nicloudsdk.TemplateInsightsReport
 
 ```json
 {
@@ -12481,13 +12481,13 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | Name               | Type                                                                        | Required | Restrictions | Description |
 |--------------------|-----------------------------------------------------------------------------|----------|--------------|-------------|
 | `active_users`     | integer                                                                     | false    |              |             |
-| `apps_usage`       | array of [codersdk.TemplateAppUsage](#codersdktemplateappusage)             | false    |              |             |
+| `apps_usage`       | array of [nicloudsdk.TemplateAppUsage](#nicloudsdktemplateappusage)             | false    |              |             |
 | `end_time`         | string                                                                      | false    |              |             |
-| `parameters_usage` | array of [codersdk.TemplateParameterUsage](#codersdktemplateparameterusage) | false    |              |             |
+| `parameters_usage` | array of [nicloudsdk.TemplateParameterUsage](#nicloudsdktemplateparameterusage) | false    |              |             |
 | `start_time`       | string                                                                      | false    |              |             |
 | `template_ids`     | array of string                                                             | false    |              |             |
 
-## codersdk.TemplateInsightsResponse
+## nicloudsdk.TemplateInsightsResponse
 
 ```json
 {
@@ -12555,10 +12555,10 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 
 | Name               | Type                                                                                        | Required | Restrictions | Description |
 |--------------------|---------------------------------------------------------------------------------------------|----------|--------------|-------------|
-| `interval_reports` | array of [codersdk.TemplateInsightsIntervalReport](#codersdktemplateinsightsintervalreport) | false    |              |             |
-| `report`           | [codersdk.TemplateInsightsReport](#codersdktemplateinsightsreport)                          | false    |              |             |
+| `interval_reports` | array of [nicloudsdk.TemplateInsightsIntervalReport](#nicloudsdktemplateinsightsintervalreport) | false    |              |             |
+| `report`           | [nicloudsdk.TemplateInsightsReport](#nicloudsdktemplateinsightsreport)                          | false    |              |             |
 
-## codersdk.TemplateParameterUsage
+## nicloudsdk.TemplateParameterUsage
 
 ```json
 {
@@ -12593,12 +12593,12 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `description`  | string                                                                                      | false    |              |             |
 | `display_name` | string                                                                                      | false    |              |             |
 | `name`         | string                                                                                      | false    |              |             |
-| `options`      | array of [codersdk.TemplateVersionParameterOption](#codersdktemplateversionparameteroption) | false    |              |             |
+| `options`      | array of [nicloudsdk.TemplateVersionParameterOption](#nicloudsdktemplateversionparameteroption) | false    |              |             |
 | `template_ids` | array of string                                                                             | false    |              |             |
 | `type`         | string                                                                                      | false    |              |             |
-| `values`       | array of [codersdk.TemplateParameterValue](#codersdktemplateparametervalue)                 | false    |              |             |
+| `values`       | array of [nicloudsdk.TemplateParameterValue](#nicloudsdktemplateparametervalue)                 | false    |              |             |
 
-## codersdk.TemplateParameterValue
+## nicloudsdk.TemplateParameterValue
 
 ```json
 {
@@ -12614,7 +12614,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `count` | integer | false    |              |             |
 | `value` | string  | false    |              |             |
 
-## codersdk.TemplateRole
+## nicloudsdk.TemplateRole
 
 ```json
 "admin"
@@ -12628,7 +12628,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |--------------------|
 | ``, `admin`, `use` |
 
-## codersdk.TemplateUser
+## nicloudsdk.TemplateUser
 
 ```json
 {
@@ -12670,13 +12670,13 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `id`                 | string                                          | true     |              |                                                                                                  |
 | `is_service_account` | boolean                                         | false    |              |                                                                                                  |
 | `last_seen_at`       | string                                          | false    |              |                                                                                                  |
-| `login_type`         | [codersdk.LoginType](#codersdklogintype)        | false    |              |                                                                                                  |
+| `login_type`         | [nicloudsdk.LoginType](#nicloudsdklogintype)        | false    |              |                                                                                                  |
 | `name`               | string                                          | false    |              |                                                                                                  |
 | `organization_ids`   | array of string                                 | false    |              |                                                                                                  |
-| `role`               | [codersdk.TemplateRole](#codersdktemplaterole)  | false    |              |                                                                                                  |
-| `roles`              | array of [codersdk.SlimRole](#codersdkslimrole) | false    |              |                                                                                                  |
-| `status`             | [codersdk.UserStatus](#codersdkuserstatus)      | false    |              |                                                                                                  |
-| `theme_preference`   | string                                          | false    |              | Deprecated: this value should be retrieved from `codersdk.UserPreferenceSettings` instead.       |
+| `role`               | [nicloudsdk.TemplateRole](#nicloudsdktemplaterole)  | false    |              |                                                                                                  |
+| `roles`              | array of [nicloudsdk.SlimRole](#nicloudsdkslimrole) | false    |              |                                                                                                  |
+| `status`             | [nicloudsdk.UserStatus](#nicloudsdkuserstatus)      | false    |              |                                                                                                  |
+| `theme_preference`   | string                                          | false    |              | Deprecated: this value should be retrieved from `nicloudsdk.UserPreferenceSettings` instead.       |
 | `updated_at`         | string                                          | false    |              |                                                                                                  |
 | `username`           | string                                          | true     |              |                                                                                                  |
 
@@ -12687,7 +12687,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `role`   | `admin`, `use`        |
 | `status` | `active`, `suspended` |
 
-## codersdk.TemplateVersion
+## nicloudsdk.TemplateVersion
 
 ```json
 {
@@ -12765,20 +12765,20 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |------------------------|-----------------------------------------------------------------------------|----------|--------------|-------------|
 | `archived`             | boolean                                                                     | false    |              |             |
 | `created_at`           | string                                                                      | false    |              |             |
-| `created_by`           | [codersdk.MinimalUser](#codersdkminimaluser)                                | false    |              |             |
+| `created_by`           | [nicloudsdk.MinimalUser](#nicloudsdkminimaluser)                                | false    |              |             |
 | `has_external_agent`   | boolean                                                                     | false    |              |             |
 | `id`                   | string                                                                      | false    |              |             |
-| `job`                  | [codersdk.ProvisionerJob](#codersdkprovisionerjob)                          | false    |              |             |
-| `matched_provisioners` | [codersdk.MatchedProvisioners](#codersdkmatchedprovisioners)                | false    |              |             |
+| `job`                  | [nicloudsdk.ProvisionerJob](#nicloudsdkprovisionerjob)                          | false    |              |             |
+| `matched_provisioners` | [nicloudsdk.MatchedProvisioners](#nicloudsdkmatchedprovisioners)                | false    |              |             |
 | `message`              | string                                                                      | false    |              |             |
 | `name`                 | string                                                                      | false    |              |             |
 | `organization_id`      | string                                                                      | false    |              |             |
 | `readme`               | string                                                                      | false    |              |             |
 | `template_id`          | string                                                                      | false    |              |             |
 | `updated_at`           | string                                                                      | false    |              |             |
-| `warnings`             | array of [codersdk.TemplateVersionWarning](#codersdktemplateversionwarning) | false    |              |             |
+| `warnings`             | array of [nicloudsdk.TemplateVersionWarning](#nicloudsdktemplateversionwarning) | false    |              |             |
 
-## codersdk.TemplateVersionExternalAuth
+## nicloudsdk.TemplateVersionExternalAuth
 
 ```json
 {
@@ -12804,7 +12804,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `optional`         | boolean | false    |              |             |
 | `type`             | string  | false    |              |             |
 
-## codersdk.TemplateVersionParameter
+## nicloudsdk.TemplateVersionParameter
 
 ```json
 {
@@ -12848,13 +12848,13 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `icon`                  | string                                                                                      | false    |              |                                                                                                    |
 | `mutable`               | boolean                                                                                     | false    |              |                                                                                                    |
 | `name`                  | string                                                                                      | false    |              |                                                                                                    |
-| `options`               | array of [codersdk.TemplateVersionParameterOption](#codersdktemplateversionparameteroption) | false    |              |                                                                                                    |
+| `options`               | array of [nicloudsdk.TemplateVersionParameterOption](#nicloudsdktemplateversionparameteroption) | false    |              |                                                                                                    |
 | `required`              | boolean                                                                                     | false    |              |                                                                                                    |
 | `type`                  | string                                                                                      | false    |              |                                                                                                    |
 | `validation_error`      | string                                                                                      | false    |              |                                                                                                    |
 | `validation_max`        | integer                                                                                     | false    |              |                                                                                                    |
 | `validation_min`        | integer                                                                                     | false    |              |                                                                                                    |
-| `validation_monotonic`  | [codersdk.ValidationMonotonicOrder](#codersdkvalidationmonotonicorder)                      | false    |              |                                                                                                    |
+| `validation_monotonic`  | [nicloudsdk.ValidationMonotonicOrder](#nicloudsdkvalidationmonotonicorder)                      | false    |              |                                                                                                    |
 | `validation_regex`      | string                                                                                      | false    |              |                                                                                                    |
 
 #### Enumerated Values
@@ -12865,7 +12865,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `type`                 | `bool`, `list(string)`, `number`, `string`                                                                          |
 | `validation_monotonic` | `decreasing`, `increasing`                                                                                          |
 
-## codersdk.TemplateVersionParameterOption
+## nicloudsdk.TemplateVersionParameterOption
 
 ```json
 {
@@ -12885,7 +12885,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `name`        | string | false    |              |             |
 | `value`       | string | false    |              |             |
 
-## codersdk.TemplateVersionVariable
+## nicloudsdk.TemplateVersionVariable
 
 ```json
 {
@@ -12917,7 +12917,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |----------|----------------------------|
 | `type`   | `bool`, `number`, `string` |
 
-## codersdk.TemplateVersionWarning
+## nicloudsdk.TemplateVersionWarning
 
 ```json
 "UNSUPPORTED_WORKSPACES"
@@ -12931,7 +12931,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |--------------------------|
 | `UNSUPPORTED_WORKSPACES` |
 
-## codersdk.TerminalFontName
+## nicloudsdk.TerminalFontName
 
 ```json
 ""
@@ -12945,7 +12945,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |-------------------------------------------------------------------------------------|
 | ``, `fira-code`, `geist-mono`, `ibm-plex-mono`, `jetbrains-mono`, `source-code-pro` |
 
-## codersdk.ThemeMode
+## nicloudsdk.ThemeMode
 
 ```json
 ""
@@ -12959,7 +12959,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |----------------------|
 | ``, `single`, `sync` |
 
-## codersdk.ThinkingDisplayMode
+## nicloudsdk.ThinkingDisplayMode
 
 ```json
 "auto"
@@ -12973,7 +12973,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |----------------------------------------------------------|
 | `always_collapsed`, `always_expanded`, `auto`, `preview` |
 
-## codersdk.TimingStage
+## nicloudsdk.TimingStage
 
 ```json
 "init"
@@ -12987,7 +12987,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |----------------------------------------------------------------------|
 | `apply`, `connect`, `cron`, `graph`, `init`, `plan`, `start`, `stop` |
 
-## codersdk.TokenConfig
+## nicloudsdk.TokenConfig
 
 ```json
 {
@@ -13001,7 +13001,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |----------------------|---------|----------|--------------|-------------|
 | `max_token_lifetime` | integer | false    |              |             |
 
-## codersdk.TraceConfig
+## nicloudsdk.TraceConfig
 
 ```json
 {
@@ -13021,7 +13021,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `enable`            | boolean | false    |              |             |
 | `honeycomb_api_key` | string  | false    |              |             |
 
-## codersdk.TransitionStats
+## nicloudsdk.TransitionStats
 
 ```json
 {
@@ -13037,7 +13037,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `p50` | integer | false    |              |             |
 | `p95` | integer | false    |              |             |
 
-## codersdk.UpdateAIProviderRequest
+## nicloudsdk.UpdateAIProviderRequest
 
 ```json
 {
@@ -13058,13 +13058,13 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 
 | Name           | Type                                                                      | Required | Restrictions | Description |
 |----------------|---------------------------------------------------------------------------|----------|--------------|-------------|
-| `api_keys`     | array of [codersdk.AIProviderKeyMutation](#codersdkaiproviderkeymutation) | false    |              |             |
+| `api_keys`     | array of [nicloudsdk.AIProviderKeyMutation](#nicloudsdkaiproviderkeymutation) | false    |              |             |
 | `base_url`     | string                                                                    | false    |              |             |
 | `display_name` | string                                                                    | false    |              |             |
 | `enabled`      | boolean                                                                   | false    |              |             |
-| `settings`     | [codersdk.AIProviderSettings](#codersdkaiprovidersettings)                | false    |              |             |
+| `settings`     | [nicloudsdk.AIProviderSettings](#nicloudsdkaiprovidersettings)                | false    |              |             |
 
-## codersdk.UpdateActiveTemplateVersion
+## nicloudsdk.UpdateActiveTemplateVersion
 
 ```json
 {
@@ -13078,7 +13078,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |------|--------|----------|--------------|-------------|
 | `id` | string | true     |              |             |
 
-## codersdk.UpdateAppearanceConfig
+## nicloudsdk.UpdateAppearanceConfig
 
 ```json
 {
@@ -13103,12 +13103,12 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 
 | Name                   | Type                                                    | Required | Restrictions | Description                                                         |
 |------------------------|---------------------------------------------------------|----------|--------------|---------------------------------------------------------------------|
-| `announcement_banners` | array of [codersdk.BannerConfig](#codersdkbannerconfig) | false    |              |                                                                     |
+| `announcement_banners` | array of [nicloudsdk.BannerConfig](#nicloudsdkbannerconfig) | false    |              |                                                                     |
 | `application_name`     | string                                                  | false    |              |                                                                     |
 | `logo_url`             | string                                                  | false    |              |                                                                     |
-| `service_banner`       | [codersdk.BannerConfig](#codersdkbannerconfig)          | false    |              | Deprecated: ServiceBanner has been replaced by AnnouncementBanners. |
+| `service_banner`       | [nicloudsdk.BannerConfig](#nicloudsdkbannerconfig)          | false    |              | Deprecated: ServiceBanner has been replaced by AnnouncementBanners. |
 
-## codersdk.UpdateChatACL
+## nicloudsdk.UpdateChatACL
 
 ```json
 {
@@ -13128,11 +13128,11 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | Name               | Type                                   | Required | Restrictions | Description |
 |--------------------|----------------------------------------|----------|--------------|-------------|
 | `group_roles`      | object                                 | false    |              |             |
-| » `[any property]` | [codersdk.ChatRole](#codersdkchatrole) | false    |              |             |
+| » `[any property]` | [nicloudsdk.ChatRole](#nicloudsdkchatrole) | false    |              |             |
 | `user_roles`       | object                                 | false    |              |             |
-| » `[any property]` | [codersdk.ChatRole](#codersdkchatrole) | false    |              |             |
+| » `[any property]` | [nicloudsdk.ChatRole](#nicloudsdkchatrole) | false    |              |             |
 
-## codersdk.UpdateChatRequest
+## nicloudsdk.UpdateChatRequest
 
 ```json
 {
@@ -13156,11 +13156,11 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `labels`           | object                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | » `[any property]` | string                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `pin_order`        | integer                                        | false    |              | Pin order controls the chat's pinned state and position. - nil: no change to pin state. - 0: unpin the chat. - >0 (chat is unpinned): pin the chat, appending it to   the end of the pinned list. The specific value is   ignored; the server assigns the next available position. - >0 (chat is already pinned): move the chat to the   requested position, shifting neighbors as needed. The   value is clamped to [1, pinned_count]. |
-| `plan_mode`        | [codersdk.ChatPlanMode](#codersdkchatplanmode) | false    |              | Plan mode switches the chat's persistent plan mode. nil: no change, ptr to "plan": enable, ptr to "": clear.                                                                                                                                                                                                                                                                                                                            |
+| `plan_mode`        | [nicloudsdk.ChatPlanMode](#nicloudsdkchatplanmode) | false    |              | Plan mode switches the chat's persistent plan mode. nil: no change, ptr to "plan": enable, ptr to "": clear.                                                                                                                                                                                                                                                                                                                            |
 | `title`            | string                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `workspace_id`     | string                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
-## codersdk.UpdateChatRetentionDaysRequest
+## nicloudsdk.UpdateChatRetentionDaysRequest
 
 ```json
 {
@@ -13174,7 +13174,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |------------------|---------|----------|--------------|-------------|
 | `retention_days` | integer | false    |              |             |
 
-## codersdk.UpdateCheckResponse
+## nicloudsdk.UpdateCheckResponse
 
 ```json
 {
@@ -13189,10 +13189,10 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | Name      | Type    | Required | Restrictions | Description                                                             |
 |-----------|---------|----------|--------------|-------------------------------------------------------------------------|
 | `current` | boolean | false    |              | Current indicates whether the server version is the same as the latest. |
-| `url`     | string  | false    |              | URL to download the latest release of Coder.                            |
-| `version` | string  | false    |              | Version is the semantic version for the latest release of Coder.        |
+| `url`     | string  | false    |              | URL to download the latest release of Neural Inverse Cloud.                            |
+| `version` | string  | false    |              | Version is the semantic version for the latest release of Neural Inverse Cloud.        |
 
-## codersdk.UpdateOrganizationRequest
+## nicloudsdk.UpdateOrganizationRequest
 
 ```json
 {
@@ -13212,7 +13212,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `icon`         | string | false    |              |             |
 | `name`         | string | false    |              |             |
 
-## codersdk.UpdateRoles
+## nicloudsdk.UpdateRoles
 
 ```json
 {
@@ -13228,7 +13228,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |---------|-----------------|----------|--------------|-------------|
 | `roles` | array of string | false    |              |             |
 
-## codersdk.UpdateTaskInputRequest
+## nicloudsdk.UpdateTaskInputRequest
 
 ```json
 {
@@ -13242,7 +13242,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 |---------|--------|----------|--------------|-------------|
 | `input` | string | false    |              |             |
 
-## codersdk.UpdateTemplateACL
+## nicloudsdk.UpdateTemplateACL
 
 ```json
 {
@@ -13261,12 +13261,12 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 
 | Name               | Type                                           | Required | Restrictions | Description                                                                                                                                                                                                       |
 |--------------------|------------------------------------------------|----------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `group_perms`      | object                                         | false    |              | Group perms is a mapping from valid group UUIDs to the template role they should be granted. To remove a group from the template, use "" as the role (available as a constant named codersdk.TemplateRoleDeleted) |
-| » `[any property]` | [codersdk.TemplateRole](#codersdktemplaterole) | false    |              |                                                                                                                                                                                                                   |
-| `user_perms`       | object                                         | false    |              | User perms is a mapping from valid user UUIDs to the template role they should be granted. To remove a user from the template, use "" as the role (available as a constant named codersdk.TemplateRoleDeleted)    |
-| » `[any property]` | [codersdk.TemplateRole](#codersdktemplaterole) | false    |              |                                                                                                                                                                                                                   |
+| `group_perms`      | object                                         | false    |              | Group perms is a mapping from valid group UUIDs to the template role they should be granted. To remove a group from the template, use "" as the role (available as a constant named nicloudsdk.TemplateRoleDeleted) |
+| » `[any property]` | [nicloudsdk.TemplateRole](#nicloudsdktemplaterole) | false    |              |                                                                                                                                                                                                                   |
+| `user_perms`       | object                                         | false    |              | User perms is a mapping from valid user UUIDs to the template role they should be granted. To remove a user from the template, use "" as the role (available as a constant named nicloudsdk.TemplateRoleDeleted)    |
+| » `[any property]` | [nicloudsdk.TemplateRole](#nicloudsdktemplaterole) | false    |              |                                                                                                                                                                                                                   |
 
-## codersdk.UpdateTemplateMeta
+## nicloudsdk.UpdateTemplateMeta
 
 ```json
 {
@@ -13313,9 +13313,9 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `allow_user_autostart`             | boolean                                                                        | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `allow_user_autostop`              | boolean                                                                        | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `allow_user_cancel_workspace_jobs` | boolean                                                                        | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
-| `autostart_requirement`            | [codersdk.TemplateAutostartRequirement](#codersdktemplateautostartrequirement) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
-| `autostop_requirement`             | [codersdk.TemplateAutostopRequirement](#codersdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement can only be set if your license includes the advanced template scheduling feature. If you attempt to set this value while unlicensed, it will be ignored.                                                                                                                                                                            |
-| `cors_behavior`                    | [codersdk.CORSBehavior](#codersdkcorsbehavior)                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
+| `autostart_requirement`            | [nicloudsdk.TemplateAutostartRequirement](#nicloudsdktemplateautostartrequirement) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
+| `autostop_requirement`             | [nicloudsdk.TemplateAutostopRequirement](#nicloudsdktemplateautostoprequirement)   | false    |              | Autostop requirement and AutostartRequirement can only be set if your license includes the advanced template scheduling feature. If you attempt to set this value while unlicensed, it will be ignored.                                                                                                                                                                            |
+| `cors_behavior`                    | [nicloudsdk.CORSBehavior](#nicloudsdkcorsbehavior)                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `default_ttl_ms`                   | integer                                                                        | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `deprecation_message`              | string                                                                         | false    |              | Deprecation message if set, will mark the template as deprecated and block any new workspaces from using this template. If passed an empty string, will remove the deprecated message, making the template usable for new workspaces again.                                                                                                                                        |
 | `description`                      | string                                                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -13324,7 +13324,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `display_name`                     | string                                                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `failure_ttl_ms`                   | integer                                                                        | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `icon`                             | string                                                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
-| `max_port_share_level`             | [codersdk.WorkspaceAgentPortShareLevel](#codersdkworkspaceagentportsharelevel) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
+| `max_port_share_level`             | [nicloudsdk.WorkspaceAgentPortShareLevel](#nicloudsdkworkspaceagentportsharelevel) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `name`                             | string                                                                         | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
 | `require_active_version`           | boolean                                                                        | false    |              | Require active version mandates workspaces built using this template use the active version of the template. This option has no effect on template admins.                                                                                                                                                                                                                         |
 | `time_til_dormant_autodelete_ms`   | integer                                                                        | false    |              |                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -13333,7 +13333,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `update_workspace_last_used_at`    | boolean                                                                        | false    |              | Update workspace last used at updates the last_used_at field of workspaces spawned from the template. This is useful for preventing workspaces being immediately locked when updating the inactivity_ttl field to a new, shorter value.                                                                                                                                            |
 | `use_classic_parameter_flow`       | boolean                                                                        | false    |              | Use classic parameter flow is a flag that switches the default behavior to use the classic parameter flow when creating a workspace. This only affects deployments with the experiment "dynamic-parameters" enabled. This setting will live for a period after the experiment is made the default. An "opt-out" is present in case the new feature breaks some existing templates. |
 
-## codersdk.UpdateUserAppearanceSettingsRequest
+## nicloudsdk.UpdateUserAppearanceSettingsRequest
 
 ```json
 {
@@ -13349,10 +13349,10 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 
 | Name               | Type                                                   | Required | Restrictions | Description                                                                                                                                                                                                                                                                                                        |
 |--------------------|--------------------------------------------------------|----------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `terminal_font`    | [codersdk.TerminalFontName](#codersdkterminalfontname) | true     |              |                                                                                                                                                                                                                                                                                                                    |
+| `terminal_font`    | [nicloudsdk.TerminalFontName](#nicloudsdkterminalfontname) | true     |              |                                                                                                                                                                                                                                                                                                                    |
 | `theme_dark`       | string                                                 | false    |              | Theme dark is required when ThemeMode is "sync". In "single" mode an empty value means "preserve the previously persisted slot" rather than "clear the slot", so partial updates that send only one slot keep the other intact.                                                                                    |
 | `theme_light`      | string                                                 | false    |              | Theme light is required when ThemeMode is "sync". In "single" mode an empty value means "preserve the previously persisted slot" rather than "clear the slot", so partial updates that send only one slot keep the other intact.                                                                                   |
-| `theme_mode`       | [codersdk.ThemeMode](#codersdkthememode)               | false    |              | Theme mode is optional for backward compatibility. When empty, the server leaves theme_mode, theme_light, and theme_dark unchanged so older CLI clients do not erase sync-mode settings. Legacy auto preferences are the exception: they clear theme_mode so clients can migrate the old sync-with-system setting. |
+| `theme_mode`       | [nicloudsdk.ThemeMode](#nicloudsdkthememode)               | false    |              | Theme mode is optional for backward compatibility. When empty, the server leaves theme_mode, theme_light, and theme_dark unchanged so older CLI clients do not erase sync-mode settings. Legacy auto preferences are the exception: they clear theme_mode so clients can migrate the old sync-with-system setting. |
 | `theme_preference` | string                                                 | true     |              |                                                                                                                                                                                                                                                                                                                    |
 
 #### Enumerated Values
@@ -13363,7 +13363,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `theme_light` | `dark`, `dark-protan-deuter`, `dark-tritan`, `light`, `light-protan-deuter`, `light-tritan` |
 | `theme_mode`  | `single`, `sync`                                                                            |
 
-## codersdk.UpdateUserNotificationPreferences
+## nicloudsdk.UpdateUserNotificationPreferences
 
 ```json
 {
@@ -13381,7 +13381,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `template_disabled_map` | object  | false    |              |             |
 | » `[any property]`      | boolean | false    |              |             |
 
-## codersdk.UpdateUserPasswordRequest
+## nicloudsdk.UpdateUserPasswordRequest
 
 ```json
 {
@@ -13397,7 +13397,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `old_password` | string | false    |              |             |
 | `password`     | string | true     |              |             |
 
-## codersdk.UpdateUserPreferenceSettingsRequest
+## nicloudsdk.UpdateUserPreferenceSettingsRequest
 
 ```json
 {
@@ -13413,13 +13413,13 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 
 | Name                                | Type                                                             | Required | Restrictions | Description |
 |-------------------------------------|------------------------------------------------------------------|----------|--------------|-------------|
-| `agent_chat_send_shortcut`          | [codersdk.AgentChatSendShortcut](#codersdkagentchatsendshortcut) | false    |              |             |
-| `code_diff_display_mode`            | [codersdk.AgentDisplayMode](#codersdkagentdisplaymode)           | false    |              |             |
-| `shell_tool_display_mode`           | [codersdk.AgentDisplayMode](#codersdkagentdisplaymode)           | false    |              |             |
+| `agent_chat_send_shortcut`          | [nicloudsdk.AgentChatSendShortcut](#nicloudsdkagentchatsendshortcut) | false    |              |             |
+| `code_diff_display_mode`            | [nicloudsdk.AgentDisplayMode](#nicloudsdkagentdisplaymode)           | false    |              |             |
+| `shell_tool_display_mode`           | [nicloudsdk.AgentDisplayMode](#nicloudsdkagentdisplaymode)           | false    |              |             |
 | `task_notification_alert_dismissed` | boolean                                                          | false    |              |             |
-| `thinking_display_mode`             | [codersdk.ThinkingDisplayMode](#codersdkthinkingdisplaymode)     | false    |              |             |
+| `thinking_display_mode`             | [nicloudsdk.ThinkingDisplayMode](#nicloudsdkthinkingdisplaymode)     | false    |              |             |
 
-## codersdk.UpdateUserProfileRequest
+## nicloudsdk.UpdateUserProfileRequest
 
 ```json
 {
@@ -13435,7 +13435,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 | `name`     | string | false    |              |             |
 | `username` | string | true     |              |             |
 
-## codersdk.UpdateUserQuietHoursScheduleRequest
+## nicloudsdk.UpdateUserQuietHoursScheduleRequest
 
 ```json
 {
@@ -13451,7 +13451,7 @@ Restarts will only happen on weekdays in this list on weeks which line up with W
 The schedule must be daily with a single time, and should have a timezone specified via a CRON_TZ prefix (otherwise UTC will be used).
 If the schedule is empty, the user will be updated to use the default schedule.|
 
-## codersdk.UpdateUserSecretRequest
+## nicloudsdk.UpdateUserSecretRequest
 
 ```json
 {
@@ -13471,7 +13471,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `file_path`   | string | false    |              |             |
 | `value`       | string | false    |              |             |
 
-## codersdk.UpdateUserSkillRequest
+## nicloudsdk.UpdateUserSkillRequest
 
 ```json
 {
@@ -13485,7 +13485,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |-----------|--------|----------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `content` | string | false    |              | Content must be SKILL.md-format Markdown with YAML frontmatter. The frontmatter must include name, may include description, and must be followed by a non-empty body. |
 
-## codersdk.UpdateWorkspaceACL
+## nicloudsdk.UpdateWorkspaceACL
 
 ```json
 {
@@ -13504,12 +13504,12 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name               | Type                                             | Required | Restrictions | Description                                                                                                                                                                                                          |
 |--------------------|--------------------------------------------------|----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `group_roles`      | object                                           | false    |              | Group roles is a mapping from valid group UUIDs to the workspace role they should be granted. To remove a group from the workspace, use "" as the role (available as a constant named codersdk.WorkspaceRoleDeleted) |
-| » `[any property]` | [codersdk.WorkspaceRole](#codersdkworkspacerole) | false    |              |                                                                                                                                                                                                                      |
-| `user_roles`       | object                                           | false    |              | User roles is a mapping from valid user UUIDs to the workspace role they should be granted. To remove a user from the workspace, use "" as the role (available as a constant named codersdk.WorkspaceRoleDeleted)    |
-| » `[any property]` | [codersdk.WorkspaceRole](#codersdkworkspacerole) | false    |              |                                                                                                                                                                                                                      |
+| `group_roles`      | object                                           | false    |              | Group roles is a mapping from valid group UUIDs to the workspace role they should be granted. To remove a group from the workspace, use "" as the role (available as a constant named nicloudsdk.WorkspaceRoleDeleted) |
+| » `[any property]` | [nicloudsdk.WorkspaceRole](#nicloudsdkworkspacerole) | false    |              |                                                                                                                                                                                                                      |
+| `user_roles`       | object                                           | false    |              | User roles is a mapping from valid user UUIDs to the workspace role they should be granted. To remove a user from the workspace, use "" as the role (available as a constant named nicloudsdk.WorkspaceRoleDeleted)    |
+| » `[any property]` | [nicloudsdk.WorkspaceRole](#nicloudsdkworkspacerole) | false    |              |                                                                                                                                                                                                                      |
 
-## codersdk.UpdateWorkspaceAutomaticUpdatesRequest
+## nicloudsdk.UpdateWorkspaceAutomaticUpdatesRequest
 
 ```json
 {
@@ -13521,9 +13521,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name                | Type                                                   | Required | Restrictions | Description |
 |---------------------|--------------------------------------------------------|----------|--------------|-------------|
-| `automatic_updates` | [codersdk.AutomaticUpdates](#codersdkautomaticupdates) | false    |              |             |
+| `automatic_updates` | [nicloudsdk.AutomaticUpdates](#nicloudsdkautomaticupdates) | false    |              |             |
 
-## codersdk.UpdateWorkspaceAutostartRequest
+## nicloudsdk.UpdateWorkspaceAutostartRequest
 
 ```json
 {
@@ -13537,7 +13537,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------|--------|----------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `schedule` | string | false    |              | Schedule is expected to be of the form `CRON_TZ=<IANA Timezone> <min> <hour> * * <dow>` Example: `CRON_TZ=US/Central 30 9 * * 1-5` represents 0930 in the timezone US/Central on weekdays (Mon-Fri). `CRON_TZ` defaults to UTC if not present. |
 
-## codersdk.UpdateWorkspaceBuildStateRequest
+## nicloudsdk.UpdateWorkspaceBuildStateRequest
 
 ```json
 {
@@ -13553,7 +13553,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |---------|------------------|----------|--------------|-------------|
 | `state` | array of integer | false    |              |             |
 
-## codersdk.UpdateWorkspaceDormancy
+## nicloudsdk.UpdateWorkspaceDormancy
 
 ```json
 {
@@ -13567,7 +13567,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |-----------|---------|----------|--------------|-------------|
 | `dormant` | boolean | false    |              |             |
 
-## codersdk.UpdateWorkspaceRequest
+## nicloudsdk.UpdateWorkspaceRequest
 
 ```json
 {
@@ -13581,7 +13581,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |--------|--------|----------|--------------|-------------|
 | `name` | string | false    |              |             |
 
-## codersdk.UpdateWorkspaceSharingSettingsRequest
+## nicloudsdk.UpdateWorkspaceSharingSettingsRequest
 
 ```json
 {
@@ -13594,7 +13594,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name                         | Type                                                                   | Required | Restrictions | Description                                                                                                                     |
 |------------------------------|------------------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------|
-| `shareable_workspace_owners` | [codersdk.ShareableWorkspaceOwners](#codersdkshareableworkspaceowners) | false    |              | Shareable workspace owners controls whose workspaces can be shared within the organization.                                     |
+| `shareable_workspace_owners` | [nicloudsdk.ShareableWorkspaceOwners](#nicloudsdkshareableworkspaceowners) | false    |              | Shareable workspace owners controls whose workspaces can be shared within the organization.                                     |
 | `sharing_disabled`           | boolean                                                                | false    |              | Sharing disabled is deprecated and left for backward compatibility purposes. Deprecated: use `ShareableWorkspaceOwners` instead |
 
 #### Enumerated Values
@@ -13603,7 +13603,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------------------------|----------------------------------------|
 | `shareable_workspace_owners` | `everyone`, `none`, `service_accounts` |
 
-## codersdk.UpdateWorkspaceTTLRequest
+## nicloudsdk.UpdateWorkspaceTTLRequest
 
 ```json
 {
@@ -13617,7 +13617,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------|---------|----------|--------------|-------------|
 | `ttl_ms` | integer | false    |              |             |
 
-## codersdk.UploadChatFileResponse
+## nicloudsdk.UploadChatFileResponse
 
 ```json
 {
@@ -13631,7 +13631,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------|--------|----------|--------------|-------------|
 | `id` | string | false    |              |             |
 
-## codersdk.UploadResponse
+## nicloudsdk.UploadResponse
 
 ```json
 {
@@ -13645,7 +13645,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |--------|--------|----------|--------------|-------------|
 | `hash` | string | false    |              |             |
 
-## codersdk.UpsertGroupAIBudgetRequest
+## nicloudsdk.UpsertGroupAIBudgetRequest
 
 ```json
 {
@@ -13659,7 +13659,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------|---------|----------|--------------|-------------|
 | `spend_limit_micros` | integer | false    |              |             |
 
-## codersdk.UpsertUserAIBudgetOverrideRequest
+## nicloudsdk.UpsertUserAIBudgetOverrideRequest
 
 ```json
 {
@@ -13675,7 +13675,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `group_id`           | string  | true     |              | Group ID is the group the user's spend is attributed to. The user must be a member of this group. |
 | `spend_limit_micros` | integer | false    |              |                                                                                                   |
 
-## codersdk.UpsertWorkspaceAgentPortShareRequest
+## nicloudsdk.UpsertWorkspaceAgentPortShareRequest
 
 ```json
 {
@@ -13692,8 +13692,8 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |---------------|--------------------------------------------------------------------------------------|----------|--------------|-------------|
 | `agent_name`  | string                                                                               | false    |              |             |
 | `port`        | integer                                                                              | false    |              |             |
-| `protocol`    | [codersdk.WorkspaceAgentPortShareProtocol](#codersdkworkspaceagentportshareprotocol) | false    |              |             |
-| `share_level` | [codersdk.WorkspaceAgentPortShareLevel](#codersdkworkspaceagentportsharelevel)       | false    |              |             |
+| `protocol`    | [nicloudsdk.WorkspaceAgentPortShareProtocol](#nicloudsdkworkspaceagentportshareprotocol) | false    |              |             |
+| `share_level` | [nicloudsdk.WorkspaceAgentPortShareLevel](#nicloudsdkworkspaceagentportsharelevel)       | false    |              |             |
 
 #### Enumerated Values
 
@@ -13702,7 +13702,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `protocol`    | `http`, `https`                                    |
 | `share_level` | `authenticated`, `organization`, `owner`, `public` |
 
-## codersdk.UsageAppName
+## nicloudsdk.UsageAppName
 
 ```json
 "vscode"
@@ -13716,7 +13716,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |--------------------------------------------------|
 | `jetbrains`, `reconnecting-pty`, `ssh`, `vscode` |
 
-## codersdk.UsagePeriod
+## nicloudsdk.UsagePeriod
 
 ```json
 {
@@ -13734,7 +13734,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `issued_at` | string | false    |              |             |
 | `start`     | string | false    |              |             |
 
-## codersdk.UsageStatsConfig
+## nicloudsdk.UsageStatsConfig
 
 ```json
 {
@@ -13748,7 +13748,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------|---------|----------|--------------|-------------|
 | `enable` | boolean | false    |              |             |
 
-## codersdk.User
+## nicloudsdk.User
 
 ```json
 {
@@ -13789,12 +13789,12 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `id`                 | string                                          | true     |              |                                                                                                  |
 | `is_service_account` | boolean                                         | false    |              |                                                                                                  |
 | `last_seen_at`       | string                                          | false    |              |                                                                                                  |
-| `login_type`         | [codersdk.LoginType](#codersdklogintype)        | false    |              |                                                                                                  |
+| `login_type`         | [nicloudsdk.LoginType](#nicloudsdklogintype)        | false    |              |                                                                                                  |
 | `name`               | string                                          | false    |              |                                                                                                  |
 | `organization_ids`   | array of string                                 | false    |              |                                                                                                  |
-| `roles`              | array of [codersdk.SlimRole](#codersdkslimrole) | false    |              |                                                                                                  |
-| `status`             | [codersdk.UserStatus](#codersdkuserstatus)      | false    |              |                                                                                                  |
-| `theme_preference`   | string                                          | false    |              | Deprecated: this value should be retrieved from `codersdk.UserPreferenceSettings` instead.       |
+| `roles`              | array of [nicloudsdk.SlimRole](#nicloudsdkslimrole) | false    |              |                                                                                                  |
+| `status`             | [nicloudsdk.UserStatus](#nicloudsdkuserstatus)      | false    |              |                                                                                                  |
+| `theme_preference`   | string                                          | false    |              | Deprecated: this value should be retrieved from `nicloudsdk.UserPreferenceSettings` instead.       |
 | `updated_at`         | string                                          | false    |              |                                                                                                  |
 | `username`           | string                                          | true     |              |                                                                                                  |
 
@@ -13804,7 +13804,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------|-----------------------|
 | `status` | `active`, `suspended` |
 
-## codersdk.UserAIBudgetOverride
+## nicloudsdk.UserAIBudgetOverride
 
 ```json
 {
@@ -13826,7 +13826,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `updated_at`         | string  | false    |              |             |
 | `user_id`            | string  | false    |              |             |
 
-## codersdk.UserActivity
+## nicloudsdk.UserActivity
 
 ```json
 {
@@ -13850,7 +13850,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `user_id`      | string          | false    |              |             |
 | `username`     | string          | false    |              |             |
 
-## codersdk.UserActivityInsightsReport
+## nicloudsdk.UserActivityInsightsReport
 
 ```json
 {
@@ -13880,9 +13880,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `end_time`     | string                                                  | false    |              |             |
 | `start_time`   | string                                                  | false    |              |             |
 | `template_ids` | array of string                                         | false    |              |             |
-| `users`        | array of [codersdk.UserActivity](#codersdkuseractivity) | false    |              |             |
+| `users`        | array of [nicloudsdk.UserActivity](#nicloudsdkuseractivity) | false    |              |             |
 
-## codersdk.UserActivityInsightsResponse
+## nicloudsdk.UserActivityInsightsResponse
 
 ```json
 {
@@ -13911,9 +13911,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name     | Type                                                                       | Required | Restrictions | Description |
 |----------|----------------------------------------------------------------------------|----------|--------------|-------------|
-| `report` | [codersdk.UserActivityInsightsReport](#codersdkuseractivityinsightsreport) | false    |              |             |
+| `report` | [nicloudsdk.UserActivityInsightsReport](#nicloudsdkuseractivityinsightsreport) | false    |              |             |
 
-## codersdk.UserAppearanceSettings
+## nicloudsdk.UserAppearanceSettings
 
 ```json
 {
@@ -13929,13 +13929,13 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name               | Type                                                   | Required | Restrictions | Description                                                                                                                                                                                                                                                                                                                               |
 |--------------------|--------------------------------------------------------|----------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `terminal_font`    | [codersdk.TerminalFontName](#codersdkterminalfontname) | false    |              |                                                                                                                                                                                                                                                                                                                                           |
+| `terminal_font`    | [nicloudsdk.TerminalFontName](#nicloudsdkterminalfontname) | false    |              |                                                                                                                                                                                                                                                                                                                                           |
 | `theme_dark`       | string                                                 | false    |              | Ignored when ThemeMode is "single"                                                                                                                                                                                                                                                                                                        |
 | `theme_light`      | string                                                 | false    |              | Ignored when ThemeMode is "single"                                                                                                                                                                                                                                                                                                        |
-| `theme_mode`       | [codersdk.ThemeMode](#codersdkthememode)               | false    |              |                                                                                                                                                                                                                                                                                                                                           |
+| `theme_mode`       | [nicloudsdk.ThemeMode](#nicloudsdkthememode)               | false    |              |                                                                                                                                                                                                                                                                                                                                           |
 | `theme_preference` | string                                                 | false    |              | Theme preference is the legacy single-field appearance setting. In "single" mode it mirrors the active theme. In "sync" mode modern clients normally mirror the active OS slot, but older clients can update only this field, so it may diverge from ThemeLight or ThemeDark until a modern client saves the full appearance state again. |
 
-## codersdk.UserLatency
+## nicloudsdk.UserLatency
 
 ```json
 {
@@ -13957,12 +13957,12 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | Name           | Type                                                     | Required | Restrictions | Description |
 |----------------|----------------------------------------------------------|----------|--------------|-------------|
 | `avatar_url`   | string                                                   | false    |              |             |
-| `latency_ms`   | [codersdk.ConnectionLatency](#codersdkconnectionlatency) | false    |              |             |
+| `latency_ms`   | [nicloudsdk.ConnectionLatency](#nicloudsdkconnectionlatency) | false    |              |             |
 | `template_ids` | array of string                                          | false    |              |             |
 | `user_id`      | string                                                   | false    |              |             |
 | `username`     | string                                                   | false    |              |             |
 
-## codersdk.UserLatencyInsightsReport
+## nicloudsdk.UserLatencyInsightsReport
 
 ```json
 {
@@ -13995,9 +13995,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `end_time`     | string                                                | false    |              |             |
 | `start_time`   | string                                                | false    |              |             |
 | `template_ids` | array of string                                       | false    |              |             |
-| `users`        | array of [codersdk.UserLatency](#codersdkuserlatency) | false    |              |             |
+| `users`        | array of [nicloudsdk.UserLatency](#nicloudsdkuserlatency) | false    |              |             |
 
-## codersdk.UserLatencyInsightsResponse
+## nicloudsdk.UserLatencyInsightsResponse
 
 ```json
 {
@@ -14029,9 +14029,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name     | Type                                                                     | Required | Restrictions | Description |
 |----------|--------------------------------------------------------------------------|----------|--------------|-------------|
-| `report` | [codersdk.UserLatencyInsightsReport](#codersdkuserlatencyinsightsreport) | false    |              |             |
+| `report` | [nicloudsdk.UserLatencyInsightsReport](#nicloudsdkuserlatencyinsightsreport) | false    |              |             |
 
-## codersdk.UserLoginType
+## nicloudsdk.UserLoginType
 
 ```json
 {
@@ -14043,9 +14043,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name         | Type                                     | Required | Restrictions | Description |
 |--------------|------------------------------------------|----------|--------------|-------------|
-| `login_type` | [codersdk.LoginType](#codersdklogintype) | false    |              |             |
+| `login_type` | [nicloudsdk.LoginType](#nicloudsdklogintype) | false    |              |             |
 
-## codersdk.UserParameter
+## nicloudsdk.UserParameter
 
 ```json
 {
@@ -14061,7 +14061,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `name`  | string | false    |              |             |
 | `value` | string | false    |              |             |
 
-## codersdk.UserPreferenceSettings
+## nicloudsdk.UserPreferenceSettings
 
 ```json
 {
@@ -14077,13 +14077,13 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name                                | Type                                                             | Required | Restrictions | Description |
 |-------------------------------------|------------------------------------------------------------------|----------|--------------|-------------|
-| `agent_chat_send_shortcut`          | [codersdk.AgentChatSendShortcut](#codersdkagentchatsendshortcut) | false    |              |             |
-| `code_diff_display_mode`            | [codersdk.AgentDisplayMode](#codersdkagentdisplaymode)           | false    |              |             |
-| `shell_tool_display_mode`           | [codersdk.AgentDisplayMode](#codersdkagentdisplaymode)           | false    |              |             |
+| `agent_chat_send_shortcut`          | [nicloudsdk.AgentChatSendShortcut](#nicloudsdkagentchatsendshortcut) | false    |              |             |
+| `code_diff_display_mode`            | [nicloudsdk.AgentDisplayMode](#nicloudsdkagentdisplaymode)           | false    |              |             |
+| `shell_tool_display_mode`           | [nicloudsdk.AgentDisplayMode](#nicloudsdkagentdisplaymode)           | false    |              |             |
 | `task_notification_alert_dismissed` | boolean                                                          | false    |              |             |
-| `thinking_display_mode`             | [codersdk.ThinkingDisplayMode](#codersdkthinkingdisplaymode)     | false    |              |             |
+| `thinking_display_mode`             | [nicloudsdk.ThinkingDisplayMode](#nicloudsdkthinkingdisplaymode)     | false    |              |             |
 
-## codersdk.UserQuietHoursScheduleConfig
+## nicloudsdk.UserQuietHoursScheduleConfig
 
 ```json
 {
@@ -14099,7 +14099,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `allow_user_custom` | boolean | false    |              |             |
 | `default_schedule`  | string  | false    |              |             |
 
-## codersdk.UserQuietHoursScheduleResponse
+## nicloudsdk.UserQuietHoursScheduleResponse
 
 ```json
 {
@@ -14123,7 +14123,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `user_can_set` | boolean | false    |              | User can set is true if the user is allowed to set their own quiet hours schedule. If false, the user cannot set a custom schedule and the default schedule will always be used. |
 | `user_set`     | boolean | false    |              | User set is true if the user has set their own quiet hours schedule. If false, the user is using the default schedule.                                                           |
 
-## codersdk.UserSecret
+## nicloudsdk.UserSecret
 
 ```json
 {
@@ -14149,7 +14149,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `name`        | string | false    |              |             |
 | `updated_at`  | string | false    |              |             |
 
-## codersdk.UserSkill
+## nicloudsdk.UserSkill
 
 ```json
 {
@@ -14173,7 +14173,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `name`        | string | false    |              |             |
 | `updated_at`  | string | false    |              |             |
 
-## codersdk.UserSkillMetadata
+## nicloudsdk.UserSkillMetadata
 
 ```json
 {
@@ -14195,7 +14195,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `name`        | string | false    |              |             |
 | `updated_at`  | string | false    |              |             |
 
-## codersdk.UserStatus
+## nicloudsdk.UserStatus
 
 ```json
 "active"
@@ -14209,7 +14209,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------------------|
 | `active`, `dormant`, `suspended` |
 
-## codersdk.UserStatusChangeCount
+## nicloudsdk.UserStatusChangeCount
 
 ```json
 {
@@ -14225,7 +14225,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `count` | integer | false    |              |             |
 | `date`  | string  | false    |              |             |
 
-## codersdk.ValidateUserPasswordRequest
+## nicloudsdk.ValidateUserPasswordRequest
 
 ```json
 {
@@ -14239,7 +14239,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------|--------|----------|--------------|-------------|
 | `password` | string | true     |              |             |
 
-## codersdk.ValidateUserPasswordResponse
+## nicloudsdk.ValidateUserPasswordResponse
 
 ```json
 {
@@ -14255,7 +14255,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `details` | string  | false    |              |             |
 | `valid`   | boolean | false    |              |             |
 
-## codersdk.ValidationError
+## nicloudsdk.ValidationError
 
 ```json
 {
@@ -14271,7 +14271,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `detail` | string | true     |              |             |
 | `field`  | string | true     |              |             |
 
-## codersdk.ValidationMonotonicOrder
+## nicloudsdk.ValidationMonotonicOrder
 
 ```json
 "increasing"
@@ -14285,7 +14285,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------------|
 | `decreasing`, `increasing` |
 
-## codersdk.VariableValue
+## nicloudsdk.VariableValue
 
 ```json
 {
@@ -14301,7 +14301,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `name`  | string | false    |              |             |
 | `value` | string | false    |              |             |
 
-## codersdk.WebpushSubscription
+## nicloudsdk.WebpushSubscription
 
 ```json
 {
@@ -14319,7 +14319,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `endpoint`   | string | false    |              |             |
 | `p256dh_key` | string | false    |              |             |
 
-## codersdk.Workspace
+## nicloudsdk.Workspace
 
 ```json
 {
@@ -14601,18 +14601,18 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | Name                                        | Type                                                                    | Required | Restrictions | Description                                                                                                                                                                                                                                                                                                                                 |
 |---------------------------------------------|-------------------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `allow_renames`                             | boolean                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                             |
-| `automatic_updates`                         | [codersdk.AutomaticUpdates](#codersdkautomaticupdates)                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
+| `automatic_updates`                         | [nicloudsdk.AutomaticUpdates](#nicloudsdkautomaticupdates)                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `autostart_schedule`                        | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `created_at`                                | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `deleting_at`                               | string                                                                  | false    |              | Deleting at indicates the time at which the workspace will be permanently deleted. A workspace is eligible for deletion if it is dormant (a non-nil dormant_at value) and a value has been specified for time_til_dormant_autodelete on its template.                                                                                       |
 | `dormant_at`                                | string                                                                  | false    |              | Dormant at being non-nil indicates a workspace that is dormant. A dormant workspace is no longer accessible must be activated. It is subject to deletion if it breaches the duration of the time_til_ field on its template.                                                                                                                |
 | `favorite`                                  | boolean                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                             |
-| `health`                                    | [codersdk.WorkspaceHealth](#codersdkworkspacehealth)                    | false    |              | Health shows the health of the workspace and information about what is causing an unhealthy status.                                                                                                                                                                                                                                         |
+| `health`                                    | [nicloudsdk.WorkspaceHealth](#nicloudsdkworkspacehealth)                    | false    |              | Health shows the health of the workspace and information about what is causing an unhealthy status.                                                                                                                                                                                                                                         |
 | `id`                                        | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `is_prebuild`                               | boolean                                                                 | false    |              | Is prebuild indicates whether the workspace is a prebuilt workspace. Prebuilt workspaces are owned by the prebuilds system user and have specific behavior, such as being managed differently from regular workspaces. Once a prebuilt workspace is claimed by a user, it transitions to a regular workspace, and IsPrebuild returns false. |
 | `last_used_at`                              | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
-| `latest_app_status`                         | [codersdk.WorkspaceAppStatus](#codersdkworkspaceappstatus)              | false    |              |                                                                                                                                                                                                                                                                                                                                             |
-| `latest_build`                              | [codersdk.WorkspaceBuild](#codersdkworkspacebuild)                      | false    |              |                                                                                                                                                                                                                                                                                                                                             |
+| `latest_app_status`                         | [nicloudsdk.WorkspaceAppStatus](#nicloudsdkworkspaceappstatus)              | false    |              |                                                                                                                                                                                                                                                                                                                                             |
+| `latest_build`                              | [nicloudsdk.WorkspaceBuild](#nicloudsdkworkspacebuild)                      | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `name`                                      | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `next_start_at`                             | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `organization_id`                           | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
@@ -14621,8 +14621,8 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `owner_avatar_url`                          | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `owner_id`                                  | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `owner_name`                                | string                                                                  | false    |              | Owner name is the username of the owner of the workspace.                                                                                                                                                                                                                                                                                   |
-| `shared_with`                               | array of [codersdk.SharedWorkspaceActor](#codersdksharedworkspaceactor) | false    |              |                                                                                                                                                                                                                                                                                                                                             |
-| `task_id`                                   | [uuid.NullUUID](#uuidnulluuid)                                          | false    |              | Task ID if set, indicates that the workspace is relevant to the given codersdk.Task.                                                                                                                                                                                                                                                        |
+| `shared_with`                               | array of [nicloudsdk.SharedWorkspaceActor](#nicloudsdksharedworkspaceactor) | false    |              |                                                                                                                                                                                                                                                                                                                                             |
+| `task_id`                                   | [uuid.NullUUID](#uuidnulluuid)                                          | false    |              | Task ID if set, indicates that the workspace is relevant to the given nicloudsdk.Task.                                                                                                                                                                                                                                                        |
 | `template_active_version_id`                | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `template_allow_user_cancel_workspace_jobs` | boolean                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                             |
 | `template_display_name`                     | string                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                             |
@@ -14640,7 +14640,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |---------------------|-------------------|
 | `automatic_updates` | `always`, `never` |
 
-## codersdk.WorkspaceACL
+## nicloudsdk.WorkspaceACL
 
 ```json
 {
@@ -14691,10 +14691,10 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name    | Type                                                        | Required | Restrictions | Description |
 |---------|-------------------------------------------------------------|----------|--------------|-------------|
-| `group` | array of [codersdk.WorkspaceGroup](#codersdkworkspacegroup) | false    |              |             |
-| `users` | array of [codersdk.WorkspaceUser](#codersdkworkspaceuser)   | false    |              |             |
+| `group` | array of [nicloudsdk.WorkspaceGroup](#nicloudsdkworkspacegroup) | false    |              |             |
+| `users` | array of [nicloudsdk.WorkspaceUser](#nicloudsdkworkspaceuser)   | false    |              |             |
 
-## codersdk.WorkspaceAgent
+## nicloudsdk.WorkspaceAgent
 
 ```json
 {
@@ -14821,25 +14821,25 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | Name                         | Type                                                                                         | Required | Restrictions | Description                                                                                                                                                                  |
 |------------------------------|----------------------------------------------------------------------------------------------|----------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `api_version`                | string                                                                                       | false    |              |                                                                                                                                                                              |
-| `apps`                       | array of [codersdk.WorkspaceApp](#codersdkworkspaceapp)                                      | false    |              |                                                                                                                                                                              |
+| `apps`                       | array of [nicloudsdk.WorkspaceApp](#nicloudsdkworkspaceapp)                                      | false    |              |                                                                                                                                                                              |
 | `architecture`               | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `connection_timeout_seconds` | integer                                                                                      | false    |              |                                                                                                                                                                              |
 | `created_at`                 | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `directory`                  | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `disconnected_at`            | string                                                                                       | false    |              |                                                                                                                                                                              |
-| `display_apps`               | array of [codersdk.DisplayApp](#codersdkdisplayapp)                                          | false    |              |                                                                                                                                                                              |
+| `display_apps`               | array of [nicloudsdk.DisplayApp](#nicloudsdkdisplayapp)                                          | false    |              |                                                                                                                                                                              |
 | `environment_variables`      | object                                                                                       | false    |              |                                                                                                                                                                              |
 | » `[any property]`           | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `expanded_directory`         | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `first_connected_at`         | string                                                                                       | false    |              |                                                                                                                                                                              |
-| `health`                     | [codersdk.WorkspaceAgentHealth](#codersdkworkspaceagenthealth)                               | false    |              | Health reports the health of the agent.                                                                                                                                      |
+| `health`                     | [nicloudsdk.WorkspaceAgentHealth](#nicloudsdkworkspaceagenthealth)                               | false    |              | Health reports the health of the agent.                                                                                                                                      |
 | `id`                         | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `instance_id`                | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `last_connected_at`          | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `latency`                    | object                                                                                       | false    |              | Latency is mapped by region name (e.g. "New York City", "Seattle").                                                                                                          |
-| » `[any property]`           | [codersdk.DERPRegion](#codersdkderpregion)                                                   | false    |              |                                                                                                                                                                              |
-| `lifecycle_state`            | [codersdk.WorkspaceAgentLifecycle](#codersdkworkspaceagentlifecycle)                         | false    |              |                                                                                                                                                                              |
-| `log_sources`                | array of [codersdk.WorkspaceAgentLogSource](#codersdkworkspaceagentlogsource)                | false    |              |                                                                                                                                                                              |
+| » `[any property]`           | [nicloudsdk.DERPRegion](#nicloudsdkderpregion)                                                   | false    |              |                                                                                                                                                                              |
+| `lifecycle_state`            | [nicloudsdk.WorkspaceAgentLifecycle](#nicloudsdkworkspaceagentlifecycle)                         | false    |              |                                                                                                                                                                              |
+| `log_sources`                | array of [nicloudsdk.WorkspaceAgentLogSource](#nicloudsdkworkspaceagentlogsource)                | false    |              |                                                                                                                                                                              |
 | `logs_length`                | integer                                                                                      | false    |              |                                                                                                                                                                              |
 | `logs_overflowed`            | boolean                                                                                      | false    |              |                                                                                                                                                                              |
 | `name`                       | string                                                                                       | false    |              |                                                                                                                                                                              |
@@ -14847,16 +14847,16 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `parent_id`                  | [uuid.NullUUID](#uuidnulluuid)                                                               | false    |              |                                                                                                                                                                              |
 | `ready_at`                   | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `resource_id`                | string                                                                                       | false    |              |                                                                                                                                                                              |
-| `scripts`                    | array of [codersdk.WorkspaceAgentScript](#codersdkworkspaceagentscript)                      | false    |              |                                                                                                                                                                              |
+| `scripts`                    | array of [nicloudsdk.WorkspaceAgentScript](#nicloudsdkworkspaceagentscript)                      | false    |              |                                                                                                                                                                              |
 | `started_at`                 | string                                                                                       | false    |              |                                                                                                                                                                              |
-| `startup_script_behavior`    | [codersdk.WorkspaceAgentStartupScriptBehavior](#codersdkworkspaceagentstartupscriptbehavior) | false    |              | Startup script behavior is a legacy field that is deprecated in favor of the `coder_script` resource. It's only referenced by old clients. Deprecated: Remove in the future! |
-| `status`                     | [codersdk.WorkspaceAgentStatus](#codersdkworkspaceagentstatus)                               | false    |              |                                                                                                                                                                              |
-| `subsystems`                 | array of [codersdk.AgentSubsystem](#codersdkagentsubsystem)                                  | false    |              |                                                                                                                                                                              |
+| `startup_script_behavior`    | [nicloudsdk.WorkspaceAgentStartupScriptBehavior](#nicloudsdkworkspaceagentstartupscriptbehavior) | false    |              | Startup script behavior is a legacy field that is deprecated in favor of the `coder_script` resource. It's only referenced by old clients. Deprecated: Remove in the future! |
+| `status`                     | [nicloudsdk.WorkspaceAgentStatus](#nicloudsdkworkspaceagentstatus)                               | false    |              |                                                                                                                                                                              |
+| `subsystems`                 | array of [nicloudsdk.AgentSubsystem](#nicloudsdkagentsubsystem)                                  | false    |              |                                                                                                                                                                              |
 | `troubleshooting_url`        | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `updated_at`                 | string                                                                                       | false    |              |                                                                                                                                                                              |
 | `version`                    | string                                                                                       | false    |              |                                                                                                                                                                              |
 
-## codersdk.WorkspaceAgentContainer
+## nicloudsdk.WorkspaceAgentContainer
 
 ```json
 {
@@ -14895,13 +14895,13 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `labels`           | object                                                                                | false    |              | Labels is a map of key-value pairs of container labels.                                                                                    |
 | » `[any property]` | string                                                                                | false    |              |                                                                                                                                            |
 | `name`             | string                                                                                | false    |              | Name is the human-readable name of the container.                                                                                          |
-| `ports`            | array of [codersdk.WorkspaceAgentContainerPort](#codersdkworkspaceagentcontainerport) | false    |              | Ports includes ports exposed by the container.                                                                                             |
+| `ports`            | array of [nicloudsdk.WorkspaceAgentContainerPort](#nicloudsdkworkspaceagentcontainerport) | false    |              | Ports includes ports exposed by the container.                                                                                             |
 | `running`          | boolean                                                                               | false    |              | Running is true if the container is currently running.                                                                                     |
 | `status`           | string                                                                                | false    |              | Status is the current status of the container. This is somewhat implementation-dependent, but should generally be a human-readable string. |
 | `volumes`          | object                                                                                | false    |              | Volumes is a map of "things" mounted into the container. Again, this is somewhat implementation-dependent.                                 |
 | » `[any property]` | string                                                                                | false    |              |                                                                                                                                            |
 
-## codersdk.WorkspaceAgentContainerPort
+## nicloudsdk.WorkspaceAgentContainerPort
 
 ```json
 {
@@ -14921,7 +14921,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `network`   | string  | false    |              | Network is the network protocol used by the port (tcp, udp, etc).                                                          |
 | `port`      | integer | false    |              | Port is the port number *inside* the container.                                                                            |
 
-## codersdk.WorkspaceAgentDevcontainer
+## nicloudsdk.WorkspaceAgentDevcontainer
 
 ```json
 {
@@ -14972,18 +14972,18 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name               | Type                                                                                   | Required | Restrictions | Description                |
 |--------------------|----------------------------------------------------------------------------------------|----------|--------------|----------------------------|
-| `agent`            | [codersdk.WorkspaceAgentDevcontainerAgent](#codersdkworkspaceagentdevcontaineragent)   | false    |              |                            |
+| `agent`            | [nicloudsdk.WorkspaceAgentDevcontainerAgent](#nicloudsdkworkspaceagentdevcontaineragent)   | false    |              |                            |
 | `config_path`      | string                                                                                 | false    |              |                            |
-| `container`        | [codersdk.WorkspaceAgentContainer](#codersdkworkspaceagentcontainer)                   | false    |              |                            |
+| `container`        | [nicloudsdk.WorkspaceAgentContainer](#nicloudsdkworkspaceagentcontainer)                   | false    |              |                            |
 | `dirty`            | boolean                                                                                | false    |              |                            |
 | `error`            | string                                                                                 | false    |              |                            |
 | `id`               | string                                                                                 | false    |              |                            |
 | `name`             | string                                                                                 | false    |              |                            |
-| `status`           | [codersdk.WorkspaceAgentDevcontainerStatus](#codersdkworkspaceagentdevcontainerstatus) | false    |              | Additional runtime fields. |
+| `status`           | [nicloudsdk.WorkspaceAgentDevcontainerStatus](#nicloudsdkworkspaceagentdevcontainerstatus) | false    |              | Additional runtime fields. |
 | `subagent_id`      | [uuid.NullUUID](#uuidnulluuid)                                                         | false    |              |                            |
 | `workspace_folder` | string                                                                                 | false    |              |                            |
 
-## codersdk.WorkspaceAgentDevcontainerAgent
+## nicloudsdk.WorkspaceAgentDevcontainerAgent
 
 ```json
 {
@@ -15001,7 +15001,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `id`        | string | false    |              |             |
 | `name`      | string | false    |              |             |
 
-## codersdk.WorkspaceAgentDevcontainerStatus
+## nicloudsdk.WorkspaceAgentDevcontainerStatus
 
 ```json
 "running"
@@ -15015,7 +15015,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |-------------------------------------------------------------------|
 | `deleting`, `error`, `running`, `starting`, `stopped`, `stopping` |
 
-## codersdk.WorkspaceAgentGitServerMessage
+## nicloudsdk.WorkspaceAgentGitServerMessage
 
 ```json
 {
@@ -15039,11 +15039,11 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | Name           | Type                                                                                       | Required | Restrictions | Description |
 |----------------|--------------------------------------------------------------------------------------------|----------|--------------|-------------|
 | `message`      | string                                                                                     | false    |              |             |
-| `repositories` | array of [codersdk.WorkspaceAgentRepoChanges](#codersdkworkspaceagentrepochanges)          | false    |              |             |
+| `repositories` | array of [nicloudsdk.WorkspaceAgentRepoChanges](#nicloudsdkworkspaceagentrepochanges)          | false    |              |             |
 | `scanned_at`   | string                                                                                     | false    |              |             |
-| `type`         | [codersdk.WorkspaceAgentGitServerMessageType](#codersdkworkspaceagentgitservermessagetype) | false    |              |             |
+| `type`         | [nicloudsdk.WorkspaceAgentGitServerMessageType](#nicloudsdkworkspaceagentgitservermessagetype) | false    |              |             |
 
-## codersdk.WorkspaceAgentGitServerMessageType
+## nicloudsdk.WorkspaceAgentGitServerMessageType
 
 ```json
 "changes"
@@ -15057,7 +15057,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |--------------------|
 | `changes`, `error` |
 
-## codersdk.WorkspaceAgentHealth
+## nicloudsdk.WorkspaceAgentHealth
 
 ```json
 {
@@ -15073,7 +15073,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `healthy` | boolean | false    |              | Healthy is true if the agent is healthy.                                                      |
 | `reason`  | string  | false    |              | Reason is a human-readable explanation of the agent's health. It is empty if Healthy is true. |
 
-## codersdk.WorkspaceAgentLifecycle
+## nicloudsdk.WorkspaceAgentLifecycle
 
 ```json
 "created"
@@ -15087,7 +15087,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------------------------------------------------------------------------------------------------------------------------|
 | `created`, `off`, `ready`, `shutdown_error`, `shutdown_timeout`, `shutting_down`, `start_error`, `start_timeout`, `starting` |
 
-## codersdk.WorkspaceAgentListContainersResponse
+## nicloudsdk.WorkspaceAgentListContainersResponse
 
 ```json
 {
@@ -15171,11 +15171,11 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name            | Type                                                                                | Required | Restrictions | Description                                                                                                                           |
 |-----------------|-------------------------------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| `containers`    | array of [codersdk.WorkspaceAgentContainer](#codersdkworkspaceagentcontainer)       | false    |              | Containers is a list of containers visible to the workspace agent.                                                                    |
-| `devcontainers` | array of [codersdk.WorkspaceAgentDevcontainer](#codersdkworkspaceagentdevcontainer) | false    |              | Devcontainers is a list of devcontainers visible to the workspace agent.                                                              |
+| `containers`    | array of [nicloudsdk.WorkspaceAgentContainer](#nicloudsdkworkspaceagentcontainer)       | false    |              | Containers is a list of containers visible to the workspace agent.                                                                    |
+| `devcontainers` | array of [nicloudsdk.WorkspaceAgentDevcontainer](#nicloudsdkworkspaceagentdevcontainer) | false    |              | Devcontainers is a list of devcontainers visible to the workspace agent.                                                              |
 | `warnings`      | array of string                                                                     | false    |              | Warnings is a list of warnings that may have occurred during the process of listing containers. This should not include fatal errors. |
 
-## codersdk.WorkspaceAgentListeningPort
+## nicloudsdk.WorkspaceAgentListeningPort
 
 ```json
 {
@@ -15193,7 +15193,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `port`         | integer | false    |              |                          |
 | `process_name` | string  | false    |              | may be empty             |
 
-## codersdk.WorkspaceAgentListeningPortsResponse
+## nicloudsdk.WorkspaceAgentListeningPortsResponse
 
 ```json
 {
@@ -15211,9 +15211,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name    | Type                                                                                  | Required | Restrictions | Description                                                                                                                                                                                                                                            |
 |---------|---------------------------------------------------------------------------------------|----------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ports` | array of [codersdk.WorkspaceAgentListeningPort](#codersdkworkspaceagentlisteningport) | false    |              | If there are no ports in the list, nothing should be displayed in the UI. There must not be a "no ports available" message or anything similar, as there will always be no ports displayed on platforms where our port detection logic is unsupported. |
+| `ports` | array of [nicloudsdk.WorkspaceAgentListeningPort](#nicloudsdkworkspaceagentlisteningport) | false    |              | If there are no ports in the list, nothing should be displayed in the UI. There must not be a "no ports available" message or anything similar, as there will always be no ports displayed on platforms where our port detection logic is unsupported. |
 
-## codersdk.WorkspaceAgentLog
+## nicloudsdk.WorkspaceAgentLog
 
 ```json
 {
@@ -15231,11 +15231,11 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |--------------|----------------------------------------|----------|--------------|-------------|
 | `created_at` | string                                 | false    |              |             |
 | `id`         | integer                                | false    |              |             |
-| `level`      | [codersdk.LogLevel](#codersdkloglevel) | false    |              |             |
+| `level`      | [nicloudsdk.LogLevel](#nicloudsdkloglevel) | false    |              |             |
 | `output`     | string                                 | false    |              |             |
 | `source_id`  | string                                 | false    |              |             |
 
-## codersdk.WorkspaceAgentLogSource
+## nicloudsdk.WorkspaceAgentLogSource
 
 ```json
 {
@@ -15257,7 +15257,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `id`                 | string | false    |              |             |
 | `workspace_agent_id` | string | false    |              |             |
 
-## codersdk.WorkspaceAgentPortShare
+## nicloudsdk.WorkspaceAgentPortShare
 
 ```json
 {
@@ -15275,8 +15275,8 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------|--------------------------------------------------------------------------------------|----------|--------------|-------------|
 | `agent_name`   | string                                                                               | false    |              |             |
 | `port`         | integer                                                                              | false    |              |             |
-| `protocol`     | [codersdk.WorkspaceAgentPortShareProtocol](#codersdkworkspaceagentportshareprotocol) | false    |              |             |
-| `share_level`  | [codersdk.WorkspaceAgentPortShareLevel](#codersdkworkspaceagentportsharelevel)       | false    |              |             |
+| `protocol`     | [nicloudsdk.WorkspaceAgentPortShareProtocol](#nicloudsdkworkspaceagentportshareprotocol) | false    |              |             |
+| `share_level`  | [nicloudsdk.WorkspaceAgentPortShareLevel](#nicloudsdkworkspaceagentportsharelevel)       | false    |              |             |
 | `workspace_id` | string                                                                               | false    |              |             |
 
 #### Enumerated Values
@@ -15286,7 +15286,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `protocol`    | `http`, `https`                                    |
 | `share_level` | `authenticated`, `organization`, `owner`, `public` |
 
-## codersdk.WorkspaceAgentPortShareLevel
+## nicloudsdk.WorkspaceAgentPortShareLevel
 
 ```json
 "owner"
@@ -15300,7 +15300,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------------------------------------|
 | `authenticated`, `organization`, `owner`, `public` |
 
-## codersdk.WorkspaceAgentPortShareProtocol
+## nicloudsdk.WorkspaceAgentPortShareProtocol
 
 ```json
 "http"
@@ -15314,7 +15314,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |-----------------|
 | `http`, `https` |
 
-## codersdk.WorkspaceAgentPortShares
+## nicloudsdk.WorkspaceAgentPortShares
 
 ```json
 {
@@ -15334,9 +15334,9 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name     | Type                                                                          | Required | Restrictions | Description |
 |----------|-------------------------------------------------------------------------------|----------|--------------|-------------|
-| `shares` | array of [codersdk.WorkspaceAgentPortShare](#codersdkworkspaceagentportshare) | false    |              |             |
+| `shares` | array of [nicloudsdk.WorkspaceAgentPortShare](#nicloudsdkworkspaceagentportshare) | false    |              |             |
 
-## codersdk.WorkspaceAgentRepoChanges
+## nicloudsdk.WorkspaceAgentRepoChanges
 
 ```json
 {
@@ -15358,7 +15358,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `repo_root`     | string  | false    |              |             |
 | `unified_diff`  | string  | false    |              |             |
 
-## codersdk.WorkspaceAgentScript
+## nicloudsdk.WorkspaceAgentScript
 
 ```json
 {
@@ -15391,10 +15391,10 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `run_on_stop`        | boolean                                                                    | false    |              |             |
 | `script`             | string                                                                     | false    |              |             |
 | `start_blocks_login` | boolean                                                                    | false    |              |             |
-| `status`             | [codersdk.WorkspaceAgentScriptStatus](#codersdkworkspaceagentscriptstatus) | false    |              |             |
+| `status`             | [nicloudsdk.WorkspaceAgentScriptStatus](#nicloudsdkworkspaceagentscriptstatus) | false    |              |             |
 | `timeout`            | integer                                                                    | false    |              |             |
 
-## codersdk.WorkspaceAgentScriptStatus
+## nicloudsdk.WorkspaceAgentScriptStatus
 
 ```json
 "ok"
@@ -15408,7 +15408,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------------------------------------------------|
 | `exit_failure`, `ok`, `pipes_left_open`, `timed_out` |
 
-## codersdk.WorkspaceAgentStartupScriptBehavior
+## nicloudsdk.WorkspaceAgentStartupScriptBehavior
 
 ```json
 "blocking"
@@ -15422,7 +15422,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------------|
 | `blocking`, `non-blocking` |
 
-## codersdk.WorkspaceAgentStatus
+## nicloudsdk.WorkspaceAgentStatus
 
 ```json
 "connecting"
@@ -15436,7 +15436,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------------------------------------------------|
 | `connected`, `connecting`, `disconnected`, `timeout` |
 
-## codersdk.WorkspaceApp
+## nicloudsdk.WorkspaceApp
 
 ```json
 {
@@ -15485,15 +15485,15 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `display_name`   | string                                                                 | false    |              | Display name is a friendly name for the app.                                                                                                                                                                                                   |
 | `external`       | boolean                                                                | false    |              | External specifies whether the URL should be opened externally on the client or not.                                                                                                                                                           |
 | `group`          | string                                                                 | false    |              |                                                                                                                                                                                                                                                |
-| `health`         | [codersdk.WorkspaceAppHealth](#codersdkworkspaceapphealth)             | false    |              |                                                                                                                                                                                                                                                |
-| `healthcheck`    | [codersdk.Healthcheck](#codersdkhealthcheck)                           | false    |              | Healthcheck specifies the configuration for checking app health.                                                                                                                                                                               |
+| `health`         | [nicloudsdk.WorkspaceAppHealth](#nicloudsdkworkspaceapphealth)             | false    |              |                                                                                                                                                                                                                                                |
+| `healthcheck`    | [nicloudsdk.Healthcheck](#nicloudsdkhealthcheck)                           | false    |              | Healthcheck specifies the configuration for checking app health.                                                                                                                                                                               |
 | `hidden`         | boolean                                                                | false    |              |                                                                                                                                                                                                                                                |
 | `icon`           | string                                                                 | false    |              | Icon is a relative path or external URL that specifies an icon to be displayed in the dashboard.                                                                                                                                               |
 | `id`             | string                                                                 | false    |              |                                                                                                                                                                                                                                                |
-| `open_in`        | [codersdk.WorkspaceAppOpenIn](#codersdkworkspaceappopenin)             | false    |              |                                                                                                                                                                                                                                                |
-| `sharing_level`  | [codersdk.WorkspaceAppSharingLevel](#codersdkworkspaceappsharinglevel) | false    |              |                                                                                                                                                                                                                                                |
+| `open_in`        | [nicloudsdk.WorkspaceAppOpenIn](#nicloudsdkworkspaceappopenin)             | false    |              |                                                                                                                                                                                                                                                |
+| `sharing_level`  | [nicloudsdk.WorkspaceAppSharingLevel](#nicloudsdkworkspaceappsharinglevel) | false    |              |                                                                                                                                                                                                                                                |
 | `slug`           | string                                                                 | false    |              | Slug is a unique identifier within the agent.                                                                                                                                                                                                  |
-| `statuses`       | array of [codersdk.WorkspaceAppStatus](#codersdkworkspaceappstatus)    | false    |              | Statuses is a list of statuses for the app.                                                                                                                                                                                                    |
+| `statuses`       | array of [nicloudsdk.WorkspaceAppStatus](#nicloudsdkworkspaceappstatus)    | false    |              | Statuses is a list of statuses for the app.                                                                                                                                                                                                    |
 | `subdomain`      | boolean                                                                | false    |              | Subdomain denotes whether the app should be accessed via a path on the `coder server` or via a hostname-based dev URL. If this is set to true and there is no app wildcard configured on the server, the app will not be accessible in the UI. |
 | `subdomain_name` | string                                                                 | false    |              | Subdomain name is the application domain exposed on the `coder server`.                                                                                                                                                                        |
 | `tooltip`        | string                                                                 | false    |              | Tooltip is an optional markdown supported field that is displayed when hovering over workspace apps in the UI.                                                                                                                                 |
@@ -15505,7 +15505,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |-----------------|----------------------------------------------------|
 | `sharing_level` | `authenticated`, `organization`, `owner`, `public` |
 
-## codersdk.WorkspaceAppHealth
+## nicloudsdk.WorkspaceAppHealth
 
 ```json
 "disabled"
@@ -15519,7 +15519,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------------------------------------|
 | `disabled`, `healthy`, `initializing`, `unhealthy` |
 
-## codersdk.WorkspaceAppOpenIn
+## nicloudsdk.WorkspaceAppOpenIn
 
 ```json
 "slim-window"
@@ -15533,7 +15533,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------|
 | `slim-window`, `tab` |
 
-## codersdk.WorkspaceAppSharingLevel
+## nicloudsdk.WorkspaceAppSharingLevel
 
 ```json
 "owner"
@@ -15547,7 +15547,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------------------------------------------------|
 | `authenticated`, `organization`, `owner`, `public` |
 
-## codersdk.WorkspaceAppStatus
+## nicloudsdk.WorkspaceAppStatus
 
 ```json
 {
@@ -15575,11 +15575,11 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `id`                   | string                                                               | false    |              |                                                                                                                                                 |
 | `message`              | string                                                               | false    |              |                                                                                                                                                 |
 | `needs_user_attention` | boolean                                                              | false    |              | Deprecated: This field is unused and will be removed in a future version. NeedsUserAttention specifies whether the status needs user attention. |
-| `state`                | [codersdk.WorkspaceAppStatusState](#codersdkworkspaceappstatusstate) | false    |              |                                                                                                                                                 |
+| `state`                | [nicloudsdk.WorkspaceAppStatusState](#nicloudsdkworkspaceappstatusstate) | false    |              |                                                                                                                                                 |
 | `uri`                  | string                                                               | false    |              | Uri is the URI of the resource that the status is for. e.g. https://github.com/org/repo/pull/123 e.g. file:///path/to/file                      |
 | `workspace_id`         | string                                                               | false    |              |                                                                                                                                                 |
 
-## codersdk.WorkspaceAppStatusState
+## nicloudsdk.WorkspaceAppStatusState
 
 ```json
 "working"
@@ -15593,7 +15593,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------------------------------------|
 | `complete`, `failure`, `idle`, `working` |
 
-## codersdk.WorkspaceBuild
+## nicloudsdk.WorkspaceBuild
 
 ```json
 {
@@ -15820,16 +15820,16 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `id`                         | string                                                            | false    |              |                                                                          |
 | `initiator_id`               | string                                                            | false    |              |                                                                          |
 | `initiator_name`             | string                                                            | false    |              |                                                                          |
-| `job`                        | [codersdk.ProvisionerJob](#codersdkprovisionerjob)                | false    |              |                                                                          |
-| `matched_provisioners`       | [codersdk.MatchedProvisioners](#codersdkmatchedprovisioners)      | false    |              |                                                                          |
+| `job`                        | [nicloudsdk.ProvisionerJob](#nicloudsdkprovisionerjob)                | false    |              |                                                                          |
+| `matched_provisioners`       | [nicloudsdk.MatchedProvisioners](#nicloudsdkmatchedprovisioners)      | false    |              |                                                                          |
 | `max_deadline`               | string                                                            | false    |              |                                                                          |
-| `reason`                     | [codersdk.BuildReason](#codersdkbuildreason)                      | false    |              |                                                                          |
-| `resources`                  | array of [codersdk.WorkspaceResource](#codersdkworkspaceresource) | false    |              |                                                                          |
-| `status`                     | [codersdk.WorkspaceStatus](#codersdkworkspacestatus)              | false    |              |                                                                          |
+| `reason`                     | [nicloudsdk.BuildReason](#nicloudsdkbuildreason)                      | false    |              |                                                                          |
+| `resources`                  | array of [nicloudsdk.WorkspaceResource](#nicloudsdkworkspaceresource) | false    |              |                                                                          |
+| `status`                     | [nicloudsdk.WorkspaceStatus](#nicloudsdkworkspacestatus)              | false    |              |                                                                          |
 | `template_version_id`        | string                                                            | false    |              |                                                                          |
 | `template_version_name`      | string                                                            | false    |              |                                                                          |
 | `template_version_preset_id` | string                                                            | false    |              |                                                                          |
-| `transition`                 | [codersdk.WorkspaceTransition](#codersdkworkspacetransition)      | false    |              |                                                                          |
+| `transition`                 | [nicloudsdk.WorkspaceTransition](#nicloudsdkworkspacetransition)      | false    |              |                                                                          |
 | `updated_at`                 | string                                                            | false    |              |                                                                          |
 | `workspace_id`               | string                                                            | false    |              |                                                                          |
 | `workspace_name`             | string                                                            | false    |              |                                                                          |
@@ -15845,7 +15845,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `status`     | `canceled`, `canceling`, `deleted`, `deleting`, `failed`, `pending`, `running`, `starting`, `stopped`, `stopping` |
 | `transition` | `delete`, `start`, `stop`                                                                                         |
 
-## codersdk.WorkspaceBuildParameter
+## nicloudsdk.WorkspaceBuildParameter
 
 ```json
 {
@@ -15861,7 +15861,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `name`  | string | false    |              |             |
 | `value` | string | false    |              |             |
 
-## codersdk.WorkspaceBuildTimings
+## nicloudsdk.WorkspaceBuildTimings
 
 ```json
 {
@@ -15904,11 +15904,11 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name                       | Type                                                                      | Required | Restrictions | Description                                                                                                      |
 |----------------------------|---------------------------------------------------------------------------|----------|--------------|------------------------------------------------------------------------------------------------------------------|
-| `agent_connection_timings` | array of [codersdk.AgentConnectionTiming](#codersdkagentconnectiontiming) | false    |              |                                                                                                                  |
-| `agent_script_timings`     | array of [codersdk.AgentScriptTiming](#codersdkagentscripttiming)         | false    |              | Agent script timings Consolidate agent-related timing metrics into a single struct when updating the API version |
-| `provisioner_timings`      | array of [codersdk.ProvisionerTiming](#codersdkprovisionertiming)         | false    |              |                                                                                                                  |
+| `agent_connection_timings` | array of [nicloudsdk.AgentConnectionTiming](#nicloudsdkagentconnectiontiming) | false    |              |                                                                                                                  |
+| `agent_script_timings`     | array of [nicloudsdk.AgentScriptTiming](#nicloudsdkagentscripttiming)         | false    |              | Agent script timings Consolidate agent-related timing metrics into a single struct when updating the API version |
+| `provisioner_timings`      | array of [nicloudsdk.ProvisionerTiming](#nicloudsdkprovisionertiming)         | false    |              |                                                                                                                  |
 
-## codersdk.WorkspaceConnectionLatencyMS
+## nicloudsdk.WorkspaceConnectionLatencyMS
 
 ```json
 {
@@ -15924,7 +15924,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `p50` | number | false    |              |             |
 | `p95` | number | false    |              |             |
 
-## codersdk.WorkspaceDeploymentStats
+## nicloudsdk.WorkspaceDeploymentStats
 
 ```json
 {
@@ -15947,7 +15947,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | Name                    | Type                                                                           | Required | Restrictions | Description |
 |-------------------------|--------------------------------------------------------------------------------|----------|--------------|-------------|
 | `building`              | integer                                                                        | false    |              |             |
-| `connection_latency_ms` | [codersdk.WorkspaceConnectionLatencyMS](#codersdkworkspaceconnectionlatencyms) | false    |              |             |
+| `connection_latency_ms` | [nicloudsdk.WorkspaceConnectionLatencyMS](#nicloudsdkworkspaceconnectionlatencyms) | false    |              |             |
 | `failed`                | integer                                                                        | false    |              |             |
 | `pending`               | integer                                                                        | false    |              |             |
 | `running`               | integer                                                                        | false    |              |             |
@@ -15955,7 +15955,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `stopped`               | integer                                                                        | false    |              |             |
 | `tx_bytes`              | integer                                                                        | false    |              |             |
 
-## codersdk.WorkspaceGroup
+## nicloudsdk.WorkspaceGroup
 
 ```json
 {
@@ -15996,14 +15996,14 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `avatar_url`                | string                                                | false    |              |                                                                                                                                                                       |
 | `display_name`              | string                                                | false    |              |                                                                                                                                                                       |
 | `id`                        | string                                                | false    |              |                                                                                                                                                                       |
-| `members`                   | array of [codersdk.ReducedUser](#codersdkreduceduser) | false    |              |                                                                                                                                                                       |
+| `members`                   | array of [nicloudsdk.ReducedUser](#nicloudsdkreduceduser) | false    |              |                                                                                                                                                                       |
 | `name`                      | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_display_name` | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_id`           | string                                                | false    |              |                                                                                                                                                                       |
 | `organization_name`         | string                                                | false    |              |                                                                                                                                                                       |
 | `quota_allowance`           | integer                                               | false    |              |                                                                                                                                                                       |
-| `role`                      | [codersdk.WorkspaceRole](#codersdkworkspacerole)      | false    |              |                                                                                                                                                                       |
-| `source`                    | [codersdk.GroupSource](#codersdkgroupsource)          | false    |              |                                                                                                                                                                       |
+| `role`                      | [nicloudsdk.WorkspaceRole](#nicloudsdkworkspacerole)      | false    |              |                                                                                                                                                                       |
+| `source`                    | [nicloudsdk.GroupSource](#nicloudsdkgroupsource)          | false    |              |                                                                                                                                                                       |
 | `total_member_count`        | integer                                               | false    |              | How many members are in this group. Shows the total count, even if the user is not authorized to read group member details. May be greater than `len(Group.Members)`. |
 
 #### Enumerated Values
@@ -16012,7 +16012,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------|----------------|
 | `role`   | `admin`, `use` |
 
-## codersdk.WorkspaceHealth
+## nicloudsdk.WorkspaceHealth
 
 ```json
 {
@@ -16030,7 +16030,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `failing_agents` | array of string | false    |              | Failing agents lists the IDs of the agents that are failing, if any. |
 | `healthy`        | boolean         | false    |              | Healthy is true if the workspace is healthy.                         |
 
-## codersdk.WorkspaceProxy
+## nicloudsdk.WorkspaceProxy
 
 ```json
 {
@@ -16076,12 +16076,12 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `id`                | string                                                         | false    |              |                                                                                                                                                                                   |
 | `name`              | string                                                         | false    |              |                                                                                                                                                                                   |
 | `path_app_url`      | string                                                         | false    |              | Path app URL is the URL to the base path for path apps. Optional unless wildcard_hostname is set. E.g. https://us.example.com                                                     |
-| `status`            | [codersdk.WorkspaceProxyStatus](#codersdkworkspaceproxystatus) | false    |              | Status is the latest status check of the proxy. This will be empty for deleted proxies. This value can be used to determine if a workspace proxy is healthy and ready to use.     |
+| `status`            | [nicloudsdk.WorkspaceProxyStatus](#nicloudsdkworkspaceproxystatus) | false    |              | Status is the latest status check of the proxy. This will be empty for deleted proxies. This value can be used to determine if a workspace proxy is healthy and ready to use.     |
 | `updated_at`        | string                                                         | false    |              |                                                                                                                                                                                   |
 | `version`           | string                                                         | false    |              |                                                                                                                                                                                   |
 | `wildcard_hostname` | string                                                         | false    |              | Wildcard hostname is the wildcard hostname for subdomain apps. E.g. *.us.example.com E.g.*--suffix.au.example.com Optional. Does not need to be on the same domain as PathAppURL. |
 
-## codersdk.WorkspaceProxyStatus
+## nicloudsdk.WorkspaceProxyStatus
 
 ```json
 {
@@ -16103,10 +16103,10 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | Name         | Type                                                     | Required | Restrictions | Description                                                               |
 |--------------|----------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------|
 | `checked_at` | string                                                   | false    |              |                                                                           |
-| `report`     | [codersdk.ProxyHealthReport](#codersdkproxyhealthreport) | false    |              | Report provides more information about the health of the workspace proxy. |
-| `status`     | [codersdk.ProxyHealthStatus](#codersdkproxyhealthstatus) | false    |              |                                                                           |
+| `report`     | [nicloudsdk.ProxyHealthReport](#nicloudsdkproxyhealthreport) | false    |              | Report provides more information about the health of the workspace proxy. |
+| `status`     | [nicloudsdk.ProxyHealthStatus](#nicloudsdkproxyhealthstatus) | false    |              |                                                                           |
 
-## codersdk.WorkspaceQuota
+## nicloudsdk.WorkspaceQuota
 
 ```json
 {
@@ -16122,7 +16122,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `budget`           | integer | false    |              |             |
 | `credits_consumed` | integer | false    |              |             |
 
-## codersdk.WorkspaceResource
+## nicloudsdk.WorkspaceResource
 
 ```json
 {
@@ -16268,17 +16268,17 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name                   | Type                                                                              | Required | Restrictions | Description |
 |------------------------|-----------------------------------------------------------------------------------|----------|--------------|-------------|
-| `agents`               | array of [codersdk.WorkspaceAgent](#codersdkworkspaceagent)                       | false    |              |             |
+| `agents`               | array of [nicloudsdk.WorkspaceAgent](#nicloudsdkworkspaceagent)                       | false    |              |             |
 | `created_at`           | string                                                                            | false    |              |             |
 | `daily_cost`           | integer                                                                           | false    |              |             |
 | `hide`                 | boolean                                                                           | false    |              |             |
 | `icon`                 | string                                                                            | false    |              |             |
 | `id`                   | string                                                                            | false    |              |             |
 | `job_id`               | string                                                                            | false    |              |             |
-| `metadata`             | array of [codersdk.WorkspaceResourceMetadata](#codersdkworkspaceresourcemetadata) | false    |              |             |
+| `metadata`             | array of [nicloudsdk.WorkspaceResourceMetadata](#nicloudsdkworkspaceresourcemetadata) | false    |              |             |
 | `name`                 | string                                                                            | false    |              |             |
 | `type`                 | string                                                                            | false    |              |             |
-| `workspace_transition` | [codersdk.WorkspaceTransition](#codersdkworkspacetransition)                      | false    |              |             |
+| `workspace_transition` | [nicloudsdk.WorkspaceTransition](#nicloudsdkworkspacetransition)                      | false    |              |             |
 
 #### Enumerated Values
 
@@ -16286,7 +16286,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------------------|---------------------------|
 | `workspace_transition` | `delete`, `start`, `stop` |
 
-## codersdk.WorkspaceResourceMetadata
+## nicloudsdk.WorkspaceResourceMetadata
 
 ```json
 {
@@ -16304,7 +16304,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `sensitive` | boolean | false    |              |             |
 | `value`     | string  | false    |              |             |
 
-## codersdk.WorkspaceRole
+## nicloudsdk.WorkspaceRole
 
 ```json
 "admin"
@@ -16318,7 +16318,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |--------------------|
 | ``, `admin`, `use` |
 
-## codersdk.WorkspaceSharingSettings
+## nicloudsdk.WorkspaceSharingSettings
 
 ```json
 {
@@ -16332,7 +16332,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 
 | Name                         | Type                                                                   | Required | Restrictions | Description                                                                                                                     |
 |------------------------------|------------------------------------------------------------------------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------|
-| `shareable_workspace_owners` | [codersdk.ShareableWorkspaceOwners](#codersdkshareableworkspaceowners) | false    |              | Shareable workspace owners controls whose workspaces can be shared within the organization.                                     |
+| `shareable_workspace_owners` | [nicloudsdk.ShareableWorkspaceOwners](#nicloudsdkshareableworkspaceowners) | false    |              | Shareable workspace owners controls whose workspaces can be shared within the organization.                                     |
 | `sharing_disabled`           | boolean                                                                | false    |              | Sharing disabled is deprecated and left for backward compatibility purposes. Deprecated: use `ShareableWorkspaceOwners` instead |
 | `sharing_globally_disabled`  | boolean                                                                | false    |              | Sharing globally disabled is true if sharing has been disabled for this organization because of a deployment-wide setting.      |
 
@@ -16342,7 +16342,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |------------------------------|----------------------------------------|
 | `shareable_workspace_owners` | `everyone`, `none`, `service_accounts` |
 
-## codersdk.WorkspaceStatus
+## nicloudsdk.WorkspaceStatus
 
 ```json
 "pending"
@@ -16356,7 +16356,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |-------------------------------------------------------------------------------------------------------------------|
 | `canceled`, `canceling`, `deleted`, `deleting`, `failed`, `pending`, `running`, `starting`, `stopped`, `stopping` |
 
-## codersdk.WorkspaceTransition
+## nicloudsdk.WorkspaceTransition
 
 ```json
 "start"
@@ -16370,7 +16370,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |---------------------------|
 | `delete`, `start`, `stop` |
 
-## codersdk.WorkspaceUser
+## nicloudsdk.WorkspaceUser
 
 ```json
 {
@@ -16389,7 +16389,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | `avatar_url` | string                                           | false    |              |             |
 | `id`         | string                                           | true     |              |             |
 | `name`       | string                                           | false    |              |             |
-| `role`       | [codersdk.WorkspaceRole](#codersdkworkspacerole) | false    |              |             |
+| `role`       | [nicloudsdk.WorkspaceRole](#nicloudsdkworkspacerole) | false    |              |             |
 | `username`   | string                                           | true     |              |             |
 
 #### Enumerated Values
@@ -16398,7 +16398,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 |----------|----------------|
 | `role`   | `admin`, `use` |
 
-## codersdk.WorkspacesResponse
+## nicloudsdk.WorkspacesResponse
 
 ```json
 {
@@ -16668,7 +16668,7 @@ If the schedule is empty, the user will be updated to use the default schedule.|
 | Name         | Type                                              | Required | Restrictions | Description |
 |--------------|---------------------------------------------------|----------|--------------|-------------|
 | `count`      | integer                                           | false    |              |             |
-| `workspaces` | array of [codersdk.Workspace](#codersdkworkspace) | false    |              |             |
+| `workspaces` | array of [nicloudsdk.Workspace](#nicloudsdkworkspace) | false    |              |             |
 
 ## derp.BytesSentRecv
 
@@ -17673,12 +17673,12 @@ Zero means unspecified. There might be a limit, but the client need not try to r
 | Name                  | Type                                                                     | Required | Restrictions | Description                                                                         |
 |-----------------------|--------------------------------------------------------------------------|----------|--------------|-------------------------------------------------------------------------------------|
 | `access_url`          | [healthsdk.AccessURLReport](#healthsdkaccessurlreport)                   | false    |              |                                                                                     |
-| `coder_version`       | string                                                                   | false    |              | The Coder version of the server that the report was generated on.                   |
+| `coder_version`       | string                                                                   | false    |              | The Neural Inverse Cloud version of the server that the report was generated on.                   |
 | `database`            | [healthsdk.DatabaseReport](#healthsdkdatabasereport)                     | false    |              |                                                                                     |
 | `derp`                | [healthsdk.DERPHealthReport](#healthsdkderphealthreport)                 | false    |              |                                                                                     |
 | `healthy`             | boolean                                                                  | false    |              | Healthy is true if the report returns no errors. Deprecated: use `Severity` instead |
 | `provisioner_daemons` | [healthsdk.ProvisionerDaemonsReport](#healthsdkprovisionerdaemonsreport) | false    |              |                                                                                     |
-| `severity`            | [health.Severity](#healthseverity)                                       | false    |              | Severity indicates the status of Coder health.                                      |
+| `severity`            | [health.Severity](#healthseverity)                                       | false    |              | Severity indicates the status of Neural Inverse Cloud health.                                      |
 | `time`                | string                                                                   | false    |              | Time is the time the report was generated at.                                       |
 | `websocket`           | [healthsdk.WebsocketReport](#healthsdkwebsocketreport)                   | false    |              |                                                                                     |
 | `workspace_proxy`     | [healthsdk.WorkspaceProxyReport](#healthsdkworkspaceproxyreport)         | false    |              |                                                                                     |
@@ -17814,7 +17814,7 @@ Zero means unspecified. There might be a limit, but the client need not try to r
 
 | Name                 | Type                                                     | Required | Restrictions | Description |
 |----------------------|----------------------------------------------------------|----------|--------------|-------------|
-| `provisioner_daemon` | [codersdk.ProvisionerDaemon](#codersdkprovisionerdaemon) | false    |              |             |
+| `provisioner_daemon` | [nicloudsdk.ProvisionerDaemon](#nicloudsdkprovisionerdaemon) | false    |              |             |
 | `warnings`           | array of [health.Message](#healthmessage)                | false    |              |             |
 
 ## healthsdk.STUNReport
@@ -17945,7 +17945,7 @@ Zero means unspecified. There might be a limit, but the client need not try to r
 | `healthy`           | boolean                                                                                              | false    |              | Healthy is deprecated and left for backward compatibility purposes, use `Severity` instead. |
 | `severity`          | [health.Severity](#healthseverity)                                                                   | false    |              |                                                                                             |
 | `warnings`          | array of [health.Message](#healthmessage)                                                            | false    |              |                                                                                             |
-| `workspace_proxies` | [codersdk.RegionsResponse-codersdk_WorkspaceProxy](#codersdkregionsresponse-codersdk_workspaceproxy) | false    |              |                                                                                             |
+| `workspace_proxies` | [nicloudsdk.RegionsResponse-nicloudsdk_WorkspaceProxy](#nicloudsdkregionsresponse-nicloudsdk_workspaceproxy) | false    |              |                                                                                             |
 
 #### Enumerated Values
 
@@ -18258,7 +18258,7 @@ None
 
 None
 
-## serpent.Struct-array_codersdk_ExternalAuthConfig
+## serpent.Struct-array_nicloudsdk_ExternalAuthConfig
 
 ```json
 {
@@ -18298,9 +18298,9 @@ None
 
 | Name    | Type                                                                | Required | Restrictions | Description |
 |---------|---------------------------------------------------------------------|----------|--------------|-------------|
-| `value` | array of [codersdk.ExternalAuthConfig](#codersdkexternalauthconfig) | false    |              |             |
+| `value` | array of [nicloudsdk.ExternalAuthConfig](#nicloudsdkexternalauthconfig) | false    |              |             |
 
-## serpent.Struct-array_codersdk_LinkConfig
+## serpent.Struct-array_nicloudsdk_LinkConfig
 
 ```json
 {
@@ -18319,7 +18319,7 @@ None
 
 | Name    | Type                                                | Required | Restrictions | Description |
 |---------|-----------------------------------------------------|----------|--------------|-------------|
-| `value` | array of [codersdk.LinkConfig](#codersdklinkconfig) | false    |              |             |
+| `value` | array of [nicloudsdk.LinkConfig](#nicloudsdklinkconfig) | false    |              |             |
 
 ## serpent.URL
 
@@ -18543,7 +18543,7 @@ It is required but need not be unique; multiple nodes may have the same HostName
 | Name            | Type    | Required | Restrictions | Description                                                                                                                                                                                                                         |
 |-----------------|---------|----------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `avoid`         | boolean | false    |              | Avoid is whether the client should avoid picking this as its home region. The region should only be used if a peer is there. Clients already using this region as their home should migrate away to a new region without Avoid set. |
-| `embeddedRelay` | boolean | false    |              | Embeddedrelay is true when the region is bundled with the Coder control plane.                                                                                                                                                      |
+| `embeddedRelay` | boolean | false    |              | Embeddedrelay is true when the region is bundled with the Neural Inverse Cloud control plane.                                                                                                                                                      |
 |`nodes`|array of [tailcfg.DERPNode](#tailcfgderpnode)|false||Nodes are the DERP nodes running in this region, in priority order for the current client. Client TLS connections should ideally only go to the first entry (falling back to the second if necessary). STUN packets should go to the first 1 or 2.
 If nodes within a region route packets amongst themselves, but not to other regions. That said, each user/domain should get a the same preferred node order, so if all nodes for a user/network pick the first one (as they should, when things are healthy), the inter-cluster routing is minimal to zero.|
 |`regionCode`|string|false||Regioncode is a short name for the region. It's usually a popular city or airport code in the region: "nyc", "sf", "sin", "fra", etc.|
@@ -18773,7 +18773,7 @@ None
 | Name        | Type                                                                 | Required | Restrictions | Description |
 |-------------|----------------------------------------------------------------------|----------|--------------|-------------|
 | `id`        | string                                                               | false    |              |             |
-| `lifecycle` | [codersdk.WorkspaceAgentLifecycle](#codersdkworkspaceagentlifecycle) | false    |              |             |
+| `lifecycle` | [nicloudsdk.WorkspaceAgentLifecycle](#nicloudsdkworkspaceagentlifecycle) | false    |              |             |
 
 ## workspacesdk.BuildUpdate
 
@@ -18788,8 +18788,8 @@ None
 
 | Name         | Type                                                           | Required | Restrictions | Description |
 |--------------|----------------------------------------------------------------|----------|--------------|-------------|
-| `job_status` | [codersdk.ProvisionerJobStatus](#codersdkprovisionerjobstatus) | false    |              |             |
-| `transition` | [codersdk.WorkspaceTransition](#codersdkworkspacetransition)   | false    |              |             |
+| `job_status` | [nicloudsdk.ProvisionerJobStatus](#nicloudsdkprovisionerjobstatus) | false    |              |             |
+| `transition` | [nicloudsdk.WorkspaceTransition](#nicloudsdkworkspacetransition)   | false    |              |             |
 
 ## workspacesdk.ConnectionWatchEvent
 
@@ -18874,7 +18874,7 @@ None
 
 | Name          | Type                                              | Required | Restrictions | Description |
 |---------------|---------------------------------------------------|----------|--------------|-------------|
-| `crypto_keys` | array of [codersdk.CryptoKey](#codersdkcryptokey) | false    |              |             |
+| `crypto_keys` | array of [nicloudsdk.CryptoKey](#nicloudsdkcryptokey) | false    |              |             |
 
 ## wsproxysdk.DeregisterWorkspaceProxyRequest
 
@@ -18932,7 +18932,7 @@ None
 This value is only stored on subsequent requests to the register endpoint, not the first request.|
 |`replica_id`|string|false||Replica ID is a unique identifier for the replica of the proxy that is registering. It should be generated by the client on startup and persisted (in memory only) until the process is restarted.|
 |`replica_relay_address`|string|false||Replica relay address is the DERP address of the replica that other replicas may use to connect internally for DERP meshing.|
-|`version`|string|false||Version is the Coder version of the proxy.|
+|`version`|string|false||Version is the Neural Inverse Cloud version of the proxy.|
 |`wildcard_hostname`|string|false||Wildcard hostname that the workspace proxy api is serving for subdomain apps.|
 
 ## wsproxysdk.RegisterWorkspaceProxyResponse
@@ -19023,7 +19023,7 @@ This value is only stored on subsequent requests to the register endpoint, not t
 | `derp_map`              | [tailcfg.DERPMap](#tailcfgderpmap)            | false    |              |                                                                                        |
 | `derp_mesh_key`         | string                                        | false    |              |                                                                                        |
 | `derp_region_id`        | integer                                       | false    |              |                                                                                        |
-| `sibling_replicas`      | array of [codersdk.Replica](#codersdkreplica) | false    |              | Sibling replicas is a list of all other replicas of the proxy that have not timed out. |
+| `sibling_replicas`      | array of [nicloudsdk.Replica](#nicloudsdkreplica) | false    |              | Sibling replicas is a list of all other replicas of the proxy that have not timed out. |
 
 ## wsproxysdk.ReportAppStatsRequest
 

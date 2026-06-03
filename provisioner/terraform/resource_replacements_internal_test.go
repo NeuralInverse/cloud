@@ -6,7 +6,7 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 func TestFindResourceReplacementsWithPaths(t *testing.T) {
@@ -332,7 +332,7 @@ func TestHasResourceReplacement(t *testing.T) {
 			expected: true,
 		},
 		{
-			name: "coder replacement is ignored",
+			name: "neuralinverse replacement is ignored",
 			plan: &tfjson.Plan{
 				ResourceChanges: []*tfjson.ResourceChange{
 					{

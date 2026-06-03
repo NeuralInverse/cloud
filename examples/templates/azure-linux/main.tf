@@ -22,7 +22,7 @@ module "azure_region" {
   default = "eastus"
 }
 
-data "coder_parameter" "instance_type" {
+data "ni_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
   description  = "What instance type should your workspace use?"
@@ -75,7 +75,7 @@ data "coder_parameter" "instance_type" {
   }
 }
 
-data "coder_parameter" "home_size" {
+data "ni_parameter" "home_size" {
   name         = "home_size"
   display_name = "Home volume size"
   description  = "How large would you like your home volume to be (in GB)?"
@@ -93,10 +93,10 @@ provider "azurerm" {
   features {}
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch = "amd64"
   os   = "linux"
   auth = "azure-instance-identity"
@@ -138,28 +138,28 @@ resource "coder_agent" "main" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 # See https://registry.coder.com/modules/coder/jetbrains
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
-  agent_id   = coder_agent.main.id
+  agent_id   = ni_agent.main.id
   agent_name = "main"
   folder     = "/home/coder"
 }
 
 locals {
-  prefix = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+  prefix = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
 }
 
 data "cloudinit_config" "user_data" {
@@ -174,8 +174,8 @@ data "cloudinit_config" "user_data" {
 
     content = templatefile("${path.module}/cloud-init/cloud-config.yaml.tftpl", {
       username    = "coder" # Ensure this user/group does not exist in your VM image
-      init_script = base64encode(coder_agent.main.init_script)
-      hostname    = lower(data.coder_workspace.me.name)
+      init_script = base64encode(ni_agent.main.init_script)
+      hostname    = lower(data.ni_workspace.me.name)
     })
   }
 }
@@ -243,7 +243,7 @@ resource "azurerm_managed_disk" "home" {
   name                 = "home"
   resource_group_name  = azurerm_resource_group.main.name
   storage_account_type = "StandardSSD_LRS"
-  disk_size_gb         = data.coder_parameter.home_size.value
+  disk_size_gb         = data.ni_parameter.home_size.value
 }
 
 // azurerm requires an SSH key (or password) for an admin user or it won't start a VM.  However,
@@ -254,11 +254,11 @@ resource "tls_private_key" "dummy" {
 }
 
 resource "azurerm_linux_virtual_machine" "main" {
-  count               = data.coder_workspace.me.start_count
+  count               = data.ni_workspace.me.start_count
   name                = "vm"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
-  size                = data.coder_parameter.instance_type.value
+  size                = data.ni_parameter.instance_type.value
   // cloud-init overwrites this, so the value here doesn't matter
   admin_username = "adminuser"
   admin_ssh_key {
@@ -269,7 +269,7 @@ resource "azurerm_linux_virtual_machine" "main" {
   network_interface_ids = [
     azurerm_network_interface.main.id,
   ]
-  computer_name = lower(data.coder_workspace.me.name)
+  computer_name = lower(data.ni_workspace.me.name)
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
@@ -288,7 +288,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "home" {
-  count              = data.coder_workspace.me.transition == "start" ? 1 : 0
+  count              = data.ni_workspace.me.transition == "start" ? 1 : 0
   managed_disk_id    = azurerm_managed_disk.home.id
   virtual_machine_id = azurerm_linux_virtual_machine.main[0].id
   lun                = "10"
@@ -296,7 +296,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "home" {
 }
 
 resource "coder_metadata" "workspace_info" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = azurerm_linux_virtual_machine.main[0].id
 
   item {
@@ -310,6 +310,6 @@ resource "coder_metadata" "home_info" {
 
   item {
     key   = "size"
-    value = "${data.coder_parameter.home_size.value} GiB"
+    value = "${data.ni_parameter.home_size.value} GiB"
   }
 }

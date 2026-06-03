@@ -10,7 +10,7 @@ import (
 
 const (
 	ChunkSize   = 2 << 20         // 2 MiB
-	MaxFileSize = 10 * (10 << 20) // 100 MiB, matches coderd HTTPFileMaxBytes
+	MaxFileSize = 10 * (10 << 20) // 100 MiB, matches nicloud HTTPFileMaxBytes
 )
 
 type DataBuilder struct {

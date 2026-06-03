@@ -19,7 +19,7 @@ func PersistentCacheDir(t *testing.T) string {
 	// in Github Actions.
 	home, err := os.UserHomeDir()
 	require.NoError(t, err)
-	dir := filepath.Join(home, ".cache", "coderv2-test")
+	dir := filepath.Join(home, ".cache", "niv2-test")
 
 	return dir
 }

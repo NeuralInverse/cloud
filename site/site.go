@@ -29,18 +29,18 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/appearance"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/db2sdk"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/entitlements"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/appearance"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/db2sdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/entitlements"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac/policy"
+	"github.com/NeuralInverse/cloud/v2/nicloud/telemetry"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // We always embed the error page HTML because it it doesn't need to be built,
@@ -77,7 +77,7 @@ type Options struct {
 	SiteFS            fs.FS
 	OAuth2Configs     *httpmw.OAuth2Configs
 	DocsURL           string
-	BuildInfo         codersdk.BuildInfoResponse
+	BuildInfo         nicloudsdk.BuildInfoResponse
 	AppearanceFetcher *atomic.Pointer[appearance.Fetcher]
 	Entitlements      *entitlements.Set
 	Telemetry         telemetry.Reporter
@@ -151,7 +151,7 @@ type Handler struct {
 	RegionsFetcher func(ctx context.Context) (any, error)
 
 	Entitlements *entitlements.Set
-	Experiments  atomic.Pointer[codersdk.Experiments]
+	Experiments  atomic.Pointer[nicloudsdk.Experiments]
 
 	telemetryHTMLServedOnce sync.Once
 }
@@ -354,13 +354,13 @@ func execTmpl(tmpl *template.Template, state htmlState) ([]byte, error) {
 	return buf.Bytes(), err
 }
 
-func userAppearanceSettingsFromRow(settings database.GetUserAppearanceSettingsRow) codersdk.UserAppearanceSettings {
-	return codersdk.UserAppearanceSettings{
+func userAppearanceSettingsFromRow(settings database.GetUserAppearanceSettingsRow) nicloudsdk.UserAppearanceSettings {
+	return nicloudsdk.UserAppearanceSettings{
 		ThemePreference: settings.ThemePreference,
-		ThemeMode:       codersdk.ThemeMode(settings.ThemeMode),
+		ThemeMode:       nicloudsdk.ThemeMode(settings.ThemeMode),
 		ThemeLight:      settings.ThemeLight,
 		ThemeDark:       settings.ThemeDark,
-		TerminalFont:    codersdk.TerminalFontName(settings.TerminalFont),
+		TerminalFont:    nicloudsdk.TerminalFontName(settings.TerminalFont),
 	}
 }
 
@@ -393,7 +393,7 @@ func (h *Handler) renderHTMLWithState(r *http.Request, filePath string, state ht
 		SessionTokenFunc:            nil,
 	})
 	if !ok || apiKey == nil || actor == nil {
-		var cfg codersdk.AppearanceConfig
+		var cfg nicloudsdk.AppearanceConfig
 		// nolint:gocritic // User is not expected to be signed in.
 		ctx := dbauthz.AsSystemRestricted(r.Context())
 		cfg, _ = af.Fetch(ctx)
@@ -406,7 +406,7 @@ func (h *Handler) renderHTMLWithState(r *http.Request, filePath string, state ht
 
 	var eg errgroup.Group
 	var user database.User
-	var userAppearance codersdk.UserAppearanceSettings
+	var userAppearance nicloudsdk.UserAppearanceSettings
 	orgIDs := []uuid.UUID{}
 	var userOrgs []database.Organization
 	eg.Go(func() error {
@@ -462,7 +462,7 @@ func (h *Handler) populateHTMLState(
 	user database.User,
 	orgIDs []uuid.UUID,
 	userOrgs []database.Organization,
-	userAppearance codersdk.UserAppearanceSettings,
+	userAppearance nicloudsdk.UserAppearanceSettings,
 ) {
 	var wg sync.WaitGroup
 	wg.Go(func() {
@@ -541,7 +541,7 @@ func (h *Handler) populateHTMLState(
 //go:embed permissions.json
 var permissionChecksJSON []byte
 
-var permissionChecks map[string]codersdk.AuthorizationCheck
+var permissionChecks map[string]nicloudsdk.AuthorizationCheck
 
 func init() {
 	if err := json.Unmarshal(permissionChecksJSON, &permissionChecks); err != nil {
@@ -553,13 +553,13 @@ func init() {
 // given actor and returns an HTML-escaped JSON string suitable for
 // embedding in a meta tag.
 func (h *Handler) renderPermissions(ctx context.Context, actor rbac.Subject) string {
-	response := make(codersdk.AuthorizationResponse)
+	response := make(nicloudsdk.AuthorizationResponse)
 	for k, v := range permissionChecks {
 		// Resolve the "me" sentinel so permission checks
 		// run against the actual actor, matching the
-		// API-side handling in coderd/authorize.go.
+		// API-side handling in nicloud/authorize.go.
 		ownerID := v.Object.OwnerID
-		if ownerID == codersdk.Me {
+		if ownerID == nicloudsdk.Me {
 			ownerID = actor.ID
 		}
 		obj := rbac.Object{
@@ -670,7 +670,7 @@ type installScriptState struct {
 	Version string
 }
 
-func parseInstallScript(files fs.FS, buildInfo codersdk.BuildInfoResponse) ([]byte, error) {
+func parseInstallScript(files fs.FS, buildInfo nicloudsdk.BuildInfoResponse) ([]byte, error) {
 	scriptFile, err := fs.ReadFile(files, "install.sh")
 	if err != nil {
 		return nil, err
@@ -730,10 +730,10 @@ func RenderStaticErrorPage(rw http.ResponseWriter, r *http.Request, data ErrorPa
 
 	err := errorTemplate.Execute(rw, outerData{
 		Error:                data,
-		ErrorDescriptionHTML: htmltemplate.HTML(data.Description), //nolint:gosec // gosec thinks this is user-input, but it is from Coder deployment configuration.
+		ErrorDescriptionHTML: htmltemplate.HTML(data.Description), //nolint:gosec // gosec thinks this is user-input, but it is from Neural Inverse Cloud deployment configuration.
 	})
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to render error page: " + err.Error(),
 			Detail:  fmt.Sprintf("Original error was: %d %s, %s", data.Status, data.Title, data.Description),
 		})
@@ -741,11 +741,11 @@ func RenderStaticErrorPage(rw http.ResponseWriter, r *http.Request, data ErrorPa
 	}
 }
 
-func applicationNameOrDefault(cfg codersdk.AppearanceConfig) string {
+func applicationNameOrDefault(cfg nicloudsdk.AppearanceConfig) string {
 	if cfg.ApplicationName != "" {
 		return cfg.ApplicationName
 	}
-	return "Coder"
+	return "Neural Inverse Cloud"
 }
 
 // OnlyFiles returns a new fs.FS that only contains files. If a directory is
@@ -771,7 +771,7 @@ func (jfs justFilesSystem) Open(name string) (fs.File, error) {
 	}
 
 	// Returning a 404 here does prevent the http.FileServer from serving
-	// index.* files automatically. Coder handles this above as all index pages
+	// index.* files automatically. Neural Inverse Cloud handles this above as all index pages
 	// are considered template files. So we never relied on this behavior.
 	if stat.IsDir() {
 		return nil, os.ErrNotExist
@@ -792,7 +792,7 @@ type RenderOAuthAllowData struct {
 }
 
 // RenderOAuthAllowPage renders the static page for a user to "Allow" an create
-// a new oauth2 link with an external site. This is when Coder is acting as the
+// a new oauth2 link with an external site. This is when Neural Inverse Cloud is acting as the
 // identity provider.
 //
 // This has to be done statically because Golang has to handle the full request.
@@ -807,7 +807,7 @@ func RenderOAuthAllowPage(rw http.ResponseWriter, r *http.Request, data RenderOA
 
 	err := oauthTemplate.Execute(rw, data)
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusOK, nicloudsdk.Response{
 			Message: "Failed to render oauth page: " + err.Error(),
 		})
 		return

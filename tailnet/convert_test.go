@@ -12,9 +12,9 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
 
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 func TestNode(t *testing.T) {

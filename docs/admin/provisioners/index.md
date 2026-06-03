@@ -1,25 +1,25 @@
 # External provisioners
 
-By default, the Coder server runs
+By default, the Neural Inverse Cloud server runs
 [built-in provisioner daemons](../../reference/cli/server.md#--provisioner-daemons),
 which execute `terraform` during workspace and template builds. However, there
 are often benefits to running external provisioner daemons:
 
 - **Secure build environments:** Run build jobs in isolated containers,
-  preventing malicious templates from gaining sh access to the Coder host.
+  preventing malicious templates from gaining sh access to the Neural Inverse Cloud host.
 
 - **Isolate APIs:** Deploy provisioners in isolated environments (on-prem, AWS,
-  Azure) instead of exposing APIs (Docker, Kubernetes, VMware) to the Coder
+  Azure) instead of exposing APIs (Docker, Kubernetes, VMware) to the Neural Inverse Cloud
   server. See
   [Provider Authentication](../../admin/templates/extending-templates/provider-authentication.md)
   for more details.
 
-- **Isolate secrets**: Keep Coder unaware of cloud secrets, manage/rotate
+- **Isolate secrets**: Keep Neural Inverse Cloud unaware of cloud secrets, manage/rotate
   secrets on provisioner servers.
 
 - **Reduce server load**: External provisioners reduce load and build queue
-  times from the Coder server. See
-  [Scaling Coder](../../admin/infrastructure/index.md#scale-tests) for more
+  times from the Neural Inverse Cloud server. See
+  [Scaling Neural Inverse Cloud](../../admin/infrastructure/index.md#scale-tests) for more
   details.
 
 Each provisioner runs a single
@@ -29,14 +29,14 @@ workspaces at the same time.
 
 Provisioners are started with the
 [`coder provisioner start`](../../reference/cli/provisioner_start.md) command in
-the [full Coder binary](https://github.com/coder/coder/releases). Keep reading
+the [full Neural Inverse Cloud binary](https://github.com/NeuralInverse/cloud/releases). Keep reading
 to learn how to start provisioners via Docker, Kubernetes, Systemd, etc.
 
 You can use the dashboard, CLI, or API to [manage provisioners](./manage-provisioner-jobs.md).
 
 ## Authentication
 
-The provisioner daemon must authenticate with your Coder deployment.
+The provisioner daemon must authenticate with your Neural Inverse Cloud deployment.
 
 <div class="tabs">
 
@@ -73,8 +73,8 @@ organization, and optionally to a specific set of tags.
 1. Start the provisioner with the specified key:
 
    ```sh
-   export CODER_URL=https://<your-coder-url>
-   export CODER_PROVISIONER_DAEMON_KEY=<key>
+   export NEURALINVERSE_URL=https://<your-coder-url>
+   export NEURALINVERSE_PROVISIONER_DAEMON_KEY=<key>
    coder provisioner start
    ```
 
@@ -113,7 +113,7 @@ Global pre-shared keys (PSK) make it difficult to rotate keys or isolate provisi
 A deployment-wide PSK can be used to authenticate any provisioner. To use a
 global PSK, set a
 [provisioner daemon pre-shared key (PSK)](../../reference/cli/server.md#--provisioner-daemon-psk)
-on the Coder server.
+on the Neural Inverse Cloud server.
 
 Next, start the provisioner:
 
@@ -128,7 +128,7 @@ coder provisioner start --psk <your-psk>
 You can use **provisioner tags** to control which provisioners can pick up build
 jobs from templates (and corresponding workspaces) with matching explicit tags.
 
-Provisioners have two implicit tags: `scope` and `owner`. Coder sets these tags
+Provisioners have two implicit tags: `scope` and `owner`. Neural Inverse Cloud sets these tags
 automatically.
 
 - Organization-scoped provisioners always have the implicit tags
@@ -162,13 +162,13 @@ This can also be done in the UI when building a template:
 ![template tags](../../images/admin/provisioner-tags.png)
 
 Alternatively, a template can target a provisioner via
-[workspace tags](https://github.com/coder/coder/tree/main/examples/workspace-tags)
+[workspace tags](https://github.com/NeuralInverse/cloud/tree/main/examples/workspace-tags)
 inside the Terraform. See the
 [workspace tags documentation](../../admin/templates/extending-templates/workspace-tags.md)
 for more information.
 
 > [!NOTE]
-> Workspace tags defined with the `coder_workspace_tags` data source
+> Workspace tags defined with the `ni_workspace_tags` data source
 > template **do not** automatically apply to the template import job! You may
 > need to specify the desired tags when importing the template.
 
@@ -232,7 +232,7 @@ This is illustrated in the below table:
 > copy the output:
 >
 > ```go
-> go test -v -count=1 ./coderd/provisionerdserver/ -test.run='^TestAcquirer_MatchTags/GenTable$'
+> go test -v -count=1 ./nicloud/provisionerdserver/ -test.run='^TestAcquirer_MatchTags/GenTable$'
 > ```
 
 ## Types of provisioners
@@ -271,7 +271,7 @@ coder provisioner start
 ### User-scoped Provisioners
 
 **User-scoped Provisioners** can only pick up build jobs created from
-user-tagged templates. Unlike the other provisioner types, any Coder user can
+user-tagged templates. Unlike the other provisioner types, any Neural Inverse Cloud user can
 run user provisioners, but they have no impact unless there exists at least one
 template with the `scope=user` provisioner tag.
 
@@ -287,8 +287,8 @@ coder templates push on-prem \
 
 ## Example: Running an external provisioner with Helm
 
-Coder provides a Helm chart for running external provisioner daemons, which you
-will use in concert with the Helm chart for deploying the Coder server.
+Neural Inverse Cloud provides a Helm chart for running external provisioner daemons, which you
+will use in concert with the Helm chart for deploying the Neural Inverse Cloud server.
 
 1. Create a provisioner key:
 
@@ -315,7 +315,7 @@ will use in concert with the Helm chart for deploying the Coder server.
    ```yaml
    coder:
      env:
-       - name: CODER_URL
+       - name: NEURALINVERSE_URL
          value: "https://coder.example.com"
      replicaCount: 10
    provisionerDaemon:
@@ -332,7 +332,7 @@ will use in concert with the Helm chart for deploying the Coder server.
    created. The set of tags is inferred automatically from the provisioner key.
 
    > Refer to the
-   > [values.yaml](https://github.com/coder/coder/blob/main/helm/provisioner/values.yaml)
+   > [values.yaml](https://github.com/NeuralInverse/cloud/blob/main/helm/provisioner/values.yaml)
    > file for the coder-provisioner chart for information on what values can be
    > specified.
 
@@ -346,15 +346,15 @@ will use in concert with the Helm chart for deploying the Coder server.
    ```
 
    You can verify that your provisioner daemons have successfully connected to
-   Coderd by looking for a debug log message that says
-   `provisioner: successfully connected to coderd` from each Pod.
+   Neural Inverse Cloudd by looking for a debug log message that says
+   `provisioner: successfully connected to nicloud` from each Pod.
 
 ## Example: Running an external provisioner on a VM
 
 ```sh
-curl -L https://coder.com/install.sh | sh
-export CODER_URL=https://coder.example.com
-export CODER_SESSION_TOKEN=your_token
+curl -L https://cloud.neuralinverse.com/install.sh | sh
+export NEURALINVERSE_URL=https://coder.example.com
+export NEURALINVERSE_SESSION_TOKEN=your_token
 coder provisioner start
 ```
 
@@ -362,8 +362,8 @@ coder provisioner start
 
 ```sh
 docker run --rm -it \
-  -e CODER_URL=https://coder.example.com/ \
-  -e CODER_SESSION_TOKEN=your_token \
+  -e NEURALINVERSE_URL=https://coder.example.com/ \
+  -e NEURALINVERSE_SESSION_TOKEN=your_token \
   --entrypoint /opt/coder \
   ghcr.io/coder/coder:latest \
   provisioner start
@@ -371,7 +371,7 @@ docker run --rm -it \
 
 ## Disable built-in provisioners
 
-As mentioned above, the Coder server will run built-in provisioners by default.
+As mentioned above, the Neural Inverse Cloud server will run built-in provisioners by default.
 This can be disabled with a server-wide
 [flag or environment variable](../../reference/cli/server.md#--provisioner-daemons).
 
@@ -381,12 +381,12 @@ coder server --provisioner-daemons=0
 
 ## Prometheus metrics
 
-Coder provisioner daemon exports metrics via the HTTP endpoint, which can be
-enabled using either the environment variable `CODER_PROMETHEUS_ENABLE` or the
+Neural Inverse Cloud provisioner daemon exports metrics via the HTTP endpoint, which can be
+enabled using either the environment variable `NEURALINVERSE_PROMETHEUS_ENABLE` or the
 flag `--prometheus-enable`.
 
 The Prometheus endpoint address is `http://localhost:2112/` by default. You can
-use either the environment variable `CODER_PROMETHEUS_ADDRESS` or the flag
+use either the environment variable `NEURALINVERSE_PROMETHEUS_ADDRESS` or the flag
 `--prometheus-address <network-interface>:<port>` to select a different listen
 address.
 

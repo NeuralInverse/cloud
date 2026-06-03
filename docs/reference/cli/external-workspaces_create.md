@@ -24,7 +24,7 @@ coder external-workspaces create [flags] [workspace]
 |             |                                   |
 |-------------|-----------------------------------|
 | Type        | <code>string</code>               |
-| Environment | <code>$CODER_TEMPLATE_NAME</code> |
+| Environment | <code>$NEURALINVERSE_TEMPLATE_NAME</code> |
 
 Specify a template name.
 
@@ -33,7 +33,7 @@ Specify a template name.
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_TEMPLATE_VERSION</code> |
+| Environment | <code>$NEURALINVERSE_TEMPLATE_VERSION</code> |
 
 Specify a template version name.
 
@@ -42,7 +42,7 @@ Specify a template version name.
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>string</code>             |
-| Environment | <code>$CODER_PRESET_NAME</code> |
+| Environment | <code>$NEURALINVERSE_PRESET_NAME</code> |
 
 Specify the name of a template version preset. Use 'none' to explicitly indicate that no preset should be used.
 
@@ -51,7 +51,7 @@ Specify the name of a template version preset. Use 'none' to explicitly indicate
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_WORKSPACE_START_AT</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_START_AT</code> |
 
 Specify the workspace autostart schedule. Check coder schedule start --help for the syntax.
 
@@ -60,7 +60,7 @@ Specify the workspace autostart schedule. Check coder schedule start --help for 
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>duration</code>                    |
-| Environment | <code>$CODER_WORKSPACE_STOP_AFTER</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_STOP_AFTER</code> |
 
 Specify a duration after which the workspace should shut down (e.g. 8h).
 
@@ -69,7 +69,7 @@ Specify a duration after which the workspace should shut down (e.g. 8h).
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>string</code>                             |
-| Environment | <code>$CODER_WORKSPACE_AUTOMATIC_UPDATES</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_AUTOMATIC_UPDATES</code> |
 | Default     | <code>never</code>                              |
 
 Specify automatic updates setting for the workspace (accepts 'always' or 'never').
@@ -79,7 +79,7 @@ Specify automatic updates setting for the workspace (accepts 'always' or 'never'
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>string</code>                                |
-| Environment | <code>$CODER_WORKSPACE_COPY_PARAMETERS_FROM</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_COPY_PARAMETERS_FROM</code> |
 
 Specify the source workspace name to copy parameters from.
 
@@ -88,7 +88,7 @@ Specify the source workspace name to copy parameters from.
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>bool</code>                  |
-| Environment | <code>$CODER_CREATE_NO_WAIT</code> |
+| Environment | <code>$NEURALINVERSE_CREATE_NO_WAIT</code> |
 
 Return immediately after creating the workspace. The build will run in the background.
 
@@ -105,7 +105,7 @@ Bypass confirmation prompts.
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>string-array</code>          |
-| Environment | <code>$CODER_RICH_PARAMETER</code> |
+| Environment | <code>$NEURALINVERSE_RICH_PARAMETER</code> |
 
 Rich parameter value in the format "name=value".
 
@@ -114,7 +114,7 @@ Rich parameter value in the format "name=value".
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_RICH_PARAMETER_FILE</code> |
+| Environment | <code>$NEURALINVERSE_RICH_PARAMETER_FILE</code> |
 
 Specify a file path with values for rich parameters defined in the template. The file should be in YAML format, containing key-value pairs for the parameters.
 
@@ -123,7 +123,7 @@ Specify a file path with values for rich parameters defined in the template. The
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>string-array</code>                  |
-| Environment | <code>$CODER_RICH_PARAMETER_DEFAULT</code> |
+| Environment | <code>$NEURALINVERSE_RICH_PARAMETER_DEFAULT</code> |
 
 Rich parameter default values in the format "name=value".
 
@@ -132,7 +132,7 @@ Rich parameter default values in the format "name=value".
 |             |                                                      |
 |-------------|------------------------------------------------------|
 | Type        | <code>bool</code>                                    |
-| Environment | <code>$CODER_WORKSPACE_USE_PARAMETER_DEFAULTS</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_USE_PARAMETER_DEFAULTS</code> |
 
 Automatically accept parameter defaults when no value is provided.
 
@@ -141,6 +141,6 @@ Automatically accept parameter defaults when no value is provided.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.

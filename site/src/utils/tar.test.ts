@@ -16,7 +16,7 @@ test("tar", async () => {
 	writer.addFolder("etc", { mtime });
 	writer.addFile("etc/d.txt", "Some text content", {
 		mtime,
-		user: "coder",
+		user: "neuralinverse",
 		group: "codergroup",
 		mode: 0o777,
 	});
@@ -45,7 +45,7 @@ test("tar", async () => {
 		content: "Some text content",
 	});
 	expect(fileInfos[4].group).toEqual("codergroup");
-	expect(fileInfos[4].user).toEqual("coder");
+	expect(fileInfos[4].user).toEqual("neuralinverse");
 	expect(fileInfos[4].mode).toEqual(0o777);
 });
 

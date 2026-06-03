@@ -7,10 +7,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -32,7 +32,7 @@ func (r *RootCmd) provisionerJobs() *serpent.Command {
 
 func (r *RootCmd) provisionerJobsList() *serpent.Command {
 	type provisionerJobRow struct {
-		codersdk.ProvisionerJob `table:"provisioner_job,recursive_inline,nosort"`
+		nicloudsdk.ProvisionerJob `table:"provisioner_job,recursive_inline,nosort"`
 		OrganizationName        string `json:"organization_name" table:"organization"`
 		Queue                   string `json:"-" table:"queue"`
 	}
@@ -74,8 +74,8 @@ func (r *RootCmd) provisionerJobsList() *serpent.Command {
 				initiator = user.ID.String()
 			}
 
-			jobs, err := client.OrganizationProvisionerJobs(ctx, org.ID, &codersdk.OrganizationProvisionerJobsOptions{
-				Status:    slice.StringEnums[codersdk.ProvisionerJobStatus](status),
+			jobs, err := client.OrganizationProvisionerJobs(ctx, org.ID, &nicloudsdk.OrganizationProvisionerJobsOptions{
+				Status:    slice.StringEnums[nicloudsdk.ProvisionerJobStatus](status),
 				Limit:     int(limit),
 				Initiator: initiator,
 			})
@@ -94,7 +94,7 @@ func (r *RootCmd) provisionerJobsList() *serpent.Command {
 					ProvisionerJob:   job,
 					OrganizationName: org.HumanName(),
 				}
-				if job.Status == codersdk.ProvisionerJobPending {
+				if job.Status == nicloudsdk.ProvisionerJobPending {
 					row.Queue = fmt.Sprintf("%d/%d", job.QueuePosition, job.QueueSize)
 				}
 				rows = append(rows, row)
@@ -125,14 +125,14 @@ func (r *RootCmd) provisionerJobsList() *serpent.Command {
 		{
 			Flag:          "status",
 			FlagShorthand: "s",
-			Env:           "CODER_PROVISIONER_JOB_LIST_STATUS",
+			Env:           "NEURALINVERSE_PROVISIONER_JOB_LIST_STATUS",
 			Description:   "Filter by job status.",
-			Value:         serpent.EnumArrayOf(&status, slice.ToStrings(codersdk.ProvisionerJobStatusEnums())...),
+			Value:         serpent.EnumArrayOf(&status, slice.ToStrings(nicloudsdk.ProvisionerJobStatusEnums())...),
 		},
 		{
 			Flag:          "limit",
 			FlagShorthand: "l",
-			Env:           "CODER_PROVISIONER_JOB_LIST_LIMIT",
+			Env:           "NEURALINVERSE_PROVISIONER_JOB_LIST_LIMIT",
 			Description:   "Limit the number of jobs returned.",
 			Default:       "50",
 			Value:         serpent.Int64Of(&limit),
@@ -140,7 +140,7 @@ func (r *RootCmd) provisionerJobsList() *serpent.Command {
 		{
 			Flag:          "initiator",
 			FlagShorthand: "i",
-			Env:           "CODER_PROVISIONER_JOB_LIST_INITIATOR",
+			Env:           "NEURALINVERSE_PROVISIONER_JOB_LIST_INITIATOR",
 			Description:   "Filter by initiator (user ID or username).",
 			Value:         serpent.StringOf(&initiator),
 		},
@@ -182,15 +182,15 @@ func (r *RootCmd) provisionerJobsCancel() *serpent.Command {
 			}
 
 			switch job.Type {
-			case codersdk.ProvisionerJobTypeTemplateVersionDryRun:
+			case nicloudsdk.ProvisionerJobTypeTemplateVersionDryRun:
 				_, _ = fmt.Fprintf(inv.Stdout, "Canceling template version dry run job %s...\n", job.ID)
 				err = client.CancelTemplateVersionDryRun(ctx, ptr.NilToEmpty(job.Input.TemplateVersionID), job.ID)
-			case codersdk.ProvisionerJobTypeTemplateVersionImport:
+			case nicloudsdk.ProvisionerJobTypeTemplateVersionImport:
 				_, _ = fmt.Fprintf(inv.Stdout, "Canceling template version import job %s...\n", job.ID)
 				err = client.CancelTemplateVersion(ctx, ptr.NilToEmpty(job.Input.TemplateVersionID))
-			case codersdk.ProvisionerJobTypeWorkspaceBuild:
+			case nicloudsdk.ProvisionerJobTypeWorkspaceBuild:
 				_, _ = fmt.Fprintf(inv.Stdout, "Canceling workspace build job %s...\n", job.ID)
-				err = client.CancelWorkspaceBuild(ctx, ptr.NilToEmpty(job.Input.WorkspaceBuildID), codersdk.CancelWorkspaceBuildParams{})
+				err = client.CancelWorkspaceBuild(ctx, ptr.NilToEmpty(job.Input.WorkspaceBuildID), nicloudsdk.CancelWorkspaceBuildParams{})
 			}
 			if err != nil {
 				return xerrors.Errorf("cancel provisioner job: %w", err)

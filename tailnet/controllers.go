@@ -23,9 +23,9 @@ import (
 	"tailscale.com/util/dnsname"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/quartz"
 	"github.com/coder/retry"
 )
@@ -59,7 +59,7 @@ type CloserWaiter interface {
 }
 
 // CoordinatorClient is an abstraction of the Coordinator's control protocol interface from the
-// perspective of a protocol client (i.e. the Coder Agent is also a client of this interface).
+// perspective of a protocol client (i.e. the Neural Inverse Cloud Agent is also a client of this interface).
 type CoordinatorClient interface {
 	Close() error
 	Send(*proto.CoordinateRequest) error
@@ -161,10 +161,10 @@ type BasicCoordinationController struct {
 	// without inspecting call sites. Leave unset on synthetic
 	// controllers (tests, in-memory fakes) and the field will be
 	// omitted from log output.
-	Initiator codersdk.DisconnectInitiator
+	Initiator nicloudsdk.DisconnectInitiator
 	// Direction labels the connection layer (server_to_agent,
 	// agent_to_client, client_to_server) for disconnect logs.
-	Direction codersdk.ConnectionDirection
+	Direction nicloudsdk.ConnectionDirection
 }
 
 // New satisfies the method on the CoordinationController interface
@@ -224,8 +224,8 @@ type BasicCoordination struct {
 	client       CoordinatorClient
 	respLoopDone chan struct{}
 	sendAcks     bool
-	initiator    codersdk.DisconnectInitiator
-	direction    codersdk.ConnectionDirection
+	initiator    nicloudsdk.DisconnectInitiator
+	direction    nicloudsdk.ConnectionDirection
 }
 
 // CloseClient forcibly closes the underlying coordinator client connection
@@ -258,7 +258,7 @@ func (c *BasicCoordination) Close(ctx context.Context) (retErr error) {
 	err := c.client.Send(&proto.CoordinateRequest{Disconnect: &proto.CoordinateRequest_Disconnect{}})
 	c.Unlock()
 	if err != nil && !xerrors.Is(err, io.EOF) {
-		reason := codersdk.DisconnectReasonNetworkError
+		reason := nicloudsdk.DisconnectReasonNetworkError
 		// Log but don't return early; we must still clean up below.
 		c.logger.Warn(context.Background(), "failed to send disconnect",
 			c.direction.SlogField(),
@@ -269,7 +269,7 @@ func (c *BasicCoordination) Close(ctx context.Context) (retErr error) {
 		)
 		retErr = xerrors.Errorf("send disconnect: %w", err)
 	} else {
-		reason := codersdk.DisconnectReasonGraceful
+		reason := nicloudsdk.DisconnectReasonGraceful
 		c.logger.Debug(context.Background(), "sent disconnect",
 			c.direction.SlogField(),
 			reason.SlogExpectedField(),
@@ -284,7 +284,7 @@ func (c *BasicCoordination) Close(ctx context.Context) (retErr error) {
 	// Disconnect message, so we should wait around for that until the context expires.
 	select {
 	case <-c.respLoopDone:
-		reason := codersdk.DisconnectReasonGraceful
+		reason := nicloudsdk.DisconnectReasonGraceful
 		c.logger.Debug(ctx, "responses closed after disconnect",
 			c.direction.SlogField(),
 			reason.SlogExpectedField(),
@@ -293,13 +293,13 @@ func (c *BasicCoordination) Close(ctx context.Context) (retErr error) {
 		)
 		return retErr
 	case <-ctx.Done():
-		reason := codersdk.DisconnectReasonNetworkError
+		reason := nicloudsdk.DisconnectReasonNetworkError
 		c.logger.Warn(ctx, "context expired while waiting for coordinate responses to close",
 			c.direction.SlogField(),
 			reason.SlogExpectedField(),
 			reason.SlogField(),
 			c.initiator.SlogField(),
-			codersdk.SlogDisconnectDetail("context expired before coordinator hung up"),
+			nicloudsdk.SlogDisconnectDetail("context expired before coordinator hung up"),
 		)
 	}
 	// forcefully close the stream
@@ -401,7 +401,7 @@ type TunnelSrcCoordController struct {
 }
 
 // NewTunnelSrcCoordController creates a CoordinationController for peers that are exclusively
-// tunnel sources (that is, they create tunnel --- Coder clients not workspaces).
+// tunnel sources (that is, they create tunnel --- Neural Inverse Cloud clients not workspaces).
 func NewTunnelSrcCoordController(
 	logger slog.Logger, coordinatee Coordinatee,
 ) *TunnelSrcCoordController {
@@ -410,8 +410,8 @@ func NewTunnelSrcCoordController(
 			Logger:      logger,
 			Coordinatee: coordinatee,
 			SendAcks:    false,
-			Initiator:   codersdk.DisconnectInitiatorClient,
-			Direction:   codersdk.ConnectionDirectionClientToServer,
+			Initiator:   nicloudsdk.DisconnectInitiatorClient,
+			Direction:   nicloudsdk.ConnectionDirectionClientToServer,
 		},
 		dests: make(map[uuid.UUID]struct{}),
 	}
@@ -542,7 +542,7 @@ func (c *TunnelSrcCoordController) SyncDestinations(destinations []uuid.UUID) {
 	}
 }
 
-// NewAgentCoordinationController creates a CoordinationController for Coder Agents, which never
+// NewAgentCoordinationController creates a CoordinationController for Neural Inverse Cloud Agents, which never
 // create tunnels and always send ReadyToHandshake acknowledgements.
 func NewAgentCoordinationController(
 	logger slog.Logger, coordinatee Coordinatee,
@@ -551,8 +551,8 @@ func NewAgentCoordinationController(
 		Logger:      logger,
 		Coordinatee: coordinatee,
 		SendAcks:    true,
-		Initiator:   codersdk.DisconnectInitiatorAgent,
-		Direction:   codersdk.ConnectionDirectionServerToAgent,
+		Initiator:   nicloudsdk.DisconnectInitiatorAgent,
+		Direction:   nicloudsdk.ConnectionDirectionServerToAgent,
 	}
 }
 
@@ -1009,18 +1009,18 @@ func (w *Workspace) updateDNSNames(options DNSNameOptions) error {
 		if err != nil {
 			return err
 		}
-		names[fqdn] = []netip.Addr{CoderServicePrefix.AddrFromUUID(a.ID)}
+		names[fqdn] = []netip.Addr{NIServicePrefix.AddrFromUUID(a.ID)}
 		fqdn, err = dnsname.ToFQDN(fmt.Sprintf("%s.%s.%s.%s.", agentName, wsName, username, options.Suffix))
 		if err != nil {
 			return err
 		}
-		names[fqdn] = []netip.Addr{CoderServicePrefix.AddrFromUUID(a.ID)}
+		names[fqdn] = []netip.Addr{NIServicePrefix.AddrFromUUID(a.ID)}
 		if len(w.agents) == 1 {
 			fqdn, err = dnsname.ToFQDN(fmt.Sprintf("%s.%s.", wsName, options.Suffix))
 			if err != nil {
 				return err
 			}
-			names[fqdn] = []netip.Addr{CoderServicePrefix.AddrFromUUID(a.ID)}
+			names[fqdn] = []netip.Addr{NIServicePrefix.AddrFromUUID(a.ID)}
 		}
 		a.Hosts = names
 		w.agents[id] = a
@@ -1056,7 +1056,7 @@ func (t *TunnelAllWorkspaceUpdatesController) New(client WorkspaceUpdatesClient)
 	// hosts remain programmed while we wait for the new server
 	// snapshot. Without this, a control-plane reconnection would
 	// leave the internal DNS resolver empty until the first
-	// workspace update arrives, breaking .coder resolution.
+	// workspace update arrives, breaking .neuralinverse resolution.
 	var previousWorkspaces map[uuid.UUID]*Workspace
 	if t.updater != nil {
 		t.updater.Lock()
@@ -1439,12 +1439,12 @@ func (t *tunnelUpdater) updateDNSNamesLocked() map[dnsname.FQDN][]netip.Addr {
 			}
 		}
 	}
-	isCoderConnectEnabledFQDN, err := dnsname.ToFQDN(fmt.Sprintf(IsCoderConnectEnabledFmtString, t.dnsNameOptions.Suffix))
+	isNIConnectEnabledFQDN, err := dnsname.ToFQDN(fmt.Sprintf(IsNIConnectEnabledFmtString, t.dnsNameOptions.Suffix))
 	if err != nil {
 		t.logger.Critical(context.Background(),
 			"failed to include Coder Connect enabled DNS name", slog.F("suffix", t.dnsNameOptions.Suffix))
 	} else {
-		names[isCoderConnectEnabledFQDN] = []netip.Addr{tsaddr.CoderServiceIPv6()}
+		names[isNIConnectEnabledFQDN] = []netip.Addr{tsaddr.NIServiceIPv6()}
 	}
 	return names
 }
@@ -1476,7 +1476,7 @@ func NewTunnelAllWorkspaceUpdatesController(
 	t := &TunnelAllWorkspaceUpdatesController{
 		logger:         logger,
 		coordCtrl:      c,
-		dnsNameOptions: DNSNameOptions{CoderDNSSuffix},
+		dnsNameOptions: DNSNameOptions{NIDNSSuffix},
 	}
 	for _, opt := range opts {
 		opt(t)
@@ -1550,26 +1550,26 @@ func (c *Controller) Run(ctx context.Context) {
 				}
 
 				if errors.Is(err, net.ErrClosed) {
-					reason := codersdk.DisconnectReasonNetworkError
+					reason := nicloudsdk.DisconnectReasonNetworkError
 					c.logger.Warn(c.ctx, "control plane connection closed, retrying",
-						codersdk.ConnectionDirectionServerToAgent.SlogField(),
+						nicloudsdk.ConnectionDirectionServerToAgent.SlogField(),
 						reason.SlogField(),
 						reason.SlogExpectedField(),
-						codersdk.DisconnectInitiatorNetwork.SlogField(),
+						nicloudsdk.DisconnectInitiatorNetwork.SlogField(),
 						slog.Error(err),
 					)
 					continue
 				}
 
 				// If the database is unreachable by the control plane, there's not much we can do, so we'll just retry later.
-				if errors.Is(err, codersdk.ErrDatabaseNotReachable) {
+				if errors.Is(err, nicloudsdk.ErrDatabaseNotReachable) {
 					c.logger.Warn(c.ctx, "control plane lost connection to database, retrying",
 						slog.Error(err), slog.F("delay", fmt.Sprintf("%vms", retrier.Delay.Milliseconds())))
 					continue
 				}
 
 				errF := slog.Error(err)
-				var sdkErr *codersdk.Error
+				var sdkErr *nicloudsdk.Error
 				if xerrors.As(err, &sdkErr) {
 					errF = slog.Error(sdkErr)
 				}

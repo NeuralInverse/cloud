@@ -1,23 +1,23 @@
 # External Authentication
 
-Coder integrates with any OpenID Connect provider to automate away the need for
+Neural Inverse Cloud integrates with any OpenID Connect provider to automate away the need for
 developers to authenticate with external services within their workspace. This
 can be used to authenticate with git providers, private registries, or any other
 service that requires authentication.
 
 ## External Auth Providers
 
-External auth providers are configured using environment variables in the Coder
+External auth providers are configured using environment variables in the Neural Inverse Cloud
 Control Plane. See
 
 ## Git Providers
 
 When developers use `git` inside their workspace, they are prompted to
-authenticate. After that, Coder will store and refresh tokens for future
+authenticate. After that, Neural Inverse Cloud will store and refresh tokens for future
 operations.
 
 <video autoplay playsinline loop>
-  <source src="https://github.com/coder/coder/blob/main/site/static/external-auth.mp4?raw=true" type="video/mp4">
+  <source src="https://github.com/NeuralInverse/cloud/blob/main/site/static/external-auth.mp4?raw=true" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
@@ -52,7 +52,7 @@ configured.
 #### VSCode
 
 Use the
-[Coder](https://marketplace.visualstudio.com/items?itemName=coder.coder-remote)
+[Neural Inverse Cloud](https://marketplace.visualstudio.com/items?itemName=coder.coder-remote)
 extension to automatically configure these settings for you!
 
 Otherwise, you can manually configure the following settings:
@@ -69,11 +69,11 @@ authenticate via GitHub and auto-clone a repo into the `~/coder` directory.
 
 ```tf
 data "coder_external_auth" "github" {
-  # Matches the ID of the external auth provider in Coder.
+  # Matches the ID of the external auth provider in Neural Inverse Cloud.
   id = "github"
 }
 
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
   os   = "linux"
   arch = "amd64"
   dir  = "~/coder"
@@ -82,7 +82,7 @@ resource "coder_agent" "dev" {
   }
   startup_script = <<EOF
 if [ ! -d ~/coder ]; then
-    git clone https://github.com/coder/coder
+    git clone https://github.com/NeuralInverse/cloud
 fi
 EOF
 }

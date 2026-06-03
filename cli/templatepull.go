@@ -9,9 +9,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
 	"github.com/coder/serpent"
 )
 
@@ -58,11 +58,11 @@ func (r *RootCmd) templatePull() *serpent.Command {
 				return xerrors.Errorf("get template by name: %w", err)
 			}
 
-			var latestVersion codersdk.TemplateVersion
+			var latestVersion nicloudsdk.TemplateVersion
 			{
 				// Determine the latest template version and compare with the
 				// active version. If they aren't the same, warn the user.
-				versions, err := client.TemplateVersionsByTemplate(ctx, codersdk.TemplateVersionsByTemplateRequest{
+				versions, err := client.TemplateVersionsByTemplate(ctx, nicloudsdk.TemplateVersionsByTemplateRequest{
 					TemplateID: template.ID,
 				})
 				if err != nil {
@@ -81,7 +81,7 @@ func (r *RootCmd) templatePull() *serpent.Command {
 				latestVersion = versions[0]
 			}
 
-			var templateVersion codersdk.TemplateVersion
+			var templateVersion nicloudsdk.TemplateVersion
 			switch versionName {
 			case "", "active":
 				activeVersion, err := client.TemplateVersion(ctx, template.ActiveVersionID)
@@ -109,7 +109,7 @@ func (r *RootCmd) templatePull() *serpent.Command {
 
 			var fileFormat string // empty = default, so .tar
 			if zipMode {
-				fileFormat = codersdk.FormatZip
+				fileFormat = nicloudsdk.FormatZip
 			}
 
 			// Download the tar archive.
@@ -118,11 +118,11 @@ func (r *RootCmd) templatePull() *serpent.Command {
 				return xerrors.Errorf("download template: %w", err)
 			}
 
-			if fileFormat == "" && ctype != codersdk.ContentTypeTar {
-				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, codersdk.ContentTypeTar)
+			if fileFormat == "" && ctype != nicloudsdk.ContentTypeTar {
+				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, nicloudsdk.ContentTypeTar)
 			}
-			if fileFormat == codersdk.FormatZip && ctype != codersdk.ContentTypeZip {
-				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, codersdk.ContentTypeZip)
+			if fileFormat == nicloudsdk.FormatZip && ctype != nicloudsdk.ContentTypeZip {
+				return xerrors.Errorf("unexpected Content-Type %q, expecting %q", ctype, nicloudsdk.ContentTypeZip)
 			}
 
 			if tarMode || zipMode {

@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 type stringWrapper struct {
@@ -41,7 +41,7 @@ type tableTest1 struct {
 	// Types with special formatting.
 	Time     time.Time         `table:"time"`
 	TimePtr  *time.Time        `table:"time_ptr"`
-	NullTime codersdk.NullTime `table:"null_time"`
+	NullTime nicloudsdk.NullTime `table:"null_time"`
 	MyString *myString         `table:"my_string"`
 }
 
@@ -91,7 +91,7 @@ func Test_DisplayTable(t *testing.T) {
 			},
 			Time:    someTime,
 			TimePtr: nil,
-			NullTime: codersdk.NullTime{
+			NullTime: nicloudsdk.NullTime{
 				NullTime: sql.NullTime{
 					Time:  someTime,
 					Valid: true,

@@ -14,16 +14,16 @@ similar to popular web browsers like Chrome and Edge. It includes built-in
 security features for corporate applications and data, aiming to bridge the gap
 between consumer-focused browsers and the security needs of the enterprise.
 
-Coder natively integrates with Island's feature set, which include data
+Neural Inverse Cloud natively integrates with Island's feature set, which include data
 loss protection (DLP), application awareness, browser session recording, and
 single sign-on (SSO). This guide intends to document these feature categories
-and how they apply to your Coder deployment.
+and how they apply to your Neural Inverse Cloud deployment.
 
 ## General Configuration
 
-### Create an Application Group for Coder
+### Create an Application Group for Neural Inverse Cloud
 
-We recommend creating an Application Group specific to Coder in the Island
+We recommend creating an Application Group specific to Neural Inverse Cloud in the Island
 Management console. This Application Group object will be referenced when
 creating browser policies.
 
@@ -32,7 +32,7 @@ creating browser policies.
 ## Advanced Data Loss Protection
 
 Integrate Island's advanced data loss prevention (DLP) capabilities with
-Coder's cloud development environment (CDE), enabling you to control the
+Neural Inverse Cloud's cloud development environment (CDE), enabling you to control the
 "last mile" between developers' CDE and their local devices,
 ensuring that sensitive IP remains in your centralized environment.
 
@@ -50,12 +50,12 @@ ensuring that sensitive IP remains in your centralized environment.
 
 1. [Create a Policy Rule](https://documentation.island.io/docs/create-and-configure-a-policy-rule-general) to apply the Data Sandbox Profile.
 
-1. Define the Coder Application group as the Destination Object.
+1. Define the Neural Inverse Cloud Application group as the Destination Object.
 
 1. Define the Data Sandbox Profile as the Action in the Last Mile Protection
    section.
 
-### Conditionally allow copy on Coder's CLI authentication page
+### Conditionally allow copy on Neural Inverse Cloud's CLI authentication page
 
 1. [Create a URL Object](https://documentation.island.io/docs/create-and-configure-a-policy-rule-general) with the following configuration.
 
@@ -84,7 +84,7 @@ ensuring that sensitive IP remains in your centralized environment.
 
 1. [Create a Policy Rule](https://documentation.island.io/docs/create-and-configure-a-policy-rule-general) to apply the Protection Profiles.
 
-1. Define the Coder Application group as the Destination Object.
+1. Define the Neural Inverse Cloud Application group as the Destination Object.
 
 1. Define the applicable Protection Profile as the Action in the Data Protection
    section.
@@ -95,13 +95,13 @@ ensuring that sensitive IP remains in your centralized environment.
 
 1. [Create a Policy Rule](https://documentation.island.io/docs/create-and-configure-a-policy-rule-general) to apply the DLP Scanner.
 
-1. Define the Coder Application group as the Destination Object.
+1. Define the Neural Inverse Cloud Application group as the Destination Object.
 
 1. Define the DLP Scanner as the Action in the Data Protection section.
 
 ## Application Awareness and Boundaries
 
-Ensure that Coder is only accessed through the Island browser, guaranteeing that
+Ensure that Neural Inverse Cloud is only accessed through the Island browser, guaranteeing that
 your browser-level DLP policies are always enforced, and developers can't
 sidestep such policies simply by using another browser.
 
@@ -109,7 +109,7 @@ sidestep such policies simply by using another browser.
 
 Create a conditional access policy for your configured identity provider.
 
-Note that the configured IdP must be the same for both Coder and Island.
+Note that the configured IdP must be the same for both Neural Inverse Cloud and Island.
 
 - [Azure Active Directory/Entra ID](https://documentation.island.io/docs/configure-browser-enforcement-for-island-with-azure-ad#create-and-apply-a-conditional-access-policy)
 - [Okta](https://documentation.island.io/docs/configure-browser-enforcement-for-island-with-okta)
@@ -137,19 +137,19 @@ screenshots, mouse clicks, and keystrokes.
 
 1. [Create a Policy Rule](https://documentation.island.io/docs/create-and-configure-a-policy-rule-general) to apply the Activity Logging Profile.
 
-1. Define the Coder Application group as the Destination Object.
+1. Define the Neural Inverse Cloud Application group as the Destination Object.
 
 1. Define the Activity Logging Profile as the Action in the Security &
    Visibility section.
 
 ## Identity-aware logins (SSO)
 
-Integrate Island's identity management system with Coder's
+Integrate Island's identity management system with Neural Inverse Cloud's
 authentication mechanisms to enable identity-aware logins.
 
-### Configure single sign-on (SSO) seamless authentication between Coder and Island
+### Configure single sign-on (SSO) seamless authentication between Neural Inverse Cloud and Island
 
-Configure the same identity provider (IdP) for both your Island and Coder
+Configure the same identity provider (IdP) for both your Island and Neural Inverse Cloud
 deployment. Upon initial login to the Island browser, the user's session
-token will automatically be passed to Coder and authenticate their Coder
+token will automatically be passed to Neural Inverse Cloud and authenticate their Neural Inverse Cloud
 session.

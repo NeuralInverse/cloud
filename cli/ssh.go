@@ -34,17 +34,17 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/coderd/autobuild/notify"
-	"github.com/coder/coder/v2/coderd/util/maps"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/pty"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/autobuild/notify"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/maps"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 	"github.com/coder/quartz"
 	"github.com/coder/retry"
 	"github.com/coder/serpent"
@@ -74,13 +74,13 @@ func isRetryableError(err error) bool {
 	}
 	// Check connection errors before context.DeadlineExceeded because
 	// net.Dialer.Timeout produces *net.OpError that matches both.
-	if codersdk.IsConnectionError(err) {
+	if nicloudsdk.IsConnectionError(err) {
 		return true
 	}
 	if xerrors.Is(err, context.DeadlineExceeded) {
 		return false
 	}
-	var sdkErr *codersdk.Error
+	var sdkErr *nicloudsdk.Error
 	if xerrors.As(err, &sdkErr) {
 		return sdkErr.StatusCode() >= 500
 	}
@@ -141,11 +141,11 @@ func (r *RootCmd) ssh() *serpent.Command {
 		Annotations: workspaceCommand,
 		Use:         "ssh <workspace> [command]",
 		Short:       "Start a shell into a workspace or run a command",
-		Long: "This command does not have full parity with the standard SSH command. For users who need the full functionality of SSH, create an ssh configuration with `coder config-ssh`.\n\n" +
+		Long: "This command does not have full parity with the standard SSH command. For users who need the full functionality of SSH, create an ssh configuration with `neuralinverse config-ssh`.\n\n" +
 			FormatExamples(
 				Example{
 					Description: "Use `--` to separate and pass flags directly to the command executed via SSH.",
-					Command:     "coder ssh <workspace> -- ls -la",
+					Command:     "neuralinverse ssh <workspace> -- ls -la",
 				},
 			),
 		Middleware: serpent.Chain(
@@ -167,8 +167,8 @@ func (r *RootCmd) ssh() *serpent.Command {
 				return []string{}
 			}
 
-			res, err := client.Workspaces(inv.Context(), codersdk.WorkspaceFilter{
-				Owner: codersdk.Me,
+			res, err := client.Workspaces(inv.Context(), nicloudsdk.WorkspaceFilter{
+				Owner: nicloudsdk.Me,
 			})
 			if err != nil {
 				return []string{}
@@ -185,7 +185,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 					if err != nil {
 						return
 					}
-					var agents []codersdk.WorkspaceAgent
+					var agents []nicloudsdk.WorkspaceAgent
 					for _, resource := range resources {
 						agents = append(agents, resource.Agents...)
 					}
@@ -261,7 +261,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 					return xerrors.Errorf("generate nonce: %w", err)
 				}
 				logFileBaseName := fmt.Sprintf(
-					"coder-ssh-%s-%s",
+					"neuralinverse-ssh-%s-%s",
 					// The time portion makes it easier to find the right
 					// log file.
 					time.Now().Format("20060102-150405"),
@@ -324,14 +324,14 @@ func (r *RootCmd) ssh() *serpent.Command {
 				parsedEnv = append(parsedEnv, [2]string{k, v})
 			}
 
-			cliConfig := codersdk.SSHConfigResponse{
+			cliConfig := nicloudsdk.SSHConfigResponse{
 				HostnamePrefix: hostPrefix,
 				HostnameSuffix: hostnameSuffix,
 			}
 
 			// Populated by the closure below.
-			var workspace codersdk.Workspace
-			var workspaceAgent codersdk.WorkspaceAgent
+			var workspace nicloudsdk.Workspace
+			var workspaceAgent nicloudsdk.WorkspaceAgent
 			resolveWorkspace := func() error {
 				var err error
 				workspace, workspaceAgent, err = findWorkspaceAndAgentByHostname(
@@ -365,7 +365,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 				wait = false
 			}
 
-			var templateVersion codersdk.TemplateVersion
+			var templateVersion nicloudsdk.TemplateVersion
 			fetchVersion := func() error {
 				var err error
 				templateVersion, err = client.TemplateVersion(ctx, workspace.LatestBuild.TemplateVersionID)
@@ -377,7 +377,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 
 			var unsupportedWorkspace bool
 			for _, warning := range templateVersion.Warnings {
-				if warning == codersdk.TemplateVersionWarningUnsupportedWorkspaces {
+				if warning == nicloudsdk.TemplateVersionWarningUnsupportedWorkspaces {
 					unsupportedWorkspace = true
 					break
 				}
@@ -408,8 +408,8 @@ func (r *RootCmd) ssh() *serpent.Command {
 				return err
 			}
 
-			// If we're in stdio mode, check to see if we can use Coder Connect.
-			// We don't support Coder Connect over non-stdio coder ssh yet.
+			// If we're in stdio mode, check to see if we can use Neural Inverse Cloud Connect.
+			// We don't support Neural Inverse Cloud Connect over non-stdio neuralinverse ssh yet.
 			if stdio && !forceNewTunnel {
 				var connInfo workspacesdk.AgentConnectionInfo
 				if err := retryWithInterval(ctx, logger, sshRetryInterval, sshMaxAttempts, func() error {
@@ -419,16 +419,16 @@ func (r *RootCmd) ssh() *serpent.Command {
 				}); err != nil {
 					return xerrors.Errorf("get agent connection info: %w", err)
 				}
-				coderConnectHost := fmt.Sprintf("%s.%s.%s.%s",
+				niConnectHost := fmt.Sprintf("%s.%s.%s.%s",
 					workspaceAgent.Name, workspace.Name, workspace.OwnerName, connInfo.HostnameSuffix)
 				// Use trailing dot to indicate FQDN and prevent DNS
 				// search domain expansion, which can add 20-30s of
 				// delay on corporate networks with search domains
 				// configured.
-				exists, ccErr := workspacesdk.ExistsViaCoderConnect(ctx, coderConnectHost+".")
+				exists, ccErr := workspacesdk.ExistsViaNIConnect(ctx, niConnectHost+".")
 				if ccErr != nil {
-					logger.Debug(ctx, "failed to check coder connect",
-						slog.F("hostname", coderConnectHost),
+					logger.Debug(ctx, "failed to check neuralinverse connect",
+						slog.F("hostname", niConnectHost),
 						slog.Error(ccErr),
 					)
 				}
@@ -436,8 +436,8 @@ func (r *RootCmd) ssh() *serpent.Command {
 					defer cancel()
 
 					if networkInfoDir != "" {
-						if err := writeCoderConnectNetInfo(ctx, networkInfoDir); err != nil {
-							logger.Error(ctx, "failed to write coder connect net info file", slog.Error(err))
+						if err := writeNIConnectNetInfo(ctx, networkInfoDir); err != nil {
+							logger.Error(ctx, "failed to write neuralinverse connect net info file", slog.Error(err))
 						}
 					}
 
@@ -446,13 +446,13 @@ func (r *RootCmd) ssh() *serpent.Command {
 
 					usageAppName := getUsageAppName(usageApp)
 					if usageAppName != "" {
-						closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, codersdk.PostWorkspaceUsageRequest{
+						closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, nicloudsdk.PostWorkspaceUsageRequest{
 							AgentID: workspaceAgent.ID,
 							AppName: usageAppName,
 						})
 						defer closeUsage()
 					}
-					return runCoderConnectStdio(ctx, fmt.Sprintf("%s:22", coderConnectHost), stdioReader, stdioWriter, stack, logger)
+					return runNIConnectStdio(ctx, fmt.Sprintf("%s:22", niConnectHost), stdioReader, stdioWriter, stack, logger)
 				}
 			}
 
@@ -508,7 +508,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 
 			usageAppName := getUsageAppName(usageApp)
 			if usageAppName != "" {
-				closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, codersdk.PostWorkspaceUsageRequest{
+				closeUsage := client.UpdateWorkspaceUsageWithBodyContext(ctx, workspace.ID, nicloudsdk.PostWorkspaceUsageRequest{
 					AgentID: workspaceAgent.ID,
 					AppName: usageAppName,
 				})
@@ -757,7 +757,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 	}
 	waitOption := serpent.Option{
 		Flag:        "wait",
-		Env:         "CODER_SSH_WAIT",
+		Env:         "NEURALINVERSE_SSH_WAIT",
 		Description: "Specifies whether or not to wait for the startup script to finish executing. Auto means that the agent startup script behavior configured in the workspace template is used.",
 		Default:     "auto",
 		Value:       serpent.EnumOf(&waitEnum, "yes", "no", "auto"),
@@ -765,52 +765,52 @@ func (r *RootCmd) ssh() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "stdio",
-			Env:         "CODER_SSH_STDIO",
+			Env:         "NEURALINVERSE_SSH_STDIO",
 			Description: "Specifies whether to emit SSH output over stdin/stdout.",
 			Value:       serpent.BoolOf(&stdio),
 		},
 		{
 			Flag:          "tty",
 			FlagShorthand: "t",
-			Env:           "CODER_SSH_TTY",
+			Env:           "NEURALINVERSE_SSH_TTY",
 			Description:   "Request a pseudo-terminal for the SSH session. Interactive shell sessions request one by default; command sessions do not unless this flag is set.",
 			Value:         serpent.BoolOf(&tty),
 		},
 		{
 			Flag:        "ssh-host-prefix",
-			Env:         "CODER_SSH_SSH_HOST_PREFIX",
+			Env:         "NEURALINVERSE_SSH_SSH_HOST_PREFIX",
 			Description: "Strip this prefix from the provided hostname to determine the workspace name. This is useful when used as part of an OpenSSH proxy command.",
 			Value:       serpent.StringOf(&hostPrefix),
 		},
 		{
 			Flag:        "hostname-suffix",
-			Env:         "CODER_SSH_HOSTNAME_SUFFIX",
+			Env:         "NEURALINVERSE_SSH_HOSTNAME_SUFFIX",
 			Description: "Strip this suffix from the provided hostname to determine the workspace name. This is useful when used as part of an OpenSSH proxy command. The suffix must be specified without a leading . character.",
 			Value:       serpent.StringOf(&hostnameSuffix),
 		},
 		{
 			Flag:          "forward-agent",
 			FlagShorthand: "A",
-			Env:           "CODER_SSH_FORWARD_AGENT",
+			Env:           "NEURALINVERSE_SSH_FORWARD_AGENT",
 			Description:   "Specifies whether to forward the SSH agent specified in $SSH_AUTH_SOCK.",
 			Value:         serpent.BoolOf(&forwardAgent),
 		},
 		{
 			Flag:          "forward-gpg",
 			FlagShorthand: "G",
-			Env:           "CODER_SSH_FORWARD_GPG",
+			Env:           "NEURALINVERSE_SSH_FORWARD_GPG",
 			Description:   "Specifies whether to forward the GPG agent. Unsupported on Windows workspaces, but supports all clients. Requires gnupg (gpg, gpgconf) on both the client and workspace. The GPG agent must already be running locally and will not be started for you. If a GPG agent is already running in the workspace, it will be attempted to be killed.",
 			Value:         serpent.BoolOf(&forwardGPG),
 		},
 		{
 			Flag:        "identity-agent",
-			Env:         "CODER_SSH_IDENTITY_AGENT",
+			Env:         "NEURALINVERSE_SSH_IDENTITY_AGENT",
 			Description: "Specifies which identity agent to use (overrides $SSH_AUTH_SOCK), forward agent must also be enabled.",
 			Value:       serpent.StringOf(&identityAgent),
 		},
 		{
 			Flag:        "workspace-poll-interval",
-			Env:         "CODER_WORKSPACE_POLL_INTERVAL",
+			Env:         "NEURALINVERSE_WORKSPACE_POLL_INTERVAL",
 			Description: "Specifies how often to poll for workspace automated shutdown.",
 			Default:     "1m",
 			Value:       serpent.DurationOf(&wsPollInterval),
@@ -818,7 +818,7 @@ func (r *RootCmd) ssh() *serpent.Command {
 		waitOption,
 		{
 			Flag:        "no-wait",
-			Env:         "CODER_SSH_NO_WAIT",
+			Env:         "NEURALINVERSE_SSH_NO_WAIT",
 			Description: "Enter workspace immediately after the agent has connected. This is the default if the template has configured the agent startup script behavior as non-blocking.",
 			Value:       serpent.BoolOf(&noWait),
 			UseInstead:  []serpent.Option{waitOption},
@@ -826,28 +826,28 @@ func (r *RootCmd) ssh() *serpent.Command {
 		{
 			Flag:          "log-dir",
 			Description:   "Specify the directory containing SSH diagnostic log files.",
-			Env:           "CODER_SSH_LOG_DIR",
+			Env:           "NEURALINVERSE_SSH_LOG_DIR",
 			FlagShorthand: "l",
 			Value:         serpent.StringOf(&logDirPath),
 		},
 		{
 			Flag:          "remote-forward",
 			Description:   "Enable remote port forwarding (remote_port:local_address:local_port).",
-			Env:           "CODER_SSH_REMOTE_FORWARD",
+			Env:           "NEURALINVERSE_SSH_REMOTE_FORWARD",
 			FlagShorthand: "R",
 			Value:         serpent.StringArrayOf(&remoteForwards),
 		},
 		{
 			Flag:          "env",
 			Description:   "Set environment variable(s) for session (key1=value1,key2=value2,...).",
-			Env:           "CODER_SSH_ENV",
+			Env:           "NEURALINVERSE_SSH_ENV",
 			FlagShorthand: "e",
 			Value:         serpent.StringArrayOf(&env),
 		},
 		{
 			Flag:        "usage-app",
 			Description: "Specifies the usage app to use for workspace activity tracking.",
-			Env:         "CODER_SSH_USAGE_APP",
+			Env:         "NEURALINVERSE_SSH_USAGE_APP",
 			Value:       serpent.StringOf(&usageApp),
 			Hidden:      true,
 		},
@@ -887,13 +887,13 @@ func (r *RootCmd) ssh() *serpent.Command {
 }
 
 // findWorkspaceAndAgentByHostname parses the hostname from the commandline and finds the workspace and agent it
-// corresponds to, taking into account any name prefixes or suffixes configured (e.g. myworkspace.coder, or
+// corresponds to, taking into account any name prefixes or suffixes configured (e.g. myworkspace.neuralinverse, or
 // vscode-coder--myusername--myworkspace).
 func findWorkspaceAndAgentByHostname(
-	ctx context.Context, inv *serpent.Invocation, client *codersdk.Client,
-	hostname string, config codersdk.SSHConfigResponse, disableAutostart bool,
+	ctx context.Context, inv *serpent.Invocation, client *nicloudsdk.Client,
+	hostname string, config nicloudsdk.SSHConfigResponse, disableAutostart bool,
 ) (
-	codersdk.Workspace, codersdk.WorkspaceAgent, error,
+	nicloudsdk.Workspace, nicloudsdk.WorkspaceAgent, error,
 ) {
 	// for suffixes, we don't explicitly get the . and must add it. This is to ensure that the suffix is always
 	// interpreted as a dotted label in DNS names, not just any string suffix. That is, a suffix of 'coder' will
@@ -937,7 +937,7 @@ func findWorkspaceAndAgentByHostname(
 // will usually not propagate.
 //
 // See: https://github.com/coder/coder/issues/6180
-func watchAndClose(ctx context.Context, closer func() error, logger slog.Logger, client *codersdk.Client, workspace codersdk.Workspace, errCh <-chan error) {
+func watchAndClose(ctx context.Context, closer func() error, logger slog.Logger, client *nicloudsdk.Client, workspace nicloudsdk.Workspace, errCh <-chan error) {
 	// Ensure session is ended on both context cancellation
 	// and workspace stop.
 	defer func() {
@@ -949,8 +949,8 @@ func watchAndClose(ctx context.Context, closer func() error, logger slog.Logger,
 
 startWatchLoop:
 	for {
-		logger.Debug(ctx, "connecting to the coder server to watch workspace events")
-		var wsWatch <-chan codersdk.Workspace
+		logger.Debug(ctx, "connecting to the neuralinverse server to watch workspace events")
+		var wsWatch <-chan nicloudsdk.Workspace
 		var err error
 		for r := retry.New(time.Second, 15*time.Second); r.Wait(ctx); {
 			wsWatch, err = client.WatchWorkspace(ctx, workspace.ID)
@@ -977,14 +977,14 @@ startWatchLoop:
 				// the agent will still gracefully stop. If a new
 				// build is starting, there's no reason to wait for
 				// the agent, it should be long gone.
-				if workspace.LatestBuild.ID != w.LatestBuild.ID && w.LatestBuild.Transition == codersdk.WorkspaceTransitionStart {
+				if workspace.LatestBuild.ID != w.LatestBuild.ID && w.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionStart {
 					logger.Info(ctx, "new build started")
 					return
 				}
 				// Note, we only react to the stopped state here because we
 				// want to give the agent a chance to gracefully shut down
 				// during "stopping".
-				if w.LatestBuild.Status == codersdk.WorkspaceStatusStopped {
+				if w.LatestBuild.Status == nicloudsdk.WorkspaceStatusStopped {
 					logger.Info(ctx, "workspace stopped")
 					return
 				}
@@ -1000,9 +1000,9 @@ startWatchLoop:
 // `<workspace>[.<agent>]` syntax via `in`. It will also return any other agents
 // in the workspace as a slice for use in child->parent lookups.
 // If autoStart is true, the workspace will be started if it is not already running.
-func GetWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *codersdk.Client, autostart bool, input string) (codersdk.Workspace, codersdk.WorkspaceAgent, []codersdk.WorkspaceAgent, error) { //nolint:revive
+func GetWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *nicloudsdk.Client, autostart bool, input string) (nicloudsdk.Workspace, nicloudsdk.WorkspaceAgent, []nicloudsdk.WorkspaceAgent, error) { //nolint:revive
 	var (
-		workspace codersdk.Workspace
+		workspace nicloudsdk.Workspace
 		// The input will be `owner/name.agent`
 		// The agent is optional.
 		workspaceParts = strings.Split(input, ".")
@@ -1011,30 +1011,30 @@ func GetWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *
 
 	workspace, err = client.ResolveWorkspace(ctx, workspaceParts[0])
 	if err != nil {
-		return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, err
+		return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, err
 	}
 
-	if workspace.LatestBuild.Transition != codersdk.WorkspaceTransitionStart {
+	if workspace.LatestBuild.Transition != nicloudsdk.WorkspaceTransitionStart {
 		if !autostart {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, xerrors.New("workspace must be started")
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, xerrors.New("workspace must be started")
 		}
 		// Autostart the workspace for the user.
 		// For some failure modes, return a better message.
-		if workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionDelete {
+		if workspace.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionDelete {
 			// Any sort of deleting status, we should reject with a nicer error.
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, xerrors.Errorf("workspace %q is deleted", workspace.Name)
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, xerrors.Errorf("workspace %q is deleted", workspace.Name)
 		}
-		if workspace.LatestBuild.Job.Status == codersdk.ProvisionerJobFailed {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil,
+		if workspace.LatestBuild.Job.Status == nicloudsdk.ProvisionerJobFailed {
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil,
 				xerrors.Errorf("workspace %q is in failed state, unable to autostart the workspace", workspace.Name)
 		}
 		// The workspace needs to be stopped before we can start it.
 		// It cannot be in any pending or failed state.
-		if workspace.LatestBuild.Status != codersdk.WorkspaceStatusStopped {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil,
+		if workspace.LatestBuild.Status != nicloudsdk.WorkspaceStatusStopped {
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil,
 				xerrors.Errorf("workspace must be started; was unable to autostart as the last build job is %q, expected %q",
 					workspace.LatestBuild.Status,
-					codersdk.WorkspaceStatusStopped,
+					nicloudsdk.WorkspaceStatusStopped,
 				)
 		}
 
@@ -1045,9 +1045,9 @@ func GetWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *
 		_, err = startWorkspace(inv, client, workspace, workspaceParameterFlags{
 			useParameterDefaults: true,
 		}, buildFlags{
-			reason: string(codersdk.BuildReasonSSHConnection),
+			reason: string(nicloudsdk.BuildReasonSSHConnection),
 		}, WorkspaceStart)
-		if cerr, ok := codersdk.AsError(err); ok {
+		if cerr, ok := nicloudsdk.AsError(err); ok {
 			switch cerr.StatusCode() {
 			case http.StatusConflict:
 				_, _ = fmt.Fprintln(inv.Stderr, "Unable to start the workspace due to conflict, the workspace may be starting, retrying without autostart...")
@@ -1058,35 +1058,35 @@ func GetWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *
 					useParameterDefaults: true,
 				}, buildFlags{}, WorkspaceUpdate)
 				if err != nil {
-					return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, xerrors.Errorf("start workspace with active template version: %w", err)
+					return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, xerrors.Errorf("start workspace with active template version: %w", err)
 				}
 				_, _ = fmt.Fprintln(inv.Stdout, "Unable to start the workspace with template version from last build. Your workspace has been updated to the current active template version.")
 			default:
-				return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, xerrors.Errorf("start workspace with current template version: %w", err)
+				return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, xerrors.Errorf("start workspace with current template version: %w", err)
 			}
 		} else if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, xerrors.Errorf("start workspace with current template version: %w", err)
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, xerrors.Errorf("start workspace with current template version: %w", err)
 		}
 
 		// Refresh workspace state so that `outdated`, `build`,`template_*` fields are up-to-date.
 		workspace, err = client.ResolveWorkspace(ctx, workspaceParts[0])
 		if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, err
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, err
 		}
 	}
 	if workspace.LatestBuild.Job.CompletedAt == nil {
 		err := cliui.WorkspaceBuild(ctx, inv.Stderr, client, workspace.LatestBuild.ID)
 		if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, err
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, err
 		}
 		// Fetch up-to-date build information after completion.
 		workspace.LatestBuild, err = client.WorkspaceBuild(ctx, workspace.LatestBuild.ID)
 		if err != nil {
-			return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, err
+			return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, err
 		}
 	}
-	if workspace.LatestBuild.Transition == codersdk.WorkspaceTransitionDelete {
-		return codersdk.Workspace{}, codersdk.WorkspaceAgent{}, nil, xerrors.Errorf("workspace %q is being deleted", workspace.Name)
+	if workspace.LatestBuild.Transition == nicloudsdk.WorkspaceTransitionDelete {
+		return nicloudsdk.Workspace{}, nicloudsdk.WorkspaceAgent{}, nil, xerrors.Errorf("workspace %q is being deleted", workspace.Name)
 	}
 
 	var agentName string
@@ -1095,18 +1095,18 @@ func GetWorkspaceAndAgent(ctx context.Context, inv *serpent.Invocation, client *
 	}
 	workspaceAgent, otherWorkspaceAgents, err := getWorkspaceAgent(workspace, agentName)
 	if err != nil {
-		return workspace, codersdk.WorkspaceAgent{}, otherWorkspaceAgents, err
+		return workspace, nicloudsdk.WorkspaceAgent{}, otherWorkspaceAgents, err
 	}
 
 	return workspace, workspaceAgent, otherWorkspaceAgents, nil
 }
 
-func getWorkspaceAgent(workspace codersdk.Workspace, agentName string) (workspaceAgent codersdk.WorkspaceAgent, otherAgents []codersdk.WorkspaceAgent, err error) {
+func getWorkspaceAgent(workspace nicloudsdk.Workspace, agentName string) (workspaceAgent nicloudsdk.WorkspaceAgent, otherAgents []nicloudsdk.WorkspaceAgent, err error) {
 	resources := workspace.LatestBuild.Resources
 
 	var (
 		availableNames []string
-		agents         []codersdk.WorkspaceAgent
+		agents         []nicloudsdk.WorkspaceAgent
 	)
 	for _, resource := range resources {
 		for _, agent := range resource.Agents {
@@ -1115,7 +1115,7 @@ func getWorkspaceAgent(workspace codersdk.Workspace, agentName string) (workspac
 		}
 	}
 	if len(agents) == 0 {
-		return codersdk.WorkspaceAgent{}, nil, xerrors.Errorf("workspace %q has no agents", workspace.Name)
+		return nicloudsdk.WorkspaceAgent{}, nil, xerrors.Errorf("workspace %q has no agents", workspace.Name)
 	}
 	slices.Sort(availableNames)
 	if agentName != "" {
@@ -1126,19 +1126,19 @@ func getWorkspaceAgent(workspace codersdk.Workspace, agentName string) (workspac
 			otherAgents := slices.Delete(agents, i, i+1)
 			return agent, otherAgents, nil
 		}
-		return codersdk.WorkspaceAgent{}, nil, xerrors.Errorf("agent not found by name %q, available agents: %v", agentName, availableNames)
+		return nicloudsdk.WorkspaceAgent{}, nil, xerrors.Errorf("agent not found by name %q, available agents: %v", agentName, availableNames)
 	}
 	if len(agents) == 1 {
 		return agents[0], nil, nil
 	}
-	return codersdk.WorkspaceAgent{}, agents, xerrors.Errorf("multiple agents found, please specify the agent name, available agents: %v", availableNames)
+	return nicloudsdk.WorkspaceAgent{}, agents, xerrors.Errorf("multiple agents found, please specify the agent name, available agents: %v", availableNames)
 }
 
 // Attempt to poll workspace autostop. We write a per-workspace lockfile to
 // avoid spamming the user with notifications in case of multiple instances
 // of the CLI running simultaneously.
-func tryPollWorkspaceAutostop(ctx context.Context, client *codersdk.Client, workspace codersdk.Workspace) (stop func()) {
-	lock := flock.New(filepath.Join(os.TempDir(), "coder-autostop-notify-"+workspace.ID.String()))
+func tryPollWorkspaceAutostop(ctx context.Context, client *nicloudsdk.Client, workspace nicloudsdk.Workspace) (stop func()) {
+	lock := flock.New(filepath.Join(os.TempDir(), "neuralinverse-autostop-notify-"+workspace.ID.String()))
 	conditionCtx, cancelCondition := context.WithCancel(ctx)
 	condition := notifyCondition(conditionCtx, client, workspace.ID, lock)
 	notifier := notify.New(condition, workspacePollInterval, autostopNotifyCountdown)
@@ -1151,7 +1151,7 @@ func tryPollWorkspaceAutostop(ctx context.Context, client *codersdk.Client, work
 }
 
 // Notify the user if the workspace is due to shutdown.
-func notifyCondition(ctx context.Context, client *codersdk.Client, workspaceID uuid.UUID, lock *flock.Flock) notify.Condition {
+func notifyCondition(ctx context.Context, client *nicloudsdk.Client, workspaceID uuid.UUID, lock *flock.Flock) notify.Condition {
 	return func(now time.Time) (deadline time.Time, callback func()) {
 		// Keep trying to regain the lock.
 		locked, err := lock.TryLockContext(ctx, workspacePollInterval)
@@ -1188,7 +1188,7 @@ func notifyCondition(ctx context.Context, client *codersdk.Client, workspaceID u
 }
 
 // Verify if the user workspace is outdated and prepare an actionable message for user.
-func verifyWorkspaceOutdated(client *codersdk.Client, workspace codersdk.Workspace) (string, bool) {
+func verifyWorkspaceOutdated(client *nicloudsdk.Client, workspace nicloudsdk.Workspace) (string, bool) {
 	if !workspace.Outdated {
 		return "", false // workspace is up-to-date
 	}
@@ -1197,8 +1197,8 @@ func verifyWorkspaceOutdated(client *codersdk.Client, workspace codersdk.Workspa
 	return fmt.Sprintf("👋 Your workspace is outdated! Update it here: %s\n", workspaceLink), true
 }
 
-// Build the user workspace link which navigates to the Coder web UI.
-func buildWorkspaceLink(serverURL *url.URL, workspace codersdk.Workspace) *url.URL {
+// Build the user workspace link which navigates to the Neural Inverse Cloud web UI.
+func buildWorkspaceLink(serverURL *url.URL, workspace nicloudsdk.Workspace) *url.URL {
 	return serverURL.ResolveReference(&url.URL{Path: fmt.Sprintf("@%s/%s", workspace.OwnerName, workspace.Name)})
 }
 
@@ -1505,7 +1505,7 @@ func sshDisableAutostartOption(src *serpent.Bool) serpent.Option {
 	return serpent.Option{
 		Flag:        "disable-autostart",
 		Description: "Disable starting the workspace automatically when connecting via SSH.",
-		Env:         "CODER_SSH_DISABLE_AUTOSTART",
+		Env:         "NEURALINVERSE_SSH_DISABLE_AUTOSTART",
 		Value:       src,
 		Default:     "false",
 	}
@@ -1520,21 +1520,21 @@ func (r stdioErrLogReader) Read(_ []byte) (int, error) {
 	return 0, io.EOF
 }
 
-func getUsageAppName(usageApp string) codersdk.UsageAppName {
+func getUsageAppName(usageApp string) nicloudsdk.UsageAppName {
 	if usageApp == disableUsageApp {
 		return ""
 	}
 
 	allowedUsageApps := []string{
-		string(codersdk.UsageAppNameSSH),
-		string(codersdk.UsageAppNameVscode),
-		string(codersdk.UsageAppNameJetbrains),
+		string(nicloudsdk.UsageAppNameSSH),
+		string(nicloudsdk.UsageAppNameVscode),
+		string(nicloudsdk.UsageAppNameJetbrains),
 	}
 	if slices.Contains(allowedUsageApps, usageApp) {
-		return codersdk.UsageAppName(usageApp)
+		return nicloudsdk.UsageAppName(usageApp)
 	}
 
-	return codersdk.UsageAppNameSSH
+	return nicloudsdk.UsageAppNameSSH
 }
 
 func setStatsCallback(
@@ -1623,7 +1623,7 @@ type sshNetworkStats struct {
 	DERPLatency       map[string]float64 `json:"derp_latency"`
 	UploadBytesSec    int64              `json:"upload_bytes_sec"`
 	DownloadBytesSec  int64              `json:"download_bytes_sec"`
-	UsingCoderConnect bool               `json:"using_coder_connect"`
+	UsingNIConnect bool               `json:"using_coder_connect"`
 }
 
 func collectNetworkStats(ctx context.Context, agentConn workspacesdk.AgentConn, start, end time.Time, counts map[netlogtype.Connection]netlogtype.Counts) (*sshNetworkStats, error) {
@@ -1665,18 +1665,18 @@ func collectNetworkStats(ctx context.Context, agentConn workspacesdk.AgentConn, 
 	}, nil
 }
 
-type coderConnectDialerContextKey struct{}
+type niConnectDialerContextKey struct{}
 
-type coderConnectDialer interface {
+type niConnectDialer interface {
 	DialContext(ctx context.Context, network, addr string) (net.Conn, error)
 }
 
-func WithTestOnlyCoderConnectDialer(ctx context.Context, dialer coderConnectDialer) context.Context {
-	return context.WithValue(ctx, coderConnectDialerContextKey{}, dialer)
+func WithTestOnlyNIConnectDialer(ctx context.Context, dialer niConnectDialer) context.Context {
+	return context.WithValue(ctx, niConnectDialerContextKey{}, dialer)
 }
 
-func testOrDefaultDialer(ctx context.Context) coderConnectDialer {
-	dialer, ok := ctx.Value(coderConnectDialerContextKey{}).(coderConnectDialer)
+func testOrDefaultDialer(ctx context.Context) niConnectDialer {
+	dialer, ok := ctx.Value(niConnectDialerContextKey{}).(niConnectDialer)
 	if !ok || dialer == nil {
 		// Timeout prevents hanging on broken tunnels (OS default is very long).
 		return &net.Dialer{
@@ -1687,14 +1687,14 @@ func testOrDefaultDialer(ctx context.Context) coderConnectDialer {
 	return dialer
 }
 
-func runCoderConnectStdio(ctx context.Context, addr string, stdin io.Reader, stdout io.Writer, stack *closerStack, logger slog.Logger) error {
+func runNIConnectStdio(ctx context.Context, addr string, stdin io.Reader, stdout io.Writer, stack *closerStack, logger slog.Logger) error {
 	dialer := testOrDefaultDialer(ctx)
 	var conn net.Conn
 	if err := retryWithInterval(ctx, logger, sshRetryInterval, sshMaxAttempts, func() error {
 		var err error
 		conn, err = dialer.DialContext(ctx, "tcp", addr)
 		if err != nil {
-			return xerrors.Errorf("dial coder connect host %q over tcp: %w", addr, err)
+			return xerrors.Errorf("dial neuralinverse connect host %q over tcp: %w", addr, err)
 		}
 		return nil
 	}); err != nil {
@@ -1721,7 +1721,7 @@ func (*StdioRwc) Close() error {
 	return nil
 }
 
-func writeCoderConnectNetInfo(ctx context.Context, networkInfoDir string) error {
+func writeNIConnectNetInfo(ctx context.Context, networkInfoDir string) error {
 	fs, ok := ctx.Value("fs").(afero.Fs)
 	if !ok {
 		fs = afero.NewOsFs()
@@ -1737,7 +1737,7 @@ func writeCoderConnectNetInfo(ctx context.Context, networkInfoDir string) error 
 	// command via the ProxyCommand SSH option.
 	networkInfoFilePath := filepath.Join(networkInfoDir, fmt.Sprintf("%d.json", os.Getppid()))
 	stats := &sshNetworkStats{
-		UsingCoderConnect: true,
+		UsingNIConnect: true,
 	}
 	rawStats, err := json.Marshal(stats)
 	if err != nil {
@@ -1760,7 +1760,7 @@ func writeCoderConnectNetInfo(ctx context.Context, networkInfoDir string) error 
 // owner/workspace.agent
 // owner--workspace--agent
 // owner--workspace.agent
-// agent.workspace.owner - for parity with Coder Connect
+// agent.workspace.owner - for parity with Neural Inverse Cloud Connect
 func normalizeWorkspaceInput(input string) string {
 	// Split on "/", "--", and "."
 	parts := workspaceNameRe.Split(input, -1)
@@ -1774,7 +1774,7 @@ func normalizeWorkspaceInput(input string) string {
 		}
 		return fmt.Sprintf("%s/%s", parts[0], parts[1]) // "owner/workspace"
 	case 3:
-		// If the only separator is a dot, it's the Coder Connect format
+		// If the only separator is a dot, it's the Neural Inverse Cloud Connect format
 		if !strings.Contains(input, "/") && !strings.Contains(input, "--") {
 			return fmt.Sprintf("%s/%s.%s", parts[2], parts[1], parts[0]) // "owner/workspace.agent"
 		}

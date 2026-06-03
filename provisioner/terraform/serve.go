@@ -14,10 +14,10 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/jobreaper"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/tfpath"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/jobreaper"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/tfpath"
 )
 
 type ServeOptions struct {
@@ -40,7 +40,7 @@ type ServeOptions struct {
 	// This is a no-op on Windows where the process can't be interrupted.
 	//
 	// Default value: 3 minutes (jobreaper.HungJobExitTimeout). This value should
-	// be kept less than the value that Coder uses to mark hung jobs as failed,
+	// be kept less than the value that Neural Inverse Cloud uses to mark hung jobs as failed,
 	// which is 5 minutes (see jobreaper package).
 	ExitTimeout time.Duration
 }
@@ -56,7 +56,7 @@ func systemBinary(ctx context.Context) (*systemBinaryDetails, error) {
 		return nil, xerrors.Errorf("Terraform binary not found: %w", err)
 	}
 
-	// If the "coder" binary is in the same directory as
+	// If the "neuralinverse" binary is in the same directory as
 	// the "terraform" binary, "terraform" is returned.
 	//
 	// We must resolve the absolute path for other processes
@@ -156,7 +156,7 @@ type server struct {
 
 func (s *server) startTrace(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return s.tracer.Start(ctx, name, append(opts, trace.WithAttributes(
-		semconv.ServiceNameKey.String("coderd.provisionerd.terraform"),
+		semconv.ServiceNameKey.String("nicloud.provisionerd.terraform"),
 	))...)
 }
 

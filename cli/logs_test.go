@@ -8,20 +8,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestLogsCmd(t *testing.T) {
 	t.Parallel()
 
-	client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{})
-	owner := coderdtest.CreateFirstUser(t, client)
-	memberClient, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{})
+	owner := nicloudtest.CreateFirstUser(t, client)
+	memberClient, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 	testWorkspace := func(t testing.TB, db database.Store, ownerID, orgID uuid.UUID) dbfake.WorkspaceResponse {
 		wb := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{

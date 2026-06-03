@@ -72,7 +72,7 @@ export const AccountForm: FC<AccountFormProps> = ({
 					field={{
 						...getFieldHelpers("name"),
 						helperText:
-							'The human-readable name is optional and can be accessed in a template via the "data.coder_workspace_owner.me.full_name" property.',
+							'The human-readable name is optional and can be accessed in a template via the "data.ni_workspace_owner.me.full_name" property.',
 					}}
 					autoComplete="name"
 					className="w-full"

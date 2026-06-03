@@ -57,21 +57,21 @@ Specify the owner of the task. Defaults to the current user.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_TASK_TEMPLATE_NAME</code> |
+| Environment | <code>$NEURALINVERSE_TASK_TEMPLATE_NAME</code> |
 
 ### --template-version
 
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_TASK_TEMPLATE_VERSION</code> |
+| Environment | <code>$NEURALINVERSE_TASK_TEMPLATE_VERSION</code> |
 
 ### --preset
 
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_TASK_PRESET_NAME</code> |
+| Environment | <code>$NEURALINVERSE_TASK_PRESET_NAME</code> |
 | Default     | <code>none</code>                    |
 
 ### --stdin
@@ -95,6 +95,6 @@ Only display the created task's ID.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.

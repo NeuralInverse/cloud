@@ -15,7 +15,7 @@ module "this_is_external_child_module" {
   source = "./child-external-module"
 }
 
-data "coder_parameter" "first_parameter_from_module" {
+data "ni_parameter" "first_parameter_from_module" {
   name        = "First parameter from module"
   mutable     = true
   type        = "string"
@@ -23,7 +23,7 @@ data "coder_parameter" "first_parameter_from_module" {
   default     = "abcdef"
 }
 
-data "coder_parameter" "second_parameter_from_module" {
+data "ni_parameter" "second_parameter_from_module" {
   name        = "Second parameter from module"
   mutable     = true
   type        = "string"

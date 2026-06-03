@@ -91,7 +91,7 @@ describe("countInvisibleCharacters", () => {
 		expect(countInvisibleCharacters(annotations)).toBe(3);
 	});
 
-	// Canonical list \u2014 must match coderd/x/chatd/sanitize_test.go
+	// Canonical list \u2014 must match nicloud/x/chatd/sanitize_test.go
 	it("detects exactly the canonical set of invisible codepoints", () => {
 		// Every codepoint the detector should flag, sorted ascending.
 		const expectedCodepoints: number[] = [

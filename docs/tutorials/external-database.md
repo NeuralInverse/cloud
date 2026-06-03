@@ -1,4 +1,4 @@
-# Using Coder with an external database
+# Using Neural Inverse Cloud with an external database
 
 ## Recommendation
 
@@ -7,7 +7,7 @@ For production deployments, we recommend using an external
 
 ## Basic configuration
 
-Before starting the Coder server, prepare the database server by creating a role
+Before starting the Neural Inverse Cloud server, prepare the database server by creating a role
 and a database. Remember that the role must have access to the created database.
 
 With `psql`:
@@ -22,12 +22,12 @@ With `psql -U coder`:
 CREATE DATABASE coder;
 ```
 
-Coder configuration is defined via
+Neural Inverse Cloud configuration is defined via
 [environment variables](../admin/setup/index.md). The database client requires
-the connection string provided via the `CODER_PG_CONNECTION_URL` variable.
+the connection string provided via the `NEURALINVERSE_PG_CONNECTION_URL` variable.
 
 ```shell
-export CODER_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable"
+export NEURALINVERSE_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable"
 ```
 
 ## Custom schema
@@ -56,7 +56,7 @@ List of schemas
 In this case the database client requires the modified connection string:
 
 ```shell
-export CODER_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable&search_path=myschema"
+export NEURALINVERSE_PG_CONNECTION_URL="postgres://coder:secret42@localhost/coder?sslmode=disable&search_path=myschema"
 ```
 
 The `search_path` parameter determines the order of schemas in which they are
@@ -81,7 +81,7 @@ ALTER ROLE coder SET search_path = myschema;
 
 ## Troubleshooting
 
-### Coder server fails startup with "current_schema: converting NULL to string is unsupported"
+### Neural Inverse Cloud server fails startup with "current_schema: converting NULL to string is unsupported"
 
 Please make sure that the schema selected in the connection string
 `...&search_path=myschema` exists and the role has granted permissions to access

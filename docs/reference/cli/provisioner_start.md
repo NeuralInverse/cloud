@@ -16,7 +16,7 @@ coder provisioner start [flags]
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string</code>                 |
-| Environment | <code>$CODER_CACHE_DIRECTORY</code> |
+| Environment | <code>$NEURALINVERSE_CACHE_DIRECTORY</code> |
 | Default     | <code>~/.cache/coder</code>         |
 
 Directory to store cached data.
@@ -26,7 +26,7 @@ Directory to store cached data.
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string-array</code>             |
-| Environment | <code>$CODER_PROVISIONERD_TAGS</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONERD_TAGS</code> |
 
 Tags to filter provisioner jobs by.
 
@@ -35,7 +35,7 @@ Tags to filter provisioner jobs by.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>duration</code>                          |
-| Environment | <code>$CODER_PROVISIONERD_POLL_INTERVAL</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONERD_POLL_INTERVAL</code> |
 | Default     | <code>1s</code>                                |
 
 Deprecated and ignored.
@@ -45,7 +45,7 @@ Deprecated and ignored.
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>duration</code>                        |
-| Environment | <code>$CODER_PROVISIONERD_POLL_JITTER</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONERD_POLL_JITTER</code> |
 | Default     | <code>100ms</code>                           |
 
 Deprecated and ignored.
@@ -55,25 +55,25 @@ Deprecated and ignored.
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>string</code>                        |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_PSK</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_PSK</code> |
 
-Pre-shared key to authenticate with Coder server.
+Pre-shared key to authenticate with Neural Inverse Cloud server.
 
 ### --key
 
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>string</code>                        |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_KEY</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_KEY</code> |
 
-Provisioner key to authenticate with Coder server.
+Provisioner key to authenticate with Neural Inverse Cloud server.
 
 ### --name
 
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string</code>                         |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_NAME</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_NAME</code> |
 
 Name of this provisioner daemon. Defaults to the current hostname without FQDN.
 
@@ -82,7 +82,7 @@ Name of this provisioner daemon. Defaults to the current hostname without FQDN.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>bool</code>                              |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_VERBOSE</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_VERBOSE</code> |
 | Default     | <code>false</code>                             |
 
 Output debug-level logs.
@@ -92,7 +92,7 @@ Output debug-level logs.
 |             |                                                      |
 |-------------|------------------------------------------------------|
 | Type        | <code>string</code>                                  |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_LOGGING_HUMAN</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_LOGGING_HUMAN</code> |
 | Default     | <code>/dev/stderr</code>                             |
 
 Output human-readable logs to a given file.
@@ -102,7 +102,7 @@ Output human-readable logs to a given file.
 |             |                                                     |
 |-------------|-----------------------------------------------------|
 | Type        | <code>string</code>                                 |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_LOGGING_JSON</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_LOGGING_JSON</code> |
 
 Output JSON logs to a given file.
 
@@ -111,7 +111,7 @@ Output JSON logs to a given file.
 |             |                                                            |
 |-------------|------------------------------------------------------------|
 | Type        | <code>string</code>                                        |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_LOGGING_STACKDRIVER</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_LOGGING_STACKDRIVER</code> |
 
 Output Stackdriver compatible logs to a given file.
 
@@ -120,7 +120,7 @@ Output Stackdriver compatible logs to a given file.
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>string-array</code>                         |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_LOG_FILTER</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_LOG_FILTER</code> |
 
 Filter debug logs by matching against a given regex. Use .* to match all debug logs.
 
@@ -129,7 +129,7 @@ Filter debug logs by matching against a given regex. Use .* to match all debug l
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>bool</code>                     |
-| Environment | <code>$CODER_PROMETHEUS_ENABLE</code> |
+| Environment | <code>$NEURALINVERSE_PROMETHEUS_ENABLE</code> |
 | Default     | <code>false</code>                    |
 
 Serve prometheus metrics on the address defined by prometheus address.
@@ -139,7 +139,7 @@ Serve prometheus metrics on the address defined by prometheus address.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_PROMETHEUS_ADDRESS</code> |
+| Environment | <code>$NEURALINVERSE_PROMETHEUS_ADDRESS</code> |
 | Default     | <code>127.0.0.1:2112</code>            |
 
 The bind address to serve prometheus metrics.
@@ -149,7 +149,7 @@ The bind address to serve prometheus metrics.
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>string-array</code>       |
-| Environment | <code>$CODER_EXPERIMENTS</code> |
+| Environment | <code>$NEURALINVERSE_EXPERIMENTS</code> |
 | YAML        | <code>experiments</code>        |
 
 Enable one or more experiments. These are not ready for production. Separate multiple experiments with commas, or enter '*' to opt-in to all available experiments.
@@ -159,6 +159,6 @@ Enable one or more experiments. These are not ready for production. Separate mul
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.

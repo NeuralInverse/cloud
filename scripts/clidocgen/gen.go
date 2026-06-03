@@ -11,8 +11,8 @@ import (
 
 	"github.com/acarl005/stripansi"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/scripts/atomicwrite"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/scripts/atomicwrite"
 	"github.com/coder/flog"
 	"github.com/coder/serpent"
 )
@@ -46,7 +46,7 @@ func init() {
 				return visible
 			},
 			"atRoot": func(cmd *serpent.Command) bool {
-				return cmd.FullName() == "coder"
+				return cmd.FullName() == "neuralinverse"
 			},
 			"newLinesToBr": func(s string) string {
 				return strings.ReplaceAll(s, "\n", "<br/>")
@@ -76,14 +76,14 @@ func init() {
 }
 
 func fullName(cmd *serpent.Command) string {
-	if cmd.FullName() == "coder" {
-		return "coder"
+	if cmd.FullName() == "neuralinverse" {
+		return "neuralinverse"
 	}
-	return strings.TrimPrefix(cmd.FullName(), "coder ")
+	return strings.TrimPrefix(cmd.FullName(), "neuralinverse ")
 }
 
 func fmtDocFilename(cmd *serpent.Command) string {
-	if cmd.FullName() == "coder" {
+	if cmd.FullName() == "neuralinverse" {
 		// Special case for index.
 		return "./index.md"
 	}

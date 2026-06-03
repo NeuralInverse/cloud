@@ -98,7 +98,7 @@ export const UserDropdownContent: FC<UserDropdownContentProps> = ({
 						<line x1="18" y1="19" x2="22" y2="19" />
 						<path d="M10,15 L10.5,18 L13.5,18 L14,15" />
 					</svg>
-					<span>Codernauts</span>
+					<span>NINauts</span>
 				</Link>
 			</DropdownMenuItem>{" "}
 			<DropdownMenuSeparator />

@@ -35,8 +35,8 @@ export const LongCode: Story = {
 export const Redact: Story = {
 	args: {
 		secret: false,
-		redactPattern: /CODER_AGENT_TOKEN="([^"]+)"/g,
-		redactReplacement: `CODER_AGENT_TOKEN="********"`,
+		redactPattern: /NEURALINVERSE_AGENT_TOKEN="([^"]+)"/g,
+		redactReplacement: `NEURALINVERSE_AGENT_TOKEN="********"`,
 		showRevealButton: true,
 	},
 };

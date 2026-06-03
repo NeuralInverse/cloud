@@ -25,12 +25,12 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck/derphealth"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 )
 
 // Bundle is a set of information discovered about a deployment.
@@ -48,15 +48,15 @@ type Bundle struct {
 }
 
 type Deployment struct {
-	BuildInfo      *codersdk.BuildInfoResponse  `json:"build"`
-	Config         *codersdk.DeploymentConfig   `json:"config"`
-	Experiments    codersdk.Experiments         `json:"experiments"`
+	BuildInfo      *nicloudsdk.BuildInfoResponse  `json:"build"`
+	Config         *nicloudsdk.DeploymentConfig   `json:"config"`
+	Experiments    nicloudsdk.Experiments         `json:"experiments"`
 	HealthReport   *healthsdk.HealthcheckReport `json:"health_report"`
-	Licenses       []codersdk.License           `json:"licenses"`
-	Stats          *codersdk.DeploymentStats    `json:"stats"`
-	Entitlements   *codersdk.Entitlements       `json:"entitlements"`
+	Licenses       []nicloudsdk.License           `json:"licenses"`
+	Stats          *nicloudsdk.DeploymentStats    `json:"stats"`
+	Entitlements   *nicloudsdk.Entitlements       `json:"entitlements"`
 	HealthSettings *healthsdk.HealthSettings    `json:"health_settings"`
-	Workspaces     *codersdk.WorkspacesResponse `json:"workspaces"`
+	Workspaces     *nicloudsdk.WorkspacesResponse `json:"workspaces"`
 	Prometheus     []byte                       `json:"prometheus"`
 }
 
@@ -75,18 +75,18 @@ type Netcheck struct {
 }
 
 type Workspace struct {
-	Workspace          codersdk.Workspace                 `json:"workspace"`
-	Parameters         []codersdk.WorkspaceBuildParameter `json:"parameters"`
-	Template           codersdk.Template                  `json:"template"`
-	TemplateVersion    codersdk.TemplateVersion           `json:"template_version"`
+	Workspace          nicloudsdk.Workspace                 `json:"workspace"`
+	Parameters         []nicloudsdk.WorkspaceBuildParameter `json:"parameters"`
+	Template           nicloudsdk.Template                  `json:"template"`
+	TemplateVersion    nicloudsdk.TemplateVersion           `json:"template_version"`
 	TemplateFileBase64 string                             `json:"template_file_base64"`
-	BuildLogs          []codersdk.ProvisionerJobLog       `json:"build_logs"`
+	BuildLogs          []nicloudsdk.ProvisionerJobLog       `json:"build_logs"`
 }
 
 type Agent struct {
-	Agent               *codersdk.WorkspaceAgent                       `json:"agent"`
+	Agent               *nicloudsdk.WorkspaceAgent                       `json:"agent"`
 	ConnectionInfo      *workspacesdk.AgentConnectionInfo              `json:"connection_info"`
-	ListeningPorts      *codersdk.WorkspaceAgentListeningPortsResponse `json:"listening_ports"`
+	ListeningPorts      *nicloudsdk.WorkspaceAgentListeningPortsResponse `json:"listening_ports"`
 	Logs                []byte                                         `json:"logs"`
 	ClientMagicsockHTML []byte                                         `json:"client_magicsock_html"`
 	AgentMagicsockHTML  []byte                                         `json:"agent_magicsock_html"`
@@ -94,12 +94,12 @@ type Agent struct {
 	PeerDiagnostics     *tailnet.PeerDiagnostics                       `json:"peer_diagnostics"`
 	PingResult          *ipnstate.PingResult                           `json:"ping_result"`
 	Prometheus          []byte                                         `json:"prometheus"`
-	StartupLogs         []codersdk.WorkspaceAgentLog                   `json:"startup_logs"`
+	StartupLogs         []nicloudsdk.WorkspaceAgentLog                   `json:"startup_logs"`
 }
 
 type TemplateDump struct {
-	Template           codersdk.Template        `json:"template"`
-	TemplateVersion    codersdk.TemplateVersion `json:"template_version"`
+	Template           nicloudsdk.Template        `json:"template"`
+	TemplateVersion    nicloudsdk.TemplateVersion `json:"template_version"`
 	TemplateFileBase64 string                   `json:"template_file_base64"`
 }
 
@@ -126,7 +126,7 @@ type PprofCollection struct {
 // Deps is a set of dependencies for discovering information
 type Deps struct {
 	// Source from which to obtain information.
-	Client *codersdk.Client
+	Client *nicloudsdk.Client
 	// Log is where to log any informational or warning messages.
 	Log slog.Logger
 	// WorkspaceID is the optional workspace against which to run connection tests.
@@ -144,7 +144,7 @@ type Deps struct {
 	CollectPprof bool
 }
 
-func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, workspacesCap int) Deployment {
+func DeploymentInfo(ctx context.Context, client *nicloudsdk.Client, log slog.Logger, workspacesCap int) Deployment {
 	// Note: each goroutine assigns to a different struct field, hence no mutex.
 	var (
 		d  Deployment
@@ -163,7 +163,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 	eg.Go(func() error {
 		dc, err := client.DeploymentConfig(ctx)
 		if err != nil {
-			if cerr, ok := codersdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
+			if cerr, ok := nicloudsdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
 				log.Warn(ctx, "unable to fetch deployment config",
 					slog.F("status", cerr.StatusCode()))
 				return nil
@@ -177,7 +177,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 	eg.Go(func() error {
 		hr, err := healthsdk.New(client).DebugHealth(ctx)
 		if err != nil {
-			if cerr, ok := codersdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
+			if cerr, ok := nicloudsdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
 				log.Warn(ctx, "unable to fetch health report",
 					slog.F("status", cerr.StatusCode()))
 				return nil
@@ -201,12 +201,12 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 		licenses, err := client.Licenses(ctx)
 		if err != nil {
 			// Ignore 404 because AGPL doesn't have this endpoint
-			if cerr, ok := codersdk.AsError(err); ok && cerr.StatusCode() != http.StatusNotFound {
+			if cerr, ok := nicloudsdk.AsError(err); ok && cerr.StatusCode() != http.StatusNotFound {
 				return xerrors.Errorf("fetch license status: %w", err)
 			}
 		}
 		if licenses == nil {
-			licenses = make([]codersdk.License, 0)
+			licenses = make([]nicloudsdk.License, 0)
 		}
 		d.Licenses = licenses
 		return nil
@@ -217,7 +217,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 		stats, err := client.DeploymentStats(ctx)
 		if err != nil {
 			// If unauthorized or forbidden, log and continue
-			if cerr, ok := codersdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized || cerr.StatusCode() == http.StatusBadRequest) {
+			if cerr, ok := nicloudsdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized || cerr.StatusCode() == http.StatusBadRequest) {
 				log.Warn(ctx, "unable to fetch deployment stats")
 				return nil
 			}
@@ -232,7 +232,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 		ents, err := client.Entitlements(ctx)
 		if err != nil {
 			// Ignore 404 or enterprise-not-enabled
-			if cerr, ok := codersdk.AsError(err); ok && (cerr.StatusCode() == http.StatusNotFound || cerr.StatusCode() == http.StatusForbidden) {
+			if cerr, ok := nicloudsdk.AsError(err); ok && (cerr.StatusCode() == http.StatusNotFound || cerr.StatusCode() == http.StatusForbidden) {
 				log.Warn(ctx, "unable to fetch entitlements")
 				return nil
 			}
@@ -247,7 +247,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 		settings, err := healthsdk.New(client).HealthSettings(ctx)
 		if err != nil {
 			// If not accessible, log and continue
-			if cerr, ok := codersdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
+			if cerr, ok := nicloudsdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
 				log.Warn(ctx, "unable to fetch health settings")
 				return nil
 			}
@@ -262,15 +262,15 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 		var (
 			offset int
 			limit  = 200
-			all    []codersdk.Workspace
+			all    []nicloudsdk.Workspace
 			count  int
 		)
 		capTotal := workspacesCap
 		for {
-			resp, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{Offset: offset, Limit: limit})
+			resp, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{Offset: offset, Limit: limit})
 			if err != nil {
 				// Log and continue if forbidden; otherwise return error
-				if cerr, ok := codersdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
+				if cerr, ok := nicloudsdk.AsError(err); ok && (cerr.StatusCode() == http.StatusForbidden || cerr.StatusCode() == http.StatusUnauthorized) {
 					log.Warn(ctx, "unable to list workspaces")
 					break
 				}
@@ -321,7 +321,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 		if prometheusCfg.Enable.Value() {
 			metrics, err := fetchPrometheusMetrics(ctx, client, log)
 			if err != nil {
-				log.Warn(ctx, "fetch coderd prometheus metrics", slog.Error(err))
+				log.Warn(ctx, "fetch nicloud prometheus metrics", slog.Error(err))
 			} else {
 				d.Prometheus = metrics
 			}
@@ -331,7 +331,7 @@ func DeploymentInfo(ctx context.Context, client *codersdk.Client, log slog.Logge
 	return d
 }
 
-func fetchPrometheusMetrics(ctx context.Context, client *codersdk.Client, log slog.Logger) ([]byte, error) {
+func fetchPrometheusMetrics(ctx context.Context, client *nicloudsdk.Client, log slog.Logger) ([]byte, error) {
 	if client == nil {
 		return nil, xerrors.New("nil client")
 	}
@@ -351,7 +351,7 @@ func fetchPrometheusMetrics(ctx context.Context, client *codersdk.Client, log sl
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Debug(ctx, "coderd prometheus metrics fetch non-200",
+		log.Debug(ctx, "nicloud prometheus metrics fetch non-200",
 			slog.F("status", resp.StatusCode), slog.F("body_len", len(body)))
 		return nil, xerrors.Errorf("unexpected status code %d", resp.StatusCode)
 	}
@@ -363,7 +363,7 @@ func fetchPrometheusMetrics(ctx context.Context, client *codersdk.Client, log sl
 	return append([]byte(nil), trimmed...), nil
 }
 
-func NetworkInfo(ctx context.Context, client *codersdk.Client, log slog.Logger) Network {
+func NetworkInfo(ctx context.Context, client *nicloudsdk.Client, log slog.Logger) Network {
 	var (
 		n  Network
 		eg errgroup.Group
@@ -441,7 +441,7 @@ func NetworkInfo(ctx context.Context, client *codersdk.Client, log slog.Logger) 
 	return n
 }
 
-func WorkspaceInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, workspaceID uuid.UUID) Workspace {
+func WorkspaceInfo(ctx context.Context, client *nicloudsdk.Client, log slog.Logger, workspaceID uuid.UUID) Workspace {
 	var (
 		w  Workspace
 		eg errgroup.Group
@@ -490,12 +490,12 @@ func WorkspaceInfo(ctx context.Context, client *codersdk.Client, log slog.Logger
 		if tv.Job.FileID == uuid.Nil {
 			return xerrors.Errorf("template file id is nil")
 		}
-		raw, ctype, err := client.DownloadWithFormat(ctx, tv.Job.FileID, codersdk.FormatZip)
+		raw, ctype, err := client.DownloadWithFormat(ctx, tv.Job.FileID, nicloudsdk.FormatZip)
 		if err != nil {
 			return err
 		}
-		if ctype != codersdk.ContentTypeZip {
-			return xerrors.Errorf("expected content-type %s, got %s", codersdk.ContentTypeZip, ctype)
+		if ctype != nicloudsdk.ContentTypeZip {
+			return xerrors.Errorf("expected content-type %s, got %s", nicloudsdk.ContentTypeZip, ctype)
 		}
 
 		b64encoded := base64.StdEncoding.EncodeToString(raw)
@@ -534,7 +534,7 @@ func WorkspaceInfo(ctx context.Context, client *codersdk.Client, log slog.Logger
 	return w
 }
 
-func AgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, agentID uuid.UUID) Agent {
+func AgentInfo(ctx context.Context, client *nicloudsdk.Client, log slog.Logger, agentID uuid.UUID) Agent {
 	var (
 		a  Agent
 		eg errgroup.Group
@@ -561,7 +561,7 @@ func AgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, ag
 			return xerrors.Errorf("fetch agent startup logs: %w", err)
 		}
 		defer closer.Close()
-		var logs []codersdk.WorkspaceAgentLog
+		var logs []nicloudsdk.WorkspaceAgentLog
 		for logChunk := range agentLogCh {
 			logs = append(logs, logChunk...)
 		}
@@ -581,7 +581,7 @@ func AgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, ag
 	return a
 }
 
-func connectedAgentInfo(ctx context.Context, client *codersdk.Client, log slog.Logger, agentID uuid.UUID, eg *errgroup.Group, a *Agent) (closer func()) {
+func connectedAgentInfo(ctx context.Context, client *nicloudsdk.Client, log slog.Logger, agentID uuid.UUID, eg *errgroup.Group, a *Agent) (closer func()) {
 	conn, err := workspacesdk.New(client).
 		DialAgent(ctx, agentID, &workspacesdk.DialAgentOptions{
 			Logger:         log.Named("dial-agent"),
@@ -667,7 +667,7 @@ func connectedAgentInfo(ctx context.Context, client *codersdk.Client, log slog.L
 	eg.Go(func() error {
 		logBytes, err := conn.DebugLogs(ctx)
 		if err != nil {
-			return xerrors.Errorf("fetch coder agent logs: %w", err)
+			return xerrors.Errorf("fetch neuralinverse agent logs: %w", err)
 		}
 		a.Logs = logBytes
 		return nil
@@ -685,7 +685,7 @@ func connectedAgentInfo(ctx context.Context, client *codersdk.Client, log slog.L
 	return closer
 }
 
-func PprofInfo(ctx context.Context, client *codersdk.Client, log slog.Logger) *PprofCollection {
+func PprofInfo(ctx context.Context, client *nicloudsdk.Client, log slog.Logger) *PprofCollection {
 	if client == nil {
 		return nil
 	}
@@ -801,12 +801,12 @@ func compressData(data []byte) []byte {
 // to collect pprof data in a single request. The server temporarily enables
 // block/mutex profiling, runs time-based profiles for the given duration,
 // takes snapshots, and returns a tar.gz archive.
-func PprofInfoFromArchive(ctx context.Context, client *codersdk.Client, log slog.Logger, duration time.Duration) (*PprofCollection, error) {
+func PprofInfoFromArchive(ctx context.Context, client *nicloudsdk.Client, log slog.Logger, duration time.Duration) (*PprofCollection, error) {
 	if client == nil {
 		return nil, xerrors.New("client is nil")
 	}
 
-	body, err := client.DebugCollectProfile(ctx, codersdk.DebugProfileOptions{
+	body, err := client.DebugCollectProfile(ctx, nicloudsdk.DebugProfileOptions{
 		Duration: duration,
 		// Use the server defaults plus trace.
 		Profiles: []string{"cpu", "heap", "allocs", "block", "mutex", "goroutine", "threadcreate", "trace"},
@@ -1000,21 +1000,21 @@ func PprofInfoFromAgent(ctx context.Context, conn workspacesdk.AgentConn, log sl
 
 // CanGenerateFull checks if the user can generate a 'full' support bundle or
 // only has permissions to generate a 'partial' bundle.
-func CanGenerateFull(ctx context.Context, client *codersdk.Client) (bool, error) {
+func CanGenerateFull(ctx context.Context, client *nicloudsdk.Client) (bool, error) {
 	if client == nil {
 		return false, xerrors.Errorf("developer error: missing client!")
 	}
 
-	authChecks := map[string]codersdk.AuthorizationCheck{
+	authChecks := map[string]nicloudsdk.AuthorizationCheck{
 		"Read DeploymentValues": {
-			Object: codersdk.AuthorizationObject{
-				ResourceType: codersdk.ResourceDeploymentConfig,
+			Object: nicloudsdk.AuthorizationObject{
+				ResourceType: nicloudsdk.ResourceDeploymentConfig,
 			},
-			Action: codersdk.ActionRead,
+			Action: nicloudsdk.ActionRead,
 		},
 	}
 
-	authResp, err := client.AuthCheck(ctx, codersdk.AuthorizationRequest{Checks: authChecks})
+	authResp, err := client.AuthCheck(ctx, nicloudsdk.AuthorizationRequest{Checks: authChecks})
 	if err != nil {
 		// If the auth check itself fails (e.g., 401 Unauthorized
 		// because there is no valid session), this is a hard error.
@@ -1045,7 +1045,7 @@ func Run(ctx context.Context, d *Deps) (*Bundle, error) {
 	}()
 
 	// No point running without auth as minimal information available.
-	me, err := d.Client.User(ctx, codersdk.Me)
+	me, err := d.Client.User(ctx, nicloudsdk.Me)
 	if err != nil {
 		return nil, err
 	}
@@ -1121,8 +1121,8 @@ func Run(ctx context.Context, d *Deps) (*Bundle, error) {
 			b.NamedTemplate = td
 			return nil
 		}
-		raw, ctype, err := d.Client.DownloadWithFormat(ctx, tv.Job.FileID, codersdk.FormatZip)
-		if err != nil || ctype != codersdk.ContentTypeZip {
+		raw, ctype, err := d.Client.DownloadWithFormat(ctx, tv.Job.FileID, nicloudsdk.FormatZip)
+		if err != nil || ctype != nicloudsdk.ContentTypeZip {
 			d.Log.Error(ctx, "download template file", slog.Error(err), slog.F("content_type", ctype))
 			b.NamedTemplate = td
 			return nil
@@ -1135,7 +1135,7 @@ func Run(ctx context.Context, d *Deps) (*Bundle, error) {
 	_ = eg.Wait()
 
 	// Collect pprof data after deployment info is available (need version check).
-	// Pprof endpoints require Coder server version 2.28.0 or newer.
+	// Pprof endpoints require Neural Inverse Cloud server version 2.28.0 or newer.
 	if d.CollectPprof {
 		b.Pprof = collectPprof(ctx, d, &b)
 	}
@@ -1143,7 +1143,7 @@ func Run(ctx context.Context, d *Deps) (*Bundle, error) {
 	return &b, nil
 }
 
-// minPprofVersion is the minimum Coder server version that supports
+// minPprofVersion is the minimum Neural Inverse Cloud server version that supports
 // the /api/v2/debug/pprof endpoints.
 const minPprofVersion = "v2.28.0"
 

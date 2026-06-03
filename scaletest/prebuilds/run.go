@@ -14,18 +14,18 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 
-	template codersdk.Template
+	template nicloudsdk.Template
 }
 
 // TemplatePrefix is the name prefix applied to all templates created by the
@@ -37,7 +37,7 @@ var (
 	_ harness.Cleanable = &Runner{}
 )
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -76,18 +76,18 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 		return err
 	}
 
-	templateReq := codersdk.CreateTemplateRequest{
+	templateReq := nicloudsdk.CreateTemplateRequest{
 		Name:        templateName,
-		Description: "`coder exp scaletest prebuilds` template",
+		Description: "`neuralinverse exp scaletest prebuilds` template",
 		VersionID:   version.ID,
 	}
 	templ, err := r.client.CreateTemplate(ctx, r.cfg.OrganizationID, templateReq)
 	if err != nil {
 		// If the template already exists from a previous failed run, look it up so
 		// Cleanup() can delete it and the rerun doesn't leave orphaned resources.
-		var sdkErr *codersdk.Error
+		var sdkErr *nicloudsdk.Error
 		if xerrors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusConflict {
-			existing, listErr := r.client.Templates(ctx, codersdk.TemplateFilter{
+			existing, listErr := r.client.Templates(ctx, nicloudsdk.TemplateFilter{
 				OrganizationID: r.cfg.OrganizationID,
 				ExactName:      templateName,
 			})
@@ -168,7 +168,7 @@ func (r *Runner) measureCreation(ctx context.Context, logger slog.Logger) error 
 	defer cancel()
 
 	tkr := r.cfg.Clock.TickerFunc(workspacesCtx, workspacesPollInterval, func() error {
-		workspaces, err := r.client.Workspaces(workspacesCtx, codersdk.WorkspaceFilter{
+		workspaces, err := r.client.Workspaces(workspacesCtx, nicloudsdk.WorkspaceFilter{
 			Template: r.template.Name,
 		})
 		if err != nil {
@@ -182,11 +182,11 @@ func (r *Runner) measureCreation(ctx context.Context, logger slog.Logger) error 
 
 		for _, ws := range workspaces.Workspaces {
 			switch ws.LatestBuild.Job.Status {
-			case codersdk.ProvisionerJobRunning:
+			case nicloudsdk.ProvisionerJobRunning:
 				runningCount++
-			case codersdk.ProvisionerJobFailed, codersdk.ProvisionerJobCanceled:
+			case nicloudsdk.ProvisionerJobFailed, nicloudsdk.ProvisionerJobCanceled:
 				failedCount++
-			case codersdk.ProvisionerJobSucceeded:
+			case nicloudsdk.ProvisionerJobSucceeded:
 				succeededCount++
 			}
 		}
@@ -227,7 +227,7 @@ func (r *Runner) measureDeletion(ctx context.Context, logger slog.Logger) error 
 	// The reconciler may have created extra workspaces beyond the configured
 	// target (e.g. replacements for failed builds), so using targetNumWorkspaces
 	// as the denominator would undercount completed deletions.
-	initialWorkspaces, err := r.client.Workspaces(deletionCtx, codersdk.WorkspaceFilter{
+	initialWorkspaces, err := r.client.Workspaces(deletionCtx, nicloudsdk.WorkspaceFilter{
 		Template: r.template.Name,
 	})
 	if err != nil {
@@ -242,7 +242,7 @@ func (r *Runner) measureDeletion(ctx context.Context, logger slog.Logger) error 
 	lastRetriedBuildID := make(map[uuid.UUID]uuid.UUID)
 
 	tkr := r.cfg.Clock.TickerFunc(deletionCtx, deletionPollInterval, func() error {
-		workspaces, err := r.client.Workspaces(deletionCtx, codersdk.WorkspaceFilter{
+		workspaces, err := r.client.Workspaces(deletionCtx, nicloudsdk.WorkspaceFilter{
 			Template: r.template.Name,
 		})
 		if err != nil {
@@ -255,17 +255,17 @@ func (r *Runner) measureDeletion(ctx context.Context, logger slog.Logger) error 
 		exhaustedCount := 0
 
 		for _, ws := range workspaces.Workspaces {
-			if ws.LatestBuild.Transition != codersdk.WorkspaceTransitionDelete {
+			if ws.LatestBuild.Transition != nicloudsdk.WorkspaceTransitionDelete {
 				// The reconciler hasn't submitted a delete build yet.
 				continue
 			}
 			createdCount++
 
 			switch ws.LatestBuild.Job.Status {
-			case codersdk.ProvisionerJobRunning, codersdk.ProvisionerJobPending:
+			case nicloudsdk.ProvisionerJobRunning, nicloudsdk.ProvisionerJobPending:
 				runningCount++
 
-			case codersdk.ProvisionerJobFailed, codersdk.ProvisionerJobCanceled:
+			case nicloudsdk.ProvisionerJobFailed, nicloudsdk.ProvisionerJobCanceled:
 				// Skip if we've already submitted a retry for this specific
 				// failed build and are waiting for the new build to appear.
 				if lastRetriedBuildID[ws.ID] == ws.LatestBuild.ID {
@@ -287,8 +287,8 @@ func (r *Runner) measureDeletion(ctx context.Context, logger slog.Logger) error 
 					slog.F("attempt", retryCount[ws.ID]),
 					slog.F("max_attempts", maxDeletionRetries),
 				)
-				_, retryErr := r.client.CreateWorkspaceBuild(deletionCtx, ws.ID, codersdk.CreateWorkspaceBuildRequest{
-					Transition: codersdk.WorkspaceTransitionDelete,
+				_, retryErr := r.client.CreateWorkspaceBuild(deletionCtx, ws.ID, nicloudsdk.CreateWorkspaceBuildRequest{
+					Transition: nicloudsdk.WorkspaceTransitionDelete,
 				})
 				if retryErr != nil {
 					return xerrors.Errorf("retry workspace deletion (attempt %d): %w", retryCount[ws.ID], retryErr)
@@ -327,30 +327,30 @@ func (r *Runner) measureDeletion(ctx context.Context, logger slog.Logger) error 
 	return nil
 }
 
-func (r *Runner) createTemplateVersion(ctx context.Context, templateID uuid.UUID, numPresets, numPresetPrebuilds int) (codersdk.TemplateVersion, error) {
+func (r *Runner) createTemplateVersion(ctx context.Context, templateID uuid.UUID, numPresets, numPresetPrebuilds int) (nicloudsdk.TemplateVersion, error) {
 	tarData, err := TemplateTarData(numPresets, numPresetPrebuilds)
 	if err != nil {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("create prebuilds template tar: %w", err)
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("create prebuilds template tar: %w", err)
 	}
-	uploadResp, err := r.client.Upload(ctx, codersdk.ContentTypeTar, bytes.NewReader(tarData))
+	uploadResp, err := r.client.Upload(ctx, nicloudsdk.ContentTypeTar, bytes.NewReader(tarData))
 	if err != nil {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("upload prebuilds template tar: %w", err)
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("upload prebuilds template tar: %w", err)
 	}
 
-	versionReq := codersdk.CreateTemplateVersionRequest{
+	versionReq := nicloudsdk.CreateTemplateVersionRequest{
 		TemplateID:      templateID,
 		FileID:          uploadResp.ID,
 		Message:         "Template version for scaletest prebuilds",
-		StorageMethod:   codersdk.ProvisionerStorageMethodFile,
-		Provisioner:     codersdk.ProvisionerTypeTerraform,
+		StorageMethod:   nicloudsdk.ProvisionerStorageMethodFile,
+		Provisioner:     nicloudsdk.ProvisionerTypeTerraform,
 		ProvisionerTags: r.cfg.ProvisionerTags,
 	}
 	version, err := r.client.CreateTemplateVersion(ctx, r.cfg.OrganizationID, versionReq)
 	if err != nil {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("create template version: %w", err)
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("create template version: %w", err)
 	}
 	if version.MatchedProvisioners != nil && version.MatchedProvisioners.Count == 0 {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("no provisioners matched for template version")
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("no provisioners matched for template version")
 	}
 
 	const pollInterval = 2 * time.Second
@@ -363,9 +363,9 @@ func (r *Runner) createTemplateVersion(ctx context.Context, templateID uuid.UUID
 			return xerrors.Errorf("get template version: %w", err)
 		}
 		switch version.Job.Status {
-		case codersdk.ProvisionerJobSucceeded:
+		case nicloudsdk.ProvisionerJobSucceeded:
 			return errTickerDone
-		case codersdk.ProvisionerJobPending, codersdk.ProvisionerJobRunning:
+		case nicloudsdk.ProvisionerJobPending, nicloudsdk.ProvisionerJobRunning:
 			return nil
 		default:
 			return xerrors.Errorf("template version provisioning failed: status %s", version.Job.Status)
@@ -373,7 +373,7 @@ func (r *Runner) createTemplateVersion(ctx context.Context, templateID uuid.UUID
 	})
 	err = tkr.Wait()
 	if !xerrors.Is(err, errTickerDone) {
-		return codersdk.TemplateVersion{}, xerrors.Errorf("wait for template version provisioning: %w", err)
+		return nicloudsdk.TemplateVersion{}, xerrors.Errorf("wait for template version provisioning: %w", err)
 	}
 	return version, nil
 }
@@ -388,7 +388,7 @@ func (r *Runner) pushEmptyTemplateVersion(ctx context.Context) error {
 	if err != nil {
 		return xerrors.Errorf("create empty template version: %w", err)
 	}
-	if err = r.client.UpdateActiveTemplateVersion(ctx, r.template.ID, codersdk.UpdateActiveTemplateVersion{
+	if err = r.client.UpdateActiveTemplateVersion(ctx, r.template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 		ID: emptyVersion.ID,
 	}); err != nil {
 		return xerrors.Errorf("update active template version: %w", err)
@@ -428,7 +428,7 @@ func (r *Runner) Cleanup(ctx context.Context, _ string, logs io.Writer) error {
 			slog.F("remaining", len(remaining)),
 			slog.F("template_name", r.template.Name),
 		)
-		var failed []codersdk.Workspace
+		var failed []nicloudsdk.Workspace
 		for _, ws := range remaining {
 			cr := workspacebuild.NewCleanupRunner(r.client, ws.ID)
 			if err := cr.Run(ctx, ws.ID.String(), logs); err != nil {
@@ -462,11 +462,11 @@ func (r *Runner) Cleanup(ctx context.Context, _ string, logs io.Writer) error {
 
 // allWorkspacesForTemplate returns all workspaces belonging to templateName,
 // paginating through results until exhausted.
-func allWorkspacesForTemplate(ctx context.Context, client *codersdk.Client, templateName string) ([]codersdk.Workspace, error) {
+func allWorkspacesForTemplate(ctx context.Context, client *nicloudsdk.Client, templateName string) ([]nicloudsdk.Workspace, error) {
 	const pageSize = 100
-	var workspaces []codersdk.Workspace
+	var workspaces []nicloudsdk.Workspace
 	for page := 0; ; page++ {
-		resp, err := client.Workspaces(ctx, codersdk.WorkspaceFilter{
+		resp, err := client.Workspaces(ctx, nicloudsdk.WorkspaceFilter{
 			Template: templateName,
 			Offset:   page * pageSize,
 			Limit:    pageSize,

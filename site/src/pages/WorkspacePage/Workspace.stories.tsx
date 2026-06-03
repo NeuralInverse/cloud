@@ -780,7 +780,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_source: "provisioner",
 			log_level: "info",
 			stage: "Planning infrastructure",
-			output: "data.coder_provisioner.me: Refreshing...",
+			output: "data.ni_provisioner.me: Refreshing...",
 		},
 		{
 			id: 2404,
@@ -788,7 +788,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_source: "provisioner",
 			log_level: "info",
 			stage: "Planning infrastructure",
-			output: "data.coder_workspace.me: Refreshing...",
+			output: "data.ni_workspace.me: Refreshing...",
 		},
 		{
 			id: 2405,
@@ -796,7 +796,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_source: "provisioner",
 			log_level: "info",
 			stage: "Planning infrastructure",
-			output: "data.coder_parameter.security_groups: Refreshing...",
+			output: "data.ni_parameter.security_groups: Refreshing...",
 		},
 		{
 			id: 2406,
@@ -805,7 +805,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_level: "info",
 			stage: "Planning infrastructure",
 			output:
-				"data.coder_provisioner.me: Refresh complete after 0s [id=993f697b-3948-4d31-8377-6c86edc90a83]",
+				"data.ni_provisioner.me: Refresh complete after 0s [id=993f697b-3948-4d31-8377-6c86edc90a83]",
 		},
 		{
 			id: 2407,
@@ -814,7 +814,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_level: "info",
 			stage: "Planning infrastructure",
 			output:
-				"data.coder_workspace.me: Refresh complete after 0s [id=ca18ddca-14b5-4f5f-be55-7bfd2e3c2dc9]",
+				"data.ni_workspace.me: Refresh complete after 0s [id=ca18ddca-14b5-4f5f-be55-7bfd2e3c2dc9]",
 		},
 		{
 			id: 2408,
@@ -823,7 +823,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_level: "info",
 			stage: "Planning infrastructure",
 			output:
-				"data.coder_parameter.security_groups: Refresh complete after 0s [id=9832a15f-267b-4abf-9c23-e4265af0befa]",
+				"data.ni_parameter.security_groups: Refresh complete after 0s [id=9832a15f-267b-4abf-9c23-e4265af0befa]",
 		},
 		{
 			id: 2409,
@@ -832,7 +832,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_level: "info",
 			stage: "Planning infrastructure",
 			output:
-				"coder_agent.main: Refreshing state... [id=6c3718cb-605b-4b68-b26f-46dba8767f43]",
+				"ni_agent.main: Refreshing state... [id=6c3718cb-605b-4b68-b26f-46dba8767f43]",
 		},
 		{
 			id: 2410,
@@ -841,7 +841,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_level: "info",
 			stage: "Planning infrastructure",
 			output:
-				"coder_agent.main: Refresh complete [id=6c3718cb-605b-4b68-b26f-46dba8767f43]",
+				"ni_agent.main: Refresh complete [id=6c3718cb-605b-4b68-b26f-46dba8767f43]",
 		},
 		{
 			id: 2411,
@@ -859,7 +859,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_level: "info",
 			stage: "Planning infrastructure",
 			output:
-				"coder_app.code-server: Refreshing state... [id=4a45a1cc-9861-4a9c-bd2f-3a2f1abc4c65]",
+				"ni_app.code-server: Refreshing state... [id=4a45a1cc-9861-4a9c-bd2f-3a2f1abc4c65]",
 		},
 		{
 			id: 2413,
@@ -868,7 +868,7 @@ function makeFailedBuildLogs(): ProvisionerJobLog[] {
 			log_level: "info",
 			stage: "Planning infrastructure",
 			output:
-				"coder_app.code-server: Refresh complete [id=4a45a1cc-9861-4a9c-bd2f-3a2f1abc4c65]",
+				"ni_app.code-server: Refresh complete [id=4a45a1cc-9861-4a9c-bd2f-3a2f1abc4c65]",
 		},
 		{
 			id: 2414,

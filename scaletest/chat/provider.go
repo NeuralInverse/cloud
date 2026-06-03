@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 const (
@@ -28,7 +28,7 @@ const (
 
 // EnsureScaletestModelConfig bootstraps the shared chat provider and model
 // config used by chat scaletests.
-func EnsureScaletestModelConfig(ctx context.Context, client *codersdk.ExperimentalClient, logger slog.Logger, llmMockURL string) (uuid.UUID, error) {
+func EnsureScaletestModelConfig(ctx context.Context, client *nicloudsdk.ExperimentalClient, logger slog.Logger, llmMockURL string) (uuid.UUID, error) {
 	logger.Info(ctx, "bootstrapping mock LLM provider", slog.F("llm_mock_url", llmMockURL))
 
 	provider, providerAction, err := ensureScaletestProvider(ctx, client, llmMockURL)
@@ -75,7 +75,7 @@ func EnsureScaletestModelConfig(ctx context.Context, client *codersdk.Experiment
 	enabled := true
 	isDefault := false
 	contextLimit := int64(4096)
-	created, err := client.CreateChatModelConfig(ctx, codersdk.CreateChatModelConfigRequest{
+	created, err := client.CreateChatModelConfig(ctx, nicloudsdk.CreateChatModelConfigRequest{
 		Provider:     provider.Provider,
 		Model:        scaletestModelName,
 		DisplayName:  scaletestModelDisplayName,
@@ -90,10 +90,10 @@ func EnsureScaletestModelConfig(ctx context.Context, client *codersdk.Experiment
 	return created.ID, nil
 }
 
-func ensureScaletestProvider(ctx context.Context, client *codersdk.ExperimentalClient, llmMockURL string) (codersdk.ChatProviderConfig, scaletestProviderAction, error) {
+func ensureScaletestProvider(ctx context.Context, client *nicloudsdk.ExperimentalClient, llmMockURL string) (nicloudsdk.ChatProviderConfig, scaletestProviderAction, error) {
 	enabled := true
 	mockProviderToken := uuid.NewString()
-	created, err := client.CreateChatProvider(ctx, codersdk.CreateChatProviderConfigRequest{
+	created, err := client.CreateChatProvider(ctx, nicloudsdk.CreateChatProviderConfigRequest{
 		Provider:    scaletestProviderType,
 		DisplayName: scaletestProviderDisplayName,
 		APIKey:      mockProviderToken,
@@ -104,17 +104,17 @@ func ensureScaletestProvider(ctx context.Context, client *codersdk.ExperimentalC
 		return created, scaletestProviderActionCreated, nil
 	}
 
-	var sdkErr *codersdk.Error
+	var sdkErr *nicloudsdk.Error
 	if !xerrors.As(err, &sdkErr) || sdkErr.StatusCode() != http.StatusConflict {
-		return codersdk.ChatProviderConfig{}, "", xerrors.Errorf("create scaletest chat provider: %w", err)
+		return nicloudsdk.ChatProviderConfig{}, "", xerrors.Errorf("create scaletest chat provider: %w", err)
 	}
 
 	providers, err := client.ListChatProviders(ctx)
 	if err != nil {
-		return codersdk.ChatProviderConfig{}, "", xerrors.Errorf("list chat providers: %w", err)
+		return nicloudsdk.ChatProviderConfig{}, "", xerrors.Errorf("list chat providers: %w", err)
 	}
 
-	var existing *codersdk.ChatProviderConfig
+	var existing *nicloudsdk.ChatProviderConfig
 	for i := range providers {
 		if providers[i].Provider == scaletestProviderType {
 			existing = &providers[i]
@@ -122,27 +122,27 @@ func ensureScaletestProvider(ctx context.Context, client *codersdk.ExperimentalC
 		}
 	}
 	if existing == nil {
-		return codersdk.ChatProviderConfig{}, "", xerrors.Errorf("find existing %s provider after conflict: not found", scaletestProviderType)
+		return nicloudsdk.ChatProviderConfig{}, "", xerrors.Errorf("find existing %s provider after conflict: not found", scaletestProviderType)
 	}
 	if existing.DisplayName != scaletestProviderDisplayName {
-		return codersdk.ChatProviderConfig{}, "", xerrors.Errorf("refusing to overwrite existing %s provider %s with display name %q", scaletestProviderType, existing.ID, existing.DisplayName)
+		return nicloudsdk.ChatProviderConfig{}, "", xerrors.Errorf("refusing to overwrite existing %s provider %s with display name %q", scaletestProviderType, existing.ID, existing.DisplayName)
 	}
 
 	if !existing.Enabled {
-		return codersdk.ChatProviderConfig{}, "", xerrors.Errorf("existing scaletest chat provider %s is disabled; re-enable or delete it before running scaletests", existing.ID)
+		return nicloudsdk.ChatProviderConfig{}, "", xerrors.Errorf("existing scaletest chat provider %s is disabled; re-enable or delete it before running scaletests", existing.ID)
 	}
 	if existing.BaseURL == llmMockURL {
 		return *existing, scaletestProviderActionReused, nil
 	}
 
-	updated, err := client.UpdateChatProvider(ctx, existing.ID, codersdk.UpdateChatProviderConfigRequest{
+	updated, err := client.UpdateChatProvider(ctx, existing.ID, nicloudsdk.UpdateChatProviderConfigRequest{
 		DisplayName: scaletestProviderDisplayName,
 		APIKey:      &mockProviderToken,
 		BaseURL:     &llmMockURL,
 		Enabled:     &enabled,
 	})
 	if err != nil {
-		return codersdk.ChatProviderConfig{}, "", xerrors.Errorf("update scaletest chat provider: %w", err)
+		return nicloudsdk.ChatProviderConfig{}, "", xerrors.Errorf("update scaletest chat provider: %w", err)
 	}
 	return updated, scaletestProviderActionUpdated, nil
 }

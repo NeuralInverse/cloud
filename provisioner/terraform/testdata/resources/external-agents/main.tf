@@ -8,14 +8,14 @@ terraform {
 }
 
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "dev1" {
+resource "ni_agent" "dev1" {
   os   = "linux"
   arch = "amd64"
 }
 
-resource "coder_external_agent" "dev1" {
-  agent_id = coder_agent.dev1.token
+resource "ni_external_agent" "dev1" {
+  agent_id = ni_agent.dev1.token
 }

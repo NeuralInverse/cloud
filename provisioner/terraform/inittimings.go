@@ -4,8 +4,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 const (
@@ -32,9 +32,9 @@ var (
 	// executionOrder is the expected sequential steps during `terraform init`.
 	// Some steps of the init have more than 1 possible "initMessageCode".
 	//
-	// In practice, since Coder has a defined way of running Terraform, only
+	// In practice, since Neural Inverse Cloud has a defined way of running Terraform, only
 	// one code per step is expected. However, this allows for future-proofing
-	// in case Coder adds more Terraform init configurations.
+	// in case Neural Inverse Cloud adds more Terraform init configurations.
 	executionOrder = [][]initMessageCode{
 		{
 			initInitializingBackendMessage,

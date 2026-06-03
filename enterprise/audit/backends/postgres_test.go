@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/audit/audittest"
-	"github.com/coder/coder/v2/enterprise/audit/backends"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit/audittest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit/backends"
 )
 
 func TestPostgresBackend(t *testing.T) {

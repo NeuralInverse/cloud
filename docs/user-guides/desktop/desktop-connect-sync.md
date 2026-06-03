@@ -1,15 +1,15 @@
-# Coder Desktop Connect and Sync
+# Neural Inverse Cloud Desktop Connect and Sync
 
-Use Coder Desktop to work on your workspaces and files as though they're on your LAN.
+Use Neural Inverse Cloud Desktop to work on your workspaces and files as though they're on your LAN.
 
 > [!NOTE]
-> Coder Desktop requires a Coder deployment running [v2.20.0](https://github.com/coder/coder/releases/tag/v2.20.0) or later.
+> Neural Inverse Cloud Desktop requires a Neural Inverse Cloud deployment running [v2.20.0](https://github.com/NeuralInverse/cloud/releases/tag/v2.20.0) or later.
 
-## Coder Connect
+## Neural Inverse Cloud Connect
 
-While active, Coder Connect will list the workspaces you own and will configure your system to connect to them over private IPv6 addresses and custom hostnames ending in `.coder`.
+While active, Neural Inverse Cloud Connect will list the workspaces you own and will configure your system to connect to them over private IPv6 addresses and custom hostnames ending in `.coder`.
 
-![Coder Desktop list of workspaces](../../images/user-guides/desktop/coder-desktop-workspaces.png)
+![Neural Inverse Cloud Desktop list of workspaces](../../images/user-guides/desktop/coder-desktop-workspaces.png)
 
 To copy the `.coder` hostname of a workspace agent, select the copy icon beside it.
 
@@ -28,7 +28,7 @@ This works for all TCP ports. Start a service in your workspace and access it im
 For other port forwarding methods (CLI, dashboard, SSH), see [Workspace Ports](../workspace-access/port-forwarding.md).
 
 > [!NOTE]
-> For Coder versions v2.21.3 and earlier: the Coder IDE extensions for VSCode and JetBrains create their own tunnel and do not utilize the Coder Connect tunnel to connect to workspaces.
+> For Neural Inverse Cloud versions v2.21.3 and earlier: the Neural Inverse Cloud IDE extensions for VSCode and JetBrains create their own tunnel and do not utilize the Neural Inverse Cloud Connect tunnel to connect to workspaces.
 
 ### Ping your workspace
 
@@ -54,24 +54,24 @@ Use `ping` in a Command Prompt or PowerShell terminal to verify the connection t
 
 ## Sync a local directory with your workspace
 
-Coder Desktop file sync provides bidirectional synchronization between a local directory and your workspace.
+Neural Inverse Cloud Desktop file sync provides bidirectional synchronization between a local directory and your workspace.
 You can work offline, add screenshots to documentation, or use local development tools while keeping your files in sync with your workspace.
 
 1. Create a new local directory.
 
    If you select an existing clone of your repository, Desktop will recognize it as conflicting files.
 
-1. In the Coder Desktop app, select **File sync**.
+1. In the Neural Inverse Cloud Desktop app, select **File sync**.
 
-   ![Coder Desktop File Sync screen](../../images/user-guides/desktop/coder-desktop-file-sync.png)
+   ![Neural Inverse Cloud Desktop File Sync screen](../../images/user-guides/desktop/coder-desktop-file-sync.png)
 
 1. Select the **+** in the corner to select the local path, workspace, and remote path, then select **Add**:
 
-   ![Coder Desktop File Sync add paths](../../images/user-guides/desktop/coder-desktop-file-sync-add.png)
+   ![Neural Inverse Cloud Desktop File Sync add paths](../../images/user-guides/desktop/coder-desktop-file-sync-add.png)
 
 1. File sync clones your workspace directory to your local directory, then watches for changes:
 
-   ![Coder Desktop File Sync watching](../../images/user-guides/desktop/coder-desktop-file-sync-watching.png)
+   ![Neural Inverse Cloud Desktop File Sync watching](../../images/user-guides/desktop/coder-desktop-file-sync-watching.png)
 
    For more information about the current status, hover your mouse over the status.
 
@@ -79,7 +79,7 @@ File sync excludes version control system directories like `.git/` from synchron
 This means that if you use an IDE with a built-in terminal to edit files on your remote workspace, that should be the Git clone and your local directory should be for file syncs.
 
 > [!NOTE]
-> Coder Desktop uses `alpha` and `beta` to distinguish between the:
+> Neural Inverse Cloud Desktop uses `alpha` and `beta` to distinguish between the:
 >
 > - Local directory: `alpha`
 > - Remote directory: `beta`
@@ -101,8 +101,8 @@ If you encounter a synchronization conflict, delete the conflicting file that co
 Some web applications require a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) to function correctly.
 A browser typically considers an origin secure if the connection is to `localhost`, or over `HTTPS`.
 
-Because Coder Connect uses its own hostnames and does not provide TLS to the browser, Google Chrome and Firefox will not allow any web APIs that require a secure context.
-Even though the browser displays a warning about an insecure connection without `HTTPS`, the underlying tunnel is encrypted with WireGuard in the same fashion as other Coder workspace connections (e.g. `coder port-forward`).
+Because Neural Inverse Cloud Connect uses its own hostnames and does not provide TLS to the browser, Google Chrome and Firefox will not allow any web APIs that require a secure context.
+Even though the browser displays a warning about an insecure connection without `HTTPS`, the underlying tunnel is encrypted with WireGuard in the same fashion as other Neural Inverse Cloud workspace connections (e.g. `coder port-forward`).
 
 <details><summary>If you require secure context web APIs, identify the workspace hostnames as secure in your browser settings.</summary>
 
@@ -148,4 +148,4 @@ Even though the browser displays a warning about an insecure connection without 
 
 </details>
 
-We are planning some changes to Coder Desktop that will make accessing secure context web apps easier in future versions.
+We are planning some changes to Neural Inverse Cloud Desktop that will make accessing secure context web apps easier in future versions.

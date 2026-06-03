@@ -1376,7 +1376,7 @@ type StartRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	TunnelFileDescriptor int32                  `protobuf:"varint,1,opt,name=tunnel_file_descriptor,json=tunnelFileDescriptor,proto3" json:"tunnel_file_descriptor,omitempty"`
-	CoderUrl             string                 `protobuf:"bytes,2,opt,name=coder_url,json=coderUrl,proto3" json:"coder_url,omitempty"`
+	NIUrl             string                 `protobuf:"bytes,2,opt,name=ni_url,json=niUrl,proto3" json:"ni_url,omitempty"`
 	ApiToken             string                 `protobuf:"bytes,3,opt,name=api_token,json=apiToken,proto3" json:"api_token,omitempty"`
 	Headers              []*StartRequest_Header `protobuf:"bytes,4,rep,name=headers,proto3" json:"headers,omitempty"`
 	// Device ID from Coder Desktop
@@ -1384,7 +1384,7 @@ type StartRequest struct {
 	// Device OS from Coder Desktop
 	DeviceOs string `protobuf:"bytes,6,opt,name=device_os,json=deviceOs,proto3" json:"device_os,omitempty"`
 	// Coder Desktop version
-	CoderDesktopVersion string `protobuf:"bytes,7,opt,name=coder_desktop_version,json=coderDesktopVersion,proto3" json:"coder_desktop_version,omitempty"`
+	NIDesktopVersion string `protobuf:"bytes,7,opt,name=coder_desktop_version,json=coderDesktopVersion,proto3" json:"coder_desktop_version,omitempty"`
 }
 
 func (x *StartRequest) Reset() {
@@ -1426,9 +1426,9 @@ func (x *StartRequest) GetTunnelFileDescriptor() int32 {
 	return 0
 }
 
-func (x *StartRequest) GetCoderUrl() string {
+func (x *StartRequest) GetNIUrl() string {
 	if x != nil {
-		return x.CoderUrl
+		return x.NIUrl
 	}
 	return ""
 }
@@ -1461,9 +1461,9 @@ func (x *StartRequest) GetDeviceOs() string {
 	return ""
 }
 
-func (x *StartRequest) GetCoderDesktopVersion() string {
+func (x *StartRequest) GetNIDesktopVersion() string {
 	if x != nil {
-		return x.CoderDesktopVersion
+		return x.NIDesktopVersion
 	}
 	return ""
 }

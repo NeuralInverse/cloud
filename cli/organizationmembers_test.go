@@ -6,10 +6,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestListOrganizationMembers(t *testing.T) {
@@ -18,9 +18,9 @@ func TestListOrganizationMembers(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		ownerClient := coderdtest.New(t, &coderdtest.Options{})
-		owner := coderdtest.CreateFirstUser(t, ownerClient)
-		client, user := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
+		ownerClient := nicloudtest.New(t, &nicloudtest.Options{})
+		owner := nicloudtest.CreateFirstUser(t, ownerClient)
+		client, user := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID, rbac.RoleUserAdmin())
 
 		ctx := testutil.Context(t, testutil.WaitMedium)
 		inv, root := clitest.New(t, "organization", "members", "list", "-c", "user id,username,organization roles")

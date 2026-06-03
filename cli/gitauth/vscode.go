@@ -21,7 +21,7 @@ func OverrideVSCodeConfigs(fs afero.Fs) error {
 	mutate := func(m map[string]interface{}) {
 		// These defaults prevent VS Code from overriding
 		// GIT_ASKPASS and using its own GitHub authentication,
-		// which would circumvent cloning with Coder-configured
+		// which would circumvent cloning with Neural Inverse Cloud-configured
 		// providers. We only set them if they are not already
 		// present so that template authors can override them
 		// via module settings (e.g. the vscode-web module).

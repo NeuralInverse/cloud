@@ -13,14 +13,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestWorkspaceAgent(t *testing.T) {
@@ -29,8 +29,8 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("LogDirectory", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := nicloudtest.NewWithDatabase(t, nil)
+		user := nicloudtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -49,7 +49,7 @@ func TestWorkspaceAgent(t *testing.T) {
 
 		clitest.Start(t, inv)
 
-		coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+		nicloudtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 
 		require.Eventually(t, func() bool {
 			info, err := os.Stat(filepath.Join(logDir, "coder-agent.log"))
@@ -63,8 +63,8 @@ func TestWorkspaceAgent(t *testing.T) {
 	t.Run("PostStartup", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := nicloudtest.NewWithDatabase(t, nil)
+		user := nicloudtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -80,48 +80,48 @@ func TestWorkspaceAgent(t *testing.T) {
 			"--socket-path", testutil.AgentSocketPath(t),
 		)
 		// Set the subsystems for the agent.
-		inv.Environ.Set(agent.EnvAgentSubsystem, fmt.Sprintf("%s,%s", codersdk.AgentSubsystemExectrace, codersdk.AgentSubsystemEnvbox))
+		inv.Environ.Set(agent.EnvAgentSubsystem, fmt.Sprintf("%s,%s", nicloudsdk.AgentSubsystemExectrace, nicloudsdk.AgentSubsystemEnvbox))
 
 		clitest.Start(t, inv)
 
-		resources := coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		resources := nicloudtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithSubsystems).Wait()
 		require.Len(t, resources, 1)
 		require.Len(t, resources[0].Agents, 1)
 		require.Len(t, resources[0].Agents[0].Subsystems, 2)
 		// Sorted
-		require.Equal(t, codersdk.AgentSubsystemEnvbox, resources[0].Agents[0].Subsystems[0])
-		require.Equal(t, codersdk.AgentSubsystemExectrace, resources[0].Agents[0].Subsystems[1])
+		require.Equal(t, nicloudsdk.AgentSubsystemEnvbox, resources[0].Agents[0].Subsystems[0])
+		require.Equal(t, nicloudsdk.AgentSubsystemExectrace, resources[0].Agents[0].Subsystems[1])
 	})
 	t.Run("Headers&DERPHeaders", func(t *testing.T) {
 		t.Parallel()
 
-		// Create a coderd API instance the hard way since we need to change the
+		// Create a nicloud API instance the hard way since we need to change the
 		// handler to inject our custom /derp handler.
-		dv := coderdtest.DeploymentValues(t)
+		dv := nicloudtest.DeploymentValues(t)
 		dv.DERP.Config.BlockDirect = true
-		setHandler, cancelFunc, serverURL, newOptions := coderdtest.NewOptions(t, &coderdtest.Options{
+		setHandler, cancelFunc, serverURL, newOptions := nicloudtest.NewOptions(t, &nicloudtest.Options{
 			DeploymentValues: dv,
 		})
 
 		// We set the handler after server creation for the access URL.
-		coderAPI := coderd.New(newOptions)
-		setHandler(coderAPI.RootHandler)
-		provisionerCloser := coderdtest.NewProvisionerDaemon(t, coderAPI)
+		niAPI := nicloud.New(newOptions)
+		setHandler(niAPI.RootHandler)
+		provisionerCloser := nicloudtest.NewProvisionerDaemon(t, niAPI)
 		t.Cleanup(func() {
 			_ = provisionerCloser.Close()
 		})
-		client := codersdk.New(serverURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(serverURL)))
+		client := nicloudsdk.New(serverURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(serverURL)))
 		t.Cleanup(func() {
 			cancelFunc()
 			_ = provisionerCloser.Close()
-			_ = coderAPI.Close()
+			_ = niAPI.Close()
 			client.HTTPClient.CloseIdleConnections()
 		})
 
 		var (
-			admin              = coderdtest.CreateFirstUser(t, client)
-			member, memberUser = coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+			admin              = nicloudtest.CreateFirstUser(t, client)
+			member, memberUser = nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 			called             atomic.Int64
 			derpCalled         atomic.Int64
 		)
@@ -138,16 +138,16 @@ func TestWorkspaceAgent(t *testing.T) {
 					called.Add(1)
 				}
 			}
-			coderAPI.RootHandler.ServeHTTP(w, r)
+			niAPI.RootHandler.ServeHTTP(w, r)
 		}))
-		r := dbfake.WorkspaceBuild(t, coderAPI.Database, database.WorkspaceTable{
+		r := dbfake.WorkspaceBuild(t, niAPI.Database, database.WorkspaceTable{
 			OrganizationID: memberUser.OrganizationIDs[0],
 			OwnerID:        memberUser.ID,
 		}).WithAgent().Do()
 
-		coderURLEnv := "$CODER_URL"
+		niURLEnv := "$NEURALINVERSE_URL"
 		if runtime.GOOS == "windows" {
-			coderURLEnv = "%CODER_URL%"
+			niURLEnv = "%NEURALINVERSE_URL%"
 		}
 
 		logDir := t.TempDir()
@@ -159,11 +159,11 @@ func TestWorkspaceAgent(t *testing.T) {
 			"--log-dir", logDir,
 			"--agent-header", "X-Testing=agent",
 			"--agent-header", "Cool-Header=Ethan was Here!",
-			"--agent-header-command", "printf X-Process-Testing=very-wow-"+coderURLEnv+"'\\r\\n'X-Process-Testing2=more-wow",
+			"--agent-header-command", "printf X-Process-Testing=very-wow-"+niURLEnv+"'\\r\\n'X-Process-Testing2=more-wow",
 			"--socket-path", testutil.AgentSocketPath(t),
 		)
 		clitest.Start(t, agentInv)
-		coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		nicloudtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithVersion).Wait()
 
 		ctx := testutil.Context(t, testutil.WaitLong)
@@ -178,15 +178,15 @@ func TestWorkspaceAgent(t *testing.T) {
 		err := clientInv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		require.Greater(t, called.Load(), int64(0), "expected coderd to be reached with custom headers")
+		require.Greater(t, called.Load(), int64(0), "expected nicloud to be reached with custom headers")
 		require.Greater(t, derpCalled.Load(), int64(0), "expected /derp to be called with custom headers")
 	})
 
 	t.Run("DisabledServers", func(t *testing.T) {
 		t.Parallel()
 
-		client, db := coderdtest.NewWithDatabase(t, nil)
-		user := coderdtest.CreateFirstUser(t, client)
+		client, db := nicloudtest.NewWithDatabase(t, nil)
+		user := nicloudtest.CreateFirstUser(t, client)
 		r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 			OrganizationID: user.OrganizationID,
 			OwnerID:        user.UserID,
@@ -208,7 +208,7 @@ func TestWorkspaceAgent(t *testing.T) {
 		clitest.Start(t, inv)
 
 		// Verify the agent is connected and working.
-		resources := coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
+		resources := nicloudtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).
 			MatchResources(matchAgentWithVersion).Wait()
 		require.Len(t, resources, 1)
 		require.Len(t, resources[0].Agents, 1)
@@ -229,7 +229,7 @@ func TestWorkspaceAgent(t *testing.T) {
 	})
 }
 
-func matchAgentWithVersion(rs []codersdk.WorkspaceResource) bool {
+func matchAgentWithVersion(rs []nicloudsdk.WorkspaceResource) bool {
 	if len(rs) < 1 {
 		return false
 	}
@@ -242,7 +242,7 @@ func matchAgentWithVersion(rs []codersdk.WorkspaceResource) bool {
 	return true
 }
 
-func matchAgentWithSubsystems(rs []codersdk.WorkspaceResource) bool {
+func matchAgentWithSubsystems(rs []nicloudsdk.WorkspaceResource) bool {
 	if len(rs) < 1 {
 		return false
 	}

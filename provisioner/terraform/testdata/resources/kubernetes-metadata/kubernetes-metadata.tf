@@ -25,7 +25,7 @@ data "google_container_cluster" "dev-4-2" {
 
 locals {
   namespace      = "colin-coder"
-  workspace_name = lower("coder-${data.coder_workspace.me.owner}-${data.coder_workspace.me.name}")
+  workspace_name = lower("coder-${data.ni_workspace.me.owner}-${data.ni_workspace.me.name}")
   cpu            = 1
   memory         = "1Gi"
   gpu            = 1
@@ -39,9 +39,9 @@ provider "kubernetes" {
   )
 }
 
-data "coder_workspace" "me" {}
+data "ni_workspace" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os             = "linux"
   arch           = "amd64"
   startup_script = <<EOT
@@ -59,31 +59,31 @@ resource "coder_agent" "main" {
   EOT
 }
 
-resource "coder_app" "code-server" {
-  agent_id  = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id  = ni_agent.main.id
   slug      = "code-server"
   icon      = "/icon/code.svg"
   url       = "http://localhost:13337?folder=/home/coder"
   subdomain = false
 }
 
-resource "kubernetes_config_map" "coder_workspace" {
-  count = data.coder_workspace.me.start_count
+resource "kubernetes_config_map" "ni_workspace" {
+  count = data.ni_workspace.me.start_count
   metadata {
     name      = local.workspace_name
     namespace = local.namespace
   }
 }
 
-resource "kubernetes_service_account" "coder_workspace" {
-  count = data.coder_workspace.me.start_count
+resource "kubernetes_service_account" "ni_workspace" {
+  count = data.ni_workspace.me.start_count
   metadata {
     name      = local.workspace_name
     namespace = local.namespace
   }
 }
-resource "kubernetes_secret" "coder_workspace" {
-  count = data.coder_workspace.me.start_count
+resource "kubernetes_secret" "ni_workspace" {
+  count = data.ni_workspace.me.start_count
   metadata {
     name      = local.workspace_name
     namespace = local.namespace
@@ -95,8 +95,8 @@ resource "kubernetes_secret" "coder_workspace" {
   type = "kubernetes.io/service-account-token"
 }
 
-resource "kubernetes_role" "coder_workspace" {
-  count = data.coder_workspace.me.start_count
+resource "kubernetes_role" "ni_workspace" {
+  count = data.ni_workspace.me.start_count
   metadata {
     name      = local.workspace_name
     namespace = local.namespace
@@ -110,8 +110,8 @@ resource "kubernetes_role" "coder_workspace" {
   }
 }
 
-resource "kubernetes_role_binding" "coder_workspace" {
-  count = data.coder_workspace.me.start_count
+resource "kubernetes_role_binding" "ni_workspace" {
+  count = data.ni_workspace.me.start_count
   metadata {
     name      = local.workspace_name
     namespace = local.namespace
@@ -129,13 +129,13 @@ resource "kubernetes_role_binding" "coder_workspace" {
 }
 
 resource "kubernetes_pod" "main" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   depends_on = [
-    kubernetes_role.coder_workspace,
-    kubernetes_role_binding.coder_workspace,
-    kubernetes_service_account.coder_workspace,
-    kubernetes_secret.coder_workspace,
-    kubernetes_config_map.coder_workspace
+    kubernetes_role.ni_workspace,
+    kubernetes_role_binding.ni_workspace,
+    kubernetes_service_account.ni_workspace,
+    kubernetes_secret.ni_workspace,
+    kubernetes_config_map.ni_workspace
   ]
   metadata {
     name      = local.workspace_name
@@ -147,13 +147,13 @@ resource "kubernetes_pod" "main" {
     container {
       name    = "dev"
       image   = "codercom/enterprise-base:ubuntu"
-      command = ["sh", "-c", coder_agent.main.init_script]
+      command = ["sh", "-c", ni_agent.main.init_script]
       security_context {
         run_as_user = "1000"
       }
       env {
         name  = "CODER_AGENT_TOKEN"
-        value = coder_agent.main.token
+        value = ni_agent.main.token
       }
       resources {
         limits = {
@@ -166,7 +166,7 @@ resource "kubernetes_pod" "main" {
 }
 
 resource "coder_metadata" "kubernetes_pod_main" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = kubernetes_pod.main[0].id
   item {
     key   = "cpu"

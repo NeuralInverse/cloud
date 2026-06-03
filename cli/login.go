@@ -16,10 +16,10 @@ import (
 	"github.com/pkg/browser"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/sessionstore"
-	"github.com/coder/coder/v2/coderd/userpassword"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore"
+	"github.com/NeuralInverse/cloud/v2/nicloud/userpassword"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -102,10 +102,10 @@ retry:
 
 func (r *RootCmd) loginWithPassword(
 	inv *serpent.Invocation,
-	client *codersdk.Client,
+	client *nicloudsdk.Client,
 	email, password string,
 ) error {
-	resp, err := client.LoginWithPassword(inv.Context(), codersdk.LoginWithPasswordRequest{
+	resp, err := client.LoginWithPassword(inv.Context(), nicloudsdk.LoginWithPasswordRequest{
 		Email:    email,
 		Password: password,
 	})
@@ -140,7 +140,7 @@ func (r *RootCmd) loginWithPassword(
 }
 
 func (r *RootCmd) login() *serpent.Command {
-	const firstUserTrialEnv = "CODER_FIRST_USER_TRIAL"
+	const firstUserTrialEnv = "NEURALINVERSE_FIRST_USER_TRIAL"
 
 	var (
 		email              string
@@ -155,7 +155,7 @@ func (r *RootCmd) login() *serpent.Command {
 		Short: "Authenticate with Coder deployment",
 		Long: "By default, the session token is stored in the operating system keyring on " +
 			"macOS and Windows and a plain text file on Linux. Use the --use-keyring flag " +
-			"or CODER_USE_KEYRING environment variable to change the storage mechanism.",
+			"or NEURALINVERSE_USE_KEYRING environment variable to change the storage mechanism.",
 		Middleware: serpent.RequireRangeArgs(0, 1),
 		Handler: func(inv *serpent.Invocation) error {
 			ctx := inv.Context()
@@ -215,7 +215,7 @@ func (r *RootCmd) login() *serpent.Command {
 
 			hasFirstUser, err := client.HasFirstUser(ctx)
 			if err != nil {
-				return xerrors.Errorf("Failed to check server %q for first user, is the URL correct and is coder accessible from your browser? Error - has initial user: %w", serverURL.String(), err)
+				return xerrors.Errorf("Failed to check server %q for first user, is the URL correct and is neuralinverse accessible from your browser? Error - has initial user: %w", serverURL.String(), err)
 			}
 
 			_, _ = fmt.Fprintf(inv.Stdout, "Attempting to authenticate with %s URL: '%s'\n", urlSource, serverURL)
@@ -280,7 +280,7 @@ func (r *RootCmd) login() *serpent.Command {
 					trial = v == "yes" || v == "y"
 				}
 
-				var trialInfo codersdk.CreateFirstUserTrialInfo
+				var trialInfo nicloudsdk.CreateFirstUserTrialInfo
 				if trial {
 					if trialInfo.FirstName == "" {
 						trialInfo.FirstName, err = promptTrialInfo(inv, "firstName")
@@ -326,7 +326,7 @@ func (r *RootCmd) login() *serpent.Command {
 					}
 				}
 
-				_, err = client.CreateFirstUser(ctx, codersdk.CreateFirstUserRequest{
+				_, err = client.CreateFirstUser(ctx, nicloudsdk.CreateFirstUserRequest{
 					Email:     email,
 					Username:  username,
 					Name:      name,
@@ -351,7 +351,7 @@ func (r *RootCmd) login() *serpent.Command {
 				_, _ = fmt.Fprintf(
 					inv.Stdout,
 					"Get started by creating a template: %s\n",
-					pretty.Sprint(cliui.DefaultStyles.Code, "coder templates init"),
+					pretty.Sprint(cliui.DefaultStyles.Code, "neuralinverse templates init"),
 				)
 				return nil
 			}
@@ -359,7 +359,7 @@ func (r *RootCmd) login() *serpent.Command {
 			sessionToken, _ := inv.ParsedFlags().GetString(varToken)
 			tokenFlagProvided := inv.ParsedFlags().Changed(varToken)
 
-			// If CODER_SESSION_TOKEN is set in the environment, abort
+			// If NEURALINVERSE_SESSION_TOKEN is set in the environment, abort
 			// interactive login unless --use-token-as-session or --token
 			// is specified. The env var takes precedence over a token
 			// stored on disk, so even if we complete login and write a
@@ -392,7 +392,7 @@ func (r *RootCmd) login() *serpent.Command {
 					Secret: true,
 					Validate: func(token string) error {
 						client.SetSessionToken(token)
-						_, err := client.User(ctx, codersdk.Me)
+						_, err := client.User(ctx, nicloudsdk.Me)
 						if err != nil {
 							return xerrors.New("That's not a valid token!")
 						}
@@ -422,7 +422,7 @@ func (r *RootCmd) login() *serpent.Command {
 
 			// Login to get user data - verify it is OK before persisting
 			client.SetSessionToken(sessionToken)
-			resp, err := client.User(ctx, codersdk.Me)
+			resp, err := client.User(ctx, nicloudsdk.Me)
 			if err != nil {
 				return xerrors.Errorf("get user: %w", err)
 			}
@@ -447,25 +447,25 @@ func (r *RootCmd) login() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "first-user-email",
-			Env:         "CODER_FIRST_USER_EMAIL",
+			Env:         "NEURALINVERSE_FIRST_USER_EMAIL",
 			Description: "Specifies an email address to use if creating the first user for the deployment.",
 			Value:       serpent.StringOf(&email),
 		},
 		{
 			Flag:        "first-user-username",
-			Env:         "CODER_FIRST_USER_USERNAME",
+			Env:         "NEURALINVERSE_FIRST_USER_USERNAME",
 			Description: "Specifies a username to use if creating the first user for the deployment.",
 			Value:       serpent.StringOf(&username),
 		},
 		{
 			Flag:        "first-user-full-name",
-			Env:         "CODER_FIRST_USER_FULL_NAME",
+			Env:         "NEURALINVERSE_FIRST_USER_FULL_NAME",
 			Description: "Specifies a human-readable name for the first user of the deployment.",
 			Value:       serpent.StringOf(&name),
 		},
 		{
 			Flag:        "first-user-password",
-			Env:         "CODER_FIRST_USER_PASSWORD",
+			Env:         "NEURALINVERSE_FIRST_USER_PASSWORD",
 			Description: "Specifies a password to use if creating the first user for the deployment.",
 			Value:       serpent.StringOf(&password),
 		},
@@ -516,7 +516,7 @@ func (r *RootCmd) loginToken() *serpent.Command {
 			tok, err := backend.Read(r.clientURL)
 			if err != nil {
 				if xerrors.Is(err, os.ErrNotExist) {
-					return xerrors.New("no session token found - run 'coder login' first")
+					return xerrors.New("no session token found - run 'neuralinverse login' first")
 				}
 				if xerrors.Is(err, sessionstore.ErrNotImplemented) {
 					return errKeyringNotSupported
@@ -524,7 +524,7 @@ func (r *RootCmd) loginToken() *serpent.Command {
 				return xerrors.Errorf("read session token: %w", err)
 			}
 			if tok == "" {
-				return xerrors.New("no session token found - run 'coder login' first")
+				return xerrors.New("no session token found - run 'neuralinverse login' first")
 			}
 			_, err = fmt.Fprintln(inv.Stdout, tok)
 			return err
@@ -532,7 +532,7 @@ func (r *RootCmd) loginToken() *serpent.Command {
 	}
 }
 
-// isWSL determines if coder-cli is running within Windows Subsystem for Linux
+// isWSL determines if neuralinverse-cli is running within Windows Subsystem for Linux
 func isWSL() (bool, error) {
 	if runtime.GOOS == goosDarwin || runtime.GOOS == goosWindows {
 		return false, nil
@@ -625,8 +625,8 @@ func promptDevelopers(inv *serpent.Invocation) (string, error) {
 }
 
 func promptCountry(inv *serpent.Invocation) (string, error) {
-	options := make([]string, len(codersdk.Countries))
-	for i, country := range codersdk.Countries {
+	options := make([]string, len(nicloudsdk.Countries))
+	for i, country := range nicloudsdk.Countries {
 		options[i] = country.Name
 	}
 

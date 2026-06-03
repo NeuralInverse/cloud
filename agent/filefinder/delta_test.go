@@ -3,7 +3,7 @@ package filefinder_test
 import (
 	"testing"
 
-	"github.com/coder/coder/v2/agent/filefinder"
+	"github.com/NeuralInverse/cloud/v2/agent/filefinder"
 )
 
 func TestIndex_AddAndLen(t *testing.T) {

@@ -347,7 +347,7 @@ interface MCPServerFormValues {
 	enabled: boolean;
 	modelIntent: boolean;
 	allowInPlanMode: boolean;
-	forwardCoderHeaders: boolean;
+	forwardNIHeaders: boolean;
 	toolAllowList: string;
 	toolDenyList: string;
 	customHeaders: Array<{ key: string; value: string }>;
@@ -378,7 +378,7 @@ const buildInitialValues = (
 	enabled: server?.enabled ?? true,
 	modelIntent: server?.model_intent ?? false,
 	allowInPlanMode: server?.allow_in_plan_mode ?? false,
-	forwardCoderHeaders: server?.forward_coder_headers ?? false,
+	forwardNIHeaders: server?.forward_ni_headers ?? false,
 	toolAllowList: joinList(server?.tool_allow_list),
 	toolDenyList: joinList(server?.tool_deny_list),
 	customHeaders: [],
@@ -437,7 +437,7 @@ const ServerForm: FC<ServerFormProps> = ({
 				enabled: values.enabled,
 				model_intent: values.modelIntent,
 				allow_in_plan_mode: values.allowInPlanMode,
-				forward_coder_headers: values.forwardCoderHeaders,
+				forward_ni_headers: values.forwardNIHeaders,
 				...(values.authType === "oauth2" && {
 					oauth2_client_id: values.oauth2ClientID.trim(),
 					oauth2_client_secret: effectiveOAuth2Secret,
@@ -1038,9 +1038,9 @@ const ServerForm: FC<ServerFormProps> = ({
 									</div>
 									<Switch
 										id={`${formId}-forward-coder-headers`}
-										checked={form.values.forwardCoderHeaders}
+										checked={form.values.forwardNIHeaders}
 										onCheckedChange={(v) => {
-											form.setFieldValue("forwardCoderHeaders", v);
+											form.setFieldValue("forwardNIHeaders", v);
 										}}
 										disabled={isDisabled}
 									/>

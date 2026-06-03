@@ -7,16 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 const (
@@ -109,25 +109,25 @@ func TestStart(t *testing.T) {
 		t.Parallel()
 
 		logger := testutil.Logger(t)
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(request *codersdk.CreateWorkspaceRequest) {
-			request.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, member, template.ID, func(request *nicloudsdk.CreateWorkspaceRequest) {
+			request.RichParameterValues = []nicloudsdk.WorkspaceBuildParameter{
 				{Name: ephemeralParameterName, Value: "foo"}, // Value is required, set it to something
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop, func(request *codersdk.CreateWorkspaceBuildRequest) {
-			request.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop, func(request *nicloudsdk.CreateWorkspaceBuildRequest) {
+			request.RichParameterValues = []nicloudsdk.WorkspaceBuildParameter{
 				{Name: ephemeralParameterName, Value: "foo"}, // Value is required, set it to something
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		inv, root := clitest.New(t, "start", workspace.Name, "--prompt-ephemeral-parameters")
 		clitest.SetupConfig(t, member, root)
@@ -157,11 +157,11 @@ func TestStart(t *testing.T) {
 		<-doneChan
 
 		// Verify if ephemeral parameter is set
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, nicloudsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -170,25 +170,25 @@ func TestStart(t *testing.T) {
 	t.Run("EphemeralParameterFlags", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(request *codersdk.CreateWorkspaceRequest) {
-			request.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, echoResponses())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, member, template.ID, func(request *nicloudsdk.CreateWorkspaceRequest) {
+			request.RichParameterValues = []nicloudsdk.WorkspaceBuildParameter{
 				{Name: ephemeralParameterName, Value: "foo"}, // Value is required, set it to something
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop, func(request *codersdk.CreateWorkspaceBuildRequest) {
-			request.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop, func(request *nicloudsdk.CreateWorkspaceBuildRequest) {
+			request.RichParameterValues = []nicloudsdk.WorkspaceBuildParameter{
 				{Name: ephemeralParameterName, Value: "foo"}, // Value is required, set it to something
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		inv, root := clitest.New(t, "start", workspace.Name,
 			"--ephemeral-parameter", fmt.Sprintf("%s=%s", ephemeralParameterName, ephemeralParameterValue))
@@ -206,11 +206,11 @@ func TestStart(t *testing.T) {
 		<-doneChan
 
 		// Verify if ephemeral parameter is set
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, nicloudsdk.WorkspaceBuildParameter{
 			Name:  ephemeralParameterName,
 			Value: ephemeralParameterValue,
 		})
@@ -224,25 +224,25 @@ func TestStartWithParameters(t *testing.T) {
 		t.Parallel()
 
 		// Create the workspace
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, immutableParamsResponse())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, immutableParamsResponse())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, member, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
+			cwr.RichParameterValues = []nicloudsdk.WorkspaceBuildParameter{
 				{
 					Name:  immutableParameterName,
 					Value: immutableParameterValue,
 				},
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		// Start the workspace again
 		inv, root := clitest.New(t, "start", workspace.Name)
@@ -260,11 +260,11 @@ func TestStartWithParameters(t *testing.T) {
 		<-doneChan
 
 		// Verify if immutable parameter is set
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, nicloudsdk.WorkspaceBuildParameter{
 			Name:  immutableParameterName,
 			Value: immutableParameterValue,
 		})
@@ -275,25 +275,25 @@ func TestStartWithParameters(t *testing.T) {
 
 		logger := testutil.Logger(t)
 		// Create the workspace
-		client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-		owner := coderdtest.CreateFirstUser(t, client)
-		member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, mutableParamsResponse())
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-		workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-			cwr.RichParameterValues = []codersdk.WorkspaceBuildParameter{
+		client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, mutableParamsResponse())
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+		workspace := nicloudtest.CreateWorkspace(t, member, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
+			cwr.RichParameterValues = []nicloudsdk.WorkspaceBuildParameter{
 				{
 					Name:  mutableParameterName,
 					Value: mutableParameterValue,
 				},
 			}
 		})
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 		// Stop the workspace
-		workspaceBuild := coderdtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
-		coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
+		workspaceBuild := nicloudtest.CreateWorkspaceBuild(t, client, workspace, database.WorkspaceTransitionStop)
+		nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspaceBuild.ID)
 
 		// Start the workspace again
 		inv, root := clitest.New(t, "start", workspace.Name, "--always-prompt")
@@ -315,11 +315,11 @@ func TestStartWithParameters(t *testing.T) {
 		<-doneChan
 
 		// Verify that the updated values are persisted.
-		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, codersdk.WorkspaceOptions{})
+		workspace, err := client.WorkspaceByOwnerAndName(ctx, workspace.OwnerName, workspace.Name, nicloudsdk.WorkspaceOptions{})
 		require.NoError(t, err)
 		actualParameters, err := client.WorkspaceBuildParameters(ctx, workspace.LatestBuild.ID)
 		require.NoError(t, err)
-		require.Contains(t, actualParameters, codersdk.WorkspaceBuildParameter{
+		require.Contains(t, actualParameters, nicloudsdk.WorkspaceBuildParameter{
 			Name:  mutableParameterName,
 			Value: newValue,
 		})
@@ -329,34 +329,34 @@ func TestStartWithParameters(t *testing.T) {
 func TestStartUseParameterDefaults(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+	owner := nicloudtest.CreateFirstUser(t, client)
+	member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 	// Create a template with no parameters and a workspace that
 	// auto-updates so `start` picks up the new active version.
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
-	workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-		cwr.AutomaticUpdates = codersdk.AutomaticUpdatesAlways
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	workspace := nicloudtest.CreateWorkspace(t, member, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
+		cwr.AutomaticUpdates = nicloudsdk.AutomaticUpdatesAlways
 	})
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// Stop the workspace.
-	coderdtest.MustTransitionWorkspace(t, member, workspace.ID,
-		codersdk.WorkspaceTransitionStart, codersdk.WorkspaceTransitionStop)
+	nicloudtest.MustTransitionWorkspace(t, member, workspace.ID,
+		nicloudsdk.WorkspaceTransitionStart, nicloudsdk.WorkspaceTransitionStop)
 
 	// Push a new template version that adds a parameter with a default.
-	version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID,
+	version2 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID,
 		prepareEchoResponses([]*proto.RichParameter{
 			{Name: "new_param", Type: "string", Mutable: true, DefaultValue: "foobar"},
-		}), func(ctvr *codersdk.CreateTemplateVersionRequest) {
+		}), func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 			ctvr.TemplateID = template.ID
 		})
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
 	ctx := testutil.Context(t, testutil.WaitLong)
-	err := client.UpdateActiveTemplateVersion(ctx, template.ID, codersdk.UpdateActiveTemplateVersion{ID: version2.ID})
+	err := client.UpdateActiveTemplateVersion(ctx, template.ID, nicloudsdk.UpdateActiveTemplateVersion{ID: version2.ID})
 	require.NoError(t, err)
 
 	// Start the workspace with --use-parameter-defaults.
@@ -375,11 +375,11 @@ func TestStartUseParameterDefaults(t *testing.T) {
 	_ = testutil.TryReceive(ctx, t, doneChan)
 
 	// Verify the new parameter was resolved to its default.
-	ws, err := member.WorkspaceByOwnerAndName(ctx, codersdk.Me, workspace.Name, codersdk.WorkspaceOptions{})
+	ws, err := member.WorkspaceByOwnerAndName(ctx, nicloudsdk.Me, workspace.Name, nicloudsdk.WorkspaceOptions{})
 	require.NoError(t, err)
 	buildParams, err := member.WorkspaceBuildParameters(ctx, ws.LatestBuild.ID)
 	require.NoError(t, err)
-	assert.Contains(t, buildParams, codersdk.WorkspaceBuildParameter{Name: "new_param", Value: "foobar"})
+	assert.Contains(t, buildParams, nicloudsdk.WorkspaceBuildParameter{Name: "new_param", Value: "foobar"})
 }
 
 // TestStartAutoUpdate also tests restart since the flows are virtually identical.
@@ -416,28 +416,28 @@ func TestStartAutoUpdate(t *testing.T) {
 			t.Parallel()
 
 			logger := testutil.Logger(t)
-			client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-			owner := coderdtest.CreateFirstUser(t, client)
-			member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-			version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+			owner := nicloudtest.CreateFirstUser(t, client)
+			member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+			version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil, func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 				ctvr.Name = "v1"
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
-			workspace := coderdtest.CreateWorkspace(t, member, template.ID, func(cwr *codersdk.CreateWorkspaceRequest) {
-				cwr.AutomaticUpdates = codersdk.AutomaticUpdatesAlways
+			nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+			workspace := nicloudtest.CreateWorkspace(t, member, template.ID, func(cwr *nicloudsdk.CreateWorkspaceRequest) {
+				cwr.AutomaticUpdates = nicloudsdk.AutomaticUpdatesAlways
 			})
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+			nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 			if c.Cmd == "start" {
-				coderdtest.MustTransitionWorkspace(t, member, workspace.ID, codersdk.WorkspaceTransitionStart, codersdk.WorkspaceTransitionStop)
+				nicloudtest.MustTransitionWorkspace(t, member, workspace.ID, nicloudsdk.WorkspaceTransitionStart, nicloudsdk.WorkspaceTransitionStop)
 			}
-			version2 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters), func(ctvr *codersdk.CreateTemplateVersionRequest) {
+			version2 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, prepareEchoResponses(stringRichParameters), func(ctvr *nicloudsdk.CreateTemplateVersionRequest) {
 				ctvr.Name = "v2"
 				ctvr.TemplateID = template.ID
 			})
-			coderdtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
-			coderdtest.UpdateActiveTemplateVersion(t, client, template.ID, version2.ID)
+			nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version2.ID)
+			nicloudtest.UpdateActiveTemplateVersion(t, client, template.ID, version2.ID)
 
 			inv, root := clitest.New(t, c.Cmd, "-y", workspace.Name)
 			clitest.SetupConfig(t, member, root)
@@ -455,7 +455,7 @@ func TestStartAutoUpdate(t *testing.T) {
 			stdin.WriteLine(stringParameterValue)
 			<-doneChan
 
-			workspace = coderdtest.MustWorkspace(t, member, workspace.ID)
+			workspace = nicloudtest.MustWorkspace(t, member, workspace.ID)
 			require.Equal(t, version2.ID, workspace.LatestBuild.TemplateVersionID)
 		})
 	}
@@ -465,9 +465,9 @@ func TestStart_AlreadyRunning(t *testing.T) {
 	t.Parallel()
 	ctx := testutil.Context(t, testutil.WaitShort)
 
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, client)
-	memberClient, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client, db := nicloudtest.NewWithDatabase(t, nil)
+	owner := nicloudtest.CreateFirstUser(t, client)
+	memberClient, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
 		OwnerID:        member.ID,
 		OrganizationID: owner.OrganizationID,
@@ -492,9 +492,9 @@ func TestStart_Starting(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitShort)
 
 	store, ps := dbtestutil.NewDB(t)
-	client := coderdtest.New(t, &coderdtest.Options{Pubsub: ps, Database: store})
-	owner := coderdtest.CreateFirstUser(t, client)
-	memberClient, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client := nicloudtest.New(t, &nicloudtest.Options{Pubsub: ps, Database: store})
+	owner := nicloudtest.CreateFirstUser(t, client)
+	memberClient, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 	r := dbfake.WorkspaceBuild(t, store, database.WorkspaceTable{
 		OwnerID:        member.ID,
 		OrganizationID: owner.OrganizationID,
@@ -525,18 +525,18 @@ func TestStart_NoWait(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitShort)
 
 	// Prepare user, template, workspace
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
-	workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+	owner := nicloudtest.CreateFirstUser(t, client)
+	member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	workspace := nicloudtest.CreateWorkspace(t, member, template.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// Stop the workspace
-	build := coderdtest.CreateWorkspaceBuild(t, member, workspace, database.WorkspaceTransitionStop)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+	build := nicloudtest.CreateWorkspaceBuild(t, member, workspace, database.WorkspaceTransitionStop)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 	// Start in no-wait mode
 	inv, root := clitest.New(t, "start", workspace.Name, "--no-wait")
@@ -558,18 +558,18 @@ func TestStart_WithReason(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitShort)
 
 	// Prepare user, template, workspace
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-	version1 := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
-	workspace := coderdtest.CreateWorkspace(t, member, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+	owner := nicloudtest.CreateFirstUser(t, client)
+	member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	version1 := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version1.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version1.ID)
+	workspace := nicloudtest.CreateWorkspace(t, member, template.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// Stop the workspace
-	build := coderdtest.CreateWorkspaceBuild(t, member, workspace, database.WorkspaceTransitionStop)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
+	build := nicloudtest.CreateWorkspaceBuild(t, member, workspace, database.WorkspaceTransitionStop)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, build.ID)
 
 	// Start the workspace with reason
 	inv, root := clitest.New(t, "start", workspace.Name, "--reason", "cli")
@@ -585,8 +585,8 @@ func TestStart_WithReason(t *testing.T) {
 	stdout.ExpectMatchContext(ctx, "workspace has been started")
 	_ = testutil.TryReceive(ctx, t, doneChan)
 
-	workspace = coderdtest.MustWorkspace(t, member, workspace.ID)
-	require.Equal(t, codersdk.BuildReasonCLI, workspace.LatestBuild.Reason)
+	workspace = nicloudtest.MustWorkspace(t, member, workspace.ID)
+	require.Equal(t, nicloudsdk.BuildReasonCLI, workspace.LatestBuild.Reason)
 }
 
 func TestStart_FailedStartCleansUp(t *testing.T) {
@@ -594,19 +594,19 @@ func TestStart_FailedStartCleansUp(t *testing.T) {
 	ctx := testutil.Context(t, testutil.WaitLong)
 
 	store, ps := dbtestutil.NewDB(t)
-	client := coderdtest.New(t, &coderdtest.Options{
+	client := nicloudtest.New(t, &nicloudtest.Options{
 		Database:                 store,
 		Pubsub:                   ps,
 		IncludeProvisionerDaemon: true,
 	})
-	owner := coderdtest.CreateFirstUser(t, client)
-	memberClient, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	owner := nicloudtest.CreateFirstUser(t, client)
+	memberClient, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
-	version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
-	workspace := coderdtest.CreateWorkspace(t, memberClient, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+	workspace := nicloudtest.CreateWorkspace(t, memberClient, template.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	// Insert a failed start build directly into the database so that
 	// the workspace's latest build is a failed "start" transition.

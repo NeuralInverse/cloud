@@ -19,12 +19,12 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	notificationsLib "github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/notifications"
+	notificationsLib "github.com/NeuralInverse/cloud/v2/nicloud/notifications"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/notifications"
 	"github.com/coder/serpent"
 )
 
@@ -148,7 +148,7 @@ func (r *RootCmd) scaletestNotifications() *serpent.Command {
 					User: createusers.Config{
 						OrganizationID: me.OrganizationIDs[0],
 					},
-					Roles:                    []string{codersdk.RoleTemplateAdmin},
+					Roles:                    []string{nicloudsdk.RoleTemplateAdmin},
 					NotificationTimeout:      notificationTimeout,
 					DialTimeout:              dialTimeout,
 					DialBarrier:              dialBarrier,
@@ -198,7 +198,7 @@ func (r *RootCmd) scaletestNotifications() *serpent.Command {
 				id := strconv.Itoa(i)
 				name := fmt.Sprintf("notifications-%s", id)
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
@@ -263,48 +263,48 @@ func (r *RootCmd) scaletestNotifications() *serpent.Command {
 		{
 			Flag:          "user-count",
 			FlagShorthand: "c",
-			Env:           "CODER_SCALETEST_NOTIFICATION_USER_COUNT",
+			Env:           "NEURALINVERSE_SCALETEST_NOTIFICATION_USER_COUNT",
 			Description:   "Required: Total number of users to create.",
 			Value:         serpent.Int64Of(&userCount),
 			Required:      true,
 		},
 		{
 			Flag:        "template-admin-percentage",
-			Env:         "CODER_SCALETEST_NOTIFICATION_TEMPLATE_ADMIN_PERCENTAGE",
+			Env:         "NEURALINVERSE_SCALETEST_NOTIFICATION_TEMPLATE_ADMIN_PERCENTAGE",
 			Default:     "20.0",
 			Description: "Percentage of users to assign Template Admin role to (0-100).",
 			Value:       serpent.Float64Of(&templateAdminPercentage),
 		},
 		{
 			Flag:        "notification-timeout",
-			Env:         "CODER_SCALETEST_NOTIFICATION_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_NOTIFICATION_TIMEOUT",
 			Default:     "10m",
 			Description: "How long to wait for notifications after triggering.",
 			Value:       serpent.DurationOf(&notificationTimeout),
 		},
 		{
 			Flag:        "smtp-request-timeout",
-			Env:         "CODER_SCALETEST_SMTP_REQUEST_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_SMTP_REQUEST_TIMEOUT",
 			Default:     "5m",
 			Description: "Timeout for SMTP requests.",
 			Value:       serpent.DurationOf(&smtpRequestTimeout),
 		},
 		{
 			Flag:        "dial-timeout",
-			Env:         "CODER_SCALETEST_DIAL_TIMEOUT",
+			Env:         "NEURALINVERSE_SCALETEST_DIAL_TIMEOUT",
 			Default:     "10m",
 			Description: "Timeout for dialing the notification websocket endpoint.",
 			Value:       serpent.DurationOf(&dialTimeout),
 		},
 		{
 			Flag:        "no-cleanup",
-			Env:         "CODER_SCALETEST_NO_CLEANUP",
+			Env:         "NEURALINVERSE_SCALETEST_NO_CLEANUP",
 			Description: "Do not clean up resources after the test completes.",
 			Value:       serpent.BoolOf(&noCleanup),
 		},
 		{
 			Flag:        "smtp-api-url",
-			Env:         "CODER_SCALETEST_SMTP_API_URL",
+			Env:         "NEURALINVERSE_SCALETEST_SMTP_API_URL",
 			Description: "SMTP mock HTTP API address.",
 			Value:       serpent.StringOf(&smtpAPIURL),
 		},
@@ -399,7 +399,7 @@ func computeNotificationLatencies(
 func triggerNotifications(
 	ctx context.Context,
 	logger slog.Logger,
-	client *codersdk.Client,
+	client *nicloudsdk.Client,
 	orgID uuid.UUID,
 	dialBarrier *sync.WaitGroup,
 	dialTimeout time.Duration,
@@ -432,7 +432,7 @@ func triggerNotifications(
 	logger.Info(ctx, "creating test template to test notifications")
 
 	// Upload empty template file.
-	file, err := client.Upload(ctx, codersdk.ContentTypeTar, bytes.NewReader([]byte{}))
+	file, err := client.Upload(ctx, nicloudsdk.ContentTypeTar, bytes.NewReader([]byte{}))
 	if err != nil {
 		logger.Error(ctx, "upload test template", slog.Error(err))
 		return
@@ -440,10 +440,10 @@ func triggerNotifications(
 	logger.Info(ctx, "test template uploaded", slog.F("file_id", file.ID))
 
 	// Create template version.
-	version, err := client.CreateTemplateVersion(ctx, orgID, codersdk.CreateTemplateVersionRequest{
-		StorageMethod: codersdk.ProvisionerStorageMethodFile,
+	version, err := client.CreateTemplateVersion(ctx, orgID, nicloudsdk.CreateTemplateVersionRequest{
+		StorageMethod: nicloudsdk.ProvisionerStorageMethodFile,
 		FileID:        file.ID,
-		Provisioner:   codersdk.ProvisionerTypeEcho,
+		Provisioner:   nicloudsdk.ProvisionerTypeEcho,
 	})
 	if err != nil {
 		logger.Error(ctx, "create test template version", slog.Error(err))
@@ -452,7 +452,7 @@ func triggerNotifications(
 	logger.Info(ctx, "test template version created", slog.F("template_version_id", version.ID))
 
 	// Create template.
-	testTemplate, err := client.CreateTemplate(ctx, orgID, codersdk.CreateTemplateRequest{
+	testTemplate, err := client.CreateTemplate(ctx, orgID, nicloudsdk.CreateTemplateRequest{
 		Name:        "scaletest-test-template",
 		Description: "scaletest-test-template",
 		VersionID:   version.ID,

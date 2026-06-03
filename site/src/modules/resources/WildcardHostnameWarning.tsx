@@ -50,7 +50,7 @@ export const WildcardHostnameWarning: FC<WildcardHostnameWarningProps> = ({
 			<AlertDescription>
 				<div>
 					{hasResources
-						? "This template contains coder_app resources with"
+						? "This template contains ni_app resources with"
 						: "One or more apps in this workspace have"}{" "}
 					<code className="py-px px-1 bg-surface-tertiary rounded-sm text-content-primary">
 						subdomain = true

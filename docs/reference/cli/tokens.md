@@ -16,7 +16,7 @@ coder tokens
 ## Description
 
 ```console
-Tokens are used to authenticate automated clients to Coder.
+Tokens are used to authenticate automated clients to Neural Inverse Cloud.
   - Create a token for automation:
 
      $ coder tokens create

@@ -8,13 +8,13 @@
 # On success, the input file will be signed using the GPG key and the signature output file will moved to /site/out/bin/ (happens in the Makefile)
 #
 # Depends on the GPG utility. Requires the following environment variables to be set:
-#  - $CODER_GPG_RELEASE_KEY_BASE64: The base64 encoded private key to use.
+#  - $NEURALINVERSE_GPG_RELEASE_KEY_BASE64: The base64 encoded private key to use.
 
 set -euo pipefail
 # shellcheck source=scripts/lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-requiredenvs CODER_GPG_RELEASE_KEY_BASE64
+requiredenvs NEURALINVERSE_GPG_RELEASE_KEY_BASE64
 
 FILE_TO_SIGN="$1"
 
@@ -32,7 +32,7 @@ gnupg_home_temp="$(mktemp -d)"
 export GNUPGHOME="$gnupg_home_temp"
 
 # Ensure GPG uses the temporary directory
-echo "$CODER_GPG_RELEASE_KEY_BASE64" | base64 -d | gpg --homedir "$gnupg_home_temp" --import 1>&2
+echo "$NEURALINVERSE_GPG_RELEASE_KEY_BASE64" | base64 -d | gpg --homedir "$gnupg_home_temp" --import 1>&2
 
 # Mark the imported key as ultimately trusted so GPG does not emit an
 # "untrusted key" warning during signature verification. We derive the

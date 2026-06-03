@@ -14,7 +14,7 @@ terraform {
 
 # Last updated 2023-03-14
 # aws ec2 describe-regions | jq -r '[.Regions[].RegionName] | sort'
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name         = "region"
   display_name = "Region"
   description  = "The region to deploy the workspace in."
@@ -107,7 +107,7 @@ data "coder_parameter" "region" {
   }
 }
 
-data "coder_parameter" "instance_type" {
+data "ni_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
   description  = "What instance type should your workspace use?"
@@ -140,11 +140,11 @@ data "coder_parameter" "instance_type" {
 }
 
 provider "aws" {
-  region = data.coder_parameter.region.value
+  region = data.ni_parameter.region.value
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -159,8 +159,8 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "coder_agent" "main" {
-  count          = data.coder_workspace.me.start_count
+resource "ni_agent" "main" {
+  count          = data.ni_workspace.me.start_count
   os             = "linux"
   arch           = "amd64"
   auth           = "aws-instance-identity"
@@ -180,8 +180,8 @@ resource "coder_agent" "main" {
   }
 }
 
-resource "coder_agent" "dev" {
-  count          = data.coder_workspace.me.start_count
+resource "ni_agent" "dev" {
+  count          = data.ni_workspace.me.start_count
   os             = "linux"
   arch           = "amd64"
   auth           = "aws-instance-identity"
@@ -202,8 +202,8 @@ resource "coder_agent" "dev" {
 }
 
 locals {
-  aws_availability_zone = "${data.coder_parameter.region.value}a"
-  hostname              = lower(data.coder_workspace.me.name)
+  aws_availability_zone = "${data.ni_parameter.region.value}a"
+  hostname              = lower(data.ni_workspace.me.name)
   linux_user            = "coder"
 }
 
@@ -219,8 +219,8 @@ data "cloudinit_config" "user_data" {
 
     content = templatefile("${path.module}/cloud-init/userdata.sh.tftpl", {
       linux_user       = local.linux_user
-      main_init_script = try(coder_agent.main[0].init_script, "")
-      dev_init_script  = try(coder_agent.dev[0].init_script, "")
+      main_init_script = try(ni_agent.main[0].init_script, "")
+      dev_init_script  = try(ni_agent.dev[0].init_script, "")
     })
   }
 }
@@ -231,7 +231,7 @@ resource "aws_vpc" "workspace" {
   enable_dns_support   = true
 
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${local.hostname}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${local.hostname}"
   }
 }
 
@@ -242,7 +242,7 @@ resource "aws_subnet" "workspace" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${local.hostname}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${local.hostname}"
   }
 }
 
@@ -250,7 +250,7 @@ resource "aws_internet_gateway" "workspace" {
   vpc_id = aws_vpc.workspace.id
 
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${local.hostname}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${local.hostname}"
   }
 }
 
@@ -263,7 +263,7 @@ resource "aws_route_table" "workspace" {
   }
 
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${local.hostname}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${local.hostname}"
   }
 }
 
@@ -293,21 +293,21 @@ resource "aws_security_group" "workspace" {
   }
 
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${local.hostname}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${local.hostname}"
   }
 }
 
 resource "aws_instance" "dev" {
   ami                         = data.aws_ami.ubuntu.id
   availability_zone           = local.aws_availability_zone
-  instance_type               = data.coder_parameter.instance_type.value
+  instance_type               = data.ni_parameter.instance_type.value
   subnet_id                   = aws_subnet.workspace.id
   vpc_security_group_ids      = [aws_security_group.workspace.id]
   associate_public_ip_address = true
 
   user_data = data.cloudinit_config.user_data.rendered
   tags = {
-    Name = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+    Name = "coder-${data.ni_workspace_owner.me.name}-${data.ni_workspace.me.name}"
     # Required if you are using our example policy, see template README
     Coder_Provisioned = "true"
   }
@@ -322,7 +322,7 @@ resource "coder_metadata" "workspace_info" {
   resource_id = aws_instance.dev.id
   item {
     key   = "region"
-    value = data.coder_parameter.region.value
+    value = data.ni_parameter.region.value
   }
   item {
     key   = "instance type"
@@ -336,5 +336,5 @@ resource "coder_metadata" "workspace_info" {
 
 resource "aws_ec2_instance_state" "dev" {
   instance_id = aws_instance.dev.id
-  state       = data.coder_workspace.me.transition == "start" ? "running" : "stopped"
+  state       = data.ni_workspace.me.transition == "start" ? "running" : "stopped"
 }

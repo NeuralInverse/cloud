@@ -1,17 +1,17 @@
 # FAQs
 
-Frequently asked questions on Coder OSS and licensed deployments. These FAQs
+Frequently asked questions on Neural Inverse Cloud OSS and licensed deployments. These FAQs
 come from our community and customers, feel free to
-[contribute to this page](https://github.com/coder/coder/edit/main/docs/tutorials/faqs.md).
+[contribute to this page](https://github.com/NeuralInverse/cloud/edit/main/docs/tutorials/faqs.md).
 
 For other community resources, see our
-[GitHub discussions](https://github.com/coder/coder/discussions), or join our
+[GitHub discussions](https://github.com/NeuralInverse/cloud/discussions), or join our
 [Discord server](https://discord.gg/coder).
 
 ## How do I add a Premium trial license?
 
-Visit <https://coder.com/trial> or contact
-[sales@coder.com](mailto:sales@coder.com?subject=License) to get a trial key.
+Visit <https://cloud.neuralinverse.com/trial> or contact
+[sales@cloud.neuralinverse.com](mailto:sales@cloud.neuralinverse.com?subject=License) to get a trial key.
 
 <details>
 
@@ -21,7 +21,7 @@ Visit <https://coder.com/trial> or contact
 
 <div class="tabs">
 
-### Coder UI
+### Neural Inverse Cloud UI
 
 1. With an `Owner` account, go to **Admin settings** > **Deployment**.
 
@@ -35,12 +35,12 @@ Visit <https://coder.com/trial> or contact
 
    ![Add a license screen](../images/admin/licenses/add-license-ui.png)
 
-### Coder CLI
+### Neural Inverse Cloud CLI
 
-1. Ensure you have the [Coder CLI](../install/cli.md) installed.
+1. Ensure you have the [Neural Inverse Cloud CLI](../install/cli.md) installed.
 1. Save your license key to disk and make note of the path.
 1. Open a terminal.
-1. Log in to your Coder deployment:
+1. Log in to your Neural Inverse Cloud deployment:
 
    ```shell
    coder login <access url>
@@ -69,20 +69,20 @@ information about licenses.
 
 ## I'm experiencing networking issues, so want to disable Tailscale, STUN, Direct connections and force use of websocket
 
-The primary developer use case is a local IDE connecting over SSH to a Coder
+The primary developer use case is a local IDE connecting over SSH to a Neural Inverse Cloud
 workspace.
 
-Coder's networking stack has intelligence to attempt a peer-to-peer or
+Neural Inverse Cloud's networking stack has intelligence to attempt a peer-to-peer or
 [Direct connection](../admin/networking/index.md#direct-connections) between the
 local IDE and the workspace. However, this requires some additional protocols
 like UDP and being able to reach a STUN server to echo the IP addresses of the
 local IDE machine and workspace, for sharing using a Wireguard Coordination
-Server. By default, Coder assumes Internet and attempts to reach Google's STUN
+Server. By default, Neural Inverse Cloud assumes Internet and attempts to reach Google's STUN
 servers to perform this IP echo.
 
-Operators experimenting with Coder may run into networking issues if UDP (which
+Operators experimenting with Neural Inverse Cloud may run into networking issues if UDP (which
 STUN requires) or the STUN servers are unavailable, potentially resulting in
-lengthy local IDE and SSH connection times as the Coder control plane attempts
+lengthy local IDE and SSH connection times as the Neural Inverse Cloud control plane attempts
 to establish these direct connections.
 
 Setting the following flags as shown disables this logic to simplify
@@ -90,21 +90,21 @@ troubleshooting.
 
 | Flag                                                                                          | Value       | Meaning                               |
 |-----------------------------------------------------------------------------------------------|-------------|---------------------------------------|
-| [`CODER_BLOCK_DIRECT`](../reference/cli/server.md#--block-direct-connections)                 | `true`      | Blocks direct connections             |
-| [`CODER_DERP_SERVER_STUN_ADDRESSES`](../reference/cli/server.md#--derp-server-stun-addresses) | `"disable"` | Disables STUN                         |
-| [`CODER_DERP_FORCE_WEBSOCKETS`](../reference/cli/server.md#--derp-force-websockets)           | `true`      | Forces websockets over Tailscale DERP |
+| [`NEURALINVERSE_BLOCK_DIRECT`](../reference/cli/server.md#--block-direct-connections)                 | `true`      | Blocks direct connections             |
+| [`NEURALINVERSE_DERP_SERVER_STUN_ADDRESSES`](../reference/cli/server.md#--derp-server-stun-addresses) | `"disable"` | Disables STUN                         |
+| [`NEURALINVERSE_DERP_FORCE_WEBSOCKETS`](../reference/cli/server.md#--derp-force-websockets)           | `true`      | Forces websockets over Tailscale DERP |
 
-## How do I configure NGINX as the reverse proxy in front of Coder?
+## How do I configure NGINX as the reverse proxy in front of Neural Inverse Cloud?
 
 [This tutorial](./reverse-proxy-nginx.md) in our docs explains in detail how to
-configure NGINX with Coder so that our Tailscale Wireguard networking functions
+configure NGINX with Neural Inverse Cloud so that our Tailscale Wireguard networking functions
 properly.
 
 ## How do I hide some of the default icons in a workspace like VS Code Desktop, Terminal, SSH, Ports?
 
-The visibility of Coder apps is configurable in the template. To change the
+The visibility of Neural Inverse Cloud apps is configurable in the template. To change the
 default (shows all), add this block inside the
-[`coder_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent)
+[`ni_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent)
 of a template and configure as needed:
 
 ```tf
@@ -118,7 +118,7 @@ of a template and configure as needed:
 ```
 
 This example will hide all built-in
-[`coder_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
+[`ni_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
 icons except the web terminal.
 
 ## I want to allow code-server to be accessible by other users in my deployment
@@ -130,49 +130,49 @@ Set deployment (Kubernetes) to allow path app sharing:
 
 ```yaml
 # allow authenticated users to access path-based workspace apps
-- name: CODER_DANGEROUS_ALLOW_PATH_APP_SHARING
+- name: NEURALINVERSE_DANGEROUS_ALLOW_PATH_APP_SHARING
   value: "true"
-# allow Coder owner roles to access path-based workspace apps
-- name: CODER_DANGEROUS_ALLOW_PATH_APP_SITE_OWNER_ACCESS
+# allow Neural Inverse Cloud owner roles to access path-based workspace apps
+- name: NEURALINVERSE_DANGEROUS_ALLOW_PATH_APP_SITE_OWNER_ACCESS
   value: "true"
 ```
 
 In the template, set
-[`coder_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
+[`ni_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
 [`share`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app#share)
 option to `authenticated` and when a workspace is built with this template, the
 pretty globe shows up next to path-based `code-server`:
 
 ```tf
-resource "coder_app" "code-server" {
+resource "ni_app" "code-server" {
   ...
   share        = "authenticated"
   ...
 }
 ```
 
-## I installed Coder and created a workspace but the icons do not load
+## I installed Neural Inverse Cloud and created a workspace but the icons do not load
 
-An important concept to understand is that Coder creates workspaces which have
+An important concept to understand is that Neural Inverse Cloud creates workspaces which have
 an agent that must be able to reach the `coder server`.
 
-If the [`CODER_ACCESS_URL`](../admin/setup/index.md#access-url) is not
+If the [`NEURALINVERSE_ACCESS_URL`](../admin/setup/index.md#access-url) is not
 accessible from a workspace, the workspace may build, but the agent cannot reach
-Coder, and thus the missing icons. e.g., Terminal, IDEs, Apps.
+Neural Inverse Cloud, and thus the missing icons. e.g., Terminal, IDEs, Apps.
 
 By default, `coder server` automatically creates an Internet-accessible
 reverse proxy so that workspaces you create can reach the server.
 
 If you are doing a standalone install, e.g., on a MacBook and want to build
 workspaces in Docker Desktop, everything is self-contained and workspaces
-(containers in Docker Desktop) can reach the Coder server.
+(containers in Docker Desktop) can reach the Neural Inverse Cloud server.
 
 ```sh
 coder server --access-url http://localhost:3000 --address 0.0.0.0:3000
 ```
 
 Even `coder server` which creates a reverse proxy, will let you use
-<http://localhost> to access Coder from a browser.
+<http://localhost> to access Neural Inverse Cloud from a browser.
 
 ## I updated a template, and an existing workspace based on that template fails to start
 
@@ -196,15 +196,15 @@ coder update --always-prompt <workspace name>
 
 ## I'm running coder on a VM with systemd but latest release installed isn't showing up
 
-Take, for example, a Coder deployment on a VM with a 2 shared vCPU systemd
+Take, for example, a Neural Inverse Cloud deployment on a VM with a 2 shared vCPU systemd
 service. In this scenario, it's necessary to reload the daemon and then restart
-the Coder service. This prevents the `systemd` daemon from trying to reference
-the previous Coder release service since the unit file has changed.
+the Neural Inverse Cloud service. This prevents the `systemd` daemon from trying to reference
+the previous Neural Inverse Cloud release service since the unit file has changed.
 
-The following commands can be used to update Coder and refresh the service:
+The following commands can be used to update Neural Inverse Cloud and refresh the service:
 
 ```sh
-curl -fsSL https://coder.com/install.sh | sh
+curl -fsSL https://cloud.neuralinverse.com/install.sh | sh
 sudo systemctl daemon-reload
 sudo systemctl restart coder.service
 ```
@@ -214,7 +214,7 @@ sudo systemctl restart coder.service
 1. Run the `coder server` command below to retrieve the `psql` connection URL
    which includes the database user and password.
 2. `psql` into Postgres, and do a select query on the `users` table.
-3. Restart the `coder server`, pull up the Coder UI and log in (you will still
+3. Restart the `coder server`, pull up the Neural Inverse Cloud UI and log in (you will still
    need your password)
 
 ```sh
@@ -222,9 +222,9 @@ coder server postgres-builtin-url
 psql "postgres://coder@localhost:53737/coder?sslmode=disable&password=I2S...pTk"
 ```
 
-## How to find out Coder's latest Terraform provider version?
+## How to find out Neural Inverse Cloud's latest Terraform provider version?
 
-[Coder is on the HashiCorp's Terraform registry](https://registry.terraform.io/providers/coder/coder/latest).
+[Neural Inverse Cloud is on the HashiCorp's Terraform registry](https://registry.terraform.io/providers/coder/coder/latest).
 Check this frequently to make sure you are on the latest version.
 
 Sometimes, the version may change and `resource` configurations will either
@@ -239,7 +239,7 @@ certificates from Let's Encrypt.
 can start Caddy as a `systemd` service.
 
 The Caddyfile configuration will appear like this where `127.0.0.1:3000` is your
-`CODER_ACCESS_URL`:
+`NEURALINVERSE_ACCESS_URL`:
 
 ```text
 coder.example.com {
@@ -256,7 +256,7 @@ coder.example.com {
 }
 ```
 
-## I'm using Caddy as my reverse proxy in front of Coder. How do I set up a wildcard domain for port forwarding?
+## I'm using Caddy as my reverse proxy in front of Neural Inverse Cloud. How do I set up a wildcard domain for port forwarding?
 
 Caddy requires your DNS provider's credentials to create wildcard certificates.
 This involves building the Caddy binary
@@ -264,7 +264,7 @@ This involves building the Caddy binary
 added. e.g.,
 [Google Cloud DNS provider here](https://github.com/caddy-dns/googleclouddns)
 
-To compile Caddy, the host running Coder requires Go. Once installed, replace
+To compile Caddy, the host running Neural Inverse Cloud requires Go. Once installed, replace
 the existing Caddy binary in `usr/bin` and restart the Caddy service.
 
 The updated Caddyfile configuration will look like this:
@@ -286,7 +286,7 @@ The updated Caddyfile configuration will look like this:
 }
 ```
 
-## Can I use local or remote Terraform Modules in Coder templates?
+## Can I use local or remote Terraform Modules in Neural Inverse Cloud templates?
 
 One way is to reference a Terraform module from a GitHub repo to avoid
 duplication and then just extend it or pass template-specific
@@ -325,20 +325,20 @@ tar -cvh -C ./template_1 | coder templates <push|create> -d - <name>
 
 References:
 
-- [Public GitHub Issue 6117](https://github.com/coder/coder/issues/6117)
-- [Public GitHub Issue 5677](https://github.com/coder/coder/issues/5677)
-- [Coder docs: Templates/Change Management](../admin/templates/managing-templates/change-management.md)
+- [Public GitHub Issue 6117](https://github.com/NeuralInverse/cloud/issues/6117)
+- [Public GitHub Issue 5677](https://github.com/NeuralInverse/cloud/issues/5677)
+- [Neural Inverse Cloud docs: Templates/Change Management](../admin/templates/managing-templates/change-management.md)
 
-## Can I run Coder in an air-gapped or offline mode? (no Internet)?
+## Can I run Neural Inverse Cloud in an air-gapped or offline mode? (no Internet)?
 
-Yes, Coder can be deployed in
+Yes, Neural Inverse Cloud can be deployed in
 [air-gapped or offline mode](../install/airgap.md).
 
 Our product bundles with the Terraform binary so assume access to terraform.io
-during installation. The docs outline rebuilding the Coder container with
+during installation. The docs outline rebuilding the Neural Inverse Cloud container with
 Terraform built-in as well as any required Terraform providers.
 
-Direct networking from local SSH to a Coder workspace needs a STUN server. Coder
+Direct networking from local SSH to a Neural Inverse Cloud workspace needs a STUN server. Neural Inverse Cloud
 defaults to Google's STUN servers, so you can either create your STUN server in
 your network or disable and force all traffic through the control plane's DERP
 proxy.
@@ -352,7 +352,7 @@ This code produces a hashed value that will be difficult to replicate.
 
 ```tf
 locals {
-  concatenated_string = "${data.coder_workspace.me.name}+${data.coder_workspace_owner.me.name}"
+  concatenated_string = "${data.ni_workspace.me.name}+${data.ni_workspace_owner.me.name}"
   hashed_string = md5(local.concatenated_string)
   truncated_hash = substr(local.hashed_string, 0, 16)
 }
@@ -360,34 +360,34 @@ locals {
 
 ## Do you have example JetBrains Gateway templates?
 
-In August 2023, JetBrains certified the Coder plugin signifying enhanced
+In August 2023, JetBrains certified the Neural Inverse Cloud plugin signifying enhanced
 stability and reliability.
 
-The Coder plugin will appear in the Gateway UI when opened.
+The Neural Inverse Cloud plugin will appear in the Gateway UI when opened.
 
 Selecting the most suitable template depends on how the deployment manages
 JetBrains IDE versions. If downloading from
 [jetbrains.com](https://www.jetbrains.com/remote-development/gateway/) is
 acceptable, see the example templates below which specifies the product code,
 IDE version and build number in the
-[`coder_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app#share)
+[`ni_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app#share)
 resource. This will present an icon in the workspace dashboard which when
 clicked, will look for a locally installed Gateway, and open it. Alternatively,
 the IDE can be baked into the container image and manually open Gateway (or
-IntelliJ which has Gateway built-in), using a session token to Coder and then
+IntelliJ which has Gateway built-in), using a session token to Neural Inverse Cloud and then
 open the IDE.
 
 ## What options do I have for adding VS Code extensions into code-server, VS Code Desktop or Microsoft's Code Server?
 
-Coder has an open-source project called
+Neural Inverse Cloud has an open-source project called
 [`code-marketplace`](https://github.com/coder/code-marketplace) which is a
 private VS Code extension marketplace. There is even integration with JFrog
 Artifactory.
 
-- [Blog post](https://coder.com/blog/running-a-private-vs-code-extension-marketplace)
+- [Blog post](https://cloud.neuralinverse.com/blog/running-a-private-vs-code-extension-marketplace)
 - [OSS project](https://github.com/coder/code-marketplace)
 
-You can also use Microsoft's code-server - which is like Coder's, but it
+You can also use Microsoft's code-server - which is like Neural Inverse Cloud's, but it
 can connect to Microsoft's extension marketplace so Copilot and chat can be
 retrieved there.
 
@@ -398,7 +398,7 @@ Microsoft's marketplace.
 
 [Colima](https://github.com/abiosoft/colima) is a Docker Desktop alternative.
 
-This example is meant for a users who want to try out Coder on a macOS device.
+This example is meant for a users who want to try out Neural Inverse Cloud on a macOS device.
 
 Install Colima and docker with:
 
@@ -427,18 +427,18 @@ colima start --arch x86_64  --cpu 4 --memory 8 --disk 10
 
 Colima will show the path to the docker socket so we have a
 [community template](https://github.com/sharkymark/v2-templates/tree/main/src/templates/docker/docker-code-server)
-that prompts the Coder admin to enter the Docker socket as a Terraform variable.
+that prompts the Neural Inverse Cloud admin to enter the Docker socket as a Terraform variable.
 
-## How to make a `coder_app` optional?
+## How to make a `ni_app` optional?
 
 An example use case is the user should decide if they want a browser-based IDE
 like code-server when creating the workspace.
 
-1. Add a `coder_parameter` with type `bool` to ask the user if they want the
+1. Add a `ni_parameter` with type `bool` to ask the user if they want the
    code-server IDE
 
     ```tf
-    data "coder_parameter" "code_server" {
+    data "ni_parameter" "code_server" {
         name        = "Do you want code-server in your workspace?"
         description = "Use VS Code in a browser."
         type        = "bool"
@@ -450,12 +450,12 @@ like code-server when creating the workspace.
     ```
 
 2. Add conditional logic to the `startup_script` to install and start
-   code-server depending on the value of the added `coder_parameter`
+   code-server depending on the value of the added `ni_parameter`
 
     ```sh
     # install and start code-server, VS Code in a browser
 
-    if [ ${data.coder_parameter.code_server.value} = true ]; then
+    if [ ${data.ni_parameter.code_server.value} = true ]; then
     echo "🧑🏼‍💻 Downloading and installing the latest code-server IDE..."
     curl -fsSL https://code-server.dev/install.sh | sh
     code-server --auth none --port 13337 >/dev/null 2>&1 &
@@ -464,14 +464,14 @@ like code-server when creating the workspace.
 
 3. Add a Terraform meta-argument
    [`count`](https://developer.hashicorp.com/terraform/language/meta-arguments/count)
-   in the `coder_app` resource so it will only create the resource if the
-   `coder_parameter` is `true`
+   in the `ni_app` resource so it will only create the resource if the
+   `ni_parameter` is `true`
 
     ```tf
     # code-server
-    resource "coder_app" "code-server" {
-    count         = data.coder_parameter.code_server.value ? 1 : 0
-    agent_id      = coder_agent.coder.id
+    resource "ni_app" "code-server" {
+    count         = data.ni_parameter.code_server.value ? 1 : 0
+    agent_id      = ni_agent.coder.id
     slug          = "code-server"
     display_name  = "code-server"
     icon          = "/icon/code.svg"
@@ -489,7 +489,7 @@ like code-server when creating the workspace.
 
 ## Why am I getting this "remote host doesn't meet VS Code Server's prerequisites" error when opening up VSCode remote in a Linux environment?
 
-![VS Code Server prerequisite](https://github.com/coder/coder/assets/10648092/150c5996-18b1-4fae-afd0-be2b386a3239)
+![VS Code Server prerequisite](https://github.com/NeuralInverse/cloud/assets/10648092/150c5996-18b1-4fae-afd0-be2b386a3239)
 
 It is because, more than likely, the supported OS of either the container image
 or VM/VPS doesn't have the proper C libraries to run the VS Code Server. For
@@ -498,7 +498,7 @@ image or supported OS for the VS Code Server. For more information on OS
 prerequisites for Linux, please look at the VSCode docs.
 <https://code.visualstudio.com/docs/remote/linux#_local-linux-prerequisites>
 
-## How can I resolve disconnects when connected to Coder via JetBrains Gateway?
+## How can I resolve disconnects when connected to Neural Inverse Cloud via JetBrains Gateway?
 
 If your JetBrains IDE is disconnected for a long period of time due to a network
 change (for example turning off a VPN), you may find that the IDE will not
@@ -524,17 +524,17 @@ to increase or decrease the total timeout.
 
 Note that the JetBrains Gateway configuration blocks for each host in your SSH
 config file will be overwritten by the JetBrains Gateway client when it
-re-authenticates to your Coder deployment so you must add the above config as a
+re-authenticates to your Neural Inverse Cloud deployment so you must add the above config as a
 separate block and not add it to any existing ones.
 
-## How can I restrict inbound/outbound file transfers from Coder workspaces?
+## How can I restrict inbound/outbound file transfers from Neural Inverse Cloud workspaces?
 
 In certain environments, it is essential to keep confidential files within
 workspaces and prevent users from uploading or downloading resources using tools
 like `scp` or `rsync`.
 
 To achieve this, template admins can use the environment variable
-`CODER_AGENT_BLOCK_FILE_TRANSFER` to enable additional SSH command controls.
+`NEURALINVERSE_AGENT_BLOCK_FILE_TRANSFER` to enable additional SSH command controls.
 This variable allows the system to check if the executed application is on the
 block list, which includes `scp`, `rsync`, `ftp`, and `nc`.
 
@@ -542,8 +542,8 @@ block list, which includes `scp`, `rsync`, `ftp`, and `nc`.
 resource "docker_container" "workspace" {
   ...
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
-    "CODER_AGENT_BLOCK_FILE_TRANSFER=true",
+    "NEURALINVERSE_AGENT_TOKEN=${ni_agent.main.token}",
+    "NEURALINVERSE_AGENT_BLOCK_FILE_TRANSFER=true",
     ...
   ]
 }
@@ -560,19 +560,19 @@ confidential resources to their local machines.
 For more advanced security needs, consider adopting an endpoint security
 solution.
 
-## How do I change the access URL for my Coder server?
+## How do I change the access URL for my Neural Inverse Cloud server?
 
-You may want to change the default domain that's used to access coder, i.e. `yourcompany.coder.com` and find yourself unfamiliar with the process.
+You may want to change the default domain that's used to access coder, i.e. `yourcompany.cloud.neuralinverse.com` and find yourself unfamiliar with the process.
 
 To change the access URL associated with your server, you can edit any of the following variables:
 
 - CLI using the `--access-url` flag
 - YAML using the `accessURL` option
-- or ENV using the `CODER_ACCESS_URL` environmental variable.
+- or ENV using the `NEURALINVERSE_ACCESS_URL` environmental variable.
 
 For example, if you're using an environment file to configure your server, you'll want to edit the file located at `/etc/coder.d/coder.env` and edit the following:
 
-`CODER_ACCESS_URL=https://yourcompany.coder.com` to your new desired URL.
+`NEURALINVERSE_ACCESS_URL=https://yourcompany.cloud.neuralinverse.com` to your new desired URL.
 
 Then save your changes, and reload daemon-ctl using the following command:
 

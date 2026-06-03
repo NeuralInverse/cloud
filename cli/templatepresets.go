@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -20,11 +20,11 @@ func (r *RootCmd) templatePresets() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "List presets for the active version of a template",
-				Command:     "coder templates presets list my-template",
+				Command:     "neuralinverse templates presets list my-template",
 			},
 			Example{
 				Description: "List presets for a specific version of a template",
-				Command:     "coder templates presets list my-template --template-version my-template-version",
+				Command:     "neuralinverse templates presets list my-template --template-version my-template-version",
 			},
 		),
 		Handler: func(inv *serpent.Invocation) error {
@@ -84,7 +84,7 @@ func (r *RootCmd) templatePresetsList() *serpent.Command {
 			}
 
 			// If a template version is specified via flag, fetch that version by name
-			var version codersdk.TemplateVersion
+			var version nicloudsdk.TemplateVersion
 			if len(templateVersion) > 0 {
 				version, err = client.TemplateVersionByName(inv.Context(), template.ID, templateVersion)
 				if err != nil {
@@ -141,7 +141,7 @@ func (r *RootCmd) templatePresetsList() *serpent.Command {
 
 type TemplatePresetRow struct {
 	// For json format
-	TemplatePreset codersdk.Preset `table:"-"`
+	TemplatePreset nicloudsdk.Preset `table:"-"`
 
 	// For table format:
 	Name                     string `json:"-" table:"name,default_sort"`
@@ -151,7 +151,7 @@ type TemplatePresetRow struct {
 	DesiredPrebuildInstances string `json:"-" table:"desired prebuild instances"`
 }
 
-func formatPresetParameters(params []codersdk.PresetParameter) string {
+func formatPresetParameters(params []nicloudsdk.PresetParameter) string {
 	var paramsStr []string
 	for _, p := range params {
 		paramsStr = append(paramsStr, fmt.Sprintf("%s=%s", p.Name, p.Value))
@@ -161,7 +161,7 @@ func formatPresetParameters(params []codersdk.PresetParameter) string {
 
 // templatePresetsToRows converts a list of presets to a list of rows
 // for outputting.
-func templatePresetsToRows(presets ...codersdk.Preset) []TemplatePresetRow {
+func templatePresetsToRows(presets ...nicloudsdk.Preset) []TemplatePresetRow {
 	rows := make([]TemplatePresetRow, len(presets))
 	for i, preset := range presets {
 		prebuildInstances := "-"

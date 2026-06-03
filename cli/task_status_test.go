@@ -14,11 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -55,21 +55,21 @@ func Test_TaskStatus(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/tasks/me/exists":
-						httpapi.Write(ctx, w, http.StatusOK, codersdk.Task{
+						httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Task{
 							ID:              uuid.MustParse("11111111-1111-1111-1111-111111111111"),
-							WorkspaceStatus: codersdk.WorkspaceStatusRunning,
+							WorkspaceStatus: nicloudsdk.WorkspaceStatusRunning,
 							CreatedAt:       now,
 							UpdatedAt:       now,
-							CurrentState: &codersdk.TaskStateEntry{
-								State:     codersdk.TaskStateWorking,
+							CurrentState: &nicloudsdk.TaskStateEntry{
+								State:     nicloudsdk.TaskStateWorking,
 								Timestamp: now,
 								Message:   "Thinking furiously...",
 							},
-							WorkspaceAgentHealth: &codersdk.WorkspaceAgentHealth{
+							WorkspaceAgentHealth: &nicloudsdk.WorkspaceAgentHealth{
 								Healthy: true,
 							},
-							WorkspaceAgentLifecycle: ptr.Ref(codersdk.WorkspaceAgentLifecycleReady),
-							Status:                  codersdk.TaskStatusActive,
+							WorkspaceAgentLifecycle: ptr.Ref(nicloudsdk.WorkspaceAgentLifecycleReady),
+							Status:                  nicloudsdk.TaskStatusActive,
 						})
 						return
 					default:
@@ -92,85 +92,85 @@ func Test_TaskStatus(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/tasks/me/exists":
-						httpapi.Write(ctx, w, http.StatusOK, codersdk.Task{
+						httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Task{
 							ID:              uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 							Name:            "exists",
 							OwnerName:       "me",
-							WorkspaceStatus: codersdk.WorkspaceStatusPending,
+							WorkspaceStatus: nicloudsdk.WorkspaceStatusPending,
 							CreatedAt:       now.Add(-5 * time.Second),
 							UpdatedAt:       now.Add(-5 * time.Second),
-							WorkspaceAgentHealth: &codersdk.WorkspaceAgentHealth{
+							WorkspaceAgentHealth: &nicloudsdk.WorkspaceAgentHealth{
 								Healthy: true,
 							},
-							WorkspaceAgentLifecycle: ptr.Ref(codersdk.WorkspaceAgentLifecycleReady),
-							Status:                  codersdk.TaskStatusPending,
+							WorkspaceAgentLifecycle: ptr.Ref(nicloudsdk.WorkspaceAgentLifecycleReady),
+							Status:                  nicloudsdk.TaskStatusPending,
 						})
 						return
 					case "/api/v2/tasks/me/11111111-1111-1111-1111-111111111111":
 						defer calls.Add(1)
 						switch calls.Load() {
 						case 0:
-							httpapi.Write(ctx, w, http.StatusOK, codersdk.Task{
+							httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Task{
 								ID:              uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 								Name:            "exists",
 								OwnerName:       "me",
-								WorkspaceStatus: codersdk.WorkspaceStatusRunning,
+								WorkspaceStatus: nicloudsdk.WorkspaceStatusRunning,
 								CreatedAt:       now.Add(-5 * time.Second),
 								UpdatedAt:       now.Add(-4 * time.Second),
-								WorkspaceAgentHealth: &codersdk.WorkspaceAgentHealth{
+								WorkspaceAgentHealth: &nicloudsdk.WorkspaceAgentHealth{
 									Healthy: true,
 								},
-								WorkspaceAgentLifecycle: ptr.Ref(codersdk.WorkspaceAgentLifecycleReady),
-								Status:                  codersdk.TaskStatusInitializing,
+								WorkspaceAgentLifecycle: ptr.Ref(nicloudsdk.WorkspaceAgentLifecycleReady),
+								Status:                  nicloudsdk.TaskStatusInitializing,
 							})
 							return
 						case 1:
-							httpapi.Write(ctx, w, http.StatusOK, codersdk.Task{
+							httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Task{
 								ID:              uuid.MustParse("11111111-1111-1111-1111-111111111111"),
-								WorkspaceStatus: codersdk.WorkspaceStatusRunning,
+								WorkspaceStatus: nicloudsdk.WorkspaceStatusRunning,
 								CreatedAt:       now.Add(-5 * time.Second),
-								WorkspaceAgentHealth: &codersdk.WorkspaceAgentHealth{
+								WorkspaceAgentHealth: &nicloudsdk.WorkspaceAgentHealth{
 									Healthy: true,
 								},
-								WorkspaceAgentLifecycle: ptr.Ref(codersdk.WorkspaceAgentLifecycleReady),
+								WorkspaceAgentLifecycle: ptr.Ref(nicloudsdk.WorkspaceAgentLifecycleReady),
 								UpdatedAt:               now.Add(-4 * time.Second),
-								Status:                  codersdk.TaskStatusActive,
+								Status:                  nicloudsdk.TaskStatusActive,
 							})
 							return
 						case 2:
-							httpapi.Write(ctx, w, http.StatusOK, codersdk.Task{
+							httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Task{
 								ID:              uuid.MustParse("11111111-1111-1111-1111-111111111111"),
-								WorkspaceStatus: codersdk.WorkspaceStatusRunning,
+								WorkspaceStatus: nicloudsdk.WorkspaceStatusRunning,
 								CreatedAt:       now.Add(-5 * time.Second),
 								UpdatedAt:       now.Add(-4 * time.Second),
-								WorkspaceAgentHealth: &codersdk.WorkspaceAgentHealth{
+								WorkspaceAgentHealth: &nicloudsdk.WorkspaceAgentHealth{
 									Healthy: true,
 								},
-								WorkspaceAgentLifecycle: ptr.Ref(codersdk.WorkspaceAgentLifecycleReady),
-								CurrentState: &codersdk.TaskStateEntry{
-									State:     codersdk.TaskStateWorking,
+								WorkspaceAgentLifecycle: ptr.Ref(nicloudsdk.WorkspaceAgentLifecycleReady),
+								CurrentState: &nicloudsdk.TaskStateEntry{
+									State:     nicloudsdk.TaskStateWorking,
 									Timestamp: now.Add(-3 * time.Second),
 									Message:   "Reticulating splines...",
 								},
-								Status: codersdk.TaskStatusActive,
+								Status: nicloudsdk.TaskStatusActive,
 							})
 							return
 						case 3:
-							httpapi.Write(ctx, w, http.StatusOK, codersdk.Task{
+							httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Task{
 								ID:              uuid.MustParse("11111111-1111-1111-1111-111111111111"),
-								WorkspaceStatus: codersdk.WorkspaceStatusRunning,
+								WorkspaceStatus: nicloudsdk.WorkspaceStatusRunning,
 								CreatedAt:       now.Add(-5 * time.Second),
 								UpdatedAt:       now.Add(-4 * time.Second),
-								WorkspaceAgentHealth: &codersdk.WorkspaceAgentHealth{
+								WorkspaceAgentHealth: &nicloudsdk.WorkspaceAgentHealth{
 									Healthy: true,
 								},
-								WorkspaceAgentLifecycle: ptr.Ref(codersdk.WorkspaceAgentLifecycleReady),
-								CurrentState: &codersdk.TaskStateEntry{
-									State:     codersdk.TaskStateComplete,
+								WorkspaceAgentLifecycle: ptr.Ref(nicloudsdk.WorkspaceAgentLifecycleReady),
+								CurrentState: &nicloudsdk.TaskStateEntry{
+									State:     nicloudsdk.TaskStateComplete,
 									Timestamp: now.Add(-2 * time.Second),
 									Message:   "Splines reticulated successfully!",
 								},
-								Status: codersdk.TaskStatusActive,
+								Status: nicloudsdk.TaskStatusActive,
 							})
 							return
 						default:
@@ -223,24 +223,24 @@ func Test_TaskStatus(t *testing.T) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					switch r.URL.Path {
 					case "/api/v2/tasks/me/exists":
-						httpapi.Write(ctx, w, http.StatusOK, codersdk.Task{
+						httpapi.Write(ctx, w, http.StatusOK, nicloudsdk.Task{
 							ID:          uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 							Name:        "exists",
 							DisplayName: "Task exists",
 							OwnerName:   "me",
-							WorkspaceAgentHealth: &codersdk.WorkspaceAgentHealth{
+							WorkspaceAgentHealth: &nicloudsdk.WorkspaceAgentHealth{
 								Healthy: true,
 							},
-							WorkspaceAgentLifecycle: ptr.Ref(codersdk.WorkspaceAgentLifecycleReady),
-							WorkspaceStatus:         codersdk.WorkspaceStatusRunning,
+							WorkspaceAgentLifecycle: ptr.Ref(nicloudsdk.WorkspaceAgentLifecycleReady),
+							WorkspaceStatus:         nicloudsdk.WorkspaceStatusRunning,
 							CreatedAt:               ts,
 							UpdatedAt:               ts,
-							CurrentState: &codersdk.TaskStateEntry{
-								State:     codersdk.TaskStateWorking,
+							CurrentState: &nicloudsdk.TaskStateEntry{
+								State:     nicloudsdk.TaskStateWorking,
 								Timestamp: ts.Add(time.Second),
 								Message:   "Thinking furiously...",
 							},
-							Status: codersdk.TaskStatusActive,
+							Status: nicloudsdk.TaskStatusActive,
 						})
 						return
 					default:
@@ -257,7 +257,7 @@ func Test_TaskStatus(t *testing.T) {
 				ctx    = testutil.Context(t, testutil.WaitShort)
 				mClock = quartz.NewMock(t)
 				srv    = httptest.NewServer(http.HandlerFunc(tc.hf(ctx, mClock)))
-				client = codersdk.New(testutil.MustURL(t, srv.URL))
+				client = nicloudsdk.New(testutil.MustURL(t, srv.URL))
 				sb     = strings.Builder{}
 				args   = []string{"task", "status", "--watch-interval", testutil.IntervalFast.String()}
 			)

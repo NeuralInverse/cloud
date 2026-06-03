@@ -12,11 +12,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/aibridge"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/aibridge"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -26,7 +26,7 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 	tests := []struct {
 		name        string
 		env         []string
-		expected    []codersdk.AIProviderConfig
+		expected    []nicloudsdk.AIProviderConfig
 		errContains string
 	}{
 		{
@@ -36,12 +36,12 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		{
 			name: "SingleProvider",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=anthropic-zdr",
-				"CODER_AIBRIDGE_PROVIDER_0_KEY=sk-ant-xxx",
-				"CODER_AIBRIDGE_PROVIDER_0_BASE_URL=https://api.anthropic.com/",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=anthropic-zdr",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEY=sk-ant-xxx",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BASE_URL=https://api.anthropic.com/",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{
 					Type:    aibridge.ProviderAnthropic,
 					Name:    "anthropic-zdr",
@@ -53,12 +53,12 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		{
 			name: "SingleProviderAIGatewayPrefix",
 			env: []string{
-				"CODER_AI_GATEWAY_PROVIDER_0_TYPE=anthropic",
-				"CODER_AI_GATEWAY_PROVIDER_0_NAME=anthropic-zdr",
-				"CODER_AI_GATEWAY_PROVIDER_0_KEY=sk-ant-xxx",
-				"CODER_AI_GATEWAY_PROVIDER_0_BASE_URL=https://api.anthropic.com/",
+				"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_NAME=anthropic-zdr",
+				"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_KEY=sk-ant-xxx",
+				"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_BASE_URL=https://api.anthropic.com/",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{
 					Type:    aibridge.ProviderAnthropic,
 					Name:    "anthropic-zdr",
@@ -70,13 +70,13 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		{
 			name: "MultipleProvidersSameType",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=anthropic-us",
-				"CODER_AIBRIDGE_PROVIDER_1_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_1_NAME=anthropic-eu",
-				"CODER_AIBRIDGE_PROVIDER_1_BASE_URL=https://eu.api.anthropic.com/",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=anthropic-us",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_NAME=anthropic-eu",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_BASE_URL=https://eu.api.anthropic.com/",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{Type: aibridge.ProviderAnthropic, Name: "anthropic-us"},
 				{Type: aibridge.ProviderAnthropic, Name: "anthropic-eu", BaseURL: "https://eu.api.anthropic.com/"},
 			},
@@ -84,23 +84,23 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		{
 			name: "DefaultName",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{Type: aibridge.ProviderOpenAI, Name: aibridge.ProviderOpenAI},
 			},
 		},
 		{
 			name: "MixedTypes",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=anthropic-main",
-				"CODER_AIBRIDGE_PROVIDER_1_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_2_TYPE=copilot",
-				"CODER_AIBRIDGE_PROVIDER_2_NAME=copilot-custom",
-				"CODER_AIBRIDGE_PROVIDER_2_BASE_URL=https://custom.copilot.com",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=anthropic-main",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_2_TYPE=copilot",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_2_NAME=copilot-custom",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_2_BASE_URL=https://custom.copilot.com",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{Type: aibridge.ProviderAnthropic, Name: "anthropic-main"},
 				{Type: aibridge.ProviderOpenAI, Name: aibridge.ProviderOpenAI},
 				{Type: aibridge.ProviderCopilot, Name: "copilot-custom", BaseURL: "https://custom.copilot.com"},
@@ -109,16 +109,16 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		{
 			name: "BedrockFields",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=anthropic-bedrock",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-west-2",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY=AKID",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=secret",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_MODEL=anthropic.claude-3-sonnet",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_SMALL_FAST_MODEL=anthropic.claude-3-haiku",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_BASE_URL=https://bedrock.us-west-2.amazonaws.com",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=anthropic-bedrock",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-west-2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY=AKID",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=secret",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_MODEL=anthropic.claude-3-sonnet",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_SMALL_FAST_MODEL=anthropic.claude-3-haiku",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_BASE_URL=https://bedrock.us-west-2.amazonaws.com",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{
 					Type:                    aibridge.ProviderAnthropic,
 					Name:                    "anthropic-bedrock",
@@ -134,66 +134,66 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		{
 			name: "OutOfOrderIndices",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_1_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_1_NAME=second",
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=first",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_NAME=second",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=first",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{Type: aibridge.ProviderOpenAI, Name: "first"},
 				{Type: aibridge.ProviderAnthropic, Name: "second"},
 			},
 		},
 		{
 			name:        "SkippedIndex",
-			env:         []string{"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai", "CODER_AIBRIDGE_PROVIDER_2_TYPE=anthropic"},
+			env:         []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai", "NEURALINVERSE_AIBRIDGE_PROVIDER_2_TYPE=anthropic"},
 			errContains: "skipped",
 		},
 		{
 			name:        "InvalidKey",
-			env:         []string{"CODER_AIBRIDGE_PROVIDER_XXX_TYPE=openai"},
+			env:         []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_XXX_TYPE=openai"},
 			errContains: "parse number",
 		},
 		{
 			name:        "MissingType",
-			env:         []string{"CODER_AIBRIDGE_PROVIDER_0_NAME=my-provider", "CODER_AIBRIDGE_PROVIDER_0_KEY=sk-xxx"},
+			env:         []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=my-provider", "NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEY=sk-xxx"},
 			errContains: "TYPE is required",
 		},
 		{
 			name:        "InvalidType",
-			env:         []string{"CODER_AIBRIDGE_PROVIDER_0_TYPE=gemini"},
+			env:         []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=gemini"},
 			errContains: "unknown TYPE",
 		},
 		{
 			name: "DuplicateExplicitNames",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=my-provider",
-				"CODER_AIBRIDGE_PROVIDER_1_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_1_NAME=my-provider",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=my-provider",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_1_NAME=my-provider",
 			},
 			errContains: "duplicate NAME",
 		},
 		{
 			name:        "DuplicateDefaultNames",
-			env:         []string{"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic", "CODER_AIBRIDGE_PROVIDER_1_TYPE=anthropic"},
+			env:         []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic", "NEURALINVERSE_AIBRIDGE_PROVIDER_1_TYPE=anthropic"},
 			errContains: "duplicate NAME",
 		},
 		{
 			name:        "BedrockFieldsOnNonAnthropic",
-			env:         []string{"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai", "CODER_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-west-2"},
+			env:         []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai", "NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-west-2"},
 			errContains: "BEDROCK_* fields are only supported with TYPE",
 		},
 		{
 			name: "IgnoresUnrelatedEnvVars",
 			env: []string{
-				"CODER_AIBRIDGE_OPENAI_KEY=should-be-ignored",
-				"CODER_AIBRIDGE_ANTHROPIC_KEY=also-ignored",
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_KEY=sk-xxx",
+				"NEURALINVERSE_AIBRIDGE_OPENAI_KEY=should-be-ignored",
+				"NEURALINVERSE_AIBRIDGE_ANTHROPIC_KEY=also-ignored",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEY=sk-xxx",
 				"SOME_OTHER_VAR=hello",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{Type: aibridge.ProviderOpenAI, Name: aibridge.ProviderOpenAI, Keys: []string{"sk-xxx"}},
 			},
 		},
@@ -201,10 +201,10 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 			// KEYS is a plural alias for KEY.
 			name: "PluralKeysAlias",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-ant-xxx",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-ant-xxx",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{
 					Type: aibridge.ProviderAnthropic,
 					Name: aibridge.ProviderAnthropic,
@@ -217,11 +217,11 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 			// plural aliases for their singular counterparts.
 			name: "PluralBedrockAliases",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=secret",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=secret",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{
 					Type:                    aibridge.ProviderAnthropic,
 					Name:                    aibridge.ProviderAnthropic,
@@ -236,108 +236,108 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 			// exclusive authentication modes.
 			name: "AnthropicKeysAndBedrockConflict",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-ant-xxx",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-east-1",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-ant-xxx",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-east-1",
 			},
 			errContains: "KEY/KEYS and BEDROCK_* fields are mutually exclusive",
 		},
 		{
 			name: "ConflictKeyAndKeys",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_KEY=sk-single",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-multi",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEY=sk-single",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-multi",
 			},
 			errContains: "KEY and KEYS are mutually exclusive",
 		},
 		{
 			name: "ConflictBedrockAccessKeyAndKeys",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY=AKID1",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY=AKID1",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID2",
 			},
 			errContains: "BEDROCK_ACCESS_KEY and BEDROCK_ACCESS_KEYS are mutually exclusive",
 		},
 		{
 			name: "ConflictBedrockSecretAndSecrets",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=s1",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=s2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=s1",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=s2",
 			},
 			errContains: "BEDROCK_ACCESS_KEY_SECRET and BEDROCK_ACCESS_KEY_SECRETS are mutually exclusive",
 		},
 		{
 			name: "CopilotRejectsKey",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=copilot",
-				"CODER_AIBRIDGE_PROVIDER_0_KEY=sk-xxx",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=copilot",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEY=sk-xxx",
 			},
 			errContains: "KEY/KEYS are not supported for TYPE",
 		},
 		{
 			name: "CopilotRejectsKeys",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=copilot",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-a,sk-b",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=copilot",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-a,sk-b",
 			},
 			errContains: "KEY/KEYS are not supported for TYPE",
 		},
 		{
 			name: "MultipleKeysCommaSeparated",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-a,sk-b,sk-c",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-a,sk-b,sk-c",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{Type: aibridge.ProviderOpenAI, Name: aibridge.ProviderOpenAI, Keys: []string{"sk-a", "sk-b", "sk-c"}},
 			},
 		},
 		{
 			name: "KeysWhitespaceTrimmed",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS= sk-a , sk-b ",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS= sk-a , sk-b ",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{Type: aibridge.ProviderOpenAI, Name: aibridge.ProviderOpenAI, Keys: []string{"sk-a", "sk-b"}},
 			},
 		},
 		{
 			name: "KeysEmptyAfterTrim",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-a,,sk-b",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-a,,sk-b",
 			},
 			errContains: "key at index 1 is empty",
 		},
 		{
 			name: "KeysDuplicate",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-a,sk-b,sk-a",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-a,sk-b,sk-a",
 			},
 			errContains: "duplicate key at index 2",
 		},
 		{
 			name: "KeysTooMany",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-				"CODER_AIBRIDGE_PROVIDER_0_KEYS=sk-1,sk-2,sk-3,sk-4,sk-5,sk-6",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEYS=sk-1,sk-2,sk-3,sk-4,sk-5,sk-6",
 			},
 			errContains: "too many keys (6), maximum is 5",
 		},
 		{
 			name: "BedrockMultipleKeys",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-west-2",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID1,AKID2",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=secret1,secret2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-west-2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID1,AKID2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=secret1,secret2",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{
 					Type:                    aibridge.ProviderAnthropic,
 					Name:                    aibridge.ProviderAnthropic,
@@ -350,32 +350,32 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		{
 			name: "BedrockKeyCountMismatch",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID1,AKID2",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=secret1",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID1,AKID2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=secret1",
 			},
 			errContains: "BEDROCK_ACCESS_KEYS count (2) must match BEDROCK_ACCESS_KEY_SECRETS count (1)",
 		},
 		{
 			name: "MixedPrefixesAreNotAllowed",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=anthropic-1",
-				"CODER_AI_GATEWAY_PROVIDER_0_TYPE=anthropic",
-				"CODER_AI_GATEWAY_PROVIDER_0_NAME=anthropic-2",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=anthropic-1",
+				"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_NAME=anthropic-2",
 			},
-			errContains: "cannot mix CODER_AIBRIDGE_PROVIDER_* and CODER_AI_GATEWAY_PROVIDER_* environment variables",
+			errContains: "cannot mix NEURALINVERSE_AIBRIDGE_PROVIDER_* and NEURALINVERSE_AI_GATEWAY_PROVIDER_* environment variables",
 		},
 		{
 			name: "BedrockTypeHappyPath",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=bedrock",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=bedrock-prod",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-east-1",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY=AKID",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=secret",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=bedrock",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=bedrock-prod",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-east-1",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY=AKID",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRET=secret",
 			},
-			expected: []codersdk.AIProviderConfig{
+			expected: []nicloudsdk.AIProviderConfig{
 				{
 					Type:                    string(database.AiProviderTypeBedrock),
 					Name:                    "bedrock-prod",
@@ -387,25 +387,25 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		},
 		{
 			name:        "BedrockTypeWithoutBedrockFields",
-			env:         []string{"CODER_AIBRIDGE_PROVIDER_0_TYPE=bedrock", "CODER_AIBRIDGE_PROVIDER_0_NAME=bedrock-prod"},
+			env:         []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=bedrock", "NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=bedrock-prod"},
 			errContains: "requires BEDROCK_* fields to be configured",
 		},
 		{
 			name: "BedrockTypeRejectsAPIKeys",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=bedrock",
-				"CODER_AIBRIDGE_PROVIDER_0_NAME=bedrock-prod",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-east-1",
-				"CODER_AIBRIDGE_PROVIDER_0_KEY=sk-should-fail",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=bedrock",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_NAME=bedrock-prod",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_REGION=us-east-1",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_KEY=sk-should-fail",
 			},
 			errContains: "KEY/KEYS are not supported for TYPE",
 		},
 		{
 			name: "BedrockKeysTooMany",
 			env: []string{
-				"CODER_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID1,AKID2,AKID3,AKID4,AKID5,AKID6",
-				"CODER_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=s1,s2,s3,s4,s5,s6",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=anthropic",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEYS=AKID1,AKID2,AKID3,AKID4,AKID5,AKID6",
+				"NEURALINVERSE_AIBRIDGE_PROVIDER_0_BEDROCK_ACCESS_KEY_SECRETS=s1,s2,s3,s4,s5,s6",
 			},
 			errContains: "too many keys (6), maximum is 5",
 		},
@@ -432,14 +432,14 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		// Indices 0, 1, 2, ..., 10, verifies that 10 sorts after 2,
 		// not between 1 and 2 as a lexicographic sort would do.
 		var env []string
-		var expected []codersdk.AIProviderConfig
+		var expected []nicloudsdk.AIProviderConfig
 		for i := range 11 {
 			env = append(env,
-				fmt.Sprintf("CODER_AIBRIDGE_PROVIDER_%d_TYPE=openai", i),
-				fmt.Sprintf("CODER_AIBRIDGE_PROVIDER_%d_KEY=sk-%d", i, i),
-				fmt.Sprintf("CODER_AIBRIDGE_PROVIDER_%d_NAME=p%d", i, i),
+				fmt.Sprintf("NEURALINVERSE_AIBRIDGE_PROVIDER_%d_TYPE=openai", i),
+				fmt.Sprintf("NEURALINVERSE_AIBRIDGE_PROVIDER_%d_KEY=sk-%d", i, i),
+				fmt.Sprintf("NEURALINVERSE_AIBRIDGE_PROVIDER_%d_NAME=p%d", i, i),
 			)
-			expected = append(expected, codersdk.AIProviderConfig{
+			expected = append(expected, nicloudsdk.AIProviderConfig{
 				Type: aibridge.ProviderOpenAI,
 				Name: fmt.Sprintf("p%d", i),
 				Keys: []string{fmt.Sprintf("sk-%d", i)},
@@ -457,32 +457,32 @@ func TestReadAIProvidersFromEnv(t *testing.T) {
 		tests := []struct {
 			name             string
 			env              []string
-			expected         []codersdk.AIProviderConfig
+			expected         []nicloudsdk.AIProviderConfig
 			expectedWarnings []string
 		}{
 			{
 				name: "AIGatewayPrefix",
 				env: []string{
-					"CODER_AI_GATEWAY_PROVIDER_0_TYPE=openai",
-					"CODER_AI_GATEWAY_PROVIDER_0_Name=test",
-					"CODER_AI_GATEWAY_PROVIDER_0_TYYYPPOO=openai",
+					"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_TYPE=openai",
+					"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_Name=test",
+					"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_TYYYPPOO=openai",
 				},
-				expected: []codersdk.AIProviderConfig{
+				expected: []nicloudsdk.AIProviderConfig{
 					{Type: "openai", Name: "test"},
 				},
-				expectedWarnings: []string{"CODER_AI_GATEWAY_PROVIDER_0_TYYYPPOO"},
+				expectedWarnings: []string{"NEURALINVERSE_AI_GATEWAY_PROVIDER_0_TYYYPPOO"},
 			},
 			{
 				name: "AIBridgePrefix",
 				env: []string{
-					"CODER_AIBRIDGE_PROVIDER_0_TYPE=openai",
-					"CODER_AIBRIDGE_PROVIDER_0_Name=test",
-					"CODER_AIBRIDGE_PROVIDER_0_TYYYPPOO=openai",
+					"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYPE=openai",
+					"NEURALINVERSE_AIBRIDGE_PROVIDER_0_Name=test",
+					"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYYYPPOO=openai",
 				},
-				expected: []codersdk.AIProviderConfig{
+				expected: []nicloudsdk.AIProviderConfig{
 					{Type: "openai", Name: "test"},
 				},
-				expectedWarnings: []string{"CODER_AIBRIDGE_PROVIDER_0_TYYYPPOO"},
+				expectedWarnings: []string{"NEURALINVERSE_AIBRIDGE_PROVIDER_0_TYYYPPOO"},
 			},
 		}
 
@@ -512,25 +512,25 @@ func TestValidateLegacyAIBridgeConfig(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		cfg         codersdk.AIBridgeConfig
+		cfg         nicloudsdk.AIBridgeConfig
 		errContains string
 	}{
 		{
 			name: "BareAnthropicKey",
-			cfg: codersdk.AIBridgeConfig{
-				LegacyAnthropic: codersdk.AIBridgeAnthropicConfig{Key: "sk-ant"},
+			cfg: nicloudsdk.AIBridgeConfig{
+				LegacyAnthropic: nicloudsdk.AIBridgeAnthropicConfig{Key: "sk-ant"},
 			},
 		},
 		{
 			name: "BareBedrockRegion",
-			cfg: codersdk.AIBridgeConfig{
-				LegacyBedrock: codersdk.AIBridgeBedrockConfig{Region: "us-east-1"},
+			cfg: nicloudsdk.AIBridgeConfig{
+				LegacyBedrock: nicloudsdk.AIBridgeBedrockConfig{Region: "us-east-1"},
 			},
 		},
 		{
 			name: "BedrockCredentialsOnly",
-			cfg: codersdk.AIBridgeConfig{
-				LegacyBedrock: codersdk.AIBridgeBedrockConfig{
+			cfg: nicloudsdk.AIBridgeConfig{
+				LegacyBedrock: nicloudsdk.AIBridgeBedrockConfig{
 					AccessKey:       "AKIA",
 					AccessKeySecret: "secret",
 				},
@@ -538,23 +538,23 @@ func TestValidateLegacyAIBridgeConfig(t *testing.T) {
 		},
 		{
 			name: "AnthropicKeyAndBedrockConflict",
-			cfg: codersdk.AIBridgeConfig{
-				LegacyAnthropic: codersdk.AIBridgeAnthropicConfig{Key: "sk-ant"},
-				LegacyBedrock: codersdk.AIBridgeBedrockConfig{
+			cfg: nicloudsdk.AIBridgeConfig{
+				LegacyAnthropic: nicloudsdk.AIBridgeAnthropicConfig{Key: "sk-ant"},
+				LegacyBedrock: nicloudsdk.AIBridgeBedrockConfig{
 					Region:          "us-east-1",
 					AccessKey:       "AKIA",
 					AccessKeySecret: "secret",
 				},
 			},
-			errContains: "CODER_AIBRIDGE_ANTHROPIC_KEY and CODER_AIBRIDGE_BEDROCK_* are mutually exclusive",
+			errContains: "NEURALINVERSE_AIBRIDGE_ANTHROPIC_KEY and NEURALINVERSE_AIBRIDGE_BEDROCK_* are mutually exclusive",
 		},
 		{
 			name: "AnthropicKeyWithBedrockModelDefaultsIsFine",
-			cfg: codersdk.AIBridgeConfig{
-				LegacyAnthropic: codersdk.AIBridgeAnthropicConfig{Key: "sk-ant"},
+			cfg: nicloudsdk.AIBridgeConfig{
+				LegacyAnthropic: nicloudsdk.AIBridgeAnthropicConfig{Key: "sk-ant"},
 				// Model defaults shouldn't trip the conflict; they're
 				// always populated in a real deployment.
-				LegacyBedrock: codersdk.AIBridgeBedrockConfig{
+				LegacyBedrock: nicloudsdk.AIBridgeBedrockConfig{
 					Model:          "anthropic.claude-3-5-sonnet",
 					SmallFastModel: "anthropic.claude-3-5-haiku",
 				},
@@ -592,7 +592,7 @@ func TestWarnIfAIProvidersConfiguredFromEnv(t *testing.T) {
 		t.Parallel()
 
 		sink := testutil.NewFakeSink(t)
-		warnIfAIProvidersConfiguredFromEnv(context.Background(), sink.Logger(), "", []codersdk.AIProviderConfig{{Type: "openai", Name: "openai"}})
+		warnIfAIProvidersConfiguredFromEnv(context.Background(), sink.Logger(), "", []nicloudsdk.AIProviderConfig{{Type: "openai", Name: "openai"}})
 
 		require.Empty(t, sink.Entries())
 	})
@@ -601,7 +601,7 @@ func TestWarnIfAIProvidersConfiguredFromEnv(t *testing.T) {
 		t.Parallel()
 
 		sink := testutil.NewFakeSink(t)
-		warnIfAIProvidersConfiguredFromEnv(context.Background(), sink.Logger(), aiGatewayProviderEnvPrefix, []codersdk.AIProviderConfig{{Type: "openai", Name: "openai"}})
+		warnIfAIProvidersConfiguredFromEnv(context.Background(), sink.Logger(), aiGatewayProviderEnvPrefix, []nicloudsdk.AIProviderConfig{{Type: "openai", Name: "openai"}})
 
 		entries := sink.Entries(func(e slog.SinkEntry) bool {
 			return e.Message == "ai provider environment variables are deprecated for provider management and only seed provider configuration at startup"
@@ -616,7 +616,7 @@ func TestWarnIfAIProvidersConfiguredFromEnv(t *testing.T) {
 		t.Parallel()
 
 		sink := testutil.NewFakeSink(t)
-		warnIfAIProvidersConfiguredFromEnv(context.Background(), sink.Logger(), aiBridgeProviderEnvPrefix, []codersdk.AIProviderConfig{{Type: "openai", Name: "openai"}})
+		warnIfAIProvidersConfiguredFromEnv(context.Background(), sink.Logger(), aiBridgeProviderEnvPrefix, []nicloudsdk.AIProviderConfig{{Type: "openai", Name: "openai"}})
 
 		entries := sink.Entries(func(e slog.SinkEntry) bool {
 			return e.Message == "ai provider environment variables are deprecated for provider management and only seed provider configuration at startup"
@@ -725,8 +725,8 @@ func TestBuildAIProviderFromRowSetsAPIDumpDir(t *testing.T) {
 				Type:    database.AiProviderTypeBedrock,
 				Name:    "bedrock",
 				BaseUrl: "https://bedrock-runtime.us-east-1.amazonaws.com/",
-				Settings: mustMarshalSettings(codersdk.AIProviderSettings{
-					Bedrock: &codersdk.AIProviderBedrockSettings{
+				Settings: mustMarshalSettings(nicloudsdk.AIProviderSettings{
+					Bedrock: &nicloudsdk.AIProviderBedrockSettings{
 						Region:          "us-east-1",
 						AccessKey:       ptr.Ref("AKID"),
 						AccessKeySecret: ptr.Ref("secret"),
@@ -741,7 +741,7 @@ func TestBuildAIProviderFromRowSetsAPIDumpDir(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			provider, err := buildAIProviderFromRow(tt.row, nil, codersdk.AIBridgeConfig{
+			provider, err := buildAIProviderFromRow(tt.row, nil, nicloudsdk.AIBridgeConfig{
 				AllowBYOK:  serpent.Bool(true),
 				APIDumpDir: serpent.String(dumpDir),
 			})
@@ -760,14 +760,14 @@ func TestBuildAIProviderFromRowBedrockWithoutSettings(t *testing.T) {
 		Type:    database.AiProviderTypeBedrock,
 		Name:    "bedrock-no-settings",
 		BaseUrl: "https://bedrock-runtime.us-east-1.amazonaws.com/",
-	}, nil, codersdk.AIBridgeConfig{
+	}, nil, nicloudsdk.AIBridgeConfig{
 		AllowBYOK: serpent.Bool(true),
 	})
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "bedrock provider has no bedrock credentials configured")
 }
 
-func mustMarshalSettings(s codersdk.AIProviderSettings) sql.NullString {
+func mustMarshalSettings(s nicloudsdk.AIProviderSettings) sql.NullString {
 	data, err := json.Marshal(s)
 	if err != nil {
 		panic(err)

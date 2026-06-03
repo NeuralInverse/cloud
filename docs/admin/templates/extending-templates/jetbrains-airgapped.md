@@ -5,11 +5,11 @@ JetBrains Client Installer to download and save the IDE clients locally. Please
 see the
 [JetBrains documentation for more information](https://www.jetbrains.com/help/idea/fully-offline-mode.html).
 
-This page is an example that the Coder team used as a proof-of-concept (POC) of the JetBrains Gateway Offline Mode solution.
+This page is an example that the Neural Inverse Cloud team used as a proof-of-concept (POC) of the JetBrains Gateway Offline Mode solution.
 
 We used Ubuntu on a virtual machine to test the steps.
 If you have a suggestion or encounter an issue, please
-[file a GitHub issue](https://github.com/coder/coder/issues/new?title=request%28docs%29%3A+jetbrains-airgapped+-+request+title+here%0D%0A&labels=["community","docs"]&body=doc%3A+%5Bjetbrains-airgapped%5D%28https%3A%2F%2Fcoder.com%2Fdocs%2Fuser-guides%2Fworkspace-access%2Fjetbrains%2Fjetbrains-airgapped%29%0D%0A%0D%0Aplease+enter+your+request+here%0D%0A).
+[file a GitHub issue](https://github.com/NeuralInverse/cloud/issues/new?title=request%28docs%29%3A+jetbrains-airgapped+-+request+title+here%0D%0A&labels=["community","docs"]&body=doc%3A+%5Bjetbrains-airgapped%5D%28https%3A%2F%2Fcloud.neuralinverse.com%2Fdocs%2Fuser-guides%2Fworkspace-access%2Fjetbrains%2Fjetbrains-airgapped%29%0D%0A%0D%0Aplease+enter+your+request+here%0D%0A).
 
 ## 1. Deploy the server and install the Client Downloader
 
@@ -24,7 +24,7 @@ tar -xzvf jetbrains-clients-downloader-linux-x86_64.tar.gz
 ## 2. Install backends and clients
 
 JetBrains Gateway requires both a backend to be installed on the remote host
-(your Coder workspace) and a client to be installed on your local machine. You
+(your Neural Inverse Cloud workspace) and a client to be installed on your local machine. You
 can host both on the server in this example.
 
 See here for the full
@@ -147,7 +147,7 @@ Additionally, create a string for each setting with its appropriate value in
 
 With the server now configured, you can now configure your local machine to use
 Gateway. Here is the documentation to
-[setup SSH config via the Coder CLI](../../../user-guides/workspace-access/index.md#configure-ssh).
+[setup SSH config via the Neural Inverse Cloud CLI](../../../user-guides/workspace-access/index.md#configure-ssh).
 On the Gateway side, follow our guide here until step 16.
 
 Instead of downloading from jetbrains.com, we will point Gateway to our server

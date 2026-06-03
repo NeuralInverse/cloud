@@ -19,10 +19,10 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/util/dnsname"
 
-	maputil "github.com/coder/coder/v2/coderd/util/maps"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/testutil"
+	maputil "github.com/NeuralInverse/cloud/v2/nicloud/util/maps"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -146,14 +146,14 @@ func TestTunnel_StartStop(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 					Headers: []*StartRequest_Header{
 						{Name: "X-Test-Header", Value: "test"},
 					},
 					DeviceOs:            "macOS",
 					DeviceId:            "device001",
-					CoderDesktopVersion: "0.24.8",
+					NIDesktopVersion: "0.24.8",
 				},
 			},
 		})
@@ -217,7 +217,7 @@ func TestTunnel_PeerUpdate(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 				},
 			},
@@ -282,7 +282,7 @@ func TestTunnel_NetworkSettings(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 				},
 			},
@@ -423,7 +423,7 @@ func TestTunnel_sendAgentUpdate(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 				},
 			},
@@ -594,7 +594,7 @@ func TestTunnel_sendAgentUpdateReconnect(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 				},
 			},
@@ -694,7 +694,7 @@ func TestTunnel_sendAgentUpdateWorkspaceReconnect(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 				},
 			},
@@ -797,7 +797,7 @@ func TestTunnel_slowPing(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 				},
 			},
@@ -886,7 +886,7 @@ func TestTunnel_stopMidPing(t *testing.T) {
 			Msg: &ManagerMessage_Start{
 				Start: &StartRequest{
 					TunnelFileDescriptor: 2,
-					CoderUrl:             "https://coder.example.com",
+					NIUrl:             "https://coder.example.com",
 					ApiToken:             "fakeToken",
 				},
 			},

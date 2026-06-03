@@ -14,14 +14,14 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 // makeAITask creates an AI-task workspace.
@@ -64,9 +64,9 @@ func TestExpTaskList(t *testing.T) {
 
 		// Quiet logger to reduce noise.
 		quiet := slog.Make(sloghuman.Sink(io.Discard))
-		client, _ := coderdtest.NewWithDatabase(t, &coderdtest.Options{Logger: &quiet})
-		owner := coderdtest.CreateFirstUser(t, client)
-		memberClient, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, _ := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{Logger: &quiet})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		memberClient, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		inv, root := clitest.New(t, "task", "list")
 		clitest.SetupConfig(t, memberClient, root)
@@ -85,9 +85,9 @@ func TestExpTaskList(t *testing.T) {
 
 		// Quiet logger to reduce noise.
 		quiet := slog.Make(sloghuman.Sink(io.Discard))
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{Logger: &quiet})
-		owner := coderdtest.CreateFirstUser(t, client)
-		memberClient, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{Logger: &quiet})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		memberClient, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		wantPrompt := "build me a web app"
 		task := makeAITask(t, db, owner.OrganizationID, owner.UserID, memberUser.ID, database.WorkspaceTransitionStart, wantPrompt)
@@ -112,9 +112,9 @@ func TestExpTaskList(t *testing.T) {
 
 		// Quiet logger to reduce noise.
 		quiet := slog.Make(sloghuman.Sink(io.Discard))
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{Logger: &quiet})
-		owner := coderdtest.CreateFirstUser(t, client)
-		memberClient, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{Logger: &quiet})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		memberClient, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Create two AI tasks: one initializing, one paused.
 		initializingTask := makeAITask(t, db, owner.OrganizationID, owner.UserID, memberUser.ID, database.WorkspaceTransitionStart, "keep me initializing")
@@ -132,7 +132,7 @@ func TestExpTaskList(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var tasks []codersdk.Task
+		var tasks []nicloudsdk.Task
 		require.NoError(t, json.Unmarshal(stdout.Bytes(), &tasks))
 
 		// Only the paused task is returned.
@@ -145,9 +145,9 @@ func TestExpTaskList(t *testing.T) {
 		t.Parallel()
 
 		quiet := slog.Make(sloghuman.Sink(io.Discard))
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{Logger: &quiet})
-		owner := coderdtest.CreateFirstUser(t, client)
-		_, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{Logger: &quiet})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		_, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		_ = makeAITask(t, db, owner.OrganizationID, owner.UserID, memberUser.ID, database.WorkspaceTransitionStart, "other-task")
 		task := makeAITask(t, db, owner.OrganizationID, owner.UserID, owner.UserID, database.WorkspaceTransitionStart, "me-task")
@@ -170,9 +170,9 @@ func TestExpTaskList(t *testing.T) {
 
 		// Quiet logger to reduce noise.
 		quiet := slog.Make(sloghuman.Sink(io.Discard))
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{Logger: &quiet})
-		owner := coderdtest.CreateFirstUser(t, client)
-		memberClient, memberUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{Logger: &quiet})
+		owner := nicloudtest.CreateFirstUser(t, client)
+		memberClient, memberUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// Given: We have two tasks
 		task1 := makeAITask(t, db, owner.OrganizationID, owner.UserID, memberUser.ID, database.WorkspaceTransitionStart, "keep me active")
@@ -208,12 +208,12 @@ func TestExpTaskList_OwnerCanListOthers(t *testing.T) {
 
 	// Quiet logger to reduce noise.
 	quiet := slog.Make(sloghuman.Sink(io.Discard))
-	ownerClient, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{Logger: &quiet})
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
+	ownerClient, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{Logger: &quiet})
+	owner := nicloudtest.CreateFirstUser(t, ownerClient)
 
 	// Create two additional members in the owner's organization.
-	_, memberAUser := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
-	_, memberBUser := coderdtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	_, memberAUser := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
+	_, memberBUser := nicloudtest.CreateAnotherUser(t, ownerClient, owner.OrganizationID)
 
 	// Seed an AI task for member A and B.
 	_ = makeAITask(t, db, owner.OrganizationID, owner.UserID, memberAUser.ID, database.WorkspaceTransitionStart, "member-A-task")
@@ -235,7 +235,7 @@ func TestExpTaskList_OwnerCanListOthers(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var tasks []codersdk.Task
+		var tasks []nicloudsdk.Task
 		require.NoError(t, json.Unmarshal(stdout.Bytes(), &tasks))
 
 		// At least one task to belong to member A.
@@ -263,15 +263,15 @@ func TestExpTaskList_OwnerCanListOthers(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var tasks []codersdk.Task
+		var tasks []nicloudsdk.Task
 		require.NoError(t, json.Unmarshal(stdout.Bytes(), &tasks))
 
 		// Expect at least two tasks and ensure both owners (member A and member B) are represented.
 		require.GreaterOrEqual(t, len(tasks), 2, "expected two or more tasks in --all listing")
 
 		// Use slice.Find for concise existence checks.
-		_, foundA := slice.Find(tasks, func(t codersdk.Task) bool { return t.OwnerID == memberAUser.ID })
-		_, foundB := slice.Find(tasks, func(t codersdk.Task) bool { return t.OwnerID == memberBUser.ID })
+		_, foundA := slice.Find(tasks, func(t nicloudsdk.Task) bool { return t.OwnerID == memberAUser.ID })
+		_, foundB := slice.Find(tasks, func(t nicloudsdk.Task) bool { return t.OwnerID == memberBUser.ID })
 
 		require.True(t, foundA, "expected at least one task for member A in --all listing")
 		require.True(t, foundB, "expected at least one task for member B in --all listing")

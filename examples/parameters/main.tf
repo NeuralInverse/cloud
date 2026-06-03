@@ -10,7 +10,7 @@ terraform {
 }
 
 locals {
-  username = data.coder_workspace_owner.me.name
+  username = data.ni_workspace_owner.me.name
 }
 
 data "coder_provisioner" "me" {
@@ -19,11 +19,11 @@ data "coder_provisioner" "me" {
 provider "docker" {
 }
 
-data "coder_workspace" "me" {
+data "ni_workspace" "me" {
 }
-data "coder_workspace_owner" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   startup_script = <<-EOT
@@ -38,8 +38,8 @@ resource "coder_agent" "main" {
   EOT
 }
 
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id     = ni_agent.main.id
   slug         = "code-server"
   display_name = "code-server"
   url          = "http://localhost:13337/?folder=/home/${local.username}"
@@ -55,7 +55,7 @@ resource "coder_app" "code-server" {
 }
 
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   # Protect the volume from being deleted due to changes in attributes.
   lifecycle {
     ignore_changes = all
@@ -63,26 +63,26 @@ resource "docker_volume" "home_volume" {
   # Add labels in Docker to keep track of orphan resources.
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   # This field becomes outdated if the workspace is renamed but can
   # be useful for debugging or cleaning out dangling volumes.
   labels {
     label = "coder.workspace_name_at_creation"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
 resource "docker_image" "main" {
-  name = "coder-${data.coder_workspace.me.id}"
+  name = "coder-${data.ni_workspace.me.id}"
   build {
     context = "./build"
     build_args = {
@@ -96,15 +96,15 @@ resource "docker_image" "main" {
 }
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = docker_image.main.name
   # Uses lower() to avoid Docker restriction on container names.
-  name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
+  name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
   # Hostname makes the shell more user friendly: coder@my-workspace:~$
-  hostname = data.coder_workspace.me.name
+  hostname = data.ni_workspace.me.name
   # Use the docker gateway if the access URL is 127.0.0.1
-  entrypoint = ["sh", "-c", replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
-  env        = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+  entrypoint = ["sh", "-c", replace(ni_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
+  env        = ["CODER_AGENT_TOKEN=${ni_agent.main.token}"]
   host {
     host = "host.docker.internal"
     ip   = "host-gateway"
@@ -117,26 +117,26 @@ resource "docker_container" "workspace" {
   # Add labels in Docker to keep track of orphan resources.
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
 // Rich parameters
 // See: https://coder.com/docs/templates/parameters
 
-data "coder_parameter" "project_id" {
+data "ni_parameter" "project_id" {
   name         = "project_id"
   display_name = "My Project ID"
   icon         = "/emojis/1fab5.png"
@@ -151,7 +151,7 @@ data "coder_parameter" "project_id" {
   order = 1
 }
 
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name         = "region"
   display_name = "Region"
   icon         = "/emojis/1f30e.png"
@@ -179,7 +179,7 @@ data "coder_parameter" "region" {
   order = 1
 }
 
-data "coder_parameter" "apps_dir" {
+data "ni_parameter" "apps_dir" {
   name         = "apps_dir"
   display_name = "Apps Directory"
   icon         = "/emojis/1f9ba.png"
@@ -190,7 +190,7 @@ data "coder_parameter" "apps_dir" {
   order = 2
 }
 
-data "coder_parameter" "worker_instances" {
+data "ni_parameter" "worker_instances" {
   name         = "worker_instances"
   display_name = "Worker Instances"
   icon         = "/emojis/2697.png"
@@ -206,7 +206,7 @@ data "coder_parameter" "worker_instances" {
   order = 2
 }
 
-data "coder_parameter" "security_groups" {
+data "ni_parameter" "security_groups" {
   name         = "security_groups"
   display_name = "Security Groups"
   icon         = "/emojis/26f4.png"
@@ -221,7 +221,7 @@ data "coder_parameter" "security_groups" {
   order = 2
 }
 
-data "coder_parameter" "docker_image" {
+data "ni_parameter" "docker_image" {
   name         = "docker_image"
   display_name = "Docker Image"
   mutable      = true
@@ -232,7 +232,7 @@ data "coder_parameter" "docker_image" {
   order = 3
 }
 
-data "coder_parameter" "command_line_args" {
+data "ni_parameter" "command_line_args" {
   name         = "command_line_args"
   display_name = "Extra command line args"
   type         = "string"
@@ -242,7 +242,7 @@ data "coder_parameter" "command_line_args" {
   order        = 80
 }
 
-data "coder_parameter" "enable_monitoring" {
+data "ni_parameter" "enable_monitoring" {
   name         = "enable_monitoring"
   display_name = "Enable Workspace Monitoring"
   type         = "bool"
@@ -254,7 +254,7 @@ data "coder_parameter" "enable_monitoring" {
 // Build options (ephemeral parameters)
 // See: https://coder.com/docs/templates/parameters#ephemeral-parameters
 
-data "coder_parameter" "pause-startup" {
+data "ni_parameter" "pause-startup" {
   name         = "pause-startup"
   display_name = "Pause startup script"
   type         = "number"
@@ -270,7 +270,7 @@ data "coder_parameter" "pause-startup" {
   order = 4
 }
 
-data "coder_parameter" "force-rebuild" {
+data "ni_parameter" "force-rebuild" {
   name         = "force-rebuild"
   display_name = "Force rebuild project"
   type         = "bool"

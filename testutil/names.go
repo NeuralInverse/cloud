@@ -3,7 +3,7 @@ package testutil
 import (
 	"testing"
 
-	"github.com/coder/coder/v2/coderd/util/namesgenerator"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/namesgenerator"
 )
 
 // GetRandomName returns a random name with a unique suffix, truncated to 32

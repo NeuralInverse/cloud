@@ -1,13 +1,13 @@
 # Networking
 
-Coder's network topology has three types of nodes: workspaces, coder servers,
+Neural Inverse Cloud's network topology has three types of nodes: workspaces, coder servers,
 and users.
 
 The coder server must have an inbound address reachable by users and workspaces,
-but otherwise, all topologies _just work_ with Coder.
+but otherwise, all topologies _just work_ with Neural Inverse Cloud.
 
 When possible, we establish direct connections between users and workspaces.
-Direct connections are as fast as connecting to the workspace outside of Coder.
+Direct connections are as fast as connecting to the workspace outside of Neural Inverse Cloud.
 When NAT traversal fails, connections are relayed through the coder server. All
 user-workspace connections are end-to-end encrypted.
 
@@ -19,25 +19,25 @@ networking logic.
 In order for clients and workspaces to be able to connect:
 
 > [!NOTE]
-> We strongly recommend that clients connect to Coder and their
+> We strongly recommend that clients connect to Neural Inverse Cloud and their
 > workspaces over a good quality, broadband network connection. The following
 > are minimum requirements:
 >
-> - better than 400ms round-trip latency to the Coder server and to their
+> - better than 400ms round-trip latency to the Neural Inverse Cloud server and to their
 >   workspace
 > - better than 0.5% random packet loss
 
-- All clients and agents must be able to establish a connection to the Coder
-  server (`CODER_ACCESS_URL`) over HTTP/HTTPS.
-- Any reverse proxy or ingress between the Coder control plane and
+- All clients and agents must be able to establish a connection to the Neural Inverse Cloud
+  server (`NEURALINVERSE_ACCESS_URL`) over HTTP/HTTPS.
+- Any reverse proxy or ingress between the Neural Inverse Cloud control plane and
   clients/agents must support WebSockets.
 
 In order for clients to be able to establish direct connections:
 
 > [!NOTE]
 > Direct connections via the web browser are not supported. To improve
-> latency for browser-based applications running inside Coder workspaces in
-> regions far from the Coder control plane, consider deploying one or more
+> latency for browser-based applications running inside Neural Inverse Cloud workspaces in
+> regions far from the Neural Inverse Cloud control plane, consider deploying one or more
 > [workspace proxies](./workspace-proxies.md).
 
 - The client is connecting using the CLI (e.g. `coder ssh` or
@@ -78,7 +78,7 @@ as well. There must not be a NAT between users and the coder server.
 
 Template admins can overwrite the site-wide access URL at the template level by
 leveraging the `url` argument when
-[defining the Coder provider](https://registry.terraform.io/providers/coder/coder/latest/docs#url-1):
+[defining the Neural Inverse Cloud provider](https://registry.terraform.io/providers/coder/coder/latest/docs#url-1):
 
 ```terraform
 provider "coder" {
@@ -87,7 +87,7 @@ provider "coder" {
 ```
 
 This is useful when debugging connectivity issues between the workspace agent
-and the Coder server.
+and the Neural Inverse Cloud server.
 
 ## Web Apps
 
@@ -113,17 +113,17 @@ the client and agent can both contact each other. See [STUN and NAT](./stun.md)
 for more information on how this process works.
 
 If a direct connection is not available (e.g. client or server is behind NAT),
-Coder will use a relayed connection. By default,
-[Coder uses Google's public STUN server](../../reference/cli/server.md#--derp-server-stun-addresses),
+Neural Inverse Cloud will use a relayed connection. By default,
+[Neural Inverse Cloud uses Google's public STUN server](../../reference/cli/server.md#--derp-server-stun-addresses),
 but this can be disabled or changed for
 [Air-gapped deployments](../../install/airgap.md).
 
 ### Relayed connections
 
-By default, your Coder server also runs a built-in DERP relay which can be used
+By default, your Neural Inverse Cloud server also runs a built-in DERP relay which can be used
 for both public and [Air-gapped deployments](../../install/airgap.md).
 
-However, Tailscale maintains a global fleet of [DERP relays](https://tailscale.com/kb/1118/custom-derp-servers/#what-are-derp-servers) intended for their product, and has allowed Coder to access and use them.
+However, Tailscale maintains a global fleet of [DERP relays](https://tailscale.com/kb/1118/custom-derp-servers/#what-are-derp-servers) intended for their product, and has allowed Neural Inverse Cloud to access and use them.
 You can launch `coder server` with Tailscale's DERPs like so:
 
 ```bash
@@ -137,7 +137,7 @@ relays for air-gapped deployments, you may run custom DERP servers. Refer to
 [Tailscale's documentation](https://tailscale.com/kb/1118/custom-derp-servers/#why-run-your-own-derp-server)
 to learn how to set them up.
 
-After you have custom DERP servers, you can launch Coder with them like so:
+After you have custom DERP servers, you can launch Neural Inverse Cloud with them like so:
 
 ```json
 # derpmap.json
@@ -167,18 +167,18 @@ coder server --derp-config-path derpmap.json
 
 The dashboard (and web apps opened through the dashboard) are served from the
 coder server, so they can only be geo-distributed with High Availability mode in
-our Premium Edition. [Reach out to Sales](https://coder.com/contact) to learn
+our Premium Edition. [Reach out to Sales](https://cloud.neuralinverse.com/contact) to learn
 more.
 
 ## Browser-only connections
 
 > [!NOTE]
 > Browser-only connections is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
-Some Coder deployments require that all access is through the browser to comply
+Some Neural Inverse Cloud deployments require that all access is through the browser to comply
 with security policies. In these cases, pass the `--browser-only` flag to
-`coder server` or set `CODER_BROWSER_ONLY=true`.
+`coder server` or set `NEURALINVERSE_BROWSER_ONLY=true`.
 
 With browser-only connections, developers can only connect to their workspaces
 via the web terminal and
@@ -188,22 +188,22 @@ via the web terminal and
 
 > [!NOTE]
 > Workspace proxies are a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
-Workspace proxies are a Coder Premium feature that allows you to provide
+Workspace proxies are a Neural Inverse Cloud Premium feature that allows you to provide
 low-latency browser experiences for geo-distributed teams.
 
 To learn more, see [Workspace Proxies](./workspace-proxies.md).
 
 ## Latency
 
-Coder measures and reports several types of latency, providing insights into the performance of your deployment. Understanding these metrics can help you diagnose issues and optimize the user experience.
+Neural Inverse Cloud measures and reports several types of latency, providing insights into the performance of your deployment. Understanding these metrics can help you diagnose issues and optimize the user experience.
 
-There are three main types of latency metrics for your Coder deployment:
+There are three main types of latency metrics for your Neural Inverse Cloud deployment:
 
 - Dashboard-to-server latency:
 
-  The Coder UI measures round-trip time to the Coder server or workspace proxy using built-in browser timing capabilities.
+  The Neural Inverse Cloud UI measures round-trip time to the Neural Inverse Cloud server or workspace proxy using built-in browser timing capabilities.
 
   This appears in the user interface next to your username, showing how responsive the dashboard is.
 
@@ -217,7 +217,7 @@ There are three main types of latency metrics for your Coder deployment:
 
 - Database latency:
 
-  For administrators, Coder monitors and reports database query performance in the health dashboard.
+  For administrators, Neural Inverse Cloud monitors and reports database query performance in the health dashboard.
 
 ### How latency is classified
 
@@ -236,7 +236,7 @@ Latency measurements are color-coded in the dashboard:
 
 ### Factors that affect latency
 
-- **Geographic distance**: Physical distance between users, Coder server, and workspaces.
+- **Geographic distance**: Physical distance between users, Neural Inverse Cloud server, and workspaces.
 - **Network connectivity**: Quality of internet connections and routing.
 - **Infrastructure**: Cloud provider regions and network optimization.
 - **P2P connectivity**: Whether direct connections can be established or relays are needed.
@@ -245,17 +245,17 @@ Latency measurements are color-coded in the dashboard:
 
 To improve latency and user experience:
 
-- **Deploy workspace proxies**: Place [proxies](./workspace-proxies.md) in regions closer to users, connecting back to your single Coder server deployment.
+- **Deploy workspace proxies**: Place [proxies](./workspace-proxies.md) in regions closer to users, connecting back to your single Neural Inverse Cloud server deployment.
 - **Use P2P connections**: Ensure network configurations permit direct connections.
-- **Strategic placement**: Deploy your Coder server in a region where most users work.
+- **Strategic placement**: Deploy your Neural Inverse Cloud server in a region where most users work.
 - **Network configuration**: Optimize routing between users and workspaces.
-- **Check firewall rules**: Ensure they don't block necessary Coder connections.
+- **Check firewall rules**: Ensure they don't block necessary Neural Inverse Cloud connections.
 
 For help troubleshooting connection issues, including latency problems, refer to the [networking troubleshooting guide](./troubleshooting.md).
 
 ## External Network Access
 
-By default, Coder will access some external network endpoints in order to download dependencies and send usage data. However, all of these features can be disabled. Learn how to configure Coder for [air-gapped environments](../../install/airgap.md).
+By default, Neural Inverse Cloud will access some external network endpoints in order to download dependencies and send usage data. However, all of these features can be disabled. Learn how to configure Neural Inverse Cloud for [air-gapped environments](../../install/airgap.md).
 
 ## Up next
 

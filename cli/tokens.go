@@ -9,9 +9,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -22,19 +22,19 @@ func (r *RootCmd) tokens() *serpent.Command {
 		Long: "Tokens are used to authenticate automated clients to Coder.\n" + FormatExamples(
 			Example{
 				Description: "Create a token for automation",
-				Command:     "coder tokens create",
+				Command:     "neuralinverse tokens create",
 			},
 			Example{
 				Description: "List your tokens",
-				Command:     "coder tokens ls",
+				Command:     "neuralinverse tokens ls",
 			},
 			Example{
 				Description: "Create a scoped token",
-				Command:     "coder tokens create --scope workspace:read --allow workspace:<uuid>",
+				Command:     "neuralinverse tokens create --scope workspace:read --allow workspace:<uuid>",
 			},
 			Example{
 				Description: "Remove a token by ID",
-				Command:     "coder tokens rm WuoWs4ZsMX",
+				Command:     "neuralinverse tokens rm WuoWs4ZsMX",
 			},
 		),
 		Aliases: []string{"token"},
@@ -57,7 +57,7 @@ func (r *RootCmd) createToken() *serpent.Command {
 		name          string
 		user          string
 		scopes        []string
-		allowList     []codersdk.APIAllowListTarget
+		allowList     []nicloudsdk.APIAllowListTarget
 	)
 	cmd := &serpent.Command{
 		Use:   "create",
@@ -71,7 +71,7 @@ func (r *RootCmd) createToken() *serpent.Command {
 				return err
 			}
 
-			userID := codersdk.Me
+			userID := nicloudsdk.Me
 			if user != "" {
 				userID = user
 			}
@@ -96,15 +96,15 @@ func (r *RootCmd) createToken() *serpent.Command {
 				}
 			}
 
-			req := codersdk.CreateTokenRequest{
+			req := nicloudsdk.CreateTokenRequest{
 				Lifetime:  parsedLifetime,
 				TokenName: name,
 			}
 			if len(req.Scopes) == 0 {
-				req.Scopes = slice.StringEnums[codersdk.APIKeyScope](scopes)
+				req.Scopes = slice.StringEnums[nicloudsdk.APIKeyScope](scopes)
 			}
 			if len(allowList) > 0 {
-				req.AllowList = append([]codersdk.APIAllowListTarget(nil), allowList...)
+				req.AllowList = append([]nicloudsdk.APIAllowListTarget(nil), allowList...)
 			}
 
 			res, err := client.CreateToken(inv.Context(), userID, req)
@@ -121,21 +121,21 @@ func (r *RootCmd) createToken() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag:        "lifetime",
-			Env:         "CODER_TOKEN_LIFETIME",
+			Env:         "NEURALINVERSE_TOKEN_LIFETIME",
 			Description: "Duration for the token lifetime. Supports standard Go duration units (ns, us, ms, s, m, h) plus d (days) and y (years). Examples: 8h, 30d, 1y, 1d12h30m.",
 			Value:       serpent.StringOf(&tokenLifetime),
 		},
 		{
 			Flag:          "name",
 			FlagShorthand: "n",
-			Env:           "CODER_TOKEN_NAME",
+			Env:           "NEURALINVERSE_TOKEN_NAME",
 			Description:   "Specify a human-readable name.",
 			Value:         serpent.StringOf(&name),
 		},
 		{
 			Flag:          "user",
 			FlagShorthand: "u",
-			Env:           "CODER_TOKEN_USER",
+			Env:           "NEURALINVERSE_TOKEN_USER",
 			Description:   "Specify the user to create the token for (Only works if logged in user is admin).",
 			Value:         serpent.StringOf(&user),
 		},
@@ -157,7 +157,7 @@ func (r *RootCmd) createToken() *serpent.Command {
 // tokenListRow is the type provided to the OutputFormatter.
 type tokenListRow struct {
 	// For JSON format:
-	codersdk.APIKey `table:"-"`
+	nicloudsdk.APIKey `table:"-"`
 
 	// For table format:
 	ID        string    `json:"-" table:"id,default_sort"`
@@ -170,11 +170,11 @@ type tokenListRow struct {
 	Owner     string    `json:"-" table:"owner"`
 }
 
-func tokenListRowFromToken(token codersdk.APIKeyWithOwner) tokenListRow {
+func tokenListRowFromToken(token nicloudsdk.APIKeyWithOwner) tokenListRow {
 	return tokenListRowFromKey(token.APIKey, token.Username)
 }
 
-func tokenListRowFromKey(token codersdk.APIKey, owner string) tokenListRow {
+func tokenListRowFromKey(token nicloudsdk.APIKey, owner string) tokenListRow {
 	return tokenListRow{
 		APIKey:    token,
 		ID:        token.ID,
@@ -188,7 +188,7 @@ func tokenListRowFromKey(token codersdk.APIKey, owner string) tokenListRow {
 	}
 }
 
-func joinScopes(scopes []codersdk.APIKeyScope) string {
+func joinScopes(scopes []nicloudsdk.APIKeyScope) string {
 	if len(scopes) == 0 {
 		return ""
 	}
@@ -197,7 +197,7 @@ func joinScopes(scopes []codersdk.APIKeyScope) string {
 	return strings.Join(vals, ", ")
 }
 
-func joinAllowList(entries []codersdk.APIAllowListTarget) string {
+func joinAllowList(entries []nicloudsdk.APIAllowListTarget) string {
 	if len(entries) == 0 {
 		return ""
 	}
@@ -239,7 +239,7 @@ func (r *RootCmd) listTokens() *serpent.Command {
 				return err
 			}
 
-			tokens, err := client.Tokens(inv.Context(), codersdk.Me, codersdk.TokensFilter{
+			tokens, err := client.Tokens(inv.Context(), nicloudsdk.Me, nicloudsdk.TokensFilter{
 				IncludeAll:     all,
 				IncludeExpired: includeExpired,
 			})
@@ -306,10 +306,10 @@ func (r *RootCmd) viewToken() *serpent.Command {
 			}
 
 			tokenName := inv.Args[0]
-			token, err := client.APIKeyByName(inv.Context(), codersdk.Me, tokenName)
+			token, err := client.APIKeyByName(inv.Context(), nicloudsdk.Me, tokenName)
 			if err != nil {
 				maybeID := strings.Split(tokenName, "-")[0]
-				token, err = client.APIKeyByID(inv.Context(), codersdk.Me, maybeID)
+				token, err = client.APIKeyByID(inv.Context(), nicloudsdk.Me, maybeID)
 				if err != nil {
 					return xerrors.Errorf("fetch api key by name or id: %w", err)
 				}
@@ -346,18 +346,18 @@ func (r *RootCmd) removeToken() *serpent.Command {
 				return err
 			}
 
-			token, err := client.APIKeyByName(inv.Context(), codersdk.Me, inv.Args[0])
+			token, err := client.APIKeyByName(inv.Context(), nicloudsdk.Me, inv.Args[0])
 			if err != nil {
 				// If it's a token, we need to extract the ID.
 				maybeID := strings.Split(inv.Args[0], "-")[0]
-				token, err = client.APIKeyByID(inv.Context(), codersdk.Me, maybeID)
+				token, err = client.APIKeyByID(inv.Context(), nicloudsdk.Me, maybeID)
 				if err != nil {
 					return xerrors.Errorf("fetch api key by name or id: %w", err)
 				}
 			}
 
 			if deleteToken {
-				err = client.DeleteAPIKey(inv.Context(), codersdk.Me, token.ID)
+				err = client.DeleteAPIKey(inv.Context(), nicloudsdk.Me, token.ID)
 				if err != nil {
 					return xerrors.Errorf("delete api key: %w", err)
 				}
@@ -365,7 +365,7 @@ func (r *RootCmd) removeToken() *serpent.Command {
 				return nil
 			}
 
-			err = client.ExpireAPIKey(inv.Context(), codersdk.Me, token.ID)
+			err = client.ExpireAPIKey(inv.Context(), nicloudsdk.Me, token.ID)
 			if err != nil {
 				return xerrors.Errorf("expire api key: %w", err)
 			}

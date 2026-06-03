@@ -1,0 +1,8 @@
+coder:
+  image:
+    tag: latest
+  env:
+    - name: NEURALINVERSE_PPROF_ADDRESS
+      value: "127.0.0.1:6060"
+    - name: NEURALINVERSE_PPROF_ENABLE
+      value: "true"

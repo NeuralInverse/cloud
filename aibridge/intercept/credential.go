@@ -1,9 +1,9 @@
 package intercept
 
-import "github.com/coder/coder/v2/aibridge/utils"
+import "github.com/NeuralInverse/cloud/v2/aibridge/utils"
 
 // CredentialKind identifies how a request was authenticated.
-// Keep in sync with the credential_kind enum in coderd's database.
+// Keep in sync with the credential_kind enum in nicloud's database.
 type CredentialKind string
 
 // Credential kind constants for interception recording.

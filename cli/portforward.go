@@ -17,10 +17,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 	"github.com/coder/serpent"
 )
 
@@ -40,28 +40,28 @@ func (r *RootCmd) portForward() *serpent.Command {
 	)
 	cmd := &serpent.Command{
 		Use:     "port-forward <workspace>",
-		Short:   `Forward ports from a workspace to the local machine. For reverse port forwarding, use "coder ssh -R".`,
+		Short:   `Forward ports from a workspace to the local machine. For reverse port forwarding, use "neuralinverse ssh -R".`,
 		Aliases: []string{"tunnel"},
 		Long: FormatExamples(
 			Example{
 				Description: "Port forward a single TCP port from 1234 in the workspace to port 5678 on your local machine",
-				Command:     "coder port-forward <workspace> --tcp 5678:1234",
+				Command:     "neuralinverse port-forward <workspace> --tcp 5678:1234",
 			},
 			Example{
 				Description: "Port forward a single UDP port from port 9000 to port 9000 on your local machine",
-				Command:     "coder port-forward <workspace> --udp 9000",
+				Command:     "neuralinverse port-forward <workspace> --udp 9000",
 			},
 			Example{
 				Description: "Port forward multiple TCP ports and a UDP port",
-				Command:     "coder port-forward <workspace> --tcp 8080:8080 --tcp 9000:3000 --udp 5353:53",
+				Command:     "neuralinverse port-forward <workspace> --tcp 8080:8080 --tcp 9000:3000 --udp 5353:53",
 			},
 			Example{
 				Description: "Port forward multiple ports (TCP or UDP) in condensed syntax",
-				Command:     "coder port-forward <workspace> --tcp 8080,9000:3000,9090-9092,10000-10002:10010-10012",
+				Command:     "neuralinverse port-forward <workspace> --tcp 8080,9000:3000,9090-9092,10000-10002:10010-10012",
 			},
 			Example{
 				Description: "Port forward specifying the local address to bind to",
-				Command:     "coder port-forward <workspace> --tcp 1.2.3.4:8080:8080",
+				Command:     "neuralinverse port-forward <workspace> --tcp 1.2.3.4:8080:8080",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -88,7 +88,7 @@ func (r *RootCmd) portForward() *serpent.Command {
 			if err != nil {
 				return err
 			}
-			if workspace.LatestBuild.Transition != codersdk.WorkspaceTransitionStart {
+			if workspace.LatestBuild.Transition != nicloudsdk.WorkspaceTransitionStart {
 				return xerrors.New("workspace must be in start transition to port-forward")
 			}
 			if workspace.LatestBuild.Job.CompletedAt == nil {
@@ -202,13 +202,13 @@ func (r *RootCmd) portForward() *serpent.Command {
 		{
 			Flag:          "tcp",
 			FlagShorthand: "p",
-			Env:           "CODER_PORT_FORWARD_TCP",
+			Env:           "NEURALINVERSE_PORT_FORWARD_TCP",
 			Description:   "Forward TCP port(s) from the workspace to the local machine.",
 			Value:         serpent.StringArrayOf(&tcpForwards),
 		},
 		{
 			Flag:        "udp",
-			Env:         "CODER_PORT_FORWARD_UDP",
+			Env:         "NEURALINVERSE_PORT_FORWARD_UDP",
 			Description: "Forward UDP port(s) from the workspace to the local machine. The UDP connection has TCP-like semantics to support stateful UDP protocols.",
 			Value:       serpent.StringArrayOf(&udpForwards),
 		},

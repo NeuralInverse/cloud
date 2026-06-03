@@ -16,9 +16,9 @@ import (
 	"tailscale.com/tailcfg"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/apiversion"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/apiversion"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/quartz"
 )
 
@@ -29,7 +29,7 @@ type streamIDContextKey struct{}
 // StreamID identifies the caller of the CoordinateTailnet RPC.  We store this
 // on the context, since the information is extracted at the HTTP layer for
 // remote clients of the API, or set outside tailnet for local clients (e.g.
-// Coderd's single_tailnet)
+// Neural Inverse Cloudd's single_tailnet)
 type StreamID struct {
 	Name string
 	ID   uuid.UUID

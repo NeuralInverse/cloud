@@ -1,27 +1,27 @@
-# Open in Coder
+# Open in Neural Inverse Cloud
 
-You can embed an "Open in Coder" button into your git repos or internal wikis to
+You can embed an "Open in Neural Inverse Cloud" button into your git repos or internal wikis to
 let developers quickly launch a new workspace.
 
 <video autoplay playsinline loop>
-  <source src="https://github.com/coder/coder/blob/main/docs/images/templates/open-in-coder.mp4?raw=true" type="video/mp4">
+  <source src="https://github.com/NeuralInverse/cloud/blob/main/docs/images/templates/open-in-coder.mp4?raw=true" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
 ## How it works
 
-To support any infrastructure and software stack, Coder provides a generic
-approach for "Open in Coder" flows.
+To support any infrastructure and software stack, Neural Inverse Cloud provides a generic
+approach for "Open in Neural Inverse Cloud" flows.
 
 ### 1. Set up git authentication
 
 See [External Authentication](../external-auth/index.md) to set up Git authentication
-in your Coder deployment.
+in your Neural Inverse Cloud deployment.
 
 ### 2. Modify your template to auto-clone repos
 
 The id in the template's `coder_external_auth` data source must match the
-`CODER_EXTERNAL_AUTH_X_ID` in the Coder deployment configuration.
+`NEURALINVERSE_EXTERNAL_AUTH_X_ID` in the Neural Inverse Cloud deployment configuration.
 
 If you want the template to clone a specific git repo:
 
@@ -31,7 +31,7 @@ data "coder_external_auth" "github" {
     id = "primary-github"
 }
 
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
     # ...
     dir = "~/coder"
     startup_script =<<EOF
@@ -39,7 +39,7 @@ resource "coder_agent" "dev" {
     # Clone repo from GitHub
     if [ ! -d "coder" ]
     then
-        git clone https://github.com/coder/coder
+        git clone https://github.com/NeuralInverse/cloud
     fi
 
     EOF
@@ -63,17 +63,17 @@ data "coder_external_auth" "github" {
 }
 
 # Prompt the user for the git repo URL
-data "coder_parameter" "git_repo" {
+data "ni_parameter" "git_repo" {
     name          = "git_repo"
     display_name  = "Git repository"
-    default       = "https://github.com/coder/coder"
+    default       = "https://github.com/NeuralInverse/cloud"
 }
 
 locals {
-    folder_name = try(element(split("/", data.coder_parameter.git_repo.value), length(split("/", data.coder_parameter.git_repo.value)) - 1), "")
+    folder_name = try(element(split("/", data.ni_parameter.git_repo.value), length(split("/", data.ni_parameter.git_repo.value)) - 1), "")
 }
 
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
     # ...
     dir = "~/${local.folder_name}"
     startup_script =<<EOF
@@ -81,20 +81,20 @@ resource "coder_agent" "dev" {
     # Clone repo from GitHub
     if [ ! -d "${local.folder_name}" ]
     then
-        git clone ${data.coder_parameter.git_repo.value}
+        git clone ${data.ni_parameter.git_repo.value}
     fi
 
     EOF
 }
 ```
 
-### 3. Embed the "Open in Coder" button with Markdown
+### 3. Embed the "Open in Neural Inverse Cloud" button with Markdown
 
 ```md
-[![Open in Coder](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace)
+[![Open in Neural Inverse Cloud](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace)
 ```
 
-Be sure to replace `YOUR_ACCESS_URL` with your Coder access url (e.g.
+Be sure to replace `YOUR_ACCESS_URL` with your Neural Inverse Cloud access url (e.g.
 <https://coder.example.com>) and `YOUR_TEMPLATE` with the name of your template.
 
 ### 4. Optional: pre-fill parameter values in the "Create Workspace" page
@@ -102,7 +102,7 @@ Be sure to replace `YOUR_ACCESS_URL` with your Coder access url (e.g.
 This can be used to pre-fill the git repo URL, disk size, image, etc.
 
 ```md
-[![Open in Coder](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?param.git_repo=https://github.com/coder/slog&param.home_disk_size%20%28GB%29=20)
+[![Open in Neural Inverse Cloud](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?param.git_repo=https://github.com/coder/slog&param.home_disk_size%20%28GB%29=20)
 ```
 
 ![Pre-filled parameters](../../images/templates/pre-filled-parameters.png)
@@ -112,12 +112,12 @@ This can be used to pre-fill the git repo URL, disk size, image, etc.
 specified in your template in the `disable_params` search params list
 
 ```md
-[![Open in Coder](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?disable_params=first_parameter,second_parameter)
+[![Open in Neural Inverse Cloud](https://YOUR_ACCESS_URL/open-in-coder.svg)](https://YOUR_ACCESS_URL/templates/YOUR_TEMPLATE/workspace?disable_params=first_parameter,second_parameter)
 ```
 
 ### Security: consent dialog for automatic creation
 
-When using `mode=auto` with prefilled `param.*` values, Coder displays a
+When using `mode=auto` with prefilled `param.*` values, Neural Inverse Cloud displays a
 security consent dialog before creating the workspace. This protects users
 from malicious links that could provision workspaces with untrusted
 configurations, such as dotfiles or startup scripts from unknown sources.
@@ -136,5 +136,5 @@ all parameters can be reviewed manually.
 
 ### Example: Kubernetes
 
-For a full example of the Open in Coder flow in Kubernetes, check out
+For a full example of the Open in Neural Inverse Cloud flow in Kubernetes, check out
 [this example template](https://github.com/bpmct/coder-templates/tree/main/kubernetes-open-in-coder).

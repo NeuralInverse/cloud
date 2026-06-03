@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent/immortalstreams/backedpipe"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/immortalstreams/backedpipe"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // mockReader implements io.Reader with controllable behavior for testing

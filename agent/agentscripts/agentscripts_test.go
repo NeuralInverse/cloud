@@ -15,13 +15,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/agentscripts"
-	"github.com/coder/coder/v2/agent/agentssh"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/agentscripts"
+	"github.com/NeuralInverse/cloud/v2/agent/agentssh"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestMain(m *testing.M) {
@@ -37,7 +37,7 @@ func TestExecuteBasic(t *testing.T) {
 	})
 	defer runner.Close()
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]nicloudsdk.WorkspaceAgentScript{{
 		LogSourceID: uuid.New(),
 		Script:      "echo hello",
 	}}, aAPI.ScriptCompleted)
@@ -55,15 +55,15 @@ func TestEnv(t *testing.T) {
 	})
 	defer runner.Close()
 	id := uuid.New()
-	script := "echo $CODER_SCRIPT_DATA_DIR\necho $CODER_SCRIPT_BIN_DIR\n"
+	script := "echo $NEURALINVERSE_SCRIPT_DATA_DIR\necho $NEURALINVERSE_SCRIPT_BIN_DIR\n"
 	if runtime.GOOS == "windows" {
 		script = `
-			cmd.exe /c echo %CODER_SCRIPT_DATA_DIR%
-			cmd.exe /c echo %CODER_SCRIPT_BIN_DIR%
+			cmd.exe /c echo %NEURALINVERSE_SCRIPT_DATA_DIR%
+			cmd.exe /c echo %NEURALINVERSE_SCRIPT_BIN_DIR%
 		`
 	}
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]nicloudsdk.WorkspaceAgentScript{{
 		LogSourceID: id,
 		Script:      script,
 	}}, aAPI.ScriptCompleted)
@@ -107,7 +107,7 @@ func TestTimeout(t *testing.T) {
 	runner := setup(t, nil)
 	defer runner.Close()
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]nicloudsdk.WorkspaceAgentScript{{
 		LogSourceID: uuid.New(),
 		Script:      "sleep infinity",
 		Timeout:     100 * time.Millisecond,
@@ -126,7 +126,7 @@ func TestScriptReportsTiming(t *testing.T) {
 	})
 
 	aAPI := agenttest.NewFakeAgentAPI(t, testutil.Logger(t), nil, nil)
-	err := runner.Init([]codersdk.WorkspaceAgentScript{{
+	err := runner.Init([]nicloudsdk.WorkspaceAgentScript{{
 		DisplayName: "say-hello",
 		LogSourceID: uuid.New(),
 		Script:      "echo hello",
@@ -164,38 +164,38 @@ func TestCronClose(t *testing.T) {
 func TestExecuteOptions(t *testing.T) {
 	t.Parallel()
 
-	startScript := codersdk.WorkspaceAgentScript{
+	startScript := nicloudsdk.WorkspaceAgentScript{
 		ID:          uuid.New(),
 		LogSourceID: uuid.New(),
 		Script:      "echo start",
 		RunOnStart:  true,
 	}
-	stopScript := codersdk.WorkspaceAgentScript{
+	stopScript := nicloudsdk.WorkspaceAgentScript{
 		ID:          uuid.New(),
 		LogSourceID: uuid.New(),
 		Script:      "echo stop",
 		RunOnStop:   true,
 	}
-	regularScript := codersdk.WorkspaceAgentScript{
+	regularScript := nicloudsdk.WorkspaceAgentScript{
 		ID:          uuid.New(),
 		LogSourceID: uuid.New(),
 		Script:      "echo regular",
 	}
 
-	scripts := []codersdk.WorkspaceAgentScript{
+	scripts := []nicloudsdk.WorkspaceAgentScript{
 		startScript,
 		stopScript,
 		regularScript,
 	}
 
-	scriptByID := func(t *testing.T, id uuid.UUID) codersdk.WorkspaceAgentScript {
+	scriptByID := func(t *testing.T, id uuid.UUID) nicloudsdk.WorkspaceAgentScript {
 		for _, script := range scripts {
 			if script.ID == id {
 				return script
 			}
 		}
 		t.Fatal("script not found")
-		return codersdk.WorkspaceAgentScript{}
+		return nicloudsdk.WorkspaceAgentScript{}
 	}
 
 	wantOutput := map[uuid.UUID]string{

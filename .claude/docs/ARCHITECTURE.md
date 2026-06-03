@@ -16,7 +16,7 @@ The database layer uses PostgreSQL with SQLC for generating type-safe database c
 
 ## API Design
 
-Coder's API architecture combines REST and gRPC approaches. The REST API is defined in `coderd/coderd.go` and uses Chi for HTTP routing. This provides the primary interface for the frontend and external integrations.
+Coder's API architecture combines REST and gRPC approaches. The REST API is defined in `nicloud/nicloud.go` and uses Chi for HTTP routing. This provides the primary interface for the frontend and external integrations.
 
 Internal communication with Provisioners occurs over gRPC, with service definitions maintained in `.proto` files. This separation allows for efficient binary communication with the components responsible for infrastructure management while providing a standard REST interface for human-facing applications.
 
@@ -70,13 +70,13 @@ Workspace applications (or "apps") provide browser-based access to services runn
 - Different sharing levels (owner-only, authenticated users, or public)
 - Custom icons and display settings
 
-The implementation is primarily in the `coderd/workspaceapps/` directory with components for URL generation, proxying connections, and managing application state.
+The implementation is primarily in the `nicloud/workspaceapps/` directory with components for URL generation, proxying connections, and managing application state.
 
 ## Implementation Details
 
 The project structure separates frontend and backend concerns. React components and pages are organized in the `site/src/` directory, with Jest used for testing. The backend is primarily written in Go, with a strong emphasis on error handling patterns and test coverage.
 
-Database interactions are carefully managed through migrations in `coderd/database/migrations/` and queries in `coderd/database/queries/`. All new queries require proper database authorization (dbauthz) implementation to ensure that only users with appropriate permissions can access specific resources.
+Database interactions are carefully managed through migrations in `nicloud/database/migrations/` and queries in `nicloud/database/queries/`. All new queries require proper database authorization (dbauthz) implementation to ensure that only users with appropriate permissions can access specific resources.
 
 ## Authorization System
 
@@ -88,11 +88,11 @@ The codebase has a comprehensive testing approach with several key components:
 
 1. **Parallel Testing**: All tests must use `t.Parallel()` to run concurrently, which improves test suite performance and helps identify race conditions.
 
-2. **coderdtest Package**: This package in `coderd/coderdtest/` provides utilities for creating test instances of the Coder server, setting up test users and workspaces, and mocking external components.
+2. **nicloudtest Package**: This package in `nicloud/nicloudtest/` provides utilities for creating test instances of the Coder server, setting up test users and workspaces, and mocking external components.
 
 3. **Integration Tests**: Tests often span multiple components to verify system behavior, such as template creation, workspace provisioning, and agent connectivity.
 
-4. **Enterprise Testing**: Enterprise features have dedicated test utilities in the `coderdenttest` package.
+4. **Enterprise Testing**: Enterprise features have dedicated test utilities in the `nicloudenttest` package.
 
 ## Open Source and Enterprise Components
 
@@ -121,6 +121,6 @@ Development can be initiated using `scripts/develop.sh` to start the application
 
 If the development database gets into a bad state, it can be completely reset by removing the PostgreSQL data directory with `rm -rf .coderv2/postgres`. This will destroy all data in the development database, requiring you to recreate any test users, templates, or workspaces after restarting the application.
 
-Code generation for the database layer uses `coderd/database/generate.sh`, and developers should refer to `sqlc.yaml` for the appropriate style and patterns to follow when creating new queries or tables.
+Code generation for the database layer uses `nicloud/database/generate.sh`, and developers should refer to `sqlc.yaml` for the appropriate style and patterns to follow when creating new queries or tables.
 
 The focus should always be on maintaining security through proper database authorization, clean error handling, and comprehensive test coverage to ensure the platform remains robust and reliable.

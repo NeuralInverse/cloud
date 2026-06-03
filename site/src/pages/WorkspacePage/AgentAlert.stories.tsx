@@ -8,7 +8,7 @@ const meta: Meta<typeof AgentAlert> = {
 		title: "Something went wrong",
 		detail:
 			"A useful description of what happened and what the user can do about it.",
-		troubleshootingURL: "https://coder.com/docs/troubleshoot",
+		troubleshootingURL: "https://cloud.neuralinverse.com/docs/troubleshoot",
 	},
 };
 

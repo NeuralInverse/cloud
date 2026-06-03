@@ -56,57 +56,57 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/aibridged"
-	"github.com/coder/coder/v2/coderd/autobuild"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbmetrics"
-	"github.com/coder/coder/v2/coderd/database/dbpurge"
-	"github.com/coder/coder/v2/coderd/database/migrations"
-	"github.com/coder/coder/v2/coderd/database/pubsub"
-	"github.com/coder/coder/v2/coderd/devtunnel"
-	"github.com/coder/coder/v2/coderd/entitlements"
-	"github.com/coder/coder/v2/coderd/externalauth"
-	"github.com/coder/coder/v2/coderd/gitsshkey"
-	"github.com/coder/coder/v2/coderd/httpmw"
-	"github.com/coder/coder/v2/coderd/jobreaper"
-	"github.com/coder/coder/v2/coderd/notifications"
-	"github.com/coder/coder/v2/coderd/notifications/reports"
-	"github.com/coder/coder/v2/coderd/oauthpki"
-	"github.com/coder/coder/v2/coderd/pproflabel"
-	"github.com/coder/coder/v2/coderd/prometheusmetrics"
-	"github.com/coder/coder/v2/coderd/prometheusmetrics/insights"
-	"github.com/coder/coder/v2/coderd/promoauth"
-	"github.com/coder/coder/v2/coderd/provisionerdserver"
-	"github.com/coder/coder/v2/coderd/runtimeconfig"
-	"github.com/coder/coder/v2/coderd/schedule"
-	"github.com/coder/coder/v2/coderd/telemetry"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/coderd/updatecheck"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	stringutil "github.com/coder/coder/v2/coderd/util/strings"
-	"github.com/coder/coder/v2/coderd/webpush"
-	"github.com/coder/coder/v2/coderd/workspaceapps/appurl"
-	"github.com/coder/coder/v2/coderd/workspacestats"
-	"github.com/coder/coder/v2/coderd/wsbuilder"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/provisioner/echo"
-	"github.com/coder/coder/v2/provisioner/terraform"
-	"github.com/coder/coder/v2/provisionerd"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionersdk"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli/clilog"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/aibridged"
+	"github.com/NeuralInverse/cloud/v2/nicloud/autobuild"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/awsiamrds"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbmetrics"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbpurge"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/migrations"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/pubsub"
+	"github.com/NeuralInverse/cloud/v2/nicloud/devtunnel"
+	"github.com/NeuralInverse/cloud/v2/nicloud/entitlements"
+	"github.com/NeuralInverse/cloud/v2/nicloud/externalauth"
+	"github.com/NeuralInverse/cloud/v2/nicloud/gitsshkey"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/jobreaper"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications/reports"
+	"github.com/NeuralInverse/cloud/v2/nicloud/oauthpki"
+	"github.com/NeuralInverse/cloud/v2/nicloud/pproflabel"
+	"github.com/NeuralInverse/cloud/v2/nicloud/prometheusmetrics"
+	"github.com/NeuralInverse/cloud/v2/nicloud/prometheusmetrics/insights"
+	"github.com/NeuralInverse/cloud/v2/nicloud/promoauth"
+	"github.com/NeuralInverse/cloud/v2/nicloud/provisionerdserver"
+	"github.com/NeuralInverse/cloud/v2/nicloud/runtimeconfig"
+	"github.com/NeuralInverse/cloud/v2/nicloud/schedule"
+	"github.com/NeuralInverse/cloud/v2/nicloud/telemetry"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloud/updatecheck"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	stringutil "github.com/NeuralInverse/cloud/v2/nicloud/util/strings"
+	"github.com/NeuralInverse/cloud/v2/nicloud/webpush"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspaceapps/appurl"
+	"github.com/NeuralInverse/cloud/v2/nicloud/workspacestats"
+	"github.com/NeuralInverse/cloud/v2/nicloud/wsbuilder"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform"
+	"github.com/NeuralInverse/cloud/v2/provisionerd"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 	"github.com/coder/pretty"
 	"github.com/coder/quartz"
 	"github.com/coder/retry"
@@ -114,7 +114,7 @@ import (
 	"github.com/coder/wgtunnel/tunnelsdk"
 )
 
-func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *codersdk.DeploymentValues) (*coderd.OIDCConfig, error) {
+func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *nicloudsdk.DeploymentValues) (*nicloud.OIDCConfig, error) {
 	if vals.OIDC.ClientID == "" {
 		return nil, xerrors.Errorf("OIDC client ID must be set!")
 	}
@@ -185,15 +185,15 @@ func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *codersdk.De
 		groupAllowList[group] = true
 	}
 
-	secondaryClaimsSrc := coderd.MergedClaimsSourceUserInfo
+	secondaryClaimsSrc := nicloud.MergedClaimsSourceUserInfo
 	if !vals.OIDC.IgnoreUserInfo && vals.OIDC.UserInfoFromAccessToken {
 		return nil, xerrors.Errorf("to use 'oidc-access-token-claims', 'oidc-ignore-userinfo' must be set to 'false'")
 	}
 	if vals.OIDC.IgnoreUserInfo {
-		secondaryClaimsSrc = coderd.MergedClaimsSourceNone
+		secondaryClaimsSrc = nicloud.MergedClaimsSourceNone
 	}
 	if vals.OIDC.UserInfoFromAccessToken {
-		secondaryClaimsSrc = coderd.MergedClaimsSourceAccessToken
+		secondaryClaimsSrc = nicloud.MergedClaimsSourceAccessToken
 	}
 
 	var pkceSupport struct {
@@ -204,7 +204,7 @@ func createOIDCConfig(ctx context.Context, logger slog.Logger, vals *codersdk.De
 		return nil, xerrors.Errorf("pkce detect in claims: %w", err)
 	}
 
-	return &coderd.OIDCConfig{
+	return &nicloud.OIDCConfig{
 		OAuth2Config: useCfg,
 		Provider:     oidcProvider,
 		Verifier: oidcProvider.Verifier(&oidc.Config{
@@ -238,8 +238,8 @@ func afterCtx(ctx context.Context, fn func()) {
 func enablePrometheus(
 	ctx context.Context,
 	logger slog.Logger,
-	vals *codersdk.DeploymentValues,
-	options *coderd.Options,
+	vals *nicloudsdk.DeploymentValues,
+	options *nicloud.Options,
 ) (closeFn func(), err error) {
 	options.PrometheusRegistry.MustRegister(collectors.NewGoCollector())
 	options.PrometheusRegistry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
@@ -278,8 +278,8 @@ func enablePrometheus(
 	afterCtx(ctx, closeInsightsMetricsCollector)
 
 	if vals.Prometheus.CollectAgentStats {
-		experiments := coderd.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value())
-		closeAgentStatsFunc, err := prometheusmetrics.AgentStats(ctx, logger, options.PrometheusRegistry, options.Database, time.Now(), 0, options.DeploymentValues.Prometheus.AggregateAgentStatsBy.Value(), experiments.Enabled(codersdk.ExperimentWorkspaceUsage))
+		experiments := nicloud.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value())
+		closeAgentStatsFunc, err := prometheusmetrics.AgentStats(ctx, logger, options.PrometheusRegistry, options.Database, time.Now(), 0, options.DeploymentValues.Prometheus.AggregateAgentStatsBy.Value(), experiments.Enabled(nicloudsdk.ExperimentWorkspaceUsage))
 		if err != nil {
 			return nil, xerrors.Errorf("register agent stats prometheus metric: %w", err)
 		}
@@ -314,16 +314,16 @@ func enablePrometheus(
 }
 
 //nolint:gocognit // TODO(dannyk): reduce complexity of this function
-func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.API, io.Closer, error)) *serpent.Command {
+func (r *RootCmd) Server(newAPI func(context.Context, *nicloud.Options) (*nicloud.API, io.Closer, error)) *serpent.Command {
 	if newAPI == nil {
-		newAPI = func(_ context.Context, o *coderd.Options) (*coderd.API, io.Closer, error) {
-			api := coderd.New(o)
+		newAPI = func(_ context.Context, o *nicloud.Options) (*nicloud.API, io.Closer, error) {
+			api := nicloud.New(o)
 			return api, api, nil
 		}
 	}
 
 	var (
-		vals = new(codersdk.DeploymentValues)
+		vals = new(nicloudsdk.DeploymentValues)
 		opts = vals.Options()
 	)
 	serverCmd := &serpent.Command{
@@ -344,7 +344,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				cliui.Warnf(inv.Stderr, "YAML support is experimental and offers no compatibility guarantees.")
 			}
 
-			go DumpHandler(ctx, "coderd")
+			go DumpHandler(ctx, "nicloud")
 
 			// Validate bind addresses.
 			if vals.Address.String() != "" {
@@ -384,7 +384,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				filesRateLimit = -1
 			}
 
-			PrintLogo(inv, "Coder")
+			PrintLogo(inv, "Neural Inverse Cloud")
 			logger, logCloser, err := clilog.New(clilog.FromDeploymentValues(vals)).Build(inv)
 			if err != nil {
 				return xerrors.Errorf("make logger: %w", err)
@@ -457,7 +457,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				var closeFunc func() error
 				cliui.Infof(inv.Stdout, "Using built-in PostgreSQL (%s)", config.PostgresPath())
 				customPostgresCacheDir := ""
-				// By default, built-in PostgreSQL will use the Coder root directory
+				// By default, built-in PostgreSQL will use the Neural Inverse Cloud root directory
 				// for its cache. However, when a deployment is ephemeral, the root
 				// directory is wiped clean on shutdown, defeating the purpose of using
 				// it as a cache. So here we use a cache directory that will not get
@@ -550,7 +550,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				}
 				cliui.Warnf(
 					inv.Stderr,
-					"The access URL %s %s, this may cause unexpected problems when creating workspaces. Generate a unique *.try.coder.app URL by not specifying an access URL.\n",
+					"The access URL %s %s, this may cause unexpected problems when creating workspaces. Generate a unique *.try.neuralinverse.cloud URL by not specifying an access URL.\n",
 					pretty.Sprint(cliui.DefaultStyles.Field, vals.AccessURL.String()), reason,
 				)
 			}
@@ -605,8 +605,8 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			if defaultRegion == nil && derpConfigURL == "" && derpConfigPath == "" {
 				logger.Warn(ctx,
 					"no DERP servers are currently configured; workspace networking"+
-						" will not work until you either restart coderd with the"+
-						" built-in DERP server enabled, restart coderd with an"+
+						" will not work until you either restart nicloud with the"+
+						" built-in DERP server enabled, restart nicloud with an"+
 						" external DERP map configured, or start a workspace proxy"+
 						" with its DERP server enabled")
 				derpMap = &tailcfg.DERPMap{Regions: map[int]*tailcfg.DERPRegion{}}
@@ -645,18 +645,18 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 
 			// The workspace hostname suffix is always interpreted as implicitly beginning with a single dot, so it is
 			// a config error to explicitly include the dot. This ensures that we always interpret the suffix as a
-			// separate DNS label, and not just an ordinary string suffix. E.g. a suffix of 'coder' will match
-			// 'en.coder' but not 'encoder'.
+			// separate DNS label, and not just an ordinary string suffix. E.g. a suffix of 'neuralinverse' will match
+			// 'en.neuralinverse' but not 'encoder'.
 			if strings.HasPrefix(vals.WorkspaceHostnameSuffix.String(), ".") {
 				return xerrors.Errorf("you must omit any leading . in workspace hostname suffix: %s",
 					vals.WorkspaceHostnameSuffix.String())
 			}
 
-			options := &coderd.Options{
+			options := &nicloud.Options{
 				AccessURL:                   vals.AccessURL.Value(),
 				AppHostname:                 appHostname,
 				AppHostnameRegex:            appHostnameRegex,
-				Logger:                      logger.Named("coderd"),
+				Logger:                      logger.Named("nicloud"),
 				Database:                    nil,
 				BaseDERPMap:                 derpMap,
 				Pubsub:                      nil,
@@ -673,7 +673,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				// Do not pass secret values to DeploymentOptions. All values should be read from
 				// the DeploymentValues instead, this just serves to indicate the source of each
 				// option. This is just defensive to prevent accidentally leaking.
-				DeploymentOptions:           codersdk.DeploymentOptionsWithoutSecrets(opts),
+				DeploymentOptions:           nicloudsdk.DeploymentOptionsWithoutSecrets(opts),
 				PrometheusRegistry:          promRegistry,
 				APIRateLimit:                int(vals.RateLimit.API.Value()),
 				LoginRateLimit:              loginRateLimit,
@@ -681,7 +681,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				HTTPClient:                  httpClient,
 				TemplateScheduleStore:       &atomic.Pointer[schedule.TemplateScheduleStore]{},
 				UserQuietHoursScheduleStore: &atomic.Pointer[schedule.UserQuietHoursScheduleStore]{},
-				SSHConfig: codersdk.SSHConfigResponse{
+				SSHConfig: nicloudsdk.SSHConfigResponse{
 					HostnamePrefix:   vals.SSHConfig.DeploymentName.String(),
 					SSHConfigOptions: configSSHOptions,
 					HostnameSuffix:   vals.WorkspaceHostnameSuffix.String(),
@@ -699,7 +699,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 					int(vals.StrictTransportSecurity.Value()), vals.StrictTransportSecurityOptions,
 				)
 				if err != nil {
-					return xerrors.Errorf("coderd: setting hsts header failed (options: %v): %w", vals.StrictTransportSecurityOptions, err)
+					return xerrors.Errorf("nicloud: setting hsts header failed (options: %v): %w", vals.StrictTransportSecurityOptions, err)
 				}
 			}
 
@@ -712,7 +712,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 						if semver.Compare(r.Version, buildinfo.Version()) > 0 {
 							options.Logger.Info(
 								context.Background(),
-								"new version of coder available",
+								"new version of neuralinverse available",
 								slog.F("new_version", r.Version),
 								slog.F("url", r.URL),
 								slog.F("upgrade_instructions", fmt.Sprintf("%s/admin/upgrade", vals.DocsURL.String())),
@@ -729,7 +729,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			// client types: https://oauth.net/2/client-types/
 			if vals.OIDC.ClientID != "" {
 				if vals.OIDC.IgnoreEmailVerified {
-					logger.Warn(ctx, "coder will not check email_verified for OIDC logins")
+					logger.Warn(ctx, "neuralinverse will not check email_verified for OIDC logins")
 				}
 
 				// This OIDC config is **not** being instrumented with the
@@ -751,12 +751,12 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			var pubsubWatchdogTimeout <-chan struct{}
 
 			maxOpenConns := int(vals.PostgresConnMaxOpen.Value())
-			maxIdleConns, err := codersdk.ComputeMaxIdleConns(maxOpenConns, vals.PostgresConnMaxIdle.Value())
+			maxIdleConns, err := nicloudsdk.ComputeMaxIdleConns(maxOpenConns, vals.PostgresConnMaxIdle.Value())
 			if err != nil {
 				return xerrors.Errorf("compute max idle connections: %w", err)
 			}
 			logger.Debug(ctx, "creating database connection pool", slog.F("max_open_conns", maxOpenConns), slog.F("max_idle_conns", maxIdleConns))
-			sqlDB, dbURL, err := getAndMigratePostgresDB(ctx, logger, vals.PostgresURL.String(), codersdk.PostgresAuth(vals.PostgresAuth), sqlDriver,
+			sqlDB, dbURL, err := getAndMigratePostgresDB(ctx, logger, vals.PostgresURL.String(), nicloudsdk.PostgresAuth(vals.PostgresAuth), sqlDriver,
 				WithMaxOpenConns(maxOpenConns),
 				WithMaxIdleConns(maxIdleConns),
 			)
@@ -826,7 +826,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			if err != nil {
 				return xerrors.Errorf("read external auth providers from env: %w", err)
 			}
-			mergedExternalAuthProviders := append([]codersdk.ExternalAuthConfig{}, vals.ExternalAuthConfigs.Value...)
+			mergedExternalAuthProviders := append([]nicloudsdk.ExternalAuthConfig{}, vals.ExternalAuthConfigs.Value...)
 			mergedExternalAuthProviders = append(mergedExternalAuthProviders, extAuthEnv...)
 			vals.ExternalAuthConfigs.Value = mergedExternalAuthProviders
 
@@ -905,7 +905,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				BuiltinPostgres:  builtinPostgres,
 				DeploymentID:     deploymentID,
 				Database:         options.Database,
-				Experiments:      coderd.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value()),
+				Experiments:      nicloud.ReadExperiments(options.Logger, options.DeploymentValues.Experiments.Value()),
 				Logger:           logger.Named("telemetry"),
 				URL:              vals.Telemetry.URL.Value(),
 				Tunnel:           tunnel != nil,
@@ -1007,12 +1007,12 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			notificationReportGenerator := reports.NewReportGenerator(ctx, logger.Named("notifications.report_generator"), options.Database, options.NotificationsEnqueuer, quartz.NewReal())
 			defer notificationReportGenerator.Close()
 
-			// We use a separate coderAPICloser so the Enterprise API
+			// We use a separate niAPICloser so the Enterprise API
 			// can have its own close functions. This is cleaner
-			// than abstracting the Coder API itself.
-			coderAPI, coderAPICloser, err := newAPI(ctx, options)
+			// than abstracting the Neural Inverse Cloud API itself.
+			niAPI, niAPICloser, err := newAPI(ctx, options)
 			if err != nil {
-				return xerrors.Errorf("create coder API: %w", err)
+				return xerrors.Errorf("create neuralinverse API: %w", err)
 			}
 			var aibridgeDaemon *aibridged.Server
 
@@ -1024,7 +1024,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			//nolint:gocritic // Production timeout, not a test wait.
 			aibridgeInitCtx, aibridgeInitCancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 			defer aibridgeInitCancel()
-			if err := coderd.SeedAIProvidersFromEnv(
+			if err := nicloud.SeedAIProvidersFromEnv(
 				aibridgeInitCtx,
 				options.Database,
 				vals.AI.BridgeConfig,
@@ -1033,10 +1033,10 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				return xerrors.Errorf("seed ai providers from env: %w", err)
 			}
 
-			// In-memory aibridge daemon. Registered on coderd so chatd can
+			// In-memory aibridge daemon. Registered on nicloud so chatd can
 			// dispatch LLM requests via the in-process transport without
 			// crossing the gated /api/v2/aibridge HTTP route. The HTTP route
-			// itself is registered (and license-gated) only by enterprise/coderd;
+			// itself is registered (and license-gated) only by enterprise/nicloud;
 			// in AGPL builds it does not exist at all. The daemon starts here
 			// unconditionally when the bridge feature is enabled by config so
 			// chatd can use it regardless of license entitlement.
@@ -1046,12 +1046,12 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 					return xerrors.Errorf("build AI providers: %w", err)
 				}
 				var unsubscribeProviderReload func()
-				aibridgeDaemon, unsubscribeProviderReload, err = newAIBridgeDaemon(coderAPI, aibridgeProviders, vals.AI.BridgeConfig)
+				aibridgeDaemon, unsubscribeProviderReload, err = newAIBridgeDaemon(niAPI, aibridgeProviders, vals.AI.BridgeConfig)
 				if err != nil {
 					return xerrors.Errorf("create aibridged: %w", err)
 				}
-				coderAPI.RegisterInMemoryAIBridgedHTTPHandler(aibridgeDaemon)
-				// The handler is bound to coderAPI's lifecycle; Close() on the
+				niAPI.RegisterInMemoryAIBridgedHTTPHandler(aibridgeDaemon)
+				// The handler is bound to niAPI's lifecycle; Close() on the
 				// daemon does not affect in-flight requests but is needed to
 				// release pool/recorder resources at shutdown.
 				defer aibridgeDaemon.Close()
@@ -1059,16 +1059,16 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			}
 
 			if vals.Prometheus.Enable {
-				// Agent metrics require reference to the tailnet coordinator, so must be initiated after Coder API.
-				closeAgentsFunc, err := prometheusmetrics.Agents(ctx, logger, options.PrometheusRegistry, coderAPI.Database, &coderAPI.TailnetCoordinator, coderAPI.DERPMap, coderAPI.Options.AgentInactiveDisconnectTimeout, 0)
+				// Agent metrics require reference to the tailnet coordinator, so must be initiated after Neural Inverse Cloud API.
+				closeAgentsFunc, err := prometheusmetrics.Agents(ctx, logger, options.PrometheusRegistry, niAPI.Database, &niAPI.TailnetCoordinator, niAPI.DERPMap, niAPI.Options.AgentInactiveDisconnectTimeout, 0)
 				if err != nil {
 					return xerrors.Errorf("register agents prometheus metric: %w", err)
 				}
 				defer closeAgentsFunc()
 
-				var active codersdk.Experiments
+				var active nicloudsdk.Experiments
 				for _, exp := range options.DeploymentValues.Experiments.Value() {
-					active = append(active, codersdk.Experiment(exp))
+					active = append(active, nicloudsdk.Experiment(exp))
 				}
 
 				if err = prometheusmetrics.Experiments(options.PrometheusRegistry, active); err != nil {
@@ -1082,7 +1082,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			}
 
 			// This is helpful for tests, but can be silently ignored.
-			// Coder may be ran as users that don't have permission to write in the homedir,
+			// Neural Inverse Cloud may be ran as users that don't have permission to write in the homedir,
 			// such as via the systemd service.
 			err = config.URL().Write(localURL.String())
 			if err != nil && flag.Lookup("test.v") != nil {
@@ -1110,9 +1110,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 
 			// Built in provisioner daemons will support the same types.
 			// By default, this is the slice {"terraform"}
-			provisionerTypes := make([]codersdk.ProvisionerType, 0)
+			provisionerTypes := make([]nicloudsdk.ProvisionerType, 0)
 			for _, pt := range vals.Provisioner.DaemonTypes {
-				provisionerTypes = append(provisionerTypes, codersdk.ProvisionerType(pt))
+				provisionerTypes = append(provisionerTypes, nicloudsdk.ProvisionerType(pt))
 			}
 			for i := int64(0); i < vals.Provisioner.Daemons.Value(); i++ {
 				suffix := fmt.Sprintf("%d", i)
@@ -1122,7 +1122,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				name := fmt.Sprintf("%s-%s", hostname, suffix)
 				daemonCacheDir := filepath.Join(cacheDir, fmt.Sprintf("provisioner-%d", i))
 				daemon, err := newProvisionerDaemon(
-					ctx, coderAPI, provisionerdMetrics, logger, vals, daemonCacheDir, errCh, &provisionerdWaitGroup, name, provisionerTypes,
+					ctx, niAPI, provisionerdMetrics, logger, vals, daemonCacheDir, errCh, &provisionerdWaitGroup, name, provisionerTypes,
 				)
 				if err != nil {
 					return xerrors.Errorf("create provisioner daemon: %w", err)
@@ -1135,7 +1135,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			defer shutdownConns()
 
 			// Ensures that old database entries are cleaned up over time!
-			purger := dbpurge.New(ctx, logger.Named("dbpurge"), options.Database, options.DeploymentValues, options.PrometheusRegistry, &coderAPI.Auditor, dbpurge.WithNotificationsEnqueuer(options.NotificationsEnqueuer))
+			purger := dbpurge.New(ctx, logger.Named("dbpurge"), options.Database, options.DeploymentValues, options.PrometheusRegistry, &niAPI.Auditor, dbpurge.WithNotificationsEnqueuer(options.NotificationsEnqueuer))
 			defer purger.Close()
 
 			// Updates workspace usage
@@ -1147,7 +1147,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 
 			// Wrap the server in middleware that redirects to the access URL if
 			// the request is not to a local IP.
-			var handler http.Handler = coderAPI.RootHandler
+			var handler http.Handler = niAPI.RootHandler
 			if vals.RedirectToAccessURL {
 				handler = redirectToAccessURL(handler, vals.AccessURL.Value(), tunnel != nil, appHostnameRegex)
 			}
@@ -1207,7 +1207,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 			autobuildTicker := time.NewTicker(vals.AutobuildPollInterval.Value())
 			defer autobuildTicker.Stop()
 			autobuildExecutor := autobuild.NewExecutor(
-				ctx, options.Database, options.Pubsub, coderAPI.FileCache, options.PrometheusRegistry, coderAPI.TemplateScheduleStore, &coderAPI.Auditor, coderAPI.AccessControlStore, coderAPI.BuildUsageChecker, logger, autobuildTicker.C, options.NotificationsEnqueuer, coderAPI.Experiments, coderAPI.WorkspaceBuilderMetrics)
+				ctx, options.Database, options.Pubsub, niAPI.FileCache, options.PrometheusRegistry, niAPI.TemplateScheduleStore, &niAPI.Auditor, niAPI.AccessControlStore, niAPI.BuildUsageChecker, logger, autobuildTicker.C, options.NotificationsEnqueuer, niAPI.Experiments, niAPI.WorkspaceBuilderMetrics)
 			autobuildExecutor.Run()
 
 			jobReaperTicker := time.NewTicker(vals.JobReaperDetectorInterval.Value())
@@ -1268,7 +1268,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				// Stop the notification manager, which will cause any buffered updates to the store to be flushed.
 				// If the Stop() call times out, messages that were sent but not reflected as such in the store will have
 				// their leases expire after a period of time and will be re-queued for sending.
-				// See CODER_NOTIFICATIONS_LEASE_PERIOD.
+				// See NEURALINVERSE_NOTIFICATIONS_LEASE_PERIOD.
 				cliui.Info(inv.Stdout, "Shutting down notifications manager..."+"\n")
 				err = shutdownWithTimeout(notificationsManager.Stop, 5*time.Second)
 				if err != nil {
@@ -1319,7 +1319,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 				_ = aibridgeDaemon.Close()
 			}
 			cliui.Info(inv.Stdout, "Waiting for WebSocket connections to close..."+"\n")
-			_ = coderAPICloser.Close()
+			_ = niAPICloser.Close()
 			cliui.Info(inv.Stdout, "Done waiting for WebSocket connections"+"\n")
 
 			// Close tunnel after we no longer have in-flight connections.
@@ -1424,9 +1424,9 @@ func (r *RootCmd) Server(newAPI func(context.Context, *coderd.Options) (*coderd.
 }
 
 // templateHelpers builds a set of functions which can be called in templates.
-// We build them here to avoid an import cycle by using coderd.Options in notifications.Manager.
+// We build them here to avoid an import cycle by using nicloud.Options in notifications.Manager.
 // We can later use this to inject whitelabel fields when app name / logo URL are overridden.
-func templateHelpers(options *coderd.Options) map[string]any {
+func templateHelpers(options *nicloud.Options) map[string]any {
 	return map[string]any{
 		"base_url":     func() string { return options.AccessURL.String() },
 		"current_year": func() string { return strconv.Itoa(time.Now().Year()) },
@@ -1436,7 +1436,7 @@ func templateHelpers(options *coderd.Options) map[string]any {
 // writeConfigMW will prevent the main command from running if the write-config
 // flag is set. Instead, it will marshal the command options to YAML and write
 // them to stdout.
-func WriteConfigMW(cfg *codersdk.DeploymentValues) serpent.MiddlewareFunc {
+func WriteConfigMW(cfg *nicloudsdk.DeploymentValues) serpent.MiddlewareFunc {
 	return func(next serpent.HandlerFunc) serpent.HandlerFunc {
 		return func(inv *serpent.Invocation) error {
 			if !cfg.WriteConfig {
@@ -1498,15 +1498,15 @@ func shutdownWithTimeout(shutdown func(context.Context) error, timeout time.Dura
 // nolint:revive
 func newProvisionerDaemon(
 	ctx context.Context,
-	coderAPI *coderd.API,
+	niAPI *nicloud.API,
 	metrics provisionerd.Metrics,
 	logger slog.Logger,
-	cfg *codersdk.DeploymentValues,
+	cfg *nicloudsdk.DeploymentValues,
 	cacheDir string,
 	errCh chan error,
 	wg *sync.WaitGroup,
 	name string,
-	provisionerTypes []codersdk.ProvisionerType,
+	provisionerTypes []nicloudsdk.ProvisionerType,
 ) (srv *provisionerd.Server, err error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer func() {
@@ -1534,7 +1534,7 @@ func newProvisionerDaemon(
 	connector := provisionerd.LocalProvisioners{}
 	for _, provisionerType := range provisionerTypes {
 		switch provisionerType {
-		case codersdk.ProvisionerTypeEcho:
+		case nicloudsdk.ProvisionerTypeEcho:
 			echoClient, echoServer := drpcsdk.MemTransportPipe()
 			wg.Add(1)
 			go func() {
@@ -1561,14 +1561,14 @@ func newProvisionerDaemon(
 				}
 			}()
 			connector[string(database.ProvisionerTypeEcho)] = sdkproto.NewDRPCProvisionerClient(echoClient)
-		case codersdk.ProvisionerTypeTerraform:
+		case nicloudsdk.ProvisionerTypeTerraform:
 			tfDir := filepath.Join(cacheDir, "tf")
 			err = os.MkdirAll(tfDir, 0o700)
 			if err != nil {
 				return nil, xerrors.Errorf("mkdir terraform dir: %w", err)
 			}
 
-			tracer := coderAPI.TracerProvider.Tracer(tracing.TracerName)
+			tracer := niAPI.TracerProvider.Tracer(tracing.TracerName)
 			terraformClient, terraformServer := drpcsdk.MemTransportPipe()
 			wg.Add(1)
 			pproflabel.Go(ctx, pproflabel.Service(pproflabel.ServiceTerraformProvisioner), func(ctx context.Context) {
@@ -1587,7 +1587,7 @@ func newProvisionerDaemon(
 						Listener:      terraformServer,
 						Logger:        provisionerLogger,
 						WorkDirectory: workDir,
-						Experiments:   coderAPI.Experiments,
+						Experiments:   niAPI.Experiments,
 					},
 					CachePath: tfDir,
 					Tracer:    tracer,
@@ -1609,13 +1609,13 @@ func newProvisionerDaemon(
 	return provisionerd.New(func(dialCtx context.Context) (proto.DRPCProvisionerDaemonClient, error) {
 		// This debounces calls to listen every second. Read the comment
 		// in provisionerdserver.go to learn more!
-		return coderAPI.CreateInMemoryProvisionerDaemon(dialCtx, name, provisionerTypes)
+		return niAPI.CreateInMemoryProvisionerDaemon(dialCtx, name, provisionerTypes)
 	}, &provisionerd.Options{
 		Logger:              provisionerLogger,
 		UpdateInterval:      time.Second,
 		ForceCancelInterval: cfg.Provisioner.ForceCancelInterval.Value(),
 		Connector:           connector,
-		TracerProvider:      coderAPI.TracerProvider,
+		TracerProvider:      niAPI.TracerProvider,
 		Metrics:             &metrics,
 	}), nil
 }
@@ -1698,7 +1698,7 @@ var defaultCipherSuites = func() []uint16 {
 	return ret
 }()
 
-// configureServerTLS returns the TLS config used for the Coderd server
+// configureServerTLS returns the TLS config used for the Neural Inverse Cloudd server
 // connections to clients. A logger is passed in to allow printing warning
 // messages that do not block startup.
 func configureServerTLS(ctx context.Context, logger slog.Logger, tlsMinVersion, tlsClientAuth string, tlsCertFiles, tlsKeyFiles []string, tlsClientCAFile string, ciphers []string, allowInsecureCiphers bool) (*tls.Config, error) {
@@ -1984,7 +1984,7 @@ func configureCAPool(tlsClientCAFile string, tlsConfig *tls.Config) error {
 }
 
 const (
-	// Client ID for https://github.com/apps/coder
+	// Client ID for https://github.com/apps/neuralinverse
 	GithubOAuth2DefaultProviderClientID      = "Iv1.6a2b4b4aec4f4fe7"
 	GithubOAuth2DefaultProviderAllowEveryone = true
 	GithubOAuth2DefaultProviderDeviceFlow    = true
@@ -2033,9 +2033,9 @@ func maybeAppendDefaultGithubExternalAuthProvider(
 	ctx context.Context,
 	logger slog.Logger,
 	db database.Store,
-	vals *codersdk.DeploymentValues,
-	mergedExplicitProviders []codersdk.ExternalAuthConfig,
-) ([]codersdk.ExternalAuthConfig, error) {
+	vals *nicloudsdk.DeploymentValues,
+	mergedExplicitProviders []nicloudsdk.ExternalAuthConfig,
+) ([]nicloudsdk.ExternalAuthConfig, error) {
 	if !vals.ExternalAuthGithubDefaultProviderEnable.Value() {
 		logger.Info(ctx, "default github external auth provider suppressed",
 			slog.F("reason", "disabled by configuration"),
@@ -2064,18 +2064,18 @@ func maybeAppendDefaultGithubExternalAuthProvider(
 	}
 
 	logger.Info(ctx, "injecting default github external auth provider",
-		slog.F("type", codersdk.EnhancedExternalAuthProviderGitHub.String()),
+		slog.F("type", nicloudsdk.EnhancedExternalAuthProviderGitHub.String()),
 		slog.F("client_id", GithubOAuth2DefaultProviderClientID),
 		slog.F("device_flow", GithubOAuth2DefaultProviderDeviceFlow),
 	)
-	return append(mergedExplicitProviders, codersdk.ExternalAuthConfig{
-		Type:       codersdk.EnhancedExternalAuthProviderGitHub.String(),
+	return append(mergedExplicitProviders, nicloudsdk.ExternalAuthConfig{
+		Type:       nicloudsdk.EnhancedExternalAuthProviderGitHub.String(),
 		ClientID:   GithubOAuth2DefaultProviderClientID,
 		DeviceFlow: GithubOAuth2DefaultProviderDeviceFlow,
 	}), nil
 }
 
-func getGithubOAuth2ConfigParams(ctx context.Context, db database.Store, vals *codersdk.DeploymentValues) (*githubOAuth2ConfigParams, error) {
+func getGithubOAuth2ConfigParams(ctx context.Context, db database.Store, vals *nicloudsdk.DeploymentValues) (*githubOAuth2ConfigParams, error) {
 	params := githubOAuth2ConfigParams{
 		accessURL:         vals.AccessURL.Value(),
 		clientID:          vals.OAuth2.Github.ClientID.String(),
@@ -2117,7 +2117,7 @@ func getGithubOAuth2ConfigParams(ctx context.Context, db database.Store, vals *c
 	return &params, nil
 }
 
-func configureGithubOAuth2(instrument *promoauth.Factory, params *githubOAuth2ConfigParams) (*coderd.GithubOAuth2Config, error) {
+func configureGithubOAuth2(instrument *promoauth.Factory, params *githubOAuth2ConfigParams) (*nicloud.GithubOAuth2Config, error) {
 	redirectURL, err := params.accessURL.Parse("/api/v2/users/oauth2/github/callback")
 	if err != nil {
 		return nil, xerrors.Errorf("parse github oauth callback url: %w", err)
@@ -2131,13 +2131,13 @@ func configureGithubOAuth2(instrument *promoauth.Factory, params *githubOAuth2Co
 	if !params.allowEveryone && len(params.allowOrgs) == 0 {
 		return nil, xerrors.New("allowed orgs is empty: must specify at least one org or allow everyone")
 	}
-	allowTeams := make([]coderd.GithubOAuth2Team, 0, len(params.rawTeams))
+	allowTeams := make([]nicloud.GithubOAuth2Team, 0, len(params.rawTeams))
 	for _, rawTeam := range params.rawTeams {
 		parts := strings.SplitN(rawTeam, "/", 2)
 		if len(parts) != 2 {
 			return nil, xerrors.Errorf("github team allowlist is formatted incorrectly. got %s; wanted <organization>/<team>", rawTeam)
 		}
-		allowTeams = append(allowTeams, coderd.GithubOAuth2Team{
+		allowTeams = append(allowTeams, nicloud.GithubOAuth2Team{
 			Organization: parts[0],
 			Slug:         parts[1],
 		})
@@ -2194,7 +2194,7 @@ func configureGithubOAuth2(instrument *promoauth.Factory, params *githubOAuth2Co
 		}
 	}
 
-	return &coderd.GithubOAuth2Config{
+	return &nicloud.GithubOAuth2Config{
 		OAuth2Config:       instrumentedOauth,
 		AllowSignups:       params.allowSignups,
 		AllowEveryone:      params.allowEveryone,
@@ -2244,7 +2244,7 @@ func configureGithubOAuth2(instrument *promoauth.Factory, params *githubOAuth2Co
 			}
 			return deviceAuth.ExchangeDeviceCode(ctx, deviceCode)
 		},
-		AuthorizeDevice: func(ctx context.Context) (*codersdk.ExternalAuthDevice, error) {
+		AuthorizeDevice: func(ctx context.Context) (*nicloudsdk.ExternalAuthDevice, error) {
 			if !params.deviceFlow {
 				return nil, xerrors.New("device flow is not enabled")
 			}
@@ -2287,7 +2287,7 @@ func embeddedPostgresURL(cfg config.Root) (string, error) {
 			return "", xerrors.Errorf("write postgres port: %w", err)
 		}
 	}
-	return fmt.Sprintf("postgres://coder@localhost:%s/coder?sslmode=disable&password=%s", pgPort, pgPassword), nil
+	return fmt.Sprintf("postgres://neuralinverse@localhost:%s/neuralinverse?sslmode=disable&password=%s", pgPort, pgPassword), nil
 }
 
 func startBuiltinPostgres(ctx context.Context, cfg config.Root, logger slog.Logger, customCacheDir string) (string, func() error, error) {
@@ -2359,9 +2359,9 @@ func startBuiltinPostgres(ctx context.Context, cfg config.Root, logger slog.Logg
 				DataPath(filepath.Join(cfg.PostgresPath(), "data")).
 				RuntimePath(filepath.Join(cfg.PostgresPath(), "runtime")).
 				CachePath(cachePath).
-				Username("coder").
+				Username("neuralinverse").
 				Password(pgPassword).
-				Database("coder").
+				Database("neuralinverse").
 				Encoding("UTF8").
 				Port(uint32(pgPort)).
 				Logger(stdlibLogger.Writer()),
@@ -2381,7 +2381,7 @@ func startBuiltinPostgres(ctx context.Context, cfg config.Root, logger slog.Logg
 	}
 
 	return "", nil, xerrors.Errorf("failed to start built-in PostgreSQL after %d attempts. "+
-		"Optionally, specify an external deployment. See https://coder.com/docs/tutorials/external-database "+
+		"Optionally, specify an external deployment. See https://cloud.neuralinverse.com/docs/tutorials/external-database "+
 		"for more details: %w", maxAttempts, startErr)
 }
 
@@ -2428,7 +2428,7 @@ func redirectToAccessURL(handler http.Handler, accessURL *url.URL, tunnel bool, 
 
 		// Exception: DERP
 		// We use this endpoint when creating a DERP-mesh in the enterprise version to directly
-		// dial other Coderd derpers.  Redirecting to the access URL breaks direct dial since the
+		// dial other Neural Inverse Cloudd derpers.  Redirecting to the access URL breaks direct dial since the
 		// access URL will be load-balanced in a multi-replica deployment.
 		//
 		// It's totally fine to access DERP over TLS, but we also don't need to redirect HTTP to
@@ -2487,8 +2487,8 @@ func isDERPPath(p string) bool {
 }
 
 // isReplicaRelayRequest returns true when the request was sent by
-// another coderd replica as part of cross-replica streaming. The
-// enterprise chat relay sets X-Coder-Relay-Source-Replica on every
+// another nicloud replica as part of cross-replica streaming. The
+// enterprise chat relay sets X-Neural Inverse Cloud-Relay-Source-Replica on every
 // request to identify itself.
 func isReplicaRelayRequest(r *http.Request) bool {
 	return r.Header.Get("X-Coder-Relay-Source-Replica") != ""
@@ -2680,7 +2680,7 @@ func (s *HTTPServers) Close() {
 func ConfigureTraceProvider(
 	ctx context.Context,
 	logger slog.Logger,
-	cfg *codersdk.DeploymentValues,
+	cfg *nicloudsdk.DeploymentValues,
 ) (trace.TracerProvider, string, func(context.Context) error) {
 	var (
 		tracerProvider = trace.NewNoopTracerProvider()
@@ -2696,7 +2696,7 @@ func ConfigureTraceProvider(
 	)
 
 	if cfg.Trace.Enable.Value() || cfg.Trace.DataDog.Value() || cfg.Trace.HoneycombAPIKey != "" {
-		sdkTracerProvider, _closeTracing, err := tracing.TracerProvider(ctx, "coderd", tracing.TracerOpts{
+		sdkTracerProvider, _closeTracing, err := tracing.TracerProvider(ctx, "nicloud", tracing.TracerOpts{
 			Default:   cfg.Trace.Enable.Value(),
 			DataDog:   cfg.Trace.DataDog.Value(),
 			Honeycomb: cfg.Trace.HoneycombAPIKey.String(),
@@ -2704,7 +2704,7 @@ func ConfigureTraceProvider(
 		if err != nil {
 			logger.Warn(ctx, "start telemetry exporter", slog.Error(err))
 		} else {
-			d, err := tracing.PostgresDriver(sdkTracerProvider, "coderd.database")
+			d, err := tracing.PostgresDriver(sdkTracerProvider, "nicloud.database")
 			if err != nil {
 				logger.Warn(ctx, "start postgres tracing driver", slog.Error(err))
 			} else {
@@ -2718,7 +2718,7 @@ func ConfigureTraceProvider(
 	return tracerProvider, sqlDriver, closeTracing
 }
 
-func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *codersdk.DeploymentValues) (_ *HTTPServers, err error) {
+func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *nicloudsdk.DeploymentValues) (_ *HTTPServers, err error) {
 	ctx := inv.Context()
 	httpServers := &HTTPServers{}
 	defer func() {
@@ -2849,9 +2849,9 @@ func ConfigureHTTPServers(logger slog.Logger, inv *serpent.Invocation, cfg *code
 // It made more sense to have the redirect be opt-in.
 //
 // Also, for a while we have been accepting the environment variable (but not the
-// corresponding flag!) "CODER_TLS_REDIRECT_HTTP", and it appeared in a configuration
+// corresponding flag!) "NEURALINVERSE_TLS_REDIRECT_HTTP", and it appeared in a configuration
 // example, so we keep accepting it to not break backward compat.
-func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv *serpent.Invocation, cfg *codersdk.DeploymentValues) {
+func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv *serpent.Invocation, cfg *nicloudsdk.DeploymentValues) {
 	truthy := func(s string) bool {
 		b, err := strconv.ParseBool(s)
 		if err != nil {
@@ -2859,8 +2859,8 @@ func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv
 		}
 		return b
 	}
-	if truthy(inv.Environ.Get("CODER_TLS_REDIRECT_HTTP")) ||
-		truthy(inv.Environ.Get("CODER_TLS_REDIRECT_HTTP_TO_HTTPS")) ||
+	if truthy(inv.Environ.Get("NEURALINVERSE_TLS_REDIRECT_HTTP")) ||
+		truthy(inv.Environ.Get("NEURALINVERSE_TLS_REDIRECT_HTTP_TO_HTTPS")) ||
 		inv.ParsedFlags().Changed("tls-redirect-http-to-https") {
 		logger.Warn(ctx, "⚠️ --tls-redirect-http-to-https is deprecated, please use --redirect-to-access-url instead")
 		cfg.RedirectToAccessURL = cfg.TLS.RedirectHTTP
@@ -2869,13 +2869,13 @@ func redirectHTTPToHTTPSDeprecation(ctx context.Context, logger slog.Logger, inv
 
 // ReadExternalAuthProvidersFromEnv is provided for compatibility purposes with
 // the viper CLI.
-func ReadExternalAuthProvidersFromEnv(environ []string) ([]codersdk.ExternalAuthConfig, error) {
-	providers, err := parseExternalAuthProvidersFromEnv("CODER_EXTERNAL_AUTH_", environ)
+func ReadExternalAuthProvidersFromEnv(environ []string) ([]nicloudsdk.ExternalAuthConfig, error) {
+	providers, err := parseExternalAuthProvidersFromEnv("NEURALINVERSE_EXTERNAL_AUTH_", environ)
 	if err != nil {
 		return nil, err
 	}
 	// Deprecated: To support legacy git auth!
-	gitProviders, err := parseExternalAuthProvidersFromEnv("CODER_GITAUTH_", environ)
+	gitProviders, err := parseExternalAuthProvidersFromEnv("NEURALINVERSE_GITAUTH_", environ)
 	if err != nil {
 		return nil, err
 	}
@@ -2885,11 +2885,11 @@ func ReadExternalAuthProvidersFromEnv(environ []string) ([]codersdk.ExternalAuth
 // parseExternalAuthProvidersFromEnv consumes environment variables to parse
 // external auth providers. A prefix is provided to support the legacy
 // parsing of `GITAUTH` environment variables.
-func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]codersdk.ExternalAuthConfig, error) {
+func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]nicloudsdk.ExternalAuthConfig, error) {
 	// The index numbers must be in-order.
 	slices.Sort(environ)
 
-	var providers []codersdk.ExternalAuthConfig
+	var providers []nicloudsdk.ExternalAuthConfig
 	for _, v := range serpent.ParseEnviron(environ, prefix) {
 		tokens := strings.SplitN(v.Name, "_", 2)
 		if len(tokens) != 2 {
@@ -2901,7 +2901,7 @@ func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]coder
 			return nil, xerrors.Errorf("parse number: %s", v.Name)
 		}
 
-		var provider codersdk.ExternalAuthConfig
+		var provider nicloudsdk.ExternalAuthConfig
 		switch {
 		case len(providers) < providerNum:
 			return nil, xerrors.Errorf(
@@ -2980,17 +2980,17 @@ func parseExternalAuthProvidersFromEnv(prefix string, environ []string) ([]coder
 }
 
 const (
-	aiGatewayProviderEnvPrefix = "CODER_AI_GATEWAY_PROVIDER_"
-	aiBridgeProviderEnvPrefix  = "CODER_AIBRIDGE_PROVIDER_"
+	aiGatewayProviderEnvPrefix = "NEURALINVERSE_AI_GATEWAY_PROVIDER_"
+	aiBridgeProviderEnvPrefix  = "NEURALINVERSE_AIBRIDGE_PROVIDER_"
 )
 
-// ReadAIProvidersFromEnv parses CODER_AI_GATEWAY_PROVIDER_<N>_<KEY>
+// ReadAIProvidersFromEnv parses NEURALINVERSE_AI_GATEWAY_PROVIDER_<N>_<KEY>
 // environment variables into a slice of AIProviderConfig.
-// Deprecated alias env vars with the CODER_AIBRIDGE_PROVIDER_<N>_<KEY>
+// Deprecated alias env vars with the NEURALINVERSE_AIBRIDGE_PROVIDER_<N>_<KEY>
 // prefix are also accepted for compatibility. Prefixes are mutually exclusive.
 //
 // This follows the same indexed pattern as ReadExternalAuthProvidersFromEnv.
-func ReadAIProvidersFromEnv(logger slog.Logger, environ []string) ([]codersdk.AIProviderConfig, error) {
+func ReadAIProvidersFromEnv(logger slog.Logger, environ []string) ([]nicloudsdk.AIProviderConfig, error) {
 	providers, err := readAIProvidersForPrefix(logger, environ, aiBridgeProviderEnvPrefix)
 	if err != nil {
 		return nil, err
@@ -3031,11 +3031,11 @@ func ReadAIProvidersFromEnv(logger slog.Logger, environ []string) ([]codersdk.AI
 		if len(p.BedrockAccessKeySecrets) > 0 {
 			bedrockSecret = p.BedrockAccessKeySecrets[0]
 		}
-		settings := codersdk.NewAIProviderBedrockSettings(
+		settings := nicloudsdk.NewAIProviderBedrockSettings(
 			p.BedrockRegion, bedrockKey, bedrockSecret,
 			p.BedrockModel, p.BedrockSmallFastModel,
 		)
-		isBedrock := codersdk.IsBedrockConfigured(p.BedrockBaseURL, settings)
+		isBedrock := nicloudsdk.IsBedrockConfigured(p.BedrockBaseURL, settings)
 
 		// BEDROCK_* fields are accepted on anthropic (mutually exclusive
 		// with KEYS) and required on bedrock. Any other TYPE rejecting
@@ -3093,7 +3093,7 @@ func ReadAIProvidersFromEnv(logger slog.Logger, environ []string) ([]codersdk.AI
 	return providers, nil
 }
 
-func warnIfAIProvidersConfiguredFromEnv(ctx context.Context, logger slog.Logger, prefix string, providers []codersdk.AIProviderConfig) {
+func warnIfAIProvidersConfiguredFromEnv(ctx context.Context, logger slog.Logger, prefix string, providers []nicloudsdk.AIProviderConfig) {
 	if len(providers) == 0 {
 		return
 	}
@@ -3110,11 +3110,11 @@ func warnIfAIProvidersConfiguredFromEnv(ctx context.Context, logger slog.Logger,
 }
 
 // readAIProvidersForPrefix parses provider env vars under a single
-// indexed prefix (e.g. CODER_AI_GATEWAY_PROVIDER_) into a slice of
+// indexed prefix (e.g. NEURALINVERSE_AI_GATEWAY_PROVIDER_) into a slice of
 // AIProviderConfig. Per-field syntax errors and unknown keys are
 // reported using the original env var name so the prefix stays visible
 // to the operator.
-func readAIProvidersForPrefix(logger slog.Logger, environ []string, prefix string) ([]codersdk.AIProviderConfig, error) {
+func readAIProvidersForPrefix(logger slog.Logger, environ []string, prefix string) ([]nicloudsdk.AIProviderConfig, error) {
 	parsed := serpent.ParseEnviron(environ, prefix)
 
 	// Sort by numeric index so that PROVIDER_2 comes before PROVIDER_10.
@@ -3127,7 +3127,7 @@ func readAIProvidersForPrefix(logger slog.Logger, environ []string, prefix strin
 		return strings.Compare(a.Name, b.Name)
 	})
 
-	var providers []codersdk.AIProviderConfig
+	var providers []nicloudsdk.AIProviderConfig
 	for _, v := range parsed {
 		fullName := prefix + v.Name
 		tokens := strings.SplitN(v.Name, "_", 2)
@@ -3140,7 +3140,7 @@ func readAIProvidersForPrefix(logger slog.Logger, environ []string, prefix strin
 			return nil, xerrors.Errorf("parse number: %s", fullName)
 		}
 
-		var provider codersdk.AIProviderConfig
+		var provider nicloudsdk.AIProviderConfig
 		switch {
 		case len(providers) < providerNum:
 			return nil, xerrors.Errorf(
@@ -3209,25 +3209,25 @@ func readAIProvidersForPrefix(logger slog.Logger, environ []string, prefix strin
 }
 
 // validateLegacyAIBridgeConfig enforces invariants on the legacy
-// single-provider env vars (CODER_AIBRIDGE_ANTHROPIC_KEY,
-// CODER_AIBRIDGE_BEDROCK_*) that the indexed validator above can't
+// single-provider env vars (NEURALINVERSE_AIBRIDGE_ANTHROPIC_KEY,
+// NEURALINVERSE_AIBRIDGE_BEDROCK_*) that the indexed validator above can't
 // catch because legacy fields live outside cfg.Providers.
-func validateLegacyAIBridgeConfig(cfg codersdk.AIBridgeConfig) error {
+func validateLegacyAIBridgeConfig(cfg nicloudsdk.AIBridgeConfig) error {
 	// An Anthropic provider authenticates either via a bearer token
 	// or via Bedrock, not both. Fields without serpent-level
 	// defaults (region, base URL, credentials) reliably indicate
 	// operator intent; Model and SmallFastModel are excluded because
 	// they have defaults.
-	settings := codersdk.NewAIProviderBedrockSettings(
+	settings := nicloudsdk.NewAIProviderBedrockSettings(
 		cfg.LegacyBedrock.Region.String(),
 		cfg.LegacyBedrock.AccessKey.String(),
 		cfg.LegacyBedrock.AccessKeySecret.String(),
 		cfg.LegacyBedrock.Model.String(),
 		cfg.LegacyBedrock.SmallFastModel.String(),
 	)
-	hasBedrock := codersdk.IsBedrockConfigured(cfg.LegacyBedrock.BaseURL.String(), settings)
+	hasBedrock := nicloudsdk.IsBedrockConfigured(cfg.LegacyBedrock.BaseURL.String(), settings)
 	if cfg.LegacyAnthropic.Key.String() != "" && hasBedrock {
-		return xerrors.New("CODER_AIBRIDGE_ANTHROPIC_KEY and CODER_AIBRIDGE_BEDROCK_* are mutually exclusive")
+		return xerrors.New("NEURALINVERSE_AIBRIDGE_ANTHROPIC_KEY and NEURALINVERSE_AIBRIDGE_BEDROCK_* are mutually exclusive")
 	}
 	return nil
 }
@@ -3334,13 +3334,13 @@ func signalNotifyContext(ctx context.Context, inv *serpent.Invocation, sig ...os
 	return inv.SignalNotifyContext(ctx, sig...)
 }
 
-func getAndMigratePostgresDB(ctx context.Context, logger slog.Logger, postgresURL string, auth codersdk.PostgresAuth, sqlDriver string, opts ...PostgresConnectOption) (*sql.DB, string, error) {
+func getAndMigratePostgresDB(ctx context.Context, logger slog.Logger, postgresURL string, auth nicloudsdk.PostgresAuth, sqlDriver string, opts ...PostgresConnectOption) (*sql.DB, string, error) {
 	dbURL, err := escapePostgresURLUserInfo(postgresURL)
 	if err != nil {
 		return nil, "", xerrors.Errorf("escaping postgres URL: %w", err)
 	}
 
-	if auth == codersdk.PostgresAuthAWSIAMRDS {
+	if auth == nicloudsdk.PostgresAuthAWSIAMRDS {
 		sqlDriver, err = awsiamrds.Register(ctx, sqlDriver)
 		if err != nil {
 			return nil, "", xerrors.Errorf("register aws rds iam auth: %w", err)

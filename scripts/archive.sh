@@ -25,9 +25,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 format=""
 output_path=""
-sign_darwin="${CODER_SIGN_DARWIN:-0}"
+sign_darwin="${NEURALINVERSE_SIGN_DARWIN:-0}"
 os=""
-agpl="${CODER_BUILD_AGPL:-0}"
+agpl="${NEURALINVERSE_BUILD_AGPL:-0}"
 
 args="$(getopt -o "" -l format:,output:,sign-darwin,os:,agpl -- "$@")"
 eval set -- "$args"

@@ -7,7 +7,7 @@
 package proto
 
 import (
-	proto "github.com/coder/coder/v2/tailnet/proto"
+	proto "github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -842,9 +842,9 @@ type WorkspaceApp struct {
 	Icon          string                    `protobuf:"bytes,7,opt,name=icon,proto3" json:"icon,omitempty"`
 	Subdomain     bool                      `protobuf:"varint,8,opt,name=subdomain,proto3" json:"subdomain,omitempty"`
 	SubdomainName string                    `protobuf:"bytes,9,opt,name=subdomain_name,json=subdomainName,proto3" json:"subdomain_name,omitempty"`
-	SharingLevel  WorkspaceApp_SharingLevel `protobuf:"varint,10,opt,name=sharing_level,json=sharingLevel,proto3,enum=coder.agent.v2.WorkspaceApp_SharingLevel" json:"sharing_level,omitempty"`
+	SharingLevel  WorkspaceApp_SharingLevel `protobuf:"varint,10,opt,name=sharing_level,json=sharingLevel,proto3,enum=neuralinverse.agent.v2.WorkspaceApp_SharingLevel" json:"sharing_level,omitempty"`
 	Healthcheck   *WorkspaceApp_Healthcheck `protobuf:"bytes,11,opt,name=healthcheck,proto3" json:"healthcheck,omitempty"`
-	Health        WorkspaceApp_Health       `protobuf:"varint,12,opt,name=health,proto3,enum=coder.agent.v2.WorkspaceApp_Health" json:"health,omitempty"`
+	Health        WorkspaceApp_Health       `protobuf:"varint,12,opt,name=health,proto3,enum=neuralinverse.agent.v2.WorkspaceApp_Health" json:"health,omitempty"`
 	Hidden        bool                      `protobuf:"varint,13,opt,name=hidden,proto3" json:"hidden,omitempty"`
 }
 
@@ -1874,7 +1874,7 @@ type Lifecycle struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	State     Lifecycle_State        `protobuf:"varint,1,opt,name=state,proto3,enum=coder.agent.v2.Lifecycle_State" json:"state,omitempty"`
+	State     Lifecycle_State        `protobuf:"varint,1,opt,name=state,proto3,enum=neuralinverse.agent.v2.Lifecycle_State" json:"state,omitempty"`
 	ChangedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=changed_at,json=changedAt,proto3" json:"changed_at,omitempty"`
 }
 
@@ -2063,7 +2063,7 @@ type Startup struct {
 
 	Version           string              `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
 	ExpandedDirectory string              `protobuf:"bytes,2,opt,name=expanded_directory,json=expandedDirectory,proto3" json:"expanded_directory,omitempty"`
-	Subsystems        []Startup_Subsystem `protobuf:"varint,3,rep,packed,name=subsystems,proto3,enum=coder.agent.v2.Startup_Subsystem" json:"subsystems,omitempty"`
+	Subsystems        []Startup_Subsystem `protobuf:"varint,3,rep,packed,name=subsystems,proto3,enum=neuralinverse.agent.v2.Startup_Subsystem" json:"subsystems,omitempty"`
 }
 
 func (x *Startup) Reset() {
@@ -2313,7 +2313,7 @@ type Log struct {
 
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	Output    string                 `protobuf:"bytes,2,opt,name=output,proto3" json:"output,omitempty"`
-	Level     Log_Level              `protobuf:"varint,3,opt,name=level,proto3,enum=coder.agent.v2.Log_Level" json:"level,omitempty"`
+	Level     Log_Level              `protobuf:"varint,3,opt,name=level,proto3,enum=neuralinverse.agent.v2.Log_Level" json:"level,omitempty"`
 }
 
 func (x *Log) Reset() {
@@ -2713,8 +2713,8 @@ type Timing struct {
 	Start    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start,proto3" json:"start,omitempty"`
 	End      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end,proto3" json:"end,omitempty"`
 	ExitCode int32                  `protobuf:"varint,4,opt,name=exit_code,json=exitCode,proto3" json:"exit_code,omitempty"`
-	Stage    Timing_Stage           `protobuf:"varint,5,opt,name=stage,proto3,enum=coder.agent.v2.Timing_Stage" json:"stage,omitempty"`
-	Status   Timing_Status          `protobuf:"varint,6,opt,name=status,proto3,enum=coder.agent.v2.Timing_Status" json:"status,omitempty"`
+	Stage    Timing_Stage           `protobuf:"varint,5,opt,name=stage,proto3,enum=neuralinverse.agent.v2.Timing_Stage" json:"stage,omitempty"`
+	Status   Timing_Status          `protobuf:"varint,6,opt,name=status,proto3,enum=neuralinverse.agent.v2.Timing_Status" json:"status,omitempty"`
 }
 
 func (x *Timing) Reset() {
@@ -2983,8 +2983,8 @@ type Connection struct {
 	unknownFields protoimpl.UnknownFields
 
 	Id         []byte                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Action     Connection_Action      `protobuf:"varint,2,opt,name=action,proto3,enum=coder.agent.v2.Connection_Action" json:"action,omitempty"`
-	Type       Connection_Type        `protobuf:"varint,3,opt,name=type,proto3,enum=coder.agent.v2.Connection_Type" json:"type,omitempty"`
+	Action     Connection_Action      `protobuf:"varint,2,opt,name=action,proto3,enum=neuralinverse.agent.v2.Connection_Action" json:"action,omitempty"`
+	Type       Connection_Type        `protobuf:"varint,3,opt,name=type,proto3,enum=neuralinverse.agent.v2.Connection_Type" json:"type,omitempty"`
 	Timestamp  *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	Ip         string                 `protobuf:"bytes,5,opt,name=ip,proto3" json:"ip,omitempty"`
 	StatusCode int32                  `protobuf:"varint,6,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
@@ -3192,7 +3192,7 @@ type CreateSubAgentRequest struct {
 	Architecture    string                             `protobuf:"bytes,3,opt,name=architecture,proto3" json:"architecture,omitempty"`
 	OperatingSystem string                             `protobuf:"bytes,4,opt,name=operating_system,json=operatingSystem,proto3" json:"operating_system,omitempty"`
 	Apps            []*CreateSubAgentRequest_App       `protobuf:"bytes,5,rep,name=apps,proto3" json:"apps,omitempty"`
-	DisplayApps     []CreateSubAgentRequest_DisplayApp `protobuf:"varint,6,rep,packed,name=display_apps,json=displayApps,proto3,enum=coder.agent.v2.CreateSubAgentRequest_DisplayApp" json:"display_apps,omitempty"`
+	DisplayApps     []CreateSubAgentRequest_DisplayApp `protobuf:"varint,6,rep,packed,name=display_apps,json=displayApps,proto3,enum=neuralinverse.agent.v2.CreateSubAgentRequest_DisplayApp" json:"display_apps,omitempty"`
 	Id              []byte                             `protobuf:"bytes,7,opt,name=id,proto3,oneof" json:"id,omitempty"`
 }
 
@@ -3715,7 +3715,7 @@ type UpdateAppStatusRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Slug    string                                `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
-	State   UpdateAppStatusRequest_AppStatusState `protobuf:"varint,2,opt,name=state,proto3,enum=coder.agent.v2.UpdateAppStatusRequest_AppStatusState" json:"state,omitempty"`
+	State   UpdateAppStatusRequest_AppStatusState `protobuf:"varint,2,opt,name=state,proto3,enum=neuralinverse.agent.v2.UpdateAppStatusRequest_AppStatusState" json:"state,omitempty"`
 	Message string                                `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
 	Uri     string                                `protobuf:"bytes,4,opt,name=uri,proto3" json:"uri,omitempty"`
 }
@@ -4037,7 +4037,7 @@ type Stats_Metric struct {
 	unknownFields protoimpl.UnknownFields
 
 	Name   string                `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Type   Stats_Metric_Type     `protobuf:"varint,2,opt,name=type,proto3,enum=coder.agent.v2.Stats_Metric_Type" json:"type,omitempty"`
+	Type   Stats_Metric_Type     `protobuf:"varint,2,opt,name=type,proto3,enum=neuralinverse.agent.v2.Stats_Metric_Type" json:"type,omitempty"`
 	Value  float64               `protobuf:"fixed64,3,opt,name=value,proto3" json:"value,omitempty"`
 	Labels []*Stats_Metric_Label `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty"`
 }
@@ -4163,7 +4163,7 @@ type BatchUpdateAppHealthRequest_HealthUpdate struct {
 	unknownFields protoimpl.UnknownFields
 
 	Id     []byte    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Health AppHealth `protobuf:"varint,2,opt,name=health,proto3,enum=coder.agent.v2.AppHealth" json:"health,omitempty"`
+	Health AppHealth `protobuf:"varint,2,opt,name=health,proto3,enum=neuralinverse.agent.v2.AppHealth" json:"health,omitempty"`
 }
 
 func (x *BatchUpdateAppHealthRequest_HealthUpdate) Reset() {
@@ -4563,9 +4563,9 @@ type CreateSubAgentRequest_App struct {
 	Healthcheck *CreateSubAgentRequest_App_Healthcheck  `protobuf:"bytes,6,opt,name=healthcheck,proto3,oneof" json:"healthcheck,omitempty"`
 	Hidden      *bool                                   `protobuf:"varint,7,opt,name=hidden,proto3,oneof" json:"hidden,omitempty"`
 	Icon        *string                                 `protobuf:"bytes,8,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
-	OpenIn      *CreateSubAgentRequest_App_OpenIn       `protobuf:"varint,9,opt,name=open_in,json=openIn,proto3,enum=coder.agent.v2.CreateSubAgentRequest_App_OpenIn,oneof" json:"open_in,omitempty"`
+	OpenIn      *CreateSubAgentRequest_App_OpenIn       `protobuf:"varint,9,opt,name=open_in,json=openIn,proto3,enum=neuralinverse.agent.v2.CreateSubAgentRequest_App_OpenIn,oneof" json:"open_in,omitempty"`
 	Order       *int32                                  `protobuf:"varint,10,opt,name=order,proto3,oneof" json:"order,omitempty"`
-	Share       *CreateSubAgentRequest_App_SharingLevel `protobuf:"varint,11,opt,name=share,proto3,enum=coder.agent.v2.CreateSubAgentRequest_App_SharingLevel,oneof" json:"share,omitempty"`
+	Share       *CreateSubAgentRequest_App_SharingLevel `protobuf:"varint,11,opt,name=share,proto3,enum=neuralinverse.agent.v2.CreateSubAgentRequest_App_SharingLevel,oneof" json:"share,omitempty"`
 	Subdomain   *bool                                   `protobuf:"varint,12,opt,name=subdomain,proto3,oneof" json:"subdomain,omitempty"`
 	Url         *string                                 `protobuf:"bytes,13,opt,name=url,proto3,oneof" json:"url,omitempty"`
 }
@@ -5730,193 +5730,193 @@ func file_agent_proto_agent_proto_rawDescGZIP() []byte {
 var file_agent_proto_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 15)
 var file_agent_proto_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 66)
 var file_agent_proto_agent_proto_goTypes = []interface{}{
-	(AppHealth)(0),                                      // 0: coder.agent.v2.AppHealth
-	(WorkspaceApp_SharingLevel)(0),                      // 1: coder.agent.v2.WorkspaceApp.SharingLevel
-	(WorkspaceApp_Health)(0),                            // 2: coder.agent.v2.WorkspaceApp.Health
-	(Stats_Metric_Type)(0),                              // 3: coder.agent.v2.Stats.Metric.Type
-	(Lifecycle_State)(0),                                // 4: coder.agent.v2.Lifecycle.State
-	(Startup_Subsystem)(0),                              // 5: coder.agent.v2.Startup.Subsystem
-	(Log_Level)(0),                                      // 6: coder.agent.v2.Log.Level
-	(Timing_Stage)(0),                                   // 7: coder.agent.v2.Timing.Stage
-	(Timing_Status)(0),                                  // 8: coder.agent.v2.Timing.Status
-	(Connection_Action)(0),                              // 9: coder.agent.v2.Connection.Action
-	(Connection_Type)(0),                                // 10: coder.agent.v2.Connection.Type
-	(CreateSubAgentRequest_DisplayApp)(0),               // 11: coder.agent.v2.CreateSubAgentRequest.DisplayApp
-	(CreateSubAgentRequest_App_OpenIn)(0),               // 12: coder.agent.v2.CreateSubAgentRequest.App.OpenIn
-	(CreateSubAgentRequest_App_SharingLevel)(0),         // 13: coder.agent.v2.CreateSubAgentRequest.App.SharingLevel
-	(UpdateAppStatusRequest_AppStatusState)(0),          // 14: coder.agent.v2.UpdateAppStatusRequest.AppStatusState
-	(*WorkspaceApp)(nil),                                // 15: coder.agent.v2.WorkspaceApp
-	(*WorkspaceAgentScript)(nil),                        // 16: coder.agent.v2.WorkspaceAgentScript
-	(*WorkspaceAgentMetadata)(nil),                      // 17: coder.agent.v2.WorkspaceAgentMetadata
-	(*Manifest)(nil),                                    // 18: coder.agent.v2.Manifest
-	(*WorkspaceSecret)(nil),                             // 19: coder.agent.v2.WorkspaceSecret
-	(*WorkspaceAgentDevcontainer)(nil),                  // 20: coder.agent.v2.WorkspaceAgentDevcontainer
-	(*GetManifestRequest)(nil),                          // 21: coder.agent.v2.GetManifestRequest
-	(*ServiceBanner)(nil),                               // 22: coder.agent.v2.ServiceBanner
-	(*GetServiceBannerRequest)(nil),                     // 23: coder.agent.v2.GetServiceBannerRequest
-	(*Stats)(nil),                                       // 24: coder.agent.v2.Stats
-	(*UpdateStatsRequest)(nil),                          // 25: coder.agent.v2.UpdateStatsRequest
-	(*UpdateStatsResponse)(nil),                         // 26: coder.agent.v2.UpdateStatsResponse
-	(*Lifecycle)(nil),                                   // 27: coder.agent.v2.Lifecycle
-	(*UpdateLifecycleRequest)(nil),                      // 28: coder.agent.v2.UpdateLifecycleRequest
-	(*BatchUpdateAppHealthRequest)(nil),                 // 29: coder.agent.v2.BatchUpdateAppHealthRequest
-	(*BatchUpdateAppHealthResponse)(nil),                // 30: coder.agent.v2.BatchUpdateAppHealthResponse
-	(*Startup)(nil),                                     // 31: coder.agent.v2.Startup
-	(*UpdateStartupRequest)(nil),                        // 32: coder.agent.v2.UpdateStartupRequest
-	(*Metadata)(nil),                                    // 33: coder.agent.v2.Metadata
-	(*BatchUpdateMetadataRequest)(nil),                  // 34: coder.agent.v2.BatchUpdateMetadataRequest
-	(*BatchUpdateMetadataResponse)(nil),                 // 35: coder.agent.v2.BatchUpdateMetadataResponse
-	(*Log)(nil),                                         // 36: coder.agent.v2.Log
-	(*BatchCreateLogsRequest)(nil),                      // 37: coder.agent.v2.BatchCreateLogsRequest
-	(*BatchCreateLogsResponse)(nil),                     // 38: coder.agent.v2.BatchCreateLogsResponse
-	(*GetAnnouncementBannersRequest)(nil),               // 39: coder.agent.v2.GetAnnouncementBannersRequest
-	(*GetAnnouncementBannersResponse)(nil),              // 40: coder.agent.v2.GetAnnouncementBannersResponse
-	(*BannerConfig)(nil),                                // 41: coder.agent.v2.BannerConfig
-	(*WorkspaceAgentScriptCompletedRequest)(nil),        // 42: coder.agent.v2.WorkspaceAgentScriptCompletedRequest
-	(*WorkspaceAgentScriptCompletedResponse)(nil),       // 43: coder.agent.v2.WorkspaceAgentScriptCompletedResponse
-	(*Timing)(nil),                                      // 44: coder.agent.v2.Timing
-	(*GetResourcesMonitoringConfigurationRequest)(nil),  // 45: coder.agent.v2.GetResourcesMonitoringConfigurationRequest
-	(*GetResourcesMonitoringConfigurationResponse)(nil), // 46: coder.agent.v2.GetResourcesMonitoringConfigurationResponse
-	(*PushResourcesMonitoringUsageRequest)(nil),         // 47: coder.agent.v2.PushResourcesMonitoringUsageRequest
-	(*PushResourcesMonitoringUsageResponse)(nil),        // 48: coder.agent.v2.PushResourcesMonitoringUsageResponse
-	(*Connection)(nil),                                  // 49: coder.agent.v2.Connection
-	(*ReportConnectionRequest)(nil),                     // 50: coder.agent.v2.ReportConnectionRequest
-	(*SubAgent)(nil),                                    // 51: coder.agent.v2.SubAgent
-	(*CreateSubAgentRequest)(nil),                       // 52: coder.agent.v2.CreateSubAgentRequest
-	(*CreateSubAgentResponse)(nil),                      // 53: coder.agent.v2.CreateSubAgentResponse
-	(*DeleteSubAgentRequest)(nil),                       // 54: coder.agent.v2.DeleteSubAgentRequest
-	(*DeleteSubAgentResponse)(nil),                      // 55: coder.agent.v2.DeleteSubAgentResponse
-	(*ListSubAgentsRequest)(nil),                        // 56: coder.agent.v2.ListSubAgentsRequest
-	(*ListSubAgentsResponse)(nil),                       // 57: coder.agent.v2.ListSubAgentsResponse
-	(*BoundaryLog)(nil),                                 // 58: coder.agent.v2.BoundaryLog
-	(*ReportBoundaryLogsRequest)(nil),                   // 59: coder.agent.v2.ReportBoundaryLogsRequest
-	(*ReportBoundaryLogsResponse)(nil),                  // 60: coder.agent.v2.ReportBoundaryLogsResponse
-	(*UpdateAppStatusRequest)(nil),                      // 61: coder.agent.v2.UpdateAppStatusRequest
-	(*UpdateAppStatusResponse)(nil),                     // 62: coder.agent.v2.UpdateAppStatusResponse
-	(*WorkspaceApp_Healthcheck)(nil),                    // 63: coder.agent.v2.WorkspaceApp.Healthcheck
-	(*WorkspaceAgentMetadata_Result)(nil),               // 64: coder.agent.v2.WorkspaceAgentMetadata.Result
-	(*WorkspaceAgentMetadata_Description)(nil),          // 65: coder.agent.v2.WorkspaceAgentMetadata.Description
-	nil,                        // 66: coder.agent.v2.Manifest.EnvironmentVariablesEntry
-	nil,                        // 67: coder.agent.v2.Stats.ConnectionsByProtoEntry
-	(*Stats_Metric)(nil),       // 68: coder.agent.v2.Stats.Metric
-	(*Stats_Metric_Label)(nil), // 69: coder.agent.v2.Stats.Metric.Label
-	(*BatchUpdateAppHealthRequest_HealthUpdate)(nil),                  // 70: coder.agent.v2.BatchUpdateAppHealthRequest.HealthUpdate
-	(*GetResourcesMonitoringConfigurationResponse_Config)(nil),        // 71: coder.agent.v2.GetResourcesMonitoringConfigurationResponse.Config
-	(*GetResourcesMonitoringConfigurationResponse_Memory)(nil),        // 72: coder.agent.v2.GetResourcesMonitoringConfigurationResponse.Memory
-	(*GetResourcesMonitoringConfigurationResponse_Volume)(nil),        // 73: coder.agent.v2.GetResourcesMonitoringConfigurationResponse.Volume
-	(*PushResourcesMonitoringUsageRequest_Datapoint)(nil),             // 74: coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint
-	(*PushResourcesMonitoringUsageRequest_Datapoint_MemoryUsage)(nil), // 75: coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.MemoryUsage
-	(*PushResourcesMonitoringUsageRequest_Datapoint_VolumeUsage)(nil), // 76: coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.VolumeUsage
-	(*CreateSubAgentRequest_App)(nil),                                 // 77: coder.agent.v2.CreateSubAgentRequest.App
-	(*CreateSubAgentRequest_App_Healthcheck)(nil),                     // 78: coder.agent.v2.CreateSubAgentRequest.App.Healthcheck
-	(*CreateSubAgentResponse_AppCreationError)(nil),                   // 79: coder.agent.v2.CreateSubAgentResponse.AppCreationError
-	(*BoundaryLog_HttpRequest)(nil),                                   // 80: coder.agent.v2.BoundaryLog.HttpRequest
+	(AppHealth)(0),                                      // 0: neuralinverse.agent.v2.AppHealth
+	(WorkspaceApp_SharingLevel)(0),                      // 1: neuralinverse.agent.v2.WorkspaceApp.SharingLevel
+	(WorkspaceApp_Health)(0),                            // 2: neuralinverse.agent.v2.WorkspaceApp.Health
+	(Stats_Metric_Type)(0),                              // 3: neuralinverse.agent.v2.Stats.Metric.Type
+	(Lifecycle_State)(0),                                // 4: neuralinverse.agent.v2.Lifecycle.State
+	(Startup_Subsystem)(0),                              // 5: neuralinverse.agent.v2.Startup.Subsystem
+	(Log_Level)(0),                                      // 6: neuralinverse.agent.v2.Log.Level
+	(Timing_Stage)(0),                                   // 7: neuralinverse.agent.v2.Timing.Stage
+	(Timing_Status)(0),                                  // 8: neuralinverse.agent.v2.Timing.Status
+	(Connection_Action)(0),                              // 9: neuralinverse.agent.v2.Connection.Action
+	(Connection_Type)(0),                                // 10: neuralinverse.agent.v2.Connection.Type
+	(CreateSubAgentRequest_DisplayApp)(0),               // 11: neuralinverse.agent.v2.CreateSubAgentRequest.DisplayApp
+	(CreateSubAgentRequest_App_OpenIn)(0),               // 12: neuralinverse.agent.v2.CreateSubAgentRequest.App.OpenIn
+	(CreateSubAgentRequest_App_SharingLevel)(0),         // 13: neuralinverse.agent.v2.CreateSubAgentRequest.App.SharingLevel
+	(UpdateAppStatusRequest_AppStatusState)(0),          // 14: neuralinverse.agent.v2.UpdateAppStatusRequest.AppStatusState
+	(*WorkspaceApp)(nil),                                // 15: neuralinverse.agent.v2.WorkspaceApp
+	(*WorkspaceAgentScript)(nil),                        // 16: neuralinverse.agent.v2.WorkspaceAgentScript
+	(*WorkspaceAgentMetadata)(nil),                      // 17: neuralinverse.agent.v2.WorkspaceAgentMetadata
+	(*Manifest)(nil),                                    // 18: neuralinverse.agent.v2.Manifest
+	(*WorkspaceSecret)(nil),                             // 19: neuralinverse.agent.v2.WorkspaceSecret
+	(*WorkspaceAgentDevcontainer)(nil),                  // 20: neuralinverse.agent.v2.WorkspaceAgentDevcontainer
+	(*GetManifestRequest)(nil),                          // 21: neuralinverse.agent.v2.GetManifestRequest
+	(*ServiceBanner)(nil),                               // 22: neuralinverse.agent.v2.ServiceBanner
+	(*GetServiceBannerRequest)(nil),                     // 23: neuralinverse.agent.v2.GetServiceBannerRequest
+	(*Stats)(nil),                                       // 24: neuralinverse.agent.v2.Stats
+	(*UpdateStatsRequest)(nil),                          // 25: neuralinverse.agent.v2.UpdateStatsRequest
+	(*UpdateStatsResponse)(nil),                         // 26: neuralinverse.agent.v2.UpdateStatsResponse
+	(*Lifecycle)(nil),                                   // 27: neuralinverse.agent.v2.Lifecycle
+	(*UpdateLifecycleRequest)(nil),                      // 28: neuralinverse.agent.v2.UpdateLifecycleRequest
+	(*BatchUpdateAppHealthRequest)(nil),                 // 29: neuralinverse.agent.v2.BatchUpdateAppHealthRequest
+	(*BatchUpdateAppHealthResponse)(nil),                // 30: neuralinverse.agent.v2.BatchUpdateAppHealthResponse
+	(*Startup)(nil),                                     // 31: neuralinverse.agent.v2.Startup
+	(*UpdateStartupRequest)(nil),                        // 32: neuralinverse.agent.v2.UpdateStartupRequest
+	(*Metadata)(nil),                                    // 33: neuralinverse.agent.v2.Metadata
+	(*BatchUpdateMetadataRequest)(nil),                  // 34: neuralinverse.agent.v2.BatchUpdateMetadataRequest
+	(*BatchUpdateMetadataResponse)(nil),                 // 35: neuralinverse.agent.v2.BatchUpdateMetadataResponse
+	(*Log)(nil),                                         // 36: neuralinverse.agent.v2.Log
+	(*BatchCreateLogsRequest)(nil),                      // 37: neuralinverse.agent.v2.BatchCreateLogsRequest
+	(*BatchCreateLogsResponse)(nil),                     // 38: neuralinverse.agent.v2.BatchCreateLogsResponse
+	(*GetAnnouncementBannersRequest)(nil),               // 39: neuralinverse.agent.v2.GetAnnouncementBannersRequest
+	(*GetAnnouncementBannersResponse)(nil),              // 40: neuralinverse.agent.v2.GetAnnouncementBannersResponse
+	(*BannerConfig)(nil),                                // 41: neuralinverse.agent.v2.BannerConfig
+	(*WorkspaceAgentScriptCompletedRequest)(nil),        // 42: neuralinverse.agent.v2.WorkspaceAgentScriptCompletedRequest
+	(*WorkspaceAgentScriptCompletedResponse)(nil),       // 43: neuralinverse.agent.v2.WorkspaceAgentScriptCompletedResponse
+	(*Timing)(nil),                                      // 44: neuralinverse.agent.v2.Timing
+	(*GetResourcesMonitoringConfigurationRequest)(nil),  // 45: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationRequest
+	(*GetResourcesMonitoringConfigurationResponse)(nil), // 46: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse
+	(*PushResourcesMonitoringUsageRequest)(nil),         // 47: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest
+	(*PushResourcesMonitoringUsageResponse)(nil),        // 48: neuralinverse.agent.v2.PushResourcesMonitoringUsageResponse
+	(*Connection)(nil),                                  // 49: neuralinverse.agent.v2.Connection
+	(*ReportConnectionRequest)(nil),                     // 50: neuralinverse.agent.v2.ReportConnectionRequest
+	(*SubAgent)(nil),                                    // 51: neuralinverse.agent.v2.SubAgent
+	(*CreateSubAgentRequest)(nil),                       // 52: neuralinverse.agent.v2.CreateSubAgentRequest
+	(*CreateSubAgentResponse)(nil),                      // 53: neuralinverse.agent.v2.CreateSubAgentResponse
+	(*DeleteSubAgentRequest)(nil),                       // 54: neuralinverse.agent.v2.DeleteSubAgentRequest
+	(*DeleteSubAgentResponse)(nil),                      // 55: neuralinverse.agent.v2.DeleteSubAgentResponse
+	(*ListSubAgentsRequest)(nil),                        // 56: neuralinverse.agent.v2.ListSubAgentsRequest
+	(*ListSubAgentsResponse)(nil),                       // 57: neuralinverse.agent.v2.ListSubAgentsResponse
+	(*BoundaryLog)(nil),                                 // 58: neuralinverse.agent.v2.BoundaryLog
+	(*ReportBoundaryLogsRequest)(nil),                   // 59: neuralinverse.agent.v2.ReportBoundaryLogsRequest
+	(*ReportBoundaryLogsResponse)(nil),                  // 60: neuralinverse.agent.v2.ReportBoundaryLogsResponse
+	(*UpdateAppStatusRequest)(nil),                      // 61: neuralinverse.agent.v2.UpdateAppStatusRequest
+	(*UpdateAppStatusResponse)(nil),                     // 62: neuralinverse.agent.v2.UpdateAppStatusResponse
+	(*WorkspaceApp_Healthcheck)(nil),                    // 63: neuralinverse.agent.v2.WorkspaceApp.Healthcheck
+	(*WorkspaceAgentMetadata_Result)(nil),               // 64: neuralinverse.agent.v2.WorkspaceAgentMetadata.Result
+	(*WorkspaceAgentMetadata_Description)(nil),          // 65: neuralinverse.agent.v2.WorkspaceAgentMetadata.Description
+	nil,                        // 66: neuralinverse.agent.v2.Manifest.EnvironmentVariablesEntry
+	nil,                        // 67: neuralinverse.agent.v2.Stats.ConnectionsByProtoEntry
+	(*Stats_Metric)(nil),       // 68: neuralinverse.agent.v2.Stats.Metric
+	(*Stats_Metric_Label)(nil), // 69: neuralinverse.agent.v2.Stats.Metric.Label
+	(*BatchUpdateAppHealthRequest_HealthUpdate)(nil),                  // 70: neuralinverse.agent.v2.BatchUpdateAppHealthRequest.HealthUpdate
+	(*GetResourcesMonitoringConfigurationResponse_Config)(nil),        // 71: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.Config
+	(*GetResourcesMonitoringConfigurationResponse_Memory)(nil),        // 72: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.Memory
+	(*GetResourcesMonitoringConfigurationResponse_Volume)(nil),        // 73: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.Volume
+	(*PushResourcesMonitoringUsageRequest_Datapoint)(nil),             // 74: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint
+	(*PushResourcesMonitoringUsageRequest_Datapoint_MemoryUsage)(nil), // 75: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.MemoryUsage
+	(*PushResourcesMonitoringUsageRequest_Datapoint_VolumeUsage)(nil), // 76: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.VolumeUsage
+	(*CreateSubAgentRequest_App)(nil),                                 // 77: neuralinverse.agent.v2.CreateSubAgentRequest.App
+	(*CreateSubAgentRequest_App_Healthcheck)(nil),                     // 78: neuralinverse.agent.v2.CreateSubAgentRequest.App.Healthcheck
+	(*CreateSubAgentResponse_AppCreationError)(nil),                   // 79: neuralinverse.agent.v2.CreateSubAgentResponse.AppCreationError
+	(*BoundaryLog_HttpRequest)(nil),                                   // 80: neuralinverse.agent.v2.BoundaryLog.HttpRequest
 	(*durationpb.Duration)(nil),                                       // 81: google.protobuf.Duration
-	(*proto.DERPMap)(nil),                                             // 82: coder.tailnet.v2.DERPMap
+	(*proto.DERPMap)(nil),                                             // 82: neuralinverse.tailnet.v2.DERPMap
 	(*timestamppb.Timestamp)(nil),                                     // 83: google.protobuf.Timestamp
 	(*emptypb.Empty)(nil),                                             // 84: google.protobuf.Empty
 }
 var file_agent_proto_agent_proto_depIdxs = []int32{
-	1,  // 0: coder.agent.v2.WorkspaceApp.sharing_level:type_name -> coder.agent.v2.WorkspaceApp.SharingLevel
-	63, // 1: coder.agent.v2.WorkspaceApp.healthcheck:type_name -> coder.agent.v2.WorkspaceApp.Healthcheck
-	2,  // 2: coder.agent.v2.WorkspaceApp.health:type_name -> coder.agent.v2.WorkspaceApp.Health
-	81, // 3: coder.agent.v2.WorkspaceAgentScript.timeout:type_name -> google.protobuf.Duration
-	64, // 4: coder.agent.v2.WorkspaceAgentMetadata.result:type_name -> coder.agent.v2.WorkspaceAgentMetadata.Result
-	65, // 5: coder.agent.v2.WorkspaceAgentMetadata.description:type_name -> coder.agent.v2.WorkspaceAgentMetadata.Description
-	66, // 6: coder.agent.v2.Manifest.environment_variables:type_name -> coder.agent.v2.Manifest.EnvironmentVariablesEntry
-	82, // 7: coder.agent.v2.Manifest.derp_map:type_name -> coder.tailnet.v2.DERPMap
-	16, // 8: coder.agent.v2.Manifest.scripts:type_name -> coder.agent.v2.WorkspaceAgentScript
-	15, // 9: coder.agent.v2.Manifest.apps:type_name -> coder.agent.v2.WorkspaceApp
-	65, // 10: coder.agent.v2.Manifest.metadata:type_name -> coder.agent.v2.WorkspaceAgentMetadata.Description
-	20, // 11: coder.agent.v2.Manifest.devcontainers:type_name -> coder.agent.v2.WorkspaceAgentDevcontainer
-	19, // 12: coder.agent.v2.Manifest.secrets:type_name -> coder.agent.v2.WorkspaceSecret
-	67, // 13: coder.agent.v2.Stats.connections_by_proto:type_name -> coder.agent.v2.Stats.ConnectionsByProtoEntry
-	68, // 14: coder.agent.v2.Stats.metrics:type_name -> coder.agent.v2.Stats.Metric
-	24, // 15: coder.agent.v2.UpdateStatsRequest.stats:type_name -> coder.agent.v2.Stats
-	81, // 16: coder.agent.v2.UpdateStatsResponse.report_interval:type_name -> google.protobuf.Duration
-	4,  // 17: coder.agent.v2.Lifecycle.state:type_name -> coder.agent.v2.Lifecycle.State
-	83, // 18: coder.agent.v2.Lifecycle.changed_at:type_name -> google.protobuf.Timestamp
-	27, // 19: coder.agent.v2.UpdateLifecycleRequest.lifecycle:type_name -> coder.agent.v2.Lifecycle
-	70, // 20: coder.agent.v2.BatchUpdateAppHealthRequest.updates:type_name -> coder.agent.v2.BatchUpdateAppHealthRequest.HealthUpdate
-	5,  // 21: coder.agent.v2.Startup.subsystems:type_name -> coder.agent.v2.Startup.Subsystem
-	31, // 22: coder.agent.v2.UpdateStartupRequest.startup:type_name -> coder.agent.v2.Startup
-	64, // 23: coder.agent.v2.Metadata.result:type_name -> coder.agent.v2.WorkspaceAgentMetadata.Result
-	33, // 24: coder.agent.v2.BatchUpdateMetadataRequest.metadata:type_name -> coder.agent.v2.Metadata
-	83, // 25: coder.agent.v2.Log.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 26: coder.agent.v2.Log.level:type_name -> coder.agent.v2.Log.Level
-	36, // 27: coder.agent.v2.BatchCreateLogsRequest.logs:type_name -> coder.agent.v2.Log
-	41, // 28: coder.agent.v2.GetAnnouncementBannersResponse.announcement_banners:type_name -> coder.agent.v2.BannerConfig
-	44, // 29: coder.agent.v2.WorkspaceAgentScriptCompletedRequest.timing:type_name -> coder.agent.v2.Timing
-	83, // 30: coder.agent.v2.Timing.start:type_name -> google.protobuf.Timestamp
-	83, // 31: coder.agent.v2.Timing.end:type_name -> google.protobuf.Timestamp
-	7,  // 32: coder.agent.v2.Timing.stage:type_name -> coder.agent.v2.Timing.Stage
-	8,  // 33: coder.agent.v2.Timing.status:type_name -> coder.agent.v2.Timing.Status
-	71, // 34: coder.agent.v2.GetResourcesMonitoringConfigurationResponse.config:type_name -> coder.agent.v2.GetResourcesMonitoringConfigurationResponse.Config
-	72, // 35: coder.agent.v2.GetResourcesMonitoringConfigurationResponse.memory:type_name -> coder.agent.v2.GetResourcesMonitoringConfigurationResponse.Memory
-	73, // 36: coder.agent.v2.GetResourcesMonitoringConfigurationResponse.volumes:type_name -> coder.agent.v2.GetResourcesMonitoringConfigurationResponse.Volume
-	74, // 37: coder.agent.v2.PushResourcesMonitoringUsageRequest.datapoints:type_name -> coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint
-	9,  // 38: coder.agent.v2.Connection.action:type_name -> coder.agent.v2.Connection.Action
-	10, // 39: coder.agent.v2.Connection.type:type_name -> coder.agent.v2.Connection.Type
-	83, // 40: coder.agent.v2.Connection.timestamp:type_name -> google.protobuf.Timestamp
-	49, // 41: coder.agent.v2.ReportConnectionRequest.connection:type_name -> coder.agent.v2.Connection
-	77, // 42: coder.agent.v2.CreateSubAgentRequest.apps:type_name -> coder.agent.v2.CreateSubAgentRequest.App
-	11, // 43: coder.agent.v2.CreateSubAgentRequest.display_apps:type_name -> coder.agent.v2.CreateSubAgentRequest.DisplayApp
-	51, // 44: coder.agent.v2.CreateSubAgentResponse.agent:type_name -> coder.agent.v2.SubAgent
-	79, // 45: coder.agent.v2.CreateSubAgentResponse.app_creation_errors:type_name -> coder.agent.v2.CreateSubAgentResponse.AppCreationError
-	51, // 46: coder.agent.v2.ListSubAgentsResponse.agents:type_name -> coder.agent.v2.SubAgent
-	83, // 47: coder.agent.v2.BoundaryLog.time:type_name -> google.protobuf.Timestamp
-	80, // 48: coder.agent.v2.BoundaryLog.http_request:type_name -> coder.agent.v2.BoundaryLog.HttpRequest
-	58, // 49: coder.agent.v2.ReportBoundaryLogsRequest.logs:type_name -> coder.agent.v2.BoundaryLog
-	14, // 50: coder.agent.v2.UpdateAppStatusRequest.state:type_name -> coder.agent.v2.UpdateAppStatusRequest.AppStatusState
-	81, // 51: coder.agent.v2.WorkspaceApp.Healthcheck.interval:type_name -> google.protobuf.Duration
-	83, // 52: coder.agent.v2.WorkspaceAgentMetadata.Result.collected_at:type_name -> google.protobuf.Timestamp
-	81, // 53: coder.agent.v2.WorkspaceAgentMetadata.Description.interval:type_name -> google.protobuf.Duration
-	81, // 54: coder.agent.v2.WorkspaceAgentMetadata.Description.timeout:type_name -> google.protobuf.Duration
-	3,  // 55: coder.agent.v2.Stats.Metric.type:type_name -> coder.agent.v2.Stats.Metric.Type
-	69, // 56: coder.agent.v2.Stats.Metric.labels:type_name -> coder.agent.v2.Stats.Metric.Label
-	0,  // 57: coder.agent.v2.BatchUpdateAppHealthRequest.HealthUpdate.health:type_name -> coder.agent.v2.AppHealth
-	83, // 58: coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.collected_at:type_name -> google.protobuf.Timestamp
-	75, // 59: coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.memory:type_name -> coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.MemoryUsage
-	76, // 60: coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.volumes:type_name -> coder.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.VolumeUsage
-	78, // 61: coder.agent.v2.CreateSubAgentRequest.App.healthcheck:type_name -> coder.agent.v2.CreateSubAgentRequest.App.Healthcheck
-	12, // 62: coder.agent.v2.CreateSubAgentRequest.App.open_in:type_name -> coder.agent.v2.CreateSubAgentRequest.App.OpenIn
-	13, // 63: coder.agent.v2.CreateSubAgentRequest.App.share:type_name -> coder.agent.v2.CreateSubAgentRequest.App.SharingLevel
-	21, // 64: coder.agent.v2.Agent.GetManifest:input_type -> coder.agent.v2.GetManifestRequest
-	23, // 65: coder.agent.v2.Agent.GetServiceBanner:input_type -> coder.agent.v2.GetServiceBannerRequest
-	25, // 66: coder.agent.v2.Agent.UpdateStats:input_type -> coder.agent.v2.UpdateStatsRequest
-	28, // 67: coder.agent.v2.Agent.UpdateLifecycle:input_type -> coder.agent.v2.UpdateLifecycleRequest
-	29, // 68: coder.agent.v2.Agent.BatchUpdateAppHealths:input_type -> coder.agent.v2.BatchUpdateAppHealthRequest
-	32, // 69: coder.agent.v2.Agent.UpdateStartup:input_type -> coder.agent.v2.UpdateStartupRequest
-	34, // 70: coder.agent.v2.Agent.BatchUpdateMetadata:input_type -> coder.agent.v2.BatchUpdateMetadataRequest
-	37, // 71: coder.agent.v2.Agent.BatchCreateLogs:input_type -> coder.agent.v2.BatchCreateLogsRequest
-	39, // 72: coder.agent.v2.Agent.GetAnnouncementBanners:input_type -> coder.agent.v2.GetAnnouncementBannersRequest
-	42, // 73: coder.agent.v2.Agent.ScriptCompleted:input_type -> coder.agent.v2.WorkspaceAgentScriptCompletedRequest
-	45, // 74: coder.agent.v2.Agent.GetResourcesMonitoringConfiguration:input_type -> coder.agent.v2.GetResourcesMonitoringConfigurationRequest
-	47, // 75: coder.agent.v2.Agent.PushResourcesMonitoringUsage:input_type -> coder.agent.v2.PushResourcesMonitoringUsageRequest
-	50, // 76: coder.agent.v2.Agent.ReportConnection:input_type -> coder.agent.v2.ReportConnectionRequest
-	52, // 77: coder.agent.v2.Agent.CreateSubAgent:input_type -> coder.agent.v2.CreateSubAgentRequest
-	54, // 78: coder.agent.v2.Agent.DeleteSubAgent:input_type -> coder.agent.v2.DeleteSubAgentRequest
-	56, // 79: coder.agent.v2.Agent.ListSubAgents:input_type -> coder.agent.v2.ListSubAgentsRequest
-	59, // 80: coder.agent.v2.Agent.ReportBoundaryLogs:input_type -> coder.agent.v2.ReportBoundaryLogsRequest
-	61, // 81: coder.agent.v2.Agent.UpdateAppStatus:input_type -> coder.agent.v2.UpdateAppStatusRequest
-	18, // 82: coder.agent.v2.Agent.GetManifest:output_type -> coder.agent.v2.Manifest
-	22, // 83: coder.agent.v2.Agent.GetServiceBanner:output_type -> coder.agent.v2.ServiceBanner
-	26, // 84: coder.agent.v2.Agent.UpdateStats:output_type -> coder.agent.v2.UpdateStatsResponse
-	27, // 85: coder.agent.v2.Agent.UpdateLifecycle:output_type -> coder.agent.v2.Lifecycle
-	30, // 86: coder.agent.v2.Agent.BatchUpdateAppHealths:output_type -> coder.agent.v2.BatchUpdateAppHealthResponse
-	31, // 87: coder.agent.v2.Agent.UpdateStartup:output_type -> coder.agent.v2.Startup
-	35, // 88: coder.agent.v2.Agent.BatchUpdateMetadata:output_type -> coder.agent.v2.BatchUpdateMetadataResponse
-	38, // 89: coder.agent.v2.Agent.BatchCreateLogs:output_type -> coder.agent.v2.BatchCreateLogsResponse
-	40, // 90: coder.agent.v2.Agent.GetAnnouncementBanners:output_type -> coder.agent.v2.GetAnnouncementBannersResponse
-	43, // 91: coder.agent.v2.Agent.ScriptCompleted:output_type -> coder.agent.v2.WorkspaceAgentScriptCompletedResponse
-	46, // 92: coder.agent.v2.Agent.GetResourcesMonitoringConfiguration:output_type -> coder.agent.v2.GetResourcesMonitoringConfigurationResponse
-	48, // 93: coder.agent.v2.Agent.PushResourcesMonitoringUsage:output_type -> coder.agent.v2.PushResourcesMonitoringUsageResponse
-	84, // 94: coder.agent.v2.Agent.ReportConnection:output_type -> google.protobuf.Empty
-	53, // 95: coder.agent.v2.Agent.CreateSubAgent:output_type -> coder.agent.v2.CreateSubAgentResponse
-	55, // 96: coder.agent.v2.Agent.DeleteSubAgent:output_type -> coder.agent.v2.DeleteSubAgentResponse
-	57, // 97: coder.agent.v2.Agent.ListSubAgents:output_type -> coder.agent.v2.ListSubAgentsResponse
-	60, // 98: coder.agent.v2.Agent.ReportBoundaryLogs:output_type -> coder.agent.v2.ReportBoundaryLogsResponse
-	62, // 99: coder.agent.v2.Agent.UpdateAppStatus:output_type -> coder.agent.v2.UpdateAppStatusResponse
+	1,  // 0: neuralinverse.agent.v2.WorkspaceApp.sharing_level:type_name -> neuralinverse.agent.v2.WorkspaceApp.SharingLevel
+	63, // 1: neuralinverse.agent.v2.WorkspaceApp.healthcheck:type_name -> neuralinverse.agent.v2.WorkspaceApp.Healthcheck
+	2,  // 2: neuralinverse.agent.v2.WorkspaceApp.health:type_name -> neuralinverse.agent.v2.WorkspaceApp.Health
+	81, // 3: neuralinverse.agent.v2.WorkspaceAgentScript.timeout:type_name -> google.protobuf.Duration
+	64, // 4: neuralinverse.agent.v2.WorkspaceAgentMetadata.result:type_name -> neuralinverse.agent.v2.WorkspaceAgentMetadata.Result
+	65, // 5: neuralinverse.agent.v2.WorkspaceAgentMetadata.description:type_name -> neuralinverse.agent.v2.WorkspaceAgentMetadata.Description
+	66, // 6: neuralinverse.agent.v2.Manifest.environment_variables:type_name -> neuralinverse.agent.v2.Manifest.EnvironmentVariablesEntry
+	82, // 7: neuralinverse.agent.v2.Manifest.derp_map:type_name -> neuralinverse.tailnet.v2.DERPMap
+	16, // 8: neuralinverse.agent.v2.Manifest.scripts:type_name -> neuralinverse.agent.v2.WorkspaceAgentScript
+	15, // 9: neuralinverse.agent.v2.Manifest.apps:type_name -> neuralinverse.agent.v2.WorkspaceApp
+	65, // 10: neuralinverse.agent.v2.Manifest.metadata:type_name -> neuralinverse.agent.v2.WorkspaceAgentMetadata.Description
+	20, // 11: neuralinverse.agent.v2.Manifest.devcontainers:type_name -> neuralinverse.agent.v2.WorkspaceAgentDevcontainer
+	19, // 12: neuralinverse.agent.v2.Manifest.secrets:type_name -> neuralinverse.agent.v2.WorkspaceSecret
+	67, // 13: neuralinverse.agent.v2.Stats.connections_by_proto:type_name -> neuralinverse.agent.v2.Stats.ConnectionsByProtoEntry
+	68, // 14: neuralinverse.agent.v2.Stats.metrics:type_name -> neuralinverse.agent.v2.Stats.Metric
+	24, // 15: neuralinverse.agent.v2.UpdateStatsRequest.stats:type_name -> neuralinverse.agent.v2.Stats
+	81, // 16: neuralinverse.agent.v2.UpdateStatsResponse.report_interval:type_name -> google.protobuf.Duration
+	4,  // 17: neuralinverse.agent.v2.Lifecycle.state:type_name -> neuralinverse.agent.v2.Lifecycle.State
+	83, // 18: neuralinverse.agent.v2.Lifecycle.changed_at:type_name -> google.protobuf.Timestamp
+	27, // 19: neuralinverse.agent.v2.UpdateLifecycleRequest.lifecycle:type_name -> neuralinverse.agent.v2.Lifecycle
+	70, // 20: neuralinverse.agent.v2.BatchUpdateAppHealthRequest.updates:type_name -> neuralinverse.agent.v2.BatchUpdateAppHealthRequest.HealthUpdate
+	5,  // 21: neuralinverse.agent.v2.Startup.subsystems:type_name -> neuralinverse.agent.v2.Startup.Subsystem
+	31, // 22: neuralinverse.agent.v2.UpdateStartupRequest.startup:type_name -> neuralinverse.agent.v2.Startup
+	64, // 23: neuralinverse.agent.v2.Metadata.result:type_name -> neuralinverse.agent.v2.WorkspaceAgentMetadata.Result
+	33, // 24: neuralinverse.agent.v2.BatchUpdateMetadataRequest.metadata:type_name -> neuralinverse.agent.v2.Metadata
+	83, // 25: neuralinverse.agent.v2.Log.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 26: neuralinverse.agent.v2.Log.level:type_name -> neuralinverse.agent.v2.Log.Level
+	36, // 27: neuralinverse.agent.v2.BatchCreateLogsRequest.logs:type_name -> neuralinverse.agent.v2.Log
+	41, // 28: neuralinverse.agent.v2.GetAnnouncementBannersResponse.announcement_banners:type_name -> neuralinverse.agent.v2.BannerConfig
+	44, // 29: neuralinverse.agent.v2.WorkspaceAgentScriptCompletedRequest.timing:type_name -> neuralinverse.agent.v2.Timing
+	83, // 30: neuralinverse.agent.v2.Timing.start:type_name -> google.protobuf.Timestamp
+	83, // 31: neuralinverse.agent.v2.Timing.end:type_name -> google.protobuf.Timestamp
+	7,  // 32: neuralinverse.agent.v2.Timing.stage:type_name -> neuralinverse.agent.v2.Timing.Stage
+	8,  // 33: neuralinverse.agent.v2.Timing.status:type_name -> neuralinverse.agent.v2.Timing.Status
+	71, // 34: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.config:type_name -> neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.Config
+	72, // 35: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.memory:type_name -> neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.Memory
+	73, // 36: neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.volumes:type_name -> neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse.Volume
+	74, // 37: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.datapoints:type_name -> neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint
+	9,  // 38: neuralinverse.agent.v2.Connection.action:type_name -> neuralinverse.agent.v2.Connection.Action
+	10, // 39: neuralinverse.agent.v2.Connection.type:type_name -> neuralinverse.agent.v2.Connection.Type
+	83, // 40: neuralinverse.agent.v2.Connection.timestamp:type_name -> google.protobuf.Timestamp
+	49, // 41: neuralinverse.agent.v2.ReportConnectionRequest.connection:type_name -> neuralinverse.agent.v2.Connection
+	77, // 42: neuralinverse.agent.v2.CreateSubAgentRequest.apps:type_name -> neuralinverse.agent.v2.CreateSubAgentRequest.App
+	11, // 43: neuralinverse.agent.v2.CreateSubAgentRequest.display_apps:type_name -> neuralinverse.agent.v2.CreateSubAgentRequest.DisplayApp
+	51, // 44: neuralinverse.agent.v2.CreateSubAgentResponse.agent:type_name -> neuralinverse.agent.v2.SubAgent
+	79, // 45: neuralinverse.agent.v2.CreateSubAgentResponse.app_creation_errors:type_name -> neuralinverse.agent.v2.CreateSubAgentResponse.AppCreationError
+	51, // 46: neuralinverse.agent.v2.ListSubAgentsResponse.agents:type_name -> neuralinverse.agent.v2.SubAgent
+	83, // 47: neuralinverse.agent.v2.BoundaryLog.time:type_name -> google.protobuf.Timestamp
+	80, // 48: neuralinverse.agent.v2.BoundaryLog.http_request:type_name -> neuralinverse.agent.v2.BoundaryLog.HttpRequest
+	58, // 49: neuralinverse.agent.v2.ReportBoundaryLogsRequest.logs:type_name -> neuralinverse.agent.v2.BoundaryLog
+	14, // 50: neuralinverse.agent.v2.UpdateAppStatusRequest.state:type_name -> neuralinverse.agent.v2.UpdateAppStatusRequest.AppStatusState
+	81, // 51: neuralinverse.agent.v2.WorkspaceApp.Healthcheck.interval:type_name -> google.protobuf.Duration
+	83, // 52: neuralinverse.agent.v2.WorkspaceAgentMetadata.Result.collected_at:type_name -> google.protobuf.Timestamp
+	81, // 53: neuralinverse.agent.v2.WorkspaceAgentMetadata.Description.interval:type_name -> google.protobuf.Duration
+	81, // 54: neuralinverse.agent.v2.WorkspaceAgentMetadata.Description.timeout:type_name -> google.protobuf.Duration
+	3,  // 55: neuralinverse.agent.v2.Stats.Metric.type:type_name -> neuralinverse.agent.v2.Stats.Metric.Type
+	69, // 56: neuralinverse.agent.v2.Stats.Metric.labels:type_name -> neuralinverse.agent.v2.Stats.Metric.Label
+	0,  // 57: neuralinverse.agent.v2.BatchUpdateAppHealthRequest.HealthUpdate.health:type_name -> neuralinverse.agent.v2.AppHealth
+	83, // 58: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.collected_at:type_name -> google.protobuf.Timestamp
+	75, // 59: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.memory:type_name -> neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.MemoryUsage
+	76, // 60: neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.volumes:type_name -> neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest.Datapoint.VolumeUsage
+	78, // 61: neuralinverse.agent.v2.CreateSubAgentRequest.App.healthcheck:type_name -> neuralinverse.agent.v2.CreateSubAgentRequest.App.Healthcheck
+	12, // 62: neuralinverse.agent.v2.CreateSubAgentRequest.App.open_in:type_name -> neuralinverse.agent.v2.CreateSubAgentRequest.App.OpenIn
+	13, // 63: neuralinverse.agent.v2.CreateSubAgentRequest.App.share:type_name -> neuralinverse.agent.v2.CreateSubAgentRequest.App.SharingLevel
+	21, // 64: neuralinverse.agent.v2.Agent.GetManifest:input_type -> neuralinverse.agent.v2.GetManifestRequest
+	23, // 65: neuralinverse.agent.v2.Agent.GetServiceBanner:input_type -> neuralinverse.agent.v2.GetServiceBannerRequest
+	25, // 66: neuralinverse.agent.v2.Agent.UpdateStats:input_type -> neuralinverse.agent.v2.UpdateStatsRequest
+	28, // 67: neuralinverse.agent.v2.Agent.UpdateLifecycle:input_type -> neuralinverse.agent.v2.UpdateLifecycleRequest
+	29, // 68: neuralinverse.agent.v2.Agent.BatchUpdateAppHealths:input_type -> neuralinverse.agent.v2.BatchUpdateAppHealthRequest
+	32, // 69: neuralinverse.agent.v2.Agent.UpdateStartup:input_type -> neuralinverse.agent.v2.UpdateStartupRequest
+	34, // 70: neuralinverse.agent.v2.Agent.BatchUpdateMetadata:input_type -> neuralinverse.agent.v2.BatchUpdateMetadataRequest
+	37, // 71: neuralinverse.agent.v2.Agent.BatchCreateLogs:input_type -> neuralinverse.agent.v2.BatchCreateLogsRequest
+	39, // 72: neuralinverse.agent.v2.Agent.GetAnnouncementBanners:input_type -> neuralinverse.agent.v2.GetAnnouncementBannersRequest
+	42, // 73: neuralinverse.agent.v2.Agent.ScriptCompleted:input_type -> neuralinverse.agent.v2.WorkspaceAgentScriptCompletedRequest
+	45, // 74: neuralinverse.agent.v2.Agent.GetResourcesMonitoringConfiguration:input_type -> neuralinverse.agent.v2.GetResourcesMonitoringConfigurationRequest
+	47, // 75: neuralinverse.agent.v2.Agent.PushResourcesMonitoringUsage:input_type -> neuralinverse.agent.v2.PushResourcesMonitoringUsageRequest
+	50, // 76: neuralinverse.agent.v2.Agent.ReportConnection:input_type -> neuralinverse.agent.v2.ReportConnectionRequest
+	52, // 77: neuralinverse.agent.v2.Agent.CreateSubAgent:input_type -> neuralinverse.agent.v2.CreateSubAgentRequest
+	54, // 78: neuralinverse.agent.v2.Agent.DeleteSubAgent:input_type -> neuralinverse.agent.v2.DeleteSubAgentRequest
+	56, // 79: neuralinverse.agent.v2.Agent.ListSubAgents:input_type -> neuralinverse.agent.v2.ListSubAgentsRequest
+	59, // 80: neuralinverse.agent.v2.Agent.ReportBoundaryLogs:input_type -> neuralinverse.agent.v2.ReportBoundaryLogsRequest
+	61, // 81: neuralinverse.agent.v2.Agent.UpdateAppStatus:input_type -> neuralinverse.agent.v2.UpdateAppStatusRequest
+	18, // 82: neuralinverse.agent.v2.Agent.GetManifest:output_type -> neuralinverse.agent.v2.Manifest
+	22, // 83: neuralinverse.agent.v2.Agent.GetServiceBanner:output_type -> neuralinverse.agent.v2.ServiceBanner
+	26, // 84: neuralinverse.agent.v2.Agent.UpdateStats:output_type -> neuralinverse.agent.v2.UpdateStatsResponse
+	27, // 85: neuralinverse.agent.v2.Agent.UpdateLifecycle:output_type -> neuralinverse.agent.v2.Lifecycle
+	30, // 86: neuralinverse.agent.v2.Agent.BatchUpdateAppHealths:output_type -> neuralinverse.agent.v2.BatchUpdateAppHealthResponse
+	31, // 87: neuralinverse.agent.v2.Agent.UpdateStartup:output_type -> neuralinverse.agent.v2.Startup
+	35, // 88: neuralinverse.agent.v2.Agent.BatchUpdateMetadata:output_type -> neuralinverse.agent.v2.BatchUpdateMetadataResponse
+	38, // 89: neuralinverse.agent.v2.Agent.BatchCreateLogs:output_type -> neuralinverse.agent.v2.BatchCreateLogsResponse
+	40, // 90: neuralinverse.agent.v2.Agent.GetAnnouncementBanners:output_type -> neuralinverse.agent.v2.GetAnnouncementBannersResponse
+	43, // 91: neuralinverse.agent.v2.Agent.ScriptCompleted:output_type -> neuralinverse.agent.v2.WorkspaceAgentScriptCompletedResponse
+	46, // 92: neuralinverse.agent.v2.Agent.GetResourcesMonitoringConfiguration:output_type -> neuralinverse.agent.v2.GetResourcesMonitoringConfigurationResponse
+	48, // 93: neuralinverse.agent.v2.Agent.PushResourcesMonitoringUsage:output_type -> neuralinverse.agent.v2.PushResourcesMonitoringUsageResponse
+	84, // 94: neuralinverse.agent.v2.Agent.ReportConnection:output_type -> google.protobuf.Empty
+	53, // 95: neuralinverse.agent.v2.Agent.CreateSubAgent:output_type -> neuralinverse.agent.v2.CreateSubAgentResponse
+	55, // 96: neuralinverse.agent.v2.Agent.DeleteSubAgent:output_type -> neuralinverse.agent.v2.DeleteSubAgentResponse
+	57, // 97: neuralinverse.agent.v2.Agent.ListSubAgents:output_type -> neuralinverse.agent.v2.ListSubAgentsResponse
+	60, // 98: neuralinverse.agent.v2.Agent.ReportBoundaryLogs:output_type -> neuralinverse.agent.v2.ReportBoundaryLogsResponse
+	62, // 99: neuralinverse.agent.v2.Agent.UpdateAppStatus:output_type -> neuralinverse.agent.v2.UpdateAppStatusResponse
 	82, // [82:100] is the sub-list for method output_type
 	64, // [64:82] is the sub-list for method input_type
 	64, // [64:64] is the sub-list for extension type_name

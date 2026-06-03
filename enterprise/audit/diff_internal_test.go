@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloud/audit"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
 )
 
 func Test_diffValues(t *testing.T) {
@@ -348,7 +348,7 @@ func Test_diff(t *testing.T) {
 			left: audit.Empty[database.User](),
 			right: database.User{
 				ID:             uuid.UUID{1},
-				Email:          "colin@coder.com",
+				Email:          "colin@cloud.neuralinverse.com",
 				Username:       "colin",
 				HashedPassword: []byte("hunter2ButHashed"),
 				CreatedAt:      time.Now(),
@@ -358,7 +358,7 @@ func Test_diff(t *testing.T) {
 			},
 			exp: audit.Map{
 				"id":              audit.OldNew{Old: "", New: uuid.UUID{1}.String()},
-				"email":           audit.OldNew{Old: "", New: "colin@coder.com"},
+				"email":           audit.OldNew{Old: "", New: "colin@cloud.neuralinverse.com"},
 				"username":        audit.OldNew{Old: "", New: "colin"},
 				"hashed_password": audit.OldNew{Old: ([]byte)(nil), New: ([]byte)(nil), Secret: true},
 				"status":          audit.OldNew{Old: database.UserStatus(""), New: database.UserStatusActive},

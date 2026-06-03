@@ -8,7 +8,7 @@
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats`
@@ -174,7 +174,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                            |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Chat](schemas.md#codersdkchat) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Chat](schemas.md#nicloudsdkchat) |
 
 <h3 id="list-chats-responseschema">Response Schema</h3>
 
@@ -186,10 +186,10 @@ Status Code **200**
 | `» agent_id`                      | string(uuid)                                                           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» archived`                      | boolean                                                                | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» build_id`                      | string(uuid)                                                           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `» children`                      | [codersdk.Chat](schemas.md#codersdkchat)                               | false    |              | Children holds child (subagent) chats nested under this root chat. Always initialized to an empty slice so the JSON field is present as []. Child chats cannot create their own subagents, so nesting depth is capped at 1 and this slice is always empty for child chats.                                                                                                                                 |
-| `» client_type`                   | [codersdk.ChatClientType](schemas.md#codersdkchatclienttype)           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `» children`                      | [nicloudsdk.Chat](schemas.md#nicloudsdkchat)                               | false    |              | Children holds child (subagent) chats nested under this root chat. Always initialized to an empty slice so the JSON field is present as []. Child chats cannot create their own subagents, so nesting depth is capped at 1 and this slice is always empty for child chats.                                                                                                                                 |
+| `» client_type`                   | [nicloudsdk.ChatClientType](schemas.md#nicloudsdkchatclienttype)           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» created_at`                    | string(date-time)                                                      | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `» diff_status`                   | [codersdk.ChatDiffStatus](schemas.md#codersdkchatdiffstatus)           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `» diff_status`                   | [nicloudsdk.ChatDiffStatus](schemas.md#nicloudsdkchatdiffstatus)           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» additions`                    | integer                                                                | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» approved`                     | boolean                                                                | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» author_avatar_url`            | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -220,9 +220,9 @@ Status Code **200**
 | `» id`                            | string(uuid)                                                           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» labels`                        | object                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» [any property]`               | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `» last_error`                    | [codersdk.ChatError](schemas.md#codersdkchaterror)                     | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `» last_error`                    | [nicloudsdk.ChatError](schemas.md#nicloudsdkchaterror)                     | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» detail`                       | string                                                                 | false    |              | Detail is optional provider-specific context shown alongside the normalized error message when available.                                                                                                                                                                                                                                                                                                  |
-| `»» kind`                         | [codersdk.ChatErrorKind](schemas.md#codersdkchaterrorkind)             | false    |              | Kind classifies the error for consistent client rendering.                                                                                                                                                                                                                                                                                                                                                 |
+| `»» kind`                         | [nicloudsdk.ChatErrorKind](schemas.md#nicloudsdkchaterrorkind)             | false    |              | Kind classifies the error for consistent client rendering.                                                                                                                                                                                                                                                                                                                                                 |
 | `»» message`                      | string                                                                 | false    |              | Message is the normalized, user-facing error message.                                                                                                                                                                                                                                                                                                                                                      |
 | `»» provider`                     | string                                                                 | false    |              | Provider identifies the upstream model provider when known.                                                                                                                                                                                                                                                                                                                                                |
 | `»» retryable`                    | boolean                                                                | false    |              | Retryable reports whether the underlying error is transient.                                                                                                                                                                                                                                                                                                                                               |
@@ -271,7 +271,7 @@ Status Code **200**
 | `»» title`                        | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» tool_call_id`                 | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» tool_name`                    | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `»» type`                         | [codersdk.ChatMessagePartType](schemas.md#codersdkchatmessageparttype) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `»» type`                         | [nicloudsdk.ChatMessagePartType](schemas.md#nicloudsdkchatmessageparttype) | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `»» url`                          | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» last_model_config_id`          | string(uuid)                                                           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» last_turn_summary`             | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -282,9 +282,9 @@ Status Code **200**
 | `» owner_username`                | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» parent_chat_id`                | string(uuid)                                                           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» pin_order`                     | integer                                                                | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `» plan_mode`                     | [codersdk.ChatPlanMode](schemas.md#codersdkchatplanmode)               | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `» plan_mode`                     | [nicloudsdk.ChatPlanMode](schemas.md#nicloudsdkchatplanmode)               | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» root_chat_id`                  | string(uuid)                                                           | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `» status`                        | [codersdk.ChatStatus](schemas.md#codersdkchatstatus)                   | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `» status`                        | [nicloudsdk.ChatStatus](schemas.md#nicloudsdkchatstatus)                   | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» title`                         | string                                                                 | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» updated_at`                    | string(date-time)                                                      | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `» warnings`                      | array                                                                  | false    |              |                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -311,7 +311,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/experimental/chats \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/experimental/chats`
@@ -362,7 +362,7 @@ Experimental: this endpoint is subject to change.
 
 | Name   | In   | Type                                                               | Required | Description         |
 |--------|------|--------------------------------------------------------------------|----------|---------------------|
-| `body` | body | [codersdk.CreateChatRequest](schemas.md#codersdkcreatechatrequest) | true     | Create chat request |
+| `body` | body | [nicloudsdk.CreateChatRequest](schemas.md#nicloudsdkcreatechatrequest) | true     | Create chat request |
 
 ### Example responses
 
@@ -650,7 +650,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                      | Description | Schema                                   |
 |--------|--------------------------------------------------------------|-------------|------------------------------------------|
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [codersdk.Chat](schemas.md#codersdkchat) |
+| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [nicloudsdk.Chat](schemas.md#nicloudsdkchat) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -662,7 +662,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/experimental/chats/files?organization=497f6eca-6276-4993-bfeb-53cbbbba6f08 \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/experimental/chats/files`
@@ -689,7 +689,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                      | Description | Schema                                                                       |
 |--------|--------------------------------------------------------------|-------------|------------------------------------------------------------------------------|
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [codersdk.UploadChatFileResponse](schemas.md#codersdkuploadchatfileresponse) |
+| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Created     | [nicloudsdk.UploadChatFileResponse](schemas.md#nicloudsdkuploadchatfileresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -700,7 +700,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/files/{file} \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/files/{file}`
@@ -729,7 +729,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/models \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/models`
@@ -764,7 +764,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                               |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ChatModelsResponse](schemas.md#codersdkchatmodelsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ChatModelsResponse](schemas.md#nicloudsdkchatmodelsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -776,7 +776,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/watch \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/watch`
@@ -943,7 +943,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                       |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ChatWatchEvent](schemas.md#codersdkchatwatchevent) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ChatWatchEvent](schemas.md#nicloudsdkchatwatchevent) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -955,7 +955,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/{chat} \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/{chat}`
@@ -1254,7 +1254,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                   |
 |--------|---------------------------------------------------------|-------------|------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Chat](schemas.md#codersdkchat) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Chat](schemas.md#nicloudsdkchat) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1266,7 +1266,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X PATCH http://coder-server:8080/api/experimental/chats/{chat} \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/experimental/chats/{chat}`
@@ -1294,7 +1294,7 @@ Experimental: this endpoint is subject to change.
 | Name   | In   | Type                                                               | Required | Description         |
 |--------|------|--------------------------------------------------------------------|----------|---------------------|
 | `chat` | path | string(uuid)                                                       | true     | Chat ID             |
-| `body` | body | [codersdk.UpdateChatRequest](schemas.md#codersdkupdatechatrequest) | true     | Update chat request |
+| `body` | body | [nicloudsdk.UpdateChatRequest](schemas.md#nicloudsdkupdatechatrequest) | true     | Update chat request |
 
 ### Responses
 
@@ -1312,7 +1312,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/{chat}/diff \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/{chat}/diff`
@@ -1344,7 +1344,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                           |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ChatDiffContents](schemas.md#codersdkchatdiffcontents) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ChatDiffContents](schemas.md#nicloudsdkchatdiffcontents) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1356,7 +1356,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/experimental/chats/{chat}/interrupt \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/experimental/chats/{chat}/interrupt`
@@ -1655,7 +1655,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                   |
 |--------|---------------------------------------------------------|-------------|------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Chat](schemas.md#codersdkchat) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Chat](schemas.md#nicloudsdkchat) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1667,7 +1667,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/{chat}/messages \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/{chat}/messages`
@@ -1852,7 +1852,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                                   |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ChatMessagesResponse](schemas.md#codersdkchatmessagesresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ChatMessagesResponse](schemas.md#nicloudsdkchatmessagesresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -1865,7 +1865,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X POST http://coder-server:8080/api/experimental/chats/{chat}/messages \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/experimental/chats/{chat}/messages`
@@ -1901,7 +1901,7 @@ Experimental: this endpoint is subject to change.
 | Name   | In   | Type                                                                             | Required | Description                 |
 |--------|------|----------------------------------------------------------------------------------|----------|-----------------------------|
 | `chat` | path | string(uuid)                                                                     | true     | Chat ID                     |
-| `body` | body | [codersdk.CreateChatMessageRequest](schemas.md#codersdkcreatechatmessagerequest) | true     | Create chat message request |
+| `body` | body | [nicloudsdk.CreateChatMessageRequest](schemas.md#nicloudsdkcreatechatmessagerequest) | true     | Create chat message request |
 
 ### Example responses
 
@@ -2071,7 +2071,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                                             |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.CreateChatMessageResponse](schemas.md#codersdkcreatechatmessageresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.CreateChatMessageResponse](schemas.md#nicloudsdkcreatechatmessageresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2084,7 +2084,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 curl -X PATCH http://coder-server:8080/api/experimental/chats/{chat}/messages/{message} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `PATCH /api/experimental/chats/{chat}/messages/{message}`
@@ -2116,7 +2116,7 @@ Experimental: this endpoint is subject to change.
 |-----------|------|------------------------------------------------------------------------------|----------|---------------------------|
 | `chat`    | path | string(uuid)                                                                 | true     | Chat ID                   |
 | `message` | path | integer                                                                      | true     | Message ID                |
-| `body`    | body | [codersdk.EditChatMessageRequest](schemas.md#codersdkeditchatmessagerequest) | true     | Edit chat message request |
+| `body`    | body | [nicloudsdk.EditChatMessageRequest](schemas.md#nicloudsdkeditchatmessagerequest) | true     | Edit chat message request |
 
 ### Example responses
 
@@ -2215,7 +2215,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                                         |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.EditChatMessageResponse](schemas.md#codersdkeditchatmessageresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.EditChatMessageResponse](schemas.md#nicloudsdkeditchatmessageresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2227,7 +2227,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/{chat}/prompts \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/{chat}/prompts`
@@ -2266,7 +2266,7 @@ message in the chat.
 
 | Status | Meaning                                                 | Description | Schema                                                                 |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ChatPromptsResponse](schemas.md#codersdkchatpromptsresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ChatPromptsResponse](schemas.md#nicloudsdkchatpromptsresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2278,7 +2278,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/{chat}/stream \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/{chat}/stream`
@@ -2553,7 +2553,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                         |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.ChatStreamEvent](schemas.md#codersdkchatstreamevent) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.ChatStreamEvent](schemas.md#nicloudsdkchatstreamevent) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2564,7 +2564,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/{chat}/stream/desktop \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/{chat}/stream/desktop`
@@ -2594,7 +2594,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/experimental/chats/{chat}/stream/git \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/experimental/chats/{chat}/stream/git`
@@ -2632,7 +2632,7 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                                                                       |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.WorkspaceAgentGitServerMessage](schemas.md#codersdkworkspaceagentgitservermessage) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.WorkspaceAgentGitServerMessage](schemas.md#nicloudsdkworkspaceagentgitservermessage) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -2644,7 +2644,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X POST http://coder-server:8080/api/experimental/chats/{chat}/title/regenerate \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/experimental/chats/{chat}/title/regenerate`
@@ -2943,6 +2943,6 @@ Experimental: this endpoint is subject to change.
 
 | Status | Meaning                                                 | Description | Schema                                   |
 |--------|---------------------------------------------------------|-------------|------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Chat](schemas.md#codersdkchat) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Chat](schemas.md#nicloudsdkchat) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

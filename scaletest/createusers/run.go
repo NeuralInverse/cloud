@@ -10,25 +10,25 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 
-	user codersdk.User
+	user nicloudsdk.User
 }
 
 type User struct {
-	codersdk.User
+	nicloudsdk.User
 	SessionToken string
 }
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -64,7 +64,7 @@ func (r *Runner) RunReturningUser(ctx context.Context, id string, logs io.Writer
 	}
 
 	_, _ = fmt.Fprintln(logs, "Creating user:")
-	user, err := r.client.CreateUserWithOrgs(ctx, codersdk.CreateUserRequestWithOrgs{
+	user, err := r.client.CreateUserWithOrgs(ctx, nicloudsdk.CreateUserRequestWithOrgs{
 		OrganizationIDs: []uuid.UUID{r.cfg.OrganizationID},
 		Username:        r.cfg.Username,
 		Email:           r.cfg.Email,
@@ -83,7 +83,7 @@ func (r *Runner) RunReturningUser(ctx context.Context, id string, logs io.Writer
 	if err != nil {
 		return User{}, xerrors.Errorf("duplicate client: %w", err)
 	}
-	loginRes, err := client.LoginWithPassword(ctx, codersdk.LoginWithPasswordRequest{
+	loginRes, err := client.LoginWithPassword(ctx, nicloudsdk.LoginWithPasswordRequest{
 		Email:    r.cfg.Email,
 		Password: password,
 	})

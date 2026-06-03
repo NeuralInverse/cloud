@@ -60,7 +60,7 @@ issues.
 ### Test File Structure
 
 ```text
-coderd/
+nicloud/
 ├── oauth2.go                    # Implementation
 ├── oauth2_test.go              # Main tests
 ├── oauth2_test_helpers.go      # Test utilities
@@ -156,11 +156,11 @@ clientName := "test-client"
 ```go
 func TestSomething(t *testing.T) {
     // Setup
-    client := coderdtest.New(t, nil)
+    client := nicloudtest.New(t, nil)
 
     // Test code here
 
-    // Cleanup happens automatically via t.Cleanup() in coderdtest
+    // Cleanup happens automatically via t.Cleanup() in nicloudtest
 }
 ```
 

@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -74,7 +74,7 @@ func (r *RootCmd) userEditRoles() *serpent.Command {
 				}
 			}
 
-			_, err = client.UpdateUserRoles(ctx, user.Username, codersdk.UpdateRoles{
+			_, err = client.UpdateUserRoles(ctx, user.Username, nicloudsdk.UpdateRoles{
 				Roles: selectedRoles,
 			})
 			if err != nil {

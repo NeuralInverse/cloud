@@ -115,7 +115,7 @@ const getMissingParameters = (
 };
 
 /**
- * Originally from codersdk/client.go.
+ * Originally from nicloudsdk/client.go.
  * The below declaration is required to stop Knip from complaining.
  * @public
  */
@@ -1689,7 +1689,7 @@ class ApiMethods {
 	};
 
 	// API definition:
-	// https://github.com/coder/coder/blob/db665e7261f3c24a272ccec48233a3e276878239/coderd/users.go#L33-L53
+	// https://github.com/coder/coder/blob/db665e7261f3c24a272ccec48233a3e276878239/nicloud/users.go#L33-L53
 	hasFirstUser = async (): Promise<boolean> => {
 		try {
 			// If it is success, it is true

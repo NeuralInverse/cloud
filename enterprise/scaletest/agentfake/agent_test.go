@@ -11,13 +11,13 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agenttest"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/enterprise/scaletest/agentfake"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/scaletest/agentfake"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -51,7 +51,7 @@ func TestAgent_ConnectsAndReachesReady(t *testing.T) {
 	// connect; agenttest records every lifecycle update.
 	require.Eventually(t, func() bool {
 		for _, state := range dialer.GetLifecycleStates() {
-			if state == codersdk.WorkspaceAgentLifecycleReady {
+			if state == nicloudsdk.WorkspaceAgentLifecycleReady {
 				return true
 			}
 		}
@@ -76,8 +76,8 @@ func TestAgent_ConnectsAndReachesReady(t *testing.T) {
 // Assert that, when the workspace agent manifest declares metadata
 // descriptions, the fake agent sends synthetic values for each key via
 // BatchUpdateMetadata. The test drives the agent against
-// agent/agenttest.Client (an in-process fake of the agent-side coderd
-// API) rather than a real coderd, so the only quartz mock involved is
+// agent/agenttest.Client (an in-process fake of the agent-side nicloud
+// API) rather than a real nicloud, so the only quartz mock involved is
 // the agentfake clock that drives the metadata ticker.
 func TestAgent_SendsMetadata(t *testing.T) {
 	t.Parallel()
@@ -90,7 +90,7 @@ func TestAgent_SendsMetadata(t *testing.T) {
 	manifest := agentsdk.Manifest{
 		AgentID:     agentID,
 		WorkspaceID: uuid.New(),
-		Metadata: []codersdk.WorkspaceAgentMetadataDescription{
+		Metadata: []nicloudsdk.WorkspaceAgentMetadataDescription{
 			{Key: "01_meta", DisplayName: "Meta 01", Script: "noop", Interval: 1, Timeout: 10},
 			{Key: "02_meta", DisplayName: "Meta 02", Script: "noop", Interval: 1, Timeout: 10},
 		},

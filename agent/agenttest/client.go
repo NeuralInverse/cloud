@@ -22,13 +22,13 @@ import (
 	"tailscale.com/tailcfg"
 
 	"cdr.dev/slog/v3"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/testutil"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/websocket"
 )
 
@@ -47,7 +47,7 @@ func NewClient(t testing.TB,
 // NewClientWithSecrets is like NewClient but also injects user
 // secrets into the agent's proto manifest. Separate from NewClient
 // because agentsdk.Manifest intentionally does not carry secrets;
-// see the Manifest doc comment in codersdk/agentsdk.
+// see the Manifest doc comment in nicloudsdk/agentsdk.
 func NewClientWithSecrets(t testing.TB,
 	logger slog.Logger,
 	agentID uuid.UUID,
@@ -111,7 +111,7 @@ type Client struct {
 	refreshTokenCalls int
 }
 
-func (*Client) AsRequestOption() codersdk.RequestOption {
+func (*Client) AsRequestOption() nicloudsdk.RequestOption {
 	return func(_ *http.Request) {}
 }
 
@@ -169,7 +169,7 @@ func (c *Client) ConnectRPC29(ctx context.Context) (
 	return agentproto.NewDRPCAgentClient(conn), proto.NewDRPCTailnetClient(conn), nil
 }
 
-func (c *Client) GetLifecycleStates() []codersdk.WorkspaceAgentLifecycle {
+func (c *Client) GetLifecycleStates() []nicloudsdk.WorkspaceAgentLifecycle {
 	return c.fakeAgentAPI.GetLifecycleStates()
 }
 
@@ -187,7 +187,7 @@ func (c *Client) GetStartupLogs() []agentsdk.Log {
 	return c.logs
 }
 
-func (c *Client) SetAnnouncementBannersFunc(f func() ([]codersdk.BannerConfig, error)) {
+func (c *Client) SetAnnouncementBannersFunc(f func() ([]nicloudsdk.BannerConfig, error)) {
 	c.fakeAgentAPI.SetAnnouncementBannersFunc(f)
 }
 
@@ -237,7 +237,7 @@ type FakeAgentAPI struct {
 	statsCh             chan *agentproto.Stats
 	appHealthCh         chan *agentproto.BatchUpdateAppHealthRequest
 	logsCh              chan<- *agentproto.BatchCreateLogsRequest
-	lifecycleStates     []codersdk.WorkspaceAgentLifecycle
+	lifecycleStates     []nicloudsdk.WorkspaceAgentLifecycle
 	metadata            map[string]agentsdk.Metadata
 	timings             []*agentproto.Timing
 	connectionReports   []*agentproto.ReportConnectionRequest
@@ -246,7 +246,7 @@ type FakeAgentAPI struct {
 	subAgentDisplayApps map[uuid.UUID][]agentproto.CreateSubAgentRequest_DisplayApp
 	subAgentApps        map[uuid.UUID][]*agentproto.CreateSubAgentRequest_App
 
-	getAnnouncementBannersFunc              func() ([]codersdk.BannerConfig, error)
+	getAnnouncementBannersFunc              func() ([]nicloudsdk.BannerConfig, error)
 	getResourcesMonitoringConfigurationFunc func() (*agentproto.GetResourcesMonitoringConfigurationResponse, error)
 	pushResourcesMonitoringUsageFunc        func(*agentproto.PushResourcesMonitoringUsageRequest) (*agentproto.PushResourcesMonitoringUsageResponse, error)
 }
@@ -269,7 +269,7 @@ func (f *FakeAgentAPI) GetTimings() []*agentproto.Timing {
 	return slices.Clone(f.timings)
 }
 
-func (f *FakeAgentAPI) SetAnnouncementBannersFunc(fn func() ([]codersdk.BannerConfig, error)) {
+func (f *FakeAgentAPI) SetAnnouncementBannersFunc(fn func() ([]nicloudsdk.BannerConfig, error)) {
 	f.Lock()
 	defer f.Unlock()
 	f.getAnnouncementBannersFunc = fn
@@ -334,7 +334,7 @@ func (f *FakeAgentAPI) UpdateStats(ctx context.Context, req *agentproto.UpdateSt
 	return &agentproto.UpdateStatsResponse{ReportInterval: durationpb.New(statsInterval)}, nil
 }
 
-func (f *FakeAgentAPI) GetLifecycleStates() []codersdk.WorkspaceAgentLifecycle {
+func (f *FakeAgentAPI) GetLifecycleStates() []nicloudsdk.WorkspaceAgentLifecycle {
 	f.Lock()
 	defer f.Unlock()
 	return slices.Clone(f.lifecycleStates)

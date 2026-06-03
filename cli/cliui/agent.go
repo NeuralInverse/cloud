@@ -12,24 +12,24 @@ import (
 	"golang.org/x/xerrors"
 	"tailscale.com/tailcfg"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 )
 
 var errAgentShuttingDown = xerrors.New("agent is shutting down")
 
 // fetchAgentResult is used to pass agent fetch results through channels.
 type fetchAgentResult struct {
-	agent codersdk.WorkspaceAgent
+	agent nicloudsdk.WorkspaceAgent
 	err   error
 }
 
 type AgentOptions struct {
 	FetchInterval time.Duration
-	Fetch         func(ctx context.Context, agentID uuid.UUID) (codersdk.WorkspaceAgent, error)
-	FetchLogs     func(ctx context.Context, agentID uuid.UUID, after int64, follow bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error)
+	Fetch         func(ctx context.Context, agentID uuid.UUID) (nicloudsdk.WorkspaceAgent, error)
+	FetchLogs     func(ctx context.Context, agentID uuid.UUID, after int64, follow bool) (<-chan []nicloudsdk.WorkspaceAgentLog, io.Closer, error)
 	Wait          bool // If true, wait for the agent to be ready (startup script).
 	DocsURL       string
 }
@@ -38,8 +38,8 @@ type AgentOptions struct {
 type agentWaiter struct {
 	opts       AgentOptions
 	sw         *stageWriter
-	logSources map[uuid.UUID]codersdk.WorkspaceAgentLogSource
-	fetchAgent func(context.Context) (codersdk.WorkspaceAgent, error)
+	logSources map[uuid.UUID]nicloudsdk.WorkspaceAgentLogSource
+	fetchAgent func(context.Context) (nicloudsdk.WorkspaceAgent, error)
 }
 
 // Agent displays a spinning indicator that waits for a workspace agent to connect.
@@ -51,8 +51,8 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 		opts.FetchInterval = 500 * time.Millisecond
 	}
 	if opts.FetchLogs == nil {
-		opts.FetchLogs = func(_ context.Context, _ uuid.UUID, _ int64, _ bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error) {
-			c := make(chan []codersdk.WorkspaceAgentLog)
+		opts.FetchLogs = func(_ context.Context, _ uuid.UUID, _ int64, _ bool) (<-chan []nicloudsdk.WorkspaceAgentLog, io.Closer, error) {
+			c := make(chan []nicloudsdk.WorkspaceAgentLog)
 			close(c)
 			return c, closeFunc(func() error { return nil }), nil
 		}
@@ -89,13 +89,13 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 			}
 		}
 	}()
-	fetch := func(ctx context.Context) (codersdk.WorkspaceAgent, error) {
+	fetch := func(ctx context.Context) (nicloudsdk.WorkspaceAgent, error) {
 		select {
 		case <-ctx.Done():
-			return codersdk.WorkspaceAgent{}, ctx.Err()
+			return nicloudsdk.WorkspaceAgent{}, ctx.Err()
 		case f := <-fetchedAgent:
 			if f.err != nil {
-				return codersdk.WorkspaceAgent{}, f.err
+				return nicloudsdk.WorkspaceAgent{}, f.err
 			}
 			return f.agent, nil
 		}
@@ -105,7 +105,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 	if err != nil {
 		return xerrors.Errorf("fetch: %w", err)
 	}
-	logSources := map[uuid.UUID]codersdk.WorkspaceAgentLogSource{}
+	logSources := map[uuid.UUID]nicloudsdk.WorkspaceAgentLogSource{}
 	for _, source := range agent.LogSources {
 		logSources[source.ID] = source
 	}
@@ -121,7 +121,7 @@ func Agent(ctx context.Context, writer io.Writer, agentID uuid.UUID, opts AgentO
 }
 
 // wait runs the main state machine loop.
-func (aw *agentWaiter) wait(ctx context.Context, agent codersdk.WorkspaceAgent, fetchedAgent chan fetchAgentResult) error {
+func (aw *agentWaiter) wait(ctx context.Context, agent nicloudsdk.WorkspaceAgent, fetchedAgent chan fetchAgentResult) error {
 	var err error
 	// Track whether we've gone through a wait state, which determines if we
 	// should show startup logs when connected.
@@ -135,7 +135,7 @@ func (aw *agentWaiter) wait(ctx context.Context, agent codersdk.WorkspaceAgent, 
 		}
 
 		switch agent.Status {
-		case codersdk.WorkspaceAgentConnecting, codersdk.WorkspaceAgentTimeout:
+		case nicloudsdk.WorkspaceAgentConnecting, nicloudsdk.WorkspaceAgentTimeout:
 			agent, err = aw.waitForConnection(ctx, agent)
 			if err != nil {
 				return err
@@ -144,10 +144,10 @@ func (aw *agentWaiter) wait(ctx context.Context, agent codersdk.WorkspaceAgent, 
 			// startup logs if applicable.
 			waitedForConnection = true
 
-		case codersdk.WorkspaceAgentConnected:
+		case nicloudsdk.WorkspaceAgentConnected:
 			return aw.handleConnected(ctx, agent, waitedForConnection, fetchedAgent)
 
-		case codersdk.WorkspaceAgentDisconnected:
+		case nicloudsdk.WorkspaceAgentDisconnected:
 			agent, waitedForConnection, err = aw.waitForReconnection(ctx, agent)
 			if err != nil {
 				return err
@@ -158,23 +158,23 @@ func (aw *agentWaiter) wait(ctx context.Context, agent codersdk.WorkspaceAgent, 
 
 // waitForConnection handles the Connecting/Timeout states.
 // Returns when agent transitions to Connected or Disconnected.
-func (aw *agentWaiter) waitForConnection(ctx context.Context, agent codersdk.WorkspaceAgent) (codersdk.WorkspaceAgent, error) {
+func (aw *agentWaiter) waitForConnection(ctx context.Context, agent nicloudsdk.WorkspaceAgent) (nicloudsdk.WorkspaceAgent, error) {
 	stage := "Waiting for the workspace agent to connect"
 	aw.sw.Start(stage)
 
-	agent, err := aw.pollWhile(ctx, agent, func(agent codersdk.WorkspaceAgent) bool {
-		return agent.Status == codersdk.WorkspaceAgentConnecting
+	agent, err := aw.pollWhile(ctx, agent, func(agent nicloudsdk.WorkspaceAgent) bool {
+		return agent.Status == nicloudsdk.WorkspaceAgentConnecting
 	})
 	if err != nil {
 		return agent, err
 	}
 
-	if agent.Status == codersdk.WorkspaceAgentTimeout {
+	if agent.Status == nicloudsdk.WorkspaceAgentTimeout {
 		now := time.Now()
-		aw.sw.Log(now, codersdk.LogLevelInfo, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
-		aw.sw.Log(now, codersdk.LogLevelInfo, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#agent-connection-issues", aw.opts.DocsURL)))
-		agent, err = aw.pollWhile(ctx, agent, func(agent codersdk.WorkspaceAgent) bool {
-			return agent.Status == codersdk.WorkspaceAgentTimeout
+		aw.sw.Log(now, nicloudsdk.LogLevelInfo, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
+		aw.sw.Log(now, nicloudsdk.LogLevelInfo, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#agent-connection-issues", aw.opts.DocsURL)))
+		agent, err = aw.pollWhile(ctx, agent, func(agent nicloudsdk.WorkspaceAgent) bool {
+			return agent.Status == nicloudsdk.WorkspaceAgentTimeout
 		})
 		if err != nil {
 			return agent, err
@@ -189,8 +189,8 @@ func (aw *agentWaiter) waitForConnection(ctx context.Context, agent codersdk.Wor
 // This is a terminal state, returns nil on success or error on failure.
 //
 //nolint:revive // Control flag is acceptable for internal method.
-func (aw *agentWaiter) handleConnected(ctx context.Context, agent codersdk.WorkspaceAgent, showStartupLogs bool, fetchedAgent chan fetchAgentResult) error {
-	if !showStartupLogs && agent.LifecycleState == codersdk.WorkspaceAgentLifecycleReady {
+func (aw *agentWaiter) handleConnected(ctx context.Context, agent nicloudsdk.WorkspaceAgent, showStartupLogs bool, fetchedAgent chan fetchAgentResult) error {
+	if !showStartupLogs && agent.LifecycleState == nicloudsdk.WorkspaceAgentLifecycleReady {
 		// The workspace is ready, there's nothing to do but connect.
 		return nil
 	}
@@ -205,7 +205,7 @@ func (aw *agentWaiter) handleConnected(ctx context.Context, agent codersdk.Works
 	aw.sw.Start(stage)
 
 	if follow {
-		aw.sw.Log(time.Time{}, codersdk.LogLevelInfo, "==> ℹ︎ To connect immediately, reconnect with --wait=no or CODER_SSH_WAIT=no, see --help for more information.")
+		aw.sw.Log(time.Time{}, nicloudsdk.LogLevelInfo, "==> ℹ︎ To connect immediately, reconnect with --wait=no or NEURALINVERSE_SSH_WAIT=no, see --help for more information.")
 	}
 
 	// In non-blocking mode (Wait=false), we don't stream logs. This prevents
@@ -220,7 +220,7 @@ func (aw *agentWaiter) handleConnected(ctx context.Context, agent codersdk.Works
 
 		// If we were following, wait until startup completes.
 		if follow {
-			agent, err = aw.pollWhile(ctx, agent, func(agent codersdk.WorkspaceAgent) bool {
+			agent, err = aw.pollWhile(ctx, agent, func(agent nicloudsdk.WorkspaceAgent) bool {
 				return agent.LifecycleState.Starting()
 			})
 			if err != nil {
@@ -231,26 +231,26 @@ func (aw *agentWaiter) handleConnected(ctx context.Context, agent codersdk.Works
 
 	// Handle final lifecycle state.
 	switch agent.LifecycleState {
-	case codersdk.WorkspaceAgentLifecycleReady:
+	case nicloudsdk.WorkspaceAgentLifecycleReady:
 		aw.sw.Complete(stage, safeDuration(aw.sw, agent.ReadyAt, agent.StartedAt))
-	case codersdk.WorkspaceAgentLifecycleStartTimeout:
+	case nicloudsdk.WorkspaceAgentLifecycleStartTimeout:
 		// Backwards compatibility: Avoid printing warning if
-		// coderd is old and doesn't set ReadyAt for timeouts.
+		// nicloud is old and doesn't set ReadyAt for timeouts.
 		if agent.ReadyAt == nil {
 			aw.sw.Fail(stage, 0)
 		} else {
 			aw.sw.Fail(stage, safeDuration(aw.sw, agent.ReadyAt, agent.StartedAt))
 		}
-		aw.sw.Log(time.Time{}, codersdk.LogLevelWarn, "Warning: A startup script timed out and your workspace may be incomplete.")
-	case codersdk.WorkspaceAgentLifecycleStartError:
+		aw.sw.Log(time.Time{}, nicloudsdk.LogLevelWarn, "Warning: A startup script timed out and your workspace may be incomplete.")
+	case nicloudsdk.WorkspaceAgentLifecycleStartError:
 		aw.sw.Fail(stage, safeDuration(aw.sw, agent.ReadyAt, agent.StartedAt))
-		aw.sw.Log(time.Time{}, codersdk.LogLevelWarn, "Warning: A startup script exited with an error and your workspace may be incomplete.")
-		aw.sw.Log(time.Time{}, codersdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#startup-script-exited-with-an-error", aw.opts.DocsURL)))
+		aw.sw.Log(time.Time{}, nicloudsdk.LogLevelWarn, "Warning: A startup script exited with an error and your workspace may be incomplete.")
+		aw.sw.Log(time.Time{}, nicloudsdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#startup-script-exited-with-an-error", aw.opts.DocsURL)))
 	default:
 		switch {
 		case agent.LifecycleState.Starting():
-			aw.sw.Log(time.Time{}, codersdk.LogLevelWarn, "Notice: The startup scripts are still running and your workspace may be incomplete.")
-			aw.sw.Log(time.Time{}, codersdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#your-workspace-may-be-incomplete", aw.opts.DocsURL)))
+			aw.sw.Log(time.Time{}, nicloudsdk.LogLevelWarn, "Notice: The startup scripts are still running and your workspace may be incomplete.")
+			aw.sw.Log(time.Time{}, nicloudsdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#your-workspace-may-be-incomplete", aw.opts.DocsURL)))
 			// Note: We don't complete or fail the stage here, it's
 			// intentionally left open to indicate this stage didn't
 			// complete.
@@ -268,14 +268,14 @@ func (aw *agentWaiter) handleConnected(ctx context.Context, agent codersdk.Works
 // streamLogs handles streaming or fetching startup logs.
 //
 //nolint:revive // Control flag is acceptable for internal method.
-func (aw *agentWaiter) streamLogs(ctx context.Context, agent codersdk.WorkspaceAgent, follow bool, fetchedAgent chan fetchAgentResult) (codersdk.WorkspaceAgent, error) {
+func (aw *agentWaiter) streamLogs(ctx context.Context, agent nicloudsdk.WorkspaceAgent, follow bool, fetchedAgent chan fetchAgentResult) (nicloudsdk.WorkspaceAgent, error) {
 	logStream, logsCloser, err := aw.opts.FetchLogs(ctx, agent.ID, 0, follow)
 	if err != nil {
 		return agent, xerrors.Errorf("fetch workspace agent startup logs: %w", err)
 	}
 	defer logsCloser.Close()
 
-	var lastLog codersdk.WorkspaceAgentLog
+	var lastLog nicloudsdk.WorkspaceAgentLog
 
 	// If not following, we don't need to watch for agent state changes.
 	var fetchedAgentWhileFollowing chan fetchAgentResult
@@ -327,19 +327,19 @@ func (aw *agentWaiter) streamLogs(ctx context.Context, agent codersdk.WorkspaceA
 
 // waitForReconnection handles the Disconnected state.
 // Returns when agent reconnects along with whether to show startup logs.
-func (aw *agentWaiter) waitForReconnection(ctx context.Context, agent codersdk.WorkspaceAgent) (codersdk.WorkspaceAgent, bool, error) {
+func (aw *agentWaiter) waitForReconnection(ctx context.Context, agent nicloudsdk.WorkspaceAgent) (nicloudsdk.WorkspaceAgent, bool, error) {
 	// If the agent was still starting during disconnect, we'll
 	// show startup logs.
 	showStartupLogs := agent.LifecycleState.Starting()
 
 	stage := "The workspace agent lost connection"
 	aw.sw.Start(stage)
-	aw.sw.Log(time.Now(), codersdk.LogLevelWarn, "Wait for it to reconnect or restart your workspace.")
-	aw.sw.Log(time.Now(), codersdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#agent-connection-issues", aw.opts.DocsURL)))
+	aw.sw.Log(time.Now(), nicloudsdk.LogLevelWarn, "Wait for it to reconnect or restart your workspace.")
+	aw.sw.Log(time.Now(), nicloudsdk.LogLevelWarn, troubleshootingMessage(agent, fmt.Sprintf("%s/admin/templates/troubleshooting#agent-connection-issues", aw.opts.DocsURL)))
 
 	disconnectedAt := agent.DisconnectedAt
-	agent, err := aw.pollWhile(ctx, agent, func(agent codersdk.WorkspaceAgent) bool {
-		return agent.Status == codersdk.WorkspaceAgentDisconnected
+	agent, err := aw.pollWhile(ctx, agent, func(agent nicloudsdk.WorkspaceAgent) bool {
+		return agent.Status == nicloudsdk.WorkspaceAgentDisconnected
 	})
 	if err != nil {
 		return agent, showStartupLogs, err
@@ -352,7 +352,7 @@ func (aw *agentWaiter) waitForReconnection(ctx context.Context, agent codersdk.W
 // pollWhile polls the agent while the condition is true. It fetches the agent
 // on each iteration and returns the updated agent when the condition is false,
 // the context is canceled, or an error occurs.
-func (aw *agentWaiter) pollWhile(ctx context.Context, agent codersdk.WorkspaceAgent, cond func(agent codersdk.WorkspaceAgent) bool) (codersdk.WorkspaceAgent, error) {
+func (aw *agentWaiter) pollWhile(ctx context.Context, agent nicloudsdk.WorkspaceAgent, cond func(agent nicloudsdk.WorkspaceAgent) bool) (nicloudsdk.WorkspaceAgent, error) {
 	var err error
 	for cond(agent) {
 		agent, err = aw.fetchAgent(ctx)
@@ -366,7 +366,7 @@ func (aw *agentWaiter) pollWhile(ctx context.Context, agent codersdk.WorkspaceAg
 	return agent, nil
 }
 
-func troubleshootingMessage(agent codersdk.WorkspaceAgent, url string) string {
+func troubleshootingMessage(agent nicloudsdk.WorkspaceAgent, url string) string {
 	m := "For more information and troubleshooting, see " + url
 	if agent.TroubleshootingURL != "" {
 		m += " and " + agent.TroubleshootingURL
@@ -386,7 +386,7 @@ func safeDuration(sw *stageWriter, a, b *time.Time) time.Duration {
 			// Ideally the message includes which fields are <nil>, but you can
 			// use the surrounding log lines to figure that out. And passing more
 			// params makes this unwieldy.
-			sw.Log(time.Now(), codersdk.LogLevelWarn, "Warning: Failed to calculate duration from a time being <nil>.")
+			sw.Log(time.Now(), nicloudsdk.LogLevelWarn, "Warning: Failed to calculate duration from a time being <nil>.")
 		}
 		return 0
 	}
@@ -529,7 +529,7 @@ func (d ConnDiags) splitDiagnostics() (general, client, agent []string) {
 	}
 
 	if d.DisableDirect {
-		general = append(general, "❗ Direct connections are disabled locally, by `--disable-direct-connections` or `CODER_DISABLE_DIRECT_CONNECTIONS`.\n"+
+		general = append(general, "❗ Direct connections are disabled locally, by `--disable-direct-connections` or `NEURALINVERSE_DISABLE_DIRECT_CONNECTIONS`.\n"+
 			"   They may still be established over a private network.")
 		if !d.Verbose {
 			return general, client, agent

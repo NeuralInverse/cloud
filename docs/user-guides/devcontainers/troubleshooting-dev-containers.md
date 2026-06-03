@@ -67,12 +67,12 @@ If `coder ssh <workspace>.<agent>` fails:
 
 ## VS Code connection issues
 
-VS Code connects to dev containers through the Coder extension. The extension
+VS Code connects to dev containers through the Neural Inverse Cloud extension. The extension
 uses the sub-agent information to route connections through the parent workspace
 agent to the dev container. If VS Code fails to connect:
 
-1. Ensure you have the latest Coder VS Code extension.
-1. Verify the dev container is running in the Coder dashboard.
+1. Ensure you have the latest Neural Inverse Cloud VS Code extension.
+1. Verify the dev container is running in the Neural Inverse Cloud dashboard.
 1. Check the parent workspace agent is healthy.
 1. Try restarting the dev container from the dashboard.
 
@@ -112,6 +112,6 @@ If you continue to experience issues:
 
 1. Collect logs from `/tmp/coder-agent.log` (both workspace and container).
 1. Note the exact error messages.
-1. Check [Coder GitHub issues](https://github.com/coder/coder/issues) for
+1. Check [Neural Inverse Cloud GitHub issues](https://github.com/NeuralInverse/cloud/issues) for
    similar problems.
-1. Contact your Coder administrator for template-specific issues.
+1. Contact your Neural Inverse Cloud administrator for template-specific issues.

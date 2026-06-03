@@ -11,9 +11,9 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"golang.org/x/mod/semver"
 
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/util/slice"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 )
 
@@ -28,8 +28,8 @@ type WorkspaceResourcesOptions struct {
 	HideAccess     bool
 	Title          string
 	ServerVersion  string
-	ListeningPorts map[uuid.UUID]codersdk.WorkspaceAgentListeningPortsResponse
-	Devcontainers  map[uuid.UUID]codersdk.WorkspaceAgentListContainersResponse
+	ListeningPorts map[uuid.UUID]nicloudsdk.WorkspaceAgentListeningPortsResponse
+	Devcontainers  map[uuid.UUID]nicloudsdk.WorkspaceAgentListContainersResponse
 	ShowDetails    bool
 }
 
@@ -40,13 +40,13 @@ type WorkspaceResourcesOptions struct {
 // │ google_compute_disk.root                                                   │
 // ├────────────────────────────────────────────────────────────────────────────┤
 // │ google_compute_instance.dev                                                │
-// │ └─ dev (linux, amd64)        ⦾ connecting [10s]    coder ssh dev.dev       │
+// │ └─ dev (linux, amd64)        ⦾ connecting [10s]    neuralinverse ssh dev.dev       │
 // ├────────────────────────────────────────────────────────────────────────────┤
 // │ kubernetes_pod.dev                                                         │
-// │ ├─ go (linux, amd64)         ⦿ connected           coder ssh dev.go        │
-// │ └─ postgres (linux, amd64)   ⦾ disconnected [4s]   coder ssh dev.postgres  │
+// │ ├─ go (linux, amd64)         ⦿ connected           neuralinverse ssh dev.go        │
+// │ └─ postgres (linux, amd64)   ⦾ disconnected [4s]   neuralinverse ssh dev.postgres  │
 // └────────────────────────────────────────────────────────────────────────────┘
-func WorkspaceResources(writer io.Writer, resources []codersdk.WorkspaceResource, options WorkspaceResourcesOptions) error {
+func WorkspaceResources(writer io.Writer, resources []nicloudsdk.WorkspaceResource, options WorkspaceResourcesOptions) error {
 	// Sort resources by type for consistent output.
 	sort.Slice(resources, func(i, j int) bool {
 		return resources[i].Type < resources[j].Type
@@ -100,7 +100,7 @@ func WorkspaceResources(writer io.Writer, resources []codersdk.WorkspaceResource
 			"",
 		})
 		// Display all agents associated with the resource.
-		agents := slice.Filter(resource.Agents, func(agent codersdk.WorkspaceAgent) bool {
+		agents := slice.Filter(resource.Agents, func(agent nicloudsdk.WorkspaceAgent) bool {
 			return !agent.ParentID.Valid
 		})
 		for index, agent := range agents {
@@ -118,7 +118,7 @@ func WorkspaceResources(writer io.Writer, resources []codersdk.WorkspaceResource
 	return err
 }
 
-func renderAgentRow(agent codersdk.WorkspaceAgent, index, totalAgents int, options WorkspaceResourcesOptions) table.Row {
+func renderAgentRow(agent nicloudsdk.WorkspaceAgent, index, totalAgents int, options WorkspaceResourcesOptions) table.Row {
 	row := table.Row{
 		// These tree from a resource!
 		fmt.Sprintf("%s─ %s (%s, %s)", renderPipe(index, totalAgents), agent.Name, agent.OperatingSystem, agent.Architecture),
@@ -133,7 +133,7 @@ func renderAgentRow(agent codersdk.WorkspaceAgent, index, totalAgents int, optio
 		row = append(row, agentStatus, agentHealth, agentVersion)
 	}
 	if !options.HideAccess {
-		sshCommand := "coder ssh " + options.WorkspaceName
+		sshCommand := "neuralinverse ssh " + options.WorkspaceName
 		if totalAgents > 1 || len(options.Devcontainers) > 0 {
 			sshCommand += "." + agent.Name
 		}
@@ -161,7 +161,7 @@ func renderListeningPorts(wro WorkspaceResourcesOptions, agentID uuid.UUID, idx,
 	return rows
 }
 
-func renderPortRow(port codersdk.WorkspaceAgentListeningPort, idx, total int) table.Row {
+func renderPortRow(port nicloudsdk.WorkspaceAgentListeningPort, idx, total int) table.Row {
 	var sb strings.Builder
 	_, _ = sb.WriteString("      ")
 	_, _ = sb.WriteString(renderPipe(idx, total))
@@ -173,7 +173,7 @@ func renderPortRow(port codersdk.WorkspaceAgentListeningPort, idx, total int) ta
 	return table.Row{sb.String()}
 }
 
-func renderDevcontainers(resources []codersdk.WorkspaceResource, wro WorkspaceResourcesOptions, agentID uuid.UUID, index, totalAgents int) []table.Row {
+func renderDevcontainers(resources []nicloudsdk.WorkspaceResource, wro WorkspaceResourcesOptions, agentID uuid.UUID, index, totalAgents int) []table.Row {
 	var rows []table.Row
 	if wro.Devcontainers == nil {
 		return []table.Row{}
@@ -191,17 +191,17 @@ func renderDevcontainers(resources []codersdk.WorkspaceResource, wro WorkspaceRe
 	return rows
 }
 
-func renderDevcontainerRow(resources []codersdk.WorkspaceResource, devcontainer codersdk.WorkspaceAgentDevcontainer, index, total int, wro WorkspaceResourcesOptions) []table.Row {
+func renderDevcontainerRow(resources []nicloudsdk.WorkspaceResource, devcontainer nicloudsdk.WorkspaceAgentDevcontainer, index, total int, wro WorkspaceResourcesOptions) []table.Row {
 	var rows []table.Row
 
 	// If the devcontainer is running and has an associated agent, we want to
 	// display the agent's details. Otherwise, we just display the devcontainer
 	// name and status.
-	var subAgent *codersdk.WorkspaceAgent
+	var subAgent *nicloudsdk.WorkspaceAgent
 	displayName := devcontainer.Name
-	if devcontainer.Agent != nil && devcontainer.Status == codersdk.WorkspaceAgentDevcontainerStatusRunning {
+	if devcontainer.Agent != nil && devcontainer.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusRunning {
 		for _, resource := range resources {
-			if agent, found := slice.Find(resource.Agents, func(agent codersdk.WorkspaceAgent) bool {
+			if agent, found := slice.Find(resource.Agents, func(agent nicloudsdk.WorkspaceAgent) bool {
 				return agent.ID == devcontainer.Agent.ID
 			}); found {
 				subAgent = &agent
@@ -239,7 +239,7 @@ func renderDevcontainerRow(resources []codersdk.WorkspaceResource, devcontainer 
 	// Add access column.
 	if !wro.HideAccess {
 		if subAgent != nil {
-			accessString := fmt.Sprintf("coder ssh %s.%s", wro.WorkspaceName, subAgent.Name)
+			accessString := fmt.Sprintf("neuralinverse ssh %s.%s", wro.WorkspaceName, subAgent.Name)
 			row = append(row, pretty.Sprint(DefaultStyles.Code, accessString))
 		} else {
 			row = append(row, "") // No access for devcontainers without agent.
@@ -283,46 +283,46 @@ func renderDevcontainerRow(resources []codersdk.WorkspaceResource, devcontainer 
 	return rows
 }
 
-func renderDevcontainerStatus(status codersdk.WorkspaceAgentDevcontainerStatus) string {
+func renderDevcontainerStatus(status nicloudsdk.WorkspaceAgentDevcontainerStatus) string {
 	switch status {
-	case codersdk.WorkspaceAgentDevcontainerStatusRunning:
+	case nicloudsdk.WorkspaceAgentDevcontainerStatusRunning:
 		return pretty.Sprint(DefaultStyles.Keyword, "▶ running")
-	case codersdk.WorkspaceAgentDevcontainerStatusStopped:
+	case nicloudsdk.WorkspaceAgentDevcontainerStatusStopped:
 		return pretty.Sprint(DefaultStyles.Placeholder, "⏹ stopped")
-	case codersdk.WorkspaceAgentDevcontainerStatusStarting:
+	case nicloudsdk.WorkspaceAgentDevcontainerStatusStarting:
 		return pretty.Sprint(DefaultStyles.Warn, "⧗ starting")
-	case codersdk.WorkspaceAgentDevcontainerStatusError:
+	case nicloudsdk.WorkspaceAgentDevcontainerStatusError:
 		return pretty.Sprint(DefaultStyles.Error, "✘ error")
 	default:
 		return pretty.Sprint(DefaultStyles.Placeholder, "○ "+string(status))
 	}
 }
 
-func renderAgentStatus(agent codersdk.WorkspaceAgent) string {
+func renderAgentStatus(agent nicloudsdk.WorkspaceAgent) string {
 	switch agent.Status {
-	case codersdk.WorkspaceAgentConnecting:
+	case nicloudsdk.WorkspaceAgentConnecting:
 		since := dbtime.Now().Sub(agent.CreatedAt)
 		return pretty.Sprint(DefaultStyles.Warn, "⦾ connecting") + " " +
 			pretty.Sprint(DefaultStyles.Placeholder, "["+strconv.Itoa(int(since.Seconds()))+"s]")
-	case codersdk.WorkspaceAgentDisconnected:
+	case nicloudsdk.WorkspaceAgentDisconnected:
 		since := dbtime.Now().Sub(*agent.DisconnectedAt)
 		return pretty.Sprint(DefaultStyles.Error, "⦾ disconnected") + " " +
 			pretty.Sprint(DefaultStyles.Placeholder, "["+strconv.Itoa(int(since.Seconds()))+"s]")
-	case codersdk.WorkspaceAgentTimeout:
+	case nicloudsdk.WorkspaceAgentTimeout:
 		since := dbtime.Now().Sub(agent.CreatedAt)
 		return fmt.Sprintf(
 			"%s %s",
 			pretty.Sprint(DefaultStyles.Warn, "⦾ timeout"),
 			pretty.Sprint(DefaultStyles.Placeholder, "["+strconv.Itoa(int(since.Seconds()))+"s]"),
 		)
-	case codersdk.WorkspaceAgentConnected:
+	case nicloudsdk.WorkspaceAgentConnected:
 		return pretty.Sprint(DefaultStyles.Keyword, "⦿ connected")
 	default:
 		return pretty.Sprint(DefaultStyles.Warn, "○ unknown")
 	}
 }
 
-func renderAgentHealth(agent codersdk.WorkspaceAgent) string {
+func renderAgentHealth(agent nicloudsdk.WorkspaceAgent) string {
 	if agent.Health.Healthy {
 		return pretty.Sprint(DefaultStyles.Keyword, "✔ healthy")
 	}

@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -20,7 +20,7 @@ import (
 // other.
 type WorkspaceListRow struct {
 	// For JSON format:
-	codersdk.Workspace `table:"-"`
+	nicloudsdk.Workspace `table:"-"`
 
 	// For table format:
 	Favorite         bool      `json:"-" table:"favorite"`
@@ -40,8 +40,8 @@ type WorkspaceListRow struct {
 	DailyCost        string    `json:"-" table:"daily cost"`
 }
 
-func WorkspaceListRowFromWorkspace(now time.Time, workspace codersdk.Workspace) WorkspaceListRow {
-	status := codersdk.WorkspaceDisplayStatus(workspace.LatestBuild.Job.Status, workspace.LatestBuild.Transition)
+func WorkspaceListRowFromWorkspace(now time.Time, workspace nicloudsdk.Workspace) WorkspaceListRow {
+	status := nicloudsdk.WorkspaceDisplayStatus(workspace.LatestBuild.Job.Status, workspace.LatestBuild.Transition)
 
 	lastBuilt := now.UTC().Sub(workspace.LatestBuild.Job.CreatedAt).Truncate(time.Second)
 	schedRow := scheduleListRowFromWorkspace(now, workspace)
@@ -122,7 +122,7 @@ func (r *RootCmd) list() *serpent.Command {
 
 			workspaceFilter := filter.Filter()
 			if sharedWithMe {
-				user, err := client.User(inv.Context(), codersdk.Me)
+				user, err := client.User(inv.Context(), nicloudsdk.Me)
 				if err != nil {
 					return xerrors.Errorf("fetch current user: %w", err)
 				}
@@ -147,7 +147,7 @@ func (r *RootCmd) list() *serpent.Command {
 			if out == "" {
 				pretty.Fprintf(inv.Stderr, cliui.DefaultStyles.Prompt, "No workspaces found! Create one:\n")
 				_, _ = fmt.Fprintln(inv.Stderr)
-				_, _ = fmt.Fprintln(inv.Stderr, "  "+pretty.Sprint(cliui.DefaultStyles.Code, "coder create <name>"))
+				_, _ = fmt.Fprintln(inv.Stderr, "  "+pretty.Sprint(cliui.DefaultStyles.Code, "neuralinverse create <name>"))
 				_, _ = fmt.Fprintln(inv.Stderr)
 				return nil
 			}
@@ -162,11 +162,11 @@ func (r *RootCmd) list() *serpent.Command {
 }
 
 // queryConvertWorkspaces is a helper function for converting
-// codersdk.Workspaces to a different type.
+// nicloudsdk.Workspaces to a different type.
 // It's used by the list command to convert workspaces to
 // WorkspaceListRow, and by the schedule command to
 // convert workspaces to scheduleListRow.
-func QueryConvertWorkspaces[T any](ctx context.Context, client *codersdk.Client, filter codersdk.WorkspaceFilter, convertF func(time.Time, codersdk.Workspace) T) ([]T, error) {
+func QueryConvertWorkspaces[T any](ctx context.Context, client *nicloudsdk.Client, filter nicloudsdk.WorkspaceFilter, convertF func(time.Time, nicloudsdk.Workspace) T) ([]T, error) {
 	var empty []T
 	workspaces, err := client.Workspaces(ctx, filter)
 	if err != nil {

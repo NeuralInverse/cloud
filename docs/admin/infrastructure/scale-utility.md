@@ -1,15 +1,15 @@
 # Scale Tests and Utilities
 
-We scale-test Coder with a built-in utility that can
-be used in your environment for insights into how Coder scales with your
+We scale-test Neural Inverse Cloud with a built-in utility that can
+be used in your environment for insights into how Neural Inverse Cloud scales with your
 infrastructure. For scale-testing Kubernetes clusters we recommend that you install
-and use the dedicated Coder template,
-[scaletest-runner](https://github.com/coder/coder/tree/main/scaletest/templates/scaletest-runner).
+and use the dedicated Neural Inverse Cloud template,
+[scaletest-runner](https://github.com/NeuralInverse/cloud/tree/main/scaletest/templates/scaletest-runner).
 
-Learn more about [Coder’s architecture](./architecture.md) and our
+Learn more about [Neural Inverse Cloud’s architecture](./architecture.md) and our
 [scale-testing methodology](./scale-testing.md).
 
-For more information about scaling, see our [Coder scaling best practices](../../tutorials/best-practices/scale-coder.md).
+For more information about scaling, see our [Neural Inverse Cloud scaling best practices](../../tutorials/best-practices/scale-coder.md).
 
 ## Recent scale tests
 
@@ -19,7 +19,7 @@ to be used as guidelines for infrastructure sizing.
 Review the [Reference Architectures](./validated-architectures/index.md#node-sizing) for
 hardware sizing recommendations.
 
-| Environment      | Coder CPU | Coder RAM | Coder Replicas | Database          | Users | Concurrent builds | Concurrent connections (Terminal/SSH) | Coder Version | Last tested  |
+| Environment      | Neural Inverse Cloud CPU | Neural Inverse Cloud RAM | Neural Inverse Cloud Replicas | Database          | Users | Concurrent builds | Concurrent connections (Terminal/SSH) | Neural Inverse Cloud Version | Last tested  |
 |------------------|-----------|-----------|----------------|-------------------|-------|-------------------|---------------------------------------|---------------|--------------|
 | Kubernetes (GKE) | 3 cores   | 12 GB     | 1              | db-f1-micro       | 200   | 3                 | 200 simulated                         | `v0.24.1`     | Jun 26, 2023 |
 | Kubernetes (GKE) | 4 cores   | 8 GB      | 1              | db-custom-1-3840  | 1500  | 20                | 1,500 simulated                       | `v0.24.1`     | Jun 27, 2023 |
@@ -33,7 +33,7 @@ hardware sizing recommendations.
 
 ## Scale testing utility
 
-Since Coder's performance is highly dependent on the templates and workflows you
+Since Neural Inverse Cloud's performance is highly dependent on the templates and workflows you
 support, you may wish to use our internal scale testing utility against your own
 environments.
 
@@ -50,7 +50,7 @@ environments.
 
 ### Create workspaces
 
-The following command will provision a number of Coder workspaces using the
+The following command will provision a number of Neural Inverse Cloud workspaces using the
 specified template and extra parameters:
 
 ```shell
@@ -84,7 +84,7 @@ coder exp scaletest create-workspaces --help
 ### Traffic Generation
 
 Given an existing set of workspaces created previously with `create-workspaces`,
-the following command will generate traffic similar to that of Coder's Web
+the following command will generate traffic similar to that of Neural Inverse Cloud's Web
 Terminal against those workspaces.
 
 ```shell
@@ -138,10 +138,10 @@ This will delete all workspaces and users with the prefix `scaletest-`.
 ## Scale testing template
 
 Consider using a dedicated
-[scaletest-runner](https://github.com/coder/coder/tree/main/scaletest/templates/scaletest-runner)
+[scaletest-runner](https://github.com/NeuralInverse/cloud/tree/main/scaletest/templates/scaletest-runner)
 template alongside the CLI utility for testing large-scale Kubernetes clusters.
 
-The template deploys a main workspace with scripts used to orchestrate Coder,
+The template deploys a main workspace with scripts used to orchestrate Neural Inverse Cloud,
 creating workspaces, generating workspace traffic, or load-testing workspace
 apps.
 
@@ -150,7 +150,7 @@ apps.
 The _scaletest-runner_ offers the following configuration options:
 
 - Workspace size selection: minimal/small/medium/large (_default_: minimal,
-  which contains just enough resources for a Coder agent to run without
+  which contains just enough resources for a Neural Inverse Cloud agent to run without
   additional workloads)
 - Number of workspaces
 - Wait duration between scenarios or staggered approach
@@ -175,9 +175,9 @@ Scale testing concurrency can be controlled with the following parameters:
 ### Kubernetes cluster
 
 It is recommended to learn how to operate the _scaletest-runner_ before running
-it against the staging cluster (or production at your own risk). Coder provides
+it against the staging cluster (or production at your own risk). Neural Inverse Cloud provides
 different
-[workspace configurations](https://github.com/coder/coder/tree/main/scaletest/templates)
+[workspace configurations](https://github.com/NeuralInverse/cloud/tree/main/scaletest/templates)
 that operators can deploy depending on the traffic projections.
 
 There are a few cluster options available:
@@ -194,9 +194,9 @@ your setup.
 
 #### Greedy agent
 
-The greedy agent variant is a template modification that makes the Coder agent
+The greedy agent variant is a template modification that makes the Neural Inverse Cloud agent
 transmit large metadata (size: 4K) while reporting stats. The transmission of
-large chunks puts extra overhead on coderd instances and agents when handling
+large chunks puts extra overhead on nicloud instances and agents when handling
 and storing the data.
 
 Use this template variant to verify limits of the cluster performance.
@@ -204,47 +204,47 @@ Use this template variant to verify limits of the cluster performance.
 ### Observability
 
 During scale tests, operators can monitor progress using a Grafana dashboard.
-Coder offers a comprehensive overview
-[dashboard](https://github.com/coder/coder/blob/main/scaletest/scaletest_dashboard.json)
+Neural Inverse Cloud offers a comprehensive overview
+[dashboard](https://github.com/NeuralInverse/cloud/blob/main/scaletest/scaletest_dashboard.json)
 that can seamlessly integrate into the internal Grafana deployment.
 
 This dashboard provides insights into various aspects, including:
 
-- Utilization of resources within the Coder control plane (CPU, memory, pods)
+- Utilization of resources within the Neural Inverse Cloud control plane (CPU, memory, pods)
 - Database performance metrics (CPU, memory, I/O, connections, queries)
-- Coderd API performance (requests, latency, error rate)
-- Resource consumption within Coder workspaces (CPU, memory, network usage)
+- Neural Inverse Cloudd API performance (requests, latency, error rate)
+- Resource consumption within Neural Inverse Cloud workspaces (CPU, memory, network usage)
 - Internal metrics related to provisioner jobs
 
 Note: Database metrics are disabled by default and can be enabled by setting the
-environment variable `CODER_PROMETHEUS_COLLECT_DB_METRICS` to `true`.
+environment variable `NEURALINVERSE_PROMETHEUS_COLLECT_DB_METRICS` to `true`.
 
 It is highly recommended to deploy a solution for centralized log collection and
 aggregation. The presence of error logs may indicate an underscaled deployment
-of Coder, necessitating action from operators.
+of Neural Inverse Cloud, necessitating action from operators.
 
 ## Autoscaling
 
 We generally do not recommend using an autoscaler that modifies the number of
-coderd replicas. In particular, scale down events can cause interruptions for a
+nicloud replicas. In particular, scale down events can cause interruptions for a
 large number of users.
 
-Coderd is different from a simple request-response HTTP service in that it
+Neural Inverse Cloudd is different from a simple request-response HTTP service in that it
 services long-lived connections whenever it proxies HTTP applications like IDEs
 or terminals that rely on websockets, or when it relays tunneled connections to
-workspaces. Loss of a coderd replica will drop these long-lived connections and
-interrupt users. For example, if you have 4 coderd replicas behind a load
+workspaces. Loss of a nicloud replica will drop these long-lived connections and
+interrupt users. For example, if you have 4 nicloud replicas behind a load
 balancer, and an autoscaler decides to reduce it to 3, roughly 25% of the
 connections will drop. An even larger proportion of users could be affected if
 they use applications that use more than one websocket.
 
-The severity of the interruption varies by application. Coder's web terminal,
+The severity of the interruption varies by application. Neural Inverse Cloud's web terminal,
 for example, will reconnect to the same session and continue. So, this should
-not be interpreted as saying coderd replicas should never be taken down for any
+not be interpreted as saying nicloud replicas should never be taken down for any
 reason.
 
-We recommend you plan to run enough coderd replicas to comfortably meet your
-weekly high-water-mark load, and monitor coderd peak CPU & memory utilization
+We recommend you plan to run enough nicloud replicas to comfortably meet your
+weekly high-water-mark load, and monitor nicloud peak CPU & memory utilization
 over the long term, reevaluating periodically. When scaling down (or performing
 upgrades), schedule these outside normal working hours to minimize user
 interruptions.
@@ -253,18 +253,18 @@ interruptions.
 
 When running on Kubernetes on cloud infrastructure (i.e. not bare metal), many
 operators choose to employ a _cluster_ autoscaler that adds and removes
-Kubernetes _nodes_ according to load. Coder can coexist with such cluster
+Kubernetes _nodes_ according to load. Neural Inverse Cloud can coexist with such cluster
 autoscalers, but we recommend you take steps to prevent the autoscaler from
-evicting coderd pods, as an eviction will cause the same interruptions as
+evicting nicloud pods, as an eviction will cause the same interruptions as
 described above. For example, if you are using the
 [Kubernetes cluster autoscaler](https://kubernetes.io/docs/reference/labels-annotations-taints/#cluster-autoscaler-kubernetes-io-safe-to-evict),
 you may wish to set `cluster-autoscaler.kubernetes.io/safe-to-evict: "false"` as
-an annotation on the coderd deployment.
+an annotation on the nicloud deployment.
 
 ## Troubleshooting
 
 If a load test fails or if you are experiencing performance issues during
-day-to-day use, you can leverage Coder's
+day-to-day use, you can leverage Neural Inverse Cloud's
 [Prometheus metrics](../integrations/prometheus.md) to identify bottlenecks
 during scale tests. Additionally, you can use your existing cloud monitoring
 stack to measure load, view server logs, etc.

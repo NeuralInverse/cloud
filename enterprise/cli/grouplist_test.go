@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestGroupList(t *testing.T) {
@@ -24,21 +24,21 @@ func TestGroupList(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				nicloudsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
 
-		_, user1 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
-		_, user2 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user1 := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user2 := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 
 		// We intentionally create the first group as beta so that we
 		// can assert that things are being sorted by name intentionally
 		// and not by chance (or some other parameter like created_at).
-		group1 := coderdtest.CreateGroup(t, client, admin.OrganizationID, "beta", user1)
-		group2 := coderdtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user2)
+		group1 := nicloudtest.CreateGroup(t, client, admin.OrganizationID, "beta", user1)
+		group2 := nicloudtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user2)
 
 		inv, conf := newCLI(t, "groups", "list")
 
@@ -62,12 +62,12 @@ func TestGroupList(t *testing.T) {
 	t.Run("Everyone", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				nicloudsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
 
 		inv, conf := newCLI(t, "groups", "list")
 
@@ -80,7 +80,7 @@ func TestGroupList(t *testing.T) {
 
 		matches := []string{
 			"NAME", "ORGANIZATION ID", "MEMBERS", " AVATAR URL",
-			"Everyone", admin.OrganizationID.String(), coderdtest.FirstUserParams.Email, "",
+			"Everyone", admin.OrganizationID.String(), nicloudtest.FirstUserParams.Email, "",
 		}
 
 		for _, match := range matches {
@@ -91,16 +91,16 @@ func TestGroupList(t *testing.T) {
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		client, admin := coderdenttest.New(t, &coderdenttest.Options{LicenseOptions: &coderdenttest.LicenseOptions{
+		client, admin := nicloudenttest.New(t, &nicloudenttest.Options{LicenseOptions: &nicloudenttest.LicenseOptions{
 			Features: license.Features{
-				codersdk.FeatureTemplateRBAC: 1,
+				nicloudsdk.FeatureTemplateRBAC: 1,
 			},
 		}})
-		anotherClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
+		anotherClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID, rbac.RoleUserAdmin())
 
-		_, user1 := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		_, user1 := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 
-		group := coderdtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user1)
+		group := nicloudtest.CreateGroup(t, client, admin.OrganizationID, "alpha", user1)
 
 		inv, conf := newCLI(t, "groups", "list", "-o", "json")
 		clitest.SetupConfig(t, anotherClient, conf)
@@ -111,13 +111,13 @@ func TestGroupList(t *testing.T) {
 		err := inv.Run()
 		require.NoError(t, err)
 
-		var rows []codersdk.Group
+		var rows []nicloudsdk.Group
 		err = json.Unmarshal(buf.Bytes(), &rows)
 		require.NoError(t, err, "unmarshal JSON output")
 
 		require.Len(t, rows, 2, "expected Everyone group and alpha group")
 
-		groupsByName := make(map[string]codersdk.Group)
+		groupsByName := make(map[string]nicloudsdk.Group)
 		for _, g := range rows {
 			groupsByName[g.Name] = g
 		}

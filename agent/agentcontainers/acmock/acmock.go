@@ -13,8 +13,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	agentcontainers "github.com/coder/coder/v2/agent/agentcontainers"
-	codersdk "github.com/coder/coder/v2/codersdk"
+	agentcontainers "github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	nicloudsdk "github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -93,10 +93,10 @@ func (mr *MockContainerCLIMockRecorder) ExecAs(ctx, containerName, user any, arg
 }
 
 // List mocks base method.
-func (m *MockContainerCLI) List(ctx context.Context) (codersdk.WorkspaceAgentListContainersResponse, error) {
+func (m *MockContainerCLI) List(ctx context.Context) (nicloudsdk.WorkspaceAgentListContainersResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", ctx)
-	ret0, _ := ret[0].(codersdk.WorkspaceAgentListContainersResponse)
+	ret0, _ := ret[0].(nicloudsdk.WorkspaceAgentListContainersResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

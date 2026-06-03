@@ -13,7 +13,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -60,14 +60,14 @@ type SelectOptions struct {
 }
 
 type RichSelectOptions struct {
-	Options    []codersdk.TemplateVersionParameterOption
+	Options    []nicloudsdk.TemplateVersionParameterOption
 	Default    string
 	Size       int
 	HideSearch bool
 }
 
 // RichSelect displays a list of user options including name and description.
-func RichSelect(inv *serpent.Invocation, richOptions RichSelectOptions) (*codersdk.TemplateVersionParameterOption, error) {
+func RichSelect(inv *serpent.Invocation, richOptions RichSelectOptions) (*nicloudsdk.TemplateVersionParameterOption, error) {
 	opts := make([]string, len(richOptions.Options))
 	var defaultOpt string
 	for i, option := range richOptions.Options {
@@ -305,7 +305,7 @@ func (m selectModel) filteredOptions() []string {
 
 type RichMultiSelectOptions struct {
 	Message           string
-	Options           []codersdk.TemplateVersionParameterOption
+	Options           []nicloudsdk.TemplateVersionParameterOption
 	Defaults          []string
 	EnableCustomInput bool
 }
@@ -314,7 +314,7 @@ func RichMultiSelect(inv *serpent.Invocation, richOptions RichMultiSelectOptions
 	var opts []string
 	var defaultOpts []string
 
-	asLine := func(option codersdk.TemplateVersionParameterOption) string {
+	asLine := func(option nicloudsdk.TemplateVersionParameterOption) string {
 		line := option.Name
 		if len(option.Description) > 0 {
 			line += ": " + option.Description

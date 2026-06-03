@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentgit"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentgit"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestPathStore_AddPaths_StoresForChatAndAncestors(t *testing.T) {

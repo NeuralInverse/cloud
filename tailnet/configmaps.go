@@ -28,17 +28,17 @@ import (
 	"tailscale.com/wgengine/wgcfg/nmcfg"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 	"github.com/coder/quartz"
 )
 
 const lostTimeout = 15 * time.Minute
 
-// CoderDNSSuffix is the default DNS suffix that we append to Coder DNS
+// NIDNSSuffix is the default DNS suffix that we append to Neural Inverse Cloud DNS
 // records.
 const (
-	CoderDNSSuffix     = "coder"
-	CoderDNSSuffixFQDN = dnsname.FQDN(CoderDNSSuffix + ".")
+	NIDNSSuffix     = "neuralinverse"
+	NIDNSSuffixFQDN = dnsname.FQDN(NIDNSSuffix + ".")
 )
 
 // engineConfigurable is the subset of wgengine.Engine that we use for configuration.
@@ -361,7 +361,7 @@ func (c *configMaps) reconfig(nm *netmap.NetworkMap, hosts map[dnsname.FQDN][]ne
 
 	rc := &router.Config{
 		LocalAddrs: nm.Addresses,
-		Routes:     []netip.Prefix{CoderServicePrefix.AsNetip()},
+		Routes:     []netip.Prefix{NIServicePrefix.AsNetip()},
 	}
 	err = c.engine.Reconfig(cfg, rc, dnsCfg, &tailcfg.Debug{})
 	if err != nil {

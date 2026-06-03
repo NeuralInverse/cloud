@@ -20,10 +20,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/support"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/support"
 	"github.com/coder/serpent"
 )
 
@@ -66,7 +66,7 @@ var supportBundleBlurb = cliui.Bold("This will collect the following information
 
 func (r *RootCmd) supportBundle() *serpent.Command {
 	var outputPath string
-	var coderURLOverride string
+	var niURLOverride string
 	var workspacesTotalCap64 int64 = 10
 	var templateName string
 	var pprof bool
@@ -117,9 +117,9 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 			// Note: this can only be done by the owner user.
 			if ok, err := support.CanGenerateFull(inv.Context(), client); err == nil && ok {
 				cliLog.Debug(inv.Context(), "running as owner")
-				client.HTTPClient.Transport = &codersdk.HeaderTransport{
+				client.HTTPClient.Transport = &nicloudsdk.HeaderTransport{
 					Transport: client.HTTPClient.Transport,
-					Header:    http.Header{codersdk.BypassRatelimitHeader: {"true"}},
+					Header:    http.Header{nicloudsdk.BypassRatelimitHeader: {"true"}},
 				}
 			} else if !ok {
 				cliLog.Warn(inv.Context(), "not running as owner, not all information available")
@@ -130,16 +130,16 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 			// Check if we're running inside a workspace
 			if val, found := os.LookupEnv("CODER"); found && val == "true" {
 				cliui.Warn(inv.Stderr, "Running inside Coder workspace; this can affect results!")
-				cliLog.Debug(inv.Context(), "running inside coder workspace")
+				cliLog.Debug(inv.Context(), "running inside neuralinverse workspace")
 			}
 
-			if coderURLOverride != "" && coderURLOverride != client.URL.String() {
-				u, err := url.Parse(coderURLOverride)
+			if niURLOverride != "" && niURLOverride != client.URL.String() {
+				u, err := url.Parse(niURLOverride)
 				if err != nil {
 					return xerrors.Errorf("invalid value for Coder URL override: %w", err)
 				}
-				_, _ = fmt.Fprintf(inv.Stderr, "Overrode Coder URL to %q; this can affect results!\n", coderURLOverride)
-				cliLog.Debug(inv.Context(), "coder url overridden", slog.F("url", coderURLOverride))
+				_, _ = fmt.Fprintf(inv.Stderr, "Overrode Coder URL to %q; this can affect results!\n", niURLOverride)
+				cliLog.Debug(inv.Context(), "neuralinverse url overridden", slog.F("url", niURLOverride))
 				client.URL = u
 			}
 
@@ -152,21 +152,21 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 			if len(inv.Args) == 0 {
 				// When running inside a workspace, infer the workspace
 				// and agent from environment variables set by the agent.
-				// Prefer CODER_WORKSPACE_ID for a direct UUID lookup;
+				// Prefer NEURALINVERSE_WORKSPACE_ID for a direct UUID lookup;
 				// fall back to owner/name for older agents that do not
 				// set the ID variable.
 				if inv.Environ.Get("CODER") == "true" {
 					var wsArg string
-					if v := inv.Environ.Get("CODER_WORKSPACE_ID"); v != "" {
+					if v := inv.Environ.Get("NEURALINVERSE_WORKSPACE_ID"); v != "" {
 						wsArg = v
 					} else {
-						wsOwner := inv.Environ.Get("CODER_WORKSPACE_OWNER_NAME")
-						wsName := inv.Environ.Get("CODER_WORKSPACE_NAME")
+						wsOwner := inv.Environ.Get("NEURALINVERSE_WORKSPACE_OWNER_NAME")
+						wsName := inv.Environ.Get("NEURALINVERSE_WORKSPACE_NAME")
 						if wsOwner != "" && wsName != "" {
 							wsArg = wsOwner + "/" + wsName
 						}
 					}
-					agtName := inv.Environ.Get("CODER_WORKSPACE_AGENT_NAME")
+					agtName := inv.Environ.Get("NEURALINVERSE_WORKSPACE_AGENT_NAME")
 					if wsArg != "" {
 						cliLog.Info(inv.Context(), "detected workspace from environment",
 							slog.F("workspace_arg", wsArg),
@@ -226,7 +226,7 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 				if err != nil {
 					return xerrors.Errorf("could not determine current working directory: %w", err)
 				}
-				fname := fmt.Sprintf("coder-support-%d.zip", time.Now().Unix())
+				fname := fmt.Sprintf("neuralinverse-support-%d.zip", time.Now().Unix())
 				outputPath = filepath.Join(cwd, fname)
 			}
 			cliLog.Debug(inv.Context(), "output path", slog.F("path", outputPath))
@@ -280,31 +280,31 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 		{
 			Flag:          "output-file",
 			FlagShorthand: "O",
-			Env:           "CODER_SUPPORT_BUNDLE_OUTPUT_FILE",
-			Description:   "File path for writing the generated support bundle. Defaults to coder-support-$(date +%s).zip.",
+			Env:           "NEURALINVERSE_SUPPORT_BUNDLE_OUTPUT_FILE",
+			Description:   "File path for writing the generated support bundle. Defaults to neuralinverse-support-$(date +%s).zip.",
 			Value:         serpent.StringOf(&outputPath),
 		},
 		{
 			Flag:        "url-override",
-			Env:         "CODER_SUPPORT_BUNDLE_URL_OVERRIDE",
+			Env:         "NEURALINVERSE_SUPPORT_BUNDLE_URL_OVERRIDE",
 			Description: "Override the URL to your Coder deployment. This may be useful, for example, if you need to troubleshoot a specific Coder replica.",
-			Value:       serpent.StringOf(&coderURLOverride),
+			Value:       serpent.StringOf(&niURLOverride),
 		},
 		{
 			Flag:        "workspaces-total-cap",
-			Env:         "CODER_SUPPORT_BUNDLE_WORKSPACES_TOTAL_CAP",
+			Env:         "NEURALINVERSE_SUPPORT_BUNDLE_WORKSPACES_TOTAL_CAP",
 			Description: "Maximum number of workspaces to include in the support bundle. Set to 0 or negative value to disable the cap. Defaults to 10.",
 			Value:       serpent.Int64Of(&workspacesTotalCap64),
 		},
 		{
 			Flag:        "template",
-			Env:         "CODER_SUPPORT_BUNDLE_TEMPLATE",
+			Env:         "NEURALINVERSE_SUPPORT_BUNDLE_TEMPLATE",
 			Description: "Template name to include in the support bundle. Use org_name/template_name if template name is reused across multiple organizations.",
 			Value:       serpent.StringOf(&templateName),
 		},
 		{
 			Flag:        "pprof",
-			Env:         "CODER_SUPPORT_BUNDLE_PPROF",
+			Env:         "NEURALINVERSE_SUPPORT_BUNDLE_PPROF",
 			Description: "Collect pprof profiling data from the Coder server and agent. Requires Coder server version 2.28.0 or newer.",
 			Value:       serpent.BoolOf(&pprof),
 		},
@@ -316,7 +316,7 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 // Resolve a template to its ID, supporting:
 // - org/name form
 // - slug or display name match (case-insensitive) across all memberships
-func resolveTemplateID(ctx context.Context, client *codersdk.Client, templateArg string) (uuid.UUID, error) {
+func resolveTemplateID(ctx context.Context, client *nicloudsdk.Client, templateArg string) (uuid.UUID, error) {
 	orgPart := ""
 	namePart := templateArg
 	if slash := strings.IndexByte(templateArg, '/'); slash > 0 && slash < len(templateArg)-1 {
@@ -324,20 +324,20 @@ func resolveTemplateID(ctx context.Context, client *codersdk.Client, templateArg
 		namePart = templateArg[slash+1:]
 	}
 
-	resolveInOrg := func(orgID uuid.UUID) (codersdk.Template, bool, error) {
+	resolveInOrg := func(orgID uuid.UUID) (nicloudsdk.Template, bool, error) {
 		if t, err := client.TemplateByName(ctx, orgID, namePart); err == nil {
 			return t, true, nil
 		}
 		tpls, err := client.TemplatesByOrganization(ctx, orgID)
 		if err != nil {
-			return codersdk.Template{}, false, nil
+			return nicloudsdk.Template{}, false, nil
 		}
 		for _, t := range tpls {
 			if strings.EqualFold(t.Name, namePart) || strings.EqualFold(t.DisplayName, namePart) {
 				return t, true, nil
 			}
 		}
-		return codersdk.Template{}, false, nil
+		return nicloudsdk.Template{}, false, nil
 	}
 
 	if orgPart != "" {
@@ -355,12 +355,12 @@ func resolveTemplateID(ctx context.Context, client *codersdk.Client, templateArg
 		return t.ID, nil
 	}
 
-	orgs, err := client.OrganizationsByUser(ctx, codersdk.Me)
+	orgs, err := client.OrganizationsByUser(ctx, nicloudsdk.Me)
 	if err != nil {
 		return uuid.Nil, xerrors.Errorf("get organizations: %w", err)
 	}
 	var (
-		foundTpl  codersdk.Template
+		foundTpl  nicloudsdk.Template
 		foundOrgs []string
 	)
 	for _, org := range orgs {
@@ -421,7 +421,7 @@ func summarizeBundle(inv *serpent.Invocation, bun *support.Bundle) {
 	}
 }
 
-func findAgent(agentName string, haystack []codersdk.WorkspaceResource) (*codersdk.WorkspaceAgent, bool) {
+func findAgent(agentName string, haystack []nicloudsdk.WorkspaceResource) (*nicloudsdk.WorkspaceAgent, bool) {
 	for _, res := range haystack {
 		for _, agt := range res.Agents {
 			if agentName == "" {
@@ -631,7 +631,7 @@ func writePprofCollection(basePath string, collection *support.PprofCollection, 
 	return nil
 }
 
-func humanizeAgentLogs(ls []codersdk.WorkspaceAgentLog) string {
+func humanizeAgentLogs(ls []nicloudsdk.WorkspaceAgentLog) string {
 	var buf bytes.Buffer
 	tw := tabwriter.NewWriter(&buf, 0, 2, 1, ' ', 0)
 	for _, l := range ls {
@@ -645,7 +645,7 @@ func humanizeAgentLogs(ls []codersdk.WorkspaceAgentLog) string {
 	return buf.String()
 }
 
-func humanizeBuildLogs(ls []codersdk.ProvisionerJobLog) string {
+func humanizeBuildLogs(ls []nicloudsdk.ProvisionerJobLog) string {
 	var buf bytes.Buffer
 	tw := tabwriter.NewWriter(&buf, 0, 2, 1, ' ', 0)
 	for _, l := range ls {
@@ -661,7 +661,7 @@ func humanizeBuildLogs(ls []codersdk.ProvisionerJobLog) string {
 	return buf.String()
 }
 
-func humanizeLicenses(licenses []codersdk.License) (string, error) {
+func humanizeLicenses(licenses []nicloudsdk.License) (string, error) {
 	formatter := cliutil.NewLicenseFormatter()
 
 	if len(licenses) == 0 {

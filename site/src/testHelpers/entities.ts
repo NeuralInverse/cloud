@@ -116,8 +116,8 @@ export const MockPrimaryWorkspaceProxy: TypesGen.WorkspaceProxy = {
 	display_name: "Default",
 	icon_url: "/emojis/1f60e.png",
 	healthy: true,
-	path_app_url: "https://coder.com",
-	wildcard_hostname: "*.coder.com",
+	path_app_url: "https://cloud.neuralinverse.com",
+	wildcard_hostname: "*.cloud.neuralinverse.com",
 	derp_enabled: true,
 	derp_only: false,
 	created_at: new Date().toISOString(),
@@ -156,8 +156,8 @@ export const MockUnhealthyWildWorkspaceProxy: TypesGen.WorkspaceProxy = {
 	display_name: "Unhealthy",
 	icon_url: "/emojis/1f92e.png",
 	healthy: false,
-	path_app_url: "https://unhealthy.coder.com",
-	wildcard_hostname: "*unhealthy..coder.com",
+	path_app_url: "https://unhealthy.cloud.neuralinverse.com",
+	wildcard_hostname: "*unhealthy..cloud.neuralinverse.com",
 	derp_enabled: true,
 	derp_only: true,
 	created_at: new Date().toISOString(),
@@ -184,7 +184,7 @@ export const MockWorkspaceProxies: TypesGen.WorkspaceProxy[] = [
 		display_name: "No wildcard",
 		icon_url: "/emojis/1f920.png",
 		healthy: true,
-		path_app_url: "https://cowboy.coder.com",
+		path_app_url: "https://cowboy.cloud.neuralinverse.com",
 		wildcard_hostname: "",
 		derp_enabled: false,
 		derp_only: false,
@@ -261,7 +261,7 @@ export const MockSupportLinks: TypesGen.LinkConfig[] = [
 	{
 		name: "Third link",
 		target:
-			"https://github.com/coder/coder/issues/new?labels=needs+grooming&body={CODER_BUILD_INFO}",
+			"https://github.com/coder/coder/issues/new?labels=needs+grooming&body={NEURALINVERSE_BUILD_INFO}",
 		icon: "",
 	},
 	{
@@ -515,7 +515,7 @@ export const MockSiteRoles = [
 export const MockUserOwner: TypesGen.User = {
 	id: "test-user",
 	username: "TestUser",
-	email: "test@coder.com",
+	email: "test@cloud.neuralinverse.com",
 	created_at: "",
 	updated_at: "",
 	status: "active",
@@ -531,7 +531,7 @@ export const MockUserOwner: TypesGen.User = {
 export const MockUserMember: TypesGen.User = {
 	id: "test-user-2",
 	username: "TestUser2",
-	email: "test2@coder.com",
+	email: "test2@cloud.neuralinverse.com",
 	created_at: "",
 	updated_at: "",
 	status: "active",
@@ -547,7 +547,7 @@ export const MockUserMember: TypesGen.User = {
 export const SuspendedMockUser: TypesGen.User = {
 	id: "suspended-mock-user",
 	username: "SuspendedMockUser",
-	email: "iamsuspendedsad!@coder.com",
+	email: "iamsuspendedsad!@cloud.neuralinverse.com",
 	created_at: "",
 	updated_at: "",
 	status: "suspended",
@@ -824,7 +824,7 @@ name:Template test
 ## Instructions
 You can add instructions here
 
-[Some link info](https://coder.com)`,
+[Some link info](https://cloud.neuralinverse.com)`,
 	created_by: MockUserOwner,
 	archived: false,
 	has_external_agent: false,
@@ -844,7 +844,7 @@ name:Template test 2
 ## Instructions
 You can add instructions here
 
-[Some link info](https://coder.com)`,
+[Some link info](https://cloud.neuralinverse.com)`,
 	created_by: MockUserOwner,
 	archived: false,
 	has_external_agent: false,
@@ -933,28 +933,28 @@ export const MockTemplate: TypesGen.Template = {
 const _MockTemplateVersionFiles: TemplateVersionFiles = {
 	"README.md": "# Example\n\nThis is an example template.",
 	"main.tf": `// Provides info about the workspace.
-data "coder_workspace" "me" {}
+data "ni_workspace" "me" {}
 
 // Provides the startup script used to download
 // the agent and communicate with Coder.
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
 os = "linux"
 arch = "amd64"
 }
 
 resource "kubernetes_pod" "main" {
 // Ensures that the Pod dies when the workspace shuts down!
-count = data.coder_workspace.me.start_count
+count = data.ni_workspace.me.start_count
 metadata {
-  name      = "dev-\${data.coder_workspace.me.id}"
+  name      = "dev-\${data.ni_workspace.me.id}"
 }
 spec {
   container {
     image   = "ubuntu"
-    command = ["sh", "-c", coder_agent.main.init_script]
+    command = ["sh", "-c", ni_agent.main.init_script]
     env {
-      name  = "CODER_AGENT_TOKEN"
-      value = coder_agent.main.token
+      name  = "NEURALINVERSE_AGENT_TOKEN"
+      value = ni_agent.main.token
     }
   }
 }
@@ -965,28 +965,28 @@ spec {
 export const MockTemplateVersionFileTree: FileTree = {
 	"README.md": "# Example\n\nThis is an example template.",
 	"main.tf": `// Provides info about the workspace.
-data "coder_workspace" "me" {}
+data "ni_workspace" "me" {}
 
 // Provides the startup script used to download
 // the agent and communicate with Coder.
-resource "coder_agent" "dev" {
+resource "ni_agent" "dev" {
 os = "linux"
 arch = "amd64"
 }
 
 resource "kubernetes_pod" "main" {
 // Ensures that the Pod dies when the workspace shuts down!
-count = data.coder_workspace.me.start_count
+count = data.ni_workspace.me.start_count
 metadata {
-  name      = "dev-\${data.coder_workspace.me.id}"
+  name      = "dev-\${data.ni_workspace.me.id}"
 }
 spec {
   container {
     image   = "ubuntu"
-    command = ["sh", "-c", coder_agent.main.init_script]
+    command = ["sh", "-c", ni_agent.main.init_script]
     env {
-      name  = "CODER_AGENT_TOKEN"
-      value = coder_agent.main.token
+      name  = "NEURALINVERSE_AGENT_TOKEN"
+      value = ni_agent.main.token
     }
   }
 }
@@ -1054,7 +1054,7 @@ export const MockWorkspaceAgent: TypesGen.WorkspaceAgent = {
 		},
 	},
 	connection_timeout_seconds: 120,
-	troubleshooting_url: "https://coder.com/troubleshoot",
+	troubleshooting_url: "https://cloud.neuralinverse.com/troubleshoot",
 	lifecycle_state: "ready",
 	logs_length: 0,
 	logs_overflowed: false,
@@ -1252,7 +1252,7 @@ export const MockWorkspaceAgentStartError: TypesGen.WorkspaceAgent = {
 			log_source_id: "a2ee4b8d-b09d-4f4e-a1f1-5e4adf7d53bb",
 			exit_code: 0,
 			status: "ok",
-			display_name: "coder",
+			display_name: "neuralinverse",
 		},
 		{
 			...MockWorkspaceAgentScript,
@@ -1281,7 +1281,7 @@ export const MockWorkspaceAgentStartError: TypesGen.WorkspaceAgent = {
 		{
 			...MockWorkspaceAgentLogSource,
 			id: "a2ee4b8d-b09d-4f4e-a1f1-5e4adf7d53bb",
-			display_name: "coder",
+			display_name: "neuralinverse",
 			icon: "/icon/coder.svg",
 		},
 		{
@@ -2189,7 +2189,7 @@ export const MockWorkspaceBuildLogs: TypesGen.ProvisionerJobLog[] = [
 		log_source: "provisioner",
 		log_level: "info",
 		stage: "Starting workspace",
-		output: "coder_agent.dev: Plan to create",
+		output: "ni_agent.dev: Plan to create",
 	},
 	{
 		id: 20,
@@ -2221,7 +2221,7 @@ export const MockWorkspaceBuildLogs: TypesGen.ProvisionerJobLog[] = [
 		log_source: "provisioner",
 		log_level: "info",
 		stage: "Starting workspace",
-		output: "coder_agent.dev: Creating...",
+		output: "ni_agent.dev: Creating...",
 	},
 	{
 		id: 24,
@@ -2230,7 +2230,7 @@ export const MockWorkspaceBuildLogs: TypesGen.ProvisionerJobLog[] = [
 		log_level: "info",
 		stage: "Starting workspace",
 		output:
-			"coder_agent.dev: Creation complete after 0s [id=d07f5bdc-4a8d-4919-9cdb-0ac6ba9e64d6]",
+			"ni_agent.dev: Creation complete after 0s [id=d07f5bdc-4a8d-4919-9cdb-0ac6ba9e64d6]",
 	},
 	{
 		id: 25,
@@ -2498,7 +2498,7 @@ export const MockWorkspaceExtendedBuildLogs: TypesGen.ProvisionerJobLog[] = [
 		log_source: "provisioner",
 		log_level: "warn",
 		stage: "Detecting persistent resources",
-		output: 'on devcontainer-on-docker.tf line 15, in provider "coder":',
+		output: 'on devcontainer-on-docker.tf line 15, in provider "neuralinverse":',
 	},
 	{
 		id: 938517,
@@ -2540,7 +2540,7 @@ export const MockWorkspaceExtendedBuildLogs: TypesGen.ProvisionerJobLog[] = [
 		log_level: "error",
 		stage: "Detecting persistent resources",
 		output:
-			'on devcontainer-on-docker.tf line 27, in data "coder_parameter" "another_one":',
+			'on devcontainer-on-docker.tf line 27, in data "ni_parameter" "another_one":',
 	},
 	{
 		id: 938522,
@@ -2548,7 +2548,7 @@ export const MockWorkspaceExtendedBuildLogs: TypesGen.ProvisionerJobLog[] = [
 		log_source: "provisioner",
 		log_level: "error",
 		stage: "Detecting persistent resources",
-		output: '  27: data "coder_parameter" "another_one" {',
+		output: '  27: data "ni_parameter" "another_one" {',
 	},
 	{
 		id: 938523,
@@ -2580,7 +2580,7 @@ export const MockWorkspaceExtendedBuildLogs: TypesGen.ProvisionerJobLog[] = [
 		log_source: "provisioner",
 		log_level: "warn",
 		stage: "Detecting persistent resources",
-		output: 'on devcontainer-on-docker.tf line 15, in provider "coder":',
+		output: 'on devcontainer-on-docker.tf line 15, in provider "neuralinverse":',
 	},
 	{
 		id: 938527,
@@ -3255,7 +3255,7 @@ export const MockTemplateExample: TypesGen.TemplateExample = {
 	name: "Develop in an ECS-hosted container",
 	description: "Get started with Linux development on AWS ECS.",
 	markdown:
-		"\n# aws-ecs\n\nThis is a sample template for running a Coder workspace on ECS. It assumes there\nis a pre-existing ECS cluster with EC2-based compute to host the workspace.\n\n## Architecture\n\nThis workspace is built using the following AWS resources:\n\n- Task definition - the container definition, includes the image, command, volume(s)\n- ECS service - manages the task definition\n\n## code-server\n\n`code-server` is installed via the `startup_script` argument in the `coder_agent`\nresource block. The `coder_app` resource is defined to access `code-server` through\nthe dashboard UI over `localhost:13337`.\n",
+		"\n# aws-ecs\n\nThis is a sample template for running a Coder workspace on ECS. It assumes there\nis a pre-existing ECS cluster with EC2-based compute to host the workspace.\n\n## Architecture\n\nThis workspace is built using the following AWS resources:\n\n- Task definition - the container definition, includes the image, command, volume(s)\n- ECS service - manages the task definition\n\n## code-server\n\n`code-server` is installed via the `startup_script` argument in the `ni_agent`\nresource block. The `ni_app` resource is defined to access `code-server` through\nthe dashboard UI over `localhost:13337`.\n",
 	icon: "/icon/aws.svg",
 	tags: ["aws", "cloud"],
 };
@@ -3266,7 +3266,7 @@ export const MockTemplateExample2: TypesGen.TemplateExample = {
 	name: "Develop in Linux on AWS EC2",
 	description: "Get started with Linux development on AWS EC2.",
 	markdown:
-		'\n# aws-linux\n\nTo get started, run `coder templates init`. When prompted, select this template.\nFollow the on-screen instructions to proceed.\n\n## Authentication\n\nThis template assumes that coderd is run in an environment that is authenticated\nwith AWS. For example, run `aws configure import` to import credentials on the\nsystem and user running coderd.  For other ways to authenticate [consult the\nTerraform docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration).\n\n## Required permissions / policy\n\nThe following sample policy allows Coder to create EC2 instances and modify\ninstances provisioned by Coder:\n\n```json\n{\n    "Version": "2012-10-17",\n    "Statement": [\n        {\n            "Sid": "VisualEditor0",\n            "Effect": "Allow",\n            "Action": [\n                "ec2:GetDefaultCreditSpecification",\n                "ec2:DescribeIamInstanceProfileAssociations",\n                "ec2:DescribeTags",\n                "ec2:CreateTags",\n                "ec2:RunInstances",\n                "ec2:DescribeInstanceCreditSpecifications",\n                "ec2:DescribeImages",\n                "ec2:ModifyDefaultCreditSpecification",\n                "ec2:DescribeVolumes"\n            ],\n            "Resource": "*"\n        },\n        {\n            "Sid": "CoderResources",\n            "Effect": "Allow",\n            "Action": [\n                "ec2:DescribeInstances",\n                "ec2:DescribeInstanceAttribute",\n                "ec2:UnmonitorInstances",\n                "ec2:TerminateInstances",\n                "ec2:StartInstances",\n                "ec2:StopInstances",\n                "ec2:DeleteTags",\n                "ec2:MonitorInstances",\n                "ec2:CreateTags",\n                "ec2:RunInstances",\n                "ec2:ModifyInstanceAttribute",\n                "ec2:ModifyInstanceCreditSpecification"\n            ],\n            "Resource": "arn:aws:ec2:*:*:instance/*",\n            "Condition": {\n                "StringEquals": {\n                    "aws:ResourceTag/Coder_Provisioned": "true"\n                }\n            }\n        }\n    ]\n}\n```\n\n## code-server\n\n`code-server` is installed via the `startup_script` argument in the `coder_agent`\nresource block. The `coder_app` resource is defined to access `code-server` through\nthe dashboard UI over `localhost:13337`.\n',
+		'\n# aws-linux\n\nTo get started, run `coder templates init`. When prompted, select this template.\nFollow the on-screen instructions to proceed.\n\n## Authentication\n\nThis template assumes that nicloud is run in an environment that is authenticated\nwith AWS. For example, run `aws configure import` to import credentials on the\nsystem and user running nicloud.  For other ways to authenticate [consult the\nTerraform docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration).\n\n## Required permissions / policy\n\nThe following sample policy allows Coder to create EC2 instances and modify\ninstances provisioned by Coder:\n\n```json\n{\n    "Version": "2012-10-17",\n    "Statement": [\n        {\n            "Sid": "VisualEditor0",\n            "Effect": "Allow",\n            "Action": [\n                "ec2:GetDefaultCreditSpecification",\n                "ec2:DescribeIamInstanceProfileAssociations",\n                "ec2:DescribeTags",\n                "ec2:CreateTags",\n                "ec2:RunInstances",\n                "ec2:DescribeInstanceCreditSpecifications",\n                "ec2:DescribeImages",\n                "ec2:ModifyDefaultCreditSpecification",\n                "ec2:DescribeVolumes"\n            ],\n            "Resource": "*"\n        },\n        {\n            "Sid": "CoderResources",\n            "Effect": "Allow",\n            "Action": [\n                "ec2:DescribeInstances",\n                "ec2:DescribeInstanceAttribute",\n                "ec2:UnmonitorInstances",\n                "ec2:TerminateInstances",\n                "ec2:StartInstances",\n                "ec2:StopInstances",\n                "ec2:DeleteTags",\n                "ec2:MonitorInstances",\n                "ec2:CreateTags",\n                "ec2:RunInstances",\n                "ec2:ModifyInstanceAttribute",\n                "ec2:ModifyInstanceCreditSpecification"\n            ],\n            "Resource": "arn:aws:ec2:*:*:instance/*",\n            "Condition": {\n                "StringEquals": {\n                    "aws:ResourceTag/Coder_Provisioned": "true"\n                }\n            }\n        }\n    ]\n}\n```\n\n## code-server\n\n`code-server` is installed via the `startup_script` argument in the `ni_agent`\nresource block. The `ni_app` resource is defined to access `code-server` through\nthe dashboard UI over `localhost:13337`.\n',
 	icon: "/icon/aws.svg",
 	tags: ["aws", "cloud"],
 };
@@ -3391,7 +3391,7 @@ export const MockAppearanceConfig: TypesGen.AppearanceConfig = {
 		enabled: false,
 	},
 	announcement_banners: [],
-	docs_url: "https://coder.com/docs/@main/",
+	docs_url: "https://cloud.neuralinverse.com/docs/@main/",
 };
 
 export const MockWorkspaceBuildParameter1: TypesGen.WorkspaceBuildParameter = {
@@ -3663,7 +3663,7 @@ export const MockDeploymentStats: TypesGen.DeploymentStats = {
 export const MockDeploymentSSH: TypesGen.SSHConfigResponse = {
 	hostname_prefix: " coder.",
 	ssh_config_options: {},
-	hostname_suffix: "coder",
+	hostname_suffix: "neuralinverse",
 };
 
 export const MockWorkspaceAgentLogs: TypesGen.WorkspaceAgentLog[] = [
@@ -3790,7 +3790,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 				region: {
 					EmbeddedRelay: true,
 					RegionID: 999,
-					RegionCode: "coder",
+					RegionCode: "neuralinverse",
 					RegionName: "Council Bluffs, Iowa",
 					Nodes: [
 						{
@@ -3803,7 +3803,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						{
 							Name: "999b",
 							RegionID: 999,
-							HostName: "dev.coder.com",
+							HostName: "dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -3844,7 +3844,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						node: {
 							Name: "999b",
 							RegionID: 999,
-							HostName: "dev.coder.com",
+							HostName: "dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -3858,16 +3858,16 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						uses_websocket: false,
 						client_logs: [
 							[
-								"derphttp.Client.Connect: connecting to https://dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://dev.cloud.neuralinverse.com/derp",
 							],
 							[
-								"derphttp.Client.Connect: connecting to https://dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://dev.cloud.neuralinverse.com/derp",
 							],
 						],
 						client_errs: [
 							["recv derp message: derphttp.Client closed"],
 							[
-								"connect to derp: derphttp.Client.Connect connect to <https://sao-paulo.fly.dev.coder.com/derp>: context deadline exceeded: read tcp 10.44.1.150:59546-&gt;149.248.214.149:443: use of closed network connection",
+								"connect to derp: derphttp.Client.Connect connect to <https://sao-paulo.fly.dev.cloud.neuralinverse.com/derp>: context deadline exceeded: read tcp 10.44.1.150:59546-&gt;149.248.214.149:443: use of closed network connection",
 								"connect to derp: derphttp.Client closed",
 								"connect to derp: derphttp.Client closed",
 								"connect to derp: derphttp.Client closed",
@@ -3903,7 +3903,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						{
 							Name: "10007a",
 							RegionID: 10007,
-							HostName: "sydney.dev.coder.com",
+							HostName: "sydney.dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -3944,7 +3944,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						node: {
 							Name: "10007a",
 							RegionID: 10007,
-							HostName: "sydney.dev.coder.com",
+							HostName: "sydney.dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -3958,10 +3958,10 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						uses_websocket: false,
 						client_logs: [
 							[
-								"derphttp.Client.Connect: connecting to https://sydney.dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://sydney.dev.cloud.neuralinverse.com/derp",
 							],
 							[
-								"derphttp.Client.Connect: connecting to https://sydney.dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://sydney.dev.cloud.neuralinverse.com/derp",
 							],
 						],
 						client_errs: [[], []],
@@ -3993,7 +3993,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						{
 							Name: "10008a",
 							RegionID: 10008,
-							HostName: "europe.dev.coder.com",
+							HostName: "europe.dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -4034,7 +4034,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						node: {
 							Name: "10008a",
 							RegionID: 10008,
-							HostName: "europe.dev.coder.com",
+							HostName: "europe.dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -4048,10 +4048,10 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						uses_websocket: false,
 						client_logs: [
 							[
-								"derphttp.Client.Connect: connecting to https://europe.dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://europe.dev.cloud.neuralinverse.com/derp",
 							],
 							[
-								"derphttp.Client.Connect: connecting to https://europe.dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://europe.dev.cloud.neuralinverse.com/derp",
 							],
 						],
 						client_errs: [[], []],
@@ -4083,7 +4083,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						{
 							Name: "10009a",
 							RegionID: 10009,
-							HostName: "brazil.dev.coder.com",
+							HostName: "brazil.dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -4124,7 +4124,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						node: {
 							Name: "10009a",
 							RegionID: 10009,
-							HostName: "brazil.dev.coder.com",
+							HostName: "brazil.dev.cloud.neuralinverse.com",
 							STUNPort: -1,
 							DERPPort: 443,
 						},
@@ -4138,10 +4138,10 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 						uses_websocket: false,
 						client_logs: [
 							[
-								"derphttp.Client.Connect: connecting to https://brazil.dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://brazil.dev.cloud.neuralinverse.com/derp",
 							],
 							[
-								"derphttp.Client.Connect: connecting to https://brazil.dev.coder.com/derp",
+								"derphttp.Client.Connect: connecting to https://brazil.dev.cloud.neuralinverse.com/derp",
 							],
 						],
 						client_errs: [[], []],
@@ -4203,7 +4203,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 		severity: "ok",
 		warnings: [],
 		dismissed: false,
-		access_url: "https://dev.coder.com",
+		access_url: "https://dev.cloud.neuralinverse.com",
 		reachable: true,
 		status_code: 200,
 		healthz_response: "OK",
@@ -4246,8 +4246,8 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 					display_name: "Council Bluffs, Iowa",
 					icon_url: "/emojis/1f3e1.png",
 					healthy: true,
-					path_app_url: "https://dev.coder.com",
-					wildcard_hostname: "*--apps.dev.coder.com",
+					path_app_url: "https://dev.cloud.neuralinverse.com",
+					wildcard_hostname: "*--apps.dev.cloud.neuralinverse.com",
 					derp_enabled: false,
 					derp_only: false,
 					status: {
@@ -4269,8 +4269,8 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 					display_name: "Sydney GCP",
 					icon_url: "/emojis/1f1e6-1f1fa.png",
 					healthy: true,
-					path_app_url: "https://sydney.dev.coder.com",
-					wildcard_hostname: "*--apps.sydney.dev.coder.com",
+					path_app_url: "https://sydney.dev.cloud.neuralinverse.com",
+					wildcard_hostname: "*--apps.sydney.dev.cloud.neuralinverse.com",
 					derp_enabled: true,
 					derp_only: false,
 					status: {
@@ -4292,8 +4292,8 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 					display_name: "Europe GCP (Frankfurt)",
 					icon_url: "/emojis/1f1e9-1f1ea.png",
 					healthy: true,
-					path_app_url: "https://europe.dev.coder.com",
-					wildcard_hostname: "*--apps.europe.dev.coder.com",
+					path_app_url: "https://europe.dev.cloud.neuralinverse.com",
+					wildcard_hostname: "*--apps.europe.dev.cloud.neuralinverse.com",
 					derp_enabled: true,
 					derp_only: false,
 					status: {
@@ -4315,8 +4315,8 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 					display_name: "Brazil GCP (Sao Paulo)",
 					icon_url: "/emojis/1f1e7-1f1f7.png",
 					healthy: true,
-					path_app_url: "https://brazil.dev.coder.com",
-					wildcard_hostname: "*--apps.brazil.dev.coder.com",
+					path_app_url: "https://brazil.dev.cloud.neuralinverse.com",
+					wildcard_hostname: "*--apps.brazil.dev.cloud.neuralinverse.com",
 					derp_enabled: true,
 					derp_only: false,
 					status: {
@@ -4555,7 +4555,7 @@ export const MockHealth: TypesGen.HealthcheckReport = {
 			},
 		],
 	},
-	coder_version: MockBuildInfo.version,
+	ni_version: MockBuildInfo.version,
 };
 
 export const MockListeningPortsResponse: TypesGen.WorkspaceAgentListeningPortsResponse =
@@ -4604,7 +4604,7 @@ export const DeploymentHealthUnhealthy: TypesGen.HealthcheckReport = {
 	healthy: false,
 	severity: "ok",
 	time: "2023-10-12T23:15:00.000000000Z",
-	coder_version: "v2.3.0-devel+8cca4915a",
+	ni_version: "v2.3.0-devel+8cca4915a",
 	access_url: {
 		healthy: true,
 		severity: "ok",
@@ -4869,7 +4869,7 @@ export const MockSystemNotificationTemplates: TypesGen.NotificationTemplate[] =
 			name: "Workspace Marked as Dormant",
 			title_template: 'Workspace "{{.Labels.name}}" marked as dormant',
 			body_template:
-				"Hi {{.UserName}}\n\nYour workspace **{{.Labels.name}}** has been marked as [**dormant**](https://coder.com/docs/templates/schedule#dormancy-threshold-enterprise) because of {{.Labels.reason}}.\nDormant workspaces are [automatically deleted](https://coder.com/docs/templates/schedule#dormancy-auto-deletion-enterprise) after {{.Labels.timeTilDormant}} of inactivity.\nTo prevent deletion, use your workspace with the link below.",
+				"Hi {{.UserName}}\n\nYour workspace **{{.Labels.name}}** has been marked as [**dormant**](https://cloud.neuralinverse.com/docs/templates/schedule#dormancy-threshold-enterprise) because of {{.Labels.reason}}.\nDormant workspaces are [automatically deleted](https://cloud.neuralinverse.com/docs/templates/schedule#dormancy-auto-deletion-enterprise) after {{.Labels.timeTilDormant}} of inactivity.\nTo prevent deletion, use your workspace with the link below.",
 			actions:
 				'[{"url": "{{ base_url }}/@{{.UserUsername}}/{{.Labels.name}}", "label": "View workspace"}]',
 			group: "Workspace Events",
@@ -4895,7 +4895,7 @@ export const MockSystemNotificationTemplates: TypesGen.NotificationTemplate[] =
 			name: "Workspace Marked for Deletion",
 			title_template: 'Workspace "{{.Labels.name}}" marked for deletion',
 			body_template:
-				"Hi {{.UserName}}\n\nYour workspace **{{.Labels.name}}** has been marked for **deletion** after {{.Labels.timeTilDormant}} of [dormancy](https://coder.com/docs/templates/schedule#dormancy-auto-deletion-enterprise) because of {{.Labels.reason}}.\nTo prevent deletion, use your workspace with the link below.",
+				"Hi {{.UserName}}\n\nYour workspace **{{.Labels.name}}** has been marked for **deletion** after {{.Labels.timeTilDormant}} of [dormancy](https://cloud.neuralinverse.com/docs/templates/schedule#dormancy-auto-deletion-enterprise) because of {{.Labels.reason}}.\nTo prevent deletion, use your workspace with the link below.",
 			actions:
 				'[{"url": "{{ base_url }}/@{{.UserUsername}}/{{.Labels.name}}", "label": "View workspace"}]',
 			group: "Workspace Events",
@@ -5022,7 +5022,7 @@ export const MockNotification: TypesGen.InboxNotification = {
 	actions: [
 		{
 			label: "View template",
-			url: "https://dev.coder.com/templates/coder/coder",
+			url: "https://dev.cloud.neuralinverse.com/templates/coder/coder",
 		},
 	],
 	user_id: MockUserOwner.id,
@@ -5272,7 +5272,7 @@ export const MockTask = {
 		timestamp: "2022-05-17T17:39:01.382927298Z",
 		state: "idle",
 		message: "Should I continue?",
-		uri: "https://dev.coder.com",
+		uri: "https://dev.cloud.neuralinverse.com",
 	},
 	created_at: "2022-05-17T17:39:01.382927298Z",
 	updated_at: "2022-05-17T17:39:01.382927298Z",
@@ -5553,7 +5553,7 @@ export const MockAIProviderAnthropic: TypesGen.AIProvider = {
 /**
  * Bedrock providers come over the wire with `type: "anthropic"` and a
  * `settings._type: "bedrock"` discriminator. `isBedrockProvider` and the
- * backend (see `coderd/ai_providers.go`) enforce this convention.
+ * backend (see `nicloud/ai_providers.go`) enforce this convention.
  */
 export const MockAIProviderBedrock: TypesGen.AIProvider = {
 	id: "9c2e3b41-2e9f-4c97-9a4f-2e1a3d8f9f21",

@@ -10,7 +10,7 @@ fi
 # Allow toggling verbose output
 [[ -n ${VERBOSE:-} ]] && set -x
 
-CODER_URL=$1
+NEURALINVERSE_URL=$1
 DRY_RUN="${DRY_RUN:-0}"
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 # shellcheck source=scripts/lib.sh
@@ -34,7 +34,7 @@ pod=$(kubectl get pods \
 	--selector="app.kubernetes.io/name=coder,app.kubernetes.io/part-of=coder" \
 	--output="jsonpath='{.items[0].metadata.name}'")
 if [[ -z ${pod} ]]; then
-	log "Could not find coder pod!"
+	log "Could not find neuralinverse pod!"
 	exit 1
 fi
 maybedryrun "$DRY_RUN" kubectl \
@@ -47,24 +47,24 @@ maybedryrun "$DRY_RUN" chmod +x "${CONFIG_DIR}/coder"
 set +o pipefail
 RANDOM_ADMIN_PASSWORD=$(tr </dev/urandom -dc _A-Z-a-z-0-9 | head -c16)
 set -o pipefail
-CODER_FIRST_USER_EMAIL="admin@coder.com"
-CODER_FIRST_USER_USERNAME="coder"
-CODER_FIRST_USER_PASSWORD="${RANDOM_ADMIN_PASSWORD}"
-CODER_FIRST_USER_TRIAL="false"
+NEURALINVERSE_FIRST_USER_EMAIL="admin@coder.com"
+NEURALINVERSE_FIRST_USER_USERNAME="coder"
+NEURALINVERSE_FIRST_USER_PASSWORD="${RANDOM_ADMIN_PASSWORD}"
+NEURALINVERSE_FIRST_USER_TRIAL="false"
 echo "Running login command!"
-DRY_RUN="$DRY_RUN" "${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" login "${CODER_URL}" \
+DRY_RUN="$DRY_RUN" "${PROJECT_ROOT}/scaletest/lib/coder_shim.sh" login "${NEURALINVERSE_URL}" \
 	--global-config="${CONFIG_DIR}" \
-	--first-user-username="${CODER_FIRST_USER_USERNAME}" \
-	--first-user-email="${CODER_FIRST_USER_EMAIL}" \
-	--first-user-password="${CODER_FIRST_USER_PASSWORD}" \
+	--first-user-username="${NEURALINVERSE_FIRST_USER_USERNAME}" \
+	--first-user-email="${NEURALINVERSE_FIRST_USER_EMAIL}" \
+	--first-user-password="${NEURALINVERSE_FIRST_USER_PASSWORD}" \
 	--first-user-trial=false
 
 echo "Writing credentials to ${CONFIG_DIR}/coder.env"
 maybedryrun "$DRY_RUN" cat <<EOF >"${CONFIG_DIR}/coder.env"
-CODER_FIRST_USER_EMAIL=admin@coder.com
-CODER_FIRST_USER_USERNAME=coder
-CODER_FIRST_USER_PASSWORD="${RANDOM_ADMIN_PASSWORD}"
-CODER_FIRST_USER_TRIAL="${CODER_FIRST_USER_TRIAL}"
+NEURALINVERSE_FIRST_USER_EMAIL=admin@coder.com
+NEURALINVERSE_FIRST_USER_USERNAME=coder
+NEURALINVERSE_FIRST_USER_PASSWORD="${RANDOM_ADMIN_PASSWORD}"
+NEURALINVERSE_FIRST_USER_TRIAL="${NEURALINVERSE_FIRST_USER_TRIAL}"
 EOF
 
 echo "Importing kubernetes template"

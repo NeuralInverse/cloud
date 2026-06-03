@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/archive"
+	"github.com/NeuralInverse/cloud/v2/archive"
 )
 
 // Creates an in-memory tar of the files provided.

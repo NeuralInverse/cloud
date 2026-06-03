@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/provisioner/terraform"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 const cachePath = "/tmp/coder/provisioner-0/tf"

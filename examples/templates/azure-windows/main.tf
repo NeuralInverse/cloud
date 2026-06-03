@@ -14,7 +14,7 @@ provider "azurerm" {
 }
 
 provider "coder" {}
-data "coder_workspace" "me" {}
+data "ni_workspace" "me" {}
 
 # See https://registry.coder.com/modules/coder/azure-region
 module "azure_region" {
@@ -36,11 +36,11 @@ module "windows_rdp" {
   admin_username = local.admin_username
   admin_password = random_password.admin_password.result
 
-  agent_id    = resource.coder_agent.main.id
+  agent_id    = resource.ni_agent.main.id
   resource_id = null # Unused, to be removed in a future version
 }
 
-data "coder_parameter" "data_disk_size" {
+data "ni_parameter" "data_disk_size" {
   description  = "Size of your data (F:) drive in GB"
   display_name = "Data disk size"
   name         = "data_disk_size"
@@ -53,7 +53,7 @@ data "coder_parameter" "data_disk_size" {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch = "amd64"
   auth = "azure-instance-identity"
   os   = "windows"
@@ -74,7 +74,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "main" {
-  name     = "${local.prefix}-${data.coder_workspace.me.id}"
+  name     = "${local.prefix}-${data.ni_workspace.me.id}"
   location = module.azure_region.value
   tags = {
     Coder_Provisioned = "true"
@@ -144,12 +144,12 @@ resource "azurerm_managed_disk" "data" {
   resource_group_name  = azurerm_resource_group.main.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
-  disk_size_gb         = data.coder_parameter.data_disk_size.value
+  disk_size_gb         = data.ni_parameter.data_disk_size.value
 }
 
 # Create virtual machine
 resource "azurerm_windows_virtual_machine" "main" {
-  count                 = data.coder_workspace.me.start_count
+  count                 = data.ni_workspace.me.start_count
   name                  = "vm"
   admin_username        = local.admin_username
   admin_password        = random_password.admin_password.result
@@ -158,7 +158,7 @@ resource "azurerm_windows_virtual_machine" "main" {
   network_interface_ids = [azurerm_network_interface.main.id]
   size                  = "Standard_DS1_v2"
   custom_data = base64encode(
-    templatefile("${path.module}/Initialize.ps1.tftpl", { init_script = coder_agent.main.init_script })
+    templatefile("${path.module}/Initialize.ps1.tftpl", { init_script = ni_agent.main.init_script })
   )
   os_disk {
     name                 = "myOsDisk"
@@ -188,7 +188,7 @@ resource "azurerm_windows_virtual_machine" "main" {
 }
 
 resource "coder_metadata" "rdp_login" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = azurerm_windows_virtual_machine.main[0].id
   item {
     key   = "Username"
@@ -202,7 +202,7 @@ resource "coder_metadata" "rdp_login" {
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "main_data" {
-  count              = data.coder_workspace.me.start_count
+  count              = data.ni_workspace.me.start_count
   managed_disk_id    = azurerm_managed_disk.data.id
   virtual_machine_id = azurerm_windows_virtual_machine.main[0].id
   lun                = "10"

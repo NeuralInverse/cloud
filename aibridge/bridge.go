@@ -18,14 +18,14 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/circuitbreaker"
-	aibcontext "github.com/coder/coder/v2/aibridge/context"
-	"github.com/coder/coder/v2/aibridge/intercept"
-	"github.com/coder/coder/v2/aibridge/mcp"
-	"github.com/coder/coder/v2/aibridge/metrics"
-	"github.com/coder/coder/v2/aibridge/provider"
-	"github.com/coder/coder/v2/aibridge/recorder"
-	"github.com/coder/coder/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/aibridge/circuitbreaker"
+	aibcontext "github.com/NeuralInverse/cloud/v2/aibridge/context"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept"
+	"github.com/NeuralInverse/cloud/v2/aibridge/mcp"
+	"github.com/NeuralInverse/cloud/v2/aibridge/metrics"
+	"github.com/NeuralInverse/cloud/v2/aibridge/provider"
+	"github.com/NeuralInverse/cloud/v2/aibridge/recorder"
+	"github.com/NeuralInverse/cloud/v2/aibridge/tracing"
 )
 
 const (

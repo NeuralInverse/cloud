@@ -124,17 +124,17 @@ func TestFilterEnv(t *testing.T) {
 	t.Parallel()
 
 	env := []string{
-		"CODER_SESSION_TOKEN=secret",
-		"CODER_URL=https://example.com",
+		"NEURALINVERSE_SESSION_TOKEN=secret",
+		"NEURALINVERSE_URL=https://example.com",
 		"KEEP_ME=yes",
 		"PATH=/usr/bin",
 	}
-	result := filterEnv(env, "CODER_SESSION_TOKEN", "CODER_URL")
+	result := filterEnv(env, "NEURALINVERSE_SESSION_TOKEN", "NEURALINVERSE_URL")
 
 	for _, e := range result {
 		k, _, _ := strings.Cut(e, "=")
-		assert.NotEqual(t, "CODER_SESSION_TOKEN", k)
-		assert.NotEqual(t, "CODER_URL", k)
+		assert.NotEqual(t, "NEURALINVERSE_SESSION_TOKEN", k)
+		assert.NotEqual(t, "NEURALINVERSE_URL", k)
 	}
 	assert.Contains(t, result, "KEEP_ME=yes")
 	assert.Contains(t, result, "PATH=/usr/bin")
@@ -188,7 +188,7 @@ func TestApplyPortOffsetSkipsExplicitPorts(t *testing.T) {
 		apiPort:           3000,
 		webPort:           8080,
 		proxyPort:         3010,
-		coderMetricsPort:  2114,
+		niMetricsPort:  2114,
 		portOffsetEnabled: true,
 		projectRoot:       projectRoot,
 		portExplicit: portExplicit{
@@ -201,7 +201,7 @@ func TestApplyPortOffsetSkipsExplicitPorts(t *testing.T) {
 	assert.Equal(t, int64(3000+offset), cfg.apiPort)
 	assert.Equal(t, int64(8080), cfg.webPort)
 	assert.Equal(t, int64(3010+offset), cfg.proxyPort)
-	assert.Equal(t, int64(2114), cfg.coderMetricsPort)
+	assert.Equal(t, int64(2114), cfg.niMetricsPort)
 	assert.Equal(t, portSourceOffset, cfg.apiPortSource)
 	assert.Equal(t, portSourceExplicit, cfg.webPortSource)
 	assert.Equal(t, portSourceOffset, cfg.proxyPortSource)
@@ -225,7 +225,7 @@ func TestApplyPortOffsetDisabledUsesDefaultPorts(t *testing.T) {
 		apiPort:          3000,
 		webPort:          8080,
 		proxyPort:        3010,
-		coderMetricsPort: 2114,
+		niMetricsPort: 2114,
 		projectRoot:      projectRoot,
 	}
 	cfg.applyPortOffset()
@@ -233,7 +233,7 @@ func TestApplyPortOffsetDisabledUsesDefaultPorts(t *testing.T) {
 	assert.Equal(t, int64(3000), cfg.apiPort)
 	assert.Equal(t, int64(8080), cfg.webPort)
 	assert.Equal(t, int64(3010), cfg.proxyPort)
-	assert.Equal(t, int64(2114), cfg.coderMetricsPort)
+	assert.Equal(t, int64(2114), cfg.niMetricsPort)
 	assert.Zero(t, cfg.portOffset)
 	assert.Empty(t, cfg.apiPortSource)
 	assert.Empty(t, cfg.webPortSource)
@@ -270,19 +270,19 @@ func TestPortOffsetDefaultPortsDoNotOverlap(t *testing.T) {
 func TestDevelopInCoder(t *testing.T) {
 	t.Run("DEVELOP_IN_CODER", func(t *testing.T) {
 		t.Setenv("DEVELOP_IN_CODER", "1")
-		t.Setenv("CODER_AGENT_URL", "")
+		t.Setenv("NEURALINVERSE_AGENT_URL", "")
 		assert.True(t, developInCoder())
 	})
 
-	t.Run("CODER_AGENT_URL", func(t *testing.T) {
+	t.Run("NEURALINVERSE_AGENT_URL", func(t *testing.T) {
 		t.Setenv("DEVELOP_IN_CODER", "")
-		t.Setenv("CODER_AGENT_URL", "http://something")
+		t.Setenv("NEURALINVERSE_AGENT_URL", "http://something")
 		assert.True(t, developInCoder())
 	})
 
 	t.Run("Neither", func(t *testing.T) {
 		t.Setenv("DEVELOP_IN_CODER", "")
-		t.Setenv("CODER_AGENT_URL", "")
+		t.Setenv("NEURALINVERSE_AGENT_URL", "")
 		assert.False(t, developInCoder())
 	})
 }
@@ -295,7 +295,7 @@ func TestDevConfigValidate(t *testing.T) {
 			apiPort:          3000,
 			webPort:          8080,
 			proxyPort:        3010,
-			coderMetricsPort: 2114,
+			niMetricsPort: 2114,
 			password:         defaultPassword,
 		}
 	}
@@ -409,7 +409,7 @@ func TestDevConfigValidate(t *testing.T) {
 	t.Run("PrometheusPortConflictWithAPI", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = 3000
+		cfg.niMetricsPort = 3000
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--prometheus-port 3000 conflicts with")
@@ -418,7 +418,7 @@ func TestDevConfigValidate(t *testing.T) {
 	t.Run("PrometheusPortConflictWithWeb", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = 8080
+		cfg.niMetricsPort = 8080
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--prometheus-port 8080 conflicts with")
@@ -427,7 +427,7 @@ func TestDevConfigValidate(t *testing.T) {
 	t.Run("PrometheusPortConflictWithProxy", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = 3010
+		cfg.niMetricsPort = 3010
 		cfg.useProxy = true
 		err := cfg.validate()
 		require.Error(t, err)
@@ -437,21 +437,21 @@ func TestDevConfigValidate(t *testing.T) {
 	t.Run("PrometheusPortZeroDisabled", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = 0
+		cfg.niMetricsPort = 0
 		assert.NoError(t, cfg.validate())
 	})
 
 	t.Run("PrometheusPortValid", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = 9090
+		cfg.niMetricsPort = 9090
 		assert.NoError(t, cfg.validate())
 	})
 
 	t.Run("PrometheusPortTooHigh", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = 70000
+		cfg.niMetricsPort = 70000
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--prometheus-port must be 0 (disabled) or between 1 and 65535")
@@ -460,7 +460,7 @@ func TestDevConfigValidate(t *testing.T) {
 	t.Run("PrometheusPortNegative", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = -1
+		cfg.niMetricsPort = -1
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--prometheus-port must be 0 (disabled) or between 1 and 65535")
@@ -469,7 +469,7 @@ func TestDevConfigValidate(t *testing.T) {
 	t.Run("PrometheusProxyProxyConflictIgnoredWithoutProxy", func(t *testing.T) {
 		t.Parallel()
 		cfg := base()
-		cfg.coderMetricsPort = 3010
+		cfg.niMetricsPort = 3010
 		assert.NoError(t, cfg.validate())
 	})
 
@@ -477,7 +477,7 @@ func TestDevConfigValidate(t *testing.T) {
 		t.Parallel()
 		cfg := base()
 		cfg.prometheusServer = true
-		cfg.coderMetricsPort = 0
+		cfg.niMetricsPort = 0
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--prometheus-server requires prometheus to be enabled")
@@ -487,7 +487,7 @@ func TestDevConfigValidate(t *testing.T) {
 		t.Parallel()
 		cfg := base()
 		cfg.prometheusServer = true
-		cfg.coderMetricsPort = 2114
+		cfg.niMetricsPort = 2114
 		assert.NoError(t, cfg.validate())
 	})
 
@@ -496,7 +496,7 @@ func TestDevConfigValidate(t *testing.T) {
 		cfg := base()
 		cfg.prometheusServer = true
 		cfg.apiPort = prometheusServerPort
-		cfg.coderMetricsPort = 2114
+		cfg.niMetricsPort = 2114
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--port")
@@ -508,7 +508,7 @@ func TestDevConfigValidate(t *testing.T) {
 		cfg := base()
 		cfg.prometheusServer = true
 		cfg.webPort = prometheusServerPort
-		cfg.coderMetricsPort = 2114
+		cfg.niMetricsPort = 2114
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--web-port")
@@ -540,7 +540,7 @@ func TestDevConfigValidate(t *testing.T) {
 		t.Parallel()
 		cfg := base()
 		cfg.prometheusServer = true
-		cfg.coderMetricsPort = prometheusServerPort
+		cfg.niMetricsPort = prometheusServerPort
 		err := cfg.validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "--prometheus-port")
@@ -549,8 +549,8 @@ func TestDevConfigValidate(t *testing.T) {
 }
 
 func TestDevConfigResolveEnv(t *testing.T) {
-	t.Setenv("CODER_SESSION_TOKEN", "leaked")
-	t.Setenv("CODER_URL", "https://leaked.example.com")
+	t.Setenv("NEURALINVERSE_SESSION_TOKEN", "leaked")
+	t.Setenv("NEURALINVERSE_URL", "https://leaked.example.com")
 
 	wd, _ := os.Getwd()
 	cfg := &devConfig{apiPort: 3000, accessURL: defaultAccessURL}
@@ -559,27 +559,27 @@ func TestDevConfigResolveEnv(t *testing.T) {
 	assert.Equal(t, wd, cfg.projectRoot)
 	assert.Equal(t, filepath.Join(wd, "build",
 		fmt.Sprintf("coder_%s_%s", runtime.GOOS, runtime.GOARCH)), cfg.binaryPath)
-	assert.Equal(t, filepath.Join(wd, ".coderv2"), cfg.configDir)
+	assert.Equal(t, filepath.Join(wd, ".niv2"), cfg.configDir)
 	assert.Equal(t, "http://127.0.0.1:3000", cfg.accessURL)
 	assert.Equal(t, int64(3000), cfg.apiPort)
 	assert.Zero(t, cfg.portOffset)
 
 	// Should have unset leaked env vars.
-	assert.Empty(t, os.Getenv("CODER_SESSION_TOKEN"))
-	assert.Empty(t, os.Getenv("CODER_URL"))
+	assert.Empty(t, os.Getenv("NEURALINVERSE_SESSION_TOKEN"))
+	assert.Empty(t, os.Getenv("NEURALINVERSE_URL"))
 
 	// childEnv should be populated and exclude leaked vars.
 	require.NotEmpty(t, cfg.childEnv)
 	for _, e := range cfg.childEnv {
 		k, _, _ := strings.Cut(e, "=")
-		assert.NotEqual(t, "CODER_SESSION_TOKEN", k)
-		assert.NotEqual(t, "CODER_URL", k)
+		assert.NotEqual(t, "NEURALINVERSE_SESSION_TOKEN", k)
+		assert.NotEqual(t, "NEURALINVERSE_URL", k)
 	}
 }
 
 func TestDevConfigResolveEnvUsesDefaultPortsWithoutPortOffset(t *testing.T) {
-	t.Setenv("CODER_SESSION_TOKEN", "")
-	t.Setenv("CODER_URL", "")
+	t.Setenv("NEURALINVERSE_SESSION_TOKEN", "")
+	t.Setenv("NEURALINVERSE_URL", "")
 
 	baseRoot := t.TempDir()
 	projectRoot := filepath.Join(baseRoot, "worktree")
@@ -598,7 +598,7 @@ func TestDevConfigResolveEnvUsesDefaultPortsWithoutPortOffset(t *testing.T) {
 		apiPort:          3000,
 		webPort:          8080,
 		proxyPort:        3010,
-		coderMetricsPort: 2114,
+		niMetricsPort: 2114,
 		accessURL:        defaultAccessURL,
 	}
 	require.NoError(t, cfg.resolveEnv())
@@ -607,7 +607,7 @@ func TestDevConfigResolveEnvUsesDefaultPortsWithoutPortOffset(t *testing.T) {
 	assert.Equal(t, int64(3000), cfg.apiPort)
 	assert.Equal(t, int64(8080), cfg.webPort)
 	assert.Equal(t, int64(3010), cfg.proxyPort)
-	assert.Equal(t, int64(2114), cfg.coderMetricsPort)
+	assert.Equal(t, int64(2114), cfg.niMetricsPort)
 	assert.Zero(t, cfg.portOffset)
 	assert.Empty(t, cfg.apiPortSource)
 	assert.Empty(t, cfg.webPortSource)
@@ -617,8 +617,8 @@ func TestDevConfigResolveEnvUsesDefaultPortsWithoutPortOffset(t *testing.T) {
 }
 
 func TestDevConfigResolveEnvAppliesPortOffsetWhenEnabled(t *testing.T) {
-	t.Setenv("CODER_SESSION_TOKEN", "")
-	t.Setenv("CODER_URL", "")
+	t.Setenv("NEURALINVERSE_SESSION_TOKEN", "")
+	t.Setenv("NEURALINVERSE_URL", "")
 
 	baseRoot := t.TempDir()
 	projectRoot := filepath.Join(baseRoot, "worktree")
@@ -637,7 +637,7 @@ func TestDevConfigResolveEnvAppliesPortOffsetWhenEnabled(t *testing.T) {
 		apiPort:           3000,
 		webPort:           8080,
 		proxyPort:         3010,
-		coderMetricsPort:  2114,
+		niMetricsPort:  2114,
 		portOffsetEnabled: true,
 		accessURL:         defaultAccessURL,
 	}
@@ -648,15 +648,15 @@ func TestDevConfigResolveEnvAppliesPortOffsetWhenEnabled(t *testing.T) {
 	assert.Equal(t, int64(3000+offset), cfg.apiPort)
 	assert.Equal(t, int64(8080+offset), cfg.webPort)
 	assert.Equal(t, int64(3010+offset), cfg.proxyPort)
-	assert.Equal(t, int64(2114+offset), cfg.coderMetricsPort)
+	assert.Equal(t, int64(2114+offset), cfg.niMetricsPort)
 	assert.Equal(t, offset, cfg.portOffset)
 	assert.Equal(t, portSourceOffset, cfg.apiPortSource)
 	assert.Equal(t, fmt.Sprintf("http://127.0.0.1:%d", 3000+offset), cfg.accessURL)
 }
 
 func TestDevConfigResolveEnvExplicitAccessURL(t *testing.T) {
-	t.Setenv("CODER_SESSION_TOKEN", "")
-	t.Setenv("CODER_URL", "")
+	t.Setenv("NEURALINVERSE_SESSION_TOKEN", "")
+	t.Setenv("NEURALINVERSE_URL", "")
 
 	cfg := &devConfig{
 		apiPort:      5000,
@@ -800,7 +800,7 @@ func TestStartPrometheusServerDockerMissing(t *testing.T) {
 
 	logger := slog.Make(sloghuman.Sink(&bytes.Buffer{}))
 
-	cfg := &devConfig{prometheusServer: true, coderMetricsPort: 2114}
+	cfg := &devConfig{prometheusServer: true, niMetricsPort: 2114}
 
 	started, err := startPrometheusServer(t.Context(), logger, cfg)
 	require.NoError(t, err)
@@ -819,28 +819,28 @@ func TestPrometheusBannerEntry(t *testing.T) {
 	}{
 		{
 			name:      "MetricsDisabled",
-			cfg:       &devConfig{coderMetricsPort: 0},
+			cfg:       &devConfig{niMetricsPort: 0},
 			started:   false,
 			wantLabel: "",
 			wantPort:  0,
 		},
 		{
 			name:      "MetricsOnlyDefault",
-			cfg:       &devConfig{coderMetricsPort: 2114},
+			cfg:       &devConfig{niMetricsPort: 2114},
 			started:   false,
 			wantLabel: "Metrics:",
 			wantPort:  2114,
 		},
 		{
 			name:      "PrometheusServerUp",
-			cfg:       &devConfig{coderMetricsPort: 2114, prometheusServer: true},
+			cfg:       &devConfig{niMetricsPort: 2114, prometheusServer: true},
 			started:   true,
 			wantLabel: "Prometheus UI:",
 			wantPort:  prometheusServerPort,
 		},
 		{
 			name:      "ServerRequestedButDown",
-			cfg:       &devConfig{coderMetricsPort: 2114, prometheusServer: true},
+			cfg:       &devConfig{niMetricsPort: 2114, prometheusServer: true},
 			started:   false,
 			wantLabel: "Metrics:",
 			wantPort:  2114,
@@ -944,7 +944,7 @@ func TestParseEnvFileFlag(t *testing.T) {
 		t.Cleanup(func() { os.Args = orig })
 		os.Args = []string{"develop", "--port", "3000"}
 
-		t.Setenv("CODER_DEV_ENV_FILE", "/tmp/from-env.env")
+		t.Setenv("NEURALINVERSE_DEV_ENV_FILE", "/tmp/from-env.env")
 
 		result, err := parseEnvFileFlag()
 		require.NoError(t, err)
@@ -956,7 +956,7 @@ func TestParseEnvFileFlag(t *testing.T) {
 		t.Cleanup(func() { os.Args = orig })
 		os.Args = []string{"develop", "--env-file", "/tmp/from-flag.env"}
 
-		t.Setenv("CODER_DEV_ENV_FILE", "/tmp/from-env.env")
+		t.Setenv("NEURALINVERSE_DEV_ENV_FILE", "/tmp/from-env.env")
 
 		result, err := parseEnvFileFlag()
 		require.NoError(t, err)
@@ -968,8 +968,8 @@ func TestParseEnvFileFlag(t *testing.T) {
 		t.Cleanup(func() { os.Args = orig })
 		os.Args = []string{"develop", "--port", "3000"}
 
-		t.Setenv("CODER_DEV_ENV_FILE", "")
-		os.Unsetenv("CODER_DEV_ENV_FILE")
+		t.Setenv("NEURALINVERSE_DEV_ENV_FILE", "")
+		os.Unsetenv("NEURALINVERSE_DEV_ENV_FILE")
 
 		result, err := parseEnvFileFlag()
 		require.NoError(t, err)

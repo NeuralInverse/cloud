@@ -12,7 +12,7 @@ coder support bundle [flags] [<workspace>] [<agent>]
 ## Description
 
 ```console
-This command generates a file containing detailed troubleshooting information about the Coder deployment and workspace connections. You may specify a single workspace (and optionally an agent name). When run inside a workspace, the workspace and agent are inferred from the environment if not provided.
+This command generates a file containing detailed troubleshooting information about the Neural Inverse Cloud deployment and workspace connections. You may specify a single workspace (and optionally an agent name). When run inside a workspace, the workspace and agent are inferred from the environment if not provided.
 ```
 
 ## Options
@@ -30,7 +30,7 @@ Bypass confirmation prompts.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>string</code>                            |
-| Environment | <code>$CODER_SUPPORT_BUNDLE_OUTPUT_FILE</code> |
+| Environment | <code>$NEURALINVERSE_SUPPORT_BUNDLE_OUTPUT_FILE</code> |
 
 File path for writing the generated support bundle. Defaults to coder-support-$(date +%s).zip.
 
@@ -39,16 +39,16 @@ File path for writing the generated support bundle. Defaults to coder-support-$(
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>string</code>                             |
-| Environment | <code>$CODER_SUPPORT_BUNDLE_URL_OVERRIDE</code> |
+| Environment | <code>$NEURALINVERSE_SUPPORT_BUNDLE_URL_OVERRIDE</code> |
 
-Override the URL to your Coder deployment. This may be useful, for example, if you need to troubleshoot a specific Coder replica.
+Override the URL to your Neural Inverse Cloud deployment. This may be useful, for example, if you need to troubleshoot a specific Neural Inverse Cloud replica.
 
 ### --workspaces-total-cap
 
 |             |                                                         |
 |-------------|---------------------------------------------------------|
 | Type        | <code>int</code>                                        |
-| Environment | <code>$CODER_SUPPORT_BUNDLE_WORKSPACES_TOTAL_CAP</code> |
+| Environment | <code>$NEURALINVERSE_SUPPORT_BUNDLE_WORKSPACES_TOTAL_CAP</code> |
 
 Maximum number of workspaces to include in the support bundle. Set to 0 or negative value to disable the cap. Defaults to 10.
 
@@ -57,7 +57,7 @@ Maximum number of workspaces to include in the support bundle. Set to 0 or negat
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string</code>                         |
-| Environment | <code>$CODER_SUPPORT_BUNDLE_TEMPLATE</code> |
+| Environment | <code>$NEURALINVERSE_SUPPORT_BUNDLE_TEMPLATE</code> |
 
 Template name to include in the support bundle. Use org_name/template_name if template name is reused across multiple organizations.
 
@@ -66,6 +66,6 @@ Template name to include in the support bundle. Use org_name/template_name if te
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>bool</code>                        |
-| Environment | <code>$CODER_SUPPORT_BUNDLE_PPROF</code> |
+| Environment | <code>$NEURALINVERSE_SUPPORT_BUNDLE_PPROF</code> |
 
-Collect pprof profiling data from the Coder server and agent. Requires Coder server version 2.28.0 or newer.
+Collect pprof profiling data from the Neural Inverse Cloud server and agent. Requires Neural Inverse Cloud server version 2.28.0 or newer.

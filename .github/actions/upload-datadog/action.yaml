@@ -60,7 +60,7 @@ runs:
           chmod +x "$BINARY_PATH"
         fi
 
-        "$BINARY_PATH" junit upload --service coder ./gotests.xml \
+        "$BINARY_PATH" junit upload --service neuralinverse ./gotests.xml \
           --tags "os:${RUNNER_OS}" --tags "runner_name:${RUNNER_NAME}"
       env:
         REPO_OWNER: ${{ github.repository_owner }}

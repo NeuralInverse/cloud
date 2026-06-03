@@ -11,13 +11,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/cli/sessionstore"
-	"github.com/coder/coder/v2/cli/sessionstore/testhelpers"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore"
+	"github.com/NeuralInverse/cloud/v2/cli/sessionstore/testhelpers"
 )
 
 type storedCredentials map[string]struct {
-	CoderURL string `json:"coder_url"`
+	NIURL string `json:"coder_url"`
 	APIToken string `json:"api_token"`
 }
 

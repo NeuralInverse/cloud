@@ -8,11 +8,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/enterprise/tailnet"
-	agpl "github.com/coder/coder/v2/tailnet"
-	agpltest "github.com/coder/coder/v2/tailnet/test"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/enterprise/tailnet"
+	agpl "github.com/NeuralInverse/cloud/v2/tailnet"
+	agpltest "github.com/NeuralInverse/cloud/v2/tailnet/test"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // TestPGCoordinator_MultiAgent tests a single coordinator with a MultiAgent

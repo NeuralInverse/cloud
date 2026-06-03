@@ -27,7 +27,7 @@ describe("AccountPage", () => {
 			vi.spyOn(API, "updateProfile").mockImplementationOnce((userId, data) =>
 				Promise.resolve({
 					id: userId,
-					email: "user@coder.com",
+					email: "user@cloud.neuralinverse.com",
 					created_at: new Date().toISOString(),
 					updated_at: new Date().toISOString(),
 					status: "active",

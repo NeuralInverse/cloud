@@ -1,21 +1,21 @@
 #!/bin/sh
 set -e
 
-CODER="go run ./cmd/coder"
-PASSWORD="${CODER_DEV_ADMIN_PASSWORD:-SomeSecurePassword!}"
+CODER="go run ./cmd/neuralinverse"
+PASSWORD="${NEURALINVERSE_DEV_ADMIN_PASSWORD:-SomeSecurePassword!}"
 TOKEN_FILE="/bootstrap/token"
 TOKEN_NAME="bootstrap"
 
 echo "=== Coder Dev Environment Init ==="
 
-if curl -s -o /dev/null -w "%{http_code}" http://coderd:3000/api/v2/users/first | grep -q "200"; then
+if curl -s -o /dev/null -w "%{http_code}" http://nicloud:3000/api/v2/users/first | grep -q "200"; then
 	echo "First user already exists, skipping setup"
 	exit 0
 fi
 
 # Step 1: Create first user (idempotent - creates OR logs in)
 echo "Creating/logging in first user..."
-$CODER login http://coderd:3000 \
+$CODER login http://nicloud:3000 \
 	--first-user-username=admin \
 	--first-user-email=admin@coder.com \
 	--first-user-password="$PASSWORD" \

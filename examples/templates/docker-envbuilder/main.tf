@@ -27,10 +27,10 @@ provider "docker" {
 provider "envbuilder" {}
 
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-data "coder_parameter" "repo" {
+data "ni_parameter" "repo" {
   description  = "Select a repository to automatically clone and start working with a devcontainer."
   display_name = "Repository (auto)"
   mutable      = true
@@ -70,7 +70,7 @@ data "coder_parameter" "repo" {
   order = 1
 }
 
-data "coder_parameter" "custom_repo_url" {
+data "ni_parameter" "custom_repo_url" {
   default      = ""
   description  = "Optionally enter a custom repository URL, see [awesome-devcontainers](https://github.com/manekinekko/awesome-devcontainers)."
   display_name = "Repository URL (custom)"
@@ -79,7 +79,7 @@ data "coder_parameter" "custom_repo_url" {
   order        = 2
 }
 
-data "coder_parameter" "fallback_image" {
+data "ni_parameter" "fallback_image" {
   default      = "codercom/enterprise-base:ubuntu"
   description  = "This image runs if the devcontainer fails to build."
   display_name = "Fallback Image"
@@ -88,7 +88,7 @@ data "coder_parameter" "fallback_image" {
   order        = 3
 }
 
-data "coder_parameter" "devcontainer_builder" {
+data "ni_parameter" "devcontainer_builder" {
   description  = <<-EOF
 Image that will build the devcontainer.
 We highly recommend using a specific release as the `:latest` tag will change.
@@ -121,23 +121,23 @@ variable "cache_repo_docker_config_path" {
 }
 
 locals {
-  container_name             = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
-  devcontainer_builder_image = data.coder_parameter.devcontainer_builder.value
-  git_author_name            = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-  git_author_email           = data.coder_workspace_owner.me.email
-  repo_url                   = data.coder_parameter.repo.value == "custom" ? data.coder_parameter.custom_repo_url.value : data.coder_parameter.repo.value
+  container_name             = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
+  devcontainer_builder_image = data.ni_parameter.devcontainer_builder.value
+  git_author_name            = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+  git_author_email           = data.ni_workspace_owner.me.email
+  repo_url                   = data.ni_parameter.repo.value == "custom" ? data.ni_parameter.custom_repo_url.value : data.ni_parameter.repo.value
   # The envbuilder provider requires a key-value map of environment variables.
   envbuilder_env = {
     # ENVBUILDER_GIT_URL and ENVBUILDER_CACHE_REPO will be overridden by the provider
     # if the cache repo is enabled.
     "ENVBUILDER_GIT_URL" : local.repo_url,
     "ENVBUILDER_CACHE_REPO" : var.cache_repo,
-    "CODER_AGENT_TOKEN" : coder_agent.main.token,
+    "CODER_AGENT_TOKEN" : ni_agent.main.token,
     # Use the docker gateway if the access URL is 127.0.0.1
-    "CODER_AGENT_URL" : replace(data.coder_workspace.me.access_url, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
+    "CODER_AGENT_URL" : replace(data.ni_workspace.me.access_url, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
     # Use the docker gateway if the access URL is 127.0.0.1
-    "ENVBUILDER_INIT_SCRIPT" : replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
-    "ENVBUILDER_FALLBACK_IMAGE" : data.coder_parameter.fallback_image.value,
+    "ENVBUILDER_INIT_SCRIPT" : replace(ni_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal"),
+    "ENVBUILDER_FALLBACK_IMAGE" : data.ni_parameter.fallback_image.value,
     "ENVBUILDER_DOCKER_CONFIG_BASE64" : try(data.local_sensitive_file.cache_repo_dockerconfigjson[0].content_base64, ""),
     "ENVBUILDER_PUSH_IMAGE" : var.cache_repo == "" ? "" : "true",
     "ENVBUILDER_INSECURE" : "${var.insecure_cache_repo}",
@@ -159,7 +159,7 @@ resource "docker_image" "devcontainer_builder_image" {
 }
 
 resource "docker_volume" "workspaces" {
-  name = "coder-${data.coder_workspace.me.id}"
+  name = "coder-${data.ni_workspace.me.id}"
   # Protect the volume from being deleted due to changes in attributes.
   lifecycle {
     ignore_changes = all
@@ -167,28 +167,28 @@ resource "docker_volume" "workspaces" {
   # Add labels in Docker to keep track of orphan resources.
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   # This field becomes outdated if the workspace is renamed but can
   # be useful for debugging or cleaning out dangling volumes.
   labels {
     label = "coder.workspace_name_at_creation"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
 # Check for the presence of a prebuilt image in the cache repo
 # that we can use instead.
 resource "envbuilder_cached_image" "cached" {
-  count         = var.cache_repo == "" ? 0 : data.coder_workspace.me.start_count
+  count         = var.cache_repo == "" ? 0 : data.ni_workspace.me.start_count
   builder_image = local.devcontainer_builder_image
   git_url       = local.repo_url
   cache_repo    = var.cache_repo
@@ -197,12 +197,12 @@ resource "envbuilder_cached_image" "cached" {
 }
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = var.cache_repo == "" ? local.devcontainer_builder_image : envbuilder_cached_image.cached.0.image
   # Uses lower() to avoid Docker restriction on container names.
-  name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
+  name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
   # Hostname makes the shell more user friendly: coder@my-workspace:~$
-  hostname = data.coder_workspace.me.name
+  hostname = data.ni_workspace.me.name
   # Use the environment specified by the envbuilder provider, if available.
   env = var.cache_repo == "" ? local.docker_env : envbuilder_cached_image.cached.0.env
   # network_mode = "host" # Uncomment if testing with a registry running on `localhost`.
@@ -218,23 +218,23 @@ resource "docker_container" "workspace" {
   # Add labels in Docker to keep track of orphan resources.
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   startup_script = <<-EOT
@@ -324,29 +324,29 @@ resource "coder_agent" "main" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 # See https://registry.coder.com/modules/coder/jetbrains
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
-  agent_id   = coder_agent.main.id
+  agent_id   = ni_agent.main.id
   agent_name = "main"
   folder     = "/workspaces"
 }
 
 resource "coder_metadata" "container_info" {
-  count       = data.coder_workspace.me.start_count
-  resource_id = coder_agent.main.id
+  count       = data.ni_workspace.me.start_count
+  resource_id = ni_agent.main.id
   item {
     key   = "workspace image"
     value = var.cache_repo == "" ? local.devcontainer_builder_image : envbuilder_cached_image.cached.0.image

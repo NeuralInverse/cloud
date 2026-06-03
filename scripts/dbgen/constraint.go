@@ -12,7 +12,7 @@ import (
 	"golang.org/x/tools/imports"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/scripts/atomicwrite"
+	"github.com/NeuralInverse/cloud/v2/scripts/atomicwrite"
 )
 
 type constraintType string
@@ -146,7 +146,7 @@ func generateUniqueConstraints() error {
 	if err != nil {
 		return err
 	}
-	databasePath := filepath.Join(localPath, "..", "..", "..", "coderd", "database")
+	databasePath := filepath.Join(localPath, "..", "..", "..", "nicloud", "database")
 	dumpPath := filepath.Join(databasePath, "dump.sql")
 	outputPath := filepath.Join(databasePath, "unique_constraint.go")
 
@@ -179,7 +179,7 @@ func generateForeignKeyConstraints() error {
 	if err != nil {
 		return err
 	}
-	databasePath := filepath.Join(localPath, "..", "..", "..", "coderd", "database")
+	databasePath := filepath.Join(localPath, "..", "..", "..", "nicloud", "database")
 	dumpPath := filepath.Join(databasePath, "dump.sql")
 	outputPath := filepath.Join(databasePath, "foreign_key_constraint.go")
 
@@ -210,7 +210,7 @@ func generateCheckConstraints() error {
 	if err != nil {
 		return err
 	}
-	databasePath := filepath.Join(localPath, "..", "..", "..", "coderd", "database")
+	databasePath := filepath.Join(localPath, "..", "..", "..", "nicloud", "database")
 	dumpPath := filepath.Join(databasePath, "dump.sql")
 	outputPath := filepath.Join(databasePath, "check_constraint.go")
 

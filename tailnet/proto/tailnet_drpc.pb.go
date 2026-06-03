@@ -57,7 +57,7 @@ func (c *drpcTailnetClient) DRPCConn() drpc.Conn { return c.cc }
 
 func (c *drpcTailnetClient) PostTelemetry(ctx context.Context, in *TelemetryRequest) (*TelemetryResponse, error) {
 	out := new(TelemetryResponse)
-	err := c.cc.Invoke(ctx, "/coder.tailnet.v2.Tailnet/PostTelemetry", drpcEncoding_File_tailnet_proto_tailnet_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.tailnet.v2.Tailnet/PostTelemetry", drpcEncoding_File_tailnet_proto_tailnet_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (c *drpcTailnetClient) PostTelemetry(ctx context.Context, in *TelemetryRequ
 }
 
 func (c *drpcTailnetClient) StreamDERPMaps(ctx context.Context, in *StreamDERPMapsRequest) (DRPCTailnet_StreamDERPMapsClient, error) {
-	stream, err := c.cc.NewStream(ctx, "/coder.tailnet.v2.Tailnet/StreamDERPMaps", drpcEncoding_File_tailnet_proto_tailnet_proto{})
+	stream, err := c.cc.NewStream(ctx, "/neuralinverse.tailnet.v2.Tailnet/StreamDERPMaps", drpcEncoding_File_tailnet_proto_tailnet_proto{})
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (x *drpcTailnet_StreamDERPMapsClient) RecvMsg(m *DERPMap) error {
 
 func (c *drpcTailnetClient) RefreshResumeToken(ctx context.Context, in *RefreshResumeTokenRequest) (*RefreshResumeTokenResponse, error) {
 	out := new(RefreshResumeTokenResponse)
-	err := c.cc.Invoke(ctx, "/coder.tailnet.v2.Tailnet/RefreshResumeToken", drpcEncoding_File_tailnet_proto_tailnet_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.tailnet.v2.Tailnet/RefreshResumeToken", drpcEncoding_File_tailnet_proto_tailnet_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (c *drpcTailnetClient) RefreshResumeToken(ctx context.Context, in *RefreshR
 }
 
 func (c *drpcTailnetClient) Coordinate(ctx context.Context) (DRPCTailnet_CoordinateClient, error) {
-	stream, err := c.cc.NewStream(ctx, "/coder.tailnet.v2.Tailnet/Coordinate", drpcEncoding_File_tailnet_proto_tailnet_proto{})
+	stream, err := c.cc.NewStream(ctx, "/neuralinverse.tailnet.v2.Tailnet/Coordinate", drpcEncoding_File_tailnet_proto_tailnet_proto{})
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (x *drpcTailnet_CoordinateClient) RecvMsg(m *CoordinateResponse) error {
 }
 
 func (c *drpcTailnetClient) WorkspaceUpdates(ctx context.Context, in *WorkspaceUpdatesRequest) (DRPCTailnet_WorkspaceUpdatesClient, error) {
-	stream, err := c.cc.NewStream(ctx, "/coder.tailnet.v2.Tailnet/WorkspaceUpdates", drpcEncoding_File_tailnet_proto_tailnet_proto{})
+	stream, err := c.cc.NewStream(ctx, "/neuralinverse.tailnet.v2.Tailnet/WorkspaceUpdates", drpcEncoding_File_tailnet_proto_tailnet_proto{})
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +229,7 @@ func (DRPCTailnetDescription) NumMethods() int { return 5 }
 func (DRPCTailnetDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver, interface{}, bool) {
 	switch n {
 	case 0:
-		return "/coder.tailnet.v2.Tailnet/PostTelemetry", drpcEncoding_File_tailnet_proto_tailnet_proto{},
+		return "/neuralinverse.tailnet.v2.Tailnet/PostTelemetry", drpcEncoding_File_tailnet_proto_tailnet_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCTailnetServer).
 					PostTelemetry(
@@ -238,7 +238,7 @@ func (DRPCTailnetDescription) Method(n int) (string, drpc.Encoding, drpc.Receive
 					)
 			}, DRPCTailnetServer.PostTelemetry, true
 	case 1:
-		return "/coder.tailnet.v2.Tailnet/StreamDERPMaps", drpcEncoding_File_tailnet_proto_tailnet_proto{},
+		return "/neuralinverse.tailnet.v2.Tailnet/StreamDERPMaps", drpcEncoding_File_tailnet_proto_tailnet_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return nil, srv.(DRPCTailnetServer).
 					StreamDERPMaps(
@@ -247,7 +247,7 @@ func (DRPCTailnetDescription) Method(n int) (string, drpc.Encoding, drpc.Receive
 					)
 			}, DRPCTailnetServer.StreamDERPMaps, true
 	case 2:
-		return "/coder.tailnet.v2.Tailnet/RefreshResumeToken", drpcEncoding_File_tailnet_proto_tailnet_proto{},
+		return "/neuralinverse.tailnet.v2.Tailnet/RefreshResumeToken", drpcEncoding_File_tailnet_proto_tailnet_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCTailnetServer).
 					RefreshResumeToken(
@@ -256,7 +256,7 @@ func (DRPCTailnetDescription) Method(n int) (string, drpc.Encoding, drpc.Receive
 					)
 			}, DRPCTailnetServer.RefreshResumeToken, true
 	case 3:
-		return "/coder.tailnet.v2.Tailnet/Coordinate", drpcEncoding_File_tailnet_proto_tailnet_proto{},
+		return "/neuralinverse.tailnet.v2.Tailnet/Coordinate", drpcEncoding_File_tailnet_proto_tailnet_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return nil, srv.(DRPCTailnetServer).
 					Coordinate(
@@ -264,7 +264,7 @@ func (DRPCTailnetDescription) Method(n int) (string, drpc.Encoding, drpc.Receive
 					)
 			}, DRPCTailnetServer.Coordinate, true
 	case 4:
-		return "/coder.tailnet.v2.Tailnet/WorkspaceUpdates", drpcEncoding_File_tailnet_proto_tailnet_proto{},
+		return "/neuralinverse.tailnet.v2.Tailnet/WorkspaceUpdates", drpcEncoding_File_tailnet_proto_tailnet_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return nil, srv.(DRPCTailnetServer).
 					WorkspaceUpdates(

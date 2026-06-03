@@ -30,7 +30,7 @@ interface DebugRetentionSettingsProps {
 	isSaveDebugRetentionDaysError: boolean;
 }
 
-// Keep in sync with chatDebugRetentionDaysMaximum in coderd/exp_chats.go.
+// Keep in sync with chatDebugRetentionDaysMaximum in nicloud/exp_chats.go.
 const validationSchema = Yup.object({
 	debug_retention_days: Yup.number()
 		.integer("Debug retention days must be a whole number.")

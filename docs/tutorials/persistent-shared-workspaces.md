@@ -2,9 +2,9 @@
 
 > [!NOTE]
 > This guide requires a
-> [Premium license](https://coder.com/pricing#compare-plans) because service
+> [Premium license](https://cloud.neuralinverse.com/pricing#compare-plans) because service
 > accounts are a Premium feature. For more details,
-> [contact your account team](https://coder.com/contact).
+> [contact your account team](https://cloud.neuralinverse.com/contact).
 
 This guide walks through setting up a long-lived workspace that is owned by a
 service account and shared with a rotating set of users. Because no single
@@ -30,10 +30,10 @@ group names, and template to match your use case.
 
 ## Prerequisites
 
-- A running Coder deployment (v2.32+) with workspace sharing enabled. Sharing
+- A running Neural Inverse Cloud deployment (v2.32+) with workspace sharing enabled. Sharing
   is on by default for OSS; Premium deployments may require
   [admin configuration](../user-guides/shared-workspaces.md#policies).
-- The [Coder CLI](../install/index.md) installed and authenticated.
+- The [Neural Inverse Cloud CLI](../install/index.md) installed and authenticated.
 - An account with the `Owner` or `User Admin` role.
 - [OIDC authentication](../admin/users/oidc-auth/index.md) configured so
   shared users log in with their corporate SSO identity. Configure
@@ -86,7 +86,7 @@ Manager).
 Authenticate as the service account and create the workspace:
 
 ```shell
-export CODER_SESSION_TOKEN="<token-from-step-2>"
+export NEURALINVERSE_SESSION_TOKEN="<token-from-step-2>"
 
 coder create oncall-sre/oncall-workspace \
   --template your-oncall-template \
@@ -125,7 +125,7 @@ To share with multiple users at once:
 coder sharing share oncall-sre/oncall-workspace --user alice:admin,bob
 ```
 
-To share with an entire Coder group:
+To share with an entire Neural Inverse Cloud group:
 
 ```shell
 coder sharing share oncall-sre/oncall-workspace --group sre-oncall
@@ -195,7 +195,7 @@ If your identity provider manages group membership (e.g. an `sre-oncall` group
 in Okta or Azure AD), you can skip manual share/remove commands entirely:
 
 1. Configure [Group Sync](../admin/users/idp-sync.md#group-sync) to
-   synchronize the group from your IdP to Coder.
+   synchronize the group from your IdP to Neural Inverse Cloud.
 
 1. Share the workspace with the group once:
 
@@ -203,7 +203,7 @@ in Okta or Azure AD), you can skip manual share/remove commands entirely:
    coder sharing share oncall-sre/oncall-workspace --group sre-oncall
    ```
 
-1. When your IdP rotates group membership, Coder group membership updates on
+1. When your IdP rotates group membership, Neural Inverse Cloud group membership updates on
    next login. All current members have access; removed members lose access
    after a workspace restart.
 
@@ -239,8 +239,8 @@ Access removal requires a workspace restart. Run
 
 Group membership changes in your IdP are not reflected until the user logs out
 and back in. Group sync runs at login time, not on a polling schedule. Check the
-Coder server logs with
-`CODER_LOG_FILTER=".*userauth.*|.*groups returned.*"` for details. See
+Neural Inverse Cloud server logs with
+`NEURALINVERSE_LOG_FILTER=".*userauth.*|.*groups returned.*"` for details. See
 [Troubleshooting group sync](../admin/users/idp-sync.md#troubleshooting-grouproleorganization-sync)
 for more information.
 

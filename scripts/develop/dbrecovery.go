@@ -45,7 +45,7 @@ ALTER TABLE _develop.applied_migrations ADD COLUMN IF NOT EXISTS up_sql TEXT NOT
 //   - Tracked file content differs from disk → needs --db-continue or --db-reset.
 //   - New files on disk not tracked → normal forward migration, server handles it.
 func recoverDB(ctx context.Context, logger slog.Logger, cfg *devConfig) error {
-	pgURL := os.Getenv("CODER_PG_CONNECTION_URL")
+	pgURL := os.Getenv("NEURALINVERSE_PG_CONNECTION_URL")
 	isBuiltinPG := pgURL == ""
 
 	if isBuiltinPG {
@@ -74,9 +74,9 @@ func recoverDB(ctx context.Context, logger slog.Logger, cfg *devConfig) error {
 		defer db.Close()
 		_, _ = fmt.Fprintf(os.Stderr,
 			"\n  WARNING: this will DROP all schemas in the external database.\n"+
-				"  Set CODER_DEV_DB_RESET=1 to confirm.\n\n")
-		if os.Getenv("CODER_DEV_DB_RESET") != "1" {
-			return xerrors.New("refusing to reset external database without CODER_DEV_DB_RESET=1")
+				"  Set NEURALINVERSE_DEV_DB_RESET=1 to confirm.\n\n")
+		if os.Getenv("NEURALINVERSE_DEV_DB_RESET") != "1" {
+			return xerrors.New("refusing to reset external database without NEURALINVERSE_DEV_DB_RESET=1")
 		}
 		logger.Warn(ctx, "resetting external database (--db-reset)")
 		return resetSchema(ctx, db)
@@ -88,7 +88,7 @@ func recoverDB(ctx context.Context, logger slog.Logger, cfg *devConfig) error {
 	}
 	defer db.Close()
 
-	migrDir := filepath.Join(cfg.projectRoot, "coderd", "database", "migrations")
+	migrDir := filepath.Join(cfg.projectRoot, "nicloud", "database", "migrations")
 	return checkAndRecover(ctx, logger, db, migrDir, cfg)
 }
 
@@ -455,7 +455,7 @@ func formatDiff(labelA, labelB, a, b string) string {
 // database and captures current migration state. Called after
 // the server health check passes.
 func updateMigrationTracking(ctx context.Context, _ slog.Logger, cfg *devConfig) error {
-	pgURL := os.Getenv("CODER_PG_CONNECTION_URL")
+	pgURL := os.Getenv("NEURALINVERSE_PG_CONNECTION_URL")
 	if pgURL == "" {
 		var err error
 		pgURL, err = builtinPostgresURL(cfg)
@@ -482,7 +482,7 @@ func updateMigrationTracking(ctx context.Context, _ slog.Logger, cfg *devConfig)
 		return nil
 	}
 
-	migrDir := filepath.Join(cfg.projectRoot, "coderd", "database", "migrations")
+	migrDir := filepath.Join(cfg.projectRoot, "nicloud", "database", "migrations")
 	return captureDownSQL(ctx, db, migrDir, dbVersion)
 }
 
@@ -502,7 +502,7 @@ func builtinPostgresURL(cfg *devConfig) (string, error) {
 	password := strings.TrimSpace(string(passwordBytes))
 
 	return fmt.Sprintf(
-		"postgres://coder@localhost:%s/coder?sslmode=disable&password=%s",
+		"postgres://neuralinverse@localhost:%s/neuralinverse?sslmode=disable&password=%s",
 		port, url.QueryEscape(password)), nil
 }
 
@@ -569,9 +569,9 @@ func startTempPostgresSetURL(ctx context.Context, logger slog.Logger, cfg *devCo
 			DataPath(filepath.Join(pgDir, "data")).
 			RuntimePath(filepath.Join(pgDir, "runtime")).
 			Port(uint32(port)). //nolint:gosec // port from listener, fits uint32.
-			Username("coder").
+			Username("neuralinverse").
 			Password(password).
-			Database("coder").
+			Database("neuralinverse").
 			Logger(nil),
 	)
 
@@ -582,7 +582,7 @@ func startTempPostgresSetURL(ctx context.Context, logger slog.Logger, cfg *devCo
 	}
 
 	*pgURL = fmt.Sprintf(
-		"postgres://coder@localhost:%d/coder?sslmode=disable&password=%s",
+		"postgres://neuralinverse@localhost:%d/neuralinverse?sslmode=disable&password=%s",
 		port, url.QueryEscape(password))
 
 	return func() {

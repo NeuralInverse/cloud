@@ -11,14 +11,14 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/coderd/rbac/policy"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac/policy"
 )
 
 // defaultDumpPath is the repo-relative path to the generated schema dump.
-const defaultDumpPath = "coderd/database/dump.sql"
+const defaultDumpPath = "nicloud/database/dump.sql"
 
-var dumpPathFlag = flag.String("dump", defaultDumpPath, "path to dump.sql (defaults to coderd/database/dump.sql)")
+var dumpPathFlag = flag.String("dump", defaultDumpPath, "path to dump.sql (defaults to nicloud/database/dump.sql)")
 
 func main() {
 	flag.Parse()
@@ -54,7 +54,7 @@ func main() {
 		_, _ = fmt.Fprintf(os.Stderr, "  ALTER TYPE api_key_scope ADD VALUE IF NOT EXISTS '%s';\n", m)
 	}
 	_, _ = fmt.Fprintln(os.Stderr)
-	_, _ = fmt.Fprintln(os.Stderr, "Also decide if each new scope is external (exposed in the `externalLowLevel` in coderd/rbac/scopes_catalog.go) or internal-only.")
+	_, _ = fmt.Fprintln(os.Stderr, "Also decide if each new scope is external (exposed in the `externalLowLevel` in nicloud/rbac/scopes_catalog.go) or internal-only.")
 	os.Exit(1)
 }
 

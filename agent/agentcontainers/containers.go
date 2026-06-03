@@ -3,14 +3,14 @@ package agentcontainers
 import (
 	"context"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 // ContainerCLI is an interface for interacting with containers in a workspace.
 type ContainerCLI interface {
 	// List returns a list of containers visible to the workspace agent.
 	// This should include running and stopped containers.
-	List(ctx context.Context) (codersdk.WorkspaceAgentListContainersResponse, error)
+	List(ctx context.Context) (nicloudsdk.WorkspaceAgentListContainersResponse, error)
 	// DetectArchitecture detects the architecture of a container.
 	DetectArchitecture(ctx context.Context, containerName string) (string, error)
 	// Copy copies a file from the host to a container.
@@ -28,8 +28,8 @@ type noopContainerCLI struct{}
 
 var _ ContainerCLI = noopContainerCLI{}
 
-func (noopContainerCLI) List(_ context.Context) (codersdk.WorkspaceAgentListContainersResponse, error) {
-	return codersdk.WorkspaceAgentListContainersResponse{}, nil
+func (noopContainerCLI) List(_ context.Context) (nicloudsdk.WorkspaceAgentListContainersResponse, error) {
+	return nicloudsdk.WorkspaceAgentListContainersResponse{}, nil
 }
 
 func (noopContainerCLI) DetectArchitecture(_ context.Context, _ string) (string, error) {

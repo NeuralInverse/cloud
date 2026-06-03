@@ -33,7 +33,7 @@ curl -X GET http://coder-server:8080/api/v2/ \
 
 | Status | Meaning                                                 | Description | Schema                                           |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.Response](schemas.md#codersdkresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.Response](schemas.md#nicloudsdkresponse) |
 
 ## Build info
 
@@ -70,7 +70,7 @@ curl -X GET http://coder-server:8080/api/v2/buildinfo \
 
 | Status | Meaning                                                 | Description | Schema                                                             |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.BuildInfoResponse](schemas.md#codersdkbuildinforesponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.BuildInfoResponse](schemas.md#nicloudsdkbuildinforesponse) |
 
 ## Report CSP violations
 
@@ -80,7 +80,7 @@ curl -X GET http://coder-server:8080/api/v2/buildinfo \
 # Example request using curl
 curl -X POST http://coder-server:8080/api/v2/csp/reports \
   -H 'Content-Type: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/csp/reports`
@@ -97,7 +97,7 @@ curl -X POST http://coder-server:8080/api/v2/csp/reports \
 
 | Name   | In   | Type                                                 | Required | Description      |
 |--------|------|------------------------------------------------------|----------|------------------|
-| `body` | body | [coderd.cspViolation](schemas.md#coderdcspviolation) | true     | Violation report |
+| `body` | body | [nicloud.cspViolation](schemas.md#nicloudcspviolation) | true     | Violation report |
 
 ### Responses
 
@@ -115,7 +115,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/deployment/config \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/deployment/config`
@@ -681,7 +681,7 @@ curl -X GET http://coder-server:8080/api/v2/deployment/config \
 
 | Status | Meaning                                                 | Description | Schema                                                           |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.DeploymentConfig](schemas.md#codersdkdeploymentconfig) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.DeploymentConfig](schemas.md#nicloudsdkdeploymentconfig) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -693,7 +693,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/deployment/ssh \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/deployment/ssh`
@@ -717,7 +717,7 @@ curl -X GET http://coder-server:8080/api/v2/deployment/ssh \
 
 | Status | Meaning                                                 | Description | Schema                                                             |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.SSHConfigResponse](schemas.md#codersdksshconfigresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.SSHConfigResponse](schemas.md#nicloudsdksshconfigresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -729,7 +729,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/deployment/stats \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/deployment/stats`
@@ -769,7 +769,7 @@ curl -X GET http://coder-server:8080/api/v2/deployment/stats \
 
 | Status | Meaning                                                 | Description | Schema                                                         |
 |--------|---------------------------------------------------------|-------------|----------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.DeploymentStats](schemas.md#codersdkdeploymentstats) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.DeploymentStats](schemas.md#nicloudsdkdeploymentstats) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -781,7 +781,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/experiments \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/experiments`
@@ -800,7 +800,7 @@ curl -X GET http://coder-server:8080/api/v2/experiments \
 
 | Status | Meaning                                                 | Description | Schema                                                        |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Experiment](schemas.md#codersdkexperiment) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Experiment](schemas.md#nicloudsdkexperiment) |
 
 <h3 id="get-enabled-experiments-responseschema">Response Schema</h3>
 
@@ -820,7 +820,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/experiments/available \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/experiments/available`
@@ -839,7 +839,7 @@ curl -X GET http://coder-server:8080/api/v2/experiments/available \
 
 | Status | Meaning                                                 | Description | Schema                                                        |
 |--------|---------------------------------------------------------|-------------|---------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [codersdk.Experiment](schemas.md#codersdkexperiment) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | array of [nicloudsdk.Experiment](schemas.md#nicloudsdkexperiment) |
 
 <h3 id="get-safe-experiments-responseschema">Response Schema</h3>
 
@@ -879,7 +879,7 @@ curl -X GET http://coder-server:8080/api/v2/updatecheck \
 
 | Status | Meaning                                                 | Description | Schema                                                                 |
 |--------|---------------------------------------------------------|-------------|------------------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.UpdateCheckResponse](schemas.md#codersdkupdatecheckresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.UpdateCheckResponse](schemas.md#nicloudsdkupdatecheckresponse) |
 
 ## Get token config
 
@@ -889,7 +889,7 @@ curl -X GET http://coder-server:8080/api/v2/updatecheck \
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/users/{user}/keys/tokens/tokenconfig \
   -H 'Accept: application/json' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/users/{user}/keys/tokens/tokenconfig`
@@ -914,6 +914,6 @@ curl -X GET http://coder-server:8080/api/v2/users/{user}/keys/tokens/tokenconfig
 
 | Status | Meaning                                                 | Description | Schema                                                 |
 |--------|---------------------------------------------------------|-------------|--------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [codersdk.TokenConfig](schemas.md#codersdktokenconfig) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [nicloudsdk.TokenConfig](schemas.md#nicloudsdktokenconfig) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).

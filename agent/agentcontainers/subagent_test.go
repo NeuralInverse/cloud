@@ -7,14 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agenttest"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestSubAgentClient_CreateWithDisplayApps(t *testing.T) {
@@ -25,22 +25,22 @@ func TestSubAgentClient_CreateWithDisplayApps(t *testing.T) {
 
 		tests := []struct {
 			name         string
-			displayApps  []codersdk.DisplayApp
+			displayApps  []nicloudsdk.DisplayApp
 			expectedApps []agentproto.CreateSubAgentRequest_DisplayApp
 		}{
 			{
 				name:        "single display app",
-				displayApps: []codersdk.DisplayApp{codersdk.DisplayAppVSCodeDesktop},
+				displayApps: []nicloudsdk.DisplayApp{nicloudsdk.DisplayAppVSCodeDesktop},
 				expectedApps: []agentproto.CreateSubAgentRequest_DisplayApp{
 					agentproto.CreateSubAgentRequest_VSCODE,
 				},
 			},
 			{
 				name: "multiple display apps",
-				displayApps: []codersdk.DisplayApp{
-					codersdk.DisplayAppVSCodeDesktop,
-					codersdk.DisplayAppSSH,
-					codersdk.DisplayAppPortForward,
+				displayApps: []nicloudsdk.DisplayApp{
+					nicloudsdk.DisplayAppVSCodeDesktop,
+					nicloudsdk.DisplayAppSSH,
+					nicloudsdk.DisplayAppPortForward,
 				},
 				expectedApps: []agentproto.CreateSubAgentRequest_DisplayApp{
 					agentproto.CreateSubAgentRequest_VSCODE,
@@ -50,12 +50,12 @@ func TestSubAgentClient_CreateWithDisplayApps(t *testing.T) {
 			},
 			{
 				name: "all display apps",
-				displayApps: []codersdk.DisplayApp{
-					codersdk.DisplayAppPortForward,
-					codersdk.DisplayAppSSH,
-					codersdk.DisplayAppVSCodeDesktop,
-					codersdk.DisplayAppVSCodeInsiders,
-					codersdk.DisplayAppWebTerminal,
+				displayApps: []nicloudsdk.DisplayApp{
+					nicloudsdk.DisplayAppPortForward,
+					nicloudsdk.DisplayAppSSH,
+					nicloudsdk.DisplayAppVSCodeDesktop,
+					nicloudsdk.DisplayAppVSCodeInsiders,
+					nicloudsdk.DisplayAppWebTerminal,
 				},
 				expectedApps: []agentproto.CreateSubAgentRequest_DisplayApp{
 					agentproto.CreateSubAgentRequest_PORT_FORWARDING_HELPER,
@@ -67,7 +67,7 @@ func TestSubAgentClient_CreateWithDisplayApps(t *testing.T) {
 			},
 			{
 				name:        "no display apps",
-				displayApps: []codersdk.DisplayApp{},
+				displayApps: []nicloudsdk.DisplayApp{},
 			},
 		}
 
@@ -142,9 +142,9 @@ func TestSubAgentClient_CreateWithDisplayApps(t *testing.T) {
 						},
 						Hidden:    false,
 						Icon:      "/icon/jupyter.svg",
-						OpenIn:    codersdk.WorkspaceAppOpenInTab,
+						OpenIn:    nicloudsdk.WorkspaceAppOpenInTab,
 						Order:     int32(1),
-						Share:     codersdk.WorkspaceAppSharingLevelAuthenticated,
+						Share:     nicloudsdk.WorkspaceAppSharingLevelAuthenticated,
 						Subdomain: true,
 						URL:       "http://localhost:8888",
 					},
@@ -176,19 +176,19 @@ func TestSubAgentClient_CreateWithDisplayApps(t *testing.T) {
 				apps: []agentcontainers.SubAgentApp{
 					{
 						Slug:  "owner-app",
-						Share: codersdk.WorkspaceAppSharingLevelOwner,
+						Share: nicloudsdk.WorkspaceAppSharingLevelOwner,
 					},
 					{
 						Slug:  "authenticated-app",
-						Share: codersdk.WorkspaceAppSharingLevelAuthenticated,
+						Share: nicloudsdk.WorkspaceAppSharingLevelAuthenticated,
 					},
 					{
 						Slug:  "public-app",
-						Share: codersdk.WorkspaceAppSharingLevelPublic,
+						Share: nicloudsdk.WorkspaceAppSharingLevelPublic,
 					},
 					{
 						Slug:  "organization-app",
-						Share: codersdk.WorkspaceAppSharingLevelOrganization,
+						Share: nicloudsdk.WorkspaceAppSharingLevelOrganization,
 					},
 				},
 				expectedApps: []*agentproto.CreateSubAgentRequest_App{
@@ -319,11 +319,11 @@ func TestSubAgent_CloneConfig(t *testing.T) {
 			Directory:       "/workspace",
 			Architecture:    "amd64",
 			OperatingSystem: "linux",
-			DisplayApps:     []codersdk.DisplayApp{codersdk.DisplayAppVSCodeDesktop},
+			DisplayApps:     []nicloudsdk.DisplayApp{nicloudsdk.DisplayAppVSCodeDesktop},
 			Apps:            []agentcontainers.SubAgentApp{{Slug: "app1"}},
 		}
 		expectedID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-		dc := codersdk.WorkspaceAgentDevcontainer{
+		dc := nicloudsdk.WorkspaceAgentDevcontainer{
 			Name:       "devcontainer-name",
 			SubagentID: uuid.NullUUID{UUID: expectedID, Valid: true},
 		}
@@ -346,7 +346,7 @@ func TestSubAgent_CloneConfig(t *testing.T) {
 			Architecture:    "amd64",
 			OperatingSystem: "linux",
 		}
-		dc := codersdk.WorkspaceAgentDevcontainer{
+		dc := nicloudsdk.WorkspaceAgentDevcontainer{
 			Name:       "devcontainer-name",
 			SubagentID: uuid.NullUUID{Valid: false},
 		}
@@ -366,7 +366,7 @@ func TestSubAgent_EqualConfig(t *testing.T) {
 		Directory:       "/workspace",
 		Architecture:    "amd64",
 		OperatingSystem: "linux",
-		DisplayApps:     []codersdk.DisplayApp{codersdk.DisplayAppVSCodeDesktop},
+		DisplayApps:     []nicloudsdk.DisplayApp{nicloudsdk.DisplayAppVSCodeDesktop},
 		Apps: []agentcontainers.SubAgentApp{
 			{Slug: "test-app", DisplayName: "Test App"},
 		},
@@ -409,7 +409,7 @@ func TestSubAgent_EqualConfig(t *testing.T) {
 		},
 		{
 			name:      "different DisplayApps",
-			modify:    func(s *agentcontainers.SubAgent) { s.DisplayApps = []codersdk.DisplayApp{codersdk.DisplayAppSSH} },
+			modify:    func(s *agentcontainers.SubAgent) { s.DisplayApps = []nicloudsdk.DisplayApp{nicloudsdk.DisplayAppSSH} },
 			wantEqual: false,
 		},
 		{

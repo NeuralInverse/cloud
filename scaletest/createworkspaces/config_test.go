@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/createworkspaces"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/agentconn"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createworkspaces"
+	"github.com/NeuralInverse/cloud/v2/scaletest/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
 )
 
 func Test_UserConfig(t *testing.T) {
@@ -30,7 +30,7 @@ func Test_UserConfig(t *testing.T) {
 			config: createworkspaces.UserConfig{
 				OrganizationID: id,
 				Username:       "test",
-				Email:          "test@test.coder.com",
+				Email:          "test@test.cloud.neuralinverse.com",
 			},
 		},
 		{
@@ -38,7 +38,7 @@ func Test_UserConfig(t *testing.T) {
 			config: createworkspaces.UserConfig{
 				OrganizationID: uuid.Nil,
 				Username:       "test",
-				Email:          "test@test.coder.com",
+				Email:          "test@test.cloud.neuralinverse.com",
 			},
 			errContains: "organization_id must not be a nil UUID",
 		},
@@ -62,7 +62,7 @@ func Test_UserConfig(t *testing.T) {
 			name: "WithSessionTokenAndEmail",
 			config: createworkspaces.UserConfig{
 				OrganizationID: id,
-				Email:          "test@test.coder.com",
+				Email:          "test@test.cloud.neuralinverse.com",
 				SessionToken:   "sometoken",
 			},
 			errContains: "email must be empty when session_token is set",
@@ -98,7 +98,7 @@ func Test_Config(t *testing.T) {
 	workspaceConfig := workspacebuild.Config{
 		OrganizationID: id,
 		UserID:         id.String(),
-		Request: codersdk.CreateWorkspaceRequest{
+		Request: nicloudsdk.CreateWorkspaceRequest{
 			TemplateID: id,
 		},
 	}
@@ -150,7 +150,7 @@ func Test_Config(t *testing.T) {
 			config: createworkspaces.Config{
 				User: userConfig,
 				Workspace: workspacebuild.Config{
-					Request: codersdk.CreateWorkspaceRequest{
+					Request: nicloudsdk.CreateWorkspaceRequest{
 						TemplateID: uuid.Nil,
 					},
 				},

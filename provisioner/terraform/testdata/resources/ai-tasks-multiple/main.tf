@@ -8,8 +8,8 @@ terraform {
 }
 
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 resource "coder_ai_task" "a" {
   count = 1

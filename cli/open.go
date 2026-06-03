@@ -17,8 +17,8 @@ import (
 	"github.com/skratchdot/open-golang/open"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -65,10 +65,10 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 			// workspace so we can perform path resolution/expansion. Generally,
 			// we know that if we're inside a workspace, `open` can't be used.
 			insideAWorkspace := inv.Environ.Get("CODER") == "true"
-			inWorkspaceName := inv.Environ.Get("CODER_WORKSPACE_NAME") + "." + inv.Environ.Get("CODER_WORKSPACE_AGENT_NAME")
+			inWorkspaceName := inv.Environ.Get("NEURALINVERSE_WORKSPACE_NAME") + "." + inv.Environ.Get("NEURALINVERSE_WORKSPACE_AGENT_NAME")
 
 			// We need a started workspace to figure out e.g. expanded directory.
-			// Pehraps the vscode-coder extension could handle this by accepting
+			// Pehraps the vscode-neuralinverse extension could handle this by accepting
 			// default_directory=true, then probing the agent. Then we wouldn't
 			// need to wait for the agent to start.
 			workspaceQuery := inv.Args[0]
@@ -90,8 +90,8 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 			// a sub-agent that hasn't been created yet may be a devcontainer,
 			// and thus will be created at a later time as well as expose the
 			// container folder on the API response.
-			var parentWorkspaceAgent codersdk.WorkspaceAgent
-			var devcontainer codersdk.WorkspaceAgentDevcontainer
+			var parentWorkspaceAgent nicloudsdk.WorkspaceAgent
+			var devcontainer nicloudsdk.WorkspaceAgentDevcontainer
 			if workspaceAgent.ParentID.Valid {
 				// This is likely a devcontainer agent, so we need to find the
 				// parent workspace agent as well as the devcontainer.
@@ -120,25 +120,25 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 					}
 					if devcontainer.ID == uuid.Nil {
 						cliui.Warnf(inv.Stderr, "Devcontainer %q not found, opening as a regular workspace...", workspaceAgent.Name)
-						parentWorkspaceAgent = codersdk.WorkspaceAgent{} // Reset to empty, so we don't use it later.
+						parentWorkspaceAgent = nicloudsdk.WorkspaceAgent{} // Reset to empty, so we don't use it later.
 						break
 					}
 
 					// Precondition, the devcontainer must be running to enter
 					// it. Once running, devcontainer.Container will be set.
-					if devcontainer.Status == codersdk.WorkspaceAgentDevcontainerStatusRunning {
+					if devcontainer.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusRunning {
 						break
 					}
-					if devcontainer.Status != codersdk.WorkspaceAgentDevcontainerStatusStarting {
+					if devcontainer.Status != nicloudsdk.WorkspaceAgentDevcontainerStatusStarting {
 						return xerrors.Errorf("devcontainer %q is in unexpected status %q, expected %q or %q",
 							devcontainer.Name, devcontainer.Status,
-							codersdk.WorkspaceAgentDevcontainerStatusRunning,
-							codersdk.WorkspaceAgentDevcontainerStatusStarting,
+							nicloudsdk.WorkspaceAgentDevcontainerStatusRunning,
+							nicloudsdk.WorkspaceAgentDevcontainerStatusStarting,
 						)
 					}
 
 					if !printedWaiting {
-						_, _ = fmt.Fprintf(inv.Stderr, "Waiting for devcontainer %q status to change from %q to %q...\n", devcontainer.Name, devcontainer.Status, codersdk.WorkspaceAgentDevcontainerStatusRunning)
+						_, _ = fmt.Fprintf(inv.Stderr, "Waiting for devcontainer %q status to change from %q to %q...\n", devcontainer.Name, devcontainer.Status, nicloudsdk.WorkspaceAgentDevcontainerStatusRunning)
 						printedWaiting = true
 					}
 					time.Sleep(5 * time.Second) // Wait a bit before retrying.
@@ -169,8 +169,8 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 				// Note that this is irrelevant for devcontainer sub agents, as
 				// they always have a directory set.
 				if workspaceAgent.Directory != "" {
-					workspace, workspaceAgent, err = waitForAgentCond(ctx, client, workspace, workspaceAgent, func(wa codersdk.WorkspaceAgent) bool {
-						return wa.LifecycleState != codersdk.WorkspaceAgentLifecycleCreated
+					workspace, workspaceAgent, err = waitForAgentCond(ctx, client, workspace, workspaceAgent, func(wa nicloudsdk.WorkspaceAgent) bool {
+						return wa.LifecycleState != nicloudsdk.WorkspaceAgentLifecycleCreated
 					})
 					if err != nil {
 						return xerrors.Errorf("wait for agent: %w", err)
@@ -203,7 +203,7 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 				// VS Code, however, if running on a local machine we could try
 				// to probe VS Code settings to see if the current configuration
 				// is valid. Future improvement idea.
-				apiKey, err := client.CreateAPIKey(ctx, codersdk.Me)
+				apiKey, err := client.CreateAPIKey(ctx, nicloudsdk.Me)
 				if err != nil {
 					return xerrors.Errorf("create API key: %w", err)
 				}
@@ -260,7 +260,7 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 					wait := doAsync(func() {
 						// Best effort, we don't care if this fails.
 						apiKeyID := strings.SplitN(token, "-", 2)[0]
-						_ = client.DeleteAPIKey(ctx, codersdk.Me, apiKeyID)
+						_ = client.DeleteAPIKey(ctx, nicloudsdk.Me, apiKeyID)
 					})
 					defer wait()
 
@@ -281,7 +281,7 @@ func (r *RootCmd) openVSCode() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag: "generate-token",
-			Env:  "CODER_OPEN_VSCODE_GENERATE_TOKEN",
+			Env:  "NEURALINVERSE_OPEN_VSCODE_GENERATE_TOKEN",
 			Description: fmt.Sprintf(
 				"Generate an auth token and include it in the vscode:// URI. This is for automagical configuration of %s and not needed if already configured. "+
 					"This flag does not need to be specified when running this command on a local machine unless automatic open fails.",
@@ -326,7 +326,7 @@ func (r *RootCmd) openApp() *serpent.Command {
 			workspaceName := inv.Args[0]
 			ws, agt, _, err := GetWorkspaceAndAgent(ctx, inv, client, false, workspaceName)
 			if err != nil {
-				var sdkErr *codersdk.Error
+				var sdkErr *nicloudsdk.Error
 				if errors.As(err, &sdkErr) && sdkErr.StatusCode() == http.StatusNotFound {
 					cliui.Errorf(inv.Stderr, "Workspace %q not found!", workspaceName)
 					return sdkErr
@@ -349,8 +349,8 @@ func (r *RootCmd) openApp() *serpent.Command {
 			}
 
 			appSlug := inv.Args[1]
-			var foundApp codersdk.WorkspaceApp
-			appIdx := slices.IndexFunc(agt.Apps, func(a codersdk.WorkspaceApp) bool {
+			var foundApp nicloudsdk.WorkspaceApp
+			appIdx := slices.IndexFunc(agt.Apps, func(a nicloudsdk.WorkspaceApp) bool {
 				return a.Slug == appSlug
 			})
 			if appIdx == -1 {
@@ -365,8 +365,8 @@ func (r *RootCmd) openApp() *serpent.Command {
 			if err != nil {
 				return xerrors.Errorf("failed to fetch regions: %w", err)
 			}
-			var region codersdk.Region
-			preferredIdx := slices.IndexFunc(regions, func(r codersdk.Region) bool {
+			var region nicloudsdk.Region
+			preferredIdx := slices.IndexFunc(regions, func(r nicloudsdk.Region) bool {
 				return r.Name == regionArg
 			})
 			if preferredIdx == -1 {
@@ -413,7 +413,7 @@ func (r *RootCmd) openApp() *serpent.Command {
 	cmd.Options = serpent.OptionSet{
 		{
 			Flag: "region",
-			Env:  "CODER_OPEN_APP_REGION",
+			Env:  "NEURALINVERSE_OPEN_APP_REGION",
 			Description: fmt.Sprintf("Region to use when opening the app." +
 				" By default, the app will be opened using the main Coder deployment (a.k.a. \"primary\")."),
 			Value:   serpent.StringOf(&regionArg),
@@ -433,8 +433,8 @@ func (r *RootCmd) openApp() *serpent.Command {
 func buildVSCodeWorkspaceLink(
 	token string,
 	clientURL string,
-	workspace codersdk.Workspace,
-	workspaceAgent codersdk.WorkspaceAgent,
+	workspace nicloudsdk.Workspace,
+	workspaceAgent nicloudsdk.WorkspaceAgent,
 	directory string,
 ) (*url.URL, url.Values) {
 	qp := url.Values{}
@@ -453,7 +453,7 @@ func buildVSCodeWorkspaceLink(
 
 	return &url.URL{
 		Scheme:   "vscode",
-		Host:     "coder.coder-remote",
+		Host:     "neuralinverse.ni-remote",
 		Path:     "/open",
 		RawQuery: qp.Encode(),
 	}, qp
@@ -462,8 +462,8 @@ func buildVSCodeWorkspaceLink(
 func buildVSCodeWorkspaceDevContainerLink(
 	token string,
 	clientURL string,
-	workspace codersdk.Workspace,
-	workspaceAgent codersdk.WorkspaceAgent,
+	workspace nicloudsdk.Workspace,
+	workspaceAgent nicloudsdk.WorkspaceAgent,
 	containerName string,
 	containerFolder string,
 	localWorkspaceFolder string,
@@ -491,7 +491,7 @@ func buildVSCodeWorkspaceDevContainerLink(
 
 	return &url.URL{
 		Scheme:   "vscode",
-		Host:     "coder.coder-remote",
+		Host:     "neuralinverse.ni-remote",
 		Path:     "/openDevContainer",
 		RawQuery: qp.Encode(),
 	}, qp
@@ -499,7 +499,7 @@ func buildVSCodeWorkspaceDevContainerLink(
 
 // waitForAgentCond uses the watch workspace API to update the agent information
 // until the condition is met.
-func waitForAgentCond(ctx context.Context, client *codersdk.Client, workspace codersdk.Workspace, workspaceAgent codersdk.WorkspaceAgent, cond func(codersdk.WorkspaceAgent) bool) (codersdk.Workspace, codersdk.WorkspaceAgent, error) {
+func waitForAgentCond(ctx context.Context, client *nicloudsdk.Client, workspace nicloudsdk.Workspace, workspaceAgent nicloudsdk.WorkspaceAgent, cond func(nicloudsdk.WorkspaceAgent) bool) (nicloudsdk.Workspace, nicloudsdk.WorkspaceAgent, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -627,7 +627,7 @@ func doAsync(f func()) (wait func()) {
 // buildAppLinkURL returns the URL to open the app in the browser.
 // It follows similar logic to the TypeScript implementation in site/src/utils/app.ts
 // except that all URLs returned are absolute and based on the provided base URL.
-func buildAppLinkURL(baseURL *url.URL, workspace codersdk.Workspace, agent codersdk.WorkspaceAgent, app codersdk.WorkspaceApp, appsHost, preferredPathBase string) string {
+func buildAppLinkURL(baseURL *url.URL, workspace nicloudsdk.Workspace, agent nicloudsdk.WorkspaceAgent, app nicloudsdk.WorkspaceApp, appsHost, preferredPathBase string) string {
 	// If app is external, return the URL directly
 	if app.External {
 		return app.URL
@@ -668,7 +668,7 @@ func buildAppLinkURL(baseURL *url.URL, workspace codersdk.Workspace, agent coder
 // replacePlaceholderExternalSessionTokenString replaces any $SESSION_TOKEN
 // strings in the URL with the actual session token.
 // This is consistent behavior with the frontend. See: site/src/modules/resources/AppLink/AppLink.tsx
-func replacePlaceholderExternalSessionTokenString(client *codersdk.Client, appURL string) string {
+func replacePlaceholderExternalSessionTokenString(client *nicloudsdk.Client, appURL string) string {
 	if !strings.Contains(appURL, "$SESSION_TOKEN") {
 		return appURL
 	}

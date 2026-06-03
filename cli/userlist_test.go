@@ -11,12 +11,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestUserList(t *testing.T) {
@@ -24,9 +24,9 @@ func TestUserList(t *testing.T) {
 	t.Run("Table", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
 		inv, root := clitest.New(t, "users", "list")
 		clitest.SetupConfig(t, userAdmin, root)
 		stdout := expecter.NewAttachedToInvocation(t, inv)
@@ -35,14 +35,14 @@ func TestUserList(t *testing.T) {
 			errC <- inv.Run()
 		}()
 		require.NoError(t, <-errC)
-		stdout.ExpectMatchContext(ctx, "coder.com")
+		stdout.ExpectMatchContext(ctx, "cloud.neuralinverse.com")
 	})
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
 		inv, root := clitest.New(t, "users", "list", "-o", "json")
 		clitest.SetupConfig(t, userAdmin, root)
 		doneChan := make(chan struct{})
@@ -57,7 +57,7 @@ func TestUserList(t *testing.T) {
 
 		<-doneChan
 
-		var users []codersdk.User
+		var users []nicloudsdk.User
 		err := json.Unmarshal(buf.Bytes(), &users)
 		require.NoError(t, err, "unmarshal JSON output")
 		require.Len(t, users, 2)
@@ -83,13 +83,13 @@ func TestUserList(t *testing.T) {
 	t.Run("SessionAuthErrorHasHelperText", func(t *testing.T) {
 		t.Parallel()
 
-		client := coderdtest.New(t, nil)
+		client := nicloudtest.New(t, nil)
 		inv, root := clitest.New(t, "users", "list")
 		clitest.SetupConfig(t, client, root)
 
 		err := inv.Run()
 
-		var apiErr *codersdk.Error
+		var apiErr *nicloudsdk.Error
 		require.ErrorAs(t, err, &apiErr)
 		require.Contains(t, err.Error(), "Try logging in using 'coder login'.")
 	})
@@ -101,10 +101,10 @@ func TestUserShow(t *testing.T) {
 	t.Run("Table", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitMedium)
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
-		_, otherUser := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		_, otherUser := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 		inv, root := clitest.New(t, "users", "show", otherUser.Username)
 		clitest.SetupConfig(t, userAdmin, root)
 		doneChan := make(chan struct{})
@@ -122,11 +122,11 @@ func TestUserShow(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		client := coderdtest.New(t, nil)
-		owner := coderdtest.CreateFirstUser(t, client)
-		userAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
-		other, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
-		otherUser, err := other.User(ctx, codersdk.Me)
+		client := nicloudtest.New(t, nil)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		userAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleUserAdmin())
+		other, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		otherUser, err := other.User(ctx, nicloudsdk.Me)
 		require.NoError(t, err, "fetch other user")
 		inv, root := clitest.New(t, "users", "show", otherUser.Username, "-o", "json")
 		clitest.SetupConfig(t, userAdmin, root)
@@ -142,7 +142,7 @@ func TestUserShow(t *testing.T) {
 
 		<-doneChan
 
-		var newUser codersdk.User
+		var newUser nicloudsdk.User
 		err = json.Unmarshal(buf.Bytes(), &newUser)
 		require.NoError(t, err, "unmarshal JSON output")
 		require.Equal(t, otherUser.ID, newUser.ID)

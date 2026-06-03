@@ -10,7 +10,7 @@ import (
 // "Number of developers" prompt. If this test fails, also update the
 // matching list in site/src/pages/SetupPage/SetupPageView.tsx
 // (numberOfDevelopersOptions) and coordinate with the licensor service owner,
-// since the same string is forwarded to v2-licensor.coder.com/trial.
+// since the same string is forwarded to v2-licensor.cloud.neuralinverse.com/trial.
 func TestDeveloperBuckets(t *testing.T) {
 	t.Parallel()
 	require.Equal(t, []string{

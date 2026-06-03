@@ -8,8 +8,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -41,7 +41,7 @@ func (r *RootCmd) setArchiveTemplateVersion(archive bool) *serpent.Command {
 		Handler: func(inv *serpent.Invocation) error {
 			var (
 				ctx      = inv.Context()
-				versions []codersdk.TemplateVersion
+				versions []nicloudsdk.TemplateVersion
 			)
 
 			client, err := r.InitClient(inv)
@@ -118,7 +118,7 @@ func (r *RootCmd) archiveTemplateVersions() *serpent.Command {
 			var (
 				ctx           = inv.Context()
 				templateNames = []string{}
-				templates     = []codersdk.Template{}
+				templates     = []nicloudsdk.Template{}
 			)
 			client, err := r.InitClient(inv)
 			if err != nil {

@@ -17,21 +17,21 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 	}
 
 	errors := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "scaletest",
 		Name:      "bridge_errors_total",
 		Help:      "Total number of bridge errors",
 	}, []string{"action"})
 
 	requests := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "scaletest",
 		Name:      "bridge_requests_total",
 		Help:      "Total number of bridge requests",
 	}, []string{"status"})
 
 	duration := prometheus.NewHistogram(prometheus.HistogramOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "scaletest",
 		Name:      "bridge_request_duration_seconds",
 		Help:      "Duration of bridge requests in seconds",
@@ -39,7 +39,7 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 	})
 
 	tokens := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "coderd",
+		Namespace: "nicloud",
 		Subsystem: "scaletest",
 		Name:      "bridge_response_tokens_total",
 		Help:      "Total number of tokens in bridge responses",

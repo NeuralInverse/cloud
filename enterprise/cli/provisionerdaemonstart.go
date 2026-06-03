@@ -19,19 +19,19 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	agpl "github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clilog"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/provisioner/terraform"
-	"github.com/coder/coder/v2/provisionerd"
-	provisionerdproto "github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	agpl "github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clilog"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/terraform"
+	"github.com/NeuralInverse/cloud/v2/provisionerd"
+	provisionerdproto "github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 	"github.com/coder/serpent"
 )
 
@@ -76,7 +76,7 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 				// We can only select an organization if using user auth
 				org, err := orgContext.Selected(inv, client)
 				if err != nil {
-					var cErr *codersdk.Error
+					var cErr *nicloudsdk.Error
 					if !errors.As(err, &cErr) || cErr.StatusCode() != http.StatusUnauthorized {
 						return xerrors.Errorf("current organization: %w", err)
 					}
@@ -188,7 +188,7 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 						Listener:      terraformServer,
 						Logger:        logger.Named("terraform"),
 						WorkDirectory: tempDir,
-						Experiments:   coderd.ReadExperiments(logger, experiments),
+						Experiments:   nicloud.ReadExperiments(logger, experiments),
 					},
 					CachePath: cacheDir,
 				})
@@ -224,10 +224,10 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 				string(database.ProvisionerTypeTerraform): proto.NewDRPCProvisionerClient(terraformClient),
 			}
 			srv := provisionerd.New(func(ctx context.Context) (provisionerdproto.DRPCProvisionerDaemonClient, error) {
-				return client.ServeProvisionerDaemon(ctx, codersdk.ServeProvisionerDaemonRequest{
+				return client.ServeProvisionerDaemon(ctx, nicloudsdk.ServeProvisionerDaemonRequest{
 					Name: name,
-					Provisioners: []codersdk.ProvisionerType{
-						codersdk.ProvisionerTypeTerraform,
+					Provisioners: []nicloudsdk.ProvisionerType{
+						nicloudsdk.ProvisionerTypeTerraform,
 					},
 					Tags:           tags,
 					PreSharedKey:   preSharedKey,
@@ -283,7 +283,7 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 
 	keyOption := serpent.Option{
 		Flag:        "key",
-		Env:         "CODER_PROVISIONER_DAEMON_KEY",
+		Env:         "NEURALINVERSE_PROVISIONER_DAEMON_KEY",
 		Description: "Provisioner key to authenticate with Coder server.",
 		Value:       serpent.StringOf(&provisionerKey),
 	}
@@ -291,35 +291,35 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 		{
 			Flag:          "cache-dir",
 			FlagShorthand: "c",
-			Env:           "CODER_CACHE_DIRECTORY",
+			Env:           "NEURALINVERSE_CACHE_DIRECTORY",
 			Description:   "Directory to store cached data.",
-			Default:       codersdk.DefaultCacheDir(),
+			Default:       nicloudsdk.DefaultCacheDir(),
 			Value:         serpent.StringOf(&cacheDir),
 		},
 		{
 			Flag:          "tag",
 			FlagShorthand: "t",
-			Env:           "CODER_PROVISIONERD_TAGS",
+			Env:           "NEURALINVERSE_PROVISIONERD_TAGS",
 			Description:   "Tags to filter provisioner jobs by.",
 			Value:         serpent.StringArrayOf(&rawTags),
 		},
 		{
 			Flag:        "poll-interval",
-			Env:         "CODER_PROVISIONERD_POLL_INTERVAL",
+			Env:         "NEURALINVERSE_PROVISIONERD_POLL_INTERVAL",
 			Default:     time.Second.String(),
 			Description: "Deprecated and ignored.",
 			Value:       serpent.DurationOf(&pollInterval),
 		},
 		{
 			Flag:        "poll-jitter",
-			Env:         "CODER_PROVISIONERD_POLL_JITTER",
+			Env:         "NEURALINVERSE_PROVISIONERD_POLL_JITTER",
 			Description: "Deprecated and ignored.",
 			Default:     (100 * time.Millisecond).String(),
 			Value:       serpent.DurationOf(&pollJitter),
 		},
 		{
 			Flag:        "psk",
-			Env:         "CODER_PROVISIONER_DAEMON_PSK",
+			Env:         "NEURALINVERSE_PROVISIONER_DAEMON_PSK",
 			Description: "Pre-shared key to authenticate with Coder server.",
 			Value:       serpent.StringOf(&preSharedKey),
 			UseInstead:  []serpent.Option{keyOption},
@@ -327,56 +327,56 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 		keyOption,
 		{
 			Flag:        "name",
-			Env:         "CODER_PROVISIONER_DAEMON_NAME",
+			Env:         "NEURALINVERSE_PROVISIONER_DAEMON_NAME",
 			Description: "Name of this provisioner daemon. Defaults to the current hostname without FQDN.",
 			Value:       serpent.StringOf(&name),
 			Default:     "",
 		},
 		{
 			Flag:        "verbose",
-			Env:         "CODER_PROVISIONER_DAEMON_VERBOSE",
+			Env:         "NEURALINVERSE_PROVISIONER_DAEMON_VERBOSE",
 			Description: "Output debug-level logs.",
 			Value:       serpent.BoolOf(&verbose),
 			Default:     "false",
 		},
 		{
 			Flag:        "log-human",
-			Env:         "CODER_PROVISIONER_DAEMON_LOGGING_HUMAN",
+			Env:         "NEURALINVERSE_PROVISIONER_DAEMON_LOGGING_HUMAN",
 			Description: "Output human-readable logs to a given file.",
 			Value:       serpent.StringOf(&logHuman),
 			Default:     "/dev/stderr",
 		},
 		{
 			Flag:        "log-json",
-			Env:         "CODER_PROVISIONER_DAEMON_LOGGING_JSON",
+			Env:         "NEURALINVERSE_PROVISIONER_DAEMON_LOGGING_JSON",
 			Description: "Output JSON logs to a given file.",
 			Value:       serpent.StringOf(&logJSON),
 			Default:     "",
 		},
 		{
 			Flag:        "log-stackdriver",
-			Env:         "CODER_PROVISIONER_DAEMON_LOGGING_STACKDRIVER",
+			Env:         "NEURALINVERSE_PROVISIONER_DAEMON_LOGGING_STACKDRIVER",
 			Description: "Output Stackdriver compatible logs to a given file.",
 			Value:       serpent.StringOf(&logStackdriver),
 			Default:     "",
 		},
 		{
 			Flag:        "log-filter",
-			Env:         "CODER_PROVISIONER_DAEMON_LOG_FILTER",
+			Env:         "NEURALINVERSE_PROVISIONER_DAEMON_LOG_FILTER",
 			Description: "Filter debug logs by matching against a given regex. Use .* to match all debug logs.",
 			Value:       serpent.StringArrayOf(&logFilter),
 			Default:     "",
 		},
 		{
 			Flag:        "prometheus-enable",
-			Env:         "CODER_PROMETHEUS_ENABLE",
+			Env:         "NEURALINVERSE_PROMETHEUS_ENABLE",
 			Description: "Serve prometheus metrics on the address defined by prometheus address.",
 			Value:       serpent.BoolOf(&prometheusEnable),
 			Default:     "false",
 		},
 		{
 			Flag:        "prometheus-address",
-			Env:         "CODER_PROMETHEUS_ADDRESS",
+			Env:         "NEURALINVERSE_PROMETHEUS_ADDRESS",
 			Description: "The bind address to serve prometheus metrics.",
 			Value:       serpent.StringOf(&prometheusAddress),
 			Default:     "127.0.0.1:2112",
@@ -385,7 +385,7 @@ func (r *RootCmd) provisionerDaemonStart() *serpent.Command {
 			Name:        "Experiments",
 			Description: "Enable one or more experiments. These are not ready for production. Separate multiple experiments with commas, or enter '*' to opt-in to all available experiments.",
 			Flag:        "experiments",
-			Env:         "CODER_EXPERIMENTS",
+			Env:         "NEURALINVERSE_EXPERIMENTS",
 			Value:       serpent.StringArrayOf(&experiments),
 			YAML:        "experiments",
 		},

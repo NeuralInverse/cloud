@@ -1,4 +1,4 @@
-# Defining ImagePullSecrets for Coder workspaces
+# Defining ImagePullSecrets for Neural Inverse Cloud workspaces
 
 <div>
   <a href="https://github.com/ericpaulsen" style="text-decoration: none; color: inherit;">
@@ -9,7 +9,7 @@ January 12, 2024
 
 ---
 
-Coder workspaces are commonly run as Kubernetes pods. When run inside of an
+Neural Inverse Cloud workspaces are commonly run as Kubernetes pods. When run inside of an
 enterprise, the pod image is typically pulled from a private image registry.
 This guide walks through creating an ImagePullSecret to use for authenticating
 to your registry, and defining it in your workspace template.
@@ -34,7 +34,7 @@ actual Docker registry URL, username, and password.
 ## 2. Create Kubernetes Secret
 
 Run the below `kubectl` command in the K8s cluster where you intend to run your
-Coder workspaces:
+Neural Inverse Cloud workspaces:
 
 ```console
 kubectl create secret generic regcred \

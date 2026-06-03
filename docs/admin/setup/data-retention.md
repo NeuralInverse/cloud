@@ -1,6 +1,6 @@
 # Data Retention
 
-Coder supports configurable retention policies that automatically purge old
+Neural Inverse Cloud supports configurable retention policies that automatically purge old
 Audit Logs, Connection Logs, Workspace Agent Logs, API keys, and AI Gateway
 records. These policies help manage database growth by removing records older
 than a specified duration.
@@ -29,11 +29,11 @@ a YAML configuration file.
 
 | Setting              | CLI Flag                           | Environment Variable                   | Default        | Description                             |
 |----------------------|------------------------------------|----------------------------------------|----------------|-----------------------------------------|
-| Audit Logs           | `--audit-logs-retention`           | `CODER_AUDIT_LOGS_RETENTION`           | `0` (disabled) | How long to retain Audit Log entries    |
-| Connection Logs      | `--connection-logs-retention`      | `CODER_CONNECTION_LOGS_RETENTION`      | `0` (disabled) | How long to retain Connection Logs      |
-| API Keys             | `--api-keys-retention`             | `CODER_API_KEYS_RETENTION`             | `7d`           | How long to retain expired API keys     |
-| Workspace Agent Logs | `--workspace-agent-logs-retention` | `CODER_WORKSPACE_AGENT_LOGS_RETENTION` | `7d`           | How long to retain workspace agent logs |
-| AI Gateway           | `--ai-gateway-retention`           | `CODER_AI_GATEWAY_RETENTION`           | `60d`          | How long to retain AI Gateway records   |
+| Audit Logs           | `--audit-logs-retention`           | `NEURALINVERSE_AUDIT_LOGS_RETENTION`           | `0` (disabled) | How long to retain Audit Log entries    |
+| Connection Logs      | `--connection-logs-retention`      | `NEURALINVERSE_CONNECTION_LOGS_RETENTION`      | `0` (disabled) | How long to retain Connection Logs      |
+| API Keys             | `--api-keys-retention`             | `NEURALINVERSE_API_KEYS_RETENTION`             | `7d`           | How long to retain expired API keys     |
+| Workspace Agent Logs | `--workspace-agent-logs-retention` | `NEURALINVERSE_WORKSPACE_AGENT_LOGS_RETENTION` | `7d`           | How long to retain workspace agent logs |
+| AI Gateway           | `--ai-gateway-retention`           | `NEURALINVERSE_AI_GATEWAY_RETENTION`           | `60d`          | How long to retain AI Gateway records   |
 
 > [!NOTE]
 > AI Gateway retention is configured separately from other retention settings.
@@ -65,11 +65,11 @@ coder server \
 ### Environment Variables Example
 
 ```bash
-export CODER_AUDIT_LOGS_RETENTION=365d
-export CODER_CONNECTION_LOGS_RETENTION=90d
-export CODER_API_KEYS_RETENTION=7d
-export CODER_WORKSPACE_AGENT_LOGS_RETENTION=7d
-export CODER_AI_GATEWAY_RETENTION=60d
+export NEURALINVERSE_AUDIT_LOGS_RETENTION=365d
+export NEURALINVERSE_CONNECTION_LOGS_RETENTION=90d
+export NEURALINVERSE_API_KEYS_RETENTION=7d
+export NEURALINVERSE_WORKSPACE_AGENT_LOGS_RETENTION=7d
+export NEURALINVERSE_AI_GATEWAY_RETENTION=60d
 ```
 
 ### YAML Configuration Example
@@ -89,7 +89,7 @@ ai_gateway:
 
 ### Background Purge Process
 
-Coder runs a background process that periodically deletes old records. The
+Neural Inverse Cloud runs a background process that periodically deletes old records. The
 purge process:
 
 1. Runs approximately every 10 minutes.
@@ -114,7 +114,7 @@ API key retention only affects **expired** keys. A key is deleted only when:
 Setting `--api-keys-retention=7d` deletes keys that expired more than 7 days
 ago. Active keys are never deleted by the retention policy.
 
-Keeping expired keys for a short period allows Coder to return a more helpful
+Keeping expired keys for a short period allows Neural Inverse Cloud to return a more helpful
 error message when users attempt to use an expired key.
 
 ### Workspace Agent Logs Behavior
@@ -175,7 +175,7 @@ Common compliance frameworks have varying retention requirements:
 ### External Log Aggregation
 
 If you use an external log aggregation system (Splunk, Datadog, etc.), you can
-configure shorter retention periods in Coder since logs are preserved
+configure shorter retention periods in Neural Inverse Cloud since logs are preserved
 externally. See
 [Capturing/Exporting Audit Logs](../security/audit-logs.md#capturingexporting-audit-logs)
 for details on exporting logs.

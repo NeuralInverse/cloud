@@ -6,16 +6,16 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
 )
 
 func TestPublicKey(t *testing.T) {
 	t.Parallel()
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		_ = coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		_ = nicloudtest.CreateFirstUser(t, client)
 		inv, root := clitest.New(t, "publickey")
 		clitest.SetupConfig(t, client, root)
 		buf := new(bytes.Buffer)

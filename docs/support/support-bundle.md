@@ -1,14 +1,14 @@
-# Generate and upload a Support Bundle to Coder Support
+# Generate and upload a Support Bundle to Neural Inverse Cloud Support
 
-When you engage with Coder support to diagnose an issue with your deployment,
+When you engage with Neural Inverse Cloud support to diagnose an issue with your deployment,
 you may be asked to generate and upload a "Support Bundle" for offline analysis.
 This document explains the contents of a support bundle and the steps to submit
-a support bundle to Coder staff.
+a support bundle to Neural Inverse Cloud staff.
 
 ## What is a Support Bundle?
 
 A support bundle is an archive containing a snapshot of information about your
-Coder deployment.
+Neural Inverse Cloud deployment.
 
 It contains information about the workspace, the template it uses, running
 agents in the workspace, and other detailed information useful for
@@ -38,13 +38,13 @@ A brief overview of all files contained in the bundle is provided below:
 | `agent/startup_logs.txt`          | Startup logs of the workspace agent.                                                                                              |
 | `agent/prometheus.txt`            | The contents of the agent's Prometheus endpoint.                                                                                  |
 | `cli_logs.txt`                    | Logs from running the `coder support bundle` command.                                                                             |
-| `deployment/buildinfo.json`       | Coder version and build information.                                                                                              |
+| `deployment/buildinfo.json`       | Neural Inverse Cloud version and build information.                                                                                              |
 | `deployment/config.json`          | Deployment [configuration](../reference/api/general.md#get-deployment-config), with secret values removed. *Requires Owner role.* |
 | `deployment/experiments.json`     | Any [experiments](../reference/cli/server.md#--experiments) currently enabled for the deployment.                                 |
 | `deployment/health.json`          | A snapshot of the [health status](../admin/monitoring/health-check.md) of the deployment. *Requires Owner role.*                  |
-| `logs.txt`                        | Logs from the `codersdk.Client` used to generate the bundle.                                                                      |
-| `network/connection_info.json`    | Information used by workspace agents used to connect to Coder (DERP map etc.)                                                     |
-| `network/coordinator_debug.html`  | Peers currently connected to each Coder instance and the tunnels established between peers. *Requires Owner role.*                |
+| `logs.txt`                        | Logs from the `nicloudsdk.Client` used to generate the bundle.                                                                      |
+| `network/connection_info.json`    | Information used by workspace agents used to connect to Neural Inverse Cloud (DERP map etc.)                                                     |
+| `network/coordinator_debug.html`  | Peers currently connected to each Neural Inverse Cloud instance and the tunnels established between peers. *Requires Owner role.*                |
 | `network/netcheck.json`           | Results of running `coder netcheck` locally.                                                                                      |
 | `network/tailnet_debug.html`      | Tailnet coordinators, their heartbeat ages, connected peers, and tunnels. *Requires Owner role.*                                  |
 | `workspace/build_logs.txt`        | Build logs of the selected workspace.                                                                                             |
@@ -57,16 +57,16 @@ A brief overview of all files contained in the bundle is provided below:
 ## How do I generate a Support Bundle?
 
 1. Ensure your deployment is up and running. Generating a support bundle
-   requires the Coder deployment to be available.
+   requires the Neural Inverse Cloud deployment to be available.
 
-2. Ensure you have the Coder CLI installed on a local machine. See
+2. Ensure you have the Neural Inverse Cloud CLI installed on a local machine. See
    [installation](../install/index.md) for steps on how to do this.
 
    > [!NOTE]
    > It is recommended to generate a support bundle from a location
    > experiencing workspace connectivity issues.
 
-3. Ensure you are [logged in](../reference/cli/login.md#login) to your Coder
+3. Ensure you are [logged in](../reference/cli/login.md#login) to your Neural Inverse Cloud
    deployment. Any authenticated user can generate a support bundle. Users with
    the Owner role will get the most complete bundle; non-admin users will still
    get a useful bundle but some admin-only data will be omitted (see the note
@@ -83,12 +83,12 @@ A brief overview of all files contained in the bundle is provided below:
 5. (Recommended) Extract the support bundle and review its contents, redacting
    any information you deem necessary.
 
-6. Coder staff will provide you a link where you can upload the bundle along
+6. Neural Inverse Cloud staff will provide you a link where you can upload the bundle along
    with any other necessary supporting files.
 
    > [!NOTE]
    > It is helpful to leave an informative message regarding the nature of
    > supporting files.
 
-Coder support will then review the information you provided and respond to you
+Neural Inverse Cloud support will then review the information you provided and respond to you
 with next steps.

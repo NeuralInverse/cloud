@@ -19,28 +19,28 @@ import (
 	"github.com/stretchr/testify/require"
 	gossh "golang.org/x/crypto/ssh"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func prepareTestGitSSH(ctx context.Context, t *testing.T) (*agentsdk.Client, string, gossh.PublicKey) {
 	t.Helper()
 
-	client, db := coderdtest.NewWithDatabase(t, nil)
-	user := coderdtest.CreateFirstUser(t, client)
+	client, db := nicloudtest.NewWithDatabase(t, nil)
+	user := nicloudtest.CreateFirstUser(t, client)
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer t.Cleanup(cancel) // Defer so that cancel is the first cleanup.
 
 	// get user public key
-	keypair, err := client.GitSSHKey(ctx, codersdk.Me)
+	keypair, err := client.GitSSHKey(ctx, nicloudsdk.Me)
 	require.NoError(t, err)
 	//nolint:dogsled
 	pubkey, _, _, _, err := gossh.ParseAuthorizedKey([]byte(keypair.PublicKey))
@@ -57,7 +57,7 @@ func prepareTestGitSSH(ctx context.Context, t *testing.T) (*agentsdk.Client, str
 	_ = agenttest.New(t, client.URL, r.AgentToken, func(o *agent.Options) {
 		o.Client = agentClient
 	})
-	_ = coderdtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).WithContext(ctx).Wait()
+	_ = nicloudtest.NewWorkspaceAgentWaiter(t, client, r.Workspace.ID).WithContext(ctx).Wait()
 	return agentClient, r.AgentToken, pubkey
 }
 
@@ -219,7 +219,7 @@ func TestGitSSH(t *testing.T) {
 		err = os.Remove(idFile)
 		require.NoError(t, err)
 
-		// With the local file deleted, the coder key should be used.
+		// With the local file deleted, the neuralinverse key should be used.
 		inv, _ = clitest.New(t, cmdArgs...)
 		// This occasionally times out at 15s on Windows CI runners. Use a
 		// longer timeout to reduce flakes.

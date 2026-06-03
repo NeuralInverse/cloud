@@ -16,10 +16,10 @@ set -euo pipefail
 # shellcheck source=scripts/lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-agpl="${CODER_BUILD_AGPL:-0}"
+agpl="${NEURALINVERSE_BUILD_AGPL:-0}"
 output_path=""
 version=""
-sign_windows="${CODER_SIGN_WINDOWS:-0}"
+sign_windows="${NEURALINVERSE_SIGN_WINDOWS:-0}"
 
 args="$(getopt -o "" -l agpl,output:,version: -- "$@")"
 eval set -- "$args"
@@ -85,7 +85,7 @@ dependencies makensis
 cdroot
 temp_dir="$(TMPDIR="$(dirname "$input_file")" mktemp -d)"
 mkdir -p "$temp_dir/bin"
-ln "$input_file" "$temp_dir/bin/coder.exe"
+ln "$input_file" "$temp_dir/bin/neuralinverse.exe"
 cp "$(realpath scripts/win-installer/installer.nsi)" "$temp_dir/installer.nsi"
 cp "$(realpath scripts/win-installer/path.nsh)" "$temp_dir/path.nsh"
 cp "$(realpath scripts/win-installer/coder.ico)" "$temp_dir/coder.ico"
@@ -121,9 +121,9 @@ fi
 pushd "$temp_dir"
 makensis \
 	-V4 \
-	-DCODER_VERSION="$version" \
-	-DCODER_NSIS_VERSION="$nsis_version" \
-	-DCODER_YEAR="$(date +%Y)" \
+	-DNEURALINVERSE_VERSION="$version" \
+	-DNEURALINVERSE_NSIS_VERSION="$nsis_version" \
+	-DNEURALINVERSE_YEAR="$(date +%Y)" \
 	installer.nsi
 popd
 

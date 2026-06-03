@@ -9,7 +9,7 @@ import (
 	"golang.org/x/xerrors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -39,7 +39,7 @@ func (wpf *workspaceParameterFlags) cliEphemeralParameters() []serpent.Option {
 		// Deprecated - replaced with ephemeral-parameter
 		{
 			Flag:        "build-option",
-			Env:         "CODER_BUILD_OPTION",
+			Env:         "NEURALINVERSE_BUILD_OPTION",
 			Description: `Build option value in the format "name=value".`,
 			UseInstead:  []serpent.Option{{Flag: "ephemeral-parameter"}},
 			Value:       serpent.StringArrayOf(&wpf.ephemeralParameters),
@@ -53,13 +53,13 @@ func (wpf *workspaceParameterFlags) cliEphemeralParameters() []serpent.Option {
 		},
 		{
 			Flag:        "ephemeral-parameter",
-			Env:         "CODER_EPHEMERAL_PARAMETER",
+			Env:         "NEURALINVERSE_EPHEMERAL_PARAMETER",
 			Description: `Set the value of ephemeral parameters defined in the template. The format is "name=value".`,
 			Value:       serpent.StringArrayOf(&wpf.ephemeralParameters),
 		},
 		{
 			Flag:        "prompt-ephemeral-parameters",
-			Env:         "CODER_PROMPT_EPHEMERAL_PARAMETERS",
+			Env:         "NEURALINVERSE_PROMPT_EPHEMERAL_PARAMETERS",
 			Description: "Prompt to set values of ephemeral parameters defined in the template. If a value has been set via --ephemeral-parameter, it will not be prompted for.",
 			Value:       serpent.BoolOf(&wpf.promptEphemeralParameters),
 		},
@@ -70,13 +70,13 @@ func (wpf *workspaceParameterFlags) cliParameters() []serpent.Option {
 	return serpent.OptionSet{
 		serpent.Option{
 			Flag:        "parameter",
-			Env:         "CODER_RICH_PARAMETER",
+			Env:         "NEURALINVERSE_RICH_PARAMETER",
 			Description: `Rich parameter value in the format "name=value".`,
 			Value:       serpent.StringArrayOf(&wpf.richParameters),
 		},
 		serpent.Option{
 			Flag:        "rich-parameter-file",
-			Env:         "CODER_RICH_PARAMETER_FILE",
+			Env:         "NEURALINVERSE_RICH_PARAMETER_FILE",
 			Description: "Specify a file path with values for rich parameters defined in the template. The file should be in YAML format, containing key-value pairs for the parameters.",
 			Value:       serpent.StringOf(&wpf.richParameterFile),
 		},
@@ -87,7 +87,7 @@ func (wpf *workspaceParameterFlags) cliParameterDefaults() []serpent.Option {
 	return serpent.OptionSet{
 		serpent.Option{
 			Flag:        "parameter-default",
-			Env:         "CODER_RICH_PARAMETER_DEFAULT",
+			Env:         "NEURALINVERSE_RICH_PARAMETER_DEFAULT",
 			Description: `Rich parameter default values in the format "name=value".`,
 			Value:       serpent.StringArrayOf(&wpf.richParameterDefaults),
 		},
@@ -97,7 +97,7 @@ func (wpf *workspaceParameterFlags) cliParameterDefaults() []serpent.Option {
 func (wpf *workspaceParameterFlags) useParameterDefaultsOption() serpent.Option {
 	return serpent.Option{
 		Flag:        "use-parameter-defaults",
-		Env:         "CODER_WORKSPACE_USE_PARAMETER_DEFAULTS",
+		Env:         "NEURALINVERSE_WORKSPACE_USE_PARAMETER_DEFAULTS",
 		Description: "Automatically accept parameter defaults when no value is provided.",
 		Value:       serpent.BoolOf(&wpf.useParameterDefaults),
 	}
@@ -111,22 +111,22 @@ func (wpf *workspaceParameterFlags) alwaysPrompt() serpent.Option {
 	}
 }
 
-func presetParameterAsWorkspaceBuildParameters(presetParameters []codersdk.PresetParameter) []codersdk.WorkspaceBuildParameter {
-	var params []codersdk.WorkspaceBuildParameter
+func presetParameterAsWorkspaceBuildParameters(presetParameters []nicloudsdk.PresetParameter) []nicloudsdk.WorkspaceBuildParameter {
+	var params []nicloudsdk.WorkspaceBuildParameter
 	for _, parameter := range presetParameters {
-		params = append(params, codersdk.WorkspaceBuildParameter(parameter))
+		params = append(params, nicloudsdk.WorkspaceBuildParameter(parameter))
 	}
 	return params
 }
 
-func asWorkspaceBuildParameters(nameValuePairs []string) ([]codersdk.WorkspaceBuildParameter, error) {
-	var params []codersdk.WorkspaceBuildParameter
+func asWorkspaceBuildParameters(nameValuePairs []string) ([]nicloudsdk.WorkspaceBuildParameter, error) {
+	var params []nicloudsdk.WorkspaceBuildParameter
 	for _, nameValue := range nameValuePairs {
 		split := strings.SplitN(nameValue, "=", 2)
 		if len(split) < 2 {
 			return nil, xerrors.Errorf("format key=value expected, but got %s", nameValue)
 		}
-		params = append(params, codersdk.WorkspaceBuildParameter{
+		params = append(params, nicloudsdk.WorkspaceBuildParameter{
 			Name:  split[0],
 			Value: split[1],
 		})
@@ -186,11 +186,11 @@ This is useful for troubleshooting build issues.`,
 			Description: `Sets the reason for the workspace build (cli, vscode_connection, jetbrains_connection).`,
 			Value: serpent.EnumOf(
 				&bf.reason,
-				string(codersdk.BuildReasonCLI),
-				string(codersdk.BuildReasonVSCodeConnection),
-				string(codersdk.BuildReasonJetbrainsConnection),
+				string(nicloudsdk.BuildReasonCLI),
+				string(nicloudsdk.BuildReasonVSCodeConnection),
+				string(nicloudsdk.BuildReasonJetbrainsConnection),
 			),
-			Default: string(codersdk.BuildReasonCLI),
+			Default: string(nicloudsdk.BuildReasonCLI),
 			Hidden:  true,
 		},
 	}

@@ -11,20 +11,20 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/quartz"
 )
 
@@ -34,10 +34,10 @@ func TestPrebuildsPause(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
@@ -64,31 +64,31 @@ func TestPrebuildsPause(t *testing.T) {
 	t.Run("UnauthorizedUser", func(t *testing.T) {
 		t.Parallel()
 
-		adminClient, admin := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		adminClient, admin := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
 
 		// Create a regular user without admin privileges
-		client, _ := coderdtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
+		client, _ := nicloudtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
 
 		inv, conf := newCLI(t, "prebuilds", "pause")
 		clitest.SetupConfig(t, client, conf)
 
 		err := inv.Run()
 		require.Error(t, err)
-		var sdkError *codersdk.Error
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		var sdkError *nicloudsdk.Error
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 		assert.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 	})
 
 	t.Run("NoLicense", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			DontAddLicense: true,
 		})
 
@@ -99,18 +99,18 @@ func TestPrebuildsPause(t *testing.T) {
 		err := inv.Run()
 		require.Error(t, err)
 		// Should fail without license
-		var sdkError *codersdk.Error
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		var sdkError *nicloudsdk.Error
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 		assert.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 	})
 
 	t.Run("AlreadyPaused", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
@@ -142,10 +142,10 @@ func TestPrebuildsResume(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
@@ -179,10 +179,10 @@ func TestPrebuildsResume(t *testing.T) {
 	t.Run("ResumeWhenNotPaused", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
@@ -210,31 +210,31 @@ func TestPrebuildsResume(t *testing.T) {
 	t.Run("UnauthorizedUser", func(t *testing.T) {
 		t.Parallel()
 
-		adminClient, admin := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		adminClient, admin := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
 
 		// Create a regular user without admin privileges
-		client, _ := coderdtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
+		client, _ := nicloudtest.CreateAnotherUser(t, adminClient, admin.OrganizationID)
 
 		inv, conf := newCLI(t, "prebuilds", "resume")
 		clitest.SetupConfig(t, client, conf)
 
 		err := inv.Run()
 		require.Error(t, err)
-		var sdkError *codersdk.Error
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		var sdkError *nicloudsdk.Error
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 		assert.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 	})
 
 	t.Run("NoLicense", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
 			DontAddLicense: true,
 		})
 
@@ -245,8 +245,8 @@ func TestPrebuildsResume(t *testing.T) {
 		err := inv.Run()
 		require.Error(t, err)
 		// Should fail without license
-		var sdkError *codersdk.Error
-		require.ErrorAsf(t, err, &sdkError, "error should be of type *codersdk.Error")
+		var sdkError *nicloudsdk.Error
+		require.ErrorAsf(t, err, &sdkError, "error should be of type *nicloudsdk.Error")
 		assert.Equal(t, http.StatusForbidden, sdkError.StatusCode())
 	})
 }
@@ -257,10 +257,10 @@ func TestPrebuildsCommand(t *testing.T) {
 	t.Run("Help", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
@@ -285,10 +285,10 @@ func TestPrebuildsCommand(t *testing.T) {
 	t.Run("NoSubcommand", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
@@ -316,10 +316,10 @@ func TestPrebuildsSettingsAPI(t *testing.T) {
 	t.Run("GetSettings", func(t *testing.T) {
 		t.Parallel()
 
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureWorkspacePrebuilds: 1,
+					nicloudsdk.FeatureWorkspacePrebuilds: 1,
 				},
 			},
 		})
@@ -397,23 +397,23 @@ func TestSchedulePrebuilds(t *testing.T) {
 			clock.Set(dbtime.Now())
 
 			// Setup
-			client, db, owner := coderdenttest.NewWithDatabase(t, &coderdenttest.Options{
-				Options: &coderdtest.Options{
+			client, db, owner := nicloudenttest.NewWithDatabase(t, &nicloudenttest.Options{
+				Options: &nicloudtest.Options{
 					IncludeProvisionerDaemon: true,
 					Clock:                    clock,
 				},
-				LicenseOptions: &coderdenttest.LicenseOptions{
+				LicenseOptions: &nicloudenttest.LicenseOptions{
 					Features: license.Features{
-						codersdk.FeatureWorkspacePrebuilds: 1,
+						nicloudsdk.FeatureWorkspacePrebuilds: 1,
 					},
 				},
 			})
 
 			// Given: a template and a template version with preset and a prebuilt workspace
 			presetID := uuid.New()
-			version := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-			_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-			template := coderdtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
+			version := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+			_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+			template := nicloudtest.CreateTemplate(t, client, owner.OrganizationID, version.ID)
 			dbgen.Preset(t, db, database.InsertPresetParams{
 				ID:                presetID,
 				TemplateVersionID: version.ID,
@@ -443,7 +443,7 @@ func TestSchedulePrebuilds(t *testing.T) {
 			require.NoError(t, err)
 
 			// Given: a prebuilt workspace
-			prebuild := coderdtest.MustWorkspace(t, client, workspaceBuild.Workspace.ID)
+			prebuild := nicloudtest.MustWorkspace(t, client, workspaceBuild.Workspace.ID)
 
 			// When: running the schedule command over a prebuilt workspace
 			inv, root := clitest.New(t, tc.cmdArgs(prebuild.OwnerName+"/"+prebuild.Name)...)
@@ -463,17 +463,17 @@ func TestSchedulePrebuilds(t *testing.T) {
 			// Given: the prebuilt workspace is claimed by a user
 			user, err := client.User(ctx, "testUser")
 			require.NoError(t, err)
-			claimedWorkspace, err := client.CreateUserWorkspace(ctx, user.ID.String(), codersdk.CreateWorkspaceRequest{
+			claimedWorkspace, err := client.CreateUserWorkspace(ctx, user.ID.String(), nicloudsdk.CreateWorkspaceRequest{
 				TemplateVersionID:       version.ID,
 				TemplateVersionPresetID: presetID,
-				Name:                    coderdtest.RandomUsername(t),
+				Name:                    nicloudtest.RandomUsername(t),
 				// The 'extend' command requires the workspace to have an existing deadline.
 				// To ensure this, we set the workspace's TTL to 1 hour.
 				TTLMillis: ptr.Ref[int64](time.Hour.Milliseconds()),
 			})
 			require.NoError(t, err)
-			coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, claimedWorkspace.LatestBuild.ID)
-			workspace := coderdtest.MustWorkspace(t, client, claimedWorkspace.ID)
+			nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, claimedWorkspace.LatestBuild.ID)
+			workspace := nicloudtest.MustWorkspace(t, client, claimedWorkspace.ID)
 			require.Equal(t, prebuild.ID, workspace.ID)
 
 			// When: running the schedule command over the claimed workspace

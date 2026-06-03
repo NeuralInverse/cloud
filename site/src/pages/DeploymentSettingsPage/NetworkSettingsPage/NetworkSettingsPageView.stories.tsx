@@ -45,7 +45,7 @@ const meta: Meta<typeof NetworkSettingsPageView> = {
 				name: "DERP Config URL",
 				description:
 					"URL to fetch a DERP mapping on startup. See: https://tailscale.com/kb/1118/custom-derp-servers/",
-				value: "https://coder.com",
+				value: "https://cloud.neuralinverse.com",
 				group,
 				flag: "derp",
 				flag_shorthand: "d",
@@ -54,7 +54,7 @@ const meta: Meta<typeof NetworkSettingsPageView> = {
 			{
 				name: "Wildcard Access URL",
 				description: "",
-				value: "https://coder.com",
+				value: "https://cloud.neuralinverse.com",
 				group,
 				flag: "derp",
 				flag_shorthand: "d",

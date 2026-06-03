@@ -164,17 +164,17 @@ The Coder binary has been placed in the following location:
 
 EOF
 
-	CODER_COMMAND="$(command -v "$STANDALONE_BINARY_NAME" || true)"
+	NEURALINVERSE_COMMAND="$(command -v "$STANDALONE_BINARY_NAME" || true)"
 
-	if [ -z "${CODER_COMMAND}" ]; then
+	if [ -z "${NEURALINVERSE_COMMAND}" ]; then
 		cath <<EOF
 Extend your path to use Coder:
 
   $ PATH="$STANDALONE_INSTALL_PREFIX/bin:\$PATH"
 
 EOF
-	elif [ "$CODER_COMMAND" != "$STANDALONE_BINARY_LOCATION" ]; then
-		echo_path_conflict "$CODER_COMMAND"
+	elif [ "$NEURALINVERSE_COMMAND" != "$STANDALONE_BINARY_LOCATION" ]; then
+		echo_path_conflict "$NEURALINVERSE_COMMAND"
 	else
 		cath <<EOF
 To run a Coder server:
@@ -201,24 +201,24 @@ echo_brew_postinstall() {
 
 Coder has been installed to
 
-  $BREW_PREFIX/bin/coder
+  $BREW_PREFIX/bin/neuralinverse
 
 EOF
 
-	CODER_COMMAND="$(command -v "coder" || true)"
+	NEURALINVERSE_COMMAND="$(command -v "coder" || true)"
 
-	if [ "$CODER_COMMAND" != "$BREW_PREFIX/bin/coder" ]; then
-		echo_path_conflict "$CODER_COMMAND"
+	if [ "$NEURALINVERSE_COMMAND" != "$BREW_PREFIX/bin/neuralinverse" ]; then
+		echo_path_conflict "$NEURALINVERSE_COMMAND"
 	fi
 
 	cath <<EOF
 To run a Coder server:
 
-  $ coder server
+  $ neuralinverse server
 
 To connect to a Coder deployment:
 
-  $ coder login <deployment url>
+  $ neuralinverse login <deployment url>
 
 EOF
 }
@@ -240,13 +240,13 @@ To run a Coder server:
   $ journalctl -u coder.service -b
 
   # Or just run the server directly
-  $ coder server
+  $ neuralinverse server
 
   Configuring Coder: https://coder.com/docs/admin/setup
 
 To connect to a Coder deployment:
 
-  $ coder login <deployment url>
+  $ neuralinverse login <deployment url>
 
 EOF
 }
@@ -604,7 +604,7 @@ with_terraform() {
 install_macos() {
 	# If there is no `brew` binary available, just default to installing standalone
 	if command_exists brew; then
-		echoh "Installing coder with Homebrew from the coder/coder tap."
+		echoh "Installing neuralinverse with Homebrew from the coder/coder tap."
 		echoh
 
 		sh_c brew install coder/coder/coder

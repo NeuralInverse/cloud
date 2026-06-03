@@ -2,23 +2,23 @@
 
 ## Guide Overview
 
-Coder provides Extended Support Releases (ESR) biannually. This guide walks
-through upgrading from Coder 2.29 ESR to Coder 2.34 ESR. It
+Neural Inverse Cloud provides Extended Support Releases (ESR) biannually. This guide walks
+through upgrading from Neural Inverse Cloud 2.29 ESR to Neural Inverse Cloud 2.34 ESR. It
 summarizes key changes, highlights breaking updates, and provides a recommended
 upgrade process.
 
 Read more about the
-[ESR release process](./index.md#extended-support-release) and how Coder
+[ESR release process](./index.md#extended-support-release) and how Neural Inverse Cloud
 supports it.
 
-## What's New in Coder 2.34
+## What's New in Neural Inverse Cloud 2.34
 
-### Coder Agents
+### Neural Inverse Cloud Agents
 
-[Coder Agents](../../ai-coder/agents/index.md) was introduced in v2.32, and is the long-term replacement for
-Coder Tasks. Coder Agents is a native AI coding agent that runs entirely within the Coder control plane, managing the agent loop, conversation state, and workspace provisioning in one place. This gives administrators centralized control over model access, credentials, and audit trails across every agent session. Coder Agents was made Beta in v2.33.
+[Neural Inverse Cloud Agents](../../ai-coder/agents/index.md) was introduced in v2.32, and is the long-term replacement for
+Neural Inverse Cloud Tasks. Neural Inverse Cloud Agents is a native AI coding agent that runs entirely within the Neural Inverse Cloud control plane, managing the agent loop, conversation state, and workspace provisioning in one place. This gives administrators centralized control over model access, credentials, and audit trails across every agent session. Neural Inverse Cloud Agents was made Beta in v2.33.
 
-Coder Agents includes the following high-level functionality:
+Neural Inverse Cloud Agents includes the following high-level functionality:
 
 - Supports all major LLM providers
 - Multi-turn chat
@@ -30,7 +30,7 @@ Coder Agents includes the following high-level functionality:
 - Chat debugging
 - Virtual desktop
 
-Administrators have the following levers to configure appropriate access to various parts of Coder Agents:
+Administrators have the following levers to configure appropriate access to various parts of Neural Inverse Cloud Agents:
 
 - Template allow lists for agents
 - BYOK for users
@@ -38,11 +38,11 @@ Administrators have the following levers to configure appropriate access to vari
 - Configurable chat retention
 - Automatic chat archiving
 - Configurable system instructions
-- Observability via AI Gateway, part of Coder's AI Governance Add-On
+- Observability via AI Gateway, part of Neural Inverse Cloud's AI Governance Add-On
 
 > [!CAUTION]
-> Coder Tasks is officially deprecated in 2.34. It remains supported through the 2.34 ESR support window
-> but receives no new features. Coder recommends migrating to Coder Agents
+> Neural Inverse Cloud Tasks is officially deprecated in 2.34. It remains supported through the 2.34 ESR support window
+> but receives no new features. Neural Inverse Cloud recommends migrating to Neural Inverse Cloud Agents
 > and the Chats API now. See the [Tasks to Chats migration guide](../../ai-coder/agents/tasks-to-chats-migration.md)
 > for API migration details.
 
@@ -111,14 +111,14 @@ that assumed a clean Terraform module download on every build should be tested.
 
 ### Security and Networking
 
-Coder added several security and networking controls between 2.29 and 2.34:
+Neural Inverse Cloud added several security and networking controls between 2.29 and 2.34:
 
 - OAuth2 external auth providers now support PKCE, and unknown providers default
   to PKCE unless explicitly disabled.
-- Secure auth cookies are now enabled automatically when `CODER_ACCESS_URL` uses
+- Secure auth cookies are now enabled automatically when `NEURALINVERSE_ACCESS_URL` uses
   HTTPS.
 - AI Gateway Proxy blocks CONNECT tunnels to private or reserved IP ranges, while
-  always exempting the Coder access URL.
+  always exempting the Neural Inverse Cloud access URL.
 - Workspace agents can disable reverse and local port forwarding through agent
   flags.
 - Authenticated request rate limiting is keyed by user instead of IP address.
@@ -131,7 +131,7 @@ Coder added several security and networking controls between 2.29 and 2.34:
 ### Operations and Scale
 
 Large deployments should now have improvements in database, logging, and
-observability behavior. Coder added the following:
+observability behavior. Neural Inverse Cloud added the following:
 
 - Configurable PostgreSQL connection pool settings.
 - [Retention configuration](../../admin/setup/data-retention.md) for audit logs,
@@ -142,7 +142,7 @@ observability behavior. Coder added the following:
 - Agent first-connection duration metrics.
 - A `coder_build_info` metric.
 
-Coder also removed several deprecated Prometheus metrics, so dashboards and
+Neural Inverse Cloud also removed several deprecated Prometheus metrics, so dashboards and
 alerts should be reviewed before the upgrade.
 
 Several expensive queries and write paths were optimized, including:
@@ -176,23 +176,23 @@ updates, or change administrator expectations:
 |-----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Terraform modules are downloaded during each workspace start.                                                   | Terraform modules are cached and pinned per template version.                                                                                            | Publish a new template version when upstream module changes should apply. Test templates that relied on fresh module downloads. See [speed up templates](../../tutorials/best-practices/speed-up-templates.md).                                        |
 | Integrations may use experimental AI Bridge endpoints under `/api/experimental/aibridge/*`.                     | Experimental AI Bridge endpoints were removed after AI Gateway graduated to stable routes.                                                               | Update clients to use `/api/v2/aibridge/*` routes. Review API consumers again because `/api/v2/aibridge/interceptions` is now deprecated in favor of `/api/v2/aibridge/sessions`. See the [AI Gateway API reference](../../reference/api/aibridge.md). |
-| Unknown external OAuth providers did not default to PKCE.                                                       | Unknown external OAuth providers now default to PKCE.                                                                                                    | If a provider does not support PKCE, set `CODER_EXTERNAL_AUTH_<N>_PKCE_METHODS=none`. See [external authentication](../../admin/external-auth/index.md).                                                                                               |
-| `--secure-auth-cookie` defaulted independently from the access URL.                                             | Secure auth cookies are enabled automatically when `CODER_ACCESS_URL` uses HTTPS.                                                                        | Confirm reverse proxies send the correct scheme headers. To preserve old behavior, explicitly set `CODER_SECURE_AUTH_COOKIE=false`.                                                                                                                    |
+| Unknown external OAuth providers did not default to PKCE.                                                       | Unknown external OAuth providers now default to PKCE.                                                                                                    | If a provider does not support PKCE, set `NEURALINVERSE_EXTERNAL_AUTH_<N>_PKCE_METHODS=none`. See [external authentication](../../admin/external-auth/index.md).                                                                                               |
+| `--secure-auth-cookie` defaulted independently from the access URL.                                             | Secure auth cookies are enabled automatically when `NEURALINVERSE_ACCESS_URL` uses HTTPS.                                                                        | Confirm reverse proxies send the correct scheme headers. To preserve old behavior, explicitly set `NEURALINVERSE_SECURE_AUTH_COOKIE=false`.                                                                                                                    |
 | SFTP and SCP connections always landed in `$HOME`.                                                              | SFTP and SCP now respect the workspace agent `dir` setting.                                                                                              | Update scripts that relied on implicit `$HOME` paths. Prefer explicit absolute paths for file transfers.                                                                                                                                               |
-| `coder_agent` `dir` attribute accepted any path without warning.                                                | `dir` is deprecated and emits a warning. Non-`$HOME`/`~` values also break [Coder Desktop file sync](../../user-guides/desktop/desktop-connect-sync.md). | Set `dir` to `$HOME` or omit it on `coder_agent` resources. The attribute still works in 2.34 but will be removed in a future release.                                                                                                                 |
+| `ni_agent` `dir` attribute accepted any path without warning.                                                | `dir` is deprecated and emits a warning. Non-`$HOME`/`~` values also break [Neural Inverse Cloud Desktop file sync](../../user-guides/desktop/desktop-connect-sync.md). | Set `dir` to `$HOME` or omit it on `ni_agent` resources. The attribute still works in 2.34 but will be removed in a future release.                                                                                                                 |
 | Pre-2.28 Tasks templates might still exist in older deployments.                                                | The pre-2.28 Tasks template format is no longer supported as of 2.30.                                                                                    | Update Tasks templates to use `app_id` instead of the deprecated `sidebar_app` flow. See the [Tasks migration guide](../../ai-coder/tasks-migration.md).                                                                                               |
-| Tasks is the primary AI coding workflow.                                                                        | Coder Agents is the long-term replacement, and Tasks is supported through the 2.34 ESR window (into 2026).                                               | Plan migration from the Tasks API to the Chats API and Coder Agents. See [Migrating from the Tasks API to the Chats API](../../ai-coder/agents/tasks-to-chats-migration.md).                                                                           |
-| AI Gateway injected MCP tools can be used for tool exposure.                                                    | Injected MCP tools are deprecated.                                                                                                                       | Move new integrations toward Coder Agents MCP server configuration or the MCP server flow. See [AI Gateway MCP](../../ai-coder/ai-gateway/mcp.md) and [MCP servers](../../ai-coder/agents/platform-controls/mcp-servers.md).                           |
-| AI Bridge is opt-in via `CODER_AIBRIDGE_ENABLED` (default `false`).                                             | The toggle is renamed to `CODER_AI_GATEWAY_ENABLED` and now defaults to `true`.                                                                          | The in-memory AI Gateway now starts on every deployment. Set `CODER_AI_GATEWAY_ENABLED=false`, or the deprecated `CODER_AIBRIDGE_ENABLED` alias which still works, to keep the old behavior.                                                           |
-| AI Gateway providers are configured with `CODER_AIBRIDGE_PROVIDER_*` or `CODER_AI_GATEWAY_PROVIDER_*` env vars. | Provider configuration is stored in the database. Env vars seed the database once on first startup, then are deprecated.                                 | After upgrade, visit `/ai/settings` to verify seeded providers, then remove the env vars. Coderd fails to start if env vars drift from the seeded database row. See [AI Gateway providers](../../ai-coder/ai-gateway/providers.md).                    |
+| Tasks is the primary AI coding workflow.                                                                        | Neural Inverse Cloud Agents is the long-term replacement, and Tasks is supported through the 2.34 ESR window (into 2026).                                               | Plan migration from the Tasks API to the Chats API and Neural Inverse Cloud Agents. See [Migrating from the Tasks API to the Chats API](../../ai-coder/agents/tasks-to-chats-migration.md).                                                                           |
+| AI Gateway injected MCP tools can be used for tool exposure.                                                    | Injected MCP tools are deprecated.                                                                                                                       | Move new integrations toward Neural Inverse Cloud Agents MCP server configuration or the MCP server flow. See [AI Gateway MCP](../../ai-coder/ai-gateway/mcp.md) and [MCP servers](../../ai-coder/agents/platform-controls/mcp-servers.md).                           |
+| AI Bridge is opt-in via `NEURALINVERSE_AIBRIDGE_ENABLED` (default `false`).                                             | The toggle is renamed to `NEURALINVERSE_AI_GATEWAY_ENABLED` and now defaults to `true`.                                                                          | The in-memory AI Gateway now starts on every deployment. Set `NEURALINVERSE_AI_GATEWAY_ENABLED=false`, or the deprecated `NEURALINVERSE_AIBRIDGE_ENABLED` alias which still works, to keep the old behavior.                                                           |
+| AI Gateway providers are configured with `NEURALINVERSE_AIBRIDGE_PROVIDER_*` or `NEURALINVERSE_AI_GATEWAY_PROVIDER_*` env vars. | Provider configuration is stored in the database. Env vars seed the database once on first startup, then are deprecated.                                 | After upgrade, visit `/ai/settings` to verify seeded providers, then remove the env vars. Neural Inverse Cloudd fails to start if env vars drift from the seeded database row. See [AI Gateway providers](../../ai-coder/ai-gateway/providers.md).                    |
 | Regular users can read their own AI Gateway interceptions.                                                      | Only owners and auditors can read AI Gateway interception data.                                                                                          | Update dashboards, scripts, or user workflows that expected self-service interception reads. This intentionally narrows the RBAC surface.                                                                                                              |
 | `coder groups list -o json` returns the old command output shape.                                               | `coder groups list -o json` returns a flat structure matching other list commands.                                                                       | Update scripts that parse this command output.                                                                                                                                                                                                         |
 | `coder tokens rm` deletes token records by default.                                                             | `coder tokens rm` expires tokens by default and keeps records for auditability.                                                                          | Use `coder tokens rm --delete` only when the token record must be deleted. Update scripts that expect removed tokens to disappear from token history.                                                                                                  |
-| Deprecated Prometheus metrics are still emitted.                                                                | Deprecated Prometheus metrics were removed.                                                                                                              | Update dashboards and alerts that use `coderd_api_workspace_latest_build_total` or `coderd_oauth2_external_requests_rate_limit_total`. Use the replacement metrics without the `_total` suffix.                                                        |
+| Deprecated Prometheus metrics are still emitted.                                                                | Deprecated Prometheus metrics were removed.                                                                                                              | Update dashboards and alerts that use `nicloud_api_workspace_latest_build_total` or `nicloud_oauth2_external_requests_rate_limit_total`. Use the replacement metrics without the `_total` suffix.                                                        |
 | Authenticated rate limits are effectively shared by client IP in some deployments.                              | Authenticated request rate limits are keyed by user.                                                                                                     | Review monitoring and expectations for NATed users or shared proxies. Per-user limits now apply more consistently after API key precheck.                                                                                                              |
-| `coder login` can run while `CODER_SESSION_TOKEN` is set.                                                       | `coder login` errors when `CODER_SESSION_TOKEN` is set.                                                                                                  | Unset `CODER_SESSION_TOKEN` in interactive login flows. Keep using the environment variable for non-interactive automation.                                                                                                                            |
+| `coder login` can run while `NEURALINVERSE_SESSION_TOKEN` is set.                                                       | `coder login` errors when `NEURALINVERSE_SESSION_TOKEN` is set.                                                                                                  | Unset `NEURALINVERSE_SESSION_TOKEN` in interactive login flows. Keep using the environment variable for non-interactive automation.                                                                                                                            |
 | Workspace starts with new parameters can proceed without an explicit stop in some flows.                        | Workspace starts with new parameters stop the workspace before starting.                                                                                 | Expect downtime when applying new parameters. Update automation that assumes the workspace remains running.                                                                                                                                            |
-| `mode=auto` workspace links can silently create workspaces with prefilled parameters.                           | Users must confirm workspace auto-creation before provisioning starts.                                                                                   | Update Open in Coder buttons, runbooks, or internal flows that expect one-click workspace creation without a consent dialog.                                                                                                                           |
+| `mode=auto` workspace links can silently create workspaces with prefilled parameters.                           | Users must confirm workspace auto-creation before provisioning starts.                                                                                   | Update Open in Neural Inverse Cloud buttons, runbooks, or internal flows that expect one-click workspace creation without a consent dialog.                                                                                                                           |
 | Users with `--login-type none` are common for automation.                                                       | `--login-type none` is deprecated.                                                                                                                       | For Premium deployments, migrate automation to service accounts. For OSS deployments, use regular users with password, GitHub, or OIDC authentication. See [headless auth](../../admin/users/headless-auth.md).                                        |
 | Terminal commands can be executed from URL parameters without extra confirmation.                               | The dashboard requires confirmation before executing terminal commands from URLs.                                                                        | Update runbooks or deep links that expected immediate terminal execution. This protects users from accidental command execution.                                                                                                                       |
 | Agent SSH port forwarding is always available when the agent allows SSH.                                        | Reverse and local port forwarding can be disabled per agent.                                                                                             | Review templates and IDE workflows before enabling `--block-reverse-port-forwarding` or `--block-local-port-forwarding`. See [port forwarding](../../admin/networking/port-forwarding.md).                                                             |
@@ -206,7 +206,7 @@ updates, or change administrator expectations:
 > You can upgrade directly from 2.29 to 2.34. Stepping through intermediate
 > minor versions is not required.
 >
-> This upgrade applies 108 database migrations. Coder applies them in order
+> This upgrade applies 108 database migrations. Neural Inverse Cloud applies them in order
 > on startup. Most are fast schema changes, but a few rewrite or backfill
 > long-lived tables and hold locks while they run. Total time ranges from under
 > a minute to several minutes, scaling with the size of the tables called out
@@ -246,7 +246,7 @@ account reclassification and the cleanup of `user_secrets`,
 `organization_members`, and related rows for already soft-deleted users. Take a
 database backup before upgrading.
 
-The Coder team recommends taking the following steps when performing the upgrade:
+The Neural Inverse Cloud team recommends taking the following steps when performing the upgrade:
 
 - **Perform the upgrade in a staging environment first:** The cumulative changes
   between 2.29 and 2.34 affect AI workflows, templates, prebuilds,
@@ -260,7 +260,7 @@ The Coder team recommends taking the following steps when performing the upgrade
   from env vars to the database via `/ai/settings`, verify proxy mode behavior,
   and review any injected MCP usage.
 - **Plan the Tasks to Agents migration:** Tasks remains available during the
-  support window, but new automation should use Coder Agents and the Chats API.
+  support window, but new automation should use Neural Inverse Cloud Agents and the Chats API.
   Update internal docs, templates, and API clients accordingly.
 - **Validate external authentication:** Test GitHub, GitLab, OIDC, and custom
   external auth providers. Disable PKCE for providers that do not support it.
@@ -268,7 +268,7 @@ The Coder team recommends taking the following steps when performing the upgrade
   with `--login-type none` where possible, and verify CI/CD tokens, template
   publish jobs, and workspace automation.
 - **Update CLI parsers, API clients, and scripts:** Check `coder groups list -o
-  json`, `coder tokens rm`, `coder login` with `CODER_SESSION_TOKEN`, SFTP/SCP
+  json`, `coder tokens rm`, `coder login` with `NEURALINVERSE_SESSION_TOKEN`, SFTP/SCP
   destination paths, template metadata update clients, provisionerd protocol
   consumers, and any script that depends on terminal command URL execution.
 - **Review networking controls before enabling them:** Test AI Gateway Proxy,
@@ -278,7 +278,7 @@ The Coder team recommends taking the following steps when performing the upgrade
 - **Tune operational settings after rollout:** Review PostgreSQL connection pool
   settings, retention policies, dbpurge behavior, Prometheus metrics, secure
   cookie behavior, support bundle output, and log ingestion pipelines.
-- **Communicate user-facing changes:** Service accounts, Coder Agents, AI
+- **Communicate user-facing changes:** Service accounts, Neural Inverse Cloud Agents, AI
   Governance, Tasks deprecation, dashboard confirmations, and workspace parameter
   restarts can change user workflows. Share the expected behavior before the
   production upgrade.

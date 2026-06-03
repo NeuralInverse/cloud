@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -20,15 +20,15 @@ func (r *RootCmd) taskResume() *serpent.Command {
 		Long: FormatExamples(
 			Example{
 				Description: "Resume a task by name",
-				Command:     "coder task resume my-task",
+				Command:     "neuralinverse task resume my-task",
 			},
 			Example{
 				Description: "Resume another user's task",
-				Command:     "coder task resume alice/my-task",
+				Command:     "neuralinverse task resume alice/my-task",
 			},
 			Example{
 				Description: "Resume a task without confirmation",
-				Command:     "coder task resume my-task --yes",
+				Command:     "neuralinverse task resume my-task --yes",
 			},
 		),
 		Middleware: serpent.Chain(
@@ -56,9 +56,9 @@ func (r *RootCmd) taskResume() *serpent.Command {
 
 			display := fmt.Sprintf("%s/%s", task.OwnerName, task.Name)
 
-			if task.Status == codersdk.TaskStatusError || task.Status == codersdk.TaskStatusUnknown {
+			if task.Status == nicloudsdk.TaskStatusError || task.Status == nicloudsdk.TaskStatusUnknown {
 				return xerrors.Errorf("task %q is in %s state and cannot be resumed; check the workspace build logs and agent status for details", display, task.Status)
-			} else if task.Status != codersdk.TaskStatusPaused {
+			} else if task.Status != nicloudsdk.TaskStatusPaused {
 				return xerrors.Errorf("task %q cannot be resumed (current status: %s)", display, task.Status)
 			}
 

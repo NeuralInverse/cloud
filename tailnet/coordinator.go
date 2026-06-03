@@ -16,7 +16,7 @@ import (
 	"tailscale.com/types/key"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
 )
 
 const (
@@ -113,7 +113,7 @@ func (e AuthorizationError) Unwrap() error {
 }
 
 // NewCoordinator constructs a new in-memory connection coordinator. This
-// coordinator is incompatible with multiple Coder replicas as all node data is
+// coordinator is incompatible with multiple Neural Inverse Cloud replicas as all node data is
 // in-memory.
 func NewCoordinator(logger slog.Logger) Coordinator {
 	return &coordinator{
@@ -127,7 +127,7 @@ func NewCoordinator(logger slog.Logger) Coordinator {
 // ┌──────────────────┐   ┌────────────────────┐   ┌───────────────────┐   ┌──────────────────┐
 // │tailnet.Coordinate├──►│tailnet.AcceptClient│◄─►│tailnet.AcceptAgent│◄──┤tailnet.Coordinate│
 // └──────────────────┘   └────────────────────┘   └───────────────────┘   └──────────────────┘
-// This coordinator is incompatible with multiple Coder replicas as all node
+// This coordinator is incompatible with multiple Neural Inverse Cloud replicas as all node
 // data is in-memory.
 type coordinator struct {
 	core *core

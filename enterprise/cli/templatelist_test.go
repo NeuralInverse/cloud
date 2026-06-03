@@ -8,13 +8,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestEnterpriseListTemplates(t *testing.T) {
@@ -23,31 +23,31 @@ func TestEnterpriseListTemplates(t *testing.T) {
 	t.Run("MultiOrg", func(t *testing.T) {
 		t.Parallel()
 
-		client, owner := coderdenttest.New(t, &coderdenttest.Options{
-			Options: &coderdtest.Options{
+		client, owner := nicloudenttest.New(t, &nicloudenttest.Options{
+			Options: &nicloudtest.Options{
 				IncludeProvisionerDaemon: true,
 			},
-			LicenseOptions: &coderdenttest.LicenseOptions{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations:      1,
-					codersdk.FeatureExternalProvisionerDaemons: 1,
+					nicloudsdk.FeatureMultipleOrganizations:      1,
+					nicloudsdk.FeatureExternalProvisionerDaemons: 1,
 				},
 			},
 		})
 
 		// Template in the first organization
-		firstVersion := coderdtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
-		_ = coderdtest.AwaitTemplateVersionJobCompleted(t, client, firstVersion.ID)
-		_ = coderdtest.CreateTemplate(t, client, owner.OrganizationID, firstVersion.ID)
+		firstVersion := nicloudtest.CreateTemplateVersion(t, client, owner.OrganizationID, nil)
+		_ = nicloudtest.AwaitTemplateVersionJobCompleted(t, client, firstVersion.ID)
+		_ = nicloudtest.CreateTemplate(t, client, owner.OrganizationID, firstVersion.ID)
 
-		secondOrg := coderdenttest.CreateOrganization(t, client, coderdenttest.CreateOrganizationOptions{
+		secondOrg := nicloudenttest.CreateOrganization(t, client, nicloudenttest.CreateOrganizationOptions{
 			IncludeProvisionerDaemon: true,
 		})
-		secondVersion := coderdtest.CreateTemplateVersion(t, client, secondOrg.ID, nil)
-		_ = coderdtest.CreateTemplate(t, client, secondOrg.ID, secondVersion.ID)
+		secondVersion := nicloudtest.CreateTemplateVersion(t, client, secondOrg.ID, nil)
+		_ = nicloudtest.CreateTemplate(t, client, secondOrg.ID, secondVersion.ID)
 
 		// Create a site wide template admin
-		templateAdmin, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
+		templateAdmin, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.RoleTemplateAdmin())
 
 		inv, root := clitest.New(t, "templates", "list", "--output=json")
 		clitest.SetupConfig(t, templateAdmin, root)
@@ -60,7 +60,7 @@ func TestEnterpriseListTemplates(t *testing.T) {
 		err := inv.WithContext(ctx).Run()
 		require.NoError(t, err)
 
-		var templates []codersdk.Template
+		var templates []nicloudsdk.Template
 		require.NoError(t, json.Unmarshal(out.Bytes(), &templates))
 		require.Len(t, templates, 2)
 	})

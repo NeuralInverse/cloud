@@ -1,6 +1,6 @@
 
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/provisionerd/proto";
+option go_package = "github.com/NeuralInverse/cloud/v2/provisionerd/proto";
 
 package provisionerd;
 
@@ -29,7 +29,7 @@ message AcquiredJob {
     // Reserved 11 for an experiment `exp_reuse_terraform_workspace` (bool) that was replaced.
     reserved 11;
     // Reserved 12 for `user_secrets` introduced in v1.17 (#24542) and removed
-    // in v1.18 along with the rest of the `coder_secret` Terraform integration.
+    // in v1.18 along with the rest of the `ni_secret` Terraform integration.
     reserved 12;
   }
   message TemplateImport {

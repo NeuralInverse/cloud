@@ -11,7 +11,7 @@ provisioners can cause jobs to fail or hang indefinitely (these are in a `Pendin
 
 ## How to find provisioner jobs
 
-Coder admins can view and manage provisioner jobs.
+Neural Inverse Cloud admins can view and manage provisioner jobs.
 
 Use the dashboard, CLI, or API:
 
@@ -26,7 +26,7 @@ Use the dashboard, CLI, or API:
 
 ## Manage provisioner jobs from the dashboard
 
-View more information about and manage your provisioner jobs from the Coder dashboard.
+View more information about and manage your provisioner jobs from the Neural Inverse Cloud dashboard.
 
 1. Under **Admin settings** select **Organizations**, then select **Provisioner jobs**.
 

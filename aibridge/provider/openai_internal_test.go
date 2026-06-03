@@ -16,10 +16,10 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/intercept"
-	"github.com/coder/coder/v2/aibridge/internal/testutil"
-	"github.com/coder/coder/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept"
+	"github.com/NeuralInverse/cloud/v2/aibridge/internal/testutil"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
 	"github.com/coder/quartz"
 )
 

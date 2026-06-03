@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/aibridge"
+	"github.com/NeuralInverse/cloud/v2/aibridge"
 )
 
 func TestGuessClient(t *testing.T) {
@@ -69,14 +69,14 @@ func TestGuessClient(t *testing.T) {
 			wantClient: aibridge.ClientRoo,
 		},
 		{
-			name:       "coder_agents",
+			name:       "ni_agents",
 			userAgent:  "coder-agents/v2.24.0 (linux/amd64)",
-			wantClient: aibridge.ClientCoderAgents,
+			wantClient: aibridge.ClientNIAgents,
 		},
 		{
-			name:       "coder_agents_dev",
+			name:       "ni_agents_dev",
 			userAgent:  "coder-agents/v0.0.0-devel (darwin/arm64)",
-			wantClient: aibridge.ClientCoderAgents,
+			wantClient: aibridge.ClientNIAgents,
 		},
 		{
 			name:       "charm_crush_space",

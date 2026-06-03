@@ -1,7 +1,7 @@
 # Creating Templates
 
 Users with the `Template Administrator` role or above can create templates
-within Coder.
+within Neural Inverse Cloud.
 
 ## From a starter template
 
@@ -11,7 +11,7 @@ In most cases, it is best to start with a starter template.
 
 ### Web UI
 
-After navigating to the Templates page in the Coder dashboard, choose
+After navigating to the Templates page in the Neural Inverse Cloud dashboard, choose
 `Create Template > Choose a starter template`.
 
 ![Create a template](../../images/admin/templates/create-template.png)
@@ -25,12 +25,12 @@ Give your template a name, description, and icon and press `Create template`.
 
 ![Name and icon](../../images/admin/templates/import-template.png)
 
-If template creation fails, it's likely that Coder is not authorized to deploy infrastructure in the given location.
+If template creation fails, it's likely that Neural Inverse Cloud is not authorized to deploy infrastructure in the given location.
 Learn how to configure [provisioner authentication](./extending-templates/provider-authentication.md).
 
 ### CLI
 
-You can the [Coder CLI](../../install/cli.md) to manage templates for Coder.
+You can the [Neural Inverse Cloud CLI](../../install/cli.md) to manage templates for Neural Inverse Cloud.
 After [logging in](../../reference/cli/login.md) to your deployment, create a
 folder to store your templates:
 
@@ -56,14 +56,14 @@ mv aws-linux universal-template
 cd universal-template
 ```
 
-Next, push it to Coder with the
+Next, push it to Neural Inverse Cloud with the
 [`templates push`](../../reference/cli/templates_push.md) command:
 
 ```sh
 coder templates push
 ```
 
-If `template push` fails, it's likely that Coder is not authorized to deploy infrastructure in the given location.
+If `template push` fails, it's likely that Neural Inverse Cloud is not authorized to deploy infrastructure in the given location.
 Learn how to configure [provisioner authentication](../provisioners/index.md).
 
 You can edit the metadata of the template such as the display name with the
@@ -85,7 +85,7 @@ to manage templates via GitOps.
 
 ## From an existing template
 
-You can duplicate an existing template in your Coder deployment. This will copy
+You can duplicate an existing template in your Neural Inverse Cloud deployment. This will copy
 the template code and metadata, allowing you to make changes without affecting
 the original template.
 
@@ -143,7 +143,7 @@ You will then see your new template in the dashboard.
 ## From scratch (advanced)
 
 There may be cases where you want to create a template from scratch. You can use
-[any Terraform provider](https://registry.terraform.io) with Coder to create
+[any Terraform provider](https://registry.terraform.io) with Neural Inverse Cloud to create
 templates for additional clouds (e.g. Hetzner, Alibaba) or orchestrators
 (VMware, Proxmox) that we do not provide example templates for.
 
@@ -152,9 +152,9 @@ Refer to the following resources:
 - [Tutorial: Create a template from scratch](../../tutorials/template-from-scratch.md)
 - [Extending templates](./extending-templates/index.md): Features and concepts
   around templates (agents, parameters, variables, etc)
-- [Coder Registry](https://registry.coder.com/templates): Official and community
-  templates for Coder
-- [Coder Terraform Provider Reference](https://registry.terraform.io/providers/coder/coder)
+- [Neural Inverse Cloud Registry](https://registry.cloud.neuralinverse.com/templates): Official and community
+  templates for Neural Inverse Cloud
+- [Neural Inverse Cloud Terraform Provider Reference](https://registry.terraform.io/providers/coder/coder)
 
 ### Next steps
 

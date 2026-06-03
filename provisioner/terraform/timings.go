@@ -9,9 +9,9 @@ import (
 	"github.com/cespare/xxhash/v2"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 type timingKind string
@@ -190,7 +190,7 @@ func (t *timingAggregator) startStage(stage database.ProvisionerJobTimingStage) 
 		stage:    stage,
 		resource: "coder_stage_" + string(stage),
 		action:   "terraform",
-		provider: "coder",
+		provider: "neuralinverse",
 	}
 	endTs := ts
 	t.ingest(dbtime.Now(), &ts)

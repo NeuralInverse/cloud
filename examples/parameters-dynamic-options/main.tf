@@ -20,7 +20,7 @@ variable "java_image" {
 }
 
 locals {
-  username = data.coder_workspace_owner.me.name
+  username = data.ni_workspace_owner.me.name
 
   images = {
     "go"   = var.go_image,
@@ -31,11 +31,11 @@ locals {
 data "coder_provisioner" "me" {
 }
 
-data "coder_workspace" "me" {
+data "ni_workspace" "me" {
 }
-data "coder_workspace_owner" "me" {}
+data "ni_workspace_owner" "me" {}
 
-data "coder_parameter" "container_image" {
+data "ni_parameter" "container_image" {
   name         = "container_image"
   display_name = "Workspace container image"
   description  = "Select the container image for your development environment."
@@ -51,7 +51,7 @@ data "coder_parameter" "container_image" {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
   startup_script = <<EOF
@@ -65,15 +65,15 @@ resource "coder_agent" "main" {
     EOF
 
   env = {
-    GIT_AUTHOR_NAME     = "${data.coder_workspace_owner.me.name}"
-    GIT_COMMITTER_NAME  = "${data.coder_workspace_owner.me.name}"
-    GIT_AUTHOR_EMAIL    = "${data.coder_workspace_owner.me.email}"
-    GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
+    GIT_AUTHOR_NAME     = "${data.ni_workspace_owner.me.name}"
+    GIT_COMMITTER_NAME  = "${data.ni_workspace_owner.me.name}"
+    GIT_AUTHOR_EMAIL    = "${data.ni_workspace_owner.me.email}"
+    GIT_COMMITTER_EMAIL = "${data.ni_workspace_owner.me.email}"
   }
 }
 
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
+resource "ni_app" "code-server" {
+  agent_id     = ni_agent.main.id
   slug         = "code-server"
   display_name = "code-server"
   url          = "http://localhost:13337/?folder=/home/${local.username}"
@@ -89,25 +89,25 @@ resource "coder_app" "code-server" {
 }
 
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   lifecycle {
     ignore_changes = all
   }
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name_at_creation"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
@@ -121,14 +121,14 @@ resource "coder_metadata" "home_info" {
 }
 
 resource "docker_container" "workspace" {
-  count      = data.coder_workspace.me.start_count
-  image      = local.images[data.coder_parameter.container_image.value]
-  name       = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
-  hostname   = data.coder_workspace.me.name
-  entrypoint = ["sh", "-c", replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
+  count      = data.ni_workspace.me.start_count
+  image      = local.images[data.ni_parameter.container_image.value]
+  name       = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
+  hostname   = data.ni_workspace.me.name
+  entrypoint = ["sh", "-c", replace(ni_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
-    "CODER_PARAMETER_CONTAINER_IMAGE=${local.images[data.coder_parameter.container_image.value]}"
+    "CODER_AGENT_TOKEN=${ni_agent.main.token}",
+    "CODER_PARAMETER_CONTAINER_IMAGE=${local.images[data.ni_parameter.container_image.value]}"
   ]
   host {
     host = "host.docker.internal"
@@ -142,18 +142,18 @@ resource "docker_container" "workspace" {
 
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }

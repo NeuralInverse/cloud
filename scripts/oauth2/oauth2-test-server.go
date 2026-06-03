@@ -278,7 +278,7 @@ func showSuccess(w http.ResponseWriter, code string, tokenResp *TokenResponse, o
 	<div class="section">
 		<h3>Next Steps</h3>
 		<p>You can now use the access token to make API requests:</p>
-		<pre>curl -H "Coder-Session-Token: %s" %s/api/v2/users/me | jq .</pre>
+		<pre>curl -H "NI-Session-Token: %s" %s/api/v2/users/me | jq .</pre>
 	</div>
 
 	<div class="section">

@@ -49,8 +49,8 @@ jobs:
       (github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch')
     timeout-minutes: 30
     env:
-      CODER_URL: ${{ secrets.CODE_REVIEW_CODER_URL }}
-      CODER_SESSION_TOKEN: ${{ secrets.CODE_REVIEW_CODER_SESSION_TOKEN }}
+      NEURALINVERSE_URL: ${{ secrets.CODE_REVIEW_NEURALINVERSE_URL }}
+      NEURALINVERSE_SESSION_TOKEN: ${{ secrets.CODE_REVIEW_NEURALINVERSE_SESSION_TOKEN }}
     permissions:
       contents: read
       pull-requests: write
@@ -59,10 +59,10 @@ jobs:
       - name: Check if secrets are available
         id: check-secrets
         env:
-          CODER_URL: ${{ secrets.CODE_REVIEW_CODER_URL }}
-          CODER_TOKEN: ${{ secrets.CODE_REVIEW_CODER_SESSION_TOKEN }}
+          NEURALINVERSE_URL: ${{ secrets.CODE_REVIEW_NEURALINVERSE_URL }}
+          NEURALINVERSE_TOKEN: ${{ secrets.CODE_REVIEW_NEURALINVERSE_SESSION_TOKEN }}
         run: |
-          if [[ -z "${CODER_URL}" || -z "${CODER_TOKEN}" ]]; then
+          if [[ -z "${NEURALINVERSE_URL}" || -z "${NEURALINVERSE_TOKEN}" ]]; then
             echo "skip=true" >> "${GITHUB_OUTPUT}"
             echo "Secrets not available - skipping code-review."
             echo "This is expected for PRs where secrets are not available."
@@ -81,8 +81,8 @@ jobs:
         if: steps.check-secrets.outputs.skip != 'true'
         uses: coder/setup-action@4a607a8113d4e676e2d7c34caa20a814bc88bfda # v1
         with:
-          access_url: ${{ secrets.CODE_REVIEW_CODER_URL }}
-          coder_session_token: ${{ secrets.CODE_REVIEW_CODER_SESSION_TOKEN }}
+          access_url: ${{ secrets.CODE_REVIEW_NEURALINVERSE_URL }}
+          coder_session_token: ${{ secrets.CODE_REVIEW_NEURALINVERSE_SESSION_TOKEN }}
 
       - name: Determine PR Context
         if: steps.check-secrets.outputs.skip != 'true'
@@ -214,8 +214,8 @@ jobs:
         id: create_task
         uses: ./.github/actions/create-task-action
         with:
-          coder-url: ${{ secrets.CODE_REVIEW_CODER_URL }}
-          coder-token: ${{ secrets.CODE_REVIEW_CODER_SESSION_TOKEN }}
+          coder-url: ${{ secrets.CODE_REVIEW_NEURALINVERSE_URL }}
+          coder-token: ${{ secrets.CODE_REVIEW_NEURALINVERSE_SESSION_TOKEN }}
           coder-organization: "default"
           coder-template-name: coder-workflow-bot
           coder-template-preset: ${{ steps.determine-context.outputs.template_preset }}
@@ -342,7 +342,7 @@ jobs:
         run: |
           echo "::group::Task Conversation Log"
           if [[ -n "${TASK_NAME}" ]]; then
-            coder task logs "${TASK_NAME}" 2>&1 || echo "Failed to fetch logs"
+            neuralinverse task logs "${TASK_NAME}" 2>&1 || echo "Failed to fetch logs"
           else
             echo "No task name, skipping log fetch"
           fi
@@ -355,7 +355,7 @@ jobs:
         run: |
           if [[ -n "${TASK_NAME}" ]]; then
             echo "Deleting task: ${TASK_NAME}"
-            coder task delete "${TASK_NAME}" -y 2>&1 || echo "Task deletion failed or already deleted"
+            neuralinverse task delete "${TASK_NAME}" -y 2>&1 || echo "Task deletion failed or already deleted"
           else
             echo "No task name, skipping cleanup"
           fi

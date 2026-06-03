@@ -10,7 +10,7 @@ terraform {
 }
 
 locals {
-  username = data.coder_workspace_owner.me.name
+  username = data.ni_workspace_owner.me.name
 
   # Use a workspace image that supports rootless Docker
   # (Docker-in-Docker) and Node.js.
@@ -23,7 +23,7 @@ variable "docker_socket" {
   type        = string
 }
 
-data "coder_parameter" "repo_url" {
+data "ni_parameter" "repo_url" {
   type         = "string"
   name         = "repo_url"
   display_name = "Git Repository"
@@ -38,10 +38,10 @@ provider "docker" {
 }
 
 data "coder_provisioner" "me" {}
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch            = data.coder_provisioner.me.arch
   os              = "linux"
   startup_script  = <<-EOT
@@ -78,10 +78,10 @@ resource "coder_agent" "main" {
   # You can remove this block if you'd prefer to configure Git manually or using
   # dotfiles. (see docs/dotfiles.md)
   env = {
-    GIT_AUTHOR_NAME     = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_AUTHOR_EMAIL    = "${data.coder_workspace_owner.me.email}"
-    GIT_COMMITTER_NAME  = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
+    GIT_AUTHOR_NAME     = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_AUTHOR_EMAIL    = "${data.ni_workspace_owner.me.email}"
+    GIT_COMMITTER_NAME  = coalesce(data.ni_workspace_owner.me.full_name, data.ni_workspace_owner.me.name)
+    GIT_COMMITTER_EMAIL = "${data.ni_workspace_owner.me.email}"
   }
 
   # The following metadata blocks are optional. They are used to display
@@ -152,8 +152,8 @@ resource "coder_agent" "main" {
 }
 
 resource "coder_script" "init_docker_in_docker" {
-  count        = data.coder_workspace.me.start_count
-  agent_id     = coder_agent.main.id
+  count        = data.ni_workspace.me.start_count
+  agent_id     = ni_agent.main.id
   display_name = "Initialize Docker-in-Docker"
   run_on_start = true
   icon         = "/icon/docker.svg"
@@ -162,9 +162,9 @@ resource "coder_script" "init_docker_in_docker" {
 
 # See https://registry.coder.com/modules/coder/devcontainers-cli
 module "devcontainers-cli" {
-  count    = data.coder_workspace.me.start_count
+  count    = data.ni_workspace.me.start_count
   source   = "registry.coder.com/coder/devcontainers-cli/coder"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
 
   # This ensures that the latest non-breaking version of the module gets
   # downloaded, you can also pin the module version to prevent breaking
@@ -174,10 +174,10 @@ module "devcontainers-cli" {
 
 # See https://registry.coder.com/modules/coder/git-clone
 module "git-clone" {
-  count    = data.coder_workspace.me.start_count
+  count    = data.ni_workspace.me.start_count
   source   = "registry.coder.com/coder/git-clone/coder"
-  agent_id = coder_agent.main.id
-  url      = data.coder_parameter.repo_url.value
+  agent_id = ni_agent.main.id
+  url      = data.ni_parameter.repo_url.value
   base_dir = "~"
   # This ensures that the latest non-breaking version of the module gets
   # downloaded, you can also pin the module version to prevent breaking
@@ -187,13 +187,13 @@ module "git-clone" {
 
 # Automatically start the devcontainer for the workspace.
 resource "coder_devcontainer" "repo" {
-  count            = data.coder_workspace.me.start_count
-  agent_id         = coder_agent.main.id
+  count            = data.ni_workspace.me.start_count
+  agent_id         = ni_agent.main.id
   workspace_folder = "~/${module.git-clone[0].folder_name}"
 }
 
 resource "docker_volume" "home_volume" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   # Protect the volume from being deleted due to changes in attributes.
   lifecycle {
     ignore_changes = all
@@ -201,26 +201,26 @@ resource "docker_volume" "home_volume" {
   # Add labels in Docker to keep track of orphan resources.
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   # This field becomes outdated if the workspace is renamed but can
   # be useful for debugging or cleaning out dangling volumes.
   labels {
     label = "coder.workspace_name_at_creation"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
 resource "docker_volume" "docker_volume" {
-  name = "coder-${data.coder_workspace.me.id}-docker"
+  name = "coder-${data.ni_workspace.me.id}-docker"
   # Protect the volume from being deleted due to changes in attributes.
   lifecycle {
     ignore_changes = all
@@ -228,26 +228,26 @@ resource "docker_volume" "docker_volume" {
   # Add labels in Docker to keep track of orphan resources.
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   # This field becomes outdated if the workspace is renamed but can
   # be useful for debugging or cleaning out dangling volumes.
   labels {
     label = "coder.workspace_name_at_creation"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }
 
 resource "docker_container" "workspace" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   image = local.workspace_image
 
   # NOTE: The `privileged` mode is one way to run Docker-in-Docker,
@@ -261,13 +261,13 @@ resource "docker_container" "workspace" {
   privileged = true
 
   # Uses lower() to avoid Docker restriction on container names.
-  name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
+  name = "coder-${data.ni_workspace_owner.me.name}-${lower(data.ni_workspace.me.name)}"
   # Hostname makes the shell more user friendly: coder@my-workspace:~$
-  hostname = data.coder_workspace.me.name
+  hostname = data.ni_workspace.me.name
   # Use the docker gateway if the access URL is 127.0.0.1
-  command = ["sh", "-c", replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
+  command = ["sh", "-c", replace(ni_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
   env = [
-    "CODER_AGENT_TOKEN=${coder_agent.main.token}"
+    "CODER_AGENT_TOKEN=${ni_agent.main.token}"
   ]
   host {
     host = "host.docker.internal"
@@ -292,18 +292,18 @@ resource "docker_container" "workspace" {
   # Add labels in Docker to keep track of orphan resources.
   labels {
     label = "coder.owner"
-    value = data.coder_workspace_owner.me.name
+    value = data.ni_workspace_owner.me.name
   }
   labels {
     label = "coder.owner_id"
-    value = data.coder_workspace_owner.me.id
+    value = data.ni_workspace_owner.me.id
   }
   labels {
     label = "coder.workspace_id"
-    value = data.coder_workspace.me.id
+    value = data.ni_workspace.me.id
   }
   labels {
     label = "coder.workspace_name"
-    value = data.coder_workspace.me.name
+    value = data.ni_workspace.me.name
   }
 }

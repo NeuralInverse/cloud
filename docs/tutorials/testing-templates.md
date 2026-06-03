@@ -1,4 +1,4 @@
-# Test and Publish Coder Templates Through CI/CD
+# Test and Publish Neural Inverse Cloud Templates Through CI/CD
 
 <div>
   <a href="https://github.com/matifali" style="text-decoration: none; color: inherit;">
@@ -11,14 +11,14 @@ November 15, 2024
 
 ## Overview
 
-This guide demonstrates how to test and publish Coder templates in a Continuous
+This guide demonstrates how to test and publish Neural Inverse Cloud templates in a Continuous
 Integration (CI) pipeline using the
 [coder/setup-action](https://github.com/coder/setup-coder). This workflow
 ensures your templates are validated, tested, and promoted seamlessly.
 
 ## Prerequisites
 
-- Install and configure Coder CLI in your environment.
+- Install and configure Neural Inverse Cloud CLI in your environment.
 - Install Terraform CLI in your CI environment.
 - Create a [headless user](../admin/users/headless-auth.md) with the
   [user roles and permissions](../admin/users/groups-roles.md#roles) to manage
@@ -28,7 +28,7 @@ ensures your templates are validated, tested, and promoted seamlessly.
 
 > [!WARNING]
 > Creating users with `--login-type none` is deprecated.
-> For [Premium](https://coder.com/pricing) deployments, use
+> For [Premium](https://cloud.neuralinverse.com/pricing) deployments, use
 > [service accounts](../admin/users/headless-auth.md) instead.
 > For OSS deployments, use a regular account with password, GitHub, or OIDC
 > authentication.
@@ -41,7 +41,7 @@ coder users create \
   --service-account
 
 coder tokens create --user machine-user --lifetime 8760h
-# Copy the token and store it in a secret in your CI environment with the name `CODER_SESSION_TOKEN`
+# Copy the token and store it in a secret in your CI environment with the name `NEURALINVERSE_SESSION_TOKEN`
 ```
 
 For OSS deployments, create a regular user:
@@ -53,7 +53,7 @@ coder users create \
   --login-type password
 
 coder tokens create --user machine-user --lifetime 8760h
-# Copy the token and store it in a secret in your CI environment with the name `CODER_SESSION_TOKEN`
+# Copy the token and store it in a secret in your CI environment with the name `NEURALINVERSE_SESSION_TOKEN`
 ```
 
 ## Example GitHub Action Workflow
@@ -63,7 +63,7 @@ This example workflow tests and publishes a template using GitHub Actions.
 The workflow:
 
 1. Validates the Terraform template.
-1. Pushes the template to Coder without activating it.
+1. Pushes the template to Neural Inverse Cloud without activating it.
 1. Tests the template by creating a workspace.
 1. Promotes the template version to active upon successful workspace creation.
 
@@ -73,7 +73,7 @@ Save the following workflow file as `.github/workflows/publish-template.yaml` in
 your repository:
 
 ```yaml
-name: Test and Publish Coder Template
+name: Test and Publish Neural Inverse Cloud Template
 
 on:
   push:
@@ -95,11 +95,11 @@ jobs:
         with:
           terraform_version: latest
 
-      - name: Set up Coder CLI
+      - name: Set up Neural Inverse Cloud CLI
         uses: coder/setup-action@v1
         with:
           access_url: "https://coder.example.com"
-          coder_session_token: ${{ secrets.CODER_SESSION_TOKEN }}
+          coder_session_token: ${{ secrets.NEURALINVERSE_SESSION_TOKEN }}
 
       - name: Validate Terraform template
         run: terraform validate
@@ -114,7 +114,7 @@ jobs:
           echo "pr_title=$(git log --format=%s -n 1 ${{ github.sha }})" >>
           $GITHUB_OUTPUT
 
-      - name: Push template to Coder
+      - name: Push template to Neural Inverse Cloud
         run: |
           coder templates push $TEMPLATE_NAME --activate=false --name ${{ steps.name.outputs.version_name }} --message "${{ steps.message.outputs.pr_title }}" --yes
 

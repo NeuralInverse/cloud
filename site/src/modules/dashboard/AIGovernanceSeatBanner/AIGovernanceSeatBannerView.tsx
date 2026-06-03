@@ -39,8 +39,8 @@ export const AIGovernanceSeatBannerView: FC<AIGovernanceSeatBannerViewProps> = (
 						Your organization is using {actual} / {limit} AI Governance user
 						seats ({overPercent}% over the limit). Contact{" "}
 					</span>
-					<Link href="mailto:sales@coder.com" showExternalIcon={false}>
-						sales@coder.com
+					<Link href="mailto:sales@cloud.neuralinverse.com" showExternalIcon={false}>
+						sales@cloud.neuralinverse.com
 					</Link>
 				</div>
 			</div>

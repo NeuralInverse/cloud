@@ -18,15 +18,15 @@ import (
 	"golang.org/x/xerrors"
 	"tailscale.com/tailcfg"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck/health"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -57,8 +57,8 @@ func TestAgent(t *testing.T) {
 
 	for _, tc := range []struct {
 		name    string
-		iter    []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error
-		logs    chan []codersdk.WorkspaceAgentLog
+		iter    []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error
+		logs    chan []nicloudsdk.WorkspaceAgentLog
 		opts    cliui.AgentOptions
 		want    []string
 		wantErr bool
@@ -68,16 +68,16 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnecting
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					return nil
 				},
@@ -95,19 +95,19 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnecting
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStartTimeout
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStartTimeout
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					agent.ReadyAt = ptr.Ref(time.Now())
 					return nil
@@ -126,27 +126,27 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: 1 * time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnecting
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentTimeout
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentTimeout
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleReady
 					agent.ReadyAt = ptr.Ref(time.Now())
 					return nil
 				},
@@ -165,22 +165,22 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: 1 * time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentDisconnected
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentDisconnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now().Add(-1 * time.Minute))
 					agent.LastConnectedAt = ptr.Ref(time.Now().Add(-1 * time.Minute))
 					agent.DisconnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleReady
 					agent.StartedAt = ptr.Ref(time.Now().Add(-1 * time.Minute))
 					agent.ReadyAt = ptr.Ref(time.Now())
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ The workspace agent lost connection")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.DisconnectedAt = nil
 					agent.LastConnectedAt = ptr.Ref(time.Now())
 					return nil
@@ -199,17 +199,17 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, logs chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
-					agent.LogSources = []codersdk.WorkspaceAgentLogSource{{
+					agent.LogSources = []nicloudsdk.WorkspaceAgentLogSource{{
 						ID:          uuid.Nil,
 						DisplayName: "testing",
 					}}
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []nicloudsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Hello world",
@@ -218,10 +218,10 @@ func TestAgent(t *testing.T) {
 					}
 					return nil
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleReady
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, logs chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleReady
 					agent.ReadyAt = ptr.Ref(time.Now())
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []nicloudsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Bye now",
@@ -232,7 +232,7 @@ func TestAgent(t *testing.T) {
 			},
 			want: []string{
 				"⧗ Running workspace agent startup scripts",
-				"ℹ︎ To connect immediately, reconnect with --wait=no or CODER_SSH_WAIT=no, see --help for more information.",
+				"ℹ︎ To connect immediately, reconnect with --wait=no or NEURALINVERSE_SSH_WAIT=no, see --help for more information.",
 				"testing: Hello world",
 				"Bye now",
 				"✔ Running workspace agent startup scripts",
@@ -244,14 +244,14 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, logs chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					agent.StartedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStartError
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStartError
 					agent.ReadyAt = ptr.Ref(time.Now())
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []nicloudsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Hello world",
@@ -277,15 +277,15 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          false,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, logs chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					agent.StartedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStartError
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStartError
 					agent.ReadyAt = ptr.Ref(time.Now())
 					// These logs should NOT be shown in non-blocking mode.
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []nicloudsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Startup script log 1",
@@ -314,23 +314,23 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          false,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnecting
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, logs chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
 					agent.StartedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStartError
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStartError
 					agent.ReadyAt = ptr.Ref(time.Now())
 					// These logs should NOT be shown in non-blocking mode,
 					// even though we waited for connection.
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []nicloudsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Startup script log 1",
@@ -354,10 +354,10 @@ func TestAgent(t *testing.T) {
 			opts: cliui.AgentOptions{
 				FetchInterval: time.Millisecond,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentDisconnected
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleOff
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, logs chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentDisconnected
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleOff
 					return nil
 				},
 			},
@@ -369,13 +369,13 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, logs chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnected
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, logs chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnected
 					agent.FirstConnectedAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleStarting
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleStarting
 					agent.StartedAt = ptr.Ref(time.Now())
-					logs <- []codersdk.WorkspaceAgentLog{
+					logs <- []nicloudsdk.WorkspaceAgentLog{
 						{
 							CreatedAt: time.Now(),
 							Output:    "Hello world",
@@ -383,18 +383,18 @@ func TestAgent(t *testing.T) {
 					}
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "Hello world")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					agent.ReadyAt = ptr.Ref(time.Now())
-					agent.LifecycleState = codersdk.WorkspaceAgentLifecycleShuttingDown
+					agent.LifecycleState = nicloudsdk.WorkspaceAgentLifecycleShuttingDown
 					return nil
 				},
 			},
 			want: []string{
 				"⧗ Running workspace agent startup scripts",
-				"ℹ︎ To connect immediately, reconnect with --wait=no or CODER_SSH_WAIT=no, see --help for more information.",
+				"ℹ︎ To connect immediately, reconnect with --wait=no or NEURALINVERSE_SSH_WAIT=no, see --help for more information.",
 				"Hello world",
 				"✔ Running workspace agent startup scripts",
 			},
@@ -406,15 +406,15 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentConnecting
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentConnecting
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "⧗ Waiting for the workspace agent to connect")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return xerrors.New("bad")
 				},
 			},
@@ -429,16 +429,16 @@ func TestAgent(t *testing.T) {
 				FetchInterval: time.Millisecond,
 				Wait:          true,
 			},
-			iter: []func(context.Context, *testing.T, *codersdk.WorkspaceAgent, <-chan string, chan []codersdk.WorkspaceAgentLog) error{
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, _ <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
-					agent.Status = codersdk.WorkspaceAgentTimeout
+			iter: []func(context.Context, *testing.T, *nicloudsdk.WorkspaceAgent, <-chan string, chan []nicloudsdk.WorkspaceAgentLog) error{
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, _ <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
+					agent.Status = nicloudsdk.WorkspaceAgentTimeout
 					agent.TroubleshootingURL = "https://troubleshoot"
 					return nil
 				},
-				func(_ context.Context, t *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, t *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return waitLines(t, output, "The workspace agent is having trouble connecting, wait for it to connect or restart your workspace.")
 				},
-				func(_ context.Context, _ *testing.T, agent *codersdk.WorkspaceAgent, output <-chan string, _ chan []codersdk.WorkspaceAgentLog) error {
+				func(_ context.Context, _ *testing.T, agent *nicloudsdk.WorkspaceAgent, output <-chan string, _ chan []nicloudsdk.WorkspaceAgentLog) error {
 					return xerrors.New("bad")
 				},
 			},
@@ -461,18 +461,18 @@ func TestAgent(t *testing.T) {
 			defer r.Close()
 			defer w.Close()
 
-			agent := codersdk.WorkspaceAgent{
+			agent := nicloudsdk.WorkspaceAgent{
 				ID:             uuid.New(),
-				Status:         codersdk.WorkspaceAgentConnecting,
+				Status:         nicloudsdk.WorkspaceAgentConnecting,
 				CreatedAt:      time.Now(),
-				LifecycleState: codersdk.WorkspaceAgentLifecycleCreated,
+				LifecycleState: nicloudsdk.WorkspaceAgentLifecycleCreated,
 			}
 			output := make(chan string, 100) // Buffered to avoid blocking, overflow is discarded.
-			logs := make(chan []codersdk.WorkspaceAgentLog, 1)
+			logs := make(chan []nicloudsdk.WorkspaceAgentLog, 1)
 
 			cmd := &serpent.Command{
 				Handler: func(inv *serpent.Invocation) error {
-					tc.opts.Fetch = func(_ context.Context, _ uuid.UUID) (codersdk.WorkspaceAgent, error) {
+					tc.opts.Fetch = func(_ context.Context, _ uuid.UUID) (nicloudsdk.WorkspaceAgent, error) {
 						t.Log("iter", len(tc.iter))
 						var err error
 						if len(tc.iter) > 0 {
@@ -481,12 +481,12 @@ func TestAgent(t *testing.T) {
 						}
 						return agent, err
 					}
-					tc.opts.FetchLogs = func(ctx context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error) {
+					tc.opts.FetchLogs = func(ctx context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []nicloudsdk.WorkspaceAgentLog, io.Closer, error) {
 						if follow {
 							return logs, closeFunc(func() error { return nil }), nil
 						}
 
-						fetchLogs := make(chan []codersdk.WorkspaceAgentLog, 1)
+						fetchLogs := make(chan []nicloudsdk.WorkspaceAgentLog, 1)
 						select {
 						case <-ctx.Done():
 							return nil, nil, ctx.Err()
@@ -543,12 +543,12 @@ func TestAgent(t *testing.T) {
 				buf := bytes.Buffer{}
 				err := cliui.Agent(inv.Context(), &buf, uuid.Nil, cliui.AgentOptions{
 					FetchInterval: 10 * time.Millisecond,
-					Fetch: func(ctx context.Context, agentID uuid.UUID) (codersdk.WorkspaceAgent, error) {
+					Fetch: func(ctx context.Context, agentID uuid.UUID) (nicloudsdk.WorkspaceAgent, error) {
 						fetchCalled.Add(1)
 
-						return codersdk.WorkspaceAgent{
-							Status:         codersdk.WorkspaceAgentConnected,
-							LifecycleState: codersdk.WorkspaceAgentLifecycleReady,
+						return nicloudsdk.WorkspaceAgent{
+							Status:         nicloudsdk.WorkspaceAgentConnected,
+							LifecycleState: nicloudsdk.WorkspaceAgentLifecycleReady,
 						}, nil
 					},
 				})
@@ -573,16 +573,16 @@ func TestAgent(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		agent := codersdk.WorkspaceAgent{
+		agent := nicloudsdk.WorkspaceAgent{
 			ID:               uuid.New(),
-			Status:           codersdk.WorkspaceAgentConnected,
+			Status:           nicloudsdk.WorkspaceAgentConnected,
 			FirstConnectedAt: ptr.Ref(time.Now()),
 			CreatedAt:        time.Now(),
-			LifecycleState:   codersdk.WorkspaceAgentLifecycleStarting,
+			LifecycleState:   nicloudsdk.WorkspaceAgentLifecycleStarting,
 			StartedAt:        ptr.Ref(time.Now()),
 		}
 
-		logs := make(chan []codersdk.WorkspaceAgentLog, 1)
+		logs := make(chan []nicloudsdk.WorkspaceAgentLog, 1)
 		logStreamStarted := make(chan struct{})
 
 		cmd := &serpent.Command{
@@ -590,10 +590,10 @@ func TestAgent(t *testing.T) {
 				return cliui.Agent(inv.Context(), io.Discard, agent.ID, cliui.AgentOptions{
 					FetchInterval: time.Millisecond,
 					Wait:          true,
-					Fetch: func(_ context.Context, _ uuid.UUID) (codersdk.WorkspaceAgent, error) {
+					Fetch: func(_ context.Context, _ uuid.UUID) (nicloudsdk.WorkspaceAgent, error) {
 						return agent, nil
 					},
-					FetchLogs: func(_ context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []codersdk.WorkspaceAgentLog, io.Closer, error) {
+					FetchLogs: func(_ context.Context, _ uuid.UUID, _ int64, follow bool) (<-chan []nicloudsdk.WorkspaceAgentLog, io.Closer, error) {
 						// Signal that log streaming has started.
 						select {
 						case <-logStreamStarted:

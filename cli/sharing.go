@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -76,7 +76,7 @@ func (r *RootCmd) shareWorkspace() *serpent.Command {
 		users  []string
 		groups []string
 
-		// Username regex taken from codersdk/name.go
+		// Username regex taken from nicloudsdk/name.go
 		nameRoleRegex = regexp.MustCompile(`(^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)+(?::([A-Za-z0-9-]+))?`)
 	)
 
@@ -141,13 +141,13 @@ func (r *RootCmd) shareWorkspace() *serpent.Command {
 				OrgName:     workspace.OrganizationName,
 				Users:       userRoleStrings,
 				Groups:      groupRoleStrings,
-				DefaultRole: codersdk.WorkspaceRoleUse,
+				DefaultRole: nicloudsdk.WorkspaceRoleUse,
 			})
 			if err != nil {
 				return err
 			}
 
-			err = client.UpdateWorkspaceACL(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceACL{
+			err = client.UpdateWorkspaceACL(inv.Context(), workspace.ID, nicloudsdk.UpdateWorkspaceACL{
 				UserRoles:  userRoles,
 				GroupRoles: groupRoles,
 			})
@@ -215,7 +215,7 @@ func (r *RootCmd) unshareWorkspace() *serpent.Command {
 
 			userRoleStrings := make([][2]string, len(users))
 			for index, user := range users {
-				if !codersdk.UsernameValidRegex.MatchString(user) {
+				if !nicloudsdk.UsernameValidRegex.MatchString(user) {
 					return xerrors.Errorf("invalid username")
 				}
 
@@ -224,7 +224,7 @@ func (r *RootCmd) unshareWorkspace() *serpent.Command {
 
 			groupRoleStrings := make([][2]string, len(groups))
 			for index, group := range groups {
-				if !codersdk.UsernameValidRegex.MatchString(group) {
+				if !nicloudsdk.UsernameValidRegex.MatchString(group) {
 					return xerrors.Errorf("invalid group name")
 				}
 
@@ -237,13 +237,13 @@ func (r *RootCmd) unshareWorkspace() *serpent.Command {
 				OrgName:     workspace.OrganizationName,
 				Users:       userRoleStrings,
 				Groups:      groupRoleStrings,
-				DefaultRole: codersdk.WorkspaceRoleDeleted,
+				DefaultRole: nicloudsdk.WorkspaceRoleDeleted,
 			})
 			if err != nil {
 				return err
 			}
 
-			err = client.UpdateWorkspaceACL(inv.Context(), workspace.ID, codersdk.UpdateWorkspaceACL{
+			err = client.UpdateWorkspaceACL(inv.Context(), workspace.ID, nicloudsdk.UpdateWorkspaceACL{
 				UserRoles:  userRoles,
 				GroupRoles: groupRoles,
 			})
@@ -269,25 +269,25 @@ func (r *RootCmd) unshareWorkspace() *serpent.Command {
 	return cmd
 }
 
-func stringToWorkspaceRole(role string) (codersdk.WorkspaceRole, error) {
+func stringToWorkspaceRole(role string) (nicloudsdk.WorkspaceRole, error) {
 	switch role {
-	case string(codersdk.WorkspaceRoleUse):
-		return codersdk.WorkspaceRoleUse, nil
-	case string(codersdk.WorkspaceRoleAdmin):
-		return codersdk.WorkspaceRoleAdmin, nil
-	case string(codersdk.WorkspaceRoleDeleted):
-		return codersdk.WorkspaceRoleDeleted, nil
+	case string(nicloudsdk.WorkspaceRoleUse):
+		return nicloudsdk.WorkspaceRoleUse, nil
+	case string(nicloudsdk.WorkspaceRoleAdmin):
+		return nicloudsdk.WorkspaceRoleAdmin, nil
+	case string(nicloudsdk.WorkspaceRoleDeleted):
+		return nicloudsdk.WorkspaceRoleDeleted, nil
 	default:
 		return "", xerrors.Errorf("invalid role %q: expected %q, %q, or \"%q\"",
-			role, codersdk.WorkspaceRoleAdmin, codersdk.WorkspaceRoleUse, codersdk.WorkspaceRoleDeleted)
+			role, nicloudsdk.WorkspaceRoleAdmin, nicloudsdk.WorkspaceRoleUse, nicloudsdk.WorkspaceRoleDeleted)
 	}
 }
 
-func workspaceACLToTable(ctx context.Context, acl *codersdk.WorkspaceACL) (string, error) {
+func workspaceACLToTable(ctx context.Context, acl *nicloudsdk.WorkspaceACL) (string, error) {
 	type workspaceShareRow struct {
 		User  string                 `table:"user"`
 		Group string                 `table:"group,default_sort"`
-		Role  codersdk.WorkspaceRole `table:"role"`
+		Role  nicloudsdk.WorkspaceRole `table:"role"`
 	}
 
 	formatter := cliui.NewOutputFormatter(
@@ -297,7 +297,7 @@ func workspaceACLToTable(ctx context.Context, acl *codersdk.WorkspaceACL) (strin
 
 	outputRows := make([]workspaceShareRow, 0)
 	for _, user := range acl.Users {
-		if user.Role == codersdk.WorkspaceRoleDeleted {
+		if user.Role == nicloudsdk.WorkspaceRoleDeleted {
 			continue
 		}
 
@@ -308,7 +308,7 @@ func workspaceACLToTable(ctx context.Context, acl *codersdk.WorkspaceACL) (strin
 		})
 	}
 	for _, group := range acl.Groups {
-		if group.Role == codersdk.WorkspaceRoleDeleted {
+		if group.Role == nicloudsdk.WorkspaceRoleDeleted {
 			continue
 		}
 
@@ -329,15 +329,15 @@ func workspaceACLToTable(ctx context.Context, acl *codersdk.WorkspaceACL) (strin
 }
 
 type fetchUsersAndGroupsParams struct {
-	Client      *codersdk.Client
+	Client      *nicloudsdk.Client
 	OrgID       uuid.UUID
 	OrgName     string
 	Users       [][2]string
 	Groups      [][2]string
-	DefaultRole codersdk.WorkspaceRole
+	DefaultRole nicloudsdk.WorkspaceRole
 }
 
-func fetchUsersAndGroups(ctx context.Context, params fetchUsersAndGroupsParams) (userRoles map[string]codersdk.WorkspaceRole, groupRoles map[string]codersdk.WorkspaceRole, err error) {
+func fetchUsersAndGroups(ctx context.Context, params fetchUsersAndGroupsParams) (userRoles map[string]nicloudsdk.WorkspaceRole, groupRoles map[string]nicloudsdk.WorkspaceRole, err error) {
 	var (
 		client      = params.Client
 		orgID       = params.OrgID
@@ -347,7 +347,7 @@ func fetchUsersAndGroups(ctx context.Context, params fetchUsersAndGroupsParams) 
 		defaultRole = params.DefaultRole
 	)
 
-	userRoles = make(map[string]codersdk.WorkspaceRole, len(users))
+	userRoles = make(map[string]nicloudsdk.WorkspaceRole, len(users))
 	if len(users) > 0 {
 		orgMembers, err := client.OrganizationMembers(ctx, orgID)
 		if err != nil {
@@ -381,9 +381,9 @@ func fetchUsersAndGroups(ctx context.Context, params fetchUsersAndGroupsParams) 
 		}
 	}
 
-	groupRoles = make(map[string]codersdk.WorkspaceRole)
+	groupRoles = make(map[string]nicloudsdk.WorkspaceRole)
 	if len(groups) > 0 {
-		orgGroups, err := client.Groups(ctx, codersdk.GroupArguments{
+		orgGroups, err := client.Groups(ctx, nicloudsdk.GroupArguments{
 			Organization: orgID.String(),
 		})
 		if err != nil {
@@ -397,7 +397,7 @@ func fetchUsersAndGroups(ctx context.Context, params fetchUsersAndGroupsParams) 
 				role = string(defaultRole)
 			}
 
-			var orgGroup *codersdk.Group
+			var orgGroup *nicloudsdk.Group
 			for _, og := range orgGroups {
 				if og.Name == groupName {
 					orgGroup = &og

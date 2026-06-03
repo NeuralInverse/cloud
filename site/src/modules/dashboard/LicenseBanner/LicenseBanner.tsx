@@ -110,14 +110,14 @@ const messageLink = (message: string): LicenseBannerLink => {
 	}
 	if (message === LicenseTelemetryRequiredErrorText) {
 		return {
-			href: "mailto:sales@coder.com",
-			label: "Contact sales@coder.com if you need an exception.",
+			href: "mailto:sales@cloud.neuralinverse.com",
+			label: "Contact sales@cloud.neuralinverse.com if you need an exception.",
 			showExternalIcon: false,
 		};
 	}
 	return {
-		href: "mailto:sales@coder.com",
-		label: "Contact sales@coder.com.",
+		href: "mailto:sales@cloud.neuralinverse.com",
+		label: "Contact sales@cloud.neuralinverse.com.",
 		showExternalIcon: false,
 	};
 };

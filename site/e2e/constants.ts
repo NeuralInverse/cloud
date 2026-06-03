@@ -3,15 +3,15 @@ import * as path from "node:path";
 export const coderBinary = path.join(__dirname, "./bin/coder");
 
 // Default port from the server
-export const coderPort = process.env.CODER_E2E_PORT
-	? Number(process.env.CODER_E2E_PORT)
+export const coderPort = process.env.NEURALINVERSE_E2E_PORT
+	? Number(process.env.NEURALINVERSE_E2E_PORT)
 	: 3111;
 export const prometheusPort = 2114;
 export const workspaceProxyPort = 3112;
 
 // Use alternate ports in case we're running in a Coder Workspace.
 export const agentPProfPort = 6061;
-export const coderdPProfPort = 6062;
+export const nicloudPProfPort = 6062;
 
 // The name of the organization that should be used by default when needed.
 export const defaultOrganizationName = "coder";
@@ -23,30 +23,30 @@ export const users = {
 	owner: {
 		username: "owner",
 		password: defaultPassword,
-		email: "owner@coder.com",
+		email: "owner@cloud.neuralinverse.com",
 	},
 	templateAdmin: {
 		username: "template-admin",
 		password: defaultPassword,
-		email: "templateadmin@coder.com",
+		email: "templateadmin@cloud.neuralinverse.com",
 		roles: ["Template Admin"],
 	},
 	userAdmin: {
 		username: "user-admin",
 		password: defaultPassword,
-		email: "useradmin@coder.com",
+		email: "useradmin@cloud.neuralinverse.com",
 		roles: ["User Admin"],
 	},
 	auditor: {
 		username: "auditor",
 		password: defaultPassword,
-		email: "auditor@coder.com",
+		email: "auditor@cloud.neuralinverse.com",
 		roles: ["Auditor"],
 	},
 	member: {
 		username: "member",
 		password: defaultPassword,
-		email: "member@coder.com",
+		email: "member@cloud.neuralinverse.com",
 	},
 } satisfies Record<
 	string,
@@ -73,14 +73,14 @@ export const gitAuth = {
  * Will make the tests fail if set to `true` and a license was not provided.
  */
 export const premiumTestsRequired = Boolean(
-	process.env.CODER_E2E_REQUIRE_PREMIUM_TESTS,
+	process.env.NEURALINVERSE_E2E_REQUIRE_PREMIUM_TESTS,
 );
 
-export const license = process.env.CODER_E2E_LICENSE ?? "";
+export const license = process.env.NEURALINVERSE_E2E_LICENSE ?? "";
 
 // Disabling terraform tests is optional for environments without Docker + Terraform.
 // By default, we opt into these tests.
-export const requireTerraformTests = !process.env.CODER_E2E_DISABLE_TERRAFORM;
+export const requireTerraformTests = !process.env.NEURALINVERSE_E2E_DISABLE_TERRAFORM;
 
 // Fake experiments to verify that site presents them as enabled.
 export const e2eFakeExperiment1 = "e2e-fake-experiment-1";

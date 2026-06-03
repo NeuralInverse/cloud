@@ -9,11 +9,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/awsiamrds"
-	"github.com/coder/coder/v2/coderd/webpush"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/awsiamrds"
+	"github.com/NeuralInverse/cloud/v2/nicloud/webpush"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -52,7 +52,7 @@ func (r *RootCmd) newRegenerateVapidKeypairCommand() *serpent.Command {
 
 			sqlDriver := "postgres"
 			var err error
-			if codersdk.PostgresAuth(regenVapidKeypairPgAuth) == codersdk.PostgresAuthAWSIAMRDS {
+			if nicloudsdk.PostgresAuth(regenVapidKeypairPgAuth) == nicloudsdk.PostgresAuthAWSIAMRDS {
 				sqlDriver, err = awsiamrds.Register(inv.Context(), sqlDriver)
 				if err != nil {
 					return xerrors.Errorf("register aws rds iam auth: %w", err)
@@ -92,7 +92,7 @@ func (r *RootCmd) newRegenerateVapidKeypairCommand() *serpent.Command {
 	regenerateVapidKeypairCommand.Options.Add(
 		cliui.SkipPromptOption(),
 		serpent.Option{
-			Env:         "CODER_PG_CONNECTION_URL",
+			Env:         "NEURALINVERSE_PG_CONNECTION_URL",
 			Flag:        "postgres-url",
 			Description: "URL of a PostgreSQL database. If empty, the built-in PostgreSQL deployment will be used (Coder must not be already running in this case).",
 			Value:       serpent.StringOf(&regenVapidKeypairDBURL),
@@ -101,9 +101,9 @@ func (r *RootCmd) newRegenerateVapidKeypairCommand() *serpent.Command {
 			Name:        "Postgres Connection Auth",
 			Description: "Type of auth to use when connecting to postgres.",
 			Flag:        "postgres-connection-auth",
-			Env:         "CODER_PG_CONNECTION_AUTH",
+			Env:         "NEURALINVERSE_PG_CONNECTION_AUTH",
 			Default:     "password",
-			Value:       serpent.EnumOf(&regenVapidKeypairPgAuth, codersdk.PostgresAuthDrivers...),
+			Value:       serpent.EnumOf(&regenVapidKeypairPgAuth, nicloudsdk.PostgresAuthDrivers...),
 		},
 	)
 

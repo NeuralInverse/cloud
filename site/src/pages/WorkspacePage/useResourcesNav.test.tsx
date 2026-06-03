@@ -40,7 +40,7 @@ describe("useResourcesNav", () => {
 			{
 				...MockWorkspaceResource,
 				type: "docker_image",
-				name: "coder_image_python",
+				name: "ni_image_python",
 				agents: [],
 			},
 		];
@@ -73,7 +73,7 @@ describe("useResourcesNav", () => {
 			{
 				...MockWorkspaceResource,
 				type: "docker_image",
-				name: "coder_image_python",
+				name: "ni_image_python",
 				agents: [],
 			},
 		];
@@ -100,7 +100,7 @@ describe("useResourcesNav", () => {
 			{
 				...MockWorkspaceResource,
 				type: "docker_image",
-				name: "coder_image_python",
+				name: "ni_image_python",
 				agents: [],
 			},
 		];
@@ -140,7 +140,7 @@ describe("useResourcesNav", () => {
 			{
 				...MockWorkspaceResource,
 				type: "docker_image",
-				name: "coder_image_python",
+				name: "ni_image_python",
 				agents: [],
 			},
 		];

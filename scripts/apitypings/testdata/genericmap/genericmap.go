@@ -1,4 +1,4 @@
-package codersdk
+package nicloudsdk
 
 type Buzz struct {
 	Foo  `json:"foo"`

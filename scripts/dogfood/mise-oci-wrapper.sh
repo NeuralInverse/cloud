@@ -18,7 +18,7 @@
 set -euo pipefail
 
 # Keep MISE_VERSION + MISE_SHA256 in lockstep with the same vars in
-# .github/workflows/dogfood.yaml and dogfood/coder/ubuntu-*/Dockerfile.base.
+# .github/workflows/dogfood.yaml and dogfood/neuralinverse/ubuntu-*/Dockerfile.base.
 # A `min_version` check in mise.toml catches downgrades.
 MISE_VERSION="v2026.5.12"
 MISE_SHA256="a238972a3162d710b85b28c324372e96ca4e4b486c81fe78695000d9fbc77c48"
@@ -27,10 +27,10 @@ MISE_SHA256="a238972a3162d710b85b28c324372e96ca4e4b486c81fe78695000d9fbc77c48"
 # images get rebuilt automatically.
 WRAPPER_REVISION="r2"
 RUNTIME="${CONTAINER_RUNTIME:-docker}"
-WRAPPER_IMAGE="coderdev/mise-oci-wrapper:$MISE_VERSION-$WRAPPER_REVISION"
+WRAPPER_IMAGE="nicloudev/mise-oci-wrapper:$MISE_VERSION-$WRAPPER_REVISION"
 
-# Mount the repo root rather than $PWD: `make -C dogfood/coder` invokes
-# the wrapper from dogfood/coder/, but the project mise.toml/mise.lock
+# Mount the repo root rather than $PWD: `make -C dogfood/neuralinverse` invokes
+# the wrapper from dogfood/neuralinverse/, but the project mise.toml/mise.lock
 # `mise oci build` consumes live at the repo root.
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 

@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
 	"github.com/coder/serpent"
 )
 
@@ -19,7 +19,7 @@ type commandErrorCase struct {
 }
 
 // TestErrorExamples will test the help output of the
-// coder exp example-error using golden files.
+// neuralinverse exp example-error using golden files.
 func TestErrorExamples(t *testing.T) {
 	t.Parallel()
 
@@ -39,7 +39,7 @@ func TestErrorExamples(t *testing.T) {
 ExtractCommandPathsLoop:
 	for _, cp := range extractCommandPaths(nil, exampleErrorRootCmd.Children) {
 		cmd := append([]string{"exp", "example-error"}, cp...)
-		name := fmt.Sprintf("coder %s", strings.Join(cmd, " "))
+		name := fmt.Sprintf("neuralinverse %s", strings.Join(cmd, " "))
 		for _, tt := range cases {
 			if tt.Name == name {
 				continue ExtractCommandPathsLoop

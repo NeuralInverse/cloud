@@ -1,6 +1,6 @@
 # Dynamic Parameters
 
-Coder v2.24.0 introduces Dynamic Parameters to extend Coder [parameters](./parameters.md) with conditional form controls,
+Neural Inverse Cloud v2.24.0 introduces Dynamic Parameters to extend Neural Inverse Cloud [parameters](./parameters.md) with conditional form controls,
 enriched input types, and user identity awareness.
 This allows template authors to create interactive workspace creation forms with more environment customization,
 and that means fewer templates to maintain.
@@ -14,7 +14,7 @@ Administrators can use Dynamic Parameters to:
 
 - Create parameters which respond to the inputs of others.
 - Only show parameters when other input criteria are met.
-- Only show select parameters to target Coder roles or groups.
+- Only show select parameters to target Neural Inverse Cloud roles or groups.
 
 You can try the Dynamic Parameter syntax and any of the code examples below in the
 [Parameters Playground](https://playground.coder.app/parameters).
@@ -26,7 +26,7 @@ While Dynamic parameters introduce a variety of new powerful tools, all function
 existing coder templates.
 When you opt-in to the new experience, no functional changes will be applied to your production parameters.
 
-Some reasons Coder template admins should try Dynamic Parameters:
+Some reasons Neural Inverse Cloud template admins should try Dynamic Parameters:
 
 - You maintain or support many templates for teams with unique expectations or use cases.
 - You want to selectively expose privileged workspace options to admins, power users, or personas.
@@ -34,17 +34,17 @@ Some reasons Coder template admins should try Dynamic Parameters:
 
 Dynamic Parameters help you reduce template duplication by setting the conditions for which users should see specific parameters.
 They reduce the potential complexity of user-facing configuration by allowing administrators to organize a long list of options into interactive, branching paths for workspace customization.
-They allow you to set resource guardrails by referencing Coder identity in the `coder_workspace_owner` data source.
+They allow you to set resource guardrails by referencing Neural Inverse Cloud identity in the `ni_workspace_owner` data source.
 
 ## How to enable Dynamic Parameters
 
-In Coder v2.25.0 and later, Dynamic Parameters are automatically enabled for new templates. For Coder v2.24 and below, you can opt-in to Dynamic Parameters for individual existing templates via template settings.
+In Neural Inverse Cloud v2.25.0 and later, Dynamic Parameters are automatically enabled for new templates. For Neural Inverse Cloud v2.24 and below, you can opt-in to Dynamic Parameters for individual existing templates via template settings.
 
 1. Go to your template's settings and enable the **Enable dynamic parameters for workspace creation** option.
 
    ![Enable dynamic parameters for workspace creation](../../../images/admin/templates/extend-templates/dyn-params/dynamic-parameters-ga-settings.png)
 
-1. Update your template to use version >=2.4.0 of the Coder provider with the following Terraform block.
+1. Update your template to use version >=2.4.0 of the Neural Inverse Cloud provider with the following Terraform block.
 
    ```terraform
    terraform {
@@ -82,7 +82,7 @@ Dynamic Parameters introduces three primary enhancements to the standard paramet
 
 - **Reference User Properties**
 
-  - Read user data at build time from [`coder_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner)
+  - Read user data at build time from [`ni_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner)
   - Conditionally hide parameters based on user's role
   - Change parameter options based on user groups
   - Reference user name, groups, and roles in parameter text
@@ -104,7 +104,7 @@ Dynamic Parameters introduces three primary enhancements to the standard paramet
 > then reference that data in Terraform.
 >
 > If you have a use case for external data fetching, please file an issue or create a discussion in the
-> [Coder GitHub repository](https://github.com/coder/coder).
+> [Neural Inverse Cloud GitHub repository](https://github.com/NeuralInverse/cloud).
 
 ## Available Form Input Types
 
@@ -133,7 +133,7 @@ where each option has a `name` (displayed to the user) and a `value` (used in yo
 
 ### Available Styling Options
 
-The `coder_parameter` resource supports an additional `styling` attribute for special cosmetic changes that can be used
+The `ni_parameter` resource supports an additional `styling` attribute for special cosmetic changes that can be used
 to further customize the workspace creation form.
 
 This can be used for:
@@ -149,7 +149,7 @@ Users can avoid restrictions like `disabled` if they create a workspace via the 
 This attribute accepts JSON like so:
 
 ```terraform
-data "coder_parameter" "styled_parameter" {
+data "ni_parameter" "styled_parameter" {
   ...
   styling = jsonencode({
     disabled = true
@@ -196,7 +196,7 @@ locals {
   ]
 }
 
-data "coder_parameter" "ides_dropdown" {
+data "ni_parameter" "ides_dropdown" {
   name = "ides_dropdown"
   display_name = "Select your IDEs"
   type = "string"
@@ -221,7 +221,7 @@ The large text entry option can be used to enter long strings like AI prompts, s
 
 ```terraform
 
-data "coder_parameter" "text_area" {
+data "ni_parameter" "text_area" {
   name = "text_area"
   description  = "Enter multi-line text."
   mutable      = true
@@ -260,7 +260,7 @@ locals {
   ]
 }
 
-data "coder_parameter" "ide_selector" {
+data "ni_parameter" "ide_selector" {
   name = "ide_selector"
   description  = "Choose any IDEs for your workspace."
   mutable      = true
@@ -290,7 +290,7 @@ This is the original styling for list parameters.
 [Try radio parameters on the Parameter Playground](https://playground.coder.app/parameters/3OMDp5ANZI).
 
 ```terraform
-data "coder_parameter" "environment" {
+data "ni_parameter" "environment" {
   name         = "environment"
   display_name = "Environment"
   description  = "An example of environment listing with the radio form type."
@@ -326,7 +326,7 @@ This can be used for a TOS confirmation or to expose advanced options.
 [Try checkbox parameters on the Parameters Playground](https://playground.coder.app/parameters/ycWuQJk2Py).
 
 ```terraform
-data "coder_parameter" "enable_gpu" {
+data "ni_parameter" "enable_gpu" {
   name         = "enable_gpu"
   display_name = "Enable GPU"
   type         = "bool"
@@ -343,7 +343,7 @@ The `validation` block is used to constrain (or clamp) the minimum and maximum v
 [Try slider parameters on the Parameters Playground](https://playground.coder.app/parameters/RsBNcWVvfm).
 
 ```terraform
-data "coder_parameter" "cpu_cores" {
+data "ni_parameter" "cpu_cores" {
   name         = "cpu_cores"
   display_name = "CPU Cores"
   type         = "number"
@@ -367,7 +367,7 @@ Note: This text may not be properly hidden in the Playground.
 The `mask_input` styling attribute is supported in v2.24.0 and later.
 
 ```terraform
-data "coder_parameter" "private_api_key" {
+data "ni_parameter" "private_api_key" {
   name         = "private_api_key"
   display_name = "Your super secret API key"
   type         = "string"
@@ -406,7 +406,7 @@ Use Terraform conditionals and the `count` block to allow a checkbox to expose o
 [Try conditional parameters on the Parameter Playground](https://playground.coder.app/parameters/xmG5MKEGNM).
 
 ```terraform
-data "coder_parameter" "show_cpu_cores" {
+data "ni_parameter" "show_cpu_cores" {
   name         = "show_cpu_cores"
   display_name = "Toggles next parameter"
   description  = "Select this checkbox to show the CPU cores parameter."
@@ -416,9 +416,9 @@ data "coder_parameter" "show_cpu_cores" {
   order        = 1
 }
 
-data "coder_parameter" "cpu_cores" {
+data "ni_parameter" "cpu_cores" {
   # Only show this parameter if the previous box is selected.
-  count = data.coder_parameter.show_cpu_cores.value ? 1 : 0
+  count = data.ni_parameter.show_cpu_cores.value ? 1 : 0
 
   name         = "cpu_cores"
   display_name = "CPU Cores"
@@ -452,7 +452,7 @@ locals {
   core_ides = jsonencode(["VS Code", "GoLand"])
 }
 
-data "coder_parameter" "git_repo" {
+data "ni_parameter" "git_repo" {
   name = "git_repo"
   display_name = "Git repo"
   description = "Select a git repo to work on."
@@ -474,9 +474,9 @@ data "coder_parameter" "git_repo" {
   }
 }
 
-data "coder_parameter" "ide_selector" {
+data "ni_parameter" "ide_selector" {
   # Conditionally expose this parameter
-  count = try(data.coder_parameter.git_repo.value, "") != "" ? 1 : 0
+  count = try(data.ni_parameter.git_repo.value, "") != "" ? 1 : 0
 
   name = "ide_selector"
   description  = "Choose any IDEs for your workspace."
@@ -486,7 +486,7 @@ data "coder_parameter" "ide_selector" {
   display_name = "Select IDEs"
   form_type = "multi-select"
   type      = "list(string)"
-  default   = try(data.coder_parameter.git_repo.value, "") == "coder/mlkit" ? local.mlkit_ides : local.core_ides
+  default   = try(data.ni_parameter.git_repo.value, "") == "coder/mlkit" ? local.mlkit_ides : local.core_ides
 
 
   dynamic "option" {
@@ -506,7 +506,7 @@ A parameter's validation block can leverage inputs from other parameters.
 [Try dynamic validation in the Parameter Playground](https://playground.coder.app/parameters/sdbzXxagJ4).
 
 ```terraform
-data "coder_parameter" "git_repo" {
+data "ni_parameter" "git_repo" {
   name = "git_repo"
   display_name = "Git repo"
   description = "Select a git repo to work on."
@@ -528,9 +528,9 @@ data "coder_parameter" "git_repo" {
   }
 }
 
-data "coder_parameter" "cpu_cores" {
+data "ni_parameter" "cpu_cores" {
   # Only show this parameter if the previous box is selected.
-  count = data.coder_parameter.show_cpu_cores.value ? 1 : 0
+  count = data.ni_parameter.show_cpu_cores.value ? 1 : 0
 
   name         = "cpu_cores"
   display_name = "CPU Cores"
@@ -539,13 +539,13 @@ data "coder_parameter" "cpu_cores" {
   order        = 2
 
   # Dynamically set default
-  default      = try(data.coder_parameter.git_repo.value, "") == "coder/mlkit" ? 12 : 6
+  default      = try(data.ni_parameter.git_repo.value, "") == "coder/mlkit" ? 12 : 6
 
   validation {
     min = 1
 
     # Dynamically set max validation
-    max = try(data.coder_parameter.git_repo.value, "") == "coder/mlkit" ? 16 : 8
+    max = try(data.ni_parameter.git_repo.value, "") == "coder/mlkit" ? 16 : 8
   }
 }
 ```
@@ -570,14 +570,14 @@ locals {
     "Jupyter Notebook",
   ]
 
-  is_ml_repo = data.coder_parameter.git_repo == "coder/mlkit"
+  is_ml_repo = data.ni_parameter.git_repo == "coder/mlkit"
 
-  selected = jsondecode(data.coder_parameter.ide_selector[0].value)
+  selected = jsondecode(data.ni_parameter.ide_selector[0].value)
 
-  # selected = try(jsondecode(data.coder_parameter.ide_selector[0].value), [])
+  # selected = try(jsondecode(data.ni_parameter.ide_selector[0].value), [])
 }
 
-data "coder_parameter" "git_repo" {
+data "ni_parameter" "git_repo" {
   name = "git_repo"
   display_name = "Git repo"
   description = "Select a git repo to work on."
@@ -597,9 +597,9 @@ data "coder_parameter" "git_repo" {
   }
 }
 
-data "coder_parameter" "ide_selector" {
+data "ni_parameter" "ide_selector" {
   # Only show this parameter if a git repo has been selected.
-  count = try(data.coder_parameter.git_repo.value, "") != "" ? 1 : 0
+  count = try(data.ni_parameter.git_repo.value, "") != "" ? 1 : 0
   name = "ide_selector"
   description  = "Choose any IDEs for your workspace."
   mutable      = true
@@ -620,7 +620,7 @@ data "coder_parameter" "ide_selector" {
   }
 }
 
-data "coder_parameter" "cpu_cores" {
+data "ni_parameter" "cpu_cores" {
   # Only show this parameter if the IDEs have been selected.
   count = length(local.selected) > 0 ? 1 : 0
 
@@ -646,7 +646,7 @@ This is helpful for establishing governance policy directly in the workspace cre
 rather than creating multiple templates to manage RBAC.
 
 User identity is referenced in Terraform by reading the
-[`coder_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner) data source.
+[`ni_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner) data source.
 
 <div class="tabs">
 
@@ -654,7 +654,7 @@ User identity is referenced in Terraform by reading the
 
 Template administrators often want to expose certain experimental or unstable options only to those with elevated roles.
 You can now do this by setting `count` based on a user's group or role, referencing the
-[`coder_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner)
+[`ni_workspace_owner`](https://registry.terraform.io/providers/coder/coder/latest/docs/data-sources/workspace_owner)
 data source.
 
 [Try out admin-only options in the Playground](https://playground.coder.app/parameters/5Gn9W3hYs7).
@@ -662,14 +662,14 @@ data source.
 ```terraform
 
 locals {
-  roles = [for r in data.coder_workspace_owner.me.rbac_roles: r.name]
-  is_admin = contains(data.coder_workspace_owner.me.groups, "admin")
+  roles = [for r in data.ni_workspace_owner.me.rbac_roles: r.name]
+  is_admin = contains(data.ni_workspace_owner.me.groups, "admin")
   has_admin_role = contains(local.roles, "owner")
 }
 
-data "coder_workspace_owner" "me" {}
+data "ni_workspace_owner" "me" {}
 
-data "coder_parameter" "advanced_settings" {
+data "ni_parameter" "advanced_settings" {
   # This parameter is only visible when the user is an administrator
   count = local.is_admin ? 1 : 0
 
@@ -721,11 +721,11 @@ locals {
   ]
 
   eu_group_name = "eu-helsinki"
-  is_eu_dev = contains(data.coder_workspace_owner.me.groups, local.eu_group_name)
+  is_eu_dev = contains(data.ni_workspace_owner.me.groups, local.eu_group_name)
   region_desc_tag = local.is_eu_dev ? "european" : "american"
 }
 
-data "coder_parameter" "region" {
+data "ni_parameter" "region" {
   name         = "region"
   display_name = "Select a Region"
   description  = "Select from ${local.region_desc_tag} region options."
@@ -754,15 +754,15 @@ Some users associate groups with namespaces, such as Kubernetes, then allow user
 
 ```terraform
 locals {
-  groups = data.coder_workspace_owner.me.groups
+  groups = data.ni_workspace_owner.me.groups
 }
 
-data "coder_workspace_owner" "me" {}
+data "ni_workspace_owner" "me" {}
 
-data "coder_parameter" "your_groups" {
+data "ni_parameter" "your_groups" {
   type         = "string"
   name         = "your_groups"
-  display_name = "Your Coder Groups"
+  display_name = "Your Neural Inverse Cloud Groups"
   description  = "Select your namespace..."
   default      = "target-${local.groups[0]}"
   mutable      = true
@@ -784,21 +784,21 @@ data "coder_parameter" "your_groups" {
 
 ## Troubleshooting
 
-Dynamic Parameters is now in general availability. We're tracking a list of known issues [here in Github](https://github.com/coder/coder/issues?q=sort%3Aupdated-desc%20is%3Aissue%20is%3Aopen%20label%3Aparameters) as we continue to polish and improve the workflow.
+Dynamic Parameters is now in general availability. We're tracking a list of known issues [here in Github](https://github.com/NeuralInverse/cloud/issues?q=sort%3Aupdated-desc%20is%3Aissue%20is%3Aopen%20label%3Aparameters) as we continue to polish and improve the workflow.
 If you have any issues during upgrade, please file an issue in our
-[GitHub repository](https://github.com/coder/coder/issues/new?labels=parameters) with the `parameters` label and include a
+[GitHub repository](https://github.com/NeuralInverse/cloud/issues/new?labels=parameters) with the `parameters` label and include a
 [Playground link](https://playground.coder.app/parameters) where applicable.
 We appreciate the feedback and look forward to what the community creates with this system!
 
-You can also [search or track the list of known issues](https://github.com/coder/coder/issues?q=is%3Aissue%20state%3Aopen%20label%3Aparameters).
+You can also [search or track the list of known issues](https://github.com/NeuralInverse/cloud/issues?q=is%3Aissue%20state%3Aopen%20label%3Aparameters).
 
-You can share anything you build with Dynamic Parameters in our [Discord](https://coder.com/chat).
+You can share anything you build with Dynamic Parameters in our [Discord](https://cloud.neuralinverse.com/chat).
 
 ### Enabled Dynamic Parameters, but my template looks the same
 
 Ensure that the following version requirements are met:
 
-- `coder/coder`: >= [v2.25.0](https://github.com/coder/coder/releases/tag/v2.25.0)
+- `coder/coder`: >= [v2.25.0](https://github.com/NeuralInverse/cloud/releases/tag/v2.25.0)
 - `coder/terraform-provider-coder`: >= [v2.5.3](https://github.com/coder/terraform-provider-coder/releases/tag/v2.5.3)
 
 Enabling Dynamic Parameters on an existing template requires administrators to publish a new template version.
@@ -818,7 +818,7 @@ To revert Dynamic Parameters on a template:
 
 ### Template variables not showing up
 
-Dynamic Parameters are GA as of [v2.25.0](https://github.com/coder/coder/releases/tag/v2.25.0). Template variables are fully supported in Dynamic Parameters.
+Dynamic Parameters are GA as of [v2.25.0](https://github.com/NeuralInverse/cloud/releases/tag/v2.25.0). Template variables are fully supported in Dynamic Parameters.
 
 If you are experiencing issues with template variables, try upgrading to the latest version. Otherwise, please file an issue in our Github.
 
@@ -833,7 +833,7 @@ In the meantime, you can safely convert existing templates and build new paramet
 
 ### "Module not loaded" errors when using Dynamic Parameters
 
-Dynamic Parameters require Terraform modules to be archived and stored in the database. Coder limits module archives to **20MB total** to prevent database bloat. If your template uses modules that exceed this limit, some modules will be unavailable for parameter declarations.
+Dynamic Parameters require Terraform modules to be archived and stored in the database. Neural Inverse Cloud limits module archives to **20MB total** to prevent database bloat. If your template uses modules that exceed this limit, some modules will be unavailable for parameter declarations.
 
 **Symptoms:**
 

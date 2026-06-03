@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/utils"
+	"github.com/NeuralInverse/cloud/v2/aibridge/utils"
 )
 
 // KeyFailoverConfig is the per-provider configuration consumed by

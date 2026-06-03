@@ -71,7 +71,7 @@ func (c *drpcAgentClient) DRPCConn() drpc.Conn { return c.cc }
 
 func (c *drpcAgentClient) GetManifest(ctx context.Context, in *GetManifestRequest) (*Manifest, error) {
 	out := new(Manifest)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/GetManifest", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/GetManifest", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (c *drpcAgentClient) GetManifest(ctx context.Context, in *GetManifestReques
 
 func (c *drpcAgentClient) GetServiceBanner(ctx context.Context, in *GetServiceBannerRequest) (*ServiceBanner, error) {
 	out := new(ServiceBanner)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/GetServiceBanner", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/GetServiceBanner", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *drpcAgentClient) GetServiceBanner(ctx context.Context, in *GetServiceBa
 
 func (c *drpcAgentClient) UpdateStats(ctx context.Context, in *UpdateStatsRequest) (*UpdateStatsResponse, error) {
 	out := new(UpdateStatsResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/UpdateStats", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/UpdateStats", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (c *drpcAgentClient) UpdateStats(ctx context.Context, in *UpdateStatsReques
 
 func (c *drpcAgentClient) UpdateLifecycle(ctx context.Context, in *UpdateLifecycleRequest) (*Lifecycle, error) {
 	out := new(Lifecycle)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/UpdateLifecycle", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/UpdateLifecycle", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (c *drpcAgentClient) UpdateLifecycle(ctx context.Context, in *UpdateLifecyc
 
 func (c *drpcAgentClient) BatchUpdateAppHealths(ctx context.Context, in *BatchUpdateAppHealthRequest) (*BatchUpdateAppHealthResponse, error) {
 	out := new(BatchUpdateAppHealthResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/BatchUpdateAppHealths", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/BatchUpdateAppHealths", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (c *drpcAgentClient) BatchUpdateAppHealths(ctx context.Context, in *BatchUp
 
 func (c *drpcAgentClient) UpdateStartup(ctx context.Context, in *UpdateStartupRequest) (*Startup, error) {
 	out := new(Startup)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/UpdateStartup", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/UpdateStartup", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (c *drpcAgentClient) UpdateStartup(ctx context.Context, in *UpdateStartupRe
 
 func (c *drpcAgentClient) BatchUpdateMetadata(ctx context.Context, in *BatchUpdateMetadataRequest) (*BatchUpdateMetadataResponse, error) {
 	out := new(BatchUpdateMetadataResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/BatchUpdateMetadata", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/BatchUpdateMetadata", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (c *drpcAgentClient) BatchUpdateMetadata(ctx context.Context, in *BatchUpda
 
 func (c *drpcAgentClient) BatchCreateLogs(ctx context.Context, in *BatchCreateLogsRequest) (*BatchCreateLogsResponse, error) {
 	out := new(BatchCreateLogsResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/BatchCreateLogs", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/BatchCreateLogs", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func (c *drpcAgentClient) BatchCreateLogs(ctx context.Context, in *BatchCreateLo
 
 func (c *drpcAgentClient) GetAnnouncementBanners(ctx context.Context, in *GetAnnouncementBannersRequest) (*GetAnnouncementBannersResponse, error) {
 	out := new(GetAnnouncementBannersResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/GetAnnouncementBanners", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/GetAnnouncementBanners", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (c *drpcAgentClient) GetAnnouncementBanners(ctx context.Context, in *GetAnn
 
 func (c *drpcAgentClient) ScriptCompleted(ctx context.Context, in *WorkspaceAgentScriptCompletedRequest) (*WorkspaceAgentScriptCompletedResponse, error) {
 	out := new(WorkspaceAgentScriptCompletedResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/ScriptCompleted", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/ScriptCompleted", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (c *drpcAgentClient) ScriptCompleted(ctx context.Context, in *WorkspaceAgen
 
 func (c *drpcAgentClient) GetResourcesMonitoringConfiguration(ctx context.Context, in *GetResourcesMonitoringConfigurationRequest) (*GetResourcesMonitoringConfigurationResponse, error) {
 	out := new(GetResourcesMonitoringConfigurationResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/GetResourcesMonitoringConfiguration", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/GetResourcesMonitoringConfiguration", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (c *drpcAgentClient) GetResourcesMonitoringConfiguration(ctx context.Contex
 
 func (c *drpcAgentClient) PushResourcesMonitoringUsage(ctx context.Context, in *PushResourcesMonitoringUsageRequest) (*PushResourcesMonitoringUsageResponse, error) {
 	out := new(PushResourcesMonitoringUsageResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/PushResourcesMonitoringUsage", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/PushResourcesMonitoringUsage", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (c *drpcAgentClient) PushResourcesMonitoringUsage(ctx context.Context, in *
 
 func (c *drpcAgentClient) ReportConnection(ctx context.Context, in *ReportConnectionRequest) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/ReportConnection", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/ReportConnection", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (c *drpcAgentClient) ReportConnection(ctx context.Context, in *ReportConnec
 
 func (c *drpcAgentClient) CreateSubAgent(ctx context.Context, in *CreateSubAgentRequest) (*CreateSubAgentResponse, error) {
 	out := new(CreateSubAgentResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/CreateSubAgent", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/CreateSubAgent", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func (c *drpcAgentClient) CreateSubAgent(ctx context.Context, in *CreateSubAgent
 
 func (c *drpcAgentClient) DeleteSubAgent(ctx context.Context, in *DeleteSubAgentRequest) (*DeleteSubAgentResponse, error) {
 	out := new(DeleteSubAgentResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/DeleteSubAgent", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/DeleteSubAgent", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func (c *drpcAgentClient) DeleteSubAgent(ctx context.Context, in *DeleteSubAgent
 
 func (c *drpcAgentClient) ListSubAgents(ctx context.Context, in *ListSubAgentsRequest) (*ListSubAgentsResponse, error) {
 	out := new(ListSubAgentsResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/ListSubAgents", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/ListSubAgents", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func (c *drpcAgentClient) ListSubAgents(ctx context.Context, in *ListSubAgentsRe
 
 func (c *drpcAgentClient) ReportBoundaryLogs(ctx context.Context, in *ReportBoundaryLogsRequest) (*ReportBoundaryLogsResponse, error) {
 	out := new(ReportBoundaryLogsResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/ReportBoundaryLogs", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/ReportBoundaryLogs", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +224,7 @@ func (c *drpcAgentClient) ReportBoundaryLogs(ctx context.Context, in *ReportBoun
 
 func (c *drpcAgentClient) UpdateAppStatus(ctx context.Context, in *UpdateAppStatusRequest) (*UpdateAppStatusResponse, error) {
 	out := new(UpdateAppStatusResponse)
-	err := c.cc.Invoke(ctx, "/coder.agent.v2.Agent/UpdateAppStatus", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
+	err := c.cc.Invoke(ctx, "/neuralinverse.agent.v2.Agent/UpdateAppStatus", drpcEncoding_File_agent_proto_agent_proto{}, in, out)
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +333,7 @@ func (DRPCAgentDescription) NumMethods() int { return 18 }
 func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver, interface{}, bool) {
 	switch n {
 	case 0:
-		return "/coder.agent.v2.Agent/GetManifest", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/GetManifest", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					GetManifest(
@@ -342,7 +342,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.GetManifest, true
 	case 1:
-		return "/coder.agent.v2.Agent/GetServiceBanner", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/GetServiceBanner", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					GetServiceBanner(
@@ -351,7 +351,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.GetServiceBanner, true
 	case 2:
-		return "/coder.agent.v2.Agent/UpdateStats", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/UpdateStats", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					UpdateStats(
@@ -360,7 +360,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.UpdateStats, true
 	case 3:
-		return "/coder.agent.v2.Agent/UpdateLifecycle", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/UpdateLifecycle", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					UpdateLifecycle(
@@ -369,7 +369,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.UpdateLifecycle, true
 	case 4:
-		return "/coder.agent.v2.Agent/BatchUpdateAppHealths", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/BatchUpdateAppHealths", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					BatchUpdateAppHealths(
@@ -378,7 +378,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.BatchUpdateAppHealths, true
 	case 5:
-		return "/coder.agent.v2.Agent/UpdateStartup", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/UpdateStartup", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					UpdateStartup(
@@ -387,7 +387,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.UpdateStartup, true
 	case 6:
-		return "/coder.agent.v2.Agent/BatchUpdateMetadata", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/BatchUpdateMetadata", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					BatchUpdateMetadata(
@@ -396,7 +396,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.BatchUpdateMetadata, true
 	case 7:
-		return "/coder.agent.v2.Agent/BatchCreateLogs", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/BatchCreateLogs", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					BatchCreateLogs(
@@ -405,7 +405,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.BatchCreateLogs, true
 	case 8:
-		return "/coder.agent.v2.Agent/GetAnnouncementBanners", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/GetAnnouncementBanners", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					GetAnnouncementBanners(
@@ -414,7 +414,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.GetAnnouncementBanners, true
 	case 9:
-		return "/coder.agent.v2.Agent/ScriptCompleted", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/ScriptCompleted", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					ScriptCompleted(
@@ -423,7 +423,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.ScriptCompleted, true
 	case 10:
-		return "/coder.agent.v2.Agent/GetResourcesMonitoringConfiguration", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/GetResourcesMonitoringConfiguration", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					GetResourcesMonitoringConfiguration(
@@ -432,7 +432,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.GetResourcesMonitoringConfiguration, true
 	case 11:
-		return "/coder.agent.v2.Agent/PushResourcesMonitoringUsage", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/PushResourcesMonitoringUsage", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					PushResourcesMonitoringUsage(
@@ -441,7 +441,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.PushResourcesMonitoringUsage, true
 	case 12:
-		return "/coder.agent.v2.Agent/ReportConnection", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/ReportConnection", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					ReportConnection(
@@ -450,7 +450,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.ReportConnection, true
 	case 13:
-		return "/coder.agent.v2.Agent/CreateSubAgent", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/CreateSubAgent", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					CreateSubAgent(
@@ -459,7 +459,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.CreateSubAgent, true
 	case 14:
-		return "/coder.agent.v2.Agent/DeleteSubAgent", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/DeleteSubAgent", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					DeleteSubAgent(
@@ -468,7 +468,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.DeleteSubAgent, true
 	case 15:
-		return "/coder.agent.v2.Agent/ListSubAgents", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/ListSubAgents", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					ListSubAgents(
@@ -477,7 +477,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.ListSubAgents, true
 	case 16:
-		return "/coder.agent.v2.Agent/ReportBoundaryLogs", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/ReportBoundaryLogs", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					ReportBoundaryLogs(
@@ -486,7 +486,7 @@ func (DRPCAgentDescription) Method(n int) (string, drpc.Encoding, drpc.Receiver,
 					)
 			}, DRPCAgentServer.ReportBoundaryLogs, true
 	case 17:
-		return "/coder.agent.v2.Agent/UpdateAppStatus", drpcEncoding_File_agent_proto_agent_proto{},
+		return "/neuralinverse.agent.v2.Agent/UpdateAppStatus", drpcEncoding_File_agent_proto_agent_proto{},
 			func(srv interface{}, ctx context.Context, in1, in2 interface{}) (drpc.Message, error) {
 				return srv.(DRPCAgentServer).
 					UpdateAppStatus(

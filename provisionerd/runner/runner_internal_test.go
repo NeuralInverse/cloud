@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/provisionerd/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
 )
 
 func TestFailedWorkspaceBuildfDoesNotInferQuotaErrorCode(t *testing.T) {

@@ -17,24 +17,24 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestPortForward_None(t *testing.T) {
 	t.Parallel()
 
-	client := coderdtest.New(t, nil)
-	owner := coderdtest.CreateFirstUser(t, client)
-	member, _ := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	client := nicloudtest.New(t, nil)
+	owner := nicloudtest.CreateFirstUser(t, client)
+	member, _ := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 	inv, root := clitest.New(t, "port-forward", "blah")
 	clitest.SetupConfig(t, member, root)
@@ -65,7 +65,7 @@ func TestPortForward(t *testing.T) {
 	cases := []struct {
 		name    string
 		network string
-		// The flag(s) to pass to `coder port-forward X` to port-forward this type
+		// The flag(s) to pass to `neuralinverse port-forward X` to port-forward this type
 		// of connection. Has one format arg (string) for the remote address.
 		flag []string
 		// setupRemote creates a "remote" listener to emulate a service in the
@@ -138,12 +138,12 @@ func TestPortForward(t *testing.T) {
 	var (
 		wuTick     = make(chan time.Time)
 		wuFlush    = make(chan int, 1)
-		client, db = coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db = nicloudtest.NewWithDatabase(t, &nicloudtest.Options{
 			WorkspaceUsageTrackerTick:  wuTick,
 			WorkspaceUsageTrackerFlush: wuFlush,
 		})
-		admin              = coderdtest.CreateFirstUser(t, client)
-		member, memberUser = coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		admin              = nicloudtest.CreateFirstUser(t, client)
+		member, memberUser = nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		workspace          = runAgent(t, client, memberUser.ID, db)
 	)
 
@@ -386,8 +386,8 @@ func generateRandomPrefix(t *testing.T) []byte {
 // runAgent creates a fake workspace and starts an agent locally for that
 // workspace. The agent will be cleaned up on test completion.
 // nolint:unused
-func runAgent(t *testing.T, client *codersdk.Client, owner uuid.UUID, db database.Store) database.WorkspaceTable {
-	user, err := client.User(context.Background(), codersdk.Me)
+func runAgent(t *testing.T, client *nicloudsdk.Client, owner uuid.UUID, db database.Store) database.WorkspaceTable {
+	user, err := client.User(context.Background(), nicloudsdk.Me)
 	require.NoError(t, err, "specified user does not exist")
 	require.Greater(t, len(user.OrganizationIDs), 0, "user has no organizations")
 	orgID := user.OrganizationIDs[0]
@@ -401,7 +401,7 @@ func runAgent(t *testing.T, client *codersdk.Client, owner uuid.UUID, db databas
 			o.SSHMaxTimeout = 60 * time.Second
 		},
 	)
-	coderdtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
+	nicloudtest.AwaitWorkspaceAgents(t, client, r.Workspace.ID)
 	return r.Workspace
 }
 

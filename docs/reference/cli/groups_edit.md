@@ -32,7 +32,7 @@ Update the group avatar.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_DISPLAY_NAME</code> |
+| Environment | <code>$NEURALINVERSE_DISPLAY_NAME</code> |
 
 Optional human friendly name for the group.
 
@@ -57,6 +57,6 @@ Remove users to the group. Accepts emails or IDs.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.

@@ -1,7 +1,7 @@
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/agent/boundarylogproxy/codec";
+option go_package = "github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy/codec";
 
-package coder.boundarylogproxy.codec.v1;
+package neuralinverse.boundarylogproxy.codec.v1;
 
 import "agent/proto/agent.proto";
 

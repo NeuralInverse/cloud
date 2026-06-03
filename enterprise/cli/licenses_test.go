@@ -16,12 +16,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/serpent"
 )
 
@@ -117,7 +117,7 @@ func TestLicensesAddReal(t *testing.T) {
 	t.Parallel()
 	t.Run("Fails", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{DontAddLicense: true})
 		inv, conf := newCLI(
 			t,
 			"licenses", "add", "-l", fakeLicenseJWT,
@@ -125,7 +125,7 @@ func TestLicensesAddReal(t *testing.T) {
 		clitest.SetupConfig(t, client, conf) //nolint:gocritic // requires owner
 
 		waiter := clitest.StartWithWaiter(t, inv)
-		var coderError *codersdk.Error
+		var coderError *nicloudsdk.Error
 		waiter.RequireAs(&coderError)
 		assert.Equal(t, 400, coderError.StatusCode())
 		assert.Contains(t, "Invalid license", coderError.Message)
@@ -149,7 +149,7 @@ func TestLicensesListFake(t *testing.T) {
 			errC <- inv.WithContext(ctx).Run()
 		}()
 		require.NoError(t, <-errC)
-		var licenses []codersdk.License
+		var licenses []nicloudsdk.License
 		err := json.Unmarshal(stdout.Bytes(), &licenses)
 		require.NoError(t, err)
 		require.Len(t, licenses, 2)
@@ -171,7 +171,7 @@ func TestLicensesListReal(t *testing.T) {
 	t.Parallel()
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{DontAddLicense: true})
 		inv, conf := newCLI(
 			t,
 			"licenses", "list", "-o", "json",
@@ -213,13 +213,13 @@ func TestLicensesDeleteReal(t *testing.T) {
 	t.Parallel()
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
-		client, _ := coderdenttest.New(t, &coderdenttest.Options{DontAddLicense: true})
+		client, _ := nicloudenttest.New(t, &nicloudenttest.Options{DontAddLicense: true})
 		inv, conf := newCLI(
 			t,
 			"licenses", "delete", "1")
 		clitest.SetupConfig(t, client, conf) //nolint:gocritic // requires owner
 
-		var coderError *codersdk.Error
+		var coderError *nicloudsdk.Error
 		clitest.StartWithWaiter(t, inv).RequireAs(&coderError)
 		assert.Equal(t, 404, coderError.StatusCode())
 		assert.Contains(t, "Unknown license ID", coderError.Message)
@@ -266,12 +266,12 @@ func (s *fakeLicenseAPI) notFound(_ http.ResponseWriter, r *http.Request) {
 func (*fakeLicenseAPI) noop(_ http.ResponseWriter, _ *http.Request) {}
 
 func (s *fakeLicenseAPI) postLicense(rw http.ResponseWriter, r *http.Request) {
-	var req codersdk.AddLicenseRequest
+	var req nicloudsdk.AddLicenseRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	require.NoError(s.t, err)
 	assert.Equal(s.t, "test.jwt.sig", req.License)
 
-	resp := codersdk.License{
+	resp := nicloudsdk.License{
 		ID:         1,
 		UploadedAt: time.Now(),
 		Claims: map[string]interface{}{
@@ -288,7 +288,7 @@ func (s *fakeLicenseAPI) postLicense(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *fakeLicenseAPI) licenses(rw http.ResponseWriter, _ *http.Request) {
-	resp := []codersdk.License{
+	resp := []nicloudsdk.License{
 		{
 			ID:         1,
 			UploadedAt: time.Now(),
@@ -324,14 +324,14 @@ func (s *fakeLicenseAPI) deleteLicense(rw http.ResponseWriter, r *http.Request) 
 }
 
 func (*fakeLicenseAPI) entitlements(rw http.ResponseWriter, r *http.Request) {
-	features := make(map[codersdk.FeatureName]codersdk.Feature)
-	for _, f := range codersdk.FeatureNames {
-		features[f] = codersdk.Feature{
-			Entitlement: codersdk.EntitlementEntitled,
+	features := make(map[nicloudsdk.FeatureName]nicloudsdk.Feature)
+	for _, f := range nicloudsdk.FeatureNames {
+		features[f] = nicloudsdk.Feature{
+			Entitlement: nicloudsdk.EntitlementEntitled,
 			Enabled:     true,
 		}
 	}
-	httpapi.Write(r.Context(), rw, http.StatusOK, codersdk.Entitlements{
+	httpapi.Write(r.Context(), rw, http.StatusOK, nicloudsdk.Entitlements{
 		Features:   features,
 		Warnings:   []string{testWarning},
 		HasLicense: true,

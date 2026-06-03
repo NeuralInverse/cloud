@@ -6,7 +6,7 @@
 # - .github/actions/setup-mise/action.yml
 # - flake.nix
 # - scripts/dogfood/mise-oci-wrapper.sh
-# - dogfood/coder/ubuntu-*/Dockerfile.base
+# - dogfood/neuralinverse/ubuntu-*/Dockerfile.base
 
 set -euo pipefail
 # shellcheck source=scripts/lib.sh
@@ -138,7 +138,7 @@ wrapper_checksum="$(sed -n 's/^MISE_SHA256="\([a-f0-9]*\)"/\1/p' scripts/dogfood
 check_equal "scripts/dogfood/mise-oci-wrapper.sh sha256" "${wrapper_checksum}" "${linux_x64_checksum}"
 check_sha256_format "scripts/dogfood/mise-oci-wrapper.sh sha256" "${wrapper_checksum}"
 
-for dockerfile in dogfood/coder/ubuntu-*/Dockerfile.base; do
+for dockerfile in dogfood/neuralinverse/ubuntu-*/Dockerfile.base; do
 	dockerfile_version="$(sed -n 's/.*MISE_VERSION=v\([0-9.]*\).*/\1/p' "${dockerfile}" | head -n 1)"
 	check_equal "${dockerfile}" "${dockerfile_version}" "${mise_version}"
 

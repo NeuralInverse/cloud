@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -17,11 +17,11 @@ func (r *RootCmd) prebuilds() *serpent.Command {
 		Long: "Administrators can use these commands to manage prebuilt workspace settings.\n" + cli.FormatExamples(
 			cli.Example{
 				Description: "Pause Coder prebuilt workspace reconciliation.",
-				Command:     "coder prebuilds pause",
+				Command:     "neuralinverse prebuilds pause",
 			},
 			cli.Example{
 				Description: "Resume Coder prebuilt workspace reconciliation if it has been paused.",
-				Command:     "coder prebuilds resume",
+				Command:     "neuralinverse prebuilds resume",
 			},
 		),
 		Aliases: []string{"prebuild"},
@@ -49,7 +49,7 @@ func (r *RootCmd) pausePrebuilds() *serpent.Command {
 				return err
 			}
 
-			err = client.PutPrebuildsSettings(inv.Context(), codersdk.PrebuildsSettings{
+			err = client.PutPrebuildsSettings(inv.Context(), nicloudsdk.PrebuildsSettings{
 				ReconciliationPaused: true,
 			})
 			if err != nil {
@@ -76,7 +76,7 @@ func (r *RootCmd) resumePrebuilds() *serpent.Command {
 				return err
 			}
 
-			err = client.PutPrebuildsSettings(inv.Context(), codersdk.PrebuildsSettings{
+			err = client.PutPrebuildsSettings(inv.Context(), nicloudsdk.PrebuildsSettings{
 				ReconciliationPaused: false,
 			})
 			if err != nil {

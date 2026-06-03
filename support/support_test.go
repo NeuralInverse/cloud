@@ -18,16 +18,16 @@ import (
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/util/ptr"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/support"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/support"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/serpent"
 )
 
@@ -40,18 +40,18 @@ func TestRun(t *testing.T) {
 
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := nicloudtest.DeploymentValues(t)
 		promPort := testutil.RandomPort(t)
 		cfg.Prometheus.Enable = serpent.Bool(true)
 		cfg.Prometheus.Address.Host = "127.0.0.1"
 		cfg.Prometheus.Address.Port = fmt.Sprintf("%d", promPort)
 		cfg.Experiments = []string{"foo"}
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client, db := coderdtest.NewWithDatabase(t, &coderdtest.Options{
+		client, db := nicloudtest.NewWithDatabase(t, &nicloudtest.Options{
 			DeploymentValues: cfg,
 			Logger:           ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
-		admin := coderdtest.CreateFirstUser(t, client)
+		admin := nicloudtest.CreateFirstUser(t, client)
 		ws, agt := setupWorkspaceAndAgent(ctx, t, client, db, admin)
 
 		bun, err := support.Run(ctx, &support.Deps{
@@ -114,14 +114,14 @@ func TestRun(t *testing.T) {
 
 	t.Run("OK_NoWorkspace", func(t *testing.T) {
 		t.Parallel()
-		cfg := coderdtest.DeploymentValues(t)
+		cfg := nicloudtest.DeploymentValues(t)
 		cfg.Experiments = []string{"foo"}
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			DeploymentValues: cfg,
 			Logger:           ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
-		_ = coderdtest.CreateFirstUser(t, client)
+		_ = nicloudtest.CreateFirstUser(t, client)
 		bun, err := support.Run(ctx, &support.Deps{
 			Client: client,
 			Log:    slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Named("bundle").Leveled(slog.LevelDebug),
@@ -154,14 +154,14 @@ func TestRun(t *testing.T) {
 	t.Run("NoAuth", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			Logger: ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
 		bun, err := support.Run(ctx, &support.Deps{
 			Client: client,
 			Log:    slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Named("bundle").Leveled(slog.LevelDebug),
 		})
-		var sdkErr *codersdk.Error
+		var sdkErr *nicloudsdk.Error
 		require.Nil(t, bun)
 		require.ErrorAs(t, err, &sdkErr)
 		require.Equal(t, http.StatusUnauthorized, sdkErr.StatusCode())
@@ -170,11 +170,11 @@ func TestRun(t *testing.T) {
 	t.Run("MemberNoWorkspace", func(t *testing.T) {
 		t.Parallel()
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, &coderdtest.Options{
+		client := nicloudtest.New(t, &nicloudtest.Options{
 			Logger: ptr.Ref(slog.Make(sloghuman.Sink(io.Discard))),
 		})
-		admin := coderdtest.CreateFirstUser(t, client)
-		memberClient, _ := coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		admin := nicloudtest.CreateFirstUser(t, client)
+		memberClient, _ := nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		bun, err := support.Run(ctx, &support.Deps{
 			Client: memberClient,
 			Log:    slogtest.Make(t, &slogtest.Options{IgnoreErrors: true}).Named("bundle").Leveled(slog.LevelDebug),
@@ -199,7 +199,7 @@ func TestRun(t *testing.T) {
 	})
 }
 
-func assertSanitizedDeploymentConfig(t *testing.T, dc *codersdk.DeploymentConfig) {
+func assertSanitizedDeploymentConfig(t *testing.T, dc *nicloudsdk.DeploymentConfig) {
 	t.Helper()
 	for _, opt := range dc.Options {
 		if opt.Annotations.IsSet("secret") {
@@ -208,7 +208,7 @@ func assertSanitizedDeploymentConfig(t *testing.T, dc *codersdk.DeploymentConfig
 	}
 }
 
-func assertSanitizedWorkspace(t *testing.T, ws codersdk.Workspace) {
+func assertSanitizedWorkspace(t *testing.T, ws nicloudsdk.Workspace) {
 	t.Helper()
 	for _, res := range ws.LatestBuild.Resources {
 		for _, agt := range res.Agents {
@@ -224,14 +224,14 @@ func assertSanitizedEnv(t *testing.T, env map[string]string) {
 	}
 }
 
-func setupWorkspaceAndAgent(ctx context.Context, t *testing.T, client *codersdk.Client, db database.Store, user codersdk.CreateFirstUserResponse) (codersdk.Workspace, codersdk.WorkspaceAgent) {
+func setupWorkspaceAndAgent(ctx context.Context, t *testing.T, client *nicloudsdk.Client, db database.Store, user nicloudsdk.CreateFirstUserResponse) (nicloudsdk.Workspace, nicloudsdk.WorkspaceAgent) {
 	// This is a valid zip file
 	zipBytes := make([]byte, 22)
 	zipBytes[0] = 80
 	zipBytes[1] = 75
 	zipBytes[2] = 0o5
 	zipBytes[3] = 0o6
-	uploadRes, err := client.Upload(ctx, codersdk.ContentTypeZip, bytes.NewReader(zipBytes))
+	uploadRes, err := client.Upload(ctx, nicloudsdk.ContentTypeZip, bytes.NewReader(zipBytes))
 	require.NoError(t, err)
 
 	tv := dbfake.TemplateVersion(t, db).
@@ -277,7 +277,7 @@ func setupWorkspaceAndAgent(ctx context.Context, t *testing.T, client *codersdk.
 	_ = agenttest.New(t, client.URL, wbr.AgentToken, func(o *agent.Options) {
 		o.LogDir = tempDir
 	})
-	coderdtest.NewWorkspaceAgentWaiter(t, client, wbr.Workspace.ID).Wait()
+	nicloudtest.NewWorkspaceAgentWaiter(t, client, wbr.Workspace.ID).Wait()
 
 	return ws, agt
 }

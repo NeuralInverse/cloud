@@ -1,6 +1,6 @@
 # Template Dependencies
 
-When creating Coder templates, it is unlikely that you will just be using
+When creating Neural Inverse Cloud templates, it is unlikely that you will just be using
 built-in providers. Part of Terraform's flexibility stems from its rich plugin
 ecosystem, and it makes sense to take advantage of this.
 
@@ -12,12 +12,12 @@ Following these recommendations will:
 - **Prevent unexpected changes:** Your templates will use the same versions of
   Terraform providers each build. This will prevent issues related to changes in
   providers.
-- **Improve build performance:** Coder caches provider versions on each build.
-  If the same provider version can be re-used on subsequent builds, Coder will
+- **Improve build performance:** Neural Inverse Cloud caches provider versions on each build.
+  If the same provider version can be re-used on subsequent builds, Neural Inverse Cloud will
   simply re-use the cached version if it is available.
 - **Improve build reliability:** As some providers are hundreds of megabytes in
   size, interruptions in connectivity to the Terraform registry during a
-  workspace build can result in a failed build. If Coder is able to re-use a
+  workspace build can result in a failed build. If Neural Inverse Cloud is able to re-use a
   cached provider version, the likelihood of this is greatly reduced.
 
 ## Lock your provider and module versions
@@ -98,7 +98,7 @@ file will be stored alongside with the other template source code.
 > Terraform best practices also recommend checking in your
 > `.terraform.lock.hcl` into Git or other VCS.
 
-The next time a workspace is built from that template, Coder will make sure to
+The next time a workspace is built from that template, Neural Inverse Cloud will make sure to
 use the same versions of those providers as specified in the lock file.
 
 If, at some point in future, you need to update the providers and versions you

@@ -1,12 +1,12 @@
-# Mirror the Coder Registry with JFrog Artifactory
+# Mirror the Neural Inverse Cloud Registry with JFrog Artifactory
 
 This guide shows you how to use JFrog Artifactory to mirror the
-[Coder Registry](https://registry.coder.com) for air-gapped or restricted
+[Neural Inverse Cloud Registry](https://registry.cloud.neuralinverse.com) for air-gapped or restricted
 network deployments.
 
 By configuring Artifactory as a Remote Terraform Repository, you can:
 
-- **Proxy and cache** all Coder modules automatically
+- **Proxy and cache** all Neural Inverse Cloud modules automatically
 - **Keep modules updated** without manual synchronization
 - **Support offline access** once modules are cached
 
@@ -27,14 +27,14 @@ By configuring Artifactory as a Remote Terraform Repository, you can:
    | Setting                | Value                        |
    |------------------------|------------------------------|
    | Repository Key         | `coder-registry`             |
-   | URL                    | `https://registry.coder.com` |
-   | Terraform Registry URL | `https://registry.coder.com` |
+   | URL                    | `https://registry.cloud.neuralinverse.com` |
+   | Terraform Registry URL | `https://registry.cloud.neuralinverse.com` |
 
 1. Click **Create Remote Repository**
 
 ## Step 2: Verify the Repository Configuration
 
-Test that Artifactory can proxy the Coder registry by querying the module
+Test that Artifactory can proxy the Neural Inverse Cloud registry by querying the module
 versions API:
 
 ```sh
@@ -77,28 +77,28 @@ Replace:
 
 ## Step 4: Update Template Module Sources
 
-Update your Coder templates to use Artifactory instead of the public registry:
+Update your Neural Inverse Cloud templates to use Artifactory instead of the public registry:
 
 ```tf
-# Before: Direct from Coder registry
+# Before: Direct from Neural Inverse Cloud registry
 module "code-server" {
-  source   = "registry.coder.com/coder/code-server/coder"
+  source   = "registry.cloud.neuralinverse.com/coder/code-server/coder"
   version  = "1.4.2"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
 }
 
 # After: Through Artifactory mirror
 module "code-server" {
   source   = "https://<your-artifactory-host>/coder/code-server/coder"
   version  = "1.4.2"
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
 }
 ```
 
-## Step 5: Configure Coder Server or Provisioners
+## Step 5: Configure Neural Inverse Cloud Server or Provisioners
 
-For Coder to use the Artifactory mirror, configure the Terraform CLI on your
-Coder server or external provisioners.
+For Neural Inverse Cloud to use the Artifactory mirror, configure the Terraform CLI on your
+Neural Inverse Cloud server or external provisioners.
 
 <div class="tabs">
 
@@ -132,7 +132,7 @@ coder:
 
 ### Docker Deployment
 
-Mount the `.terraformrc` file into the Coder container:
+Mount the `.terraformrc` file into the Neural Inverse Cloud container:
 
 ```yaml
 # docker-compose.yaml
@@ -160,11 +160,11 @@ Once cached, modules remain available even without internet connectivity.
 
 ## Supported Namespaces
 
-The Artifactory mirror supports all namespaces from the Coder registry:
+The Artifactory mirror supports all namespaces from the Neural Inverse Cloud registry:
 
 | Namespace    | Description               | Example Module                     |
 |--------------|---------------------------|------------------------------------|
-| `coder`      | Official Coder modules    | `code-server`, `jetbrains-gateway` |
+| `coder`      | Official Neural Inverse Cloud modules    | `code-server`, `jetbrains-gateway` |
 | `coder-labs` | Experimental modules      | `cursor-cli`, `copilot`            |
 | Community    | Third-party contributions | Various                            |
 
@@ -189,10 +189,10 @@ Check that your Artifactory token is valid and has read access to the
 
 ### Modules not caching
 
-Ensure the remote repository URL is set to `https://registry.coder.com` and not other paths.
+Ensure the remote repository URL is set to `https://registry.cloud.neuralinverse.com` and not other paths.
 
 ## Next Steps
 
-- [Coder Module Registry](https://registry.coder.com/modules)
+- [Neural Inverse Cloud Module Registry](https://registry.cloud.neuralinverse.com/modules)
 - [JFrog Terraform Registry Documentation](https://jfrog.com/help/r/jfrog-artifactory-documentation/terraform-registry)
 - [Air-gapped Deployments](./airgap.md)

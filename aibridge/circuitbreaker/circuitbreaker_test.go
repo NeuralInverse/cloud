@@ -11,8 +11,8 @@ import (
 	"github.com/sony/gobreaker/v2"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/aibridge/circuitbreaker"
-	"github.com/coder/coder/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/circuitbreaker"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
 )
 
 func TestExecute_PerModelIsolation(t *testing.T) {

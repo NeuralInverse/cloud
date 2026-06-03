@@ -17,10 +17,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
 	"github.com/coder/pretty"
 	"github.com/coder/serpent"
 )
@@ -61,13 +61,13 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				return err
 			}
 
-			err = codersdk.NameValid(name)
+			err = nicloudsdk.NameValid(name)
 			if err != nil {
 				return xerrors.Errorf("template name %q is invalid: %w", name, err)
 			}
 
 			if versionName != "" {
-				err = codersdk.TemplateVersionNameValid(versionName)
+				err = nicloudsdk.TemplateVersionNameValid(versionName)
 				if err != nil {
 					return xerrors.Errorf("template version name %q is invalid: %w", versionName, err)
 				}
@@ -76,7 +76,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 			var createTemplate bool
 			template, err := client.TemplateByName(inv.Context(), organization.ID, name)
 			if err != nil {
-				var apiError *codersdk.Error
+				var apiError *nicloudsdk.Error
 				if errors.As(err, &apiError) && apiError.StatusCode() != http.StatusNotFound {
 					return err
 				}
@@ -133,7 +133,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 
 			var varsFiles []string
 			if !uploadFlags.stdin(inv) {
-				varsFiles, err = codersdk.DiscoverVarsFiles(uploadFlags.directory)
+				varsFiles, err = nicloudsdk.DiscoverVarsFiles(uploadFlags.directory)
 				if err != nil {
 					return err
 				}
@@ -148,7 +148,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				return err
 			}
 
-			userVariableValues, err := codersdk.ParseUserVariableValues(
+			userVariableValues, err := nicloudsdk.ParseUserVariableValues(
 				varsFiles,
 				variablesFile,
 				commandLineVariables)
@@ -160,7 +160,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				Message:            message,
 				Client:             client,
 				Organization:       organization,
-				Provisioner:        codersdk.ProvisionerType(provisioner),
+				Provisioner:        nicloudsdk.ProvisionerType(provisioner),
 				FileID:             resp.ID,
 				ProvisionerTags:    tags,
 				UserVariableValues: userVariableValues,
@@ -178,12 +178,12 @@ func (r *RootCmd) templatePush() *serpent.Command {
 				return err
 			}
 
-			if job.Job.Status != codersdk.ProvisionerJobSucceeded {
+			if job.Job.Status != nicloudsdk.ProvisionerJobSucceeded {
 				return xerrors.Errorf("job failed: %s", job.Job.Status)
 			}
 
 			if createTemplate {
-				_, err = client.CreateTemplate(inv.Context(), organization.ID, codersdk.CreateTemplateRequest{
+				_, err = client.CreateTemplate(inv.Context(), organization.ID, nicloudsdk.CreateTemplateRequest{
 					Name:      name,
 					VersionID: job.ID,
 				})
@@ -196,7 +196,7 @@ func (r *RootCmd) templatePush() *serpent.Command {
 						"The "+cliui.Keyword(name)+" template has been created at "+cliui.Timestamp(time.Now())+"! "+
 							"Developers can provision a workspace with this template using:")+"\n")
 			} else if activate {
-				err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, codersdk.UpdateActiveTemplateVersion{
+				err = client.UpdateActiveTemplateVersion(inv.Context(), template.ID, nicloudsdk.UpdateActiveTemplateVersion{
 					ID: job.ID,
 				})
 				if err != nil {
@@ -317,7 +317,7 @@ func (pf *templateUploadFlags) stdin(inv *serpent.Invocation) (out bool) {
 	return pf.directory == "-" || (!isTTYIn(inv) && !inv.ParsedFlags().Lookup("directory").Changed)
 }
 
-func (pf *templateUploadFlags) upload(inv *serpent.Invocation, client *codersdk.Client) (*codersdk.UploadResponse, error) {
+func (pf *templateUploadFlags) upload(inv *serpent.Invocation, client *nicloudsdk.Client) (*nicloudsdk.UploadResponse, error) {
 	var content io.Reader
 	if pf.stdin(inv) {
 		content = inv.Stdin
@@ -347,7 +347,7 @@ func (pf *templateUploadFlags) upload(inv *serpent.Invocation, client *codersdk.
 	spin.Start()
 	defer spin.Stop()
 
-	resp, err := client.Upload(inv.Context(), codersdk.ContentTypeTar, bufio.NewReader(content))
+	resp, err := client.Upload(inv.Context(), nicloudsdk.ContentTypeTar, bufio.NewReader(content))
 	if err != nil {
 		return nil, xerrors.Errorf("upload: %w", err)
 	}
@@ -413,28 +413,28 @@ func (pf *templateUploadFlags) templateName(inv *serpent.Invocation) (string, er
 type createValidTemplateVersionArgs struct {
 	Name         string
 	Message      string
-	Client       *codersdk.Client
-	Organization codersdk.Organization
-	Provisioner  codersdk.ProvisionerType
+	Client       *nicloudsdk.Client
+	Organization nicloudsdk.Organization
+	Provisioner  nicloudsdk.ProvisionerType
 	FileID       uuid.UUID
 
 	// Template is only required if updating a template's active version.
-	Template *codersdk.Template
+	Template *nicloudsdk.Template
 	// ReuseParameters will attempt to reuse params from the Template field
 	// before prompting the user. Set to false to always prompt for param
 	// values.
 	ReuseParameters    bool
 	ProvisionerTags    map[string]string
-	UserVariableValues []codersdk.VariableValue
+	UserVariableValues []nicloudsdk.VariableValue
 }
 
-func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplateVersionArgs) (*codersdk.TemplateVersion, error) {
+func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplateVersionArgs) (*nicloudsdk.TemplateVersion, error) {
 	client := args.Client
 
-	req := codersdk.CreateTemplateVersionRequest{
+	req := nicloudsdk.CreateTemplateVersionRequest{
 		Name:               args.Name,
 		Message:            args.Message,
-		StorageMethod:      codersdk.ProvisionerStorageMethodFile,
+		StorageMethod:      nicloudsdk.ProvisionerStorageMethodFile,
 		FileID:             args.FileID,
 		Provisioner:        args.Provisioner,
 		ProvisionerTags:    args.ProvisionerTags,
@@ -449,24 +449,24 @@ func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplat
 	}
 	cliutil.WarnMatchedProvisioners(inv.Stderr, version.MatchedProvisioners, version.Job)
 	err = cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
-		Fetch: func() (codersdk.ProvisionerJob, error) {
+		Fetch: func() (nicloudsdk.ProvisionerJob, error) {
 			version, err := client.TemplateVersion(inv.Context(), version.ID)
 			return version.Job, err
 		},
 		Cancel: func() error {
 			return client.CancelTemplateVersion(inv.Context(), version.ID)
 		},
-		Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
+		Logs: func() (<-chan nicloudsdk.ProvisionerJobLog, io.Closer, error) {
 			return client.TemplateVersionLogsAfter(inv.Context(), version.ID, 0)
 		},
 	})
 	if err != nil {
 		var jobErr *cliui.ProvisionerJobError
 		if errors.As(err, &jobErr) {
-			if codersdk.JobIsMissingRequiredTemplateVariableErrorCode(jobErr.Code) {
+			if nicloudsdk.JobIsMissingRequiredTemplateVariableErrorCode(jobErr.Code) {
 				return handleMissingTemplateVariables(inv, args, version.ID)
 			}
-			if !codersdk.JobIsMissingParameterErrorCode(jobErr.Code) {
+			if !nicloudsdk.JobIsMissingParameterErrorCode(jobErr.Code) {
 				return nil, err
 			}
 		}
@@ -477,7 +477,7 @@ func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplat
 		return nil, err
 	}
 
-	if version.Job.Status != codersdk.ProvisionerJobSucceeded {
+	if version.Job.Status != nicloudsdk.ProvisionerJobSucceeded {
 		return nil, xerrors.New(version.Job.Error)
 	}
 
@@ -487,9 +487,9 @@ func createValidTemplateVersion(inv *serpent.Invocation, args createValidTemplat
 	}
 
 	// Only display the resources on the start transition, to avoid listing them more than once.
-	var startResources []codersdk.WorkspaceResource
+	var startResources []nicloudsdk.WorkspaceResource
 	for _, r := range resources {
-		if r.Transition == codersdk.WorkspaceTransitionStart {
+		if r.Transition == nicloudsdk.WorkspaceTransitionStart {
 			startResources = append(startResources, r)
 		}
 	}
@@ -534,7 +534,7 @@ func prettyDirectoryPath(dir string) string {
 	return prettyDir
 }
 
-func handleMissingTemplateVariables(inv *serpent.Invocation, args createValidTemplateVersionArgs, failedVersionID uuid.UUID) (*codersdk.TemplateVersion, error) {
+func handleMissingTemplateVariables(inv *serpent.Invocation, args createValidTemplateVersionArgs, failedVersionID uuid.UUID) (*nicloudsdk.TemplateVersion, error) {
 	client := args.Client
 
 	templateVariables, err := client.TemplateVersionVariables(inv.Context(), failedVersionID)
@@ -547,7 +547,7 @@ func handleMissingTemplateVariables(inv *serpent.Invocation, args createValidTem
 		existingValues[v.Name] = v.Value
 	}
 
-	var missingVariables []codersdk.TemplateVersionVariable
+	var missingVariables []nicloudsdk.TemplateVersionVariable
 	for _, variable := range templateVariables {
 		if !variable.Required {
 			continue
@@ -559,7 +559,7 @@ func handleMissingTemplateVariables(inv *serpent.Invocation, args createValidTem
 
 		// Only prompt for variables that don't have a default value or have a redacted default
 		// Sensitive variables have a default value of "*redacted*"
-		// See: https://github.com/coder/coder/blob/a78790c632974e04babfef6de0e2ddf044787a7a/coderd/provisionerdserver/provisionerdserver.go#L3206
+		// See: https://github.com/coder/coder/blob/a78790c632974e04babfef6de0e2ddf044787a7a/nicloud/provisionerdserver/provisionerdserver.go#L3206
 		if variable.DefaultValue == "" || (variable.Sensitive && variable.DefaultValue == "*redacted*") {
 			missingVariables = append(missingVariables, variable)
 		}
@@ -576,19 +576,19 @@ func handleMissingTemplateVariables(inv *serpent.Invocation, args createValidTem
 
 	_, _ = fmt.Fprintln(inv.Stderr, "\nThe template requires values for the following variables:")
 
-	var promptedValues []codersdk.VariableValue
+	var promptedValues []nicloudsdk.VariableValue
 	for _, variable := range missingVariables {
 		value, err := promptForTemplateVariable(inv, variable)
 		if err != nil {
 			return nil, xerrors.Errorf("prompt for variable %q: %w", variable.Name, err)
 		}
-		promptedValues = append(promptedValues, codersdk.VariableValue{
+		promptedValues = append(promptedValues, nicloudsdk.VariableValue{
 			Name:  variable.Name,
 			Value: value,
 		})
 	}
 
-	combinedValues := codersdk.CombineVariableValues(args.UserVariableValues, promptedValues)
+	combinedValues := nicloudsdk.CombineVariableValues(args.UserVariableValues, promptedValues)
 
 	_, _ = fmt.Fprintln(inv.Stderr, "\nRetrying template build with provided variables...")
 
@@ -598,7 +598,7 @@ func handleMissingTemplateVariables(inv *serpent.Invocation, args createValidTem
 	return createValidTemplateVersion(inv, retryArgs)
 }
 
-func promptForTemplateVariable(inv *serpent.Invocation, variable codersdk.TemplateVersionVariable) (string, error) {
+func promptForTemplateVariable(inv *serpent.Invocation, variable nicloudsdk.TemplateVersionVariable) (string, error) {
 	displayVariableInfo(inv, variable)
 
 	switch variable.Type {
@@ -611,7 +611,7 @@ func promptForTemplateVariable(inv *serpent.Invocation, variable codersdk.Templa
 	}
 }
 
-func displayVariableInfo(inv *serpent.Invocation, variable codersdk.TemplateVersionVariable) {
+func displayVariableInfo(inv *serpent.Invocation, variable nicloudsdk.TemplateVersionVariable) {
 	_, _ = fmt.Fprintf(inv.Stderr, "var.%s", cliui.Bold(variable.Name))
 	if variable.Required {
 		_, _ = fmt.Fprint(inv.Stderr, pretty.Sprint(cliui.DefaultStyles.Error, " (required)"))
@@ -628,7 +628,7 @@ func displayVariableInfo(inv *serpent.Invocation, variable codersdk.TemplateVers
 	_, _ = fmt.Fprintf(inv.Stderr, "  Current value: %s\n", pretty.Sprint(cliui.DefaultStyles.Placeholder, "<empty>"))
 }
 
-func promptForBoolVariable(inv *serpent.Invocation, variable codersdk.TemplateVersionVariable) (string, error) {
+func promptForBoolVariable(inv *serpent.Invocation, variable nicloudsdk.TemplateVersionVariable) (string, error) {
 	defaultValue := variable.DefaultValue
 	if defaultValue == "" {
 		defaultValue = "false"
@@ -641,7 +641,7 @@ func promptForBoolVariable(inv *serpent.Invocation, variable codersdk.TemplateVe
 	})
 }
 
-func promptForNumberVariable(inv *serpent.Invocation, variable codersdk.TemplateVersionVariable) (string, error) {
+func promptForNumberVariable(inv *serpent.Invocation, variable nicloudsdk.TemplateVersionVariable) (string, error) {
 	prompt := "Enter value:"
 	if !variable.Required && variable.DefaultValue != "" {
 		prompt = fmt.Sprintf("Enter value (default: %q):", variable.DefaultValue)
@@ -654,7 +654,7 @@ func promptForNumberVariable(inv *serpent.Invocation, variable codersdk.Template
 	})
 }
 
-func promptForStringVariable(inv *serpent.Invocation, variable codersdk.TemplateVersionVariable) (string, error) {
+func promptForStringVariable(inv *serpent.Invocation, variable nicloudsdk.TemplateVersionVariable) (string, error) {
 	prompt := "Enter value:"
 	if !variable.Sensitive {
 		if !variable.Required && variable.DefaultValue != "" {
@@ -670,7 +670,7 @@ func promptForStringVariable(inv *serpent.Invocation, variable codersdk.Template
 	})
 }
 
-func createVariableValidator(variable codersdk.TemplateVersionVariable) func(string) error {
+func createVariableValidator(variable nicloudsdk.TemplateVersionVariable) func(string) error {
 	return func(s string) error {
 		if variable.Required && s == "" && variable.DefaultValue == "" {
 			return xerrors.New("value is required")

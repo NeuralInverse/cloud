@@ -27,10 +27,10 @@ env:
   # Use `inputs` (vs `github.event.inputs`) to ensure that booleans are actual
   # booleans, not strings.
   # https://github.blog/changelog/2022-06-10-github-actions-inputs-unified-across-manual-and-reusable-workflows/
-  CODER_RELEASE: ${{ !inputs.dry_run }}
-  CODER_DRY_RUN: ${{ inputs.dry_run }}
-  CODER_RELEASE_CHANNEL: ${{ inputs.release_channel }}
-  CODER_RELEASE_NOTES: ${{ inputs.release_notes }}
+  NEURALINVERSE_RELEASE: ${{ !inputs.dry_run }}
+  NEURALINVERSE_DRY_RUN: ${{ inputs.dry_run }}
+  NEURALINVERSE_RELEASE_CHANNEL: ${{ inputs.release_channel }}
+  NEURALINVERSE_RELEASE_NOTES: ${{ inputs.release_notes }}
 
 jobs:
   # Only allow maintainers/admins to release.
@@ -106,7 +106,7 @@ jobs:
           version="$(./scripts/version.sh)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           # Speed up future version.sh calls.
-          echo "CODER_FORCE_VERSION=$version" >> "$GITHUB_ENV"
+          echo "NEURALINVERSE_FORCE_VERSION=$version" >> "$GITHUB_ENV"
           echo "$version"
 
       # Verify that all expectations for a release are met.
@@ -139,7 +139,7 @@ jobs:
             fi
           fi
 
-          if [[ -z "${CODER_RELEASE_NOTES}" ]]; then
+          if [[ -z "${NEURALINVERSE_RELEASE_NOTES}" ]]; then
             echo "Release notes are required to create a release, did you use scripts/release.sh?"
             exit 1
           fi
@@ -148,7 +148,7 @@ jobs:
           echo
           echo "- Ref: ${GITHUB_REF}"
           echo "- Version: ${version}"
-          echo "- Release channel: ${CODER_RELEASE_CHANNEL}"
+          echo "- Release channel: ${NEURALINVERSE_RELEASE_CHANNEL}"
           echo "- Release branch: ${release_branch}"
           echo "- Release notes: true"
 
@@ -157,13 +157,13 @@ jobs:
           set -euo pipefail
 
           release_notes_file="$(mktemp -t release_notes.XXXXXX)"
-          echo "$CODER_RELEASE_NOTES" > "$release_notes_file"
-          echo CODER_RELEASE_NOTES_FILE="$release_notes_file" >> "$GITHUB_ENV"
+          echo "$NEURALINVERSE_RELEASE_NOTES" > "$release_notes_file"
+          echo NEURALINVERSE_RELEASE_NOTES_FILE="$release_notes_file" >> "$GITHUB_ENV"
 
       - name: Show release notes
         run: |
           set -euo pipefail
-          cat "$CODER_RELEASE_NOTES_FILE"
+          cat "$NEURALINVERSE_RELEASE_NOTES_FILE"
 
       - name: Docker Login
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
@@ -256,11 +256,11 @@ jobs:
             build/coder_helm_"$version".tgz \
             build/provisioner_helm_"$version".tgz
         env:
-          CODER_SIGN_WINDOWS: "1"
-          CODER_SIGN_DARWIN: "1"
-          CODER_SIGN_GPG: "1"
-          CODER_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
-          CODER_WINDOWS_RESOURCES: "1"
+          NEURALINVERSE_SIGN_WINDOWS: "1"
+          NEURALINVERSE_SIGN_DARWIN: "1"
+          NEURALINVERSE_SIGN_GPG: "1"
+          NEURALINVERSE_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
+          NEURALINVERSE_WINDOWS_RESOURCES: "1"
           AC_CERTIFICATE_FILE: /tmp/apple_cert.p12
           AC_CERTIFICATE_PASSWORD_FILE: /tmp/apple_cert_password.txt
           AC_APIKEY_ISSUER_ID: ${{ secrets.AC_APIKEY_ISSUER_ID }}
@@ -283,11 +283,11 @@ jobs:
         id: image-base-tag
         run: |
           set -euo pipefail
-          if [[ "${CODER_RELEASE:-}" != *t* ]] || [[ "${CODER_DRY_RUN:-}" == *t* ]]; then
+          if [[ "${NEURALINVERSE_RELEASE:-}" != *t* ]] || [[ "${NEURALINVERSE_DRY_RUN:-}" == *t* ]]; then
             # Empty value means use the default and avoid building a fresh one.
             echo "tag=" >> "$GITHUB_OUTPUT"
           else
-            echo "tag=$(CODER_IMAGE_BASE=ghcr.io/coder/coder-base ./scripts/image_tag.sh)" >> "$GITHUB_OUTPUT"
+            echo "tag=$(NEURALINVERSE_IMAGE_BASE=ghcr.io/coder/coder-base ./scripts/image_tag.sh)" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create empty base-build-context directory
@@ -365,7 +365,7 @@ jobs:
 
           # we can't build multi-arch if the images aren't pushed, so quit now
           # if dry-running
-          if [[ "$CODER_RELEASE" != *t* ]]; then
+          if [[ "$NEURALINVERSE_RELEASE" != *t* ]]; then
             echo Skipping multi-arch docker builds due to dry-run.
             exit 0
           fi
@@ -400,7 +400,7 @@ jobs:
             echo "created_latest_tag=false" >> "$GITHUB_OUTPUT"
           fi
         env:
-          CODER_BASE_IMAGE_TAG: ${{ steps.image-base-tag.outputs.tag }}
+          NEURALINVERSE_BASE_IMAGE_TAG: ${{ steps.image-base-tag.outputs.tag }}
 
       - name: SBOM Generation and Attestation
         if: ${{ !inputs.dry_run }}
@@ -545,13 +545,13 @@ jobs:
           set -euo pipefail
 
           publish_args=()
-          if [[ $CODER_RELEASE_CHANNEL == "stable" ]]; then
+          if [[ $NEURALINVERSE_RELEASE_CHANNEL == "stable" ]]; then
             publish_args+=(--stable)
           fi
-          if [[ $CODER_RELEASE_CHANNEL == "rc" ]]; then
+          if [[ $NEURALINVERSE_RELEASE_CHANNEL == "rc" ]]; then
             publish_args+=(--rc)
           fi
-          if [[ $CODER_DRY_RUN == *t* ]]; then
+          if [[ $NEURALINVERSE_DRY_RUN == *t* ]]; then
             publish_args+=(--dry-run)
           fi
           declare -p publish_args
@@ -575,11 +575,11 @@ jobs:
 
           ./scripts/release/publish.sh \
             "${publish_args[@]}" \
-            --release-notes-file "$CODER_RELEASE_NOTES_FILE" \
+            --release-notes-file "$NEURALINVERSE_RELEASE_NOTES_FILE" \
             "${files[@]}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CODER_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
+          NEURALINVERSE_GPG_RELEASE_KEY_BASE64: ${{ secrets.GPG_RELEASE_KEY_BASE64 }}
           VERSION: ${{ steps.version.outputs.version }}
           CREATED_LATEST_TAG: ${{ steps.build_docker.outputs.created_latest_tag }}
 
@@ -631,7 +631,7 @@ jobs:
           cp "build/provisioner_helm_${version}.tgz" build/helm
           gsutil cp gs://helm.coder.com/v2/index.yaml build/helm/index.yaml
           helm repo index build/helm --url https://helm.coder.com/v2 --merge build/helm/index.yaml
-          gsutil -h "Cache-Control:no-cache,max-age=0" cp "build/helm/coder_helm_${version}.tgz" gs://helm.coder.com/v2
+          gsutil -h "Cache-Control:no-cache,max-age=0" cp "build/helm/neuralinverse_helm_${version}.tgz" gs://helm.coder.com/v2
           gsutil -h "Cache-Control:no-cache,max-age=0" cp "build/helm/provisioner_helm_${version}.tgz" gs://helm.coder.com/v2
           gsutil -h "Cache-Control:no-cache,max-age=0" cp "build/helm/index.yaml" gs://helm.coder.com/v2
           gsutil -h "Cache-Control:no-cache,max-age=0" cp "helm/artifacthub-repo.yml" gs://helm.coder.com/v2

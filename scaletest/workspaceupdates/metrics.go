@@ -15,13 +15,13 @@ type Metrics struct {
 func NewMetrics(reg prometheus.Registerer) *Metrics {
 	m := &Metrics{
 		WorkspaceUpdatesLatencySeconds: *prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Namespace: "coderd",
+			Namespace: "nicloud",
 			Subsystem: "scaletest",
 			Name:      "workspace_updates_latency_seconds",
 			Help:      "Time between starting a workspace build and receiving both the agent update and workspace update",
 		}, []string{"username", "num_owned_workspaces", "workspace_name"}),
 		WorkspaceUpdatesErrorsTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "coderd",
+			Namespace: "nicloud",
 			Subsystem: "scaletest",
 			Name:      "workspace_updates_errors_total",
 			Help:      "Total number of workspace updates errors",

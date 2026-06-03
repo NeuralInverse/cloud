@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -148,8 +148,8 @@ func (r *RootCmd) aibridgeInterceptionsList() *serpent.Command {
 				return xerrors.Errorf("limit value must be between 1 and %d", maxInterceptionsLimit)
 			}
 
-			resp, err := serpetClient.AIBridgeListInterceptions(inv.Context(), codersdk.AIBridgeListInterceptionsFilter{
-				Pagination: codersdk.Pagination{
+			resp, err := serpetClient.AIBridgeListInterceptions(inv.Context(), nicloudsdk.AIBridgeListInterceptionsFilter{
+				Pagination: nicloudsdk.Pagination{
 					AfterID: afterID,
 					// #nosec G115 - Checked above.
 					Limit: int(limit),

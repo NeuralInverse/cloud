@@ -81,21 +81,21 @@ describe("util > workspace", () => {
 					...Mocks.MockWorkspaceBuild,
 					reason: "autostart",
 				},
-				"Coder",
+				"Neural Inverse Cloud",
 			],
 			[
 				{
 					...Mocks.MockWorkspaceBuild,
 					reason: "autostop",
 				},
-				"Coder",
+				"Neural Inverse Cloud",
 			],
 			[
 				{
 					...Mocks.MockWorkspaceBuild,
 					reason: "task_auto_pause",
 				},
-				"Coder",
+				"Neural Inverse Cloud",
 			],
 		])("getDisplayWorkspaceBuildInitiatedBy(%p) returns %p", (build, initiatedBy) => {
 			expect(getDisplayWorkspaceBuildInitiatedBy(build)).toEqual(initiatedBy);

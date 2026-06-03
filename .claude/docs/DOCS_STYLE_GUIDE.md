@@ -8,17 +8,17 @@ Before documenting a feature:
 
 1. **Research similar documentation** - Read recent documentation pages in `docs/` to understand writing style, structure, and conventions for your content type (admin guides, tutorials, reference docs, etc.)
 2. **Read the code implementation** - Check backend endpoints, frontend components, database queries
-3. **Verify permissions model** - Look up RBAC actions in `coderd/rbac/` (e.g., `view_insights` for Template Insights)
+3. **Verify permissions model** - Look up RBAC actions in `nicloud/rbac/` (e.g., `view_insights` for Template Insights)
 4. **Check UI thresholds and defaults** - Review frontend code for color thresholds, time intervals, display logic
 5. **Cross-reference with tests** - Test files document expected behavior and edge cases
-6. **Verify API endpoints** - Check `coderd/coderd.go` for route registration
+6. **Verify API endpoints** - Check `nicloud/nicloud.go` for route registration
 
 ### Code Verification Checklist
 
 When documenting features, always verify these implementation details:
 
-- Read handler implementation in `coderd/`
-- Check permission requirements in `coderd/rbac/`
+- Read handler implementation in `nicloud/`
+- Check permission requirements in `nicloud/rbac/`
 - Review frontend components in `site/src/pages/` or `site/src/modules/`
 - Verify display thresholds and intervals (e.g., color codes, time defaults)
 - Confirm API endpoint paths and parameters
@@ -177,7 +177,7 @@ coder server --disable-template-insights
 
 ````markdown
 ```sh
-CODER_DISABLE_TEMPLATE_INSIGHTS=true
+NEURALINVERSE_DISABLE_TEMPLATE_INSIGHTS=true
 ```
 ````
 

@@ -87,9 +87,9 @@ while read -r line; do
 	popd
 done <<<"$resources"
 
-terraform_coder_provider_version="$(yq e '.args.TERRAFORM_CODER_PROVIDER_VERSION' "$manifest_path")"
+terraform_coder_provider_version="$(yq e '.args.TERRAFORM_NEURALINVERSE_PROVIDER_VERSION' "$manifest_path")"
 if [[ "$terraform_coder_provider_version" == "" ]]; then
-	error "TERRAFORM_CODER_PROVIDER_VERSION not found in hardening_manifest.yaml"
+	error "TERRAFORM_NEURALINVERSE_PROVIDER_VERSION not found in hardening_manifest.yaml"
 fi
 
 # Build the image.
@@ -98,7 +98,7 @@ docker build \
 	--build-arg BASE_REGISTRY=registry.access.redhat.com \
 	--build-arg BASE_IMAGE=ubi9/ubi-minimal \
 	--build-arg BASE_TAG=9.6 \
-	--build-arg TERRAFORM_CODER_PROVIDER_VERSION="$terraform_coder_provider_version" \
+	--build-arg TERRAFORM_NEURALINVERSE_PROVIDER_VERSION="$terraform_coder_provider_version" \
 	-t "$image_tag" \
 	. >&2
 popd

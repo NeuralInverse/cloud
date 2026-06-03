@@ -18,11 +18,11 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogjson"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/audit/audittest"
-	"github.com/coder/coder/v2/enterprise/audit/backends"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit/audittest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit/backends"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestSlogExporter(t *testing.T) {
@@ -85,7 +85,7 @@ func TestSlogExporter(t *testing.T) {
 		err := exporter.ExportStruct(ctx, alog, "audit_log", slog.F("actor", &audit.Actor{
 			ID:       uuid.UUID{2},
 			Username: "coadler",
-			Email:    "doug@coder.com",
+			Email:    "doug@cloud.neuralinverse.com",
 		}))
 		require.NoError(t, err)
 		logger.Sync()
@@ -96,7 +96,7 @@ func TestSlogExporter(t *testing.T) {
 		err = json.Unmarshal(buf.Bytes(), &s)
 		require.NoError(t, err)
 
-		expected := `{"ID":"01000000-0000-0000-0000-000000000000","Time":"2009-11-10T23:00:00Z","UserID":"02000000-0000-0000-0000-000000000000","OrganizationID":"03000000-0000-0000-0000-000000000000","Ip":"127.0.0.1","UserAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36","ResourceType":"organization","ResourceID":"04000000-0000-0000-0000-000000000000","ResourceTarget":"colin's organization","Action":"delete","Diff":{"1":2},"StatusCode":204,"AdditionalFields":{"name":"doug","species":"cat"},"RequestID":"05000000-0000-0000-0000-000000000000","ResourceIcon":"photo.png","actor":{"id":"02000000-0000-0000-0000-000000000000","email":"doug@coder.com","username":"coadler"}}`
+		expected := `{"ID":"01000000-0000-0000-0000-000000000000","Time":"2009-11-10T23:00:00Z","UserID":"02000000-0000-0000-0000-000000000000","OrganizationID":"03000000-0000-0000-0000-000000000000","Ip":"127.0.0.1","UserAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36","ResourceType":"organization","ResourceID":"04000000-0000-0000-0000-000000000000","ResourceTarget":"colin's organization","Action":"delete","Diff":{"1":2},"StatusCode":204,"AdditionalFields":{"name":"doug","species":"cat"},"RequestID":"05000000-0000-0000-0000-000000000000","ResourceIcon":"photo.png","actor":{"id":"02000000-0000-0000-0000-000000000000","email":"doug@cloud.neuralinverse.com","username":"coadler"}}`
 		assert.Equal(t, expected, string(s.Fields))
 	})
 }

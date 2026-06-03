@@ -15,16 +15,16 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
 	"github.com/coder/websocket"
 )
 
 type Runner struct {
-	client    *codersdk.Client
-	webClient *codersdk.Client
+	client    *nicloudsdk.Client
+	webClient *nicloudsdk.Client
 	cfg       Config
 }
 
@@ -34,8 +34,8 @@ var (
 	_ harness.Collectable = &Runner{}
 )
 
-// func NewRunner(client *codersdk.Client, cfg Config, metrics *Metrics) *Runner {
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+// func NewRunner(client *nicloudsdk.Client, cfg Config, metrics *Metrics) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	webClient := client
 	if cfg.WebClient != nil {
 		webClient = cfg.WebClient

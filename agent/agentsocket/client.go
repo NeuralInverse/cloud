@@ -7,9 +7,9 @@ import (
 	"storj.io/drpc"
 	"storj.io/drpc/drpcconn"
 
-	"github.com/coder/coder/v2/agent/agentsocket/proto"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/agent/unit"
+	"github.com/NeuralInverse/cloud/v2/agent/agentsocket/proto"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/agent/unit"
 )
 
 // Option represents a configuration option for NewClient.
@@ -133,7 +133,7 @@ func (c *Client) SyncStatus(ctx context.Context, unitName unit.ID) (SyncStatusRe
 	}, nil
 }
 
-// UpdateAppStatus forwards an app status update to coderd via the agent.
+// UpdateAppStatus forwards an app status update to nicloud via the agent.
 func (c *Client) UpdateAppStatus(ctx context.Context, req *agentproto.UpdateAppStatusRequest) (*agentproto.UpdateAppStatusResponse, error) {
 	return c.client.UpdateAppStatus(ctx, req)
 }

@@ -12,8 +12,8 @@ import (
 	"tailscale.com/types/ipproto"
 	"tailscale.com/types/netlogtype"
 
-	"github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestStatsReporter(t *testing.T) {

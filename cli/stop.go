@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/cli/cliutil"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 	"github.com/coder/serpent"
 )
 
@@ -65,8 +65,8 @@ func (r *RootCmd) stop() *serpent.Command {
 	return cmd
 }
 
-func stopWorkspace(inv *serpent.Invocation, client *codersdk.Client, workspace codersdk.Workspace, bflags buildFlags) (codersdk.WorkspaceBuild, error) {
-	if workspace.LatestBuild.Job.Status == codersdk.ProvisionerJobPending {
+func stopWorkspace(inv *serpent.Invocation, client *nicloudsdk.Client, workspace nicloudsdk.Workspace, bflags buildFlags) (nicloudsdk.WorkspaceBuild, error) {
+	if workspace.LatestBuild.Job.Status == nicloudsdk.ProvisionerJobPending {
 		// cliutil.WarnMatchedProvisioners also checks if the job is pending
 		// but we still want to avoid users spamming multiple builds that will
 		// not be picked up.
@@ -77,14 +77,14 @@ func stopWorkspace(inv *serpent.Invocation, client *codersdk.Client, workspace c
 			IsConfirm: true,
 			Default:   cliui.ConfirmNo,
 		}); err != nil {
-			return codersdk.WorkspaceBuild{}, err
+			return nicloudsdk.WorkspaceBuild{}, err
 		}
 	}
-	wbr := codersdk.CreateWorkspaceBuildRequest{
-		Transition: codersdk.WorkspaceTransitionStop,
+	wbr := nicloudsdk.CreateWorkspaceBuildRequest{
+		Transition: nicloudsdk.WorkspaceTransitionStop,
 	}
 	if bflags.provisionerLogDebug {
-		wbr.LogLevel = codersdk.ProvisionerLogLevelDebug
+		wbr.LogLevel = nicloudsdk.ProvisionerLogLevelDebug
 	}
 	return client.CreateWorkspaceBuild(inv.Context(), workspace.ID, wbr)
 }

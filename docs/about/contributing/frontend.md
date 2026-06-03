@@ -1,7 +1,7 @@
 # Frontend
 
-Welcome to the guide for contributing to the Coder frontend. Whether you’re part
-of the community or a Coder team member, this documentation will help you get
+Welcome to the guide for contributing to the Neural Inverse Cloud frontend. Whether you’re part
+of the community or a Neural Inverse Cloud team member, this documentation will help you get
 started.
 
 If you have any questions, feel free to reach out on our
@@ -10,13 +10,13 @@ you.
 
 ## Running the UI
 
-You can run the UI and access the Coder dashboard in two ways:
+You can run the UI and access the Neural Inverse Cloud dashboard in two ways:
 
-1. Build the UI pointing to an external Coder server:
-   `CODER_HOST=https://mycoder.com pnpm dev` inside of the `site` folder. This
+1. Build the UI pointing to an external Neural Inverse Cloud server:
+   `NEURALINVERSE_HOST=https://mycloud.neuralinverse.com pnpm dev` inside of the `site` folder. This
    is helpful when you are building something in the UI and already have the
    data on your deployed server.
-2. Build the entire Coder server + UI locally: `./scripts/develop.sh` in the
+2. Build the entire Neural Inverse Cloud server + UI locally: `./scripts/develop.sh` in the
    root folder. This is useful for contributing to features that are not
    deployed yet or that involve both the frontend and backend.
 
@@ -24,7 +24,7 @@ In both cases, you can access the dashboard on `http://localhost:8080`. If using
 `./scripts/develop.sh` you can log in with the default credentials.
 
 > [!NOTE]
-> **Default Credentials:** `admin@coder.com` and `SomeSecurePassword!`.
+> **Default Credentials:** `admin@cloud.neuralinverse.com` and `SomeSecurePassword!`.
 
 ## Tech Stack Overview
 
@@ -53,10 +53,10 @@ All UI-related code is in the `site` folder. Key directories include:
     (largely code that has no server-side equivalent)
   - **api** - API function calls and types
     - **queries** - react-query queries and mutations
-  - **components** - Reusable UI components without Coder specific business
+  - **components** - Reusable UI components without Neural Inverse Cloud specific business
     logic
   - **hooks** - Custom React hooks
-  - **modules** - Coder specific logic and components related to multiple parts of the UI
+  - **modules** - Neural Inverse Cloud specific logic and components related to multiple parts of the UI
   - **pages** - Page-level components
   - **testHelpers** - Helper functions for integration testing
   - **theme** - theme configuration and color definitions
@@ -229,12 +229,12 @@ inside the component itself using Tailwind's `sr-only` class.
 ### Should I create a new component or module?
 
 Components could technically be used in any codebase and still feel at home. A
-module would only make sense in the Coder codebase.
+module would only make sense in the Neural Inverse Cloud codebase.
 
 - Component
   - Simple
   - Atomic, used in multiple places
-  - Generic, would be useful as a component outside of the Coder product
+  - Generic, would be useful as a component outside of the Neural Inverse Cloud product
   - Good Examples: `Badge`, `Form`, `Timeline`
 - Module
   - Simple or Complex
@@ -261,7 +261,7 @@ and **Visual Testing**.
 ### End-to-End (E2E) – Playwright
 
 These are useful for testing complete flows like "Create a user", "Import
-template", etc. We use [Playwright](https://playwright.dev/). These tests run against a full Coder instance, backed by a database, and allows you to make sure that features work properly all the way through the stack. "End to end", so to speak.
+template", etc. We use [Playwright](https://playwright.dev/). These tests run against a full Neural Inverse Cloud instance, backed by a database, and allows you to make sure that features work properly all the way through the stack. "End to end", so to speak.
 
 For scenarios where you need to be authenticated as a certain user, you can use
 `login` helper. Passing it some user credentials will log out of any other user account, and will attempt to login using those credentials.

@@ -47,9 +47,9 @@ RUN echo "FIPS" >/etc/crypto-policies/config && \
 
 # Copy and extract Coder binary from tar file. We have to put this in /opt to
 # match the Dockerfile.
-ARG CODER_BIN=/opt/coder
-ARG CODER_BIN_TAR_GZ=coder.tar.gz
-COPY "$CODER_BIN_TAR_GZ" /tmp/coder.tar.gz
+ARG NEURALINVERSE_BIN=/opt/coder
+ARG NEURALINVERSE_BIN_TAR_GZ=coder.tar.gz
+COPY "$NEURALINVERSE_BIN_TAR_GZ" /tmp/coder.tar.gz
 RUN mkdir -p /opt && \
 		tar -xzvf /tmp/coder.tar.gz --directory /opt --strip-components=1 ./coder && \
     rm /tmp/coder.tar.gz
@@ -66,9 +66,9 @@ ENV PATH="${TERRAFORM_BIN_DIR}:${PATH}"
 
 # Install the Coder Terraform provider to a well-known location.
 ARG TERRAFORM_PLUGINS_DIR=/opt/terraform/plugins
-ARG TERRAFORM_CODER_PROVIDER_VERSION
-ARG TERRAFORM_CODER_PROVIDER_ZIP=terraform-provider-coder.zip
-COPY "$TERRAFORM_CODER_PROVIDER_ZIP" "${TERRAFORM_PLUGINS_DIR}/registry.terraform.io/coder/coder/terraform-provider-coder_${TERRAFORM_CODER_PROVIDER_VERSION}_linux_amd64.zip"
+ARG TERRAFORM_NEURALINVERSE_PROVIDER_VERSION
+ARG TERRAFORM_NEURALINVERSE_PROVIDER_ZIP=terraform-provider-coder.zip
+COPY "$TERRAFORM_NEURALINVERSE_PROVIDER_ZIP" "${TERRAFORM_PLUGINS_DIR}/registry.terraform.io/coder/coder/terraform-provider-coder_${TERRAFORM_NEURALINVERSE_PROVIDER_VERSION}_linux_amd64.zip"
 
 # Configure Terraform to use plugins from this dir.
 COPY terraform-filesystem-mirror.tfrc /opt/terraform/config.tfrc
@@ -81,12 +81,12 @@ RUN microdnf remove --assumeyes \
     microdnf clean all
 
 # Transfer ownership of the binaries to the 'coder' user.
-RUN useradd coder \
+RUN useradd neuralinverse \
       --create-home \
       --shell=/bin/bash \
       --uid=1000 \
       --user-group && \
-    chown --recursive --quiet coder:coder "$CODER_BIN" && \
+    chown --recursive --quiet coder:coder "$NEURALINVERSE_BIN" && \
     chown --recursive --quiet coder:coder "$TERRAFORM_BIN_DIR" && \
     chown --recursive --quiet coder:coder "$TERRAFORM_PLUGINS_DIR" && \
     chmod 0755 /home/coder

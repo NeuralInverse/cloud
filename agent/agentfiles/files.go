@@ -18,10 +18,10 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 // ReadFileLinesResponse is the JSON response for the line-based file reader.
@@ -69,7 +69,7 @@ func (api *API) HandleReadFile(rw http.ResponseWriter, r *http.Request) {
 	limit := parser.PositiveInt64(query, 0, "limit")
 	parser.ErrorExcessParams(query)
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: parser.Errors,
 		})
@@ -78,7 +78,7 @@ func (api *API) HandleReadFile(rw http.ResponseWriter, r *http.Request) {
 
 	status, err := api.streamFile(ctx, rw, path, offset, limit)
 	if err != nil {
-		httpapi.Write(ctx, rw, status, codersdk.Response{
+		httpapi.Write(ctx, rw, status, nicloudsdk.Response{
 			Message: err.Error(),
 		})
 		return
@@ -153,7 +153,7 @@ func (api *API) HandleReadFileLines(rw http.ResponseWriter, r *http.Request) {
 	maxResponseBytes := parser.PositiveInt64(query, workspacesdk.DefaultMaxResponseBytes, "max_response_bytes")
 	parser.ErrorExcessParams(query)
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: parser.Errors,
 		})
@@ -307,7 +307,7 @@ func (api *API) HandleWriteFile(rw http.ResponseWriter, r *http.Request) {
 	path := parser.String(query, "", "path")
 	parser.ErrorExcessParams(query)
 	if len(parser.Errors) > 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message:     "Query parameters have invalid values.",
 			Validations: parser.Errors,
 		})
@@ -316,7 +316,7 @@ func (api *API) HandleWriteFile(rw http.ResponseWriter, r *http.Request) {
 
 	status, err := api.writeFile(ctx, r, path)
 	if err != nil {
-		httpapi.Write(ctx, rw, status, codersdk.Response{
+		httpapi.Write(ctx, rw, status, nicloudsdk.Response{
 			Message: err.Error(),
 		})
 		return
@@ -329,7 +329,7 @@ func (api *API) HandleWriteFile(rw http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	httpapi.Write(ctx, rw, http.StatusOK, codersdk.Response{
+	httpapi.Write(ctx, rw, http.StatusOK, nicloudsdk.Response{
 		Message: fmt.Sprintf("Successfully wrote to %q", path),
 	})
 }
@@ -381,7 +381,7 @@ func (api *API) HandleEditFiles(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(req.Files) == 0 {
-		httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "must specify at least one file",
 		})
 		return
@@ -413,7 +413,7 @@ func (api *API) HandleEditFiles(rw http.ResponseWriter, r *http.Request) {
 			}
 			// Different paths, same real file (symlink alias).
 			msg := fmt.Sprintf("duplicate file path %q aliases %q (same real file): combine edits into a single entry's \"edits\" list", f.Path, prev.caller)
-			httpapi.Write(ctx, rw, http.StatusBadRequest, codersdk.Response{
+			httpapi.Write(ctx, rw, http.StatusBadRequest, nicloudsdk.Response{
 				Message: msg,
 			})
 			return
@@ -443,7 +443,7 @@ func (api *API) HandleEditFiles(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if combinedErr != nil {
-		httpapi.Write(ctx, rw, status, codersdk.Response{
+		httpapi.Write(ctx, rw, status, nicloudsdk.Response{
 			Message: combinedErr.Error(),
 		})
 		return
@@ -456,7 +456,7 @@ func (api *API) HandleEditFiles(rw http.ResponseWriter, r *http.Request) {
 		mode := p.mode
 		s, err := api.atomicWrite(ctx, p.path, &mode, strings.NewReader(p.content))
 		if err != nil {
-			httpapi.Write(ctx, rw, s, codersdk.Response{
+			httpapi.Write(ctx, rw, s, nicloudsdk.Response{
 				Message: err.Error(),
 			})
 			return

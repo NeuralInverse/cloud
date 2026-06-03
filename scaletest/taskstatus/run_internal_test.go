@@ -15,9 +15,9 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -27,16 +27,16 @@ type fakeClient struct {
 	logger slog.Logger
 
 	// Channels for controlling the behavior
-	workspaceUpdatesCh            chan codersdk.Workspace
-	workspaceByOwnerAndNameStatus chan codersdk.ProvisionerJobStatus
+	workspaceUpdatesCh            chan nicloudsdk.Workspace
+	workspaceByOwnerAndNameStatus chan nicloudsdk.ProvisionerJobStatus
 	workspaceByOwnerAndNameErrors chan error
 }
 
 func newFakeClient(t *testing.T) *fakeClient {
 	return &fakeClient{
 		t:                             t,
-		workspaceUpdatesCh:            make(chan codersdk.Workspace),
-		workspaceByOwnerAndNameStatus: make(chan codersdk.ProvisionerJobStatus),
+		workspaceUpdatesCh:            make(chan nicloudsdk.Workspace),
+		workspaceByOwnerAndNameStatus: make(chan nicloudsdk.ProvisionerJobStatus),
 		workspaceByOwnerAndNameErrors: make(chan error, 1),
 	}
 }
@@ -45,7 +45,7 @@ func (m *fakeClient) initialize(logger slog.Logger) {
 	m.logger = logger
 }
 
-func (m *fakeClient) watchWorkspace(ctx context.Context, workspaceID uuid.UUID) (<-chan codersdk.Workspace, error) {
+func (m *fakeClient) watchWorkspace(ctx context.Context, workspaceID uuid.UUID) (<-chan nicloudsdk.Workspace, error) {
 	m.logger.Debug(ctx, "called fake WatchWorkspace", slog.F("workspace_id", workspaceID.String()))
 	return m.workspaceUpdatesCh, nil
 }
@@ -61,19 +61,19 @@ var (
 	testBuildID     = uuid.UUID{5, 6, 7, 8}
 )
 
-func workspaceWithJobStatus(status codersdk.ProvisionerJobStatus) codersdk.Workspace {
-	return codersdk.Workspace{
+func workspaceWithJobStatus(status nicloudsdk.ProvisionerJobStatus) nicloudsdk.Workspace {
+	return nicloudsdk.Workspace{
 		ID:   testWorkspaceID, // Fake workspace ID
 		Name: testWorkspaceName,
-		LatestBuild: codersdk.WorkspaceBuild{
+		LatestBuild: nicloudsdk.WorkspaceBuild{
 			ID: testBuildID,
-			Job: codersdk.ProvisionerJob{
+			Job: nicloudsdk.ProvisionerJob{
 				Status: status,
 			},
-			Resources: []codersdk.WorkspaceResource{
+			Resources: []nicloudsdk.WorkspaceResource{
 				{
-					Type: "coder_external_agent",
-					Agents: []codersdk.WorkspaceAgent{
+					Type: "ni_external_agent",
+					Agents: []nicloudsdk.WorkspaceAgent{
 						{
 							Name: testAgentName,
 						},
@@ -84,27 +84,27 @@ func workspaceWithJobStatus(status codersdk.ProvisionerJobStatus) codersdk.Works
 	}
 }
 
-func (m *fakeClient) CreateUserWorkspace(ctx context.Context, userID string, req codersdk.CreateWorkspaceRequest) (codersdk.Workspace, error) {
+func (m *fakeClient) CreateUserWorkspace(ctx context.Context, userID string, req nicloudsdk.CreateWorkspaceRequest) (nicloudsdk.Workspace, error) {
 	m.logger.Debug(ctx, "called fake CreateUserWorkspace", slog.F("user_id", userID), slog.F("req", req))
-	return workspaceWithJobStatus(codersdk.ProvisionerJobPending), nil
+	return workspaceWithJobStatus(nicloudsdk.ProvisionerJobPending), nil
 }
 
-func (m *fakeClient) WorkspaceByOwnerAndName(ctx context.Context, owner string, name string, params codersdk.WorkspaceOptions) (codersdk.Workspace, error) {
+func (m *fakeClient) WorkspaceByOwnerAndName(ctx context.Context, owner string, name string, params nicloudsdk.WorkspaceOptions) (nicloudsdk.Workspace, error) {
 	m.logger.Debug(ctx, "called fake WorkspaceByOwnerAndName", slog.F("owner", owner), slog.F("name", name))
 	status := <-m.workspaceByOwnerAndNameStatus
 	var err error
 	select {
 	case err = <-m.workspaceByOwnerAndNameErrors:
-		return codersdk.Workspace{}, err
+		return nicloudsdk.Workspace{}, err
 	default:
 		return workspaceWithJobStatus(status), nil
 	}
 }
 
-func (m *fakeClient) WorkspaceExternalAgentCredentials(ctx context.Context, workspaceID uuid.UUID, agentName string) (codersdk.ExternalAgentCredentials, error) {
+func (m *fakeClient) WorkspaceExternalAgentCredentials(ctx context.Context, workspaceID uuid.UUID, agentName string) (nicloudsdk.ExternalAgentCredentials, error) {
 	m.logger.Debug(ctx, "called fake WorkspaceExternalAgentCredentials", slog.F("workspace_id", workspaceID), slog.F("agent_name", agentName))
 	// Return fake credentials for testing
-	return codersdk.ExternalAgentCredentials{
+	return nicloudsdk.ExternalAgentCredentials{
 		AgentToken: testAgentToken,
 	}, nil
 }
@@ -216,7 +216,7 @@ func TestRunner_Run(t *testing.T) {
 	// complete the build
 	buildTickerTrap.MustWait(ctx).MustRelease(ctx)
 	w := mClock.Advance(30 * time.Second)
-	testutil.RequireSend(ctx, t, fClient.workspaceByOwnerAndNameStatus, codersdk.ProvisionerJobSucceeded)
+	testutil.RequireSend(ctx, t, fClient.workspaceByOwnerAndNameStatus, nicloudsdk.ProvisionerJobSucceeded)
 	w.MustWait(ctx)
 
 	// Wait for the runner to connect and watch workspace
@@ -245,8 +245,8 @@ func TestRunner_Run(t *testing.T) {
 		updateDelay = time.Duration(i+1) * time.Second
 		mClock.Advance(updateDelay)
 
-		workspace := codersdk.Workspace{
-			LatestAppStatus: &codersdk.WorkspaceAppStatus{
+		workspace := nicloudsdk.Workspace{
+			LatestAppStatus: &nicloudsdk.WorkspaceAppStatus{
 				Message: fmt.Sprintf("scaletest status update:%d", i),
 			},
 		}
@@ -266,12 +266,12 @@ func TestRunner_Run(t *testing.T) {
 	var missingUpdatesFound bool
 	for _, mf := range metricFamilies {
 		switch mf.GetName() {
-		case "coderd_scaletest_task_status_to_workspace_update_latency_seconds":
+		case "nicloud_scaletest_task_status_to_workspace_update_latency_seconds":
 			latencyMetricFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			hist := mf.GetMetric()[0].GetHistogram()
 			assert.Equal(t, uint64(4), hist.GetSampleCount())
-		case "coderd_scaletest_missing_status_updates_total":
+		case "nicloud_scaletest_missing_status_updates_total":
 			missingUpdatesFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			counter := mf.GetMetric()[0].GetCounter()
@@ -339,7 +339,7 @@ func TestRunner_RunMissedUpdate(t *testing.T) {
 	// complete the build
 	buildTickerTrap.MustWait(testCtx).MustRelease(testCtx)
 	w := mClock.Advance(30 * time.Second)
-	testutil.RequireSend(testCtx, t, fClient.workspaceByOwnerAndNameStatus, codersdk.ProvisionerJobSucceeded)
+	testutil.RequireSend(testCtx, t, fClient.workspaceByOwnerAndNameStatus, nicloudsdk.ProvisionerJobSucceeded)
 	w.MustWait(testCtx)
 
 	// Wait for the runner to connect and watch workspace
@@ -364,8 +364,8 @@ func TestRunner_RunMissedUpdate(t *testing.T) {
 		updateDelay = time.Duration(i+1) * time.Second
 		mClock.Advance(updateDelay)
 
-		workspace := codersdk.Workspace{
-			LatestAppStatus: &codersdk.WorkspaceAppStatus{
+		workspace := nicloudsdk.Workspace{
+			LatestAppStatus: &nicloudsdk.WorkspaceAppStatus{
 				Message: fmt.Sprintf("scaletest status update:%d", i),
 			},
 		}
@@ -392,12 +392,12 @@ func TestRunner_RunMissedUpdate(t *testing.T) {
 	var missingUpdatesFound bool
 	for _, mf := range metricFamilies {
 		switch mf.GetName() {
-		case "coderd_scaletest_task_status_to_workspace_update_latency_seconds":
+		case "nicloud_scaletest_task_status_to_workspace_update_latency_seconds":
 			latencyMetricFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			hist := mf.GetMetric()[0].GetHistogram()
 			assert.Equal(t, uint64(3), hist.GetSampleCount())
-		case "coderd_scaletest_missing_status_updates_total":
+		case "nicloud_scaletest_missing_status_updates_total":
 			missingUpdatesFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			counter := mf.GetMetric()[0].GetCounter()
@@ -462,7 +462,7 @@ func TestRunner_Run_WithErrors(t *testing.T) {
 	// complete the build
 	buildTickerTrap.MustWait(testCtx).MustRelease(testCtx)
 	w := mClock.Advance(30 * time.Second)
-	testutil.RequireSend(testCtx, t, fClient.workspaceByOwnerAndNameStatus, codersdk.ProvisionerJobSucceeded)
+	testutil.RequireSend(testCtx, t, fClient.workspaceByOwnerAndNameStatus, nicloudsdk.ProvisionerJobSucceeded)
 	w.MustWait(testCtx)
 
 	connectedWaitGroup.Wait()
@@ -493,12 +493,12 @@ func TestRunner_Run_WithErrors(t *testing.T) {
 	var reportTaskStatusErrorsFound bool
 	for _, mf := range metricFamilies {
 		switch mf.GetName() {
-		case "coderd_scaletest_missing_status_updates_total":
+		case "nicloud_scaletest_missing_status_updates_total":
 			missingUpdatesFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			counter := mf.GetMetric()[0].GetCounter()
 			assert.Equal(t, float64(4), counter.GetValue())
-		case "coderd_scaletest_report_task_status_errors_total":
+		case "nicloud_scaletest_report_task_status_errors_total":
 			reportTaskStatusErrorsFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			counter := mf.GetMetric()[0].GetCounter()
@@ -562,7 +562,7 @@ func TestRunner_Run_BuildFailed(t *testing.T) {
 	// complete the build
 	buildTickerTrap.MustWait(testCtx).MustRelease(testCtx)
 	w := mClock.Advance(30 * time.Second)
-	testutil.RequireSend(testCtx, t, fClient.workspaceByOwnerAndNameStatus, codersdk.ProvisionerJobFailed)
+	testutil.RequireSend(testCtx, t, fClient.workspaceByOwnerAndNameStatus, nicloudsdk.ProvisionerJobFailed)
 	w.MustWait(testCtx)
 
 	connectedWaitGroup.Wait()
@@ -579,12 +579,12 @@ func TestRunner_Run_BuildFailed(t *testing.T) {
 	var reportTaskStatusErrorsFound bool
 	for _, mf := range metricFamilies {
 		switch mf.GetName() {
-		case "coderd_scaletest_missing_status_updates_total":
+		case "nicloud_scaletest_missing_status_updates_total":
 			missingUpdatesFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			counter := mf.GetMetric()[0].GetCounter()
 			assert.Equal(t, float64(0), counter.GetValue())
-		case "coderd_scaletest_report_task_status_errors_total":
+		case "nicloud_scaletest_report_task_status_errors_total":
 			reportTaskStatusErrorsFound = true
 			require.Len(t, mf.GetMetric(), 1)
 			counter := mf.GetMetric()[0].GetCounter()

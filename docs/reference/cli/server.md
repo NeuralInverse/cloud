@@ -1,7 +1,7 @@
 <!-- DO NOT EDIT | GENERATED CONTENT -->
 # server
 
-Start a Coder server
+Start a Neural Inverse Cloud server
 
 ## Usage
 
@@ -25,17 +25,17 @@ coder server [flags]
 |             |                                   |
 |-------------|-----------------------------------|
 | Type        | <code>url</code>                  |
-| Environment | <code>$CODER_ACCESS_URL</code>    |
+| Environment | <code>$NEURALINVERSE_ACCESS_URL</code>    |
 | YAML        | <code>networking.accessURL</code> |
 
-The URL that users will use to access the Coder deployment.
+The URL that users will use to access the Neural Inverse Cloud deployment.
 
 ### --wildcard-access-url
 
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_WILDCARD_ACCESS_URL</code>   |
+| Environment | <code>$NEURALINVERSE_WILDCARD_ACCESS_URL</code>   |
 | YAML        | <code>networking.wildcardAccessURL</code> |
 
 Specifies the wildcard hostname to use for workspace applications in the form "*.example.com".
@@ -45,9 +45,9 @@ Specifies the wildcard hostname to use for workspace applications in the form "*
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>url</code>                    |
-| Environment | <code>$CODER_DOCS_URL</code>        |
+| Environment | <code>$NEURALINVERSE_DOCS_URL</code>        |
 | YAML        | <code>networking.docsURL</code>     |
-| Default     | <code>https://coder.com/docs</code> |
+| Default     | <code>https://cloud.neuralinverse.com/docs</code> |
 
 Specifies the custom docs URL.
 
@@ -56,7 +56,7 @@ Specifies the custom docs URL.
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>bool</code>                           |
-| Environment | <code>$CODER_REDIRECT_TO_ACCESS_URL</code>  |
+| Environment | <code>$NEURALINVERSE_REDIRECT_TO_ACCESS_URL</code>  |
 | YAML        | <code>networking.redirectToAccessURL</code> |
 
 Specifies whether to redirect requests that do not match the access URL host.
@@ -66,7 +66,7 @@ Specifies whether to redirect requests that do not match the access URL host.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_HTTP_ADDRESS</code>         |
+| Environment | <code>$NEURALINVERSE_HTTP_ADDRESS</code>         |
 | YAML        | <code>networking.http.httpAddress</code> |
 | Default     | <code>127.0.0.1:3000</code>              |
 
@@ -77,7 +77,7 @@ HTTP bind address of the server. Unset to disable the HTTP endpoint.
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>host:port</code>              |
-| Environment | <code>$CODER_TLS_ADDRESS</code>     |
+| Environment | <code>$NEURALINVERSE_TLS_ADDRESS</code>     |
 | YAML        | <code>networking.tls.address</code> |
 | Default     | <code>127.0.0.1:3443</code>         |
 
@@ -88,7 +88,7 @@ HTTPS bind address of the server.
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>bool</code>                  |
-| Environment | <code>$CODER_TLS_ENABLE</code>     |
+| Environment | <code>$NEURALINVERSE_TLS_ENABLE</code>     |
 | YAML        | <code>networking.tls.enable</code> |
 
 Whether TLS will be enabled.
@@ -98,7 +98,7 @@ Whether TLS will be enabled.
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string-array</code>             |
-| Environment | <code>$CODER_TLS_CERT_FILE</code>     |
+| Environment | <code>$NEURALINVERSE_TLS_CERT_FILE</code>     |
 | YAML        | <code>networking.tls.certFiles</code> |
 
 Path to each certificate for TLS. It requires a PEM-encoded file. To configure the listener to use a CA certificate, concatenate the primary certificate and the CA certificate together. The primary certificate should appear first in the combined file.
@@ -108,7 +108,7 @@ Path to each certificate for TLS. It requires a PEM-encoded file. To configure t
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_TLS_CLIENT_CA_FILE</code>   |
+| Environment | <code>$NEURALINVERSE_TLS_CLIENT_CA_FILE</code>   |
 | YAML        | <code>networking.tls.clientCAFile</code> |
 
 PEM-encoded Certificate Authority file used for checking the authenticity of client.
@@ -118,7 +118,7 @@ PEM-encoded Certificate Authority file used for checking the authenticity of cli
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_TLS_CLIENT_AUTH</code>    |
+| Environment | <code>$NEURALINVERSE_TLS_CLIENT_AUTH</code>    |
 | YAML        | <code>networking.tls.clientAuth</code> |
 | Default     | <code>none</code>                      |
 
@@ -129,7 +129,7 @@ Policy the server will follow for TLS Client Authentication. Accepted values are
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string-array</code>            |
-| Environment | <code>$CODER_TLS_KEY_FILE</code>     |
+| Environment | <code>$NEURALINVERSE_TLS_KEY_FILE</code>     |
 | YAML        | <code>networking.tls.keyFiles</code> |
 
 Paths to the private keys for each of the certificates. It requires a PEM-encoded file.
@@ -139,7 +139,7 @@ Paths to the private keys for each of the certificates. It requires a PEM-encode
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_TLS_MIN_VERSION</code>    |
+| Environment | <code>$NEURALINVERSE_TLS_MIN_VERSION</code>    |
 | YAML        | <code>networking.tls.minVersion</code> |
 | Default     | <code>tls12</code>                     |
 
@@ -150,7 +150,7 @@ Minimum supported version of TLS. Accepted values are "tls10", "tls11", "tls12" 
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>string</code>                        |
-| Environment | <code>$CODER_TLS_CLIENT_CERT_FILE</code>   |
+| Environment | <code>$NEURALINVERSE_TLS_CLIENT_CERT_FILE</code>   |
 | YAML        | <code>networking.tls.clientCertFile</code> |
 
 Path to certificate for client TLS authentication. It requires a PEM-encoded file.
@@ -160,7 +160,7 @@ Path to certificate for client TLS authentication. It requires a PEM-encoded fil
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_TLS_CLIENT_KEY_FILE</code>   |
+| Environment | <code>$NEURALINVERSE_TLS_CLIENT_KEY_FILE</code>   |
 | YAML        | <code>networking.tls.clientKeyFile</code> |
 
 Path to key for client TLS authentication. It requires a PEM-encoded file.
@@ -170,7 +170,7 @@ Path to key for client TLS authentication. It requires a PEM-encoded file.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string-array</code>              |
-| Environment | <code>$CODER_TLS_CIPHERS</code>        |
+| Environment | <code>$NEURALINVERSE_TLS_CIPHERS</code>        |
 | YAML        | <code>networking.tls.tlsCiphers</code> |
 
 Specify specific TLS ciphers that allowed to be used. See https://github.com/golang/go/blob/master/src/crypto/tls/cipher_suites.go#L53-L75.
@@ -180,7 +180,7 @@ Specify specific TLS ciphers that allowed to be used. See https://github.com/gol
 |             |                                                     |
 |-------------|-----------------------------------------------------|
 | Type        | <code>bool</code>                                   |
-| Environment | <code>$CODER_TLS_ALLOW_INSECURE_CIPHERS</code>      |
+| Environment | <code>$NEURALINVERSE_TLS_ALLOW_INSECURE_CIPHERS</code>      |
 | YAML        | <code>networking.tls.tlsAllowInsecureCiphers</code> |
 | Default     | <code>false</code>                                  |
 
@@ -191,7 +191,7 @@ By default, only ciphers marked as 'secure' are allowed to be used. See https://
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>bool</code>                      |
-| Environment | <code>$CODER_DERP_SERVER_ENABLE</code> |
+| Environment | <code>$NEURALINVERSE_DERP_SERVER_ENABLE</code> |
 | YAML        | <code>networking.derp.enable</code>    |
 | Default     | <code>true</code>                      |
 
@@ -202,9 +202,9 @@ Whether to enable or disable the embedded DERP relay server.
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string</code>                         |
-| Environment | <code>$CODER_DERP_SERVER_REGION_NAME</code> |
+| Environment | <code>$NEURALINVERSE_DERP_SERVER_REGION_NAME</code> |
 | YAML        | <code>networking.derp.regionName</code>     |
-| Default     | <code>Coder Embedded Relay</code>           |
+| Default     | <code>Neural Inverse Cloud Embedded Relay</code>           |
 
 Region name that for the embedded DERP server.
 
@@ -213,7 +213,7 @@ Region name that for the embedded DERP server.
 |             |                                                                                                                                          |
 |-------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | Type        | <code>string-array</code>                                                                                                                |
-| Environment | <code>$CODER_DERP_SERVER_STUN_ADDRESSES</code>                                                                                           |
+| Environment | <code>$NEURALINVERSE_DERP_SERVER_STUN_ADDRESSES</code>                                                                                           |
 | YAML        | <code>networking.derp.stunAddresses</code>                                                                                               |
 | Default     | <code>stun.l.google.com:19302,stun1.l.google.com:19302,stun2.l.google.com:19302,stun3.l.google.com:19302,stun4.l.google.com:19302</code> |
 
@@ -224,7 +224,7 @@ Addresses for STUN servers to establish P2P connections. It's recommended to hav
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>url</code>                          |
-| Environment | <code>$CODER_DERP_SERVER_RELAY_URL</code> |
+| Environment | <code>$NEURALINVERSE_DERP_SERVER_RELAY_URL</code> |
 | YAML        | <code>networking.derp.relayURL</code>     |
 
 An HTTP URL that is accessible by other replicas to relay DERP traffic. Required for high availability.
@@ -234,17 +234,17 @@ An HTTP URL that is accessible by other replicas to relay DERP traffic. Required
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>bool</code>                        |
-| Environment | <code>$CODER_BLOCK_DIRECT</code>         |
+| Environment | <code>$NEURALINVERSE_BLOCK_DIRECT</code>         |
 | YAML        | <code>networking.derp.blockDirect</code> |
 
-Block peer-to-peer (aka. direct) workspace connections. All workspace connections from the CLI will be proxied through Coder (or custom configured DERP servers) and will never be peer-to-peer when enabled. Workspaces may still reach out to STUN servers to get their address until they are restarted after this change has been made, but new connections will still be proxied regardless.
+Block peer-to-peer (aka. direct) workspace connections. All workspace connections from the CLI will be proxied through Neural Inverse Cloud (or custom configured DERP servers) and will never be peer-to-peer when enabled. Workspaces may still reach out to STUN servers to get their address until they are restarted after this change has been made, but new connections will still be proxied regardless.
 
 ### --derp-force-websockets
 
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>bool</code>                            |
-| Environment | <code>$CODER_DERP_FORCE_WEBSOCKETS</code>    |
+| Environment | <code>$NEURALINVERSE_DERP_FORCE_WEBSOCKETS</code>    |
 | YAML        | <code>networking.derp.forceWebSockets</code> |
 
 Force clients and agents to always use WebSocket to connect to DERP relay servers. By default, DERP uses `Upgrade: derp`, which may cause issues with some reverse proxies. Clients may automatically fallback to WebSocket if they detect an issue with `Upgrade: derp`, but this does not work in all situations.
@@ -254,7 +254,7 @@ Force clients and agents to always use WebSocket to connect to DERP relay server
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string</code>                 |
-| Environment | <code>$CODER_DERP_CONFIG_URL</code> |
+| Environment | <code>$NEURALINVERSE_DERP_CONFIG_URL</code> |
 | YAML        | <code>networking.derp.url</code>    |
 
 URL to fetch a DERP mapping on startup. See: https://tailscale.com/kb/1118/custom-derp-servers/.
@@ -264,7 +264,7 @@ URL to fetch a DERP mapping on startup. See: https://tailscale.com/kb/1118/custo
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_DERP_CONFIG_PATH</code>    |
+| Environment | <code>$NEURALINVERSE_DERP_CONFIG_PATH</code>    |
 | YAML        | <code>networking.derp.configPath</code> |
 
 Path to read a DERP mapping from. See: https://tailscale.com/kb/1118/custom-derp-servers/.
@@ -274,18 +274,18 @@ Path to read a DERP mapping from. See: https://tailscale.com/kb/1118/custom-derp
 |             |                                                              |
 |-------------|--------------------------------------------------------------|
 | Type        | <code>bool</code>                                            |
-| Environment | <code>$CODER_STATS_COLLECTION_USAGE_STATS_ENABLE</code>      |
+| Environment | <code>$NEURALINVERSE_STATS_COLLECTION_USAGE_STATS_ENABLE</code>      |
 | YAML        | <code>introspection.statsCollection.usageStats.enable</code> |
 | Default     | <code>true</code>                                            |
 
-Enable the collection of application and workspace usage along with the associated API endpoints and the template insights page. Disabling this will also disable traffic and connection insights in the deployment stats shown to admins in the bottom bar of the Coder UI, and will prevent Prometheus collection of these values.
+Enable the collection of application and workspace usage along with the associated API endpoints and the template insights page. Disabling this will also disable traffic and connection insights in the deployment stats shown to admins in the bottom bar of the Neural Inverse Cloud UI, and will prevent Prometheus collection of these values.
 
 ### --prometheus-enable
 
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>bool</code>                            |
-| Environment | <code>$CODER_PROMETHEUS_ENABLE</code>        |
+| Environment | <code>$NEURALINVERSE_PROMETHEUS_ENABLE</code>        |
 | YAML        | <code>introspection.prometheus.enable</code> |
 
 Serve prometheus metrics on the address defined by prometheus address.
@@ -295,7 +295,7 @@ Serve prometheus metrics on the address defined by prometheus address.
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>host:port</code>                        |
-| Environment | <code>$CODER_PROMETHEUS_ADDRESS</code>        |
+| Environment | <code>$NEURALINVERSE_PROMETHEUS_ADDRESS</code>        |
 | YAML        | <code>introspection.prometheus.address</code> |
 | Default     | <code>127.0.0.1:2112</code>                   |
 
@@ -306,7 +306,7 @@ The bind address to serve prometheus metrics.
 |             |                                                           |
 |-------------|-----------------------------------------------------------|
 | Type        | <code>bool</code>                                         |
-| Environment | <code>$CODER_PROMETHEUS_COLLECT_AGENT_STATS</code>        |
+| Environment | <code>$NEURALINVERSE_PROMETHEUS_COLLECT_AGENT_STATS</code>        |
 | YAML        | <code>introspection.prometheus.collect_agent_stats</code> |
 
 Collect agent stats (may increase charges for metrics storage).
@@ -316,7 +316,7 @@ Collect agent stats (may increase charges for metrics storage).
 |             |                                                                |
 |-------------|----------------------------------------------------------------|
 | Type        | <code>string-array</code>                                      |
-| Environment | <code>$CODER_PROMETHEUS_AGGREGATE_AGENT_STATS_BY</code>        |
+| Environment | <code>$NEURALINVERSE_PROMETHEUS_AGGREGATE_AGENT_STATS_BY</code>        |
 | YAML        | <code>introspection.prometheus.aggregate_agent_stats_by</code> |
 | Default     | <code>agent_name,template_name,username,workspace_name</code>  |
 
@@ -327,7 +327,7 @@ When collecting agent stats, aggregate metrics by a given set of comma-separated
 |             |                                                          |
 |-------------|----------------------------------------------------------|
 | Type        | <code>bool</code>                                        |
-| Environment | <code>$CODER_PROMETHEUS_COLLECT_DB_METRICS</code>        |
+| Environment | <code>$NEURALINVERSE_PROMETHEUS_COLLECT_DB_METRICS</code>        |
 | YAML        | <code>introspection.prometheus.collect_db_metrics</code> |
 | Default     | <code>false</code>                                       |
 
@@ -338,7 +338,7 @@ Collect database query metrics (may increase charges for metrics storage). If se
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>bool</code>                       |
-| Environment | <code>$CODER_PPROF_ENABLE</code>        |
+| Environment | <code>$NEURALINVERSE_PPROF_ENABLE</code>        |
 | YAML        | <code>introspection.pprof.enable</code> |
 
 Serve pprof metrics on the address defined by pprof address.
@@ -348,7 +348,7 @@ Serve pprof metrics on the address defined by pprof address.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>host:port</code>                   |
-| Environment | <code>$CODER_PPROF_ADDRESS</code>        |
+| Environment | <code>$NEURALINVERSE_PPROF_ADDRESS</code>        |
 | YAML        | <code>introspection.pprof.address</code> |
 | Default     | <code>127.0.0.1:6060</code>              |
 
@@ -359,7 +359,7 @@ The bind address to serve pprof.
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string</code>                         |
-| Environment | <code>$CODER_OAUTH2_GITHUB_CLIENT_ID</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_CLIENT_ID</code> |
 | YAML        | <code>oauth2.github.clientID</code>         |
 
 Client ID for Login with GitHub.
@@ -369,7 +369,7 @@ Client ID for Login with GitHub.
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>string</code>                             |
-| Environment | <code>$CODER_OAUTH2_GITHUB_CLIENT_SECRET</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_CLIENT_SECRET</code> |
 
 Client secret for Login with GitHub.
 
@@ -378,7 +378,7 @@ Client secret for Login with GitHub.
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>bool</code>                             |
-| Environment | <code>$CODER_OAUTH2_GITHUB_DEVICE_FLOW</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_DEVICE_FLOW</code> |
 | YAML        | <code>oauth2.github.deviceFlow</code>         |
 | Default     | <code>false</code>                            |
 
@@ -389,18 +389,18 @@ Enable device flow for Login with GitHub.
 |             |                                                           |
 |-------------|-----------------------------------------------------------|
 | Type        | <code>bool</code>                                         |
-| Environment | <code>$CODER_OAUTH2_GITHUB_DEFAULT_PROVIDER_ENABLE</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_DEFAULT_PROVIDER_ENABLE</code> |
 | YAML        | <code>oauth2.github.defaultProviderEnable</code>          |
 | Default     | <code>true</code>                                         |
 
-Enable the default GitHub OAuth2 provider managed by Coder.
+Enable the default GitHub OAuth2 provider managed by Neural Inverse Cloud.
 
 ### --oauth2-github-allowed-orgs
 
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>string-array</code>                      |
-| Environment | <code>$CODER_OAUTH2_GITHUB_ALLOWED_ORGS</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_ALLOWED_ORGS</code> |
 | YAML        | <code>oauth2.github.allowedOrgs</code>         |
 
 Organizations the user must be a member of to Login with GitHub.
@@ -410,7 +410,7 @@ Organizations the user must be a member of to Login with GitHub.
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>string-array</code>                       |
-| Environment | <code>$CODER_OAUTH2_GITHUB_ALLOWED_TEAMS</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_ALLOWED_TEAMS</code> |
 | YAML        | <code>oauth2.github.allowedTeams</code>         |
 
 Teams inside organizations the user must be a member of to Login with GitHub. Structured as: <organization-name>/<team-slug>.
@@ -420,7 +420,7 @@ Teams inside organizations the user must be a member of to Login with GitHub. St
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>bool</code>                               |
-| Environment | <code>$CODER_OAUTH2_GITHUB_ALLOW_SIGNUPS</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_ALLOW_SIGNUPS</code> |
 | YAML        | <code>oauth2.github.allowSignups</code>         |
 
 Whether new users can sign up with GitHub.
@@ -430,7 +430,7 @@ Whether new users can sign up with GitHub.
 |             |                                                  |
 |-------------|--------------------------------------------------|
 | Type        | <code>bool</code>                                |
-| Environment | <code>$CODER_OAUTH2_GITHUB_ALLOW_EVERYONE</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_ALLOW_EVERYONE</code> |
 | YAML        | <code>oauth2.github.allowEveryone</code>         |
 
 Allow all logins, setting this option means allowed orgs and teams must be empty.
@@ -440,7 +440,7 @@ Allow all logins, setting this option means allowed orgs and teams must be empty
 |             |                                                       |
 |-------------|-------------------------------------------------------|
 | Type        | <code>string</code>                                   |
-| Environment | <code>$CODER_OAUTH2_GITHUB_ENTERPRISE_BASE_URL</code> |
+| Environment | <code>$NEURALINVERSE_OAUTH2_GITHUB_ENTERPRISE_BASE_URL</code> |
 | YAML        | <code>oauth2.github.enterpriseBaseURL</code>          |
 
 Base URL of a GitHub Enterprise deployment to use for Login with GitHub.
@@ -450,7 +450,7 @@ Base URL of a GitHub Enterprise deployment to use for Login with GitHub.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>bool</code>                      |
-| Environment | <code>$CODER_OIDC_ALLOW_SIGNUPS</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_ALLOW_SIGNUPS</code> |
 | YAML        | <code>oidc.allowSignups</code>         |
 | Default     | <code>true</code>                      |
 
@@ -461,7 +461,7 @@ Whether new users can sign up with OIDC.
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>string</code>                |
-| Environment | <code>$CODER_OIDC_CLIENT_ID</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_CLIENT_ID</code> |
 | YAML        | <code>oidc.clientID</code>         |
 
 Client ID to use for Login with OIDC.
@@ -471,7 +471,7 @@ Client ID to use for Login with OIDC.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_OIDC_CLIENT_SECRET</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_CLIENT_SECRET</code> |
 
 Client secret to use for Login with OIDC.
 
@@ -480,7 +480,7 @@ Client secret to use for Login with OIDC.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_OIDC_CLIENT_KEY_FILE</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_CLIENT_KEY_FILE</code> |
 | YAML        | <code>oidc.oidcClientKeyFile</code>      |
 
 Pem encoded RSA private key to use for oauth2 PKI/JWT authorization. This can be used instead of oidc-client-secret if your IDP supports it.
@@ -490,7 +490,7 @@ Pem encoded RSA private key to use for oauth2 PKI/JWT authorization. This can be
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_OIDC_CLIENT_CERT_FILE</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_CLIENT_CERT_FILE</code> |
 | YAML        | <code>oidc.oidcClientCertFile</code>      |
 
 Pem encoded certificate file to use for oauth2 PKI/JWT authorization. The public certificate that accompanies oidc-client-key-file. A standard x509 certificate is expected.
@@ -500,7 +500,7 @@ Pem encoded certificate file to use for oauth2 PKI/JWT authorization. The public
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string-array</code>             |
-| Environment | <code>$CODER_OIDC_EMAIL_DOMAIN</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_EMAIL_DOMAIN</code> |
 | YAML        | <code>oidc.emailDomain</code>         |
 
 Email domains that clients logging in with OIDC must match.
@@ -510,7 +510,7 @@ Email domains that clients logging in with OIDC must match.
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string</code>                 |
-| Environment | <code>$CODER_OIDC_ISSUER_URL</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_ISSUER_URL</code> |
 | YAML        | <code>oidc.issuerURL</code>         |
 
 Issuer URL to use for Login with OIDC.
@@ -520,7 +520,7 @@ Issuer URL to use for Login with OIDC.
 |             |                                   |
 |-------------|-----------------------------------|
 | Type        | <code>string-array</code>         |
-| Environment | <code>$CODER_OIDC_SCOPES</code>   |
+| Environment | <code>$NEURALINVERSE_OIDC_SCOPES</code>   |
 | YAML        | <code>oidc.scopes</code>          |
 | Default     | <code>openid,profile,email</code> |
 
@@ -531,7 +531,7 @@ Scopes to grant when authenticating with OIDC.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>bool</code>                              |
-| Environment | <code>$CODER_OIDC_IGNORE_EMAIL_VERIFIED</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_IGNORE_EMAIL_VERIFIED</code> |
 | YAML        | <code>oidc.ignoreEmailVerified</code>          |
 
 Ignore the email_verified claim from the upstream provider.
@@ -541,7 +541,7 @@ Ignore the email_verified claim from the upstream provider.
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_OIDC_USERNAME_FIELD</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_USERNAME_FIELD</code> |
 | YAML        | <code>oidc.usernameField</code>         |
 | Default     | <code>preferred_username</code>         |
 
@@ -552,7 +552,7 @@ OIDC claim field to use as the username.
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string</code>                 |
-| Environment | <code>$CODER_OIDC_NAME_FIELD</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_NAME_FIELD</code> |
 | YAML        | <code>oidc.nameField</code>         |
 | Default     | <code>name</code>                   |
 
@@ -563,7 +563,7 @@ OIDC claim field to use as the name.
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_OIDC_EMAIL_FIELD</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_EMAIL_FIELD</code> |
 | YAML        | <code>oidc.emailField</code>         |
 | Default     | <code>email</code>                   |
 
@@ -574,7 +574,7 @@ OIDC claim field to use as the email.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>struct[map[string]string]</code>   |
-| Environment | <code>$CODER_OIDC_AUTH_URL_PARAMS</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_AUTH_URL_PARAMS</code> |
 | YAML        | <code>oidc.authURLParams</code>          |
 | Default     | <code>{"access_type": "offline"}</code>  |
 
@@ -585,7 +585,7 @@ OIDC auth URL parameters to pass to the upstream provider.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>bool</code>                        |
-| Environment | <code>$CODER_OIDC_IGNORE_USERINFO</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_IGNORE_USERINFO</code> |
 | YAML        | <code>oidc.ignoreUserInfo</code>         |
 | Default     | <code>false</code>                       |
 
@@ -596,7 +596,7 @@ Ignore the userinfo endpoint and only use the ID token for user information.
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_OIDC_GROUP_FIELD</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_GROUP_FIELD</code> |
 | YAML        | <code>oidc.groupField</code>         |
 
 This field must be set if using the group sync feature and the scope name is not 'groups'. Set to the claim to be used for groups.
@@ -606,18 +606,18 @@ This field must be set if using the group sync feature and the scope name is not
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>struct[map[string]string]</code> |
-| Environment | <code>$CODER_OIDC_GROUP_MAPPING</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_GROUP_MAPPING</code> |
 | YAML        | <code>oidc.groupMapping</code>         |
 | Default     | <code>{}</code>                        |
 
-A map of OIDC group IDs and the group in Coder it should map to. This is useful for when OIDC providers only return group IDs.
+A map of OIDC group IDs and the group in Neural Inverse Cloud it should map to. This is useful for when OIDC providers only return group IDs.
 
 ### --oidc-group-auto-create
 
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>bool</code>                          |
-| Environment | <code>$CODER_OIDC_GROUP_AUTO_CREATE</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_GROUP_AUTO_CREATE</code> |
 | YAML        | <code>oidc.enableGroupAutoCreate</code>    |
 | Default     | <code>false</code>                         |
 
@@ -628,7 +628,7 @@ Automatically creates missing groups from a user's groups claim.
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>regexp</code>                         |
-| Environment | <code>$CODER_OIDC_GROUP_REGEX_FILTER</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_GROUP_REGEX_FILTER</code> |
 | YAML        | <code>oidc.groupRegexFilter</code>          |
 | Default     | <code>.*</code>                             |
 
@@ -639,7 +639,7 @@ If provided any group name not matching the regex is ignored. This allows for fi
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string-array</code>               |
-| Environment | <code>$CODER_OIDC_ALLOWED_GROUPS</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_ALLOWED_GROUPS</code> |
 | YAML        | <code>oidc.groupAllowed</code>          |
 
 If provided any group name not in the list will not be allowed to authenticate. This allows for restricting access to a specific set of groups. This filter is applied after the group mapping and before the regex filter.
@@ -649,7 +649,7 @@ If provided any group name not in the list will not be allowed to authenticate. 
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_OIDC_USER_ROLE_FIELD</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_USER_ROLE_FIELD</code> |
 | YAML        | <code>oidc.userRoleField</code>          |
 
 This field must be set if using the user roles sync feature. Set this to the name of the claim used to store the user's role. The roles should be sent as an array of strings.
@@ -659,18 +659,18 @@ This field must be set if using the user roles sync feature. Set this to the nam
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>struct[map[string][]string]</code>   |
-| Environment | <code>$CODER_OIDC_USER_ROLE_MAPPING</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_USER_ROLE_MAPPING</code> |
 | YAML        | <code>oidc.userRoleMapping</code>          |
 | Default     | <code>{}</code>                            |
 
-A map of the OIDC passed in user roles and the groups in Coder it should map to. This is useful if the group names do not match. If mapped to the empty string, the role will ignored.
+A map of the OIDC passed in user roles and the groups in Neural Inverse Cloud it should map to. This is useful if the group names do not match. If mapped to the empty string, the role will ignored.
 
 ### --oidc-user-role-default
 
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>string-array</code>                  |
-| Environment | <code>$CODER_OIDC_USER_ROLE_DEFAULT</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_USER_ROLE_DEFAULT</code> |
 | YAML        | <code>oidc.userRoleDefault</code>          |
 
 If user role sync is enabled, these roles are always included for all authenticated users. The 'member' role is always assigned.
@@ -680,7 +680,7 @@ If user role sync is enabled, these roles are always included for all authentica
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string</code>                   |
-| Environment | <code>$CODER_OIDC_SIGN_IN_TEXT</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_SIGN_IN_TEXT</code> |
 | YAML        | <code>oidc.signInText</code>          |
 | Default     | <code>OpenID Connect</code>           |
 
@@ -691,7 +691,7 @@ The text to show on the OpenID Connect sign in button.
 |             |                                   |
 |-------------|-----------------------------------|
 | Type        | <code>url</code>                  |
-| Environment | <code>$CODER_OIDC_ICON_URL</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_ICON_URL</code> |
 | YAML        | <code>oidc.iconURL</code>         |
 
 URL pointing to the icon to use on the OpenID Connect login button.
@@ -701,7 +701,7 @@ URL pointing to the icon to use on the OpenID Connect login button.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>string</code>                            |
-| Environment | <code>$CODER_OIDC_SIGNUPS_DISABLED_TEXT</code> |
+| Environment | <code>$NEURALINVERSE_OIDC_SIGNUPS_DISABLED_TEXT</code> |
 | YAML        | <code>oidc.signupsDisabledText</code>          |
 
 The custom text to show on the error page informing about disabled OIDC signups. Markdown format is supported.
@@ -711,7 +711,7 @@ The custom text to show on the error page informing about disabled OIDC signups.
 |             |                                                       |
 |-------------|-------------------------------------------------------|
 | Type        | <code>bool</code>                                     |
-| Environment | <code>$CODER_DANGEROUS_OIDC_SKIP_ISSUER_CHECKS</code> |
+| Environment | <code>$NEURALINVERSE_DANGEROUS_OIDC_SKIP_ISSUER_CHECKS</code> |
 | YAML        | <code>oidc.dangerousSkipIssuerChecks</code>           |
 
 OIDC issuer urls must match in the request, the id_token 'iss' claim, and in the well-known configuration. This flag disables that requirement, and can lead to an insecure OIDC configuration. It is not recommended to use this flag.
@@ -721,18 +721,18 @@ OIDC issuer urls must match in the request, the id_token 'iss' claim, and in the
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>bool</code>                    |
-| Environment | <code>$CODER_TELEMETRY_ENABLE</code> |
+| Environment | <code>$NEURALINVERSE_TELEMETRY_ENABLE</code> |
 | YAML        | <code>telemetry.enable</code>        |
 | Default     | <code>true</code>                    |
 
-Whether telemetry is enabled or not. Coder collects anonymized usage data to help improve our product.
+Whether telemetry is enabled or not. Neural Inverse Cloud collects anonymized usage data to help improve our product.
 
 ### --trace
 
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>bool</code>                         |
-| Environment | <code>$CODER_TRACE_ENABLE</code>          |
+| Environment | <code>$NEURALINVERSE_TRACE_ENABLE</code>          |
 | YAML        | <code>introspection.tracing.enable</code> |
 
 Whether application tracing data is collected. It exports to a backend configured by environment variables. See: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md.
@@ -742,7 +742,7 @@ Whether application tracing data is collected. It exports to a backend configure
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string</code>                         |
-| Environment | <code>$CODER_TRACE_HONEYCOMB_API_KEY</code> |
+| Environment | <code>$NEURALINVERSE_TRACE_HONEYCOMB_API_KEY</code> |
 
 Enables trace exporting to Honeycomb.io using the provided API Key.
 
@@ -751,7 +751,7 @@ Enables trace exporting to Honeycomb.io using the provided API Key.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>bool</code>                              |
-| Environment | <code>$CODER_TRACE_LOGS</code>                 |
+| Environment | <code>$NEURALINVERSE_TRACE_LOGS</code>                 |
 | YAML        | <code>introspection.tracing.captureLogs</code> |
 
 Enables capturing of logs as events in traces. This is useful for debugging, but may result in a very large amount of events being sent to the tracing backend which may incur significant costs.
@@ -761,7 +761,7 @@ Enables capturing of logs as events in traces. This is useful for debugging, but
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>int</code>                        |
-| Environment | <code>$CODER_PROVISIONER_DAEMONS</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMONS</code> |
 | YAML        | <code>provisioning.daemons</code>       |
 | Default     | <code>3</code>                          |
 
@@ -772,7 +772,7 @@ Number of provisioner daemons to create on start. If builds are stuck in queued 
 |             |                                                      |
 |-------------|------------------------------------------------------|
 | Type        | <code>duration</code>                                |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_POLL_INTERVAL</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_POLL_INTERVAL</code> |
 | YAML        | <code>provisioning.daemonPollInterval</code>         |
 | Default     | <code>1s</code>                                      |
 
@@ -783,7 +783,7 @@ Deprecated and ignored.
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>duration</code>                              |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_POLL_JITTER</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_POLL_JITTER</code> |
 | YAML        | <code>provisioning.daemonPollJitter</code>         |
 | Default     | <code>100ms</code>                                 |
 
@@ -794,7 +794,7 @@ Deprecated and ignored.
 |             |                                                       |
 |-------------|-------------------------------------------------------|
 | Type        | <code>duration</code>                                 |
-| Environment | <code>$CODER_PROVISIONER_FORCE_CANCEL_INTERVAL</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_FORCE_CANCEL_INTERVAL</code> |
 | YAML        | <code>provisioning.forceCancelInterval</code>         |
 | Default     | <code>10m0s</code>                                    |
 
@@ -805,16 +805,16 @@ Time to force cancel provisioning tasks that are stuck.
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>string</code>                        |
-| Environment | <code>$CODER_PROVISIONER_DAEMON_PSK</code> |
+| Environment | <code>$NEURALINVERSE_PROVISIONER_DAEMON_PSK</code> |
 
-Pre-shared key to authenticate external provisioner daemons to Coder server.
+Pre-shared key to authenticate external provisioner daemons to Neural Inverse Cloud server.
 
 ### -l, --log-filter
 
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string-array</code>                 |
-| Environment | <code>$CODER_LOG_FILTER</code>            |
+| Environment | <code>$NEURALINVERSE_LOG_FILTER</code>            |
 | YAML        | <code>introspection.logging.filter</code> |
 
 Filter debug logs by matching against a given regex. Use .* to match all debug logs.
@@ -824,7 +824,7 @@ Filter debug logs by matching against a given regex. Use .* to match all debug l
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>string</code>                          |
-| Environment | <code>$CODER_LOGGING_HUMAN</code>            |
+| Environment | <code>$NEURALINVERSE_LOGGING_HUMAN</code>            |
 | YAML        | <code>introspection.logging.humanPath</code> |
 | Default     | <code>/dev/stderr</code>                     |
 
@@ -835,7 +835,7 @@ Output human-readable logs to a given file.
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string</code>                         |
-| Environment | <code>$CODER_LOGGING_JSON</code>            |
+| Environment | <code>$NEURALINVERSE_LOGGING_JSON</code>            |
 | YAML        | <code>introspection.logging.jsonPath</code> |
 
 Output JSON logs to a given file.
@@ -845,7 +845,7 @@ Output JSON logs to a given file.
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>string</code>                                |
-| Environment | <code>$CODER_LOGGING_STACKDRIVER</code>            |
+| Environment | <code>$NEURALINVERSE_LOGGING_STACKDRIVER</code>            |
 | YAML        | <code>introspection.logging.stackdriverPath</code> |
 
 Output Stackdriver compatible logs to a given file.
@@ -855,7 +855,7 @@ Output Stackdriver compatible logs to a given file.
 |             |                                                             |
 |-------------|-------------------------------------------------------------|
 | Type        | <code>bool</code>                                           |
-| Environment | <code>$CODER_ENABLE_TERRAFORM_DEBUG_MODE</code>             |
+| Environment | <code>$NEURALINVERSE_ENABLE_TERRAFORM_DEBUG_MODE</code>             |
 | YAML        | <code>introspection.logging.enableTerraformDebugMode</code> |
 | Default     | <code>false</code>                                          |
 
@@ -866,35 +866,35 @@ Allow administrators to enable Terraform debug output.
 |             |                                                  |
 |-------------|--------------------------------------------------|
 | Type        | <code>string-array</code>                        |
-| Environment | <code>$CODER_ADDITIONAL_CSP_POLICY</code>        |
+| Environment | <code>$NEURALINVERSE_ADDITIONAL_CSP_POLICY</code>        |
 | YAML        | <code>networking.http.additionalCSPPolicy</code> |
 
-Coder configures a Content Security Policy (CSP) to protect against XSS attacks. This setting allows you to add additional CSP directives, which can open the attack surface of the deployment. Format matches the CSP directive format, e.g. --additional-csp-policy="script-src https://example.com".
+Neural Inverse Cloud configures a Content Security Policy (CSP) to protect against XSS attacks. This setting allows you to add additional CSP directives, which can open the attack surface of the deployment. Format matches the CSP directive format, e.g. --additional-csp-policy="script-src https://example.com".
 
 ### --dangerous-allow-path-app-sharing
 
 |             |                                                      |
 |-------------|------------------------------------------------------|
 | Type        | <code>bool</code>                                    |
-| Environment | <code>$CODER_DANGEROUS_ALLOW_PATH_APP_SHARING</code> |
+| Environment | <code>$NEURALINVERSE_DANGEROUS_ALLOW_PATH_APP_SHARING</code> |
 
-Allow workspace apps that are not served from subdomains to be shared. Path-based app sharing is DISABLED by default for security purposes. Path-based apps can make requests to the Coder API and pose a security risk when the workspace serves malicious JavaScript. Path-based apps can be disabled entirely with --disable-path-apps for further security.
+Allow workspace apps that are not served from subdomains to be shared. Path-based app sharing is DISABLED by default for security purposes. Path-based apps can make requests to the Neural Inverse Cloud API and pose a security risk when the workspace serves malicious JavaScript. Path-based apps can be disabled entirely with --disable-path-apps for further security.
 
 ### --dangerous-allow-path-app-site-owner-access
 
 |             |                                                                |
 |-------------|----------------------------------------------------------------|
 | Type        | <code>bool</code>                                              |
-| Environment | <code>$CODER_DANGEROUS_ALLOW_PATH_APP_SITE_OWNER_ACCESS</code> |
+| Environment | <code>$NEURALINVERSE_DANGEROUS_ALLOW_PATH_APP_SITE_OWNER_ACCESS</code> |
 
-Allow site-owners to access workspace apps from workspaces they do not own. Owners cannot access path-based apps they do not own by default. Path-based apps can make requests to the Coder API and pose a security risk when the workspace serves malicious JavaScript. Path-based apps can be disabled entirely with --disable-path-apps for further security.
+Allow site-owners to access workspace apps from workspaces they do not own. Owners cannot access path-based apps they do not own by default. Path-based apps can make requests to the Neural Inverse Cloud API and pose a security risk when the workspace serves malicious JavaScript. Path-based apps can be disabled entirely with --disable-path-apps for further security.
 
 ### --experiments
 
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>string-array</code>       |
-| Environment | <code>$CODER_EXPERIMENTS</code> |
+| Environment | <code>$NEURALINVERSE_EXPERIMENTS</code> |
 | YAML        | <code>experiments</code>        |
 
 Enable one or more experiments. These are not ready for production. Separate multiple experiments with commas, or enter '*' to opt-in to all available experiments.
@@ -904,18 +904,18 @@ Enable one or more experiments. These are not ready for production. Separate mul
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>bool</code>                |
-| Environment | <code>$CODER_UPDATE_CHECK</code> |
+| Environment | <code>$NEURALINVERSE_UPDATE_CHECK</code> |
 | YAML        | <code>updateCheck</code>         |
 | Default     | <code>false</code>               |
 
-Periodically check for new releases of Coder and inform the owner. The check is performed once per day.
+Periodically check for new releases of Neural Inverse Cloud and inform the owner. The check is performed once per day.
 
 ### --max-token-lifetime
 
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>duration</code>                         |
-| Environment | <code>$CODER_MAX_TOKEN_LIFETIME</code>        |
+| Environment | <code>$NEURALINVERSE_MAX_TOKEN_LIFETIME</code>        |
 | YAML        | <code>networking.http.maxTokenLifetime</code> |
 | Default     | <code>876600h0m0s</code>                      |
 
@@ -926,7 +926,7 @@ The maximum lifetime duration users can specify when creating an API token.
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>duration</code>                              |
-| Environment | <code>$CODER_MAX_ADMIN_TOKEN_LIFETIME</code>       |
+| Environment | <code>$NEURALINVERSE_MAX_ADMIN_TOKEN_LIFETIME</code>       |
 | YAML        | <code>networking.http.maxAdminTokenLifetime</code> |
 | Default     | <code>168h0m0s</code>                              |
 
@@ -937,7 +937,7 @@ The maximum lifetime duration administrators can specify when creating an API to
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>duration</code>                      |
-| Environment | <code>$CODER_DEFAULT_TOKEN_LIFETIME</code> |
+| Environment | <code>$NEURALINVERSE_DEFAULT_TOKEN_LIFETIME</code> |
 | YAML        | <code>defaultTokenLifetime</code>          |
 | Default     | <code>168h0m0s</code>                      |
 
@@ -948,7 +948,7 @@ The default lifetime duration for API tokens. This value is used when creating a
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>duration</code>                              |
-| Environment | <code>$CODER_DEFAULT_OAUTH_REFRESH_LIFETIME</code> |
+| Environment | <code>$NEURALINVERSE_DEFAULT_OAUTH_REFRESH_LIFETIME</code> |
 | YAML        | <code>defaultOAuthRefreshLifetime</code>           |
 | Default     | <code>720h0m0s</code>                              |
 
@@ -959,7 +959,7 @@ The default lifetime duration for OAuth2 refresh tokens. This controls how long 
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>bool</code>                  |
-| Environment | <code>$CODER_SWAGGER_ENABLE</code> |
+| Environment | <code>$NEURALINVERSE_SWAGGER_ENABLE</code> |
 | YAML        | <code>enableSwagger</code>         |
 
 Expose the swagger endpoint via /swagger.
@@ -969,7 +969,7 @@ Expose the swagger endpoint via /swagger.
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string-array</code>                   |
-| Environment | <code>$CODER_PROXY_TRUSTED_HEADERS</code>   |
+| Environment | <code>$NEURALINVERSE_PROXY_TRUSTED_HEADERS</code>   |
 | YAML        | <code>networking.proxyTrustedHeaders</code> |
 
 Headers to trust for forwarding IP addresses. e.g. Cf-Connecting-Ip, True-Client-Ip, X-Forwarded-For.
@@ -979,7 +979,7 @@ Headers to trust for forwarding IP addresses. e.g. Cf-Connecting-Ip, True-Client
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>string-array</code>                   |
-| Environment | <code>$CODER_PROXY_TRUSTED_ORIGINS</code>   |
+| Environment | <code>$NEURALINVERSE_PROXY_TRUSTED_ORIGINS</code>   |
 | YAML        | <code>networking.proxyTrustedOrigins</code> |
 
 Origin addresses to respect "proxy-trusted-headers". e.g. 192.168.1.0/24.
@@ -989,18 +989,18 @@ Origin addresses to respect "proxy-trusted-headers". e.g. 192.168.1.0/24.
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string</code>                 |
-| Environment | <code>$CODER_CACHE_DIRECTORY</code> |
+| Environment | <code>$NEURALINVERSE_CACHE_DIRECTORY</code> |
 | YAML        | <code>cacheDir</code>               |
 | Default     | <code>~/.cache/coder</code>         |
 
-The directory to cache temporary files. If unspecified and $CACHE_DIRECTORY is set, it will be used for compatibility with systemd. This directory is NOT safe to be configured as a shared directory across coderd/provisionerd replicas.
+The directory to cache temporary files. If unspecified and $CACHE_DIRECTORY is set, it will be used for compatibility with systemd. This directory is NOT safe to be configured as a shared directory across nicloud/provisionerd replicas.
 
 ### --postgres-url
 
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>string</code>                   |
-| Environment | <code>$CODER_PG_CONNECTION_URL</code> |
+| Environment | <code>$NEURALINVERSE_PG_CONNECTION_URL</code> |
 
 URL of a PostgreSQL database. If empty, PostgreSQL binaries will be downloaded from Maven (https://repo1.maven.org/maven2) and store all data in the config root. Access the built-in database with "coder server postgres-builtin-url". Note that any special characters in the URL must be URL-encoded.
 
@@ -1009,7 +1009,7 @@ URL of a PostgreSQL database. If empty, PostgreSQL binaries will be downloaded f
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>password\|awsiamrds</code> |
-| Environment | <code>$CODER_PG_AUTH</code>      |
+| Environment | <code>$NEURALINVERSE_PG_AUTH</code>      |
 | YAML        | <code>pgAuth</code>              |
 | Default     | <code>password</code>            |
 
@@ -1020,7 +1020,7 @@ Type of auth to use when connecting to postgres. For AWS RDS, using IAM authenti
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>int</code>                     |
-| Environment | <code>$CODER_PG_CONN_MAX_OPEN</code> |
+| Environment | <code>$NEURALINVERSE_PG_CONN_MAX_OPEN</code> |
 | YAML        | <code>pgConnMaxOpen</code>           |
 | Default     | <code>10</code>                      |
 
@@ -1031,7 +1031,7 @@ Maximum number of open connections to the database. Defaults to 10.
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_PG_CONN_MAX_IDLE</code> |
+| Environment | <code>$NEURALINVERSE_PG_CONN_MAX_IDLE</code> |
 | YAML        | <code>pgConnMaxIdle</code>           |
 | Default     | <code>auto</code>                    |
 
@@ -1042,7 +1042,7 @@ Maximum number of idle connections to the database. Set to "auto" (the default) 
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>bool</code>                        |
-| Environment | <code>$CODER_SECURE_AUTH_COOKIE</code>   |
+| Environment | <code>$NEURALINVERSE_SECURE_AUTH_COOKIE</code>   |
 | YAML        | <code>networking.secureAuthCookie</code> |
 
 Controls if the 'Secure' property is set on browser session cookies.
@@ -1052,7 +1052,7 @@ Controls if the 'Secure' property is set on browser session cookies.
 |             |                                            |
 |-------------|--------------------------------------------|
 | Type        | <code>lax\|none</code>                     |
-| Environment | <code>$CODER_SAMESITE_AUTH_COOKIE</code>   |
+| Environment | <code>$NEURALINVERSE_SAMESITE_AUTH_COOKIE</code>   |
 | YAML        | <code>networking.sameSiteAuthCookie</code> |
 | Default     | <code>lax</code>                           |
 
@@ -1063,7 +1063,7 @@ Controls the 'SameSite' property is set on browser session cookies.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>bool</code>                        |
-| Environment | <code>$CODER_HOST_PREFIX_COOKIE</code>   |
+| Environment | <code>$NEURALINVERSE_HOST_PREFIX_COOKIE</code>   |
 | YAML        | <code>networking.hostPrefixCookie</code> |
 | Default     | <code>false</code>                       |
 
@@ -1074,7 +1074,7 @@ Recommended to be enabled. Enables `__Host-` prefix for cookies to guarantee the
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_TERMS_OF_SERVICE_URL</code> |
+| Environment | <code>$NEURALINVERSE_TERMS_OF_SERVICE_URL</code> |
 | YAML        | <code>termsOfServiceURL</code>           |
 
 A URL to an external Terms of Service that must be accepted by users when logging in.
@@ -1084,7 +1084,7 @@ A URL to an external Terms of Service that must be accepted by users when loggin
 |             |                                                     |
 |-------------|-----------------------------------------------------|
 | Type        | <code>int</code>                                    |
-| Environment | <code>$CODER_STRICT_TRANSPORT_SECURITY</code>       |
+| Environment | <code>$NEURALINVERSE_STRICT_TRANSPORT_SECURITY</code>       |
 | YAML        | <code>networking.tls.strictTransportSecurity</code> |
 | Default     | <code>0</code>                                      |
 
@@ -1095,7 +1095,7 @@ Controls if the 'Strict-Transport-Security' header is set on all static file res
 |             |                                                            |
 |-------------|------------------------------------------------------------|
 | Type        | <code>string-array</code>                                  |
-| Environment | <code>$CODER_STRICT_TRANSPORT_SECURITY_OPTIONS</code>      |
+| Environment | <code>$NEURALINVERSE_STRICT_TRANSPORT_SECURITY_OPTIONS</code>      |
 | YAML        | <code>networking.tls.strictTransportSecurityOptions</code> |
 
 Two optional fields can be set in the Strict-Transport-Security header; 'includeSubDomains' and 'preload'. The 'strict-transport-security' flag must be set to a non-zero value for these options to be used.
@@ -1105,7 +1105,7 @@ Two optional fields can be set in the Strict-Transport-Security header; 'include
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_SSH_KEYGEN_ALGORITHM</code> |
+| Environment | <code>$NEURALINVERSE_SSH_KEYGEN_ALGORITHM</code> |
 | YAML        | <code>sshKeygenAlgorithm</code>          |
 | Default     | <code>ed25519</code>                     |
 
@@ -1116,17 +1116,17 @@ The algorithm to use for generating ssh keys. Accepted values are "ed25519", "ec
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>bool</code>                   |
-| Environment | <code>$CODER_BROWSER_ONLY</code>    |
+| Environment | <code>$NEURALINVERSE_BROWSER_ONLY</code>    |
 | YAML        | <code>networking.browserOnly</code> |
 
-Whether Coder only allows connections to workspaces via the browser.
+Whether Neural Inverse Cloud only allows connections to workspaces via the browser.
 
 ### --scim-auth-header
 
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_SCIM_AUTH_HEADER</code> |
+| Environment | <code>$NEURALINVERSE_SCIM_AUTH_HEADER</code> |
 
 Enables SCIM and sets the authentication header for the built-in SCIM server. New users are automatically created with OIDC authentication.
 
@@ -1135,7 +1135,7 @@ Enables SCIM and sets the authentication header for the built-in SCIM server. Ne
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>string-array</code>                          |
-| Environment | <code>$CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS</code> |
+| Environment | <code>$NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS</code> |
 
 Encrypt OIDC and Git authentication tokens with AES-256-GCM in the database. The value must be a comma-separated list of base64-encoded keys. Each key, when base64-decoded, must be exactly 32 bytes in length. The first key will be used to encrypt new values. Subsequent keys will be used as a fallback when decrypting. During normal operation it is recommended to only set one key unless you are in the process of rotating keys with the `coder server dbcrypt rotate` command.
 
@@ -1144,17 +1144,17 @@ Encrypt OIDC and Git authentication tokens with AES-256-GCM in the database. The
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>bool</code>                     |
-| Environment | <code>$CODER_DISABLE_PATH_APPS</code> |
+| Environment | <code>$NEURALINVERSE_DISABLE_PATH_APPS</code> |
 | YAML        | <code>disablePathApps</code>          |
 
-Disable workspace apps that are not served from subdomains. Path-based apps can make requests to the Coder API and pose a security risk when the workspace serves malicious JavaScript. This is recommended for security purposes if a --wildcard-access-url is configured.
+Disable workspace apps that are not served from subdomains. Path-based apps can make requests to the Neural Inverse Cloud API and pose a security risk when the workspace serves malicious JavaScript. This is recommended for security purposes if a --wildcard-access-url is configured.
 
 ### --disable-owner-workspace-access
 
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>bool</code>                                  |
-| Environment | <code>$CODER_DISABLE_OWNER_WORKSPACE_ACCESS</code> |
+| Environment | <code>$NEURALINVERSE_DISABLE_OWNER_WORKSPACE_ACCESS</code> |
 | YAML        | <code>disableOwnerWorkspaceAccess</code>           |
 
 Remove the permission for the 'owner' role to have workspace execution on all workspaces. This prevents the 'owner' from ssh, apps, and terminal access based on the 'owner' role. They still have their user permissions to access their own workspaces.
@@ -1164,7 +1164,7 @@ Remove the permission for the 'owner' role to have workspace execution on all wo
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>bool</code>                             |
-| Environment | <code>$CODER_DISABLE_WORKSPACE_SHARING</code> |
+| Environment | <code>$NEURALINVERSE_DISABLE_WORKSPACE_SHARING</code> |
 | YAML        | <code>disableWorkspaceSharing</code>          |
 
 Disable workspace sharing. Workspace ACL checking is disabled and only owners can have ssh, apps and terminal access to workspaces. Access based on the 'owner' role is also allowed unless disabled via --disable-owner-workspace-access.
@@ -1174,7 +1174,7 @@ Disable workspace sharing. Workspace ACL checking is disabled and only owners ca
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>bool</code>                        |
-| Environment | <code>$CODER_DISABLE_CHAT_SHARING</code> |
+| Environment | <code>$NEURALINVERSE_DISABLE_CHAT_SHARING</code> |
 | YAML        | <code>disableChatSharing</code>          |
 
 Disable chat sharing. Chat ACL checking is disabled and only owners can access their chats.
@@ -1184,7 +1184,7 @@ Disable chat sharing. Chat ACL checking is disabled and only owners can access t
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>duration</code>                        |
-| Environment | <code>$CODER_SESSION_DURATION</code>         |
+| Environment | <code>$NEURALINVERSE_SESSION_DURATION</code>         |
 | YAML        | <code>networking.http.sessionDuration</code> |
 | Default     | <code>24h0m0s</code>                         |
 
@@ -1195,7 +1195,7 @@ The token expiry duration for browser sessions. Sessions may last longer if they
 |             |                                                          |
 |-------------|----------------------------------------------------------|
 | Type        | <code>bool</code>                                        |
-| Environment | <code>$CODER_DISABLE_SESSION_EXPIRY_REFRESH</code>       |
+| Environment | <code>$NEURALINVERSE_DISABLE_SESSION_EXPIRY_REFRESH</code>       |
 | YAML        | <code>networking.http.disableSessionExpiryRefresh</code> |
 
 Disable automatic session expiry bumping due to activity. This forces all sessions to become invalid after the session expiry duration has been reached.
@@ -1205,7 +1205,7 @@ Disable automatic session expiry bumping due to activity. This forces all sessio
 |             |                                                  |
 |-------------|--------------------------------------------------|
 | Type        | <code>bool</code>                                |
-| Environment | <code>$CODER_DISABLE_PASSWORD_AUTH</code>        |
+| Environment | <code>$NEURALINVERSE_DISABLE_PASSWORD_AUTH</code>        |
 | YAML        | <code>networking.http.disablePasswordAuth</code> |
 
 Disable password authentication. This is recommended for security purposes in production deployments that rely on an identity provider. Any user with the owner role will be able to sign in with their password regardless of this setting to avoid potential lock out. If you are locked out of your account, you can use the `coder server create-admin` command to create a new admin user directly in the database.
@@ -1215,7 +1215,7 @@ Disable password authentication. This is recommended for security purposes in pr
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>yaml-config-path</code>   |
-| Environment | <code>$CODER_CONFIG_PATH</code> |
+| Environment | <code>$NEURALINVERSE_CONFIG_PATH</code> |
 
 Specify a YAML file to load configuration from.
 
@@ -1224,18 +1224,18 @@ Specify a YAML file to load configuration from.
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_WORKSPACE_HOSTNAME_SUFFIX</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_HOSTNAME_SUFFIX</code> |
 | YAML        | <code>client.workspaceHostnameSuffix</code>   |
 | Default     | <code>coder</code>                            |
 
-Workspace hostnames use this suffix in SSH config and Coder Connect on Coder Desktop. By default it is coder, resulting in names like myworkspace.coder.
+Workspace hostnames use this suffix in SSH config and Neural Inverse Cloud Connect on Neural Inverse Cloud Desktop. By default it is coder, resulting in names like myworkspace.coder.
 
 ### --ssh-config-options
 
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string-array</code>              |
-| Environment | <code>$CODER_SSH_CONFIG_OPTIONS</code> |
+| Environment | <code>$NEURALINVERSE_SSH_CONFIG_OPTIONS</code> |
 | YAML        | <code>client.sshConfigOptions</code>   |
 
 These SSH config options will override the default SSH config options. Provide options in "key=value" or "key value" format separated by commas.Using this incorrectly can break SSH to your deployment, use cautiously.
@@ -1245,10 +1245,10 @@ These SSH config options will override the default SSH config options. Provide o
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_CLI_UPGRADE_MESSAGE</code> |
+| Environment | <code>$NEURALINVERSE_CLI_UPGRADE_MESSAGE</code> |
 | YAML        | <code>client.cliUpgradeMessage</code>   |
 
-The upgrade message to display to users when a client/server mismatch is detected. By default it instructs users to update using 'curl -L https://coder.com/install.sh | sh'.
+The upgrade message to display to users when a client/server mismatch is detected. By default it instructs users to update using 'curl -L https://cloud.neuralinverse.com/install.sh | sh'.
 
 ### --write-config
 
@@ -1262,8 +1262,8 @@ The upgrade message to display to users when a client/server mismatch is detecte
 
 |             |                                            |
 |-------------|--------------------------------------------|
-| Type        | <code>struct[[]codersdk.LinkConfig]</code> |
-| Environment | <code>$CODER_SUPPORT_LINKS</code>          |
+| Type        | <code>struct[[]nicloudsdk.LinkConfig]</code> |
+| Environment | <code>$NEURALINVERSE_SUPPORT_LINKS</code>          |
 | YAML        | <code>supportLinks</code>                  |
 
 Support links to display in the top right drop down menu.
@@ -1273,29 +1273,29 @@ Support links to display in the top right drop down menu.
 |             |                                                                  |
 |-------------|------------------------------------------------------------------|
 | Type        | <code>bool</code>                                                |
-| Environment | <code>$CODER_EXTERNAL_AUTH_GITHUB_DEFAULT_PROVIDER_ENABLE</code> |
+| Environment | <code>$NEURALINVERSE_EXTERNAL_AUTH_GITHUB_DEFAULT_PROVIDER_ENABLE</code> |
 | YAML        | <code>externalAuthGithubDefaultProviderEnable</code>             |
 | Default     | <code>true</code>                                                |
 
-Enable the default GitHub external auth provider managed by Coder.
+Enable the default GitHub external auth provider managed by Neural Inverse Cloud.
 
 ### --proxy-health-interval
 
 |             |                                                  |
 |-------------|--------------------------------------------------|
 | Type        | <code>duration</code>                            |
-| Environment | <code>$CODER_PROXY_HEALTH_INTERVAL</code>        |
+| Environment | <code>$NEURALINVERSE_PROXY_HEALTH_INTERVAL</code>        |
 | YAML        | <code>networking.http.proxyHealthInterval</code> |
 | Default     | <code>1m0s</code>                                |
 
-The interval in which coderd should be checking the status of workspace proxies.
+The interval in which nicloud should be checking the status of workspace proxies.
 
 ### --default-quiet-hours-schedule
 
 |             |                                                               |
 |-------------|---------------------------------------------------------------|
 | Type        | <code>string</code>                                           |
-| Environment | <code>$CODER_QUIET_HOURS_DEFAULT_SCHEDULE</code>              |
+| Environment | <code>$NEURALINVERSE_QUIET_HOURS_DEFAULT_SCHEDULE</code>              |
 | YAML        | <code>userQuietHoursSchedule.defaultQuietHoursSchedule</code> |
 | Default     | <code>CRON_TZ=UTC 0 0 ** *</code>                             |
 
@@ -1306,7 +1306,7 @@ The default daily cron schedule applied to users that haven't set a custom quiet
 |             |                                                           |
 |-------------|-----------------------------------------------------------|
 | Type        | <code>bool</code>                                         |
-| Environment | <code>$CODER_ALLOW_CUSTOM_QUIET_HOURS</code>              |
+| Environment | <code>$NEURALINVERSE_ALLOW_CUSTOM_QUIET_HOURS</code>              |
 | YAML        | <code>userQuietHoursSchedule.allowCustomQuietHours</code> |
 | Default     | <code>true</code>                                         |
 
@@ -1317,7 +1317,7 @@ Allow users to set their own quiet hours schedule for workspaces to stop in (dep
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_WEB_TERMINAL_RENDERER</code> |
+| Environment | <code>$NEURALINVERSE_WEB_TERMINAL_RENDERER</code> |
 | YAML        | <code>client.webTerminalRenderer</code>   |
 | Default     | <code>canvas</code>                       |
 
@@ -1328,7 +1328,7 @@ The renderer to use when opening a web terminal. Valid values are 'canvas', 'web
 |             |                                             |
 |-------------|---------------------------------------------|
 | Type        | <code>bool</code>                           |
-| Environment | <code>$CODER_ALLOW_WORKSPACE_RENAMES</code> |
+| Environment | <code>$NEURALINVERSE_ALLOW_WORKSPACE_RENAMES</code> |
 | YAML        | <code>allowWorkspaceRenames</code>          |
 | Default     | <code>false</code>                          |
 
@@ -1339,7 +1339,7 @@ Allow users to rename their workspaces. WARNING: Renaming a workspace can cause 
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>duration</code>                          |
-| Environment | <code>$CODER_HEALTH_CHECK_REFRESH</code>       |
+| Environment | <code>$NEURALINVERSE_HEALTH_CHECK_REFRESH</code>       |
 | YAML        | <code>introspection.healthcheck.refresh</code> |
 | Default     | <code>10m0s</code>                             |
 
@@ -1350,7 +1350,7 @@ Refresh interval for healthchecks.
 |             |                                                          |
 |-------------|----------------------------------------------------------|
 | Type        | <code>duration</code>                                    |
-| Environment | <code>$CODER_HEALTH_CHECK_THRESHOLD_DATABASE</code>      |
+| Environment | <code>$NEURALINVERSE_HEALTH_CHECK_THRESHOLD_DATABASE</code>      |
 | YAML        | <code>introspection.healthcheck.thresholdDatabase</code> |
 | Default     | <code>15ms</code>                                        |
 
@@ -1361,7 +1361,7 @@ The threshold for the database health check. If the median latency of the databa
 |             |                                |
 |-------------|--------------------------------|
 | Type        | <code>string</code>            |
-| Environment | <code>$CODER_EMAIL_FROM</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_FROM</code> |
 | YAML        | <code>email.from</code>        |
 
 The sender's address to use.
@@ -1371,7 +1371,7 @@ The sender's address to use.
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>string</code>                 |
-| Environment | <code>$CODER_EMAIL_SMARTHOST</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_SMARTHOST</code> |
 | YAML        | <code>email.smarthost</code>        |
 
 The intermediary SMTP host through which emails are sent.
@@ -1381,7 +1381,7 @@ The intermediary SMTP host through which emails are sent.
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>string</code>             |
-| Environment | <code>$CODER_EMAIL_HELLO</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_HELLO</code> |
 | YAML        | <code>email.hello</code>        |
 | Default     | <code>localhost</code>          |
 
@@ -1392,7 +1392,7 @@ The hostname identifying the SMTP server.
 |             |                                     |
 |-------------|-------------------------------------|
 | Type        | <code>bool</code>                   |
-| Environment | <code>$CODER_EMAIL_FORCE_TLS</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_FORCE_TLS</code> |
 | YAML        | <code>email.forceTLS</code>         |
 | Default     | <code>false</code>                  |
 
@@ -1403,7 +1403,7 @@ Force a TLS connection to the configured SMTP smarthost.
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_EMAIL_AUTH_IDENTITY</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_AUTH_IDENTITY</code> |
 | YAML        | <code>email.emailAuth.identity</code>   |
 
 Identity to use with PLAIN authentication.
@@ -1413,7 +1413,7 @@ Identity to use with PLAIN authentication.
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_EMAIL_AUTH_USERNAME</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_AUTH_USERNAME</code> |
 | YAML        | <code>email.emailAuth.username</code>   |
 
 Username to use with PLAIN/LOGIN authentication.
@@ -1423,7 +1423,7 @@ Username to use with PLAIN/LOGIN authentication.
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_EMAIL_AUTH_PASSWORD</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_AUTH_PASSWORD</code> |
 
 Password to use with PLAIN/LOGIN authentication.
 
@@ -1432,7 +1432,7 @@ Password to use with PLAIN/LOGIN authentication.
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>string</code>                          |
-| Environment | <code>$CODER_EMAIL_AUTH_PASSWORD_FILE</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_AUTH_PASSWORD_FILE</code> |
 | YAML        | <code>email.emailAuth.passwordFile</code>    |
 
 File from which to load password for use with PLAIN/LOGIN authentication.
@@ -1442,7 +1442,7 @@ File from which to load password for use with PLAIN/LOGIN authentication.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>bool</code>                      |
-| Environment | <code>$CODER_EMAIL_TLS_STARTTLS</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_TLS_STARTTLS</code> |
 | YAML        | <code>email.emailTLS.startTLS</code>   |
 
 Enable STARTTLS to upgrade insecure SMTP connections using TLS.
@@ -1452,7 +1452,7 @@ Enable STARTTLS to upgrade insecure SMTP connections using TLS.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_EMAIL_TLS_SERVERNAME</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_TLS_SERVERNAME</code> |
 | YAML        | <code>email.emailTLS.serverName</code>   |
 
 Server name to verify against the target certificate.
@@ -1462,7 +1462,7 @@ Server name to verify against the target certificate.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>bool</code>                              |
-| Environment | <code>$CODER_EMAIL_TLS_SKIPVERIFY</code>       |
+| Environment | <code>$NEURALINVERSE_EMAIL_TLS_SKIPVERIFY</code>       |
 | YAML        | <code>email.emailTLS.insecureSkipVerify</code> |
 
 Skip verification of the target server's certificate (insecure).
@@ -1472,7 +1472,7 @@ Skip verification of the target server's certificate (insecure).
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_EMAIL_TLS_CACERTFILE</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_TLS_CACERTFILE</code> |
 | YAML        | <code>email.emailTLS.caCertFile</code>   |
 
 CA certificate file to use.
@@ -1482,7 +1482,7 @@ CA certificate file to use.
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>string</code>                    |
-| Environment | <code>$CODER_EMAIL_TLS_CERTFILE</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_TLS_CERTFILE</code> |
 | YAML        | <code>email.emailTLS.certFile</code>   |
 
 Certificate file to use.
@@ -1492,7 +1492,7 @@ Certificate file to use.
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_EMAIL_TLS_CERTKEYFILE</code> |
+| Environment | <code>$NEURALINVERSE_EMAIL_TLS_CERTKEYFILE</code> |
 | YAML        | <code>email.emailTLS.certKeyFile</code>   |
 
 Certificate key file to use.
@@ -1502,7 +1502,7 @@ Certificate key file to use.
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>string</code>                      |
-| Environment | <code>$CODER_NOTIFICATIONS_METHOD</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_METHOD</code> |
 | YAML        | <code>notifications.method</code>        |
 | Default     | <code>smtp</code>                        |
 
@@ -1513,7 +1513,7 @@ Which delivery method to use (available options: 'smtp', 'webhook').
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>duration</code>                              |
-| Environment | <code>$CODER_NOTIFICATIONS_DISPATCH_TIMEOUT</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_DISPATCH_TIMEOUT</code> |
 | YAML        | <code>notifications.dispatchTimeout</code>         |
 | Default     | <code>1m0s</code>                                  |
 
@@ -1524,7 +1524,7 @@ How long to wait while a notification is being sent before giving up.
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>string</code>                          |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_FROM</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_FROM</code> |
 | YAML        | <code>notifications.email.from</code>        |
 
 The sender's address to use.
@@ -1534,7 +1534,7 @@ The sender's address to use.
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>string</code>                               |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_SMARTHOST</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_SMARTHOST</code> |
 | YAML        | <code>notifications.email.smarthost</code>        |
 
 The intermediary SMTP host through which emails are sent.
@@ -1544,7 +1544,7 @@ The intermediary SMTP host through which emails are sent.
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_HELLO</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_HELLO</code> |
 | YAML        | <code>notifications.email.hello</code>        |
 
 The hostname identifying the SMTP server.
@@ -1554,7 +1554,7 @@ The hostname identifying the SMTP server.
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>bool</code>                                 |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_FORCE_TLS</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_FORCE_TLS</code> |
 | YAML        | <code>notifications.email.forceTLS</code>         |
 
 Force a TLS connection to the configured SMTP smarthost.
@@ -1564,7 +1564,7 @@ Force a TLS connection to the configured SMTP smarthost.
 |             |                                                       |
 |-------------|-------------------------------------------------------|
 | Type        | <code>string</code>                                   |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_AUTH_IDENTITY</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_AUTH_IDENTITY</code> |
 | YAML        | <code>notifications.email.emailAuth.identity</code>   |
 
 Identity to use with PLAIN authentication.
@@ -1574,7 +1574,7 @@ Identity to use with PLAIN authentication.
 |             |                                                       |
 |-------------|-------------------------------------------------------|
 | Type        | <code>string</code>                                   |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_AUTH_USERNAME</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_AUTH_USERNAME</code> |
 | YAML        | <code>notifications.email.emailAuth.username</code>   |
 
 Username to use with PLAIN/LOGIN authentication.
@@ -1584,7 +1584,7 @@ Username to use with PLAIN/LOGIN authentication.
 |             |                                                       |
 |-------------|-------------------------------------------------------|
 | Type        | <code>string</code>                                   |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_AUTH_PASSWORD</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_AUTH_PASSWORD</code> |
 
 Password to use with PLAIN/LOGIN authentication.
 
@@ -1593,7 +1593,7 @@ Password to use with PLAIN/LOGIN authentication.
 |             |                                                            |
 |-------------|------------------------------------------------------------|
 | Type        | <code>string</code>                                        |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_AUTH_PASSWORD_FILE</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_AUTH_PASSWORD_FILE</code> |
 | YAML        | <code>notifications.email.emailAuth.passwordFile</code>    |
 
 File from which to load password for use with PLAIN/LOGIN authentication.
@@ -1603,7 +1603,7 @@ File from which to load password for use with PLAIN/LOGIN authentication.
 |             |                                                      |
 |-------------|------------------------------------------------------|
 | Type        | <code>bool</code>                                    |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_TLS_STARTTLS</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_TLS_STARTTLS</code> |
 | YAML        | <code>notifications.email.emailTLS.startTLS</code>   |
 
 Enable STARTTLS to upgrade insecure SMTP connections using TLS.
@@ -1613,7 +1613,7 @@ Enable STARTTLS to upgrade insecure SMTP connections using TLS.
 |             |                                                        |
 |-------------|--------------------------------------------------------|
 | Type        | <code>string</code>                                    |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_TLS_SERVERNAME</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_TLS_SERVERNAME</code> |
 | YAML        | <code>notifications.email.emailTLS.serverName</code>   |
 
 Server name to verify against the target certificate.
@@ -1623,7 +1623,7 @@ Server name to verify against the target certificate.
 |             |                                                              |
 |-------------|--------------------------------------------------------------|
 | Type        | <code>bool</code>                                            |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_TLS_SKIPVERIFY</code>       |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_TLS_SKIPVERIFY</code>       |
 | YAML        | <code>notifications.email.emailTLS.insecureSkipVerify</code> |
 
 Skip verification of the target server's certificate (insecure).
@@ -1633,7 +1633,7 @@ Skip verification of the target server's certificate (insecure).
 |             |                                                        |
 |-------------|--------------------------------------------------------|
 | Type        | <code>string</code>                                    |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_TLS_CACERTFILE</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_TLS_CACERTFILE</code> |
 | YAML        | <code>notifications.email.emailTLS.caCertFile</code>   |
 
 CA certificate file to use.
@@ -1643,7 +1643,7 @@ CA certificate file to use.
 |             |                                                      |
 |-------------|------------------------------------------------------|
 | Type        | <code>string</code>                                  |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_TLS_CERTFILE</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_TLS_CERTFILE</code> |
 | YAML        | <code>notifications.email.emailTLS.certFile</code>   |
 
 Certificate file to use.
@@ -1653,7 +1653,7 @@ Certificate file to use.
 |             |                                                         |
 |-------------|---------------------------------------------------------|
 | Type        | <code>string</code>                                     |
-| Environment | <code>$CODER_NOTIFICATIONS_EMAIL_TLS_CERTKEYFILE</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_EMAIL_TLS_CERTKEYFILE</code> |
 | YAML        | <code>notifications.email.emailTLS.certKeyFile</code>   |
 
 Certificate key file to use.
@@ -1663,7 +1663,7 @@ Certificate key file to use.
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>url</code>                                   |
-| Environment | <code>$CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_WEBHOOK_ENDPOINT</code> |
 | YAML        | <code>notifications.webhook.endpoint</code>        |
 
 The endpoint to which to send webhooks.
@@ -1673,18 +1673,18 @@ The endpoint to which to send webhooks.
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>bool</code>                               |
-| Environment | <code>$CODER_NOTIFICATIONS_INBOX_ENABLED</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_INBOX_ENABLED</code> |
 | YAML        | <code>notifications.inbox.enabled</code>        |
 | Default     | <code>true</code>                               |
 
-Enable Coder Inbox.
+Enable Neural Inverse Cloud Inbox.
 
 ### --notifications-max-send-attempts
 
 |             |                                                     |
 |-------------|-----------------------------------------------------|
 | Type        | <code>int</code>                                    |
-| Environment | <code>$CODER_NOTIFICATIONS_MAX_SEND_ATTEMPTS</code> |
+| Environment | <code>$NEURALINVERSE_NOTIFICATIONS_MAX_SEND_ATTEMPTS</code> |
 | YAML        | <code>notifications.maxSendAttempts</code>          |
 | Default     | <code>5</code>                                      |
 
@@ -1695,7 +1695,7 @@ The upper limit of attempts to send a notification.
 |             |                                                                 |
 |-------------|-----------------------------------------------------------------|
 | Type        | <code>duration</code>                                           |
-| Environment | <code>$CODER_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_PREBUILDS_RECONCILIATION_INTERVAL</code> |
 | YAML        | <code>workspace_prebuilds.reconciliation_interval</code>        |
 | Default     | <code>1m0s</code>                                               |
 
@@ -1706,7 +1706,7 @@ How often to reconcile workspace prebuilds state.
 |             |                                   |
 |-------------|-----------------------------------|
 | Type        | <code>bool</code>                 |
-| Environment | <code>$CODER_HIDE_AI_TASKS</code> |
+| Environment | <code>$NEURALINVERSE_HIDE_AI_TASKS</code> |
 | YAML        | <code>client.hideAITasks</code>   |
 | Default     | <code>false</code>                |
 
@@ -1717,7 +1717,7 @@ Hide AI tasks from the dashboard.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>bool</code>                              |
-| Environment | <code>$CODER_CHAT_DEBUG_LOGGING_ENABLED</code> |
+| Environment | <code>$NEURALINVERSE_CHAT_DEBUG_LOGGING_ENABLED</code> |
 | YAML        | <code>chat.debugLoggingEnabled</code>          |
 | Default     | <code>false</code>                             |
 
@@ -1728,7 +1728,7 @@ Force chat debug logging on for every chat, bypassing the runtime admin and user
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>bool</code>                      |
-| Environment | <code>$CODER_AI_GATEWAY_ENABLED</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_ENABLED</code> |
 | YAML        | <code>ai_gateway.enabled</code>        |
 | Default     | <code>true</code>                      |
 
@@ -1739,107 +1739,107 @@ Whether to start an in-memory AI Gateway instance.
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>string</code>                            |
-| Environment | <code>$CODER_AI_GATEWAY_OPENAI_BASE_URL</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_OPENAI_BASE_URL</code> |
 | YAML        | <code>ai_gateway.openai_base_url</code>        |
 | Default     | <code>https://api.openai.com/v1/</code>        |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The base URL of the OpenAI API.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The base URL of the OpenAI API.
 
 ### --ai-gateway-openai-key
 
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>string</code>                       |
-| Environment | <code>$CODER_AI_GATEWAY_OPENAI_KEY</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_OPENAI_KEY</code> |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The key to authenticate against the OpenAI API.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The key to authenticate against the OpenAI API.
 
 ### --ai-gateway-anthropic-base-url
 
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>string</code>                               |
-| Environment | <code>$CODER_AI_GATEWAY_ANTHROPIC_BASE_URL</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_ANTHROPIC_BASE_URL</code> |
 | YAML        | <code>ai_gateway.anthropic_base_url</code>        |
 | Default     | <code>https://api.anthropic.com/</code>           |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The base URL of the Anthropic API.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The base URL of the Anthropic API.
 
 ### --ai-gateway-anthropic-key
 
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>string</code>                          |
-| Environment | <code>$CODER_AI_GATEWAY_ANTHROPIC_KEY</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_ANTHROPIC_KEY</code> |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The key to authenticate against the Anthropic API.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The key to authenticate against the Anthropic API.
 
 ### --ai-gateway-bedrock-base-url
 
 |             |                                                 |
 |-------------|-------------------------------------------------|
 | Type        | <code>string</code>                             |
-| Environment | <code>$CODER_AI_GATEWAY_BEDROCK_BASE_URL</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_BEDROCK_BASE_URL</code> |
 | YAML        | <code>ai_gateway.bedrock_base_url</code>        |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The base URL to use for the AWS Bedrock API. Use this setting to specify an exact URL to use. Takes precedence over CODER_AI_GATEWAY_BEDROCK_REGION.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The base URL to use for the AWS Bedrock API. Use this setting to specify an exact URL to use. Takes precedence over NEURALINVERSE_AI_GATEWAY_BEDROCK_REGION.
 
 ### --ai-gateway-bedrock-region
 
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_AI_GATEWAY_BEDROCK_REGION</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_BEDROCK_REGION</code> |
 | YAML        | <code>ai_gateway.bedrock_region</code>        |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The AWS Bedrock API region to use. Constructs a base URL to use for the AWS Bedrock API in the form of 'https://bedrock-runtime.<region>.amazonaws.com'.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The AWS Bedrock API region to use. Constructs a base URL to use for the AWS Bedrock API in the form of 'https://bedrock-runtime.<region>.amazonaws.com'.
 
 ### --ai-gateway-bedrock-access-key
 
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>string</code>                               |
-| Environment | <code>$CODER_AI_GATEWAY_BEDROCK_ACCESS_KEY</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_BEDROCK_ACCESS_KEY</code> |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The access key to authenticate against the AWS Bedrock API.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The access key to authenticate against the AWS Bedrock API.
 
 ### --ai-gateway-bedrock-access-key-secret
 
 |             |                                                          |
 |-------------|----------------------------------------------------------|
 | Type        | <code>string</code>                                      |
-| Environment | <code>$CODER_AI_GATEWAY_BEDROCK_ACCESS_KEY_SECRET</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_BEDROCK_ACCESS_KEY_SECRET</code> |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The access key secret to use with the access key to authenticate against the AWS Bedrock API.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The access key secret to use with the access key to authenticate against the AWS Bedrock API.
 
 ### --ai-gateway-bedrock-model
 
 |             |                                                               |
 |-------------|---------------------------------------------------------------|
 | Type        | <code>string</code>                                           |
-| Environment | <code>$CODER_AI_GATEWAY_BEDROCK_MODEL</code>                  |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_BEDROCK_MODEL</code>                  |
 | YAML        | <code>ai_gateway.bedrock_model</code>                         |
 | Default     | <code>global.anthropic.claude-sonnet-4-5-20250929-v1:0</code> |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The model to use when making requests to the AWS Bedrock API.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The model to use when making requests to the AWS Bedrock API.
 
 ### --ai-gateway-bedrock-small-fastmodel
 
 |             |                                                              |
 |-------------|--------------------------------------------------------------|
 | Type        | <code>string</code>                                          |
-| Environment | <code>$CODER_AI_GATEWAY_BEDROCK_SMALL_FAST_MODEL</code>      |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_BEDROCK_SMALL_FAST_MODEL</code>      |
 | YAML        | <code>ai_gateway.bedrock_small_fast_model</code>             |
 | Default     | <code>global.anthropic.claude-haiku-4-5-20251001-v1:0</code> |
 
-Deprecated: manage AI Providers from the Coder UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The small fast model to use when making requests to the AWS Bedrock API. Claude Code uses Haiku-class models to perform background tasks. See https://docs.claude.com/en/docs/claude-code/settings#environment-variables.
+Deprecated: manage AI Providers from the Neural Inverse Cloud UI or HTTP API. If set, this option seeds provider configuration at startup only exactly once. It will not be used in service runtime. The small fast model to use when making requests to the AWS Bedrock API. Claude Code uses Haiku-class models to perform background tasks. See https://docs.claude.com/en/docs/claude-code/settings#environment-variables.
 
 ### --ai-gateway-retention
 
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>duration</code>                    |
-| Environment | <code>$CODER_AI_GATEWAY_RETENTION</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_RETENTION</code> |
 | YAML        | <code>ai_gateway.retention</code>        |
 | Default     | <code>60d</code>                         |
 
@@ -1850,7 +1850,7 @@ Length of time to retain data such as interceptions and all related records (tok
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>int</code>                               |
-| Environment | <code>$CODER_AI_GATEWAY_MAX_CONCURRENCY</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_MAX_CONCURRENCY</code> |
 | YAML        | <code>ai_gateway.max_concurrency</code>        |
 | Default     | <code>0</code>                                 |
 
@@ -1861,7 +1861,7 @@ Maximum number of concurrent AI Gateway requests per replica. Set to 0 to disabl
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>int</code>                          |
-| Environment | <code>$CODER_AI_GATEWAY_RATE_LIMIT</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_RATE_LIMIT</code> |
 | YAML        | <code>ai_gateway.rate_limit</code>        |
 | Default     | <code>0</code>                            |
 
@@ -1872,7 +1872,7 @@ Maximum number of AI Gateway requests per second per replica. Set to 0 to disabl
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>bool</code>                                 |
-| Environment | <code>$CODER_AI_GATEWAY_STRUCTURED_LOGGING</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_STRUCTURED_LOGGING</code> |
 | YAML        | <code>ai_gateway.structured_logging</code>        |
 | Default     | <code>false</code>                                |
 
@@ -1883,7 +1883,7 @@ Emit structured logs for AI Gateway interception records. Use this for exporting
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>bool</code>                                 |
-| Environment | <code>$CODER_AI_GATEWAY_SEND_ACTOR_HEADERS</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_SEND_ACTOR_HEADERS</code> |
 | YAML        | <code>ai_gateway.send_actor_headers</code>        |
 | Default     | <code>false</code>                                |
 
@@ -1894,7 +1894,7 @@ Once enabled, extra headers will be added to upstream requests to identify the u
 |             |                                         |
 |-------------|-----------------------------------------|
 | Type        | <code>string</code>                     |
-| Environment | <code>$CODER_AI_GATEWAY_DUMP_DIR</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_DUMP_DIR</code> |
 | YAML        | <code>ai_gateway.api_dump_dir</code>    |
 
 Base directory for dumping AI Bridge request/response pairs to disk for debugging. When set, each provider writes under a subdirectory named after the provider. Sensitive headers are redacted. Leave empty to disable.
@@ -1904,7 +1904,7 @@ Base directory for dumping AI Bridge request/response pairs to disk for debuggin
 |             |                                           |
 |-------------|-------------------------------------------|
 | Type        | <code>bool</code>                         |
-| Environment | <code>$CODER_AI_GATEWAY_ALLOW_BYOK</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_ALLOW_BYOK</code> |
 | YAML        | <code>ai_gateway.allow_byok</code>        |
 | Default     | <code>true</code>                         |
 
@@ -1915,7 +1915,7 @@ Allow users to provide their own LLM API keys or subscriptions. When disabled, o
 |             |                                                        |
 |-------------|--------------------------------------------------------|
 | Type        | <code>bool</code>                                      |
-| Environment | <code>$CODER_AI_GATEWAY_CIRCUIT_BREAKER_ENABLED</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_CIRCUIT_BREAKER_ENABLED</code> |
 | YAML        | <code>ai_gateway.circuit_breaker_enabled</code>        |
 | Default     | <code>false</code>                                     |
 
@@ -1926,7 +1926,7 @@ Enable the circuit breaker to protect against cascading failures from upstream A
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>highest</code>                  |
-| Environment | <code>$CODER_AI_BUDGET_POLICY</code>  |
+| Environment | <code>$NEURALINVERSE_AI_BUDGET_POLICY</code>  |
 | YAML        | <code>ai_gateway.budget_policy</code> |
 | Default     | <code>highest</code>                  |
 
@@ -1937,7 +1937,7 @@ Determines the effective group when a user belongs to multiple groups with AI bu
 |             |                                       |
 |-------------|---------------------------------------|
 | Type        | <code>month</code>                    |
-| Environment | <code>$CODER_AI_BUDGET_PERIOD</code>  |
+| Environment | <code>$NEURALINVERSE_AI_BUDGET_PERIOD</code>  |
 | YAML        | <code>ai_gateway.budget_period</code> |
 | Default     | <code>month</code>                    |
 
@@ -1948,7 +1948,7 @@ Determines when accumulated AI spend resets to zero, aligned to UTC calendar bou
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>bool</code>                            |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_ENABLED</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_ENABLED</code> |
 | YAML        | <code>ai_gateway_proxy.enabled</code>        |
 | Default     | <code>false</code>                           |
 
@@ -1959,7 +1959,7 @@ Enable the AI Gateway MITM Proxy for intercepting and decrypting AI provider req
 |             |                                                  |
 |-------------|--------------------------------------------------|
 | Type        | <code>string</code>                              |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_LISTEN_ADDR</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_LISTEN_ADDR</code> |
 | YAML        | <code>ai_gateway_proxy.listen_addr</code>        |
 | Default     | <code>:8888</code>                               |
 
@@ -1970,7 +1970,7 @@ The address the AI Gateway Proxy will listen on.
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>string</code>                                |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_TLS_CERT_FILE</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_TLS_CERT_FILE</code> |
 | YAML        | <code>ai_gateway_proxy.tls_cert_file</code>        |
 
 Path to the TLS certificate file for the AI Gateway Proxy listener. Must be set together with AI Gateway Proxy TLS Key File.
@@ -1980,7 +1980,7 @@ Path to the TLS certificate file for the AI Gateway Proxy listener. Must be set 
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>string</code>                               |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_TLS_KEY_FILE</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_TLS_KEY_FILE</code> |
 | YAML        | <code>ai_gateway_proxy.tls_key_file</code>        |
 
 Path to the TLS private key file for the AI Gateway Proxy listener. Must be set together with AI Gateway Proxy TLS Certificate File.
@@ -1990,7 +1990,7 @@ Path to the TLS private key file for the AI Gateway Proxy listener. Must be set 
 |             |                                                |
 |-------------|------------------------------------------------|
 | Type        | <code>string</code>                            |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_CERT_FILE</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_CERT_FILE</code> |
 | YAML        | <code>ai_gateway_proxy.cert_file</code>        |
 
 Path to the CA certificate file used to intercept (MITM) HTTPS traffic from AI clients. This CA must be trusted by AI clients for the proxy to decrypt their requests.
@@ -2000,7 +2000,7 @@ Path to the CA certificate file used to intercept (MITM) HTTPS traffic from AI c
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_KEY_FILE</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_KEY_FILE</code> |
 | YAML        | <code>ai_gateway_proxy.key_file</code>        |
 
 Path to the CA private key file used to intercept (MITM) HTTPS traffic from AI clients.
@@ -2010,7 +2010,7 @@ Path to the CA private key file used to intercept (MITM) HTTPS traffic from AI c
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_UPSTREAM</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_UPSTREAM</code> |
 | YAML        | <code>ai_gateway_proxy.upstream_proxy</code>  |
 
 URL of an upstream HTTP proxy to chain tunneled (non-allowlisted) requests through. Format: http://[user:pass@]host:port or https://[user:pass@]host:port.
@@ -2020,7 +2020,7 @@ URL of an upstream HTTP proxy to chain tunneled (non-allowlisted) requests throu
 |             |                                                  |
 |-------------|--------------------------------------------------|
 | Type        | <code>string</code>                              |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_UPSTREAM_CA</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_UPSTREAM_CA</code> |
 | YAML        | <code>ai_gateway_proxy.upstream_proxy_ca</code>  |
 
 Path to a PEM-encoded CA certificate to trust for the upstream proxy's TLS connection. Only needed for HTTPS upstream proxies with certificates not trusted by the system. If not provided, the system certificate pool is used.
@@ -2030,7 +2030,7 @@ Path to a PEM-encoded CA certificate to trust for the upstream proxy's TLS conne
 |             |                                                            |
 |-------------|------------------------------------------------------------|
 | Type        | <code>string-array</code>                                  |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_ALLOWED_PRIVATE_CIDRS</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_ALLOWED_PRIVATE_CIDRS</code> |
 | YAML        | <code>ai_gateway_proxy.allowed_private_cidrs</code>        |
 
 Comma-separated list of CIDR ranges that are permitted even though they fall within blocked private/reserved IP ranges. By default all private ranges are blocked to prevent SSRF attacks. Use this to allow access to specific internal networks.
@@ -2040,7 +2040,7 @@ Comma-separated list of CIDR ranges that are permitted even though they fall wit
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>string</code>                           |
-| Environment | <code>$CODER_AI_GATEWAY_PROXY_DUMP_DIR</code> |
+| Environment | <code>$NEURALINVERSE_AI_GATEWAY_PROXY_DUMP_DIR</code> |
 | YAML        | <code>ai_gateway_proxy.api_dump_dir</code>    |
 
 Directory for dumping MITM request/response pairs to disk for debugging. When set, each proxied request produces .req.txt and .resp.txt files organized by provider. Sensitive headers are redacted. Leave empty to disable.
@@ -2050,7 +2050,7 @@ Directory for dumping MITM request/response pairs to disk for debugging. When se
 |             |                                          |
 |-------------|------------------------------------------|
 | Type        | <code>duration</code>                    |
-| Environment | <code>$CODER_AUDIT_LOGS_RETENTION</code> |
+| Environment | <code>$NEURALINVERSE_AUDIT_LOGS_RETENTION</code> |
 | YAML        | <code>retention.audit_logs</code>        |
 | Default     | <code>0</code>                           |
 
@@ -2061,7 +2061,7 @@ How long audit log entries are retained. Set to 0 to disable (keep indefinitely)
 |             |                                               |
 |-------------|-----------------------------------------------|
 | Type        | <code>duration</code>                         |
-| Environment | <code>$CODER_CONNECTION_LOGS_RETENTION</code> |
+| Environment | <code>$NEURALINVERSE_CONNECTION_LOGS_RETENTION</code> |
 | YAML        | <code>retention.connection_logs</code>        |
 | Default     | <code>0</code>                                |
 
@@ -2072,7 +2072,7 @@ How long connection log entries are retained. Set to 0 to disable (keep indefini
 |             |                                        |
 |-------------|----------------------------------------|
 | Type        | <code>duration</code>                  |
-| Environment | <code>$CODER_API_KEYS_RETENTION</code> |
+| Environment | <code>$NEURALINVERSE_API_KEYS_RETENTION</code> |
 | YAML        | <code>retention.api_keys</code>        |
 | Default     | <code>7d</code>                        |
 
@@ -2083,7 +2083,7 @@ How long expired API keys are retained before being deleted. Keeping expired key
 |             |                                                    |
 |-------------|----------------------------------------------------|
 | Type        | <code>duration</code>                              |
-| Environment | <code>$CODER_WORKSPACE_AGENT_LOGS_RETENTION</code> |
+| Environment | <code>$NEURALINVERSE_WORKSPACE_AGENT_LOGS_RETENTION</code> |
 | YAML        | <code>retention.workspace_agent_logs</code>        |
 | Default     | <code>7d</code>                                    |
 
@@ -2094,7 +2094,7 @@ How long workspace agent logs are retained. Logs from non-latest builds are dele
 |             |                                              |
 |-------------|----------------------------------------------|
 | Type        | <code>bool</code>                            |
-| Environment | <code>$CODER_DISABLE_TEMPLATE_BUILDER</code> |
+| Environment | <code>$NEURALINVERSE_DISABLE_TEMPLATE_BUILDER</code> |
 | YAML        | <code>templateBuilder.disabled</code>        |
 
 Disable the template builder feature for guided template creation. When disabled, all /api/v2/templatebuilder/* endpoints return 404.
@@ -2104,8 +2104,8 @@ Disable the template builder feature for guided template creation. When disabled
 |             |                                                   |
 |-------------|---------------------------------------------------|
 | Type        | <code>string</code>                               |
-| Environment | <code>$CODER_TEMPLATE_BUILDER_REGISTRY_URL</code> |
+| Environment | <code>$NEURALINVERSE_TEMPLATE_BUILDER_REGISTRY_URL</code> |
 | YAML        | <code>templateBuilder.registryURL</code>          |
-| Default     | <code>https://registry.coder.com</code>           |
+| Default     | <code>https://registry.cloud.neuralinverse.com</code>           |
 
 The base URL of the module registry used by the template builder for module source paths.

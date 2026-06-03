@@ -1,6 +1,6 @@
 import type { ChatDebugRun } from "#/api/typesGenerated";
 
-// Keep in sync with maxDebugRuns in coderd/exp_chats.go.
+// Keep in sync with maxDebugRuns in nicloud/exp_chats.go.
 export const DEBUG_RUN_LIST_LIMIT = 100;
 
 const DEBUG_ID_PREFIX_LENGTH = 8;

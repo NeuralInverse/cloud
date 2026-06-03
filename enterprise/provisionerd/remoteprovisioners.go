@@ -26,13 +26,13 @@ import (
 	"storj.io/drpc/drpcconn"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/provisioner/echo"
-	agpl "github.com/coder/coder/v2/provisionerd"
-	"github.com/coder/coder/v2/provisionerd/proto"
-	"github.com/coder/coder/v2/provisionersdk"
-	sdkproto "github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner/echo"
+	agpl "github.com/NeuralInverse/cloud/v2/provisionerd"
+	"github.com/NeuralInverse/cloud/v2/provisionerd/proto"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	sdkproto "github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 // Executor is responsible for executing the remote provisioners.
@@ -126,7 +126,7 @@ func GenCert() (*ecdsa.PrivateKey, []byte, error) {
 	template := x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
-			CommonName: "Coder Provisioner Daemon",
+			CommonName: "Neural Inverse Cloud Provisioner Daemon",
 		},
 		DNSNames:  []string{serverName},
 		NotBefore: time.Now(),

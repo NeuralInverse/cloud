@@ -7,8 +7,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/clistat"
-	"github.com/coder/coder/v2/agent/proto/resourcesmonitor"
-	"github.com/coder/coder/v2/coderd/util/ptr"
+	"github.com/NeuralInverse/cloud/v2/agent/proto/resourcesmonitor"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/ptr"
 )
 
 type mockStatter struct {

@@ -3,7 +3,7 @@
 Use the
 [`resources_monitoring`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent#resources_monitoring-1)
 block on the
-[`coder_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent)
+[`ni_agent`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/agent)
 resource in our Terraform provider to monitor out of memory (OOM) and out of
 disk (OOD) errors and alert users when they overutilize memory and disk.
 
@@ -15,7 +15,7 @@ OOM alerts are reported per-agent.
 ## Prerequisites
 
 Notifications are sent through SMTP.
-Configure Coder to [use an SMTP server](../../monitoring/notifications/index.md#smtp-email).
+Configure Neural Inverse Cloud to [use an SMTP server](../../monitoring/notifications/index.md#smtp-email).
 
 ## Example
 
@@ -24,7 +24,7 @@ Change the `90`, `80`, and `95` to a threshold that's more appropriate for your
 deployment:
 
 ```hcl
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   arch = data.coder_provisioner.dev.arch
   os   = data.coder_provisioner.dev.os
   resources_monitoring {

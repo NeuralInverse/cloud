@@ -16,7 +16,7 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 func TestRunnerRunConversation(t *testing.T) {
@@ -29,16 +29,16 @@ func TestRunnerRunConversation(t *testing.T) {
 		t.Parallel()
 
 		runner := newTestRunner(t, newRunConfig(t))
-		events := make(chan codersdk.ChatStreamEvent, 3)
-		events <- statusEvent(chatID, codersdk.ChatStatusRunning)
+		events := make(chan nicloudsdk.ChatStreamEvent, 3)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
 		events <- messagePartEvent(chatID)
-		events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 		close(events)
 
 		err := runTestConversation(t, runner, chatID, events, noopMarkTurnStartReady)
 		require.NoError(t, err)
 		result := runner.result
-		require.Equal(t, string(codersdk.ChatStatusWaiting), result.finalStatus)
+		require.Equal(t, string(nicloudsdk.ChatStatusWaiting), result.finalStatus)
 		require.Empty(t, result.failureStage)
 		require.True(t, result.sawFirstOutput)
 		require.Equal(t, 1, result.turnsCompleted)
@@ -51,18 +51,18 @@ func TestRunnerRunConversation(t *testing.T) {
 		cfg := newRunConfig(t)
 		cfg.Turns = 2
 
-		events := make(chan codersdk.ChatStreamEvent, 7)
-		events <- statusEvent(chatID, codersdk.ChatStatusRunning)
+		events := make(chan nicloudsdk.ChatStreamEvent, 7)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
 		events <- messagePartEvent(chatID)
-		events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
-		events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 
 		var sendCount atomic.Int64
 		runner := newTestRunnerWithChatMessage(t, cfg, chatID, func() {
 			sendCount.Add(1)
-			events <- statusEvent(chatID, codersdk.ChatStatusRunning)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
 			events <- messagePartEvent(chatID)
-			events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 			close(events)
 		})
 
@@ -72,7 +72,7 @@ func TestRunnerRunConversation(t *testing.T) {
 		require.Equal(t, int64(1), sendCount.Load())
 		require.Equal(t, 2, result.turnsCompleted)
 		require.Equal(t, 7, result.eventCount)
-		require.Equal(t, string(codersdk.ChatStatusWaiting), result.finalStatus)
+		require.Equal(t, string(nicloudsdk.ChatStatusWaiting), result.finalStatus)
 	})
 
 	t.Run("StaleWaitingAfterNextTurnRunningDoesNotAdvanceTurn", func(t *testing.T) {
@@ -81,18 +81,18 @@ func TestRunnerRunConversation(t *testing.T) {
 		cfg := newRunConfig(t)
 		cfg.Turns = 2
 
-		events := make(chan codersdk.ChatStreamEvent, 7)
-		events <- statusEvent(chatID, codersdk.ChatStatusRunning)
+		events := make(chan nicloudsdk.ChatStreamEvent, 7)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
 		events <- messagePartEvent(chatID)
-		events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 
 		var sendCount atomic.Int64
 		runner := newTestRunnerWithChatMessage(t, cfg, chatID, func() {
 			sendCount.Add(1)
-			events <- statusEvent(chatID, codersdk.ChatStatusRunning)
-			events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 			events <- messagePartEvent(chatID)
-			events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 			close(events)
 		})
 
@@ -102,7 +102,7 @@ func TestRunnerRunConversation(t *testing.T) {
 		require.Equal(t, int64(1), sendCount.Load())
 		require.Equal(t, 2, result.turnsCompleted)
 		require.Equal(t, 7, result.eventCount)
-		require.Equal(t, string(codersdk.ChatStatusWaiting), result.finalStatus)
+		require.Equal(t, string(nicloudsdk.ChatStatusWaiting), result.finalStatus)
 	})
 
 	t.Run("FirstTurnGatesFollowUpStorm", func(t *testing.T) {
@@ -120,10 +120,10 @@ func TestRunnerRunConversation(t *testing.T) {
 		cfg.TurnStartReadyWaitGroup = readyWG
 		cfg.StartTurnsChan = releaseChan
 
-		events := make(chan codersdk.ChatStreamEvent, 4)
-		events <- statusEvent(chatID, codersdk.ChatStatusRunning)
+		events := make(chan nicloudsdk.ChatStreamEvent, 4)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
 		events <- messagePartEvent(chatID)
-		events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 
 		ready := make(chan struct{})
 		go func() {
@@ -135,9 +135,9 @@ func TestRunnerRunConversation(t *testing.T) {
 		var sendCount atomic.Int64
 		runner := newTestRunnerWithChatMessage(t, cfg, chatID, func() {
 			sendCount.Add(1)
-			events <- statusEvent(chatID, codersdk.ChatStatusRunning)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
 			events <- messagePartEvent(chatID)
-			events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 			close(events)
 		})
 
@@ -174,10 +174,10 @@ func TestRunnerRunConversation(t *testing.T) {
 		// StreamChat replays rows as message events, never as
 		// message_part deltas; the assistant row must record first output.
 		runner := newTestRunner(t, newRunConfig(t))
-		events := make(chan codersdk.ChatStreamEvent, 3)
-		events <- messageEvent(chatID, codersdk.ChatMessageRoleUser)
-		events <- messageEvent(chatID, codersdk.ChatMessageRoleAssistant)
-		events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+		events := make(chan nicloudsdk.ChatStreamEvent, 3)
+		events <- messageEvent(chatID, nicloudsdk.ChatMessageRoleUser)
+		events <- messageEvent(chatID, nicloudsdk.ChatMessageRoleAssistant)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 		close(events)
 
 		err := runTestConversation(t, runner, chatID, events, noopMarkTurnStartReady)
@@ -185,7 +185,7 @@ func TestRunnerRunConversation(t *testing.T) {
 		result := runner.result
 		require.True(t, result.sawFirstOutput, "first output not recorded from assistant message event")
 		require.Equal(t, 1, result.turnsCompleted)
-		require.Equal(t, string(codersdk.ChatStatusWaiting), result.finalStatus)
+		require.Equal(t, string(nicloudsdk.ChatStatusWaiting), result.finalStatus)
 	})
 
 	t.Run("ImmediateWaitingCountsNextTurn", func(t *testing.T) {
@@ -194,15 +194,15 @@ func TestRunnerRunConversation(t *testing.T) {
 		cfg := newRunConfig(t)
 		cfg.Turns = 2
 
-		events := make(chan codersdk.ChatStreamEvent, 3)
-		events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+		events := make(chan nicloudsdk.ChatStreamEvent, 3)
+		events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 
 		var sendCount atomic.Int64
 		runner := newTestRunnerWithChatMessage(t, cfg, chatID, func() {
 			sendCount.Add(1)
-			events <- statusEvent(chatID, codersdk.ChatStatusRunning)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusRunning)
 			events <- messagePartEvent(chatID)
-			events <- statusEvent(chatID, codersdk.ChatStatusWaiting)
+			events <- statusEvent(chatID, nicloudsdk.ChatStatusWaiting)
 			close(events)
 		})
 
@@ -211,11 +211,11 @@ func TestRunnerRunConversation(t *testing.T) {
 		result := runner.result
 		require.Equal(t, int64(1), sendCount.Load())
 		require.Equal(t, 2, result.turnsCompleted)
-		require.Equal(t, string(codersdk.ChatStatusWaiting), result.finalStatus)
+		require.Equal(t, string(nicloudsdk.ChatStatusWaiting), result.finalStatus)
 	})
 }
 
-func runTestConversation(t *testing.T, runner *Runner, chatID uuid.UUID, events <-chan codersdk.ChatStreamEvent, markTurnStartReady func()) error {
+func runTestConversation(t *testing.T, runner *Runner, chatID uuid.UUID, events <-chan nicloudsdk.ChatStreamEvent, markTurnStartReady func()) error {
 	t.Helper()
 	runner.resetConversation(time.Now(), markTurnStartReady)
 	return runner.runConversation(context.Background(), chatID, testLogger(), events)
@@ -268,10 +268,10 @@ func newRunConfig(t *testing.T) Config {
 }
 
 type fakeChatClient struct {
-	createChatFunc        func(context.Context, codersdk.CreateChatRequest) (codersdk.Chat, error)
-	streamChatFunc        func(context.Context, uuid.UUID, *codersdk.StreamChatOptions) (<-chan codersdk.ChatStreamEvent, io.Closer, error)
-	createChatMessageFunc func(context.Context, uuid.UUID, codersdk.CreateChatMessageRequest) (codersdk.CreateChatMessageResponse, error)
-	updateChatFunc        func(context.Context, uuid.UUID, codersdk.UpdateChatRequest) error
+	createChatFunc        func(context.Context, nicloudsdk.CreateChatRequest) (nicloudsdk.Chat, error)
+	streamChatFunc        func(context.Context, uuid.UUID, *nicloudsdk.StreamChatOptions) (<-chan nicloudsdk.ChatStreamEvent, io.Closer, error)
+	createChatMessageFunc func(context.Context, uuid.UUID, nicloudsdk.CreateChatMessageRequest) (nicloudsdk.CreateChatMessageResponse, error)
+	updateChatFunc        func(context.Context, uuid.UUID, nicloudsdk.UpdateChatRequest) error
 }
 
 func newFakeChatClient(t *testing.T) *fakeChatClient {
@@ -283,28 +283,28 @@ func (*fakeChatClient) SetLogger(logger slog.Logger) {}
 
 func (*fakeChatClient) SetLogBodies(logBodies bool) {}
 
-func (f *fakeChatClient) CreateChat(ctx context.Context, req codersdk.CreateChatRequest) (codersdk.Chat, error) {
+func (f *fakeChatClient) CreateChat(ctx context.Context, req nicloudsdk.CreateChatRequest) (nicloudsdk.Chat, error) {
 	if f.createChatFunc == nil {
-		return codersdk.Chat{}, xerrors.New("unexpected CreateChat call")
+		return nicloudsdk.Chat{}, xerrors.New("unexpected CreateChat call")
 	}
 	return f.createChatFunc(ctx, req)
 }
 
-func (f *fakeChatClient) StreamChat(ctx context.Context, chatID uuid.UUID, opts *codersdk.StreamChatOptions) (<-chan codersdk.ChatStreamEvent, io.Closer, error) {
+func (f *fakeChatClient) StreamChat(ctx context.Context, chatID uuid.UUID, opts *nicloudsdk.StreamChatOptions) (<-chan nicloudsdk.ChatStreamEvent, io.Closer, error) {
 	if f.streamChatFunc == nil {
 		return nil, nil, xerrors.New("unexpected StreamChat call")
 	}
 	return f.streamChatFunc(ctx, chatID, opts)
 }
 
-func (f *fakeChatClient) CreateChatMessage(ctx context.Context, chatID uuid.UUID, req codersdk.CreateChatMessageRequest) (codersdk.CreateChatMessageResponse, error) {
+func (f *fakeChatClient) CreateChatMessage(ctx context.Context, chatID uuid.UUID, req nicloudsdk.CreateChatMessageRequest) (nicloudsdk.CreateChatMessageResponse, error) {
 	if f.createChatMessageFunc == nil {
-		return codersdk.CreateChatMessageResponse{}, xerrors.New("unexpected CreateChatMessage call")
+		return nicloudsdk.CreateChatMessageResponse{}, xerrors.New("unexpected CreateChatMessage call")
 	}
 	return f.createChatMessageFunc(ctx, chatID, req)
 }
 
-func (f *fakeChatClient) UpdateChat(ctx context.Context, chatID uuid.UUID, req codersdk.UpdateChatRequest) error {
+func (f *fakeChatClient) UpdateChat(ctx context.Context, chatID uuid.UUID, req nicloudsdk.UpdateChatRequest) error {
 	if f.updateChatFunc == nil {
 		return xerrors.New("unexpected UpdateChat call")
 	}
@@ -323,7 +323,7 @@ func newTestRunnerWithChatArchive(t *testing.T, chatID uuid.UUID, updateErr erro
 
 	var archived atomic.Bool
 	client := newFakeChatClient(t)
-	client.updateChatFunc = func(ctx context.Context, gotChatID uuid.UUID, req codersdk.UpdateChatRequest) error {
+	client.updateChatFunc = func(ctx context.Context, gotChatID uuid.UUID, req nicloudsdk.UpdateChatRequest) error {
 		if gotChatID != chatID {
 			return xerrors.Errorf("unexpected chat archive ID: %s", gotChatID)
 		}
@@ -341,51 +341,51 @@ func newTestRunnerWithChatMessage(t *testing.T, cfg Config, chatID uuid.UUID, on
 	t.Helper()
 
 	client := newFakeChatClient(t)
-	client.createChatMessageFunc = func(ctx context.Context, gotChatID uuid.UUID, req codersdk.CreateChatMessageRequest) (codersdk.CreateChatMessageResponse, error) {
+	client.createChatMessageFunc = func(ctx context.Context, gotChatID uuid.UUID, req nicloudsdk.CreateChatMessageRequest) (nicloudsdk.CreateChatMessageResponse, error) {
 		if gotChatID != chatID {
-			return codersdk.CreateChatMessageResponse{}, xerrors.Errorf("unexpected chat message ID: %s", gotChatID)
+			return nicloudsdk.CreateChatMessageResponse{}, xerrors.Errorf("unexpected chat message ID: %s", gotChatID)
 		}
 		if err := validatePromptParts(req.Content, cfg.Prompt); err != nil {
-			return codersdk.CreateChatMessageResponse{}, err
+			return nicloudsdk.CreateChatMessageResponse{}, err
 		}
 		if req.ModelConfigID == nil || *req.ModelConfigID != cfg.ModelConfigID {
-			return codersdk.CreateChatMessageResponse{}, xerrors.Errorf("unexpected chat message model config ID: %v", req.ModelConfigID)
+			return nicloudsdk.CreateChatMessageResponse{}, xerrors.Errorf("unexpected chat message model config ID: %v", req.ModelConfigID)
 		}
 
 		if onMessage != nil {
 			onMessage()
 		}
-		return codersdk.CreateChatMessageResponse{Queued: true}, nil
+		return nicloudsdk.CreateChatMessageResponse{Queued: true}, nil
 	}
 	return &Runner{client: client, cfg: cfg}
 }
 
-func validatePromptParts(parts []codersdk.ChatInputPart, prompt string) error {
-	if len(parts) != 1 || parts[0].Type != codersdk.ChatInputPartTypeText || parts[0].Text != prompt {
+func validatePromptParts(parts []nicloudsdk.ChatInputPart, prompt string) error {
+	if len(parts) != 1 || parts[0].Type != nicloudsdk.ChatInputPartTypeText || parts[0].Text != prompt {
 		return xerrors.Errorf("unexpected chat message content: %#v", parts)
 	}
 	return nil
 }
 
-func statusEvent(chatID uuid.UUID, status codersdk.ChatStatus) codersdk.ChatStreamEvent {
-	return codersdk.ChatStreamEvent{
-		Type:   codersdk.ChatStreamEventTypeStatus,
+func statusEvent(chatID uuid.UUID, status nicloudsdk.ChatStatus) nicloudsdk.ChatStreamEvent {
+	return nicloudsdk.ChatStreamEvent{
+		Type:   nicloudsdk.ChatStreamEventTypeStatus,
 		ChatID: chatID,
-		Status: &codersdk.ChatStreamStatus{Status: status},
+		Status: &nicloudsdk.ChatStreamStatus{Status: status},
 	}
 }
 
-func messagePartEvent(chatID uuid.UUID) codersdk.ChatStreamEvent {
-	return codersdk.ChatStreamEvent{
-		Type:   codersdk.ChatStreamEventTypeMessagePart,
+func messagePartEvent(chatID uuid.UUID) nicloudsdk.ChatStreamEvent {
+	return nicloudsdk.ChatStreamEvent{
+		Type:   nicloudsdk.ChatStreamEventTypeMessagePart,
 		ChatID: chatID,
 	}
 }
 
-func messageEvent(chatID uuid.UUID, role codersdk.ChatMessageRole) codersdk.ChatStreamEvent {
-	return codersdk.ChatStreamEvent{
-		Type:    codersdk.ChatStreamEventTypeMessage,
+func messageEvent(chatID uuid.UUID, role nicloudsdk.ChatMessageRole) nicloudsdk.ChatStreamEvent {
+	return nicloudsdk.ChatStreamEvent{
+		Type:    nicloudsdk.ChatStreamEventTypeMessage,
 		ChatID:  chatID,
-		Message: &codersdk.ChatMessage{Role: role},
+		Message: &nicloudsdk.ChatMessage{Role: role},
 	}
 }

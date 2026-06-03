@@ -8,25 +8,25 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/prebuilds"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/prebuilds"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func Test_getScaletestPrebuildsTemplates(t *testing.T) {
 	t.Parallel()
 
-	client, _, _ := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, _, _ := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 		IncludeProvisionerDaemon: true,
 	})
-	user := coderdtest.CreateFirstUser(t, client)
+	user := nicloudtest.CreateFirstUser(t, client)
 
 	makeTemplate := func(t *testing.T, name string) {
 		t.Helper()
-		version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-		coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-		coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(r *codersdk.CreateTemplateRequest) {
+		version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+		nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+		nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID, func(r *nicloudsdk.CreateTemplateRequest) {
 			r.Name = name
 		})
 	}

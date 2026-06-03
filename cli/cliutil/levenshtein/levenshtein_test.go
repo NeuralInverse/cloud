@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/cliutil/levenshtein"
+	"github.com/NeuralInverse/cloud/v2/cli/cliutil/levenshtein"
 )
 
 func Test_Levenshtein_Matches(t *testing.T) {

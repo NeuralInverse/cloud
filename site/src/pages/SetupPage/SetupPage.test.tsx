@@ -12,7 +12,7 @@ import { server } from "#/testHelpers/server";
 import { SetupPage } from "./SetupPage";
 
 const fillForm = async ({
-	email = "someone@coder.com",
+	email = "someone@cloud.neuralinverse.com",
 	password = "password",
 }: {
 	username?: string;
@@ -141,7 +141,7 @@ describe("Setup Page", () => {
 		await waitForLoaderToBeRemoved();
 		await waitFor(() => {
 			expect(navigator.sendBeacon).toBeCalledWith(
-				"https://coder.com/api/track-deployment",
+				"https://cloud.neuralinverse.com/api/track-deployment",
 				new Blob(
 					[
 						JSON.stringify({

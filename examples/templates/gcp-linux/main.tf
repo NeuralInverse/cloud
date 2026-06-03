@@ -33,11 +33,11 @@ provider "google" {
 
 data "google_compute_default_service_account" "default" {}
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
 resource "google_compute_disk" "root" {
-  name  = "coder-${data.coder_workspace.me.id}-root"
+  name  = "coder-${data.ni_workspace.me.id}-root"
   type  = "pd-ssd"
   zone  = module.gcp_region.value
   image = "debian-cloud/debian-11"
@@ -46,7 +46,7 @@ resource "google_compute_disk" "root" {
   }
 }
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   auth           = "google-instance-identity"
   arch           = "amd64"
   os             = "linux"
@@ -93,30 +93,30 @@ resource "coder_agent" "main" {
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
-  count  = data.coder_workspace.me.start_count
+  count  = data.ni_workspace.me.start_count
   source = "registry.coder.com/coder/code-server/coder"
 
   # This ensures that the latest non-breaking version of the module gets downloaded, you can also pin the module version to prevent breaking changes in production.
   version = "~> 1.0"
 
-  agent_id = coder_agent.main.id
+  agent_id = ni_agent.main.id
   order    = 1
 }
 
 # See https://registry.coder.com/modules/coder/jetbrains
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = data.ni_workspace.me.start_count
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
-  agent_id   = coder_agent.main.id
+  agent_id   = ni_agent.main.id
   agent_name = "main"
   folder     = "/home/coder"
 }
 
 resource "google_compute_instance" "dev" {
   zone         = module.gcp_region.value
-  count        = data.coder_workspace.me.start_count
-  name         = "coder-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}-root"
+  count        = data.ni_workspace.me.start_count
+  name         = "coder-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}-root"
   machine_type = "e2-medium"
   network_interface {
     network = "default"
@@ -145,17 +145,17 @@ if ! id -u "${local.linux_user}" >/dev/null 2>&1; then
   echo "${local.linux_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/coder-user
 fi
 
-exec sudo -u "${local.linux_user}" sh -c '${coder_agent.main.init_script}'
+exec sudo -u "${local.linux_user}" sh -c '${ni_agent.main.init_script}'
 EOMETA
 }
 
 locals {
   # Ensure Coder username is a valid Linux username
-  linux_user = lower(substr(data.coder_workspace_owner.me.name, 0, 32))
+  linux_user = lower(substr(data.ni_workspace_owner.me.name, 0, 32))
 }
 
 resource "coder_metadata" "workspace_info" {
-  count       = data.coder_workspace.me.start_count
+  count       = data.ni_workspace.me.start_count
   resource_id = google_compute_instance.dev[0].id
 
   item {

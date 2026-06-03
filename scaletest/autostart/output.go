@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
 )
 
 // RunResults contains the aggregated metrics from all autostart test runs.

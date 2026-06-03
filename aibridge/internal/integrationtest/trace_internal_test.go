@@ -17,10 +17,10 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	oteltrace "go.opentelemetry.io/otel/trace"
 
-	"github.com/coder/coder/v2/aibridge/config"
-	"github.com/coder/coder/v2/aibridge/fixtures"
-	"github.com/coder/coder/v2/aibridge/internal/testutil"
-	"github.com/coder/coder/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/aibridge/config"
+	"github.com/NeuralInverse/cloud/v2/aibridge/fixtures"
+	"github.com/NeuralInverse/cloud/v2/aibridge/internal/testutil"
+	"github.com/NeuralInverse/cloud/v2/aibridge/tracing"
 )
 
 // expect 'count' amount of traces named 'name' with status 'status'

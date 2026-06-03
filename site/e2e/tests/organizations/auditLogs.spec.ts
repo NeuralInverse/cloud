@@ -15,7 +15,7 @@ const orgName = randomName();
 const orgAuditor = {
 	username: `org-auditor-${orgName}`,
 	password: defaultPassword,
-	email: `org-auditor-${orgName}@coder.com`,
+	email: `org-auditor-${orgName}@cloud.neuralinverse.com`,
 };
 
 test.beforeEach(({ page }) => {

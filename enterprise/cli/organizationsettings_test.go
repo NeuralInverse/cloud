@@ -9,12 +9,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/enterprise/coderd/coderdenttest"
-	"github.com/coder/coder/v2/enterprise/coderd/license"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/nicloudenttest"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/license"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestUpdateGroupSync(t *testing.T) {
@@ -23,10 +23,10 @@ func TestUpdateGroupSync(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, first := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, first := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -36,7 +36,7 @@ func TestUpdateGroupSync(t *testing.T) {
 		//nolint:gocritic // Using the owner, testing the cli not perms
 		clitest.SetupConfig(t, owner, root)
 
-		expectedSettings := codersdk.GroupSyncSettings{
+		expectedSettings := nicloudsdk.GroupSyncSettings{
 			Field: "groups",
 			Mapping: map[string][]uuid.UUID{
 				"test": {first.OrganizationID},
@@ -74,10 +74,10 @@ func TestUpdateRoleSync(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -87,7 +87,7 @@ func TestUpdateRoleSync(t *testing.T) {
 		//nolint:gocritic // Using the owner, testing the cli not perms
 		clitest.SetupConfig(t, owner, root)
 
-		expectedSettings := codersdk.RoleSyncSettings{
+		expectedSettings := nicloudsdk.RoleSyncSettings{
 			Field: "roles",
 			Mapping: map[string][]string{
 				"test": {rbac.RoleOrgAdmin()},
@@ -122,10 +122,10 @@ func TestUpdateOrganizationSync(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		owner, _ := coderdenttest.New(t, &coderdenttest.Options{
-			LicenseOptions: &coderdenttest.LicenseOptions{
+		owner, _ := nicloudenttest.New(t, &nicloudenttest.Options{
+			LicenseOptions: &nicloudenttest.LicenseOptions{
 				Features: license.Features{
-					codersdk.FeatureMultipleOrganizations: 1,
+					nicloudsdk.FeatureMultipleOrganizations: 1,
 				},
 			},
 		})
@@ -135,7 +135,7 @@ func TestUpdateOrganizationSync(t *testing.T) {
 		//nolint:gocritic // Using the owner, testing the cli not perms
 		clitest.SetupConfig(t, owner, root)
 
-		expectedSettings := codersdk.OrganizationSyncSettings{
+		expectedSettings := nicloudsdk.OrganizationSyncSettings{
 			Field: "organizations",
 			Mapping: map[string][]uuid.UUID{
 				"test": {uuid.New()},

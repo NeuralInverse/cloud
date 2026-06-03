@@ -9,19 +9,19 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
 	"github.com/coder/websocket"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 }
 
 var _ harness.Runnable = &Runner{}
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -37,7 +37,7 @@ func NewRunner(client *codersdk.Client, cfg Config) *Runner {
 // 5. closes the stream
 func (r *Runner) Run(ctx context.Context, _ string, logs io.Writer) (retErr error) {
 	startTime := time.Now()
-	stream, err := r.client.TemplateVersionDynamicParameters(ctx, codersdk.Me, r.cfg.TemplateVersion)
+	stream, err := r.client.TemplateVersionDynamicParameters(ctx, nicloudsdk.Me, r.cfg.TemplateVersion)
 	if err != nil {
 		return xerrors.Errorf("connect to dynamic parameters stream: %w", err)
 	}
@@ -57,7 +57,7 @@ func (r *Runner) Run(ctx context.Context, _ string, logs io.Writer) (retErr erro
 			WithLabelValues(r.cfg.MetricLabelValues...).
 			Observe(initTime.Sub(startTime).Seconds())
 		_, _ = fmt.Fprintf(logs, "initial response: %+v\n", resp)
-		if !slices.ContainsFunc(resp.Parameters, func(p codersdk.PreviewParameter) bool {
+		if !slices.ContainsFunc(resp.Parameters, func(p nicloudsdk.PreviewParameter) bool {
 			return p.Name == "zero"
 		}) {
 			return xerrors.Errorf("missing expected parameter: 'zero'")
@@ -67,7 +67,7 @@ func (r *Runner) Run(ctx context.Context, _ string, logs io.Writer) (retErr erro
 		}
 	}
 
-	err = stream.Send(codersdk.DynamicParametersRequest{
+	err = stream.Send(nicloudsdk.DynamicParametersRequest{
 		ID: 1,
 		Inputs: map[string]string{
 			"zero": "B",
@@ -97,7 +97,7 @@ func (r *Runner) Run(ctx context.Context, _ string, logs io.Writer) (retErr erro
 	}
 }
 
-func checkNoDiagnostics(resp codersdk.DynamicParametersResponse) error {
+func checkNoDiagnostics(resp nicloudsdk.DynamicParametersResponse) error {
 	if len(resp.Diagnostics) != 0 {
 		return xerrors.Errorf("unexpected response diagnostics: %v", resp.Diagnostics)
 	}

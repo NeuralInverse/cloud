@@ -11,19 +11,19 @@ Updated: June, 2025
 ---
 
 Okta is an identity provider that can be used for OpenID Connect (OIDC) Single
-Sign On (SSO) on Coder.
+Sign On (SSO) on Neural Inverse Cloud.
 
 To configure custom claims in Okta to support syncing roles and groups with
-Coder, you must first have setup an Okta application with
-[OIDC working with Coder](../admin/users/oidc-auth/index.md).
-From here, we will add additional claims for Coder to use for syncing groups and
+Neural Inverse Cloud, you must first have setup an Okta application with
+[OIDC working with Neural Inverse Cloud](../admin/users/oidc-auth/index.md).
+From here, we will add additional claims for Neural Inverse Cloud to use for syncing groups and
 roles.
 
 You may use a hybrid of the following approaches.
 
 ## (Easiest) Sync using Okta Groups
 
-If the Coder roles & Coder groups can be inferred from
+If the Neural Inverse Cloud roles & Neural Inverse Cloud groups can be inferred from
 [Okta groups](https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-about-groups.htm),
 Okta has a simple way to send over the groups as a `claim` in the `id_token`
 payload.
@@ -42,29 +42,29 @@ Optionally, configure a filter for which groups to be sent.
 
 ![Okta OpenID Connect ID Token](../images/guides/okta/oidc_id_token.png)
 
-Configure Coder to use these claims for group sync.
+Configure Neural Inverse Cloud to use these claims for group sync.
 These claims are present in the `id_token`.
 For more group sync configuration options, consult the [IDP sync documentation](../admin/users/idp-sync.md#group-sync).
 
 ```bash
 # Add the 'groups' scope and include the 'offline_access' scope for refresh tokens
-CODER_OIDC_SCOPES=openid,profile,email,offline_access,groups
+NEURALINVERSE_OIDC_SCOPES=openid,profile,email,offline_access,groups
 # This name needs to match the "Claim name" in the configuration above.
-CODER_OIDC_GROUP_FIELD=groups
+NEURALINVERSE_OIDC_GROUP_FIELD=groups
 ```
 
 > [!NOTE]
-> The `offline_access` scope is required in Coder v2.23.0+ to prevent hourly session timeouts.
+> The `offline_access` scope is required in Neural Inverse Cloud v2.23.0+ to prevent hourly session timeouts.
 
 These groups can also be used to configure role syncing based on group
 membership:
 
 ```bash
-CODER_OIDC_SCOPES=openid,profile,email,offline_access,groups
+NEURALINVERSE_OIDC_SCOPES=openid,profile,email,offline_access,groups
 # This name needs to match the "Claim name" in the configuration above.
-CODER_OIDC_USER_ROLE_FIELD=groups
+NEURALINVERSE_OIDC_USER_ROLE_FIELD=groups
 # Example configuration to map a group to some roles
-CODER_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
+NEURALINVERSE_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
 ```
 
 ## (Easy) Mapping Okta profile attributes
@@ -73,8 +73,8 @@ If roles or groups cannot be completely inferred from Okta group memberships,
 another option is to source them from a user's attributes.
 The user attribute list can be found in **Directory** > **Profile Editor** > **User (default)**.
 
-Coder can query an Okta profile for the application from the `/userinfo` OIDC endpoint.
-To pass attributes to Coder, create the attribute in your application,
+Neural Inverse Cloud can query an Okta profile for the application from the `/userinfo` OIDC endpoint.
+To pass attributes to Neural Inverse Cloud, create the attribute in your application,
 then add a mapping from the Okta profile to the application.
 
 **Directory** > **Profile Editor** > {Your Application} > **Add Attribute**
@@ -89,24 +89,24 @@ attribute you have configured to the application:
 
 ![Okta Add Claim view](../images/guides/okta/add_claim.png)
 
-Configure using these new attributes in Coder:
+Configure using these new attributes in Neural Inverse Cloud:
 
 ```bash
-# This must be set to false. Coder uses this endpoint to grab the attributes.
-CODER_OIDC_IGNORE_USERINFO=false
+# This must be set to false. Neural Inverse Cloud uses this endpoint to grab the attributes.
+NEURALINVERSE_OIDC_IGNORE_USERINFO=false
 # Include offline_access for refresh tokens
-CODER_OIDC_SCOPES=openid,profile,email,offline_access
+NEURALINVERSE_OIDC_SCOPES=openid,profile,email,offline_access
 # Configure the group/role field using the attribute name in the application.
-CODER_OIDC_USER_ROLE_FIELD=approles
+NEURALINVERSE_OIDC_USER_ROLE_FIELD=approles
 # See our docs for mapping okta roles to coder roles.
-CODER_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
+NEURALINVERSE_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
 
 # If you added an attribute for groups, set that here.
-# CODER_OIDC_GROUP_FIELD=...
+# NEURALINVERSE_OIDC_GROUP_FIELD=...
 ```
 
 > [!NOTE]
-> The `offline_access` scope is required in Coder v2.23.0+ to prevent hourly session timeouts.
+> The `offline_access` scope is required in Neural Inverse Cloud v2.23.0+ to prevent hourly session timeouts.
 
 ## (Advanced) Custom scopes to retrieve custom claims
 
@@ -140,23 +140,23 @@ This is so if other applications exist, we do not send them information they do 
 ![Okta Add Claim with Roles view](../images/guides/okta/add_claim_with_roles.png)
 
 Now we have a custom scope and claim configured under an authorization server.
-Configure Coder to use this:
+Configure Neural Inverse Cloud to use this:
 
 ```bash
 # Grab this value from the Authorization Server > Settings > Issuer
 # DO NOT USE the application issuer URL. Make sure to use the newly configured
 # authorization server.
-CODER_OIDC_ISSUER_URL=https://dev-12222860.okta.com/oauth2/default
+NEURALINVERSE_OIDC_ISSUER_URL=https://dev-12222860.okta.com/oauth2/default
 # Add the new scope you just configured and offline_access for refresh tokens
-CODER_OIDC_SCOPES=openid,profile,email,roles,offline_access
+NEURALINVERSE_OIDC_SCOPES=openid,profile,email,roles,offline_access
 # Use the claim you just configured
-CODER_OIDC_USER_ROLE_FIELD=roles
+NEURALINVERSE_OIDC_USER_ROLE_FIELD=roles
 # See our docs for mapping okta roles to coder roles.
-CODER_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
+NEURALINVERSE_OIDC_USER_ROLE_MAPPING='{"admin-group":["template-admin","user-admin"]}'
 ```
 
 > [!NOTE]
-> The `offline_access` scope is required in Coder v2.23.0+ to prevent hourly session timeouts.
+> The `offline_access` scope is required in Neural Inverse Cloud v2.23.0+ to prevent hourly session timeouts.
 
 You can use the "Token Preview" page to verify it has been correctly configured
 and verify the `roles` is in the payload.
@@ -168,11 +168,11 @@ and verify the `roles` is in the payload.
 ### Users Are Logged Out Every Hour
 
 **Symptoms**: Users experience session timeouts approximately every hour and must re-authenticate
-**Cause**: Missing `offline_access` scope in `CODER_OIDC_SCOPES`
+**Cause**: Missing `offline_access` scope in `NEURALINVERSE_OIDC_SCOPES`
 **Solution**:
 
-1. Add `offline_access` to your `CODER_OIDC_SCOPES` configuration
-1. Restart your Coder deployment
+1. Add `offline_access` to your `NEURALINVERSE_OIDC_SCOPES` configuration
+1. Restart your Neural Inverse Cloud deployment
 1. All existing users must logout and login once to receive refresh tokens
 
 ### Refresh Tokens Not Working After Configuration Change
@@ -185,6 +185,6 @@ and verify the `roles` is in the payload.
 
 To confirm that refresh tokens are working correctly:
 
-1. Check that `offline_access` is included in your `CODER_OIDC_SCOPES`
+1. Check that `offline_access` is included in your `NEURALINVERSE_OIDC_SCOPES`
 1. Verify users can stay logged in beyond Okta's access token lifetime (typically one hour)
-1. Monitor Coder logs for any OIDC refresh errors during token renewal
+1. Monitor Neural Inverse Cloud logs for any OIDC refresh errors during token renewal

@@ -1,7 +1,7 @@
 syntax = "proto3";
-option go_package = "github.com/coder/coder/v2/agent/proto";
+option go_package = "github.com/NeuralInverse/cloud/v2/agent/proto";
 
-package coder.agent.v2;
+package neuralinverse.agent.v2;
 
 import "tailnet/proto/tailnet.proto";
 import "google/protobuf/timestamp.proto";

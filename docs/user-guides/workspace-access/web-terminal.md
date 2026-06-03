@@ -1,7 +1,7 @@
 # Web Terminal
 
 The Web Terminal is a browser-based terminal interface that provides instant
-access to your workspace's shell environment directly from the Coder dashboard.
+access to your workspace's shell environment directly from the Neural Inverse Cloud dashboard.
 It's automatically enabled for all workspaces and requires no additional
 configuration.
 
@@ -31,7 +31,7 @@ and feature-rich terminal experience in your browser.
 
 ### From the Dashboard
 
-1. Navigate to your workspace in the Coder dashboard
+1. Navigate to your workspace in the Neural Inverse Cloud dashboard
 2. Click the **Terminal** button or icon
 3. The terminal will open in a new browser tab or window
 
@@ -61,11 +61,11 @@ workspace:
 
 1. **Browser**: Renders the terminal using xterm.js
 2. **WebSocket**: Maintains a persistent, low-latency connection
-3. **Coder Server**: Routes traffic between browser and workspace
+3. **Neural Inverse Cloud Server**: Routes traffic between browser and workspace
 4. **Workspace Agent**: Manages the pseudo-terminal (PTY) session
 5. **Shell Process**: Your actual bash/zsh/fish shell
 
-The connection flow is: Browser ↔ WebSocket ↔ Coder Server ↔ Workspace Agent ↔ Shell Process
+The connection flow is: Browser ↔ WebSocket ↔ Neural Inverse Cloud Server ↔ Workspace Agent ↔ Shell Process
 
 ### Reconnection & Persistence
 
@@ -98,14 +98,14 @@ The font change applies immediately to all open terminal sessions.
 Administrators can configure the terminal renderer for performance optimization:
 
 ```yaml
-# In your Coder deployment configuration
+# In your Neural Inverse Cloud deployment configuration
 webTerminalRenderer: "canvas"  # Options: canvas, webgl, dom
 ```
 
 Or via environment variable:
 
 ```bash
-CODER_WEB_TERMINAL_RENDERER=canvas
+NEURALINVERSE_WEB_TERMINAL_RENDERER=canvas
 ```
 
 **Renderer Options:**
@@ -115,7 +115,7 @@ CODER_WEB_TERMINAL_RENDERER=canvas
   complex rendering
 - **`dom`**: Fallback option, useful for accessibility tools or older browsers
 
-> **Note:** The renderer setting is deployment-wide and requires a Coder server
+> **Note:** The renderer setting is deployment-wide and requires a Neural Inverse Cloud server
 > restart to take effect.
 
 ## Keyboard Shortcuts
@@ -144,7 +144,7 @@ a URL:
 
 - **External URLs** (e.g., `https://example.com`) open in a new tab
 - **Localhost URLs** (e.g., `http://localhost:3000`) are automatically
-  port-forwarded through Coder's [port forwarding](./port-forwarding.md) system
+  port-forwarded through Neural Inverse Cloud's [port forwarding](./port-forwarding.md) system
 - **Port-forwarded URLs** use your configured workspace proxy
 
 This makes it seamless to open development servers running in your workspace.
@@ -165,7 +165,7 @@ the command executes. The user must click **Run command** to proceed or
 silently executing arbitrary commands in a workspace.
 
 Template-configured apps that use the `command` attribute in
-[`coder_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
+[`ni_app`](https://registry.terraform.io/providers/coder/coder/latest/docs/resources/app)
 are trusted and bypass the confirmation dialog. These apps use the `?app=`
 parameter internally, which resolves the command from the agent's app list.
 

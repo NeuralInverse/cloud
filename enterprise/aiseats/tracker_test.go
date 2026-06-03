@@ -9,17 +9,17 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	agplaiseats "github.com/coder/coder/v2/coderd/aiseats"
-	"github.com/coder/coder/v2/coderd/audit"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/rbac"
-	enterpriseaiseats "github.com/coder/coder/v2/enterprise/aiseats"
-	"github.com/coder/coder/v2/testutil"
+	agplaiseats "github.com/NeuralInverse/cloud/v2/nicloud/aiseats"
+	"github.com/NeuralInverse/cloud/v2/nicloud/audit"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	enterpriseaiseats "github.com/NeuralInverse/cloud/v2/enterprise/aiseats"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 )
 
@@ -29,7 +29,7 @@ func authzSetup(t *testing.T) (rawDB database.Store, authzDB database.Store) {
 	t.Helper()
 	rawDB, _ = dbtestutil.NewDB(t)
 	authz := rbac.NewStrictAuthorizer(prometheus.NewRegistry())
-	authzDB = dbauthz.New(rawDB, authz, slogtest.Make(t, nil), coderdtest.AccessControlStorePointer())
+	authzDB = dbauthz.New(rawDB, authz, slogtest.Make(t, nil), nicloudtest.AccessControlStorePointer())
 	return rawDB, authzDB
 }
 
@@ -62,7 +62,7 @@ func TestSeatTrackerDB(t *testing.T) {
 
 		rawDB, _ := dbtestutil.NewDB(t)
 		authz := rbac.NewStrictAuthorizer(prometheus.NewRegistry())
-		authzDB := dbauthz.New(rawDB, authz, slogtest.Make(t, nil), coderdtest.AccessControlStorePointer())
+		authzDB := dbauthz.New(rawDB, authz, slogtest.Make(t, nil), nicloudtest.AccessControlStorePointer())
 
 		ctx := testutil.Context(t, testutil.WaitShort)
 		clock := quartz.NewMock(t)

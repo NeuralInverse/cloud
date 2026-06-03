@@ -12,15 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/schedule/cron"
-	"github.com/coder/coder/v2/coderd/util/tz"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/schedule/cron"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/tz"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 // setupTestSchedule creates 4 workspaces:
@@ -30,12 +30,12 @@ import (
 // 4. d-member-ws4: owned by member, has neither autostart nor autostop enabled.
 // It returns the owner and member clients, the database, and the workspaces.
 // The workspaces are returned in the same order as they are created.
-func setupTestSchedule(t *testing.T, sched *cron.Schedule) (ownerClient, memberClient *codersdk.Client, db database.Store, ws []codersdk.Workspace) {
+func setupTestSchedule(t *testing.T, sched *cron.Schedule) (ownerClient, memberClient *nicloudsdk.Client, db database.Store, ws []nicloudsdk.Workspace) {
 	t.Helper()
 
-	ownerClient, db = coderdtest.NewWithDatabase(t, nil)
-	owner := coderdtest.CreateFirstUser(t, ownerClient)
-	memberClient, memberUser := coderdtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, nil, func(r *codersdk.CreateUserRequestWithOrgs) {
+	ownerClient, db = nicloudtest.NewWithDatabase(t, nil)
+	owner := nicloudtest.CreateFirstUser(t, ownerClient)
+	memberClient, memberUser := nicloudtest.CreateAnotherUserMutators(t, ownerClient, owner.OrganizationID, nil, func(r *nicloudsdk.CreateUserRequestWithOrgs) {
 		r.Username = "testuser2" // ensure deterministic ordering
 	})
 	_ = dbfake.WorkspaceBuild(t, db, database.WorkspaceTable{
@@ -65,7 +65,7 @@ func setupTestSchedule(t *testing.T, sched *cron.Schedule) (ownerClient, memberC
 	}).WithAgent().Do()
 
 	// Need this for LatestBuild.Deadline
-	resp, err := ownerClient.Workspaces(context.Background(), codersdk.WorkspaceFilter{})
+	resp, err := ownerClient.Workspaces(context.Background(), nicloudsdk.WorkspaceFilter{})
 	require.NoError(t, err)
 	require.Len(t, resp.Workspaces, 4)
 	// Ensure same order as in CLI output
@@ -402,17 +402,17 @@ func TestScheduleStart_TemplateAutostartRequirement(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "UTC", loc.String())
 
-	client := coderdtest.New(t, &coderdtest.Options{IncludeProvisionerDaemon: true})
-	user := coderdtest.CreateFirstUser(t, client)
+	client := nicloudtest.New(t, &nicloudtest.Options{IncludeProvisionerDaemon: true})
+	user := nicloudtest.CreateFirstUser(t, client)
 
-	version := coderdtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
-	coderdtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
-	template := coderdtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
+	version := nicloudtest.CreateTemplateVersion(t, client, user.OrganizationID, nil)
+	nicloudtest.AwaitTemplateVersionJobCompleted(t, client, version.ID)
+	template := nicloudtest.CreateTemplate(t, client, user.OrganizationID, version.ID)
 
 	// Update template to have autostart requirement
 	// Note: In AGPL, this will be ignored and all days will be allowed (enterprise feature).
-	template, err = client.UpdateTemplateMeta(context.Background(), template.ID, codersdk.UpdateTemplateMeta{
-		AutostartRequirement: &codersdk.TemplateAutostartRequirement{
+	template, err = client.UpdateTemplateMeta(context.Background(), template.ID, nicloudsdk.UpdateTemplateMeta{
+		AutostartRequirement: &nicloudsdk.TemplateAutostartRequirement{
 			DaysOfWeek: []string{"monday", "wednesday", "friday"},
 		},
 	})
@@ -423,8 +423,8 @@ func TestScheduleStart_TemplateAutostartRequirement(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, template.AutostartRequirement.DaysOfWeek, "template should have autostart requirement days")
 
-	workspace := coderdtest.CreateWorkspace(t, client, template.ID)
-	coderdtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
+	workspace := nicloudtest.CreateWorkspace(t, client, template.ID)
+	nicloudtest.AwaitWorkspaceBuildJobCompleted(t, client, workspace.LatestBuild.ID)
 
 	t.Run("ShowsWarning", func(t *testing.T) {
 		// When: user sets autostart schedule

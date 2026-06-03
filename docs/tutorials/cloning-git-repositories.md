@@ -12,10 +12,10 @@ August 06, 2024
 
 When starting to work on a project, engineers usually need to clone a Git
 repository. Even though this is often a quick step, it can be automated using
-the [Coder Registry](https://registry.coder.com/) to make a seamless Git-first
+the [Neural Inverse Cloud Registry](https://registry.cloud.neuralinverse.com/) to make a seamless Git-first
 workflow.
 
-The first step to enable Coder to clone a repository is to provide
+The first step to enable Neural Inverse Cloud to clone a repository is to provide
 authorization. This can be achieved by using the Git provider, such as GitHub,
 as an authentication method. If you don't know how to do that, we have written
 documentation to help you:
@@ -25,16 +25,16 @@ documentation to help you:
 - [Self-managed git providers](../admin/external-auth/index.md#self-managed-git-providers)
 
 With the authentication in place, it is time to set up the template to use the
-[Git Clone module](https://registry.coder.com/modules/git-clone) from the
-[Coder Registry](https://registry.coder.com/) by adding it to our template's
+[Git Clone module](https://registry.cloud.neuralinverse.com/modules/git-clone) from the
+[Neural Inverse Cloud Registry](https://registry.cloud.neuralinverse.com/) by adding it to our template's
 Terraform configuration.
 
 ```tf
 module "git-clone" {
-  source   = "registry.coder.com/modules/git-clone/coder"
+  source   = "registry.cloud.neuralinverse.com/modules/git-clone/coder"
   version  = "1.0.12"
-  agent_id = coder_agent.example.id
-  url      = "https://github.com/coder/coder"
+  agent_id = ni_agent.example.id
+  url      = "https://github.com/NeuralInverse/cloud"
 }
 ```
 
@@ -48,22 +48,22 @@ customize the Git URL and make it dynamic for use cases where a template
 supports multiple projects.
 
 ```tf
-data "coder_parameter" "git_repo" {
+data "ni_parameter" "git_repo" {
   name         = "git_repo"
   display_name = "Git repository"
-  default      = "https://github.com/coder/coder"
+  default      = "https://github.com/NeuralInverse/cloud"
 }
 
 module "git-clone" {
-  source   = "registry.coder.com/modules/git-clone/coder"
+  source   = "registry.cloud.neuralinverse.com/modules/git-clone/coder"
   version  = "1.0.12"
-  agent_id = coder_agent.example.id
-  url      = data.coder_parameter.git_repo.value
+  agent_id = ni_agent.example.id
+  url      = data.ni_parameter.git_repo.value
 }
 ```
 
 If you need more customization, you can read the
-[Git Clone module](https://registry.coder.com/modules/git-clone) documentation
+[Git Clone module](https://registry.cloud.neuralinverse.com/modules/git-clone) documentation
 to learn more about the module.
 
 Don't forget to build and publish the template changes before creating a new

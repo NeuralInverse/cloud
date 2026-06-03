@@ -21,8 +21,8 @@ import (
 	"golang.org/x/sys/unix"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 //nolint:paralleltest // This test is sensitive to environment variables
@@ -46,7 +46,7 @@ func TestCLI(t *testing.T) {
 		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=123", agentexec.EnvProcOOMScore))
 		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=12", agentexec.EnvProcNiceScore))
 		// Ensure unrelated environment variables are preserved.
-		cmd.Env = append(cmd.Env, "CODER_TEST_ME_AGENTEXEC=true")
+		cmd.Env = append(cmd.Env, "NEURALINVERSE_TEST_ME_AGENTEXEC=true")
 		err := cmd.Start()
 		require.NoError(t, err)
 		go cmd.Wait()
@@ -61,7 +61,7 @@ func TestCLI(t *testing.T) {
 					strings.HasPrefix(e, agentexec.EnvProcNiceScore)
 			})
 		require.False(t, hasExecEnvs, "expected environment variables to be filtered")
-		userEnv := slices.Contains(env, "CODER_TEST_ME_AGENTEXEC=true")
+		userEnv := slices.Contains(env, "NEURALINVERSE_TEST_ME_AGENTEXEC=true")
 		require.True(t, userEnv, "expected user environment variables to be preserved")
 	})
 

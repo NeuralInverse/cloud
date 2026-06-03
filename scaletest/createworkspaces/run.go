@@ -11,18 +11,18 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/agentconn"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/reconnectingpty"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/agentconn"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/reconnectingpty"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 
 	createUserRunner     *createusers.Runner
@@ -34,7 +34,7 @@ var (
 	_ harness.Cleanable = &Runner{}
 )
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -53,7 +53,7 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 
 	var (
 		client = r.client
-		user   codersdk.User
+		user   nicloudsdk.User
 		err    error
 	)
 	if r.cfg.User.SessionToken != "" {
@@ -107,7 +107,7 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 	}
 
 	// Find the first agent.
-	var agent codersdk.WorkspaceAgent
+	var agent nicloudsdk.WorkspaceAgent
 resourceLoop:
 	for _, res := range workspace.LatestBuild.Resources {
 		for _, a := range res.Agents {

@@ -12,11 +12,11 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/aibridge/intercept/apidump"
-	"github.com/coder/coder/v2/aibridge/keypool"
-	"github.com/coder/coder/v2/aibridge/metrics"
-	"github.com/coder/coder/v2/aibridge/provider"
-	"github.com/coder/coder/v2/aibridge/tracing"
+	"github.com/NeuralInverse/cloud/v2/aibridge/intercept/apidump"
+	"github.com/NeuralInverse/cloud/v2/aibridge/keypool"
+	"github.com/NeuralInverse/cloud/v2/aibridge/metrics"
+	"github.com/NeuralInverse/cloud/v2/aibridge/provider"
+	"github.com/NeuralInverse/cloud/v2/aibridge/tracing"
 	"github.com/coder/quartz"
 )
 

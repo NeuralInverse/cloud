@@ -23,10 +23,10 @@ variable "kubernetes_nodepool_workspaces" {
   default     = "big-workspaces"
 }
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-resource "coder_agent" "main" {
+resource "ni_agent" "main" {
   os                     = "linux"
   arch                   = "amd64"
   startup_script_timeout = 180
@@ -34,13 +34,13 @@ resource "coder_agent" "main" {
 }
 
 resource "kubernetes_pod" "main" {
-  count = data.coder_workspace.me.start_count
+  count = data.ni_workspace.me.start_count
   metadata {
-    name      = "coder-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
+    name      = "coder-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
     namespace = "coder-big"
     labels = {
       "app.kubernetes.io/name"     = "coder-workspace"
-      "app.kubernetes.io/instance" = "coder-workspace-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
+      "app.kubernetes.io/instance" = "coder-workspace-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
     }
   }
   spec {
@@ -52,13 +52,13 @@ resource "kubernetes_pod" "main" {
       name              = "dev"
       image             = "docker.io/codercom/enterprise-minimal:ubuntu"
       image_pull_policy = "Always"
-      command           = ["sh", "-c", coder_agent.main.init_script]
+      command           = ["sh", "-c", ni_agent.main.init_script]
       security_context {
         run_as_user = "1000"
       }
       env {
         name  = "CODER_AGENT_TOKEN"
-        value = coder_agent.main.token
+        value = ni_agent.main.token
       }
       resources {
         requests = {

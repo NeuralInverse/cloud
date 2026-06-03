@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentchat"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/agent/agentchat"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
 )
 
 func TestExtractContext(t *testing.T) {
@@ -125,10 +125,10 @@ func TestExtractContext(t *testing.T) {
 
 			r := httptest.NewRequest("GET", "/", nil)
 			if tt.setChatID {
-				r.Header.Set(workspacesdk.CoderChatIDHeader, tt.chatID)
+				r.Header.Set(workspacesdk.NIChatIDHeader, tt.chatID)
 			}
 			if tt.setAncestors {
-				r.Header.Set(workspacesdk.CoderAncestorChatIDsHeader, tt.ancestors)
+				r.Header.Set(workspacesdk.NIAncestorChatIDsHeader, tt.ancestors)
 			}
 
 			chatID, ancestorIDs, ok := extractContextForTest(r)

@@ -15,10 +15,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/agentcontainers"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/pty"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // TestIntegrationDocker tests agentcontainers functionality using a real
@@ -29,12 +29,12 @@ import (
 // As this test creates containers, it is skipped by default.
 // It can be run manually as follows:
 //
-// CODER_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestDockerCLIContainerLister
+// NEURALINVERSE_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestDockerCLIContainerLister
 //
 //nolint:paralleltest // This test tends to flake when lots of containers start and stop in parallel.
 func TestIntegrationDocker(t *testing.T) {
-	if ctud, ok := os.LookupEnv("CODER_TEST_USE_DOCKER"); !ok || ctud != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if ctud, ok := os.LookupEnv("NEURALINVERSE_TEST_USE_DOCKER"); !ok || ctud != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 
 	pool, err := dockertest.NewPool("")
@@ -156,12 +156,12 @@ func TestIntegrationDocker(t *testing.T) {
 // As this test creates containers, it is skipped by default.
 // It can be run manually as follows:
 //
-// CODER_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestDockerEnvInfoer
+// NEURALINVERSE_TEST_USE_DOCKER=1 go test ./agent/agentcontainers -run TestDockerEnvInfoer
 //
 //nolint:paralleltest // This test tends to flake when lots of containers start and stop in parallel.
 func TestDockerEnvInfoer(t *testing.T) {
-	if ctud, ok := os.LookupEnv("CODER_TEST_USE_DOCKER"); !ok || ctud != "1" {
-		t.Skip("Set CODER_TEST_USE_DOCKER=1 to run this test")
+	if ctud, ok := os.LookupEnv("NEURALINVERSE_TEST_USE_DOCKER"); !ok || ctud != "1" {
+		t.Skip("Set NEURALINVERSE_TEST_USE_DOCKER=1 to run this test")
 	}
 
 	pool, err := dockertest.NewPool("")

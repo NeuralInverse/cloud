@@ -9,7 +9,7 @@
 curl -X POST http://coder-server:8080/api/v2/files \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/x-tar' \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `POST /api/v2/files`
@@ -43,8 +43,8 @@ file: string
 
 | Status | Meaning                                                      | Description                        | Schema                                                       |
 |--------|--------------------------------------------------------------|------------------------------------|--------------------------------------------------------------|
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)      | Returns existing file if duplicate | [codersdk.UploadResponse](schemas.md#codersdkuploadresponse) |
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Returns newly created file         | [codersdk.UploadResponse](schemas.md#codersdkuploadresponse) |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)      | Returns existing file if duplicate | [nicloudsdk.UploadResponse](schemas.md#nicloudsdkuploadresponse) |
+| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2) | Returns newly created file         | [nicloudsdk.UploadResponse](schemas.md#nicloudsdkuploadresponse) |
 
 To perform this operation, you must be authenticated. [Learn more](authentication.md).
 
@@ -55,7 +55,7 @@ To perform this operation, you must be authenticated. [Learn more](authenticatio
 ```shell
 # Example request using curl
 curl -X GET http://coder-server:8080/api/v2/files/{fileID} \
-  -H 'Coder-Session-Token: API_KEY'
+  -H 'Neural Inverse Cloud-Session-Token: API_KEY'
 ```
 
 `GET /api/v2/files/{fileID}`

@@ -13,11 +13,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/cli/cliui"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/cliui"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/serpent"
 )
 
@@ -35,13 +35,13 @@ func TestProvisionerJob(t *testing.T) {
 		testutil.Go(t, func() {
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobRunning
+			test.Job.Status = nicloudsdk.ProvisionerJobRunning
 			now := dbtime.Now()
 			test.Job.StartedAt = &now
 			test.JobMutex.Unlock()
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobSucceeded
+			test.Job.Status = nicloudsdk.ProvisionerJobSucceeded
 			now = dbtime.Now()
 			test.Job.CompletedAt = &now
 			close(test.Logs)
@@ -68,17 +68,17 @@ func TestProvisionerJob(t *testing.T) {
 		testutil.Go(t, func() {
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobRunning
+			test.Job.Status = nicloudsdk.ProvisionerJobRunning
 			now := dbtime.Now()
 			test.Job.StartedAt = &now
-			test.Logs <- codersdk.ProvisionerJobLog{
+			test.Logs <- nicloudsdk.ProvisionerJobLog{
 				CreatedAt: dbtime.Now(),
 				Stage:     "Something",
 			}
 			test.JobMutex.Unlock()
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobSucceeded
+			test.Job.Status = nicloudsdk.ProvisionerJobSucceeded
 			now = dbtime.Now()
 			test.Job.CompletedAt = &now
 			close(test.Logs)
@@ -138,13 +138,13 @@ func TestProvisionerJob(t *testing.T) {
 				testutil.Go(t, func() {
 					<-test.Next
 					test.JobMutex.Lock()
-					test.Job.Status = codersdk.ProvisionerJobRunning
+					test.Job.Status = nicloudsdk.ProvisionerJobRunning
 					now := dbtime.Now()
 					test.Job.StartedAt = &now
 					test.JobMutex.Unlock()
 					<-test.Next
 					test.JobMutex.Lock()
-					test.Job.Status = codersdk.ProvisionerJobSucceeded
+					test.Job.Status = nicloudsdk.ProvisionerJobSucceeded
 					now = dbtime.Now()
 					test.Job.CompletedAt = &now
 					close(test.Logs)
@@ -186,7 +186,7 @@ func TestProvisionerJob(t *testing.T) {
 			assert.NoError(t, err)
 			<-test.Next
 			test.JobMutex.Lock()
-			test.Job.Status = codersdk.ProvisionerJobCanceled
+			test.Job.Status = nicloudsdk.ProvisionerJobCanceled
 			now := dbtime.Now()
 			test.Job.CompletedAt = &now
 			close(test.Logs)
@@ -205,24 +205,24 @@ func TestProvisionerJob(t *testing.T) {
 
 type provisionerJobTest struct {
 	Next     chan struct{}
-	Job      *codersdk.ProvisionerJob
+	Job      *nicloudsdk.ProvisionerJob
 	JobMutex *sync.Mutex
-	Logs     chan codersdk.ProvisionerJobLog
+	Logs     chan nicloudsdk.ProvisionerJobLog
 	Stdout   *expecter.Expecter
 }
 
 func newProvisionerJob(t *testing.T) provisionerJobTest {
-	job := &codersdk.ProvisionerJob{
-		Status:    codersdk.ProvisionerJobPending,
+	job := &nicloudsdk.ProvisionerJob{
+		Status:    nicloudsdk.ProvisionerJobPending,
 		CreatedAt: dbtime.Now(),
 	}
 	jobLock := sync.Mutex{}
-	logs := make(chan codersdk.ProvisionerJobLog, 1)
+	logs := make(chan nicloudsdk.ProvisionerJobLog, 1)
 	cmd := &serpent.Command{
 		Handler: func(inv *serpent.Invocation) error {
 			return cliui.ProvisionerJob(inv.Context(), inv.Stdout, cliui.ProvisionerJobOptions{
 				FetchInterval: time.Millisecond,
-				Fetch: func() (codersdk.ProvisionerJob, error) {
+				Fetch: func() (nicloudsdk.ProvisionerJob, error) {
 					jobLock.Lock()
 					defer jobLock.Unlock()
 					return *job, nil
@@ -230,7 +230,7 @@ func newProvisionerJob(t *testing.T) provisionerJobTest {
 				Cancel: func() error {
 					return nil
 				},
-				Logs: func() (<-chan codersdk.ProvisionerJobLog, io.Closer, error) {
+				Logs: func() (<-chan nicloudsdk.ProvisionerJobLog, io.Closer, error) {
 					return logs, closeFunc(func() error {
 						return nil
 					}), nil

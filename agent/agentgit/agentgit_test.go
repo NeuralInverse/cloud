@@ -15,10 +15,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/agent/agentgit"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/wsjson"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/agentgit"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/wsjson"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 	"github.com/coder/quartz"
 	"github.com/coder/websocket"
 )
@@ -135,7 +135,7 @@ func TestScanReturnsRepoChanges(t *testing.T) {
 	ctx := context.Background()
 	msg := h.Scan(ctx)
 	require.NotNil(t, msg)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
 	require.Len(t, msg.Repositories, 1)
 
 	repo := msg.Repositories[0]
@@ -659,8 +659,8 @@ func TestScanTransientErrorDoesNotRemoveRepo(t *testing.T) {
 // returns a wsjson.Stream connected to it. The server and connection
 // are cleaned up when the test ends.
 func dialGitWatch(t *testing.T, opts ...agentgit.Option) *wsjson.Stream[
-	codersdk.WorkspaceAgentGitServerMessage,
-	codersdk.WorkspaceAgentGitClientMessage,
+	nicloudsdk.WorkspaceAgentGitServerMessage,
+	nicloudsdk.WorkspaceAgentGitClientMessage,
 ] {
 	t.Helper()
 	logger := slogtest.Make(t, nil)
@@ -674,8 +674,8 @@ func dialGitWatch(t *testing.T, opts ...agentgit.Option) *wsjson.Stream[
 	t.Cleanup(func() { _ = conn.Close(websocket.StatusNormalClosure, "") })
 
 	return wsjson.NewStream[
-		codersdk.WorkspaceAgentGitServerMessage,
-		codersdk.WorkspaceAgentGitClientMessage,
+		nicloudsdk.WorkspaceAgentGitServerMessage,
+		nicloudsdk.WorkspaceAgentGitClientMessage,
 	](conn, websocket.MessageText, websocket.MessageText, logger)
 }
 
@@ -689,8 +689,8 @@ func dialGitWatchWithPathStore(
 	chatID uuid.UUID,
 	opts ...agentgit.Option,
 ) *wsjson.Stream[
-	codersdk.WorkspaceAgentGitServerMessage,
-	codersdk.WorkspaceAgentGitClientMessage,
+	nicloudsdk.WorkspaceAgentGitServerMessage,
+	nicloudsdk.WorkspaceAgentGitClientMessage,
 ] {
 	t.Helper()
 	logger := slogtest.Make(t, nil)
@@ -704,14 +704,14 @@ func dialGitWatchWithPathStore(
 	t.Cleanup(func() { _ = conn.Close(websocket.StatusNormalClosure, "") })
 
 	return wsjson.NewStream[
-		codersdk.WorkspaceAgentGitServerMessage,
-		codersdk.WorkspaceAgentGitClientMessage,
+		nicloudsdk.WorkspaceAgentGitServerMessage,
+		nicloudsdk.WorkspaceAgentGitClientMessage,
 	](conn, websocket.MessageText, websocket.MessageText, logger)
 }
 
 // recvMsg reads the next server message, using the provided
 // context for the timeout instead of a raw time.After.
-func recvMsg(ctx context.Context, t *testing.T, ch <-chan codersdk.WorkspaceAgentGitServerMessage) codersdk.WorkspaceAgentGitServerMessage {
+func recvMsg(ctx context.Context, t *testing.T, ch <-chan nicloudsdk.WorkspaceAgentGitServerMessage) nicloudsdk.WorkspaceAgentGitServerMessage {
 	t.Helper()
 	select {
 	case msg, ok := <-ch:
@@ -719,7 +719,7 @@ func recvMsg(ctx context.Context, t *testing.T, ch <-chan codersdk.WorkspaceAgen
 		return msg
 	case <-ctx.Done():
 		t.Fatal("timed out waiting for server message")
-		return codersdk.WorkspaceAgentGitServerMessage{}
+		return nicloudsdk.WorkspaceAgentGitServerMessage{}
 	}
 }
 
@@ -741,7 +741,7 @@ func TestWebSocketSubscribeAndReceiveChanges(t *testing.T) {
 	ch := stream.Chan()
 
 	msg := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
 	require.NotNil(t, msg.ScannedAt)
 	require.NotEmpty(t, msg.Repositories)
 	require.Equal(t, repoDir, msg.Repositories[0].RepoRoot)
@@ -767,7 +767,7 @@ func TestWebSocketMultipleRepos(t *testing.T) {
 	ch := stream.Chan()
 
 	msg := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
 	require.Len(t, msg.Repositories, 2, "should include both repos")
 
 	roots := map[string]bool{}
@@ -798,7 +798,7 @@ func TestWebSocketIncrementalSubscribe(t *testing.T) {
 	ch := stream.Chan()
 
 	msg1 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
 	require.Len(t, msg1.Repositories, 1)
 	require.Equal(t, repoA, msg1.Repositories[0].RepoRoot)
 
@@ -810,7 +810,7 @@ func TestWebSocketIncrementalSubscribe(t *testing.T) {
 	ps.AddPaths([]uuid.UUID{chatID}, []string{filepath.Join(repoB, "b.go")})
 
 	msg2 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
 	// The second message should include repo B. It may or may not
 	// include repo A depending on delta logic (no change in A since
 	// last emit), but repo B must be present.
@@ -846,13 +846,13 @@ func TestWebSocketRefreshTriggersChanges(t *testing.T) {
 
 	// Modify a file, then send refresh.
 	require.NoError(t, os.WriteFile(filepath.Join(repoDir, "r2.go"), []byte("package r\n"), 0o600))
-	err := stream.Send(codersdk.WorkspaceAgentGitClientMessage{
-		Type: codersdk.WorkspaceAgentGitClientMessageTypeRefresh,
+	err := stream.Send(nicloudsdk.WorkspaceAgentGitClientMessage{
+		Type: nicloudsdk.WorkspaceAgentGitClientMessageTypeRefresh,
 	})
 	require.NoError(t, err)
 
 	msg := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
 	require.NotEmpty(t, msg.Repositories)
 }
 
@@ -863,13 +863,13 @@ func TestWebSocketUnknownMessageType(t *testing.T) {
 	stream := dialGitWatch(t)
 	ch := stream.Chan()
 
-	err := stream.Send(codersdk.WorkspaceAgentGitClientMessage{
+	err := stream.Send(nicloudsdk.WorkspaceAgentGitClientMessage{
 		Type: "bogus",
 	})
 	require.NoError(t, err)
 
 	msg := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeError, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeError, msg.Type)
 	require.Contains(t, msg.Message, "unknown")
 }
 
@@ -934,7 +934,7 @@ func TestFallbackPollTriggersScan(t *testing.T) {
 
 	// We should get an initial scan from subscribe.
 	msg1 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
 
 	// Add a new dirty file so the next scan has a delta to report.
 	require.NoError(t, os.WriteFile(filepath.Join(repoDir, "poll2.go"), []byte("package poll\n"), 0o600))
@@ -944,7 +944,7 @@ func TestFallbackPollTriggersScan(t *testing.T) {
 	mClock.Advance(5 * time.Second).MustWait(context.Background())
 
 	msg2 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
 	require.NotEmpty(t, msg2.Repositories)
 }
 
@@ -976,14 +976,14 @@ func TestMultipleConcurrentConnections(t *testing.T) {
 	t.Cleanup(func() { _ = conn2.Close(websocket.StatusNormalClosure, "") })
 
 	stream1 := wsjson.NewStream[
-		codersdk.WorkspaceAgentGitServerMessage,
-		codersdk.WorkspaceAgentGitClientMessage,
+		nicloudsdk.WorkspaceAgentGitServerMessage,
+		nicloudsdk.WorkspaceAgentGitClientMessage,
 	](conn1, websocket.MessageText, websocket.MessageText, logger)
 	ch1 := stream1.Chan()
 
 	stream2 := wsjson.NewStream[
-		codersdk.WorkspaceAgentGitServerMessage,
-		codersdk.WorkspaceAgentGitClientMessage,
+		nicloudsdk.WorkspaceAgentGitServerMessage,
+		nicloudsdk.WorkspaceAgentGitClientMessage,
 	](conn2, websocket.MessageText, websocket.MessageText, logger)
 	ch2 := stream2.Chan()
 
@@ -991,8 +991,8 @@ func TestMultipleConcurrentConnections(t *testing.T) {
 	msg1 := recvMsg(ctx, t, ch1)
 	msg2 := recvMsg(ctx, t, ch2)
 
-	assert.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
-	assert.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
+	assert.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
+	assert.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
 	assert.NotEmpty(t, msg1.Repositories)
 	assert.NotEmpty(t, msg2.Repositories)
 }
@@ -1252,7 +1252,7 @@ func TestWebSocketLargePathStoreSubscription(t *testing.T) {
 	// The handler must process the large path set and respond with
 	// changes.
 	msg := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
 	require.Len(t, msg.Repositories, 1)
 	require.Equal(t, repoDir, msg.Repositories[0].RepoRoot)
 }
@@ -1283,7 +1283,7 @@ func TestE2E_WriteFileTriggersGitWatch(t *testing.T) {
 	// The WebSocket should receive a changes message showing the
 	// repo with the dirty file.
 	msg := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
 	require.NotEmpty(t, msg.Repositories)
 
 	foundRepo := false
@@ -1322,7 +1322,7 @@ func TestE2E_SubagentAncestorWatch(t *testing.T) {
 	// The parent's git watch connection should receive a changes
 	// message because AddPaths notified parentChatID's subscribers.
 	msg := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg.Type)
 	require.NotEmpty(t, msg.Repositories)
 
 	foundRepo := false
@@ -1363,7 +1363,7 @@ func TestE2E_MultipleConcurrentChatWatchers(t *testing.T) {
 
 	// Chat A should only see repoA.
 	msgA := recvMsg(ctx, t, chA)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msgA.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msgA.Type)
 	require.NotEmpty(t, msgA.Repositories)
 	for _, r := range msgA.Repositories {
 		require.Equal(t, repoA, r.RepoRoot,
@@ -1372,7 +1372,7 @@ func TestE2E_MultipleConcurrentChatWatchers(t *testing.T) {
 
 	// Chat B should only see repoB.
 	msgB := recvMsg(ctx, t, chB)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msgB.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msgB.Type)
 	require.NotEmpty(t, msgB.Repositories)
 	for _, r := range msgB.Repositories {
 		require.Equal(t, repoB, r.RepoRoot,
@@ -1402,7 +1402,7 @@ func TestE2E_ReEditedFileTriggersRescan(t *testing.T) {
 
 	// Receive the initial scan showing the dirty file.
 	msg1 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
 	require.NotEmpty(t, msg1.Repositories)
 	require.Contains(t, msg1.Repositories[0].UnifiedDiff, "v1")
 
@@ -1419,7 +1419,7 @@ func TestE2E_ReEditedFileTriggersRescan(t *testing.T) {
 
 	// The handler should rescan and send an updated diff.
 	msg2 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
 	require.NotEmpty(t, msg2.Repositories)
 	require.Contains(t, msg2.Repositories[0].UnifiedDiff, "v2")
 }
@@ -1445,7 +1445,7 @@ func TestE2E_RepoDeletionEmitsRemoved(t *testing.T) {
 
 	// Receive the initial changes message.
 	msg1 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
 	require.NotEmpty(t, msg1.Repositories)
 	require.False(t, msg1.Repositories[0].Removed)
 
@@ -1457,14 +1457,14 @@ func TestE2E_RepoDeletionEmitsRemoved(t *testing.T) {
 	mClock.Advance(2 * time.Second).MustWait(context.Background())
 
 	// Send a refresh message to trigger a new scan.
-	err := stream.Send(codersdk.WorkspaceAgentGitClientMessage{
-		Type: codersdk.WorkspaceAgentGitClientMessageTypeRefresh,
+	err := stream.Send(nicloudsdk.WorkspaceAgentGitClientMessage{
+		Type: nicloudsdk.WorkspaceAgentGitClientMessageTypeRefresh,
 	})
 	require.NoError(t, err)
 
 	// The next message should indicate the repo was removed.
 	msg2 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
 	require.NotEmpty(t, msg2.Repositories)
 
 	foundRemoved := false
@@ -1628,7 +1628,7 @@ func TestFallbackPollSkipsWhenRecentlyScanned(t *testing.T) {
 
 	// Consume the initial scan from subscribe.
 	msg1 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg1.Type)
 
 	// A trigger-driven scan within the fallback interval should
 	// cause the next fallback tick to be skipped. Advance part-way
@@ -1641,7 +1641,7 @@ func TestFallbackPollSkipsWhenRecentlyScanned(t *testing.T) {
 
 	// Consume the trigger-driven scan. lastScanAt is now ~t=4s.
 	msg2 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg2.Type)
 
 	// Dirty the tree further so the fallback tick would have
 	// something to emit if it were not skipped.
@@ -1664,5 +1664,5 @@ func TestFallbackPollSkipsWhenRecentlyScanned(t *testing.T) {
 	mClock.Advance(5 * time.Second).MustWait(context.Background())
 
 	msg3 := recvMsg(ctx, t, ch)
-	require.Equal(t, codersdk.WorkspaceAgentGitServerMessageTypeChanges, msg3.Type)
+	require.Equal(t, nicloudsdk.WorkspaceAgentGitServerMessageTypeChanges, msg3.Type)
 }

@@ -16,10 +16,10 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/taskstatus"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/taskstatus"
 	"github.com/coder/serpent"
 )
 
@@ -74,10 +74,10 @@ After all runners connect, it waits for the baseline duration before triggering 
 
 			// Disable rate limits for this test
 			client.HTTPClient = &http.Client{
-				Transport: &codersdk.HeaderTransport{
+				Transport: &nicloudsdk.HeaderTransport{
 					Transport: http.DefaultTransport,
 					Header: map[string][]string{
-						codersdk.BypassRatelimitHeader: {"true"},
+						nicloudsdk.BypassRatelimitHeader: {"true"},
 					},
 				},
 			}
@@ -144,7 +144,7 @@ After all runners connect, it waits for the baseline duration before triggering 
 				}
 
 				// use an independent client for each Runner, so they don't reuse TCP connections. This can lead to
-				// requests being unbalanced among Coder instances.
+				// requests being unbalanced among Neural Inverse Cloud instances.
 				runnerClient, err := loadtestutil.DupClientCopyingHeaders(client, BypassHeader)
 				if err != nil {
 					return xerrors.Errorf("create runner client: %w", err)
@@ -236,7 +236,7 @@ After all runners connect, it waits for the baseline duration before triggering 
 		},
 		{
 			Flag:        "template",
-			Description: "Name or UUID of the template to use for the scale test. The template MUST include a coder_external_agent and a coder_app.",
+			Description: "Name or UUID of the template to use for the scale test. The template MUST include a ni_external_agent and a ni_app.",
 			Default:     "scaletest-task-status",
 			Value:       serpent.StringOf(&template),
 		},

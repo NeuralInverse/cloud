@@ -22,7 +22,7 @@ RUN apk add --no-cache \
 		-s /bin/bash \
 		-h /home/coder \
 		-u 1000 \
-		-G coder \
+		-G neuralinverse \
 		coder
 # Terraform was disabled in the edge repo due to a build issue.
 # https://gitlab.alpinelinux.org/alpine/aports/-/commit/f3e263d94cfac02d594bef83790c280e045eba35

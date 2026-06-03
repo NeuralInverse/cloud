@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/coder/coder/v2/agent/filefinder"
+	"github.com/NeuralInverse/cloud/v2/agent/filefinder"
 )
 
 func TestNormalizeQuery(t *testing.T) {
@@ -372,7 +372,7 @@ func TestScorePath_ShorterOverLongerSameMatch(t *testing.T) {
 }
 
 func BenchmarkScorePath(b *testing.B) {
-	path := []byte("src/internal/coderd/database/queries/workspaces.sql")
+	path := []byte("src/internal/nicloud/database/queries/workspaces.sql")
 	query := []byte("workspace")
 	tokens := [][]byte{query}
 	params := filefinder.DefaultScoreParamsForTest()

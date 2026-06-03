@@ -3,7 +3,7 @@ import Editor, { DiffEditor, loader } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { type ComponentProps, type FC, useCallback } from "react";
-import { useCoderTheme } from "./coderTheme";
+import { useNITheme } from "./niTheme";
 
 loader.config({ monaco });
 
@@ -36,7 +36,7 @@ export const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
 }) => {
 	const hasDiff = compareWith && value !== compareWith;
 	const theme = useTheme();
-	const coderTheme = useCoderTheme();
+	const niTheme = useNITheme();
 
 	// Auto-scroll to first diff when the diff editor mounts and diffs are computed.
 	const handleDiffEditorMount = useCallback(
@@ -74,7 +74,7 @@ export const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
 
 	const commonProps = {
 		language,
-		theme: coderTheme.name,
+		theme: niTheme.name,
 		height: 560,
 		options: {
 			minimap: {
@@ -86,7 +86,7 @@ export const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
 		...editorProps,
 	};
 
-	if (coderTheme.isLoading) {
+	if (niTheme.isLoading) {
 		return null;
 	}
 

@@ -14,10 +14,10 @@ import (
 	"go.uber.org/goleak"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/tailnet/proto"
-	"github.com/coder/coder/v2/tailnet/tailnettest"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/tailnet/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet/tailnettest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestMain(m *testing.M) {
@@ -505,17 +505,17 @@ func TestTailscaleServicePrefix(t *testing.T) {
 	require.Equal(t, "fd7a:115c:a1e0:aaaa:aaaa:1234:5678:9abc/128", p.String())
 }
 
-func TestCoderServicePrefix(t *testing.T) {
+func TestNIServicePrefix(t *testing.T) {
 	t.Parallel()
-	a := tailnet.CoderServicePrefix.RandomAddr()
+	a := tailnet.NIServicePrefix.RandomAddr()
 	require.True(t, strings.HasPrefix(a.String(), "fd60:627a:a42b"))
-	p := tailnet.CoderServicePrefix.RandomPrefix()
+	p := tailnet.NIServicePrefix.RandomPrefix()
 	require.True(t, strings.HasPrefix(p.String(), "fd60:627a:a42b"))
 	require.True(t, strings.HasSuffix(p.String(), "/128"))
 	u := uuid.MustParse("aaaaaaaa-aaaa-aaaa-aaaa-123456789abc")
-	a = tailnet.CoderServicePrefix.AddrFromUUID(u)
+	a = tailnet.NIServicePrefix.AddrFromUUID(u)
 	require.Equal(t, "fd60:627a:a42b:aaaa:aaaa:1234:5678:9abc", a.String())
-	p = tailnet.CoderServicePrefix.PrefixFromUUID(u)
+	p = tailnet.NIServicePrefix.PrefixFromUUID(u)
 	require.Equal(t, "fd60:627a:a42b:aaaa:aaaa:1234:5678:9abc/128", p.String())
 }
 

@@ -17,18 +17,18 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/smtpmock"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/smtpmock"
 	"github.com/coder/quartz"
 	"github.com/coder/websocket"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 
 	createUserRunner *createusers.Runner
@@ -44,7 +44,7 @@ type Runner struct {
 	clock quartz.Clock
 }
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client:                client,
 		cfg:                   cfg,
@@ -95,17 +95,17 @@ func (r *Runner) Run(ctx context.Context, id string, logs io.Writer) error {
 		return xerrors.Errorf("create user: %w", err)
 	}
 	newUser := newUserAndToken.User
-	newUserClient := codersdk.New(r.client.URL,
-		codersdk.WithSessionToken(newUserAndToken.SessionToken),
-		codersdk.WithLogger(logger),
-		codersdk.WithLogBodies())
+	newUserClient := nicloudsdk.New(r.client.URL,
+		nicloudsdk.WithSessionToken(newUserAndToken.SessionToken),
+		nicloudsdk.WithLogger(logger),
+		nicloudsdk.WithLogBodies())
 
 	logger.Info(ctx, "runner user created", slog.F("username", newUser.Username), slog.F("user_id", newUser.ID.String()))
 
 	if len(r.cfg.Roles) > 0 {
 		logger.Info(ctx, "assigning roles to user", slog.F("roles", r.cfg.Roles))
 
-		_, err := r.client.UpdateUserRoles(ctx, newUser.ID.String(), codersdk.UpdateRoles{
+		_, err := r.client.UpdateUserRoles(ctx, newUser.ID.String(), nicloudsdk.UpdateRoles{
 			Roles: r.cfg.Roles,
 		})
 		if err != nil {
@@ -209,7 +209,7 @@ func (r *Runner) GetMetrics() map[string]any {
 	}
 }
 
-func (r *Runner) dialNotificationWebsocket(ctx context.Context, client *codersdk.Client, logger slog.Logger) (*websocket.Conn, error) {
+func (r *Runner) dialNotificationWebsocket(ctx context.Context, client *nicloudsdk.Client, logger slog.Logger) (*websocket.Conn, error) {
 	u, err := client.URL.Parse("/api/v2/notifications/inbox/watch")
 	if err != nil {
 		logger.Error(ctx, "parse notification URL", slog.Error(err))
@@ -219,14 +219,14 @@ func (r *Runner) dialNotificationWebsocket(ctx context.Context, client *codersdk
 
 	conn, resp, err := websocket.Dial(ctx, u.String(), &websocket.DialOptions{
 		HTTPHeader: http.Header{
-			"Coder-Session-Token": []string{client.SessionToken()},
+			"NI-Session-Token": []string{client.SessionToken()},
 		},
 	})
 	if err != nil {
 		if resp != nil {
 			defer resp.Body.Close()
 			if resp.StatusCode != http.StatusSwitchingProtocols {
-				err = codersdk.ReadBodyAsError(resp)
+				err = nicloudsdk.ReadBodyAsError(resp)
 			}
 		}
 		logger.Error(ctx, "dial notification websocket", slog.Error(err))
@@ -239,7 +239,7 @@ func (r *Runner) dialNotificationWebsocket(ctx context.Context, client *codersdk
 
 // watchNotifications reads notifications from the websocket and returns error or nil
 // once all expected notifications are received.
-func (r *Runner) watchNotifications(ctx context.Context, conn *websocket.Conn, user codersdk.User, logger slog.Logger, expectedNotifications map[uuid.UUID]struct{}) error {
+func (r *Runner) watchNotifications(ctx context.Context, conn *websocket.Conn, user nicloudsdk.User, logger slog.Logger, expectedNotifications map[uuid.UUID]struct{}) error {
 	logger.Info(ctx, "waiting for notifications",
 		slog.F("username", user.Username),
 		slog.F("expected_count", len(expectedNotifications)))
@@ -289,7 +289,7 @@ func (r *Runner) watchNotifications(ctx context.Context, conn *websocket.Conn, u
 
 // watchNotificationsSMTP polls the SMTP HTTP API for notifications and returns error or nil
 // once all expected notifications are received.
-func (r *Runner) watchNotificationsSMTP(ctx context.Context, user codersdk.User, logger slog.Logger, expectedNotifications map[uuid.UUID]struct{}) error {
+func (r *Runner) watchNotificationsSMTP(ctx context.Context, user nicloudsdk.User, logger slog.Logger, expectedNotifications map[uuid.UUID]struct{}) error {
 	logger.Info(ctx, "polling SMTP API for notifications",
 		slog.F("email", user.Email),
 		slog.F("expected_count", len(expectedNotifications)),
@@ -381,15 +381,15 @@ func (r *Runner) watchNotificationsSMTP(ctx context.Context, user codersdk.User,
 	return err
 }
 
-func readNotification(ctx context.Context, conn *websocket.Conn) (codersdk.GetInboxNotificationResponse, error) {
+func readNotification(ctx context.Context, conn *websocket.Conn) (nicloudsdk.GetInboxNotificationResponse, error) {
 	_, message, err := conn.Read(ctx)
 	if err != nil {
-		return codersdk.GetInboxNotificationResponse{}, err
+		return nicloudsdk.GetInboxNotificationResponse{}, err
 	}
 
-	var notif codersdk.GetInboxNotificationResponse
+	var notif nicloudsdk.GetInboxNotificationResponse
 	if err := json.Unmarshal(message, &notif); err != nil {
-		return codersdk.GetInboxNotificationResponse{}, xerrors.Errorf("unmarshal notification: %w", err)
+		return nicloudsdk.GetInboxNotificationResponse{}, xerrors.Errorf("unmarshal notification: %w", err)
 	}
 
 	return notif, nil

@@ -1,10 +1,10 @@
 # Notifications
 
-Notifications are sent by Coder in response to specific internal events, such as
+Notifications are sent by Neural Inverse Cloud in response to specific internal events, such as
 a workspace being deleted or a user being created.
 
 Available events may differ between versions.
-For a list of all events, visit your Coder deployment's
+For a list of all events, visit your Neural Inverse Cloud deployment's
 `https://coder.example.com/deployment/notifications`.
 
 ## Event Types
@@ -12,7 +12,7 @@ For a list of all events, visit your Coder deployment's
 Notifications are sent in response to internal events, to alert the affected
 user(s) of the event.
 
-Coder supports the following list of events:
+Neural Inverse Cloud supports the following list of events:
 
 ### Task Events
 
@@ -63,16 +63,16 @@ These notifications are sent to the workspace owner:
 
 ## Delivery Methods
 
-Notifications can be delivered through the Coder dashboard Inbox and by SMTP or webhook.
+Notifications can be delivered through the Neural Inverse Cloud dashboard Inbox and by SMTP or webhook.
 OOM/OOD notifications can be delivered to users in VS Code.
 
 You can configure:
 
 - SMTP or webhooks globally with
-[`CODER_NOTIFICATIONS_METHOD`](../../../reference/cli/server.md#--notifications-method)
+[`NEURALINVERSE_NOTIFICATIONS_METHOD`](../../../reference/cli/server.md#--notifications-method)
 (default: `smtp`).
-- Coder dashboard Inbox with
-[`CODER_NOTIFICATIONS_INBOX_ENABLED`](../../../reference/cli/server.md#--notifications-inbox-enabled)
+- Neural Inverse Cloud dashboard Inbox with
+[`NEURALINVERSE_NOTIFICATIONS_INBOX_ENABLED`](../../../reference/cli/server.md#--notifications-inbox-enabled)
 (default: `true`).
 
 Premium customers can configure which method to use for each of the supported
@@ -81,15 +81,15 @@ See the [Preferences](#delivery-preferences) section for more details.
 
 ## Configuration
 
-You can modify the notification delivery behavior in your Coder deployment's
+You can modify the notification delivery behavior in your Neural Inverse Cloud deployment's
 `https://coder.example.com/settings/notifications`, or with the following server flags:
 
 | Required | CLI                                 | Env                                     | Type       | Description                                                                                                           | Default |
 |:--------:|-------------------------------------|-----------------------------------------|------------|-----------------------------------------------------------------------------------------------------------------------|---------|
-|    ✔️    | `--notifications-dispatch-timeout`  | `CODER_NOTIFICATIONS_DISPATCH_TIMEOUT`  | `duration` | How long to wait while a notification is being sent before giving up.                                                 | 1m      |
-|    ✔️    | `--notifications-method`            | `CODER_NOTIFICATIONS_METHOD`            | `string`   | Which delivery method to use (available options: 'smtp', 'webhook'). See [Delivery Methods](#delivery-methods) below. | smtp    |
-|    -️    | `--notifications-max-send-attempts` | `CODER_NOTIFICATIONS_MAX_SEND_ATTEMPTS` | `int`      | The upper limit of attempts to send a notification.                                                                   | 5       |
-|    -️    | `--notifications-inbox-enabled`     | `CODER_NOTIFICATIONS_INBOX_ENABLED`     | `bool`     | Enable or disable inbox notifications in the Coder dashboard.                                                         | true    |
+|    ✔️    | `--notifications-dispatch-timeout`  | `NEURALINVERSE_NOTIFICATIONS_DISPATCH_TIMEOUT`  | `duration` | How long to wait while a notification is being sent before giving up.                                                 | 1m      |
+|    ✔️    | `--notifications-method`            | `NEURALINVERSE_NOTIFICATIONS_METHOD`            | `string`   | Which delivery method to use (available options: 'smtp', 'webhook'). See [Delivery Methods](#delivery-methods) below. | smtp    |
+|    -️    | `--notifications-max-send-attempts` | `NEURALINVERSE_NOTIFICATIONS_MAX_SEND_ATTEMPTS` | `int`      | The upper limit of attempts to send a notification.                                                                   | 5       |
+|    -️    | `--notifications-inbox-enabled`     | `NEURALINVERSE_NOTIFICATIONS_INBOX_ENABLED`     | `bool`     | Enable or disable inbox notifications in the Neural Inverse Cloud dashboard.                                                         | true    |
 
 ### Configure OOM/OOD notifications
 
@@ -103,39 +103,39 @@ To enable OOM/OOD notifications on a template, follow the steps in the
 
 ## SMTP (Email)
 
-Use the `smtp` method to deliver notifications by email to your users. Coder
-does not ship with an SMTP server, so you will need to configure Coder to use an
+Use the `smtp` method to deliver notifications by email to your users. Neural Inverse Cloud
+does not ship with an SMTP server, so you will need to configure Neural Inverse Cloud to use an
 existing one.
 
 **Server Settings:**
 
 | Required | CLI                 | Env                     | Type     | Description                                                       | Default   |
 |:--------:|---------------------|-------------------------|----------|-------------------------------------------------------------------|-----------|
-|    ✔️    | `--email-from`      | `CODER_EMAIL_FROM`      | `string` | The sender's address to use (e.g. `"Coder <coder@example.com>"`). |           |
-|    ✔️    | `--email-smarthost` | `CODER_EMAIL_SMARTHOST` | `string` | The SMTP relay to send messages (format: `hostname:port`)         |           |
-|    ✔️    | `--email-hello`     | `CODER_EMAIL_HELLO`     | `string` | The hostname identifying the SMTP server.                         | localhost |
+|    ✔️    | `--email-from`      | `NEURALINVERSE_EMAIL_FROM`      | `string` | The sender's address to use (e.g. `"Neural Inverse Cloud <coder@example.com>"`). |           |
+|    ✔️    | `--email-smarthost` | `NEURALINVERSE_EMAIL_SMARTHOST` | `string` | The SMTP relay to send messages (format: `hostname:port`)         |           |
+|    ✔️    | `--email-hello`     | `NEURALINVERSE_EMAIL_HELLO`     | `string` | The hostname identifying the SMTP server.                         | localhost |
 
 **Authentication Settings:**
 
 | Required | CLI                          | Env                              | Type     | Description                                                               |
 |:--------:|------------------------------|----------------------------------|----------|---------------------------------------------------------------------------|
-|    -     | `--email-auth-username`      | `CODER_EMAIL_AUTH_USERNAME`      | `string` | Username to use with PLAIN/LOGIN authentication.                          |
-|    -     | `--email-auth-password`      | `CODER_EMAIL_AUTH_PASSWORD`      | `string` | Password to use with PLAIN/LOGIN authentication.                          |
-|    -     | `--email-auth-password-file` | `CODER_EMAIL_AUTH_PASSWORD_FILE` | `string` | File from which to load password for use with PLAIN/LOGIN authentication. |
-|    -     | `--email-auth-identity`      | `CODER_EMAIL_AUTH_IDENTITY`      | `string` | Identity to use with PLAIN authentication.                                |
+|    -     | `--email-auth-username`      | `NEURALINVERSE_EMAIL_AUTH_USERNAME`      | `string` | Username to use with PLAIN/LOGIN authentication.                          |
+|    -     | `--email-auth-password`      | `NEURALINVERSE_EMAIL_AUTH_PASSWORD`      | `string` | Password to use with PLAIN/LOGIN authentication.                          |
+|    -     | `--email-auth-password-file` | `NEURALINVERSE_EMAIL_AUTH_PASSWORD_FILE` | `string` | File from which to load password for use with PLAIN/LOGIN authentication. |
+|    -     | `--email-auth-identity`      | `NEURALINVERSE_EMAIL_AUTH_IDENTITY`      | `string` | Identity to use with PLAIN authentication.                                |
 
 **TLS Settings:**
 
 | Required | CLI                         | Env                           | Type     | Description                                                                                                                                                        | Default |
 |:--------:|-----------------------------|-------------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-|    -     | `--email-force-tls`         | `CODER_EMAIL_FORCE_TLS`       | `bool`   | Force a TLS connection to the configured SMTP smarthost. If port 465 is used, TLS will be forced. See <https://datatracker.ietf.org/doc/html/rfc8314#section-3.3>. | false   |
-|    -     | `--email-tls-starttls`      | `CODER_EMAIL_TLS_STARTTLS`    | `bool`   | Enable STARTTLS to upgrade insecure SMTP connections using TLS. Ignored if `CODER_EMAIL_FORCE_TLS` is set.                                                         | false   |
-|    -     | `--email-tls-skip-verify`   | `CODER_EMAIL_TLS_SKIPVERIFY`  | `bool`   | Skip verification of the target server's certificate (**insecure**).                                                                                               | false   |
-|    -     | `--email-tls-server-name`   | `CODER_EMAIL_TLS_SERVERNAME`  | `string` | Server name to verify against the target certificate.                                                                                                              |         |
-|    -     | `--email-tls-cert-file`     | `CODER_EMAIL_TLS_CERTFILE`    | `string` | Certificate file to use.                                                                                                                                           |         |
-|    -     | `--email-tls-cert-key-file` | `CODER_EMAIL_TLS_CERTKEYFILE` | `string` | Certificate key file to use.                                                                                                                                       |         |
+|    -     | `--email-force-tls`         | `NEURALINVERSE_EMAIL_FORCE_TLS`       | `bool`   | Force a TLS connection to the configured SMTP smarthost. If port 465 is used, TLS will be forced. See <https://datatracker.ietf.org/doc/html/rfc8314#section-3.3>. | false   |
+|    -     | `--email-tls-starttls`      | `NEURALINVERSE_EMAIL_TLS_STARTTLS`    | `bool`   | Enable STARTTLS to upgrade insecure SMTP connections using TLS. Ignored if `NEURALINVERSE_EMAIL_FORCE_TLS` is set.                                                         | false   |
+|    -     | `--email-tls-skip-verify`   | `NEURALINVERSE_EMAIL_TLS_SKIPVERIFY`  | `bool`   | Skip verification of the target server's certificate (**insecure**).                                                                                               | false   |
+|    -     | `--email-tls-server-name`   | `NEURALINVERSE_EMAIL_TLS_SERVERNAME`  | `string` | Server name to verify against the target certificate.                                                                                                              |         |
+|    -     | `--email-tls-cert-file`     | `NEURALINVERSE_EMAIL_TLS_CERTFILE`    | `string` | Certificate file to use.                                                                                                                                           |         |
+|    -     | `--email-tls-cert-key-file` | `NEURALINVERSE_EMAIL_TLS_CERTKEYFILE` | `string` | Certificate key file to use.                                                                                                                                       |         |
 
-**NOTE:** you _MUST_ use `CODER_EMAIL_FORCE_TLS` if your smarthost supports TLS
+**NOTE:** you _MUST_ use `NEURALINVERSE_EMAIL_FORCE_TLS` if your smarthost supports TLS
 on a port other than `465`.
 
 ### Send emails using G-Suite
@@ -148,12 +148,12 @@ After setting the required fields above:
 1. Set the following configuration options:
 
    ```text
-   CODER_EMAIL_SMARTHOST=smtp.gmail.com:465
-   CODER_EMAIL_AUTH_USERNAME=<user>@<domain>
-   CODER_EMAIL_AUTH_PASSWORD="<app password created above (no spaces)>"
+   NEURALINVERSE_EMAIL_SMARTHOST=smtp.gmail.com:465
+   NEURALINVERSE_EMAIL_AUTH_USERNAME=<user>@<domain>
+   NEURALINVERSE_EMAIL_AUTH_PASSWORD="<app password created above (no spaces)>"
    ```
 
-   **Note:** The `CODER_EMAIL_AUTH_PASSWORD` must be entered without spaces.
+   **Note:** The `NEURALINVERSE_EMAIL_AUTH_PASSWORD` must be entered without spaces.
 
 See
 [this help article from Google](https://support.google.com/a/answer/176600?hl=en)
@@ -167,10 +167,10 @@ After setting the required fields above:
 1. Set the following configuration options:
 
    ```text
-   CODER_EMAIL_SMARTHOST=smtp-mail.outlook.com:587
-   CODER_EMAIL_TLS_STARTTLS=true
-   CODER_EMAIL_AUTH_USERNAME=<user>@<domain>
-   CODER_EMAIL_AUTH_PASSWORD="<account password>"
+   NEURALINVERSE_EMAIL_SMARTHOST=smtp-mail.outlook.com:587
+   NEURALINVERSE_EMAIL_TLS_STARTTLS=true
+   NEURALINVERSE_EMAIL_AUTH_USERNAME=<user>@<domain>
+   NEURALINVERSE_EMAIL_AUTH_PASSWORD="<account password>"
    ```
 
 See
@@ -187,9 +187,9 @@ systems.
 
 | Required | CLI                                | Env                                    | Type  | Description                             |
 |:--------:|------------------------------------|----------------------------------------|-------|-----------------------------------------|
-|    ✔️    | `--notifications-webhook-endpoint` | `CODER_NOTIFICATIONS_WEBHOOK_ENDPOINT` | `url` | The endpoint to which to send webhooks. |
+|    ✔️    | `--notifications-webhook-endpoint` | `NEURALINVERSE_NOTIFICATIONS_WEBHOOK_ENDPOINT` | `url` | The endpoint to which to send webhooks. |
 
-Here is an example payload for Coder's webhook notification:
+Here is an example payload for Neural Inverse Cloud's webhook notification:
 
 ```json
 {
@@ -199,7 +199,7 @@ Here is an example payload for Coder's webhook notification:
         "_version": "1.0",
         "notification_name": "Workspace Deleted",
         "user_id": "4ac34fcb-8155-44d5-8301-e3cd46e88b35",
-        "user_email": "danny@coder.com",
+        "user_email": "danny@cloud.neuralinverse.com",
         "user_name": "danny",
         "user_username": "danny",
         "actions": [
@@ -239,7 +239,7 @@ The `payload` object has these keys:
 - `_version`: describes the version of this inner schema; follows semantic
   versioning
 - `notification_name`: name of the event which triggered the notification
-- `user_id`: Coder internal user identifier of the target user (UUID)
+- `user_id`: Neural Inverse Cloud internal user identifier of the target user (UUID)
 - `user_email`: email address of the target user
 - `user_name`: name of the target user
 - `user_username`: username of the target user
@@ -260,7 +260,7 @@ notification is indicated on the right hand side of this table.
 
 > [!NOTE]
 > Delivery preferences is a Premium feature.
-> [Learn more](https://coder.com/pricing#compare-plans).
+> [Learn more](https://cloud.neuralinverse.com/pricing#compare-plans).
 
 Administrators can configure which delivery methods are used for each different
 [event type](#event-types).
@@ -268,11 +268,11 @@ Administrators can configure which delivery methods are used for each different
 ![preferences](../../../images/admin/monitoring/notifications/notification-admin-prefs.png)
 
 You can find this page under
-`https://$CODER_ACCESS_URL/deployment/notifications?tab=events`.
+`https://$NEURALINVERSE_ACCESS_URL/deployment/notifications?tab=events`.
 
 ## Custom notifications
 
-Custom notifications let you send an ad‑hoc notification to yourself using the Coder CLI.
+Custom notifications let you send an ad‑hoc notification to yourself using the Neural Inverse Cloud CLI.
 These are useful for surfacing the result of long-running tasks or important state changes.
 At this time, custom notifications can only be sent to the user making the request.
 
@@ -280,7 +280,7 @@ To send a custom notification, execute [`coder notifications custom <title> <mes
 
 <!-- TODO(ssncferreira): Update when sending custom notifications to multiple users/roles is supported.
 	 Explain deduplication behaviour for multiple users/roles.
-	 See: https://github.com/coder/coder/issues/19768
+	 See: https://github.com/NeuralInverse/cloud/issues/19768
 -->
 **Note:** The recipient is always the requesting user as targeting other users or groups isn’t supported yet.
 
@@ -328,17 +328,17 @@ troubleshoot:
 1. Review the logs. Search for the term `notifications` for diagnostic information.
 
    - If you do not see any relevant logs, set
-    `CODER_LOG_FILTER=".*notifications.*"` to filter for notification-related logs.
+    `NEURALINVERSE_LOG_FILTER=".*notifications.*"` to filter for notification-related logs.
 1. If you are on version 2.15.x, notifications must be enabled using the
     `notifications`
     [experiment](../../../install/releases/feature-stages.md#early-access-features).
 
-    Notifications are enabled by default in Coder v2.16.0 and later.
+    Notifications are enabled by default in Neural Inverse Cloud v2.16.0 and later.
 
 ## Internals
 
 The notification system is built to operate concurrently in a single- or
-multi-replica Coder deployment, and has a built-in retry mechanism. It uses the
+multi-replica Neural Inverse Cloud deployment, and has a built-in retry mechanism. It uses the
 configured Postgres database to store notifications in a queue and facilitate
 concurrency.
 
@@ -350,25 +350,25 @@ Messages older than seven days are deleted.
 
 ![states](../../../images/admin/monitoring/notifications/notification-states.png)
 
-_A notifier here refers to a Coder replica which is responsible for dispatching
+_A notifier here refers to a Neural Inverse Cloud replica which is responsible for dispatching
 the notification. All running replicas act as notifiers to process pending
 messages._
 
 - a message begins in `pending` state
-- transitions to `leased` when a Coder replica acquires new messages from the
+- transitions to `leased` when a Neural Inverse Cloud replica acquires new messages from the
   database
-  - new messages are checked for every `CODER_NOTIFICATIONS_FETCH_INTERVAL`
+  - new messages are checked for every `NEURALINVERSE_NOTIFICATIONS_FETCH_INTERVAL`
     (default: 15s)
 - if a message is delivered successfully, it transitions to `sent` state
 - if a message encounters a non-retryable error (e.g. misconfiguration), it
   transitions to `permanent_failure`
 - if a message encounters a retryable error (e.g. temporary server outage), it
   transitions to `temporary_failure`
-  - this message will be retried up to `CODER_NOTIFICATIONS_MAX_SEND_ATTEMPTS`
+  - this message will be retried up to `NEURALINVERSE_NOTIFICATIONS_MAX_SEND_ATTEMPTS`
     (default: 5)
   - this message will transition back to `pending` state after
-    `CODER_NOTIFICATIONS_RETRY_INTERVAL` (default: 5m) and be retried
-  - after `CODER_NOTIFICATIONS_MAX_SEND_ATTEMPTS` is exceeded, it transitions to
+    `NEURALINVERSE_NOTIFICATIONS_RETRY_INTERVAL` (default: 5m) and be retried
+  - after `NEURALINVERSE_NOTIFICATIONS_MAX_SEND_ATTEMPTS` is exceeded, it transitions to
     `permanent_failure`
 
 See [Troubleshooting](#troubleshooting) above for more details.

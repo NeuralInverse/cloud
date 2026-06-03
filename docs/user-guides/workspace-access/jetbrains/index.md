@@ -1,6 +1,6 @@
 # JetBrains IDEs
 
-Coder supports JetBrains IDEs using [Toolbox](https://www.jetbrains.com/toolbox/) and [Gateway](https://www.jetbrains.com/remote-development/gateway/). The following
+Neural Inverse Cloud supports JetBrains IDEs using [Toolbox](https://www.jetbrains.com/toolbox/) and [Gateway](https://www.jetbrains.com/remote-development/gateway/). The following
 IDEs are supported for remote development:
 
 - IntelliJ IDEA
@@ -20,5 +20,5 @@ IDEs are supported for remote development:
 <children></children>
 
 If you experience any issues, please
-[create a GitHub issue](https://github.com/coder/coder/issues) or ask in
+[create a GitHub issue](https://github.com/NeuralInverse/cloud/issues) or ask in
 [our Discord channel](https://discord.gg/coder).

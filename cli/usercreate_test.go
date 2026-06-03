@@ -6,11 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestUserCreate(t *testing.T) {
@@ -19,8 +19,8 @@ func TestUserCreate(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		inv, root := clitest.New(t, "users", "create")
 		clitest.SetupConfig(t, client, root)
 		doneChan := make(chan struct{})
@@ -33,7 +33,7 @@ func TestUserCreate(t *testing.T) {
 		}()
 		matches := []string{
 			"Username", "dean",
-			"Email", "dean@coder.com",
+			"Email", "dean@cloud.neuralinverse.com",
 			"Full name (optional):", "Mr. Dean Deanington",
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -54,8 +54,8 @@ func TestUserCreate(t *testing.T) {
 		t.Parallel()
 		logger := testutil.Logger(t)
 		ctx := testutil.Context(t, testutil.WaitLong)
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		inv, root := clitest.New(t, "users", "create")
 		clitest.SetupConfig(t, client, root)
 		doneChan := make(chan struct{})
@@ -68,7 +68,7 @@ func TestUserCreate(t *testing.T) {
 		}()
 		matches := []string{
 			"Username", "noname",
-			"Email", "noname@coder.com",
+			"Email", "noname@cloud.neuralinverse.com",
 			"Full name (optional):", "",
 		}
 		for i := 0; i < len(matches); i += 2 {
@@ -87,11 +87,11 @@ func TestUserCreate(t *testing.T) {
 
 	t.Run("Args", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		args := []string{
 			"users", "create",
-			"-e", "dean@coder.com",
+			"-e", "dean@cloud.neuralinverse.com",
 			"-u", "dean",
 			"-n", "Mr. Dean Deanington",
 			"-p", "1n5ecureP4ssw0rd!",
@@ -110,11 +110,11 @@ func TestUserCreate(t *testing.T) {
 
 	t.Run("ArgsNoName", func(t *testing.T) {
 		t.Parallel()
-		client := coderdtest.New(t, nil)
-		coderdtest.CreateFirstUser(t, client)
+		client := nicloudtest.New(t, nil)
+		nicloudtest.CreateFirstUser(t, client)
 		args := []string{
 			"users", "create",
-			"-e", "dean@coder.com",
+			"-e", "dean@cloud.neuralinverse.com",
 			"-u", "dean",
 			"-p", "1n5ecureP4ssw0rd!",
 		}
@@ -152,7 +152,7 @@ func TestUserCreate(t *testing.T) {
 		},
 		{
 			name: "ServiceAccountEmail",
-			args: []string{"--service-account", "-u", "dean", "--email", "dean@coder.com"},
+			args: []string{"--service-account", "-u", "dean", "--email", "dean@cloud.neuralinverse.com"},
 			err:  "You cannot use --email with --service-account",
 		},
 		{
@@ -165,8 +165,8 @@ func TestUserCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			client := coderdtest.New(t, nil)
-			coderdtest.CreateFirstUser(t, client)
+			client := nicloudtest.New(t, nil)
+			nicloudtest.CreateFirstUser(t, client)
 			inv, root := clitest.New(t, append([]string{"users", "create"}, tt.args...)...)
 			clitest.SetupConfig(t, client, root)
 			err := inv.Run()
@@ -175,7 +175,7 @@ func TestUserCreate(t *testing.T) {
 				ctx := testutil.Context(t, testutil.WaitShort)
 				created, err := client.User(ctx, "dean")
 				require.NoError(t, err)
-				assert.Equal(t, codersdk.LoginTypeNone, created.LoginType)
+				assert.Equal(t, nicloudsdk.LoginTypeNone, created.LoginType)
 			} else {
 				require.Error(t, err)
 				require.ErrorContains(t, err, tt.err)

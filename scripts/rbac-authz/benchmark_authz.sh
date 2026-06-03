@@ -45,7 +45,7 @@ function run_benchmarks() {
 	git checkout "$branch"
 
 	# Move into the rbac directory to run the benchmark tests
-	pushd ../../coderd/rbac/ >/dev/null
+	pushd ../../nicloud/rbac/ >/dev/null
 
 	for bench in "${BENCHMARKS[@]}"; do
 		local output_file="${output_file_prefix}_${bench}.txt"

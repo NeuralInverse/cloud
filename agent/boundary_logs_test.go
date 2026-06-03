@@ -15,11 +15,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/boundarylogproxy"
-	"github.com/coder/coder/v2/agent/boundarylogproxy/codec"
-	agentproto "github.com/coder/coder/v2/agent/proto"
-	"github.com/coder/coder/v2/coderd/agentapi"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy/codec"
+	agentproto "github.com/NeuralInverse/cloud/v2/agent/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/agentapi"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 // getField returns the value of a field by name from a slog.Map.
@@ -44,7 +44,7 @@ func sendBoundaryLogsRequest(t *testing.T, conn net.Conn, req *agentproto.Report
 
 // TestBoundaryLogs_EndToEnd is an end-to-end test that sends a protobuf
 // message over the agent's unix socket (as boundary would) and verifies
-// it is ultimately logged by coderd with the correct structured fields.
+// it is ultimately logged by nicloud with the correct structured fields.
 func TestBoundaryLogs_EndToEnd(t *testing.T) {
 	t.Parallel()
 

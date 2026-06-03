@@ -10,9 +10,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
 )
 
 func TestDotfiles(t *testing.T) {
@@ -327,7 +327,7 @@ func testGitRepo(t *testing.T, root config.Root) string {
 	err = c.Run()
 	require.NoError(t, err)
 
-	c = exec.Command("git", "config", "user.email", "ci@coder.com")
+	c = exec.Command("git", "config", "user.email", "ci@cloud.neuralinverse.com")
 	c.Dir = dir
 	err = c.Run()
 	require.NoError(t, err)

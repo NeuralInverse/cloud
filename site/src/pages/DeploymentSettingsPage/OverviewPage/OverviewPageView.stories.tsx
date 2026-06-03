@@ -13,7 +13,7 @@ const meta: Meta<typeof OverviewPageView> = {
 					"The URL that users will use to access the Coder deployment.",
 				flag: "access-url",
 				flag_shorthand: "",
-				value: "https://dev.coder.com",
+				value: "https://dev.cloud.neuralinverse.com",
 				hidden: false,
 			},
 			{
@@ -22,7 +22,7 @@ const meta: Meta<typeof OverviewPageView> = {
 					'Specifies the wildcard hostname to use for workspace applications in the form "*.example.com".',
 				flag: "wildcard-access-url",
 				flag_shorthand: "",
-				value: "*--apps.dev.coder.com",
+				value: "*--apps.dev.cloud.neuralinverse.com",
 				hidden: false,
 			},
 			{
@@ -60,7 +60,7 @@ export const allExperimentsEnabled: Story = {
 					"The URL that users will use to access the Coder deployment.",
 				flag: "access-url",
 				flag_shorthand: "",
-				value: "https://dev.coder.com",
+				value: "https://dev.cloud.neuralinverse.com",
 				hidden: false,
 			},
 			{
@@ -69,7 +69,7 @@ export const allExperimentsEnabled: Story = {
 					'Specifies the wildcard hostname to use for workspace applications in the form "*.example.com".',
 				flag: "wildcard-access-url",
 				flag_shorthand: "",
-				value: "*--apps.dev.coder.com",
+				value: "*--apps.dev.cloud.neuralinverse.com",
 				hidden: false,
 			},
 			{
@@ -96,7 +96,7 @@ export const invalidExperimentsEnabled: Story = {
 					"The URL that users will use to access the Coder deployment.",
 				flag: "access-url",
 				flag_shorthand: "",
-				value: "https://dev.coder.com",
+				value: "https://dev.cloud.neuralinverse.com",
 				hidden: false,
 			},
 			{
@@ -105,7 +105,7 @@ export const invalidExperimentsEnabled: Story = {
 					'Specifies the wildcard hostname to use for workspace applications in the form "*.example.com".',
 				flag: "wildcard-access-url",
 				flag_shorthand: "",
-				value: "*--apps.dev.coder.com",
+				value: "*--apps.dev.cloud.neuralinverse.com",
 				hidden: false,
 			},
 			{

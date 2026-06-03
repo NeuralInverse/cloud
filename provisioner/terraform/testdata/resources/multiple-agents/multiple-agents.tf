@@ -7,12 +7,12 @@ terraform {
   }
 }
 
-resource "coder_agent" "dev1" {
+resource "ni_agent" "dev1" {
   os   = "linux"
   arch = "amd64"
 }
 
-resource "coder_agent" "dev2" {
+resource "ni_agent" "dev2" {
   os                      = "darwin"
   arch                    = "amd64"
   connection_timeout      = 1
@@ -21,14 +21,14 @@ resource "coder_agent" "dev2" {
   shutdown_script         = "echo bye bye"
 }
 
-resource "coder_agent" "dev3" {
+resource "ni_agent" "dev3" {
   os                      = "windows"
   arch                    = "arm64"
   troubleshooting_url     = "https://coder.com/troubleshoot"
   startup_script_behavior = "blocking"
 }
 
-resource "coder_agent" "dev4" {
+resource "ni_agent" "dev4" {
   os   = "linux"
   arch = "amd64"
   # Test deprecated login_before_ready=false => startup_script_behavior=blocking.
@@ -36,9 +36,9 @@ resource "coder_agent" "dev4" {
 
 resource "null_resource" "dev" {
   depends_on = [
-    coder_agent.dev1,
-    coder_agent.dev2,
-    coder_agent.dev3,
-    coder_agent.dev4
+    ni_agent.dev1,
+    ni_agent.dev2,
+    ni_agent.dev3,
+    ni_agent.dev4
   ]
 }

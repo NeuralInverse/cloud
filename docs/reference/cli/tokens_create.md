@@ -16,7 +16,7 @@ coder tokens create [flags]
 |             |                                    |
 |-------------|------------------------------------|
 | Type        | <code>string</code>                |
-| Environment | <code>$CODER_TOKEN_LIFETIME</code> |
+| Environment | <code>$NEURALINVERSE_TOKEN_LIFETIME</code> |
 
 Duration for the token lifetime. Supports standard Go duration units (ns, us, ms, s, m, h) plus d (days) and y (years). Examples: 8h, 30d, 1y, 1d12h30m.
 
@@ -25,7 +25,7 @@ Duration for the token lifetime. Supports standard Go duration units (ns, us, ms
 |             |                                |
 |-------------|--------------------------------|
 | Type        | <code>string</code>            |
-| Environment | <code>$CODER_TOKEN_NAME</code> |
+| Environment | <code>$NEURALINVERSE_TOKEN_NAME</code> |
 
 Specify a human-readable name.
 
@@ -34,7 +34,7 @@ Specify a human-readable name.
 |             |                                |
 |-------------|--------------------------------|
 | Type        | <code>string</code>            |
-| Environment | <code>$CODER_TOKEN_USER</code> |
+| Environment | <code>$NEURALINVERSE_TOKEN_USER</code> |
 
 Specify the user to create the token for (Only works if logged in user is admin).
 

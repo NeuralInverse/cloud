@@ -13,15 +13,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbgen"
-	"github.com/coder/coder/v2/coderd/database/dbtestutil"
-	"github.com/coder/coder/v2/coderd/rbac"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbgen"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtestutil"
+	"github.com/NeuralInverse/cloud/v2/nicloud/rbac"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestProvisionerJobs(t *testing.T) {
@@ -31,14 +31,14 @@ func TestProvisionerJobs(t *testing.T) {
 		t.Parallel()
 
 		db, ps := dbtestutil.NewDB(t)
-		client, _, coderdAPI := coderdtest.NewWithAPI(t, &coderdtest.Options{
+		client, _, nicloudAPI := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: false,
 			Database:                 db,
 			Pubsub:                   ps,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
-		templateAdminClient, templateAdmin := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgTemplateAdmin(owner.OrganizationID))
-		memberClient, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		templateAdminClient, templateAdmin := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID, rbac.ScopedRoleOrgTemplateAdmin(owner.OrganizationID))
+		memberClient, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// These CLI tests are related to provisioner job CRUD operations and as such
 		// do not require the overhead of starting a provisioner. Other provisioner job
@@ -56,11 +56,11 @@ func TestProvisionerJobs(t *testing.T) {
 		// Test helper to create a provisioner job of a given type with a given input.
 		prepareJob := func(t *testing.T, jobType database.ProvisionerJobType, input json.RawMessage) database.ProvisionerJob {
 			t.Helper()
-			return dbgen.ProvisionerJob(t, db, coderdAPI.Pubsub, database.ProvisionerJob{
+			return dbgen.ProvisionerJob(t, db, nicloudAPI.Pubsub, database.ProvisionerJob{
 				InitiatorID: member.ID,
 				Input:       input,
 				Type:        jobType,
-				StartedAt:   sql.NullTime{Time: coderdAPI.Clock.Now().Add(-time.Minute), Valid: true},
+				StartedAt:   sql.NullTime{Time: nicloudAPI.Clock.Now().Add(-time.Minute), Valid: true},
 				Tags:        database.StringMap{provisionersdk.TagOwner: "", provisionersdk.TagScope: provisionersdk.ScopeOrganization, "foo": uuid.NewString()},
 			})
 		}
@@ -130,7 +130,7 @@ func TestProvisionerJobs(t *testing.T) {
 		// Run the cancellation test suite.
 		for _, tt := range []struct {
 			role          string
-			client        *codersdk.Client
+			client        *nicloudsdk.Client
 			name          string
 			prepare       func(*testing.T) database.ProvisionerJob
 			wantCancelled bool
@@ -183,13 +183,13 @@ func TestProvisionerJobs(t *testing.T) {
 		t.Parallel()
 
 		db, ps := dbtestutil.NewDB(t)
-		client, _, coderdAPI := coderdtest.NewWithAPI(t, &coderdtest.Options{
+		client, _, nicloudAPI := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 			IncludeProvisionerDaemon: false,
 			Database:                 db,
 			Pubsub:                   ps,
 		})
-		owner := coderdtest.CreateFirstUser(t, client)
-		_, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+		owner := nicloudtest.CreateFirstUser(t, client)
+		_, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 		// These CLI tests are related to provisioner job CRUD operations and as such
 		// do not require the overhead of starting a provisioner. Other provisioner job
@@ -205,7 +205,7 @@ func TestProvisionerJobs(t *testing.T) {
 			TemplateID:     uuid.NullUUID{UUID: template.ID, Valid: true},
 		})
 		// Create some test jobs
-		job1 := dbgen.ProvisionerJob(t, db, coderdAPI.Pubsub, database.ProvisionerJob{
+		job1 := dbgen.ProvisionerJob(t, db, nicloudAPI.Pubsub, database.ProvisionerJob{
 			OrganizationID: owner.OrganizationID,
 			InitiatorID:    owner.UserID,
 			Type:           database.ProvisionerJobTypeTemplateVersionImport,
@@ -213,7 +213,7 @@ func TestProvisionerJobs(t *testing.T) {
 			Tags:           database.StringMap{provisionersdk.TagScope: provisionersdk.ScopeOrganization},
 		})
 
-		job2 := dbgen.ProvisionerJob(t, db, coderdAPI.Pubsub, database.ProvisionerJob{
+		job2 := dbgen.ProvisionerJob(t, db, nicloudAPI.Pubsub, database.ProvisionerJob{
 			OrganizationID: owner.OrganizationID,
 			InitiatorID:    member.ID,
 			Type:           database.ProvisionerJobTypeWorkspaceBuild,
@@ -249,7 +249,7 @@ func TestProvisionerJobs(t *testing.T) {
 			require.NoError(t, err)
 
 			// Parse JSON output
-			var jobs []codersdk.ProvisionerJob
+			var jobs []nicloudsdk.ProvisionerJob
 			err = json.Unmarshal(buf.Bytes(), &jobs)
 			require.NoError(t, err)
 

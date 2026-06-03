@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coder/coder/v2/agent/agentrsa"
+	"github.com/NeuralInverse/cloud/v2/agent/agentrsa"
 )
 
 func TestGenerateDeterministicKey(t *testing.T) {

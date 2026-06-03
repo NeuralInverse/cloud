@@ -46,7 +46,7 @@ Extract a field from the "extra" properties of the OAuth token.
 |             |                                 |
 |-------------|---------------------------------|
 | Type        | <code>string</code>             |
-| Environment | <code>$CODER_AGENT_TOKEN</code> |
+| Environment | <code>$NEURALINVERSE_AGENT_TOKEN</code> |
 
 An agent authentication token.
 
@@ -55,7 +55,7 @@ An agent authentication token.
 |             |                                      |
 |-------------|--------------------------------------|
 | Type        | <code>string</code>                  |
-| Environment | <code>$CODER_AGENT_TOKEN_FILE</code> |
+| Environment | <code>$NEURALINVERSE_AGENT_TOKEN_FILE</code> |
 
 A file containing an agent authentication token.
 
@@ -64,7 +64,7 @@ A file containing an agent authentication token.
 |             |                               |
 |-------------|-------------------------------|
 | Type        | <code>url</code>              |
-| Environment | <code>$CODER_AGENT_URL</code> |
+| Environment | <code>$NEURALINVERSE_AGENT_URL</code> |
 
 URL for an agent to access your deployment.
 
@@ -73,7 +73,7 @@ URL for an agent to access your deployment.
 |             |                                |
 |-------------|--------------------------------|
 | Type        | <code>string</code>            |
-| Environment | <code>$CODER_AGENT_AUTH</code> |
+| Environment | <code>$NEURALINVERSE_AGENT_AUTH</code> |
 | Default     | <code>token</code>             |
 
 Specify the authentication type to use for the agent.
@@ -83,6 +83,6 @@ Specify the authentication type to use for the agent.
 |             |                                |
 |-------------|--------------------------------|
 | Type        | <code>string</code>            |
-| Environment | <code>$CODER_AGENT_NAME</code> |
+| Environment | <code>$NEURALINVERSE_AGENT_NAME</code> |
 
 The name of the agent to authenticate as (only applicable for instance identity).

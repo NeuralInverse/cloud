@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/coderd/util/slice"
+	"github.com/NeuralInverse/cloud/v2/nicloud/util/slice"
 )
 
 var (

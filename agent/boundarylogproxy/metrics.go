@@ -2,28 +2,28 @@ package boundarylogproxy
 
 import "github.com/prometheus/client_golang/prometheus"
 
-// Metrics tracks observability for the boundary -> agent -> coderd audit log
+// Metrics tracks observability for the boundary -> agent -> nicloud audit log
 // pipeline.
 //
 // Audit logs from boundary workspaces pass through several async buffers
-// before reaching coderd, and any stage can silently drop data. These
+// before reaching nicloud, and any stage can silently drop data. These
 // metrics make that loss visible so operators/devs can:
 //
 //   - Bubble up data loss: a non-zero drop rate means audit logs are being
 //     lost, which may have auditing implications.
 //   - Identify the bottleneck: the reason label pinpoints where drops
 //     occur: boundary's internal buffers, the agent's channel, or the
-//     RPC to coderd.
+//     RPC to nicloud.
 //   - Tune buffer sizes: sustained "buffer_full" drops indicate the
 //     agent's channel (or boundary's batch buffer) is too small for the
 //     workload. Combined with batches_forwarded_total you can compute a
 //     drop rate: drops / (drops + forwards).
 //   - Detect batch forwarding issues: "forward_failed" drops increase when
-//     the agent cannot reach coderd.
+//     the agent cannot reach nicloud.
 //
 // Drops are captured at two stages:
 //   - Agent-side: the agent's channel buffer overflows (reason
-//     "buffer_full") or the RPC forward to coderd fails (reason
+//     "buffer_full") or the RPC forward to nicloud fails (reason
 //     "forward_failed").
 //   - Boundary-reported: boundary self-reports drops via BoundaryStatus
 //     messages (reasons "boundary_channel_full", "boundary_batch_full").
@@ -42,9 +42,9 @@ func newMetrics(registerer prometheus.Registerer) *Metrics {
 		Namespace: "agent",
 		Subsystem: "boundary_log_proxy",
 		Name:      "batches_dropped_total",
-		Help: "Total number of boundary log batches dropped before reaching coderd. " +
-			"Reason: buffer_full = the agent's internal buffer is full, meaning boundary is producing logs faster than the agent can forward them to coderd; " +
-			"forward_failed = the agent failed to send the batch to coderd, potentially because coderd is unreachable or the connection was interrupted.",
+		Help: "Total number of boundary log batches dropped before reaching nicloud. " +
+			"Reason: buffer_full = the agent's internal buffer is full, meaning boundary is producing logs faster than the agent can forward them to nicloud; " +
+			"forward_failed = the agent failed to send the batch to nicloud, potentially because nicloud is unreachable or the connection was interrupted.",
 	}, []string{"reason"})
 	registerer.MustRegister(batchesDropped)
 
@@ -52,9 +52,9 @@ func newMetrics(registerer prometheus.Registerer) *Metrics {
 		Namespace: "agent",
 		Subsystem: "boundary_log_proxy",
 		Name:      "logs_dropped_total",
-		Help: "Total number of individual boundary log entries dropped before reaching coderd. " +
+		Help: "Total number of individual boundary log entries dropped before reaching nicloud. " +
 			"Reason: buffer_full = the agent's internal buffer is full; " +
-			"forward_failed = the agent failed to send the batch to coderd; " +
+			"forward_failed = the agent failed to send the batch to nicloud; " +
 			"boundary_channel_full = boundary's internal send channel overflowed, meaning boundary is generating logs faster than it can batch and send them; " +
 			"boundary_batch_full = boundary's outgoing batch buffer overflowed after a failed flush, meaning boundary could not write to the agent's socket.",
 	}, []string{"reason"})
@@ -64,7 +64,7 @@ func newMetrics(registerer prometheus.Registerer) *Metrics {
 		Namespace: "agent",
 		Subsystem: "boundary_log_proxy",
 		Name:      "batches_forwarded_total",
-		Help: "Total number of boundary log batches successfully forwarded to coderd. " +
+		Help: "Total number of boundary log batches successfully forwarded to nicloud. " +
 			"Compare with batches_dropped_total to compute a drop rate.",
 	})
 	registerer.MustRegister(batchesForwarded)

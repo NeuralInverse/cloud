@@ -16,7 +16,7 @@ coder groups create [flags] <name>
 |             |                                |
 |-------------|--------------------------------|
 | Type        | <code>string</code>            |
-| Environment | <code>$CODER_AVATAR_URL</code> |
+| Environment | <code>$NEURALINVERSE_AVATAR_URL</code> |
 
 Set an avatar for a group.
 
@@ -25,7 +25,7 @@ Set an avatar for a group.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_DISPLAY_NAME</code> |
+| Environment | <code>$NEURALINVERSE_DISPLAY_NAME</code> |
 
 Optional human friendly name for the group.
 
@@ -34,6 +34,6 @@ Optional human friendly name for the group.
 |             |                                  |
 |-------------|----------------------------------|
 | Type        | <code>string</code>              |
-| Environment | <code>$CODER_ORGANIZATION</code> |
+| Environment | <code>$NEURALINVERSE_ORGANIZATION</code> |
 
 Select which organization (uuid or name) to use.

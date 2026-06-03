@@ -6,9 +6,9 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
 )
 
 type Config struct {
@@ -27,13 +27,13 @@ type Config struct {
 	// WorkspaceUpdatesTimeout is how long to wait for all expected workspace updates.
 	WorkspaceUpdatesTimeout time.Duration `json:"workspace_updates_timeout"`
 
-	// DialTimeout is how long to wait to successfully dial the Coder Connect
+	// DialTimeout is how long to wait to successfully dial the Neural Inverse Cloud Connect
 	// endpoint.
 	DialTimeout time.Duration `json:"dial_timeout"`
 
 	Metrics *Metrics `json:"-"`
 
-	// DialBarrier is used to ensure all runners have dialed the Coder Connect
+	// DialBarrier is used to ensure all runners have dialed the Neural Inverse Cloud Connect
 	// endpoint before creating their workspace(s).
 	DialBarrier *sync.WaitGroup `json:"-"`
 }
@@ -44,7 +44,7 @@ func (c Config) Validate() error {
 	}
 	c.Workspace.OrganizationID = c.User.OrganizationID
 	// This value will be overwritten during the test.
-	c.Workspace.UserID = codersdk.Me
+	c.Workspace.UserID = nicloudsdk.Me
 	if err := c.Workspace.Validate(); err != nil {
 		return xerrors.Errorf("workspace config: %w", err)
 	}

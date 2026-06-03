@@ -94,9 +94,9 @@ func TestCiphersBackwardCompatibility(t *testing.T) {
 
 // If you're looking here, you're probably in trouble.
 // Here's what you need to do:
-//  1. Get the current CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS environment variable.
+//  1. Get the current NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS environment variable.
 //  2. Run the following command:
-//     ENCRYPT_ME="<value to encrypt>" CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS="<secret keys here>" go test -v -count=1 ./enterprise/dbcrypt -test.run='^TestHelpMeEncryptSomeValue$'
+//     ENCRYPT_ME="<value to encrypt>" NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS="<secret keys here>" go test -v -count=1 ./enterprise/dbcrypt -test.run='^TestHelpMeEncryptSomeValue$'
 //  3. Copy the value from the test output and do what you need with it.
 func TestHelpMeEncryptSomeValue(t *testing.T) {
 	t.Parallel()
@@ -105,8 +105,8 @@ func TestHelpMeEncryptSomeValue(t *testing.T) {
 		t.Skip("Set ENCRYPT_ME to some value you need to encrypt")
 	}
 	t.Logf("valueToEncrypt: %q", valueToEncrypt)
-	keys := os.Getenv("CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS")
-	require.NotEmpty(t, keys, "Set the CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS environment variable to use this")
+	keys := os.Getenv("NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS")
+	require.NotEmpty(t, keys, "Set the NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS environment variable to use this")
 
 	base64Keys := strings.Split(keys, ",")
 	activeKey := base64Keys[0]

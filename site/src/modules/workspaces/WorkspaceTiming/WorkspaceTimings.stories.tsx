@@ -87,7 +87,7 @@ export const NavigateToPlanStage: Story = {
 		});
 		await user.click(detailsButton);
 		await canvas.findByText(
-			"module.dotfiles.data.coder_parameter.dotfiles_uri[0]",
+			"module.dotfiles.data.ni_parameter.dotfiles_uri[0]",
 		);
 	},
 };
@@ -184,8 +184,8 @@ export const MissedAction: Story = {
 				action: "create",
 				ended_at: "2025-03-12T18:08:07.402358Z",
 				job_id: "a7c4a05d-1c36-4264-8275-8107c93c5fc8",
-				resource: "coder_agent.Interface",
-				source: "coder",
+				resource: "ni_agent.Interface",
+				source: "neuralinverse",
 				stage: "apply",
 				started_at: "2025-03-12T18:08:07.194957Z",
 			},
@@ -297,7 +297,7 @@ export const MultipleAgents: Story = {
 				started_at: "2026-02-02T08:34:16.067798Z",
 				ended_at: "2026-02-02T08:34:16.626888Z",
 				stage: "init",
-				source: "coder",
+				source: "neuralinverse",
 				action: "terraform",
 				resource: "coder_stage_init",
 			},
@@ -306,7 +306,7 @@ export const MultipleAgents: Story = {
 				started_at: "2026-02-02T08:34:16.649547Z",
 				ended_at: "2026-02-02T08:34:18.65871Z",
 				stage: "plan",
-				source: "coder",
+				source: "neuralinverse",
 				action: "terraform",
 				resource: "coder_stage_plan",
 			},
@@ -315,7 +315,7 @@ export const MultipleAgents: Story = {
 				started_at: "2026-02-02T08:34:18.722631Z",
 				ended_at: "2026-02-02T08:34:21.332458Z",
 				stage: "apply",
-				source: "coder",
+				source: "neuralinverse",
 				action: "terraform",
 				resource: "coder_stage_apply",
 			},
@@ -324,7 +324,7 @@ export const MultipleAgents: Story = {
 				started_at: "2026-02-02T08:34:21.698283Z",
 				ended_at: "2026-02-02T08:34:22.014735Z",
 				stage: "graph",
-				source: "coder",
+				source: "neuralinverse",
 				action: "terraform",
 				resource: "coder_stage_graph",
 			},
@@ -342,7 +342,7 @@ export const MultipleAgents: Story = {
 				ended_at: "2026-02-02T08:34:51.36274Z",
 				stage: "connect",
 				workspace_agent_id: "afbdd368-b7b8-453e-af5a-02b13bc45553",
-				workspace_agent_name: "coder",
+				workspace_agent_name: "neuralinverse",
 			},
 		],
 		agentScriptTimings: [
@@ -385,7 +385,7 @@ export const MultipleAgents: Story = {
 				status: "ok",
 				display_name: "Installing Dependencies",
 				workspace_agent_id: "afbdd368-b7b8-453e-af5a-02b13bc45553",
-				workspace_agent_name: "coder",
+				workspace_agent_name: "neuralinverse",
 			},
 			{
 				started_at: "2026-02-02T08:34:53.3Z",
@@ -395,7 +395,7 @@ export const MultipleAgents: Story = {
 				status: "ok",
 				display_name: "Personalize",
 				workspace_agent_id: "afbdd368-b7b8-453e-af5a-02b13bc45553",
-				workspace_agent_name: "coder",
+				workspace_agent_name: "neuralinverse",
 			},
 		],
 	},

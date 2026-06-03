@@ -10,23 +10,23 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/sloghuman"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/scaletest/createusers"
-	"github.com/coder/coder/v2/scaletest/harness"
-	"github.com/coder/coder/v2/scaletest/loadtestutil"
-	"github.com/coder/coder/v2/scaletest/workspacebuild"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/scaletest/createusers"
+	"github.com/NeuralInverse/cloud/v2/scaletest/harness"
+	"github.com/NeuralInverse/cloud/v2/scaletest/loadtestutil"
+	"github.com/NeuralInverse/cloud/v2/scaletest/workspacebuild"
 )
 
 type Runner struct {
-	client *codersdk.Client
+	client *nicloudsdk.Client
 	cfg    Config
 
 	createUserRunner     *createusers.Runner
 	workspacebuildRunner *workspacebuild.Runner
 }
 
-func NewRunner(client *codersdk.Client, cfg Config) *Runner {
+func NewRunner(client *nicloudsdk.Client, cfg Config) *Runner {
 	return &Runner{
 		client: client,
 		cfg:    cfg,
@@ -68,10 +68,10 @@ func (r *Runner) RunReturningResult(ctx context.Context, id string, logs io.Writ
 	}
 	newUser := newUserAndToken.User
 
-	newUserClient := codersdk.New(r.client.URL,
-		codersdk.WithSessionToken(newUserAndToken.SessionToken),
-		codersdk.WithLogger(logger),
-		codersdk.WithLogBodies())
+	newUserClient := nicloudsdk.New(r.client.URL,
+		nicloudsdk.WithSessionToken(newUserAndToken.SessionToken),
+		nicloudsdk.WithLogger(logger),
+		nicloudsdk.WithLogBodies())
 
 	//nolint:gocritic // short log is fine
 	logger.Info(ctx, "user created", slog.F("username", newUser.Username), slog.F("user_id", newUser.ID.String()))
@@ -98,7 +98,7 @@ func (r *Runner) RunReturningResult(ctx context.Context, id string, logs io.Writ
 	defer cancel()
 
 	logger.Info(ctx, "waiting for initial workspace build", slog.F("workspace_name", workspace.Name), slog.F("workspace_id", workspace.ID.String()))
-	err = waitForBuild(createWorkspaceCtx, logger, buildUpdates, codersdk.WorkspaceTransitionStart)
+	err = waitForBuild(createWorkspaceCtx, logger, buildUpdates, nicloudsdk.WorkspaceTransitionStart)
 	if err != nil {
 		return result, xerrors.Errorf("wait for initial workspace build (workspace=%s, id=%s): %w", workspace.Name, workspace.ID, err)
 	}
@@ -107,8 +107,8 @@ func (r *Runner) RunReturningResult(ctx context.Context, id string, logs io.Writ
 
 	logger.Info(ctx, "stopping workspace", slog.F("workspace_name", workspace.Name))
 
-	_, err = newUserClient.CreateWorkspaceBuild(ctx, workspace.ID, codersdk.CreateWorkspaceBuildRequest{
-		Transition: codersdk.WorkspaceTransitionStop,
+	_, err = newUserClient.CreateWorkspaceBuild(ctx, workspace.ID, nicloudsdk.CreateWorkspaceBuildRequest{
+		Transition: nicloudsdk.WorkspaceTransitionStop,
 	})
 	if err != nil {
 		return result, xerrors.Errorf("create stop build: %w", err)
@@ -117,7 +117,7 @@ func (r *Runner) RunReturningResult(ctx context.Context, id string, logs io.Writ
 	stopBuildCtx, cancel := context.WithTimeout(ctx, r.cfg.WorkspaceJobTimeout)
 	defer cancel()
 
-	err = waitForBuild(stopBuildCtx, logger, buildUpdates, codersdk.WorkspaceTransitionStop)
+	err = waitForBuild(stopBuildCtx, logger, buildUpdates, nicloudsdk.WorkspaceTransitionStop)
 	if err != nil {
 		return result, xerrors.Errorf("wait for stop build: %w", err)
 	}
@@ -141,7 +141,7 @@ func (r *Runner) RunReturningResult(ctx context.Context, id string, logs io.Writ
 	result.ConfigTime = time.Now().UTC()
 	result.ScheduledTime = autostartTime
 
-	err = newUserClient.UpdateWorkspaceAutostart(ctx, workspace.ID, codersdk.UpdateWorkspaceAutostartRequest{
+	err = newUserClient.UpdateWorkspaceAutostart(ctx, workspace.ID, nicloudsdk.UpdateWorkspaceAutostartRequest{
 		Schedule: &schedule,
 	})
 	if err != nil {
@@ -164,7 +164,7 @@ func (r *Runner) RunReturningResult(ctx context.Context, id string, logs io.Writ
 		slog.F("workspace_name", workspace.Name),
 		slog.F("timeout", r.cfg.AutostartBuildTimeout))
 
-	err = waitForBuild(autostartBuildCtx, logger, buildUpdates, codersdk.WorkspaceTransitionStart)
+	err = waitForBuild(autostartBuildCtx, logger, buildUpdates, nicloudsdk.WorkspaceTransitionStart)
 	if err != nil {
 		result.Success = false
 		result.Error = err.Error()
@@ -198,7 +198,7 @@ func (r *Runner) RunReturningResult(ctx context.Context, id string, logs io.Writ
 // terminal state. It returns nil on success, or an error if the build
 // fails, is canceled, or the context expires. If an unexpected transition
 // is received, it returns an error immediately.
-func waitForBuild(ctx context.Context, logger slog.Logger, updates <-chan codersdk.WorkspaceBuildUpdate, transition codersdk.WorkspaceTransition) error {
+func waitForBuild(ctx context.Context, logger slog.Logger, updates <-chan nicloudsdk.WorkspaceBuildUpdate, transition nicloudsdk.WorkspaceTransition) error {
 	for {
 		select {
 		case <-ctx.Done():
@@ -215,12 +215,12 @@ func waitForBuild(ctx context.Context, logger slog.Logger, updates <-chan coders
 			if update.Transition != string(transition) {
 				return xerrors.Errorf("unexpected transition: expected %s, got %s (build_number=%d)", transition, update.Transition, update.BuildNumber)
 			}
-			switch codersdk.ProvisionerJobStatus(update.JobStatus) {
-			case codersdk.ProvisionerJobSucceeded:
+			switch nicloudsdk.ProvisionerJobStatus(update.JobStatus) {
+			case nicloudsdk.ProvisionerJobSucceeded:
 				return nil
-			case codersdk.ProvisionerJobFailed:
+			case nicloudsdk.ProvisionerJobFailed:
 				return xerrors.Errorf("workspace build failed (transition=%s, build_number=%d)", update.Transition, update.BuildNumber)
-			case codersdk.ProvisionerJobCanceled:
+			case nicloudsdk.ProvisionerJobCanceled:
 				return xerrors.Errorf("workspace build canceled (transition=%s, build_number=%d)", update.Transition, update.BuildNumber)
 			default:
 				// Intermediate states (pending, running, canceling)

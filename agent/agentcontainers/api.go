@@ -27,15 +27,15 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/agent/agentcontainers/ignore"
-	"github.com/coder/coder/v2/agent/agentcontainers/watcher"
-	"github.com/coder/coder/v2/agent/agentexec"
-	"github.com/coder/coder/v2/agent/usershell"
-	"github.com/coder/coder/v2/coderd/httpapi"
-	"github.com/coder/coder/v2/coderd/httpapi/httperror"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/provisioner"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/ignore"
+	"github.com/NeuralInverse/cloud/v2/agent/agentcontainers/watcher"
+	"github.com/NeuralInverse/cloud/v2/agent/agentexec"
+	"github.com/NeuralInverse/cloud/v2/agent/usershell"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
+	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi/httperror"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/provisioner"
 	"github.com/coder/quartz"
 	"github.com/coder/websocket"
 )
@@ -45,10 +45,10 @@ const (
 	defaultOperationTimeout = 15 * time.Second
 
 	// Destination path inside the container, we store it in a fixed location
-	// under /.coder-agent/coder to avoid conflicts and avoid being shadowed
+	// under /.neuralinverse-agent/neuralinverse to avoid conflicts and avoid being shadowed
 	// by tmpfs or other mounts. This assumes the container root filesystem is
 	// read-write, which seems sensible for devcontainers.
-	coderPathInsideContainer = "/.coder-agent/coder"
+	niPathInsideContainer = "/.neuralinverse-agent/neuralinverse"
 
 	maxAgentNameLength     = 64
 	maxAttemptsToNameAgent = 5
@@ -92,10 +92,10 @@ type API struct {
 	initialUpdateDone        chan struct{} // Closed after first updateContainers call in updaterLoop.
 	updateChans              []chan struct{}
 	closed                   bool
-	containers               codersdk.WorkspaceAgentListContainersResponse  // Output from the last list operation.
+	containers               nicloudsdk.WorkspaceAgentListContainersResponse  // Output from the last list operation.
 	containersErr            error                                          // Error from the last list operation.
 	devcontainerNames        map[string]bool                                // By devcontainer name.
-	knownDevcontainers       map[string]codersdk.WorkspaceAgentDevcontainer // By workspace folder.
+	knownDevcontainers       map[string]nicloudsdk.WorkspaceAgentDevcontainer // By workspace folder.
 	devcontainerLogSourceIDs map[string]uuid.UUID                           // By workspace folder.
 	configFileModifiedTimes  map[string]time.Time                           // By config file path.
 	recreateSuccessTimes     map[string]time.Time                           // By workspace folder.
@@ -143,13 +143,13 @@ func WithCommandEnv(ce CommandEnv) Option {
 				// Ensure we filter out environment variables that come
 				// from the parent agent and are incorrect or not
 				// relevant for the devcontainer.
-				return strings.HasPrefix(s, "CODER_WORKSPACE_AGENT_NAME=") ||
-					strings.HasPrefix(s, "CODER_WORKSPACE_AGENT_URL=") ||
-					strings.HasPrefix(s, "CODER_AGENT_TOKEN=") ||
-					strings.HasPrefix(s, "CODER_AGENT_AUTH=") ||
-					strings.HasPrefix(s, "CODER_AGENT_DEVCONTAINERS_ENABLE=") ||
-					strings.HasPrefix(s, "CODER_AGENT_DEVCONTAINERS_PROJECT_DISCOVERY_ENABLE=") ||
-					strings.HasPrefix(s, "CODER_AGENT_DEVCONTAINERS_DISCOVERY_AUTOSTART_ENABLE=")
+				return strings.HasPrefix(s, "NEURALINVERSE_WORKSPACE_AGENT_NAME=") ||
+					strings.HasPrefix(s, "NEURALINVERSE_WORKSPACE_AGENT_URL=") ||
+					strings.HasPrefix(s, "NEURALINVERSE_AGENT_TOKEN=") ||
+					strings.HasPrefix(s, "NEURALINVERSE_AGENT_AUTH=") ||
+					strings.HasPrefix(s, "NEURALINVERSE_AGENT_DEVCONTAINERS_ENABLE=") ||
+					strings.HasPrefix(s, "NEURALINVERSE_AGENT_DEVCONTAINERS_PROJECT_DISCOVERY_ENABLE=") ||
+					strings.HasPrefix(s, "NEURALINVERSE_AGENT_DEVCONTAINERS_DISCOVERY_AUTOSTART_ENABLE=")
 			})
 			return shell, dir, env, nil
 		}
@@ -219,17 +219,17 @@ func WithManifestInfo(owner, workspace, parentAgent, agentDirectory string) Opti
 // WithDevcontainers sets the known devcontainers for the API. This
 // allows the API to be aware of devcontainers defined in the workspace
 // agent manifest.
-func WithDevcontainers(devcontainers []codersdk.WorkspaceAgentDevcontainer, scripts []codersdk.WorkspaceAgentScript) Option {
+func WithDevcontainers(devcontainers []nicloudsdk.WorkspaceAgentDevcontainer, scripts []nicloudsdk.WorkspaceAgentScript) Option {
 	return func(api *API) {
 		if len(devcontainers) == 0 {
 			return
 		}
-		api.knownDevcontainers = make(map[string]codersdk.WorkspaceAgentDevcontainer, len(devcontainers))
+		api.knownDevcontainers = make(map[string]nicloudsdk.WorkspaceAgentDevcontainer, len(devcontainers))
 		api.devcontainerNames = make(map[string]bool, len(devcontainers))
 		api.devcontainerLogSourceIDs = make(map[string]uuid.UUID)
 		for _, dc := range devcontainers {
 			if dc.Status == "" {
-				dc.Status = codersdk.WorkspaceAgentDevcontainerStatusStarting
+				dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusStarting
 			}
 			logger := api.logger.With(
 				slog.F("devcontainer_id", dc.ID),
@@ -335,7 +335,7 @@ func NewAPI(logger slog.Logger, options ...Option) *API {
 		execer:                      agentexec.DefaultExecer,
 		containerLabelIncludeFilter: make(map[string]string),
 		devcontainerNames:           make(map[string]bool),
-		knownDevcontainers:          make(map[string]codersdk.WorkspaceAgentDevcontainer),
+		knownDevcontainers:          make(map[string]nicloudsdk.WorkspaceAgentDevcontainer),
 		configFileModifiedTimes:     make(map[string]time.Time),
 		ignoredDevcontainers:        make(map[string]bool),
 		recreateSuccessTimes:        make(map[string]time.Time),
@@ -542,12 +542,12 @@ func (api *API) discoverDevcontainersInProject(projectPath string) error {
 			if _, found := api.knownDevcontainers[workspaceFolder]; !found {
 				logger.Debug(api.ctx, "adding dev container project")
 
-				dc := codersdk.WorkspaceAgentDevcontainer{
+				dc := nicloudsdk.WorkspaceAgentDevcontainer{
 					ID:              uuid.New(),
 					Name:            "", // Updated later based on container state.
 					WorkspaceFolder: workspaceFolder,
 					ConfigPath:      path,
-					Status:          codersdk.WorkspaceAgentDevcontainerStatusStopped,
+					Status:          nicloudsdk.WorkspaceAgentDevcontainerStatusStopped,
 					Dirty:           false, // Updated later based on config file changes.
 					Container:       nil,
 				}
@@ -557,14 +557,14 @@ func (api *API) discoverDevcontainersInProject(projectPath string) error {
 					if err != nil {
 						logger.Error(api.ctx, "read project configuration", slog.Error(err))
 					} else if config.Configuration.Customizations.Coder.AutoStart {
-						dc.Status = codersdk.WorkspaceAgentDevcontainerStatusStarting
+						dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusStarting
 					}
 				}
 
 				api.knownDevcontainers[workspaceFolder] = dc
 				api.broadcastUpdatesLocked()
 
-				if dc.Status == codersdk.WorkspaceAgentDevcontainerStatusStarting {
+				if dc.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusStarting {
 					api.asyncWg.Go(func() {
 						_ = api.CreateDevcontainer(dc.WorkspaceFolder, dc.ConfigPath)
 					})
@@ -716,7 +716,7 @@ func (api *API) Routes() http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 			select {
 			case <-api.ctx.Done():
-				httpapi.Write(r.Context(), rw, http.StatusServiceUnavailable, codersdk.Response{
+				httpapi.Write(r.Context(), rw, http.StatusServiceUnavailable, nicloudsdk.Response{
 					Message: "API closed",
 					Detail:  "The API is closed and cannot process requests.",
 				})
@@ -768,7 +768,7 @@ func (api *API) watchContainers(rw http.ResponseWriter, r *http.Request) {
 		CompressionMode: websocket.CompressionNoContextTakeover,
 	})
 	if err != nil {
-		httpapi.Write(ctx, rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(ctx, rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Failed to upgrade connection to websocket.",
 			Detail:  err.Error(),
 		})
@@ -782,7 +782,7 @@ func (api *API) watchContainers(rw http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	ctx, wsNetConn := codersdk.WebsocketNetConn(ctx, conn, websocket.MessageText)
+	ctx, wsNetConn := nicloudsdk.WebsocketNetConn(ctx, conn, websocket.MessageText)
 	defer wsNetConn.Close()
 
 	ctx = api.wsWatcher.Watch(ctx, api.logger, conn)
@@ -842,7 +842,7 @@ func (api *API) watchContainers(rw http.ResponseWriter, r *http.Request) {
 func (api *API) handleList(rw http.ResponseWriter, r *http.Request) {
 	ct, err := api.getContainers()
 	if err != nil {
-		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, codersdk.Response{
+		httpapi.Write(r.Context(), rw, http.StatusInternalServerError, nicloudsdk.Response{
 			Message: "Could not get containers",
 			Detail:  err.Error(),
 		})
@@ -877,7 +877,7 @@ func (api *API) updateContainers(ctx context.Context) error {
 	api.mu.Lock()
 	defer api.mu.Unlock()
 
-	var previouslyKnownDevcontainers map[string]codersdk.WorkspaceAgentDevcontainer
+	var previouslyKnownDevcontainers map[string]nicloudsdk.WorkspaceAgentDevcontainer
 	if len(api.updateChans) > 0 {
 		previouslyKnownDevcontainers = maps.Clone(api.knownDevcontainers)
 	}
@@ -888,7 +888,7 @@ func (api *API) updateContainers(ctx context.Context) error {
 		statesAreEqual := maps.EqualFunc(
 			previouslyKnownDevcontainers,
 			api.knownDevcontainers,
-			func(dc1, dc2 codersdk.WorkspaceAgentDevcontainer) bool {
+			func(dc1, dc2 nicloudsdk.WorkspaceAgentDevcontainer) bool {
 				return dc1.Equals(dc2)
 			})
 
@@ -905,8 +905,8 @@ func (api *API) updateContainers(ctx context.Context) error {
 // processUpdatedContainersLocked updates the devcontainer state based
 // on the latest list of containers. This method assumes that api.mu is
 // held.
-func (api *API) processUpdatedContainersLocked(ctx context.Context, updated codersdk.WorkspaceAgentListContainersResponse) {
-	dcFields := func(dc codersdk.WorkspaceAgentDevcontainer) []slog.Field {
+func (api *API) processUpdatedContainersLocked(ctx context.Context, updated nicloudsdk.WorkspaceAgentListContainersResponse) {
+	dcFields := func(dc nicloudsdk.WorkspaceAgentDevcontainer) []slog.Field {
 		f := []slog.Field{
 			slog.F("devcontainer_id", dc.ID),
 			slog.F("devcontainer_name", dc.Name),
@@ -984,7 +984,7 @@ func (api *API) processUpdatedContainersLocked(ctx context.Context, updated code
 			continue
 		}
 
-		dc := codersdk.WorkspaceAgentDevcontainer{
+		dc := nicloudsdk.WorkspaceAgentDevcontainer{
 			ID:              uuid.New(),
 			Name:            "", // Updated later based on container state.
 			WorkspaceFolder: workspaceFolder,
@@ -1020,22 +1020,22 @@ func (api *API) processUpdatedContainersLocked(ctx context.Context, updated code
 		}
 
 		switch {
-		case dc.Status == codersdk.WorkspaceAgentDevcontainerStatusStarting:
+		case dc.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusStarting:
 			continue // This state is handled by the recreation routine.
 
-		case dc.Status == codersdk.WorkspaceAgentDevcontainerStatusStopping:
+		case dc.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusStopping:
 			continue // This state is handled by the stopping routine.
 
-		case dc.Status == codersdk.WorkspaceAgentDevcontainerStatusDeleting:
+		case dc.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusDeleting:
 			continue // This state is handled by the delete routine.
 
-		case dc.Status == codersdk.WorkspaceAgentDevcontainerStatusError && (dc.Container == nil || dc.Container.CreatedAt.Before(api.recreateErrorTimes[dc.WorkspaceFolder])):
+		case dc.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusError && (dc.Container == nil || dc.Container.CreatedAt.Before(api.recreateErrorTimes[dc.WorkspaceFolder])):
 			continue // The devcontainer needs to be recreated.
 
 		case dc.Container != nil:
-			dc.Status = codersdk.WorkspaceAgentDevcontainerStatusStopped
+			dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusStopped
 			if dc.Container.Running {
-				dc.Status = codersdk.WorkspaceAgentDevcontainerStatusRunning
+				dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusRunning
 			}
 
 			dc.Dirty = false
@@ -1043,7 +1043,7 @@ func (api *API) processUpdatedContainersLocked(ctx context.Context, updated code
 				dc.Dirty = true
 			}
 
-			if dc.Status == codersdk.WorkspaceAgentDevcontainerStatusRunning {
+			if dc.Status == nicloudsdk.WorkspaceAgentDevcontainerStatusRunning {
 				err := api.maybeInjectSubAgentIntoContainerLocked(ctx, dc)
 				if err != nil {
 					logger.Error(ctx, "inject subagent into container failed", slog.Error(err))
@@ -1061,7 +1061,7 @@ func (api *API) processUpdatedContainersLocked(ctx context.Context, updated code
 			if !api.devcontainerNames[dc.Name] {
 				dc.Name = ""
 			}
-			dc.Status = codersdk.WorkspaceAgentDevcontainerStatusStopped
+			dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusStopped
 			dc.Dirty = false
 		}
 
@@ -1194,17 +1194,17 @@ func (api *API) RefreshContainers(ctx context.Context) (err error) {
 	}
 }
 
-func (api *API) getContainers() (codersdk.WorkspaceAgentListContainersResponse, error) {
+func (api *API) getContainers() (nicloudsdk.WorkspaceAgentListContainersResponse, error) {
 	api.mu.RLock()
 	defer api.mu.RUnlock()
 
 	if api.containersErr != nil {
-		return codersdk.WorkspaceAgentListContainersResponse{}, api.containersErr
+		return nicloudsdk.WorkspaceAgentListContainersResponse{}, api.containersErr
 	}
 
-	var devcontainers []codersdk.WorkspaceAgentDevcontainer
+	var devcontainers []nicloudsdk.WorkspaceAgentDevcontainer
 	if len(api.knownDevcontainers) > 0 {
-		devcontainers = make([]codersdk.WorkspaceAgentDevcontainer, 0, len(api.knownDevcontainers))
+		devcontainers = make([]nicloudsdk.WorkspaceAgentDevcontainer, 0, len(api.knownDevcontainers))
 		for _, dc := range api.knownDevcontainers {
 			if api.ignoredDevcontainers[dc.WorkspaceFolder] {
 				continue
@@ -1213,7 +1213,7 @@ func (api *API) getContainers() (codersdk.WorkspaceAgentListContainersResponse, 
 			// Include the agent if it's running (we're iterating over
 			// copies, so mutating is fine).
 			if proc := api.injectedSubAgentProcs[dc.WorkspaceFolder]; proc.agent.ID != uuid.Nil {
-				dc.Agent = &codersdk.WorkspaceAgentDevcontainerAgent{
+				dc.Agent = &nicloudsdk.WorkspaceAgentDevcontainerAgent{
 					ID:        proc.agent.ID,
 					Name:      proc.agent.Name,
 					Directory: proc.agent.Directory,
@@ -1222,12 +1222,12 @@ func (api *API) getContainers() (codersdk.WorkspaceAgentListContainersResponse, 
 
 			devcontainers = append(devcontainers, dc)
 		}
-		slices.SortFunc(devcontainers, func(a, b codersdk.WorkspaceAgentDevcontainer) int {
+		slices.SortFunc(devcontainers, func(a, b nicloudsdk.WorkspaceAgentDevcontainer) int {
 			return strings.Compare(a.WorkspaceFolder, b.WorkspaceFolder)
 		})
 	}
 
-	return codersdk.WorkspaceAgentListContainersResponse{
+	return nicloudsdk.WorkspaceAgentListContainersResponse{
 		Devcontainers: devcontainers,
 		Containers:    slices.Clone(api.containers.Containers),
 		Warnings:      slices.Clone(api.containers.Warnings),
@@ -1236,14 +1236,14 @@ func (api *API) getContainers() (codersdk.WorkspaceAgentListContainersResponse, 
 
 // devcontainerByIDLocked attempts to find a devcontainer by its ID.
 // This method assumes that api.mu is held.
-func (api *API) devcontainerByIDLocked(devcontainerID string) (codersdk.WorkspaceAgentDevcontainer, error) {
+func (api *API) devcontainerByIDLocked(devcontainerID string) (nicloudsdk.WorkspaceAgentDevcontainer, error) {
 	for _, knownDC := range api.knownDevcontainers {
 		if knownDC.ID.String() == devcontainerID {
 			return knownDC, nil
 		}
 	}
 
-	return codersdk.WorkspaceAgentDevcontainer{}, httperror.NewResponseError(http.StatusNotFound, codersdk.Response{
+	return nicloudsdk.WorkspaceAgentDevcontainer{}, httperror.NewResponseError(http.StatusNotFound, nicloudsdk.Response{
 		Message: "Devcontainer not found.",
 		Detail:  fmt.Sprintf("Could not find devcontainer with ID: %q", devcontainerID),
 	})
@@ -1256,7 +1256,7 @@ func (api *API) handleDevcontainerDelete(w http.ResponseWriter, r *http.Request)
 	)
 
 	if devcontainerID == "" {
-		httpapi.Write(ctx, w, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, w, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Missing devcontainer ID",
 			Detail:  "Devcontainer ID is required to delete a devcontainer.",
 		})
@@ -1277,7 +1277,7 @@ func (api *API) handleDevcontainerDelete(w http.ResponseWriter, r *http.Request)
 	if dc.Status.Transitioning() {
 		api.mu.Unlock()
 
-		httpapi.Write(ctx, w, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, w, http.StatusConflict, nicloudsdk.Response{
 			Message: "Unable to delete transitioning devcontainer",
 			Detail:  fmt.Sprintf("Devcontainer %q is currently %s and cannot be deleted.", dc.Name, dc.Status),
 		})
@@ -1296,7 +1296,7 @@ func (api *API) handleDevcontainerDelete(w http.ResponseWriter, r *http.Request)
 		proc.stop()
 	}
 
-	dc.Status = codersdk.WorkspaceAgentDevcontainerStatusStopping
+	dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusStopping
 	dc.Error = ""
 	api.knownDevcontainers[dc.WorkspaceFolder] = dc
 	api.broadcastUpdatesLocked()
@@ -1308,13 +1308,13 @@ func (api *API) handleDevcontainerDelete(w http.ResponseWriter, r *http.Request)
 			api.logger.Error(ctx, "unable to stop container", slog.Error(err))
 
 			api.mu.Lock()
-			dc.Status = codersdk.WorkspaceAgentDevcontainerStatusError
+			dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusError
 			dc.Error = err.Error()
 			api.knownDevcontainers[dc.WorkspaceFolder] = dc
 			api.broadcastUpdatesLocked()
 			api.mu.Unlock()
 
-			httpapi.Write(ctx, w, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "An error occurred stopping the container",
 				Detail:  err.Error(),
 			})
@@ -1323,7 +1323,7 @@ func (api *API) handleDevcontainerDelete(w http.ResponseWriter, r *http.Request)
 	}
 
 	api.mu.Lock()
-	dc.Status = codersdk.WorkspaceAgentDevcontainerStatusDeleting
+	dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusDeleting
 	dc.Error = ""
 	api.knownDevcontainers[dc.WorkspaceFolder] = dc
 	api.broadcastUpdatesLocked()
@@ -1334,13 +1334,13 @@ func (api *API) handleDevcontainerDelete(w http.ResponseWriter, r *http.Request)
 			api.logger.Error(ctx, "unable to remove container", slog.Error(err))
 
 			api.mu.Lock()
-			dc.Status = codersdk.WorkspaceAgentDevcontainerStatusError
+			dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusError
 			dc.Error = err.Error()
 			api.knownDevcontainers[dc.WorkspaceFolder] = dc
 			api.broadcastUpdatesLocked()
 			api.mu.Unlock()
 
-			httpapi.Write(ctx, w, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "An error occurred removing the container",
 				Detail:  err.Error(),
 			})
@@ -1355,13 +1355,13 @@ func (api *API) handleDevcontainerDelete(w http.ResponseWriter, r *http.Request)
 			api.logger.Error(ctx, "unable to delete agent", slog.Error(err))
 
 			api.mu.Lock()
-			dc.Status = codersdk.WorkspaceAgentDevcontainerStatusError
+			dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusError
 			dc.Error = err.Error()
 			api.knownDevcontainers[dc.WorkspaceFolder] = dc
 			api.broadcastUpdatesLocked()
 			api.mu.Unlock()
 
-			httpapi.Write(ctx, w, http.StatusInternalServerError, codersdk.Response{
+			httpapi.Write(ctx, w, http.StatusInternalServerError, nicloudsdk.Response{
 				Message: "An error occurred deleting the agent",
 				Detail:  err.Error(),
 			})
@@ -1390,7 +1390,7 @@ func (api *API) handleDevcontainerRecreate(w http.ResponseWriter, r *http.Reques
 	devcontainerID := chi.URLParam(r, "devcontainer")
 
 	if devcontainerID == "" {
-		httpapi.Write(ctx, w, http.StatusBadRequest, codersdk.Response{
+		httpapi.Write(ctx, w, http.StatusBadRequest, nicloudsdk.Response{
 			Message: "Missing devcontainer ID",
 			Detail:  "Devcontainer ID is required to recreate a devcontainer.",
 		})
@@ -1408,7 +1408,7 @@ func (api *API) handleDevcontainerRecreate(w http.ResponseWriter, r *http.Reques
 	if dc.Status.Transitioning() {
 		api.mu.Unlock()
 
-		httpapi.Write(ctx, w, http.StatusConflict, codersdk.Response{
+		httpapi.Write(ctx, w, http.StatusConflict, nicloudsdk.Response{
 			Message: "Unable to recreate transitioning devcontainer",
 			Detail:  fmt.Sprintf("Devcontainer %q is currently %s and cannot be restarted.", dc.Name, dc.Status),
 		})
@@ -1417,7 +1417,7 @@ func (api *API) handleDevcontainerRecreate(w http.ResponseWriter, r *http.Reques
 
 	// Update the status so that we don't try to recreate the
 	// devcontainer multiple times in parallel.
-	dc.Status = codersdk.WorkspaceAgentDevcontainerStatusStarting
+	dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusStarting
 	dc.Container = nil
 	dc.Error = ""
 	api.knownDevcontainers[dc.WorkspaceFolder] = dc
@@ -1429,7 +1429,7 @@ func (api *API) handleDevcontainerRecreate(w http.ResponseWriter, r *http.Reques
 
 	api.mu.Unlock()
 
-	httpapi.Write(ctx, w, http.StatusAccepted, codersdk.Response{
+	httpapi.Write(ctx, w, http.StatusAccepted, nicloudsdk.Response{
 		Message: "Devcontainer recreation initiated",
 		Detail:  fmt.Sprintf("Recreation process for devcontainer %q has started.", dc.Name),
 	})
@@ -1490,9 +1490,9 @@ func (api *API) CreateDevcontainer(workspaceFolder, configPath string, opts ...D
 			logger.Error(flushCtx, "flush devcontainer logs failed during recreation", slog.Error(err))
 		}
 	}()
-	infoW := agentsdk.LogsWriter(ctx, scriptLogger.Send, logSourceID, codersdk.LogLevelInfo)
+	infoW := agentsdk.LogsWriter(ctx, scriptLogger.Send, logSourceID, nicloudsdk.LogLevelInfo)
 	defer infoW.Close()
-	errW := agentsdk.LogsWriter(ctx, scriptLogger.Send, logSourceID, codersdk.LogLevelError)
+	errW := agentsdk.LogsWriter(ctx, scriptLogger.Send, logSourceID, nicloudsdk.LogLevelError)
 	defer errW.Close()
 
 	logger.Debug(ctx, "starting devcontainer recreation")
@@ -1513,7 +1513,7 @@ func (api *API) CreateDevcontainer(workspaceFolder, configPath string, opts ...D
 		if containerID == "" {
 			api.mu.Lock()
 			dc = api.knownDevcontainers[dc.WorkspaceFolder]
-			dc.Status = codersdk.WorkspaceAgentDevcontainerStatusError
+			dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusError
 			dc.Error = upErr.Error()
 			api.knownDevcontainers[dc.WorkspaceFolder] = dc
 			api.recreateErrorTimes[dc.WorkspaceFolder] = api.clock.Now("agentcontainers", "recreate", "errorTimes")
@@ -1542,15 +1542,15 @@ func (api *API) CreateDevcontainer(workspaceFolder, configPath string, opts ...D
 	// allows the update routine to update the devcontainer status, but
 	// to minimize the time between API consistency, we guess the status
 	// based on the container state.
-	dc.Status = codersdk.WorkspaceAgentDevcontainerStatusStopped
+	dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusStopped
 	if dc.Container != nil && dc.Container.Running {
-		dc.Status = codersdk.WorkspaceAgentDevcontainerStatusRunning
+		dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusRunning
 	}
 	dc.Dirty = false
 	if upErr != nil {
 		// If there was a lifecycle script error but we have a container ID,
 		// the container is running so we should set the status to Running.
-		dc.Status = codersdk.WorkspaceAgentDevcontainerStatusRunning
+		dc.Status = nicloudsdk.WorkspaceAgentDevcontainerStatusRunning
 		dc.Error = upErr.Error()
 	} else {
 		dc.Error = ""
@@ -1670,7 +1670,7 @@ func (api *API) cleanupSubAgents(ctx context.Context) error {
 //
 // This method uses an internal timeout to prevent blocking indefinitely
 // if something goes wrong with the injection.
-func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc codersdk.WorkspaceAgentDevcontainer) (err error) {
+func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc nicloudsdk.WorkspaceAgentDevcontainer) (err error) {
 	if api.ignoredDevcontainers[dc.WorkspaceFolder] {
 		return nil
 	}
@@ -1739,7 +1739,7 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 
 		if proc.containerID != container.ID {
 			// Always recreate the subagent if the container ID changed
-			// for now, in the future we can inspect e.g. if coder_apps
+			// for now, in the future we can inspect e.g. if ni_apps
 			// remain the same and avoid unnecessary recreation.
 			logger.Debug(ctx, "container ID changed, injecting subagent into new container",
 				slog.F("old_container_id", proc.containerID),
@@ -1816,15 +1816,15 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 	if proc.agent.ID == uuid.Nil || maybeRecreateSubAgent {
 		subAgentConfig.Architecture = arch
 
-		displayAppsMap := map[codersdk.DisplayApp]bool{
+		displayAppsMap := map[nicloudsdk.DisplayApp]bool{
 			// NOTE(DanielleMaywood):
-			// We use the same defaults here as set in terraform-provider-coder.
-			// https://github.com/coder/terraform-provider-coder/blob/c1c33f6d556532e75662c0ca373ed8fdea220eb5/provider/agent.go#L38-L51
-			codersdk.DisplayAppVSCodeDesktop:  true,
-			codersdk.DisplayAppVSCodeInsiders: false,
-			codersdk.DisplayAppWebTerminal:    true,
-			codersdk.DisplayAppSSH:            true,
-			codersdk.DisplayAppPortForward:    true,
+			// We use the same defaults here as set in terraform-provider-neuralinverse.
+			// https://github.com/coder/terraform-provider-neuralinverse/blob/c1c33f6d556532e75662c0ca373ed8fdea220eb5/provider/agent.go#L38-L51
+			nicloudsdk.DisplayAppVSCodeDesktop:  true,
+			nicloudsdk.DisplayAppVSCodeInsiders: false,
+			nicloudsdk.DisplayAppWebTerminal:    true,
+			nicloudsdk.DisplayAppSSH:            true,
+			nicloudsdk.DisplayAppPortForward:    true,
 		}
 
 		var (
@@ -1842,11 +1842,11 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 			readConfig := func() (DevcontainerConfig, error) {
 				return api.dccli.ReadConfig(ctx, dc.WorkspaceFolder, dc.ConfigPath,
 					append(featureOptionsAsEnvs, []string{
-						fmt.Sprintf("CODER_WORKSPACE_AGENT_NAME=%s", subAgentConfig.Name),
-						fmt.Sprintf("CODER_WORKSPACE_OWNER_NAME=%s", api.ownerName),
-						fmt.Sprintf("CODER_WORKSPACE_NAME=%s", api.workspaceName),
-						fmt.Sprintf("CODER_WORKSPACE_PARENT_AGENT_NAME=%s", api.parentAgent),
-						fmt.Sprintf("CODER_URL=%s", api.subAgentURL),
+						fmt.Sprintf("NEURALINVERSE_WORKSPACE_AGENT_NAME=%s", subAgentConfig.Name),
+						fmt.Sprintf("NEURALINVERSE_WORKSPACE_OWNER_NAME=%s", api.ownerName),
+						fmt.Sprintf("NEURALINVERSE_WORKSPACE_NAME=%s", api.workspaceName),
+						fmt.Sprintf("NEURALINVERSE_WORKSPACE_PARENT_AGENT_NAME=%s", api.parentAgent),
+						fmt.Sprintf("NEURALINVERSE_URL=%s", api.subAgentURL),
 						fmt.Sprintf("CONTAINER_ID=%s", container.ID),
 					}...),
 				)
@@ -1932,7 +1932,7 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 			return nil
 		}
 
-		displayApps := make([]codersdk.DisplayApp, 0, len(displayAppsMap))
+		displayApps := make([]nicloudsdk.DisplayApp, 0, len(displayAppsMap))
 		for app, enabled := range displayAppsMap {
 			if enabled {
 				displayApps = append(displayApps, app)
@@ -1978,11 +1978,11 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 	//
 	// Note: We use `path` instead of `filepath` here because we are
 	// working with Unix-style paths inside the container.
-	if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "mkdir", "-p", path.Dir(coderPathInsideContainer)); err != nil {
+	if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "mkdir", "-p", path.Dir(niPathInsideContainer)); err != nil {
 		return xerrors.Errorf("create agent directory in container: %w", err)
 	}
 
-	if err := api.ccli.Copy(ctx, container.ID, agentBinaryPath, coderPathInsideContainer); err != nil {
+	if err := api.ccli.Copy(ctx, container.ID, agentBinaryPath, niPathInsideContainer); err != nil {
 		return xerrors.Errorf("copy agent binary: %w", err)
 	}
 
@@ -1990,12 +1990,12 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 
 	// Make sure the agent binary is executable so we can run it (the
 	// user doesn't matter since we're making it executable for all).
-	if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "chmod", "0755", path.Dir(coderPathInsideContainer), coderPathInsideContainer); err != nil {
+	if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "chmod", "0755", path.Dir(niPathInsideContainer), niPathInsideContainer); err != nil {
 		return xerrors.Errorf("set agent binary executable: %w", err)
 	}
 
 	// Make sure the agent binary is owned by a valid user so we can run it.
-	if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "/bin/sh", "-c", fmt.Sprintf("chown $(id -u):$(id -g) %s", coderPathInsideContainer)); err != nil {
+	if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "/bin/sh", "-c", fmt.Sprintf("chown $(id -u):$(id -g) %s", niPathInsideContainer)); err != nil {
 		return xerrors.Errorf("set agent binary ownership: %w", err)
 	}
 
@@ -2005,9 +2005,9 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 	// causes the following error on some images:
 	//
 	//	Image: mcr.microsoft.com/devcontainers/base:ubuntu
-	// 	Error: /.coder-agent/coder: Operation not permitted
+	// 	Error: /.neuralinverse-agent/neuralinverse: Operation not permitted
 	//
-	// if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "setcap", "cap_net_admin+ep", coderPathInsideContainer); err != nil {
+	// if _, err := api.ccli.ExecAs(ctx, container.ID, "root", "setcap", "cap_net_admin+ep", niPathInsideContainer); err != nil {
 	// 	logger.Warn(ctx, "set CAP_NET_ADMIN on agent binary failed", slog.Error(err))
 	// }
 
@@ -2133,7 +2133,7 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 	// Start the subagent in the container in a new goroutine to avoid
 	// blocking. Note that we pass the api.ctx to the subagent process
 	// so that it isn't affected by the timeout.
-	go api.runSubAgentInContainer(api.ctx, logger, dc, proc, coderPathInsideContainer)
+	go api.runSubAgentInContainer(api.ctx, logger, dc, proc, niPathInsideContainer)
 	ranSubAgent = true
 
 	return nil
@@ -2143,7 +2143,7 @@ func (api *API) maybeInjectSubAgentIntoContainerLocked(ctx context.Context, dc c
 // container. The api.asyncWg must be incremented before calling this
 // function, and it will be decremented when the subagent process
 // completes or if an error occurs.
-func (api *API) runSubAgentInContainer(ctx context.Context, logger slog.Logger, dc codersdk.WorkspaceAgentDevcontainer, proc subAgentProcess, agentPath string) {
+func (api *API) runSubAgentInContainer(ctx context.Context, logger slog.Logger, dc nicloudsdk.WorkspaceAgentDevcontainer, proc subAgentProcess, agentPath string) {
 	container := dc.Container // Must not be nil.
 	logger = logger.With(
 		slog.F("agent_id", proc.agent.ID),
@@ -2158,8 +2158,8 @@ func (api *API) runSubAgentInContainer(ctx context.Context, logger slog.Logger, 
 	logger.Info(ctx, "starting subagent in devcontainer")
 
 	env := []string{
-		"CODER_AGENT_URL=" + api.subAgentURL,
-		"CODER_AGENT_TOKEN=" + proc.agent.AuthToken.String(),
+		"NEURALINVERSE_AGENT_URL=" + api.subAgentURL,
+		"NEURALINVERSE_AGENT_TOKEN=" + proc.agent.AuthToken.String(),
 	}
 	env = append(env, api.subAgentEnv...)
 	err := api.dccli.Exec(proc.ctx, dc.WorkspaceFolder, dc.ConfigPath, agentPath, []string{"agent"},

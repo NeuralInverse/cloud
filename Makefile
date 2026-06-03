@@ -39,22 +39,22 @@ endif
 # are committed to git and serve as inputs to other rules, deletion
 # is worse than a stale file — `git restore` is the recovery path.
 .PRECIOUS: \
-	coderd/database/dump.sql \
-	coderd/database/querier.go \
-	coderd/database/unique_constraint.go \
-	coderd/database/dbmetrics/querymetrics.go \
-	coderd/database/dbauthz/dbauthz.go \
-	coderd/database/dbmock/dbmock.go \
-	coderd/database/pubsub/psmock/psmock.go \
+	nicloud/database/dump.sql \
+	nicloud/database/querier.go \
+	nicloud/database/unique_constraint.go \
+	nicloud/database/dbmetrics/querymetrics.go \
+	nicloud/database/dbauthz/dbauthz.go \
+	nicloud/database/dbmock/dbmock.go \
+	nicloud/database/pubsub/psmock/psmock.go \
 	agent/agentcontainers/acmock/acmock.go \
-	coderd/httpmw/loggermw/loggermock/loggermock.go \
-	codersdk/workspacesdk/agentconnmock/agentconnmock.go \
+	nicloud/httpmw/loggermw/loggermock/loggermock.go \
+	nicloudsdk/workspacesdk/agentconnmock/agentconnmock.go \
 	tailnet/tailnettest/coordinatormock.go \
 	tailnet/tailnettest/coordinateemock.go \
 	tailnet/tailnettest/workspaceupdatesprovidermock.go \
 	tailnet/tailnettest/subscriptionmock.go \
-	coderd/aibridged/aibridgedmock/clientmock.go \
-	coderd/aibridged/aibridgedmock/poolmock.go \
+	nicloud/aibridged/aibridgedmock/clientmock.go \
+	nicloud/aibridged/aibridgedmock/poolmock.go \
 	tailnet/proto/tailnet.pb.go \
 	agent/proto/agent.pb.go \
 	agent/agentsocket/proto/agentsocket.pb.go \
@@ -62,7 +62,7 @@ endif
 	provisionersdk/proto/provisioner.pb.go \
 	provisionerd/proto/provisionerd.pb.go \
 	vpn/vpn.pb.go \
-	coderd/aibridged/proto/aibridged.pb.go \
+	nicloud/aibridged/proto/aibridged.pb.go \
 	site/src/api/typesGenerated.ts \
 	site/e2e/provisionerGenerated.ts \
 	site/src/api/chatModelOptionsGenerated.json \
@@ -74,11 +74,11 @@ endif
 	docs/admin/integrations/prometheus.md \
 	docs/admin/security/audit-logs.md \
 	docs/reference/cli/index.md \
-	coderd/apidoc/swagger.json \
-	coderd/rbac/object_gen.go \
-	coderd/rbac/scopes_constants_gen.go \
-	codersdk/rbacresources_gen.go \
-	codersdk/apikey_scopes_gen.go
+	nicloud/apidoc/swagger.json \
+	nicloud/rbac/object_gen.go \
+	nicloud/rbac/scopes_constants_gen.go \
+	nicloudsdk/rbacresources_gen.go \
+	nicloudsdk/apikey_scopes_gen.go
 
 # atomic_write runs a command, captures stdout into a temp file, and
 # atomically replaces $@. An optional second argument is a formatting
@@ -96,7 +96,7 @@ endef
 # values, without pulling in unrelated generated sources.
 CLIDOC_SRC_FILES := \
 	$(shell find ./cli ./enterprise/cli -type f -name '*.go' -not -name '*_test.go') \
-	$(wildcard codersdk/*.go) \
+	$(wildcard nicloudsdk/*.go) \
 	$(wildcard buildinfo/*.go)
 
 CLIDOCGEN_INPUTS := \
@@ -108,33 +108,33 @@ CLIDOCGEN_INPUTS := \
 # the binary target. Most generated outputs keep these binaries as order-only
 # prereqs, so stale binaries otherwise survive source changes.
 RBAC_GO_FILES := \
-	$(wildcard coderd/rbac/*.go) \
-	$(wildcard coderd/rbac/policy/*.go)
+	$(wildcard nicloud/rbac/*.go) \
+	$(wildcard nicloud/rbac/policy/*.go)
 
 DBDUMP_INPUTS := \
-	$(wildcard coderd/database/migrations/*.go) \
-	$(wildcard coderd/database/migrations/*.sql)
+	$(wildcard nicloud/database/migrations/*.go) \
+	$(wildcard nicloud/database/migrations/*.sql)
 
 # Exclude generated RBAC files to avoid cycles with typegen outputs. The
 # output rules still order generated RBAC prerequisites where needed.
 TYPEGEN_RBAC_GO_FILES := \
-	$(filter-out coderd/rbac/%_gen.go,$(wildcard coderd/rbac/*.go)) \
-	$(wildcard coderd/rbac/policy/*.go)
+	$(filter-out nicloud/rbac/%_gen.go,$(wildcard nicloud/rbac/*.go)) \
+	$(wildcard nicloud/rbac/policy/*.go)
 
 TYPEGEN_INPUTS := \
 	$(wildcard scripts/typegen/*.go) \
 	$(wildcard scripts/typegen/*.gotmpl) \
 	$(wildcard scripts/typegen/*.tstmpl) \
 	$(TYPEGEN_RBAC_GO_FILES) \
-	$(wildcard coderd/util/strings/*.go) \
-	codersdk/countries.go
+	$(wildcard nicloud/util/strings/*.go) \
+	nicloudsdk/countries.go
 
 # Helper binary targets. Built with go build -o to avoid caching
 # link-stage executables in GOCACHE. Each binary is a real Make
 # target so parallel -j builds serialize correctly instead of
 # racing on the same output path.
 
-_gen/bin/apitypings: $(wildcard scripts/apitypings/*.go) $(wildcard codersdk/*.go) | _gen
+_gen/bin/apitypings: $(wildcard scripts/apitypings/*.go) $(wildcard nicloudsdk/*.go) | _gen
 	@mkdir -p _gen/bin
 	go build -o $@ ./scripts/apitypings
 
@@ -152,9 +152,9 @@ _gen/bin/clidocgen: $(CLIDOCGEN_INPUTS) | _gen
 	@mkdir -p _gen/bin
 	go build -o $@ ./scripts/clidocgen
 
-_gen/bin/dbdump: $(wildcard coderd/database/gen/dump/*.go) $(DBDUMP_INPUTS) | _gen
+_gen/bin/dbdump: $(wildcard nicloud/database/gen/dump/*.go) $(DBDUMP_INPUTS) | _gen
 	@mkdir -p _gen/bin
-	go build -o $@ ./coderd/database/gen/dump
+	go build -o $@ ./nicloud/database/gen/dump
 
 _gen/bin/examplegen: $(wildcard scripts/examplegen/*.go) | _gen
 	@mkdir -p _gen/bin
@@ -180,7 +180,7 @@ _gen/bin/metricsdocgen-scanner: $(wildcard scripts/metricsdocgen/scanner/*.go) |
 	@mkdir -p _gen/bin
 	go build -o $@ ./scripts/metricsdocgen/scanner
 
-_gen/bin/modeloptionsgen: $(wildcard scripts/modeloptionsgen/*.go) $(wildcard codersdk/*.go) | _gen
+_gen/bin/modeloptionsgen: $(wildcard scripts/modeloptionsgen/*.go) $(wildcard nicloudsdk/*.go) | _gen
 	@mkdir -p _gen/bin
 	go build -o $@ ./scripts/modeloptionsgen
 
@@ -220,7 +220,7 @@ PARALLEL_JOBS ?= $(shell n=$$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null
 # minimize artifact size. For non-release CI builds (e.g. main
 # branch preview), use multithreaded level 6 which is ~99% faster
 # at the cost of ~30% larger archives.
-ifeq ($(CODER_RELEASE),true)
+ifeq ($(NEURALINVERSE_RELEASE),true)
 ZSTDFLAGS := -22 --ultra
 else
 ZSTDFLAGS := -6 -T0
@@ -232,7 +232,7 @@ endif
 # Note, all find statements should be written with `.` or `./path` as
 # the search path so that these exclusions match.
 FIND_EXCLUSIONS= \
-	-not \( \( -path '*/.git/*' -o -path './build/*' -o -path './vendor/*' -o -path './.coderv2/*' -o -path '*/node_modules/*' -o -path '*/out/*' -o -path './coderd/apidoc/*' -o -path '*/.next/*' -o -path '*/.terraform/*' -o -path './_gen/*' \) -prune \)
+	-not \( \( -path '*/.git/*' -o -path './build/*' -o -path './vendor/*' -o -path './.coderv2/*' -o -path '*/node_modules/*' -o -path '*/out/*' -o -path './nicloud/apidoc/*' -o -path '*/.next/*' -o -path '*/.terraform/*' -o -path './_gen/*' \) -prune \)
 
 # Source files used for make targets, evaluated on use.
 GO_SRC_FILES := $(shell find . $(FIND_EXCLUSIONS) -type f -name '*.go' -not -name '*_test.go')
@@ -240,8 +240,8 @@ GO_SRC_FILES := $(shell find . $(FIND_EXCLUSIONS) -type f -name '*.go' -not -nam
 # All the shell files in the repo, excluding ignored files.
 SHELL_SRC_FILES := $(shell find . $(FIND_EXCLUSIONS) -type f -name '*.sh')
 
-MIGRATION_FILES := $(shell find ./coderd/database/migrations/ -maxdepth 1 $(FIND_EXCLUSIONS) -type f -name '*.sql')
-FIXTURE_FILES := $(shell find ./coderd/database/migrations/testdata/fixtures/ $(FIND_EXCLUSIONS) -type f -name '*.sql')
+MIGRATION_FILES := $(shell find ./nicloud/database/migrations/ -maxdepth 1 $(FIND_EXCLUSIONS) -type f -name '*.sql')
+FIXTURE_FILES := $(shell find ./nicloud/database/migrations/testdata/fixtures/ $(FIND_EXCLUSIONS) -type f -name '*.sql')
 
 # Ensure we don't use the user's git configs which might cause side-effects
 GIT_FLAGS = GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null
@@ -266,29 +266,29 @@ PACKAGE_OS_ARCHES := linux_amd64 linux_armv7 linux_arm64
 DOCKER_ARCHES := amd64 arm64 armv7
 
 # Computed variables based on the above.
-CODER_SLIM_BINARIES      := $(addprefix build/coder-slim_$(VERSION)_,$(OS_ARCHES))
-CODER_FAT_BINARIES       := $(addprefix build/coder_$(VERSION)_,$(OS_ARCHES))
-CODER_ALL_BINARIES       := $(CODER_SLIM_BINARIES) $(CODER_FAT_BINARIES)
-CODER_TAR_GZ_ARCHIVES    := $(foreach os_arch, $(ARCHIVE_TAR_GZ), build/coder_$(VERSION)_$(os_arch).tar.gz)
-CODER_ZIP_ARCHIVES       := $(foreach os_arch, $(ARCHIVE_ZIP), build/coder_$(VERSION)_$(os_arch).zip)
-CODER_ALL_ARCHIVES       := $(CODER_TAR_GZ_ARCHIVES) $(CODER_ZIP_ARCHIVES)
-CODER_ALL_PACKAGES       := $(foreach os_arch, $(PACKAGE_OS_ARCHES), $(addprefix build/coder_$(VERSION)_$(os_arch).,$(PACKAGE_FORMATS)))
-CODER_ARCH_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_$(VERSION)_linux_$(arch).tag)
-CODER_ARCH_IMAGES_PUSHED := $(addprefix push/, $(CODER_ARCH_IMAGES))
-CODER_MAIN_IMAGE         := build/coder_$(VERSION)_linux.tag
+NEURALINVERSE_SLIM_BINARIES      := $(addprefix build/coder-slim_$(VERSION)_,$(OS_ARCHES))
+NEURALINVERSE_FAT_BINARIES       := $(addprefix build/coder_$(VERSION)_,$(OS_ARCHES))
+NEURALINVERSE_ALL_BINARIES       := $(NEURALINVERSE_SLIM_BINARIES) $(NEURALINVERSE_FAT_BINARIES)
+NEURALINVERSE_TAR_GZ_ARCHIVES    := $(foreach os_arch, $(ARCHIVE_TAR_GZ), build/coder_$(VERSION)_$(os_arch).tar.gz)
+NEURALINVERSE_ZIP_ARCHIVES       := $(foreach os_arch, $(ARCHIVE_ZIP), build/coder_$(VERSION)_$(os_arch).zip)
+NEURALINVERSE_ALL_ARCHIVES       := $(NEURALINVERSE_TAR_GZ_ARCHIVES) $(NEURALINVERSE_ZIP_ARCHIVES)
+NEURALINVERSE_ALL_PACKAGES       := $(foreach os_arch, $(PACKAGE_OS_ARCHES), $(addprefix build/coder_$(VERSION)_$(os_arch).,$(PACKAGE_FORMATS)))
+NEURALINVERSE_ARCH_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_$(VERSION)_linux_$(arch).tag)
+NEURALINVERSE_ARCH_IMAGES_PUSHED := $(addprefix push/, $(NEURALINVERSE_ARCH_IMAGES))
+NEURALINVERSE_MAIN_IMAGE         := build/coder_$(VERSION)_linux.tag
 
-CODER_SLIM_NOVERSION_BINARIES     := $(addprefix build/coder-slim_,$(OS_ARCHES))
-CODER_FAT_NOVERSION_BINARIES      := $(addprefix build/coder_,$(OS_ARCHES))
-CODER_ALL_NOVERSION_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_linux_$(arch).tag) build/coder_linux.tag
-CODER_ALL_NOVERSION_IMAGES_PUSHED := $(addprefix push/, $(CODER_ALL_NOVERSION_IMAGES))
+NEURALINVERSE_SLIM_NOVERSION_BINARIES     := $(addprefix build/coder-slim_,$(OS_ARCHES))
+NEURALINVERSE_FAT_NOVERSION_BINARIES      := $(addprefix build/coder_,$(OS_ARCHES))
+NEURALINVERSE_ALL_NOVERSION_IMAGES        := $(foreach arch, $(DOCKER_ARCHES), build/coder_linux_$(arch).tag) build/coder_linux.tag
+NEURALINVERSE_ALL_NOVERSION_IMAGES_PUSHED := $(addprefix push/, $(NEURALINVERSE_ALL_NOVERSION_IMAGES))
 
 # If callers are only building Docker images and not the packages and archives,
 # we can skip those prerequisites as they are not actually required and only
 # specified to avoid concurrent write failures.
 ifdef DOCKER_IMAGE_NO_PREREQUISITES
-CODER_ARCH_IMAGE_PREREQUISITES :=
+NEURALINVERSE_ARCH_IMAGE_PREREQUISITES :=
 else
-CODER_ARCH_IMAGE_PREREQUISITES := \
+NEURALINVERSE_ARCH_IMAGE_PREREQUISITES := \
 	build/coder_$(VERSION)_%.apk \
 	build/coder_$(VERSION)_%.deb \
 	build/coder_$(VERSION)_%.rpm \
@@ -303,32 +303,32 @@ clean:
 	git restore site/out/
 .PHONY: clean
 
-build-slim: $(CODER_SLIM_BINARIES)
+build-slim: $(NEURALINVERSE_SLIM_BINARIES)
 .PHONY: build-slim
 
-build-fat build-full build: $(CODER_FAT_BINARIES)
+build-fat build-full build: $(NEURALINVERSE_FAT_BINARIES)
 .PHONY: build-fat build-full build
 
-release: $(CODER_FAT_BINARIES) $(CODER_ALL_ARCHIVES) $(CODER_ALL_PACKAGES) $(CODER_ARCH_IMAGES) build/coder_helm_$(VERSION).tgz
+release: $(NEURALINVERSE_FAT_BINARIES) $(NEURALINVERSE_ALL_ARCHIVES) $(NEURALINVERSE_ALL_PACKAGES) $(NEURALINVERSE_ARCH_IMAGES) build/coder_helm_$(VERSION).tgz
 .PHONY: release
 
-build/coder-slim_$(VERSION)_checksums.sha1: site/out/bin/coder.sha1
+build/coder-slim_$(VERSION)_checksums.sha1: site/out/bin/neuralinverse.sha1
 	cp "$<" "$@"
 
-site/out/bin/coder.sha1: $(CODER_SLIM_BINARIES)
+site/out/bin/neuralinverse.sha1: $(NEURALINVERSE_SLIM_BINARIES)
 	pushd ./site/out/bin
 		openssl dgst -r -sha1 coder-* | tee coder.sha1
 	popd
 
-build/coder-slim_$(VERSION).tar: build/coder-slim_$(VERSION)_checksums.sha1 $(CODER_SLIM_BINARIES)
+build/coder-slim_$(VERSION).tar: build/coder-slim_$(VERSION)_checksums.sha1 $(NEURALINVERSE_SLIM_BINARIES)
 	pushd ./site/out/bin
 		tar cf "../../../build/$(@F)" coder-*
 	popd
 
 	# delete the uncompressed binaries from the embedded dir
-	rm -f site/out/bin/coder-*
+	rm -f site/out/bin/neuralinverse-*
 
-site/out/bin/coder.tar.zst: build/coder-slim_$(VERSION).tar.zst
+site/out/bin/neuralinverse.tar.zst: build/coder-slim_$(VERSION).tar.zst
 	cp "$<" "$@"
 
 build/coder-slim_$(VERSION).tar.zst: build/coder-slim_$(VERSION).tar
@@ -345,7 +345,7 @@ build/coder-slim_$(VERSION).tar.zst: build/coder-slim_$(VERSION).tar
 # Called like this:
 #   make build/coder_linux_amd64
 #   make build/coder_windows_amd64.exe
-$(CODER_FAT_NOVERSION_BINARIES): build/coder_%: build/coder_$(VERSION)_%
+$(NEURALINVERSE_FAT_NOVERSION_BINARIES): build/coder_%: build/coder_$(VERSION)_%
 	rm -f "$@"
 	ln "$<" "$@"
 
@@ -354,15 +354,15 @@ $(CODER_FAT_NOVERSION_BINARIES): build/coder_%: build/coder_$(VERSION)_%
 # Called like this:
 #   make build/coder-slim_linux_amd64
 #   make build/coder-slim_windows_amd64.exe
-$(CODER_SLIM_NOVERSION_BINARIES): build/coder-slim_%: build/coder-slim_$(VERSION)_%
+$(NEURALINVERSE_SLIM_NOVERSION_BINARIES): build/coder-slim_%: build/coder-slim_$(VERSION)_%
 	rm -f "$@"
 	ln "$<" "$@"
 
 # "fat" binaries always depend on the site and the compressed slim binaries.
-$(CODER_FAT_BINARIES): \
+$(NEURALINVERSE_FAT_BINARIES): \
 	site/out/index.html \
-	site/out/bin/coder.sha1 \
-	site/out/bin/coder.tar.zst
+	site/out/bin/neuralinverse.sha1 \
+	site/out/bin/neuralinverse.tar.zst
 
 # This is a handy block that parses the target to determine whether it's "slim"
 # or "fat", which OS was specified and which architecture was specified.
@@ -389,7 +389,7 @@ endef
 #
 # You should probably use the non-version targets above instead if you're
 # calling this manually.
-$(CODER_ALL_BINARIES): go.mod go.sum \
+$(NEURALINVERSE_ALL_BINARIES): go.mod go.sum \
 	$(GO_SRC_FILES) \
 	$(shell find ./examples/templates) \
 	site/static/error.html
@@ -422,10 +422,10 @@ $(CODER_ALL_BINARIES): go.mod go.sum \
 			dot_ext=".$$ext"
 		fi
 
-		cp "$@" "./site/out/bin/coder-$$os-$$arch$$dot_ext"
+		cp "$@" "./site/out/bin/neuralinverse-$$os-$$arch$$dot_ext"
 
-		if [[ "$${CODER_SIGN_GPG:-0}" == "1" ]]; then
-			cp "$@.asc" "./site/out/bin/coder-$$os-$$arch$$dot_ext.asc"
+		if [[ "$${NEURALINVERSE_SIGN_GPG:-0}" == "1" ]]; then
+			cp "$@.asc" "./site/out/bin/neuralinverse-$$os-$$arch$$dot_ext.asc"
 		fi
 	fi
 
@@ -440,7 +440,7 @@ $(CODER_ALL_BINARIES): go.mod go.sum \
 # This depends on all fat binaries because it's difficult to do dynamic
 # dependencies due to the .exe requirement on Windows. These targets are
 # typically only used during release anyways.
-$(CODER_ALL_ARCHIVES): $(CODER_FAT_BINARIES)
+$(NEURALINVERSE_ALL_ARCHIVES): $(NEURALINVERSE_FAT_BINARIES)
 	$(get-mode-os-arch-ext)
 	bin_ext=""
 	if [[ "$$os" == "windows" ]]; then
@@ -465,8 +465,8 @@ $(CODER_ALL_ARCHIVES): $(CODER_FAT_BINARIES)
 #
 # Packages need to run after the archives are built, otherwise they cause tar
 # errors like "file changed as we read it".
-CODER_PACKAGE_DEPS := $(foreach os_arch, $(PACKAGE_OS_ARCHES), build/coder_$(VERSION)_$(os_arch) build/coder_$(VERSION)_$(os_arch).tar.gz)
-$(CODER_ALL_PACKAGES): $(CODER_PACKAGE_DEPS)
+NEURALINVERSE_PACKAGE_DEPS := $(foreach os_arch, $(PACKAGE_OS_ARCHES), build/coder_$(VERSION)_$(os_arch) build/coder_$(VERSION)_$(os_arch).tar.gz)
+$(NEURALINVERSE_ALL_PACKAGES): $(NEURALINVERSE_PACKAGE_DEPS)
 	$(get-mode-os-arch-ext)
 
 	./scripts/package.sh \
@@ -487,15 +487,15 @@ build/coder_$(VERSION)_windows_amd64_installer.exe: build/coder_$(VERSION)_windo
 #
 # Called like this:
 #   make build/coder_linux_amd64.tag
-$(CODER_ALL_NOVERSION_IMAGES): build/coder_%: build/coder_$(VERSION)_%
-.PHONY: $(CODER_ALL_NOVERSION_IMAGES)
+$(NEURALINVERSE_ALL_NOVERSION_IMAGES): build/coder_%: build/coder_$(VERSION)_%
+.PHONY: $(NEURALINVERSE_ALL_NOVERSION_IMAGES)
 
 # Redirect from version-less push Docker image targets to the versioned ones.
 #
 # Called like this:
 #   make push/build/coder_linux_amd64.tag
-$(CODER_ALL_NOVERSION_IMAGES_PUSHED): push/build/coder_%: push/build/coder_$(VERSION)_%
-.PHONY: $(CODER_ALL_NOVERSION_IMAGES_PUSHED)
+$(NEURALINVERSE_ALL_NOVERSION_IMAGES_PUSHED): push/build/coder_%: push/build/coder_$(VERSION)_%
+.PHONY: $(NEURALINVERSE_ALL_NOVERSION_IMAGES_PUSHED)
 
 # This task builds all Docker images. It parses the target name to get the
 # metadata for the build, so it must be specified in this format:
@@ -505,7 +505,7 @@ $(CODER_ALL_NOVERSION_IMAGES_PUSHED): push/build/coder_%: push/build/coder_$(VER
 #
 # Images need to run after the archives and packages are built, otherwise they
 # cause errors like "file changed as we read it".
-$(CODER_ARCH_IMAGES): build/coder_$(VERSION)_%.tag: build/coder_$(VERSION)_% $(CODER_ARCH_IMAGE_PREREQUISITES)
+$(NEURALINVERSE_ARCH_IMAGES): build/coder_$(VERSION)_%.tag: build/coder_$(VERSION)_% $(NEURALINVERSE_ARCH_IMAGE_PREREQUISITES)
 	$(get-mode-os-arch-ext)
 
 	image_tag="$$(./scripts/image_tag.sh --arch "$$arch" --version "$(VERSION)")"
@@ -519,7 +519,7 @@ $(CODER_ARCH_IMAGES): build/coder_$(VERSION)_%.tag: build/coder_$(VERSION)_% $(C
 
 # Multi-arch Docker image. This requires all architecture-specific images to be
 # built AND pushed.
-$(CODER_MAIN_IMAGE): $(CODER_ARCH_IMAGES_PUSHED)
+$(NEURALINVERSE_MAIN_IMAGE): $(NEURALINVERSE_ARCH_IMAGES_PUSHED)
 	image_tag="$$(./scripts/image_tag.sh --version "$(VERSION)")"
 	./scripts/build_docker_multiarch.sh \
 		--target "$$image_tag" \
@@ -529,19 +529,19 @@ $(CODER_MAIN_IMAGE): $(CODER_ARCH_IMAGES_PUSHED)
 	echo "$$image_tag" > "$@"
 
 # Push a Docker image.
-$(CODER_ARCH_IMAGES_PUSHED): push/%: %
+$(NEURALINVERSE_ARCH_IMAGES_PUSHED): push/%: %
 	image_tag="$$(cat "$<")"
 	docker push "$$image_tag"
-.PHONY: $(CODER_ARCH_IMAGES_PUSHED)
+.PHONY: $(NEURALINVERSE_ARCH_IMAGES_PUSHED)
 
 # Push the multi-arch Docker manifest.
-push/$(CODER_MAIN_IMAGE): $(CODER_MAIN_IMAGE)
+push/$(NEURALINVERSE_MAIN_IMAGE): $(NEURALINVERSE_MAIN_IMAGE)
 	image_tag="$$(cat "$<")"
 	docker manifest push "$$image_tag"
-.PHONY: push/$(CODER_MAIN_IMAGE)
+.PHONY: push/$(NEURALINVERSE_MAIN_IMAGE)
 
 # Helm charts that are available
-charts = coder provisioner
+charts = neuralinverse provisioner
 
 # Shortcut for Helm chart package.
 $(foreach chart,$(charts),build/$(chart)_helm.tgz): build/%_helm.tgz: build/%_helm_$(VERSION).tgz
@@ -811,7 +811,7 @@ lint/mise-versions:
 .PHONY: lint/mise-versions
 
 # Verify api_key_scope enum contains all RBAC <resource>:<action> values.
-lint/check-scopes: coderd/database/dump.sql | _gen/bin/check-scopes
+lint/check-scopes: nicloud/database/dump.sql | _gen/bin/check-scopes
 	_gen/bin/check-scopes
 .PHONY: lint/check-scopes
 
@@ -932,12 +932,12 @@ offlinedocs/check: offlinedocs/node_modules/.installed
 # All files generated by the database should be added here, and this can be used
 # as a target for jobs that need to run after the database is generated.
 DB_GEN_FILES := \
-	coderd/database/dump.sql \
-	coderd/database/querier.go \
-	coderd/database/unique_constraint.go \
-	coderd/database/dbmetrics/querymetrics.go \
-	coderd/database/dbauthz/dbauthz.go \
-	coderd/database/dbmock/dbmock.go
+	nicloud/database/dump.sql \
+	nicloud/database/querier.go \
+	nicloud/database/unique_constraint.go \
+	nicloud/database/dbmetrics/querymetrics.go \
+	nicloud/database/dbauthz/dbauthz.go \
+	nicloud/database/dbmock/dbmock.go
 
 TAILNETTEST_MOCKS := \
 	tailnet/tailnettest/coordinatormock.go \
@@ -946,8 +946,8 @@ TAILNETTEST_MOCKS := \
 	tailnet/tailnettest/subscriptionmock.go
 
 AIBRIDGED_MOCKS := \
-	coderd/aibridged/aibridgedmock/clientmock.go \
-	coderd/aibridged/aibridgedmock/poolmock.go
+	nicloud/aibridged/aibridgedmock/clientmock.go \
+	nicloud/aibridged/aibridgedmock/poolmock.go
 
 GEN_FILES := \
 	tailnet/proto/tailnet.pb.go \
@@ -957,28 +957,28 @@ GEN_FILES := \
 	provisionersdk/proto/provisioner.pb.go \
 	provisionerd/proto/provisionerd.pb.go \
 	vpn/vpn.pb.go \
-	coderd/aibridged/proto/aibridged.pb.go \
+	nicloud/aibridged/proto/aibridged.pb.go \
 	$(DB_GEN_FILES) \
 	$(SITE_GEN_FILES) \
-	coderd/rbac/object_gen.go \
-	codersdk/rbacresources_gen.go \
-	coderd/rbac/scopes_constants_gen.go \
-	codersdk/apikey_scopes_gen.go \
+	nicloud/rbac/object_gen.go \
+	nicloudsdk/rbacresources_gen.go \
+	nicloud/rbac/scopes_constants_gen.go \
+	nicloudsdk/apikey_scopes_gen.go \
 	docs/admin/integrations/prometheus.md \
 	docs/reference/cli/index.md \
 	docs/admin/security/audit-logs.md \
-	coderd/apidoc/swagger.json \
+	nicloud/apidoc/swagger.json \
 	docs/manifest.json \
 	provisioner/terraform/testdata/version \
 	scripts/metricsdocgen/generated_metrics \
 	site/e2e/provisionerGenerated.ts \
 	examples/examples.gen.json \
 	$(TAILNETTEST_MOCKS) \
-	coderd/database/pubsub/psmock/psmock.go \
+	nicloud/database/pubsub/psmock/psmock.go \
 	agent/agentcontainers/acmock/acmock.go \
 	agent/agentcontainers/dcspec/dcspec_gen.go \
-	coderd/httpmw/loggermw/loggermock/loggermock.go \
-	codersdk/workspacesdk/agentconnmock/agentconnmock.go \
+	nicloud/httpmw/loggermw/loggermock/loggermock.go \
+	nicloudsdk/workspacesdk/agentconnmock/agentconnmock.go \
 	$(AIBRIDGED_MOCKS)
 
 # all gen targets should be added here and to gen/mark-fresh
@@ -993,22 +993,22 @@ gen/db: $(DB_GEN_FILES)
 
 # Refresh the AI Bridge pricing seed file from models.dev. Kept out of
 # `make gen`. Phony so each invocation regenerates.
-coderd/aibridge/prices/data/prices.json: _gen/bin/aibridgepricesgen | _gen
+nicloud/aibridge/prices/data/prices.json: _gen/bin/aibridgepricesgen | _gen
 	@mkdir -p $(dir $@)
 	$(call atomic_write,_gen/bin/aibridgepricesgen)
-.PHONY: coderd/aibridge/prices/data/prices.json
+.PHONY: nicloud/aibridge/prices/data/prices.json
 
-gen/aibridge-prices: coderd/aibridge/prices/data/prices.json
+gen/aibridge-prices: nicloud/aibridge/prices/data/prices.json
 .PHONY: gen/aibridge-prices
 
 gen/golden-files: \
 	agent/unit/testdata/.gen-golden \
 	cli/testdata/.gen-golden \
-	coderd/.gen-golden \
-	coderd/notifications/.gen-golden \
+	nicloud/.gen-golden \
+	nicloud/notifications/.gen-golden \
 	enterprise/cli/testdata/.gen-golden \
 	enterprise/tailnet/testdata/.gen-golden \
-	helm/coder/tests/testdata/.gen-golden \
+	helm/neuralinverse/tests/testdata/.gen-golden \
 	helm/provisioner/tests/testdata/.gen-golden \
 	provisioner/terraform/testdata/.gen-golden \
 	tailnet/testdata/.gen-golden
@@ -1025,26 +1025,26 @@ gen/mark-fresh:
 		agent/agentsocket/proto/agentsocket.pb.go \
 		agent/boundarylogproxy/codec/boundary.pb.go \
 		vpn/vpn.pb.go \
-		coderd/aibridged/proto/aibridged.pb.go \
-		coderd/database/dump.sql \
-		coderd/database/querier.go \
-		coderd/database/unique_constraint.go \
-		coderd/database/dbmetrics/querymetrics.go \
-		coderd/database/dbauthz/dbauthz.go \
-		coderd/database/dbmock/dbmock.go \
-		coderd/database/pubsub/psmock/psmock.go \
+		nicloud/aibridged/proto/aibridged.pb.go \
+		nicloud/database/dump.sql \
+		nicloud/database/querier.go \
+		nicloud/database/unique_constraint.go \
+		nicloud/database/dbmetrics/querymetrics.go \
+		nicloud/database/dbauthz/dbauthz.go \
+		nicloud/database/dbmock/dbmock.go \
+		nicloud/database/pubsub/psmock/psmock.go \
 		site/src/api/typesGenerated.ts \
-		coderd/rbac/object_gen.go \
-		codersdk/rbacresources_gen.go \
-		coderd/rbac/scopes_constants_gen.go \
-		codersdk/apikey_scopes_gen.go \
+		nicloud/rbac/object_gen.go \
+		nicloudsdk/rbacresources_gen.go \
+		nicloud/rbac/scopes_constants_gen.go \
+		nicloudsdk/apikey_scopes_gen.go \
 		site/src/api/rbacresourcesGenerated.ts \
 		site/src/api/countriesGenerated.ts \
 		site/src/api/chatModelOptionsGenerated.json \
 		docs/admin/integrations/prometheus.md \
 		docs/reference/cli/index.md \
 		docs/admin/security/audit-logs.md \
-		coderd/apidoc/swagger.json \
+		nicloud/apidoc/swagger.json \
 		docs/manifest.json \
 		site/e2e/provisionerGenerated.ts \
 		site/src/theme/icons.json \
@@ -1053,8 +1053,8 @@ gen/mark-fresh:
 		$(TAILNETTEST_MOCKS) \
 		agent/agentcontainers/acmock/acmock.go \
 		agent/agentcontainers/dcspec/dcspec_gen.go \
-		coderd/httpmw/loggermw/loggermock/loggermock.go \
-		codersdk/workspacesdk/agentconnmock/agentconnmock.go \
+		nicloud/httpmw/loggermw/loggermock/loggermock.go \
+		nicloudsdk/workspacesdk/agentconnmock/agentconnmock.go \
 		$(AIBRIDGED_MOCKS) \
 		"
 
@@ -1072,50 +1072,50 @@ gen/mark-fresh:
 
 # Runs migrations to output a dump of the database schema after migrations are
 # applied.
-coderd/database/dump.sql: coderd/database/gen/dump/main.go $(DBDUMP_INPUTS) | _gen/bin/dbdump
+nicloud/database/dump.sql: nicloud/database/gen/dump/main.go $(DBDUMP_INPUTS) | _gen/bin/dbdump
 	_gen/bin/dbdump
 	touch "$@"
 
 # Generates Go code for querying the database.
-# coderd/database/queries.sql.go
-# coderd/database/models.go
+# nicloud/database/queries.sql.go
+# nicloud/database/models.go
 #
 # NOTE: grouped target (&:) ensures generate.sh runs only once even
 # with -j and all outputs are considered produced together. These
 # files are all written by generate.sh (via sqlc and scripts/dbgen).
-coderd/database/querier.go \
-coderd/database/unique_constraint.go \
-coderd/database/dbmetrics/querymetrics.go \
-coderd/database/dbauthz/dbauthz.go &: \
-	coderd/database/sqlc.yaml \
-	coderd/database/dump.sql \
-	$(wildcard coderd/database/queries/*.sql)
-	SKIP_DUMP_SQL=1 ./coderd/database/generate.sh
-	touch coderd/database/querier.go coderd/database/unique_constraint.go coderd/database/dbmetrics/querymetrics.go coderd/database/dbauthz/dbauthz.go
+nicloud/database/querier.go \
+nicloud/database/unique_constraint.go \
+nicloud/database/dbmetrics/querymetrics.go \
+nicloud/database/dbauthz/dbauthz.go &: \
+	nicloud/database/sqlc.yaml \
+	nicloud/database/dump.sql \
+	$(wildcard nicloud/database/queries/*.sql)
+	SKIP_DUMP_SQL=1 ./nicloud/database/generate.sh
+	touch nicloud/database/querier.go nicloud/database/unique_constraint.go nicloud/database/dbmetrics/querymetrics.go nicloud/database/dbauthz/dbauthz.go
 
-coderd/database/dbmock/dbmock.go: coderd/database/db.go coderd/database/querier.go
-	go generate ./coderd/database/dbmock/
+nicloud/database/dbmock/dbmock.go: nicloud/database/db.go nicloud/database/querier.go
+	go generate ./nicloud/database/dbmock/
 	touch "$@"
 
-coderd/database/pubsub/psmock/psmock.go: coderd/database/pubsub/pubsub.go
-	go generate ./coderd/database/pubsub/psmock
+nicloud/database/pubsub/psmock/psmock.go: nicloud/database/pubsub/pubsub.go
+	go generate ./nicloud/database/pubsub/psmock
 	touch "$@"
 
 agent/agentcontainers/acmock/acmock.go: agent/agentcontainers/containers.go
 	go generate ./agent/agentcontainers/acmock/
 	touch "$@"
 
-coderd/httpmw/loggermw/loggermock/loggermock.go: coderd/httpmw/loggermw/logger.go
-	go generate ./coderd/httpmw/loggermw/loggermock/
+nicloud/httpmw/loggermw/loggermock/loggermock.go: nicloud/httpmw/loggermw/logger.go
+	go generate ./nicloud/httpmw/loggermw/loggermock/
 	touch "$@"
 
-codersdk/workspacesdk/agentconnmock/agentconnmock.go: codersdk/workspacesdk/agentconn.go
-	go generate ./codersdk/workspacesdk/agentconnmock/
+nicloudsdk/workspacesdk/agentconnmock/agentconnmock.go: nicloudsdk/workspacesdk/agentconn.go
+	go generate ./nicloudsdk/workspacesdk/agentconnmock/
 	./scripts/format_go_file.sh "$@"
 	touch "$@"
 
-$(AIBRIDGED_MOCKS): coderd/aibridged/client.go coderd/aibridged/pool.go
-	go generate ./coderd/aibridged/aibridgedmock/
+$(AIBRIDGED_MOCKS): nicloud/aibridged/client.go nicloud/aibridged/pool.go
+	go generate ./nicloud/aibridged/aibridgedmock/
 	touch "$@"
 
 agent/agentcontainers/dcspec/dcspec_gen.go: \
@@ -1182,18 +1182,18 @@ agent/boundarylogproxy/codec/boundary.pb.go: agent/boundarylogproxy/codec/bounda
 		--go_opt=paths=source_relative \
 		./agent/boundarylogproxy/codec/boundary.proto
 
-coderd/aibridged/proto/aibridged.pb.go: coderd/aibridged/proto/aibridged.proto
+nicloud/aibridged/proto/aibridged.pb.go: nicloud/aibridged/proto/aibridged.proto
 	./scripts/atomic_protoc.sh \
 		--go_out=. \
 		--go_opt=paths=source_relative \
 		--go-drpc_out=. \
 		--go-drpc_opt=paths=source_relative \
-		./coderd/aibridged/proto/aibridged.proto
+		./nicloud/aibridged/proto/aibridged.proto
 
 site/src/api/typesGenerated.ts: site/node_modules/.installed $(wildcard scripts/apitypings/*) \
-		$(shell find ./codersdk $(FIND_EXCLUSIONS) -type f -name '*.go') \
-		$(wildcard coderd/healthcheck/health/*.go) \
-		$(wildcard codersdk/healthsdk/*.go) | _gen _gen/bin/apitypings
+		$(shell find ./nicloudsdk $(FIND_EXCLUSIONS) -type f -name '*.go') \
+		$(wildcard nicloud/healthcheck/health/*.go) \
+		$(wildcard nicloudsdk/healthsdk/*.go) | _gen _gen/bin/apitypings
 	$(call atomic_write,_gen/bin/apitypings,./scripts/biome_format.sh)
 
 site/e2e/provisionerGenerated.ts: site/node_modules/.installed provisionerd/proto/provisionerd.pb.go provisionersdk/proto/provisioner.pb.go
@@ -1209,46 +1209,46 @@ site/src/theme/icons.json: site/node_modules/.installed $(wildcard scripts/gensi
 examples/examples.gen.json: scripts/examplegen/main.go examples/examples.go $(shell find ./examples/templates) | _gen _gen/bin/examplegen
 	$(call atomic_write,_gen/bin/examplegen)
 
-coderd/rbac/object_gen.go: scripts/typegen/rbacobject.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go | _gen _gen/bin/typegen
+nicloud/rbac/object_gen.go: scripts/typegen/rbacobject.gotmpl scripts/typegen/main.go nicloud/rbac/object.go nicloud/rbac/policy/policy.go | _gen _gen/bin/typegen
 	$(call atomic_write,_gen/bin/typegen rbac object)
 	touch "$@"
 
 # NOTE: depends on object_gen.go because the generator build
-# compiles coderd/rbac which includes it.
-coderd/rbac/scopes_constants_gen.go: scripts/typegen/scopenames.gotmpl scripts/typegen/main.go coderd/rbac/policy/policy.go \
-	coderd/rbac/object_gen.go | _gen _gen/bin/typegen
+# compiles nicloud/rbac which includes it.
+nicloud/rbac/scopes_constants_gen.go: scripts/typegen/scopenames.gotmpl scripts/typegen/main.go nicloud/rbac/policy/policy.go \
+	nicloud/rbac/object_gen.go | _gen _gen/bin/typegen
 	# Write to a temp file first to avoid truncating the package
 	# during build since the generator imports the rbac package.
 	$(call atomic_write,_gen/bin/typegen rbac scopenames)
 	touch "$@"
 
 # NOTE: depends on object_gen.go and scopes_constants_gen.go because
-# the generator build compiles coderd/rbac which includes both.
-codersdk/rbacresources_gen.go: scripts/typegen/codersdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go \
-	coderd/rbac/object_gen.go coderd/rbac/scopes_constants_gen.go | _gen _gen/bin/typegen
+# the generator build compiles nicloud/rbac which includes both.
+nicloudsdk/rbacresources_gen.go: scripts/typegen/nicloudsdk.gotmpl scripts/typegen/main.go nicloud/rbac/object.go nicloud/rbac/policy/policy.go \
+	nicloud/rbac/object_gen.go nicloud/rbac/scopes_constants_gen.go | _gen _gen/bin/typegen
 	# Write to a temp file to avoid truncating the target, which
-	# would break the codersdk package and any parallel build targets.
-	$(call atomic_write,_gen/bin/typegen rbac codersdk)
+	# would break the nicloudsdk package and any parallel build targets.
+	$(call atomic_write,_gen/bin/typegen rbac nicloudsdk)
 	touch "$@"
 
 # NOTE: depends on object_gen.go and scopes_constants_gen.go because
-# the generator build compiles coderd/rbac which includes both.
-codersdk/apikey_scopes_gen.go: scripts/apikeyscopesgen/main.go coderd/rbac/scopes_catalog.go coderd/rbac/scopes.go \
-	coderd/rbac/object_gen.go coderd/rbac/scopes_constants_gen.go | _gen _gen/bin/apikeyscopesgen
+# the generator build compiles nicloud/rbac which includes both.
+nicloudsdk/apikey_scopes_gen.go: scripts/apikeyscopesgen/main.go nicloud/rbac/scopes_catalog.go nicloud/rbac/scopes.go \
+	nicloud/rbac/object_gen.go nicloud/rbac/scopes_constants_gen.go | _gen _gen/bin/apikeyscopesgen
 	# Generate SDK constants for external API key scopes.
 	$(call atomic_write,_gen/bin/apikeyscopesgen)
 	touch "$@"
 
 # NOTE: depends on object_gen.go and scopes_constants_gen.go because
-# the generator build compiles coderd/rbac which includes both.
-site/src/api/rbacresourcesGenerated.ts: site/node_modules/.installed scripts/typegen/codersdk.gotmpl scripts/typegen/main.go coderd/rbac/object.go coderd/rbac/policy/policy.go \
-	coderd/rbac/object_gen.go coderd/rbac/scopes_constants_gen.go | _gen _gen/bin/typegen
+# the generator build compiles nicloud/rbac which includes both.
+site/src/api/rbacresourcesGenerated.ts: site/node_modules/.installed scripts/typegen/nicloudsdk.gotmpl scripts/typegen/main.go nicloud/rbac/object.go nicloud/rbac/policy/policy.go \
+	nicloud/rbac/object_gen.go nicloud/rbac/scopes_constants_gen.go | _gen _gen/bin/typegen
 	$(call atomic_write,_gen/bin/typegen rbac typescript,./scripts/biome_format.sh)
 
-site/src/api/countriesGenerated.ts: site/node_modules/.installed scripts/typegen/countries.tstmpl scripts/typegen/main.go codersdk/countries.go | _gen _gen/bin/typegen
+site/src/api/countriesGenerated.ts: site/node_modules/.installed scripts/typegen/countries.tstmpl scripts/typegen/main.go nicloudsdk/countries.go | _gen _gen/bin/typegen
 	$(call atomic_write,_gen/bin/typegen countries,./scripts/biome_format.sh)
 
-site/src/api/chatModelOptionsGenerated.json: scripts/modeloptionsgen/main.go codersdk/chats.go | _gen _gen/bin/modeloptionsgen
+site/src/api/chatModelOptionsGenerated.json: scripts/modeloptionsgen/main.go nicloudsdk/chats.go | _gen _gen/bin/modeloptionsgen
 	$(call atomic_write,_gen/bin/modeloptionsgen | tail -n +2,./scripts/biome_format.sh)
 
 scripts/metricsdocgen/generated_metrics: $(GO_SRC_FILES) | _gen _gen/bin/metricsdocgen-scanner
@@ -1272,23 +1272,23 @@ docs/reference/cli/index.md: node_modules/.installed examples/examples.gen.json 
 		for f in "$$tmpdir/docs/reference/cli/"*.md; do mv "$$f" "docs/reference/cli/$$(basename "$$f")"; done && \
 		rm -rf "$$tmpdir"
 
-docs/admin/security/audit-logs.md: node_modules/.installed coderd/database/querier.go scripts/auditdocgen/main.go enterprise/audit/table.go coderd/rbac/object_gen.go | _gen _gen/bin/auditdocgen
+docs/admin/security/audit-logs.md: node_modules/.installed nicloud/database/querier.go scripts/auditdocgen/main.go enterprise/audit/table.go nicloud/rbac/object_gen.go | _gen _gen/bin/auditdocgen
 	tmpdir=$$(mktemp -d -p _gen) && tmpfile=$$(realpath "$$tmpdir")/$(notdir $@) && cp "$@" "$$tmpfile" && \
 		_gen/bin/auditdocgen --audit-doc-file="$$tmpfile" && \
 		pnpm exec markdownlint-cli2 --fix "$$tmpfile" && \
 		pnpm exec markdown-table-formatter "$$tmpfile" && \
 		mv "$$tmpfile" "$@" && rm -rf "$$tmpdir"
 
-coderd/apidoc/.gen: \
+nicloud/apidoc/.gen: \
 	node_modules/.installed \
 	scripts/apidocgen/node_modules/.installed \
-	$(wildcard coderd/*.go) \
-	$(wildcard enterprise/coderd/*.go) \
-	$(wildcard codersdk/*.go) \
+	$(wildcard nicloud/*.go) \
+	$(wildcard enterprise/nicloud/*.go) \
+	$(wildcard nicloudsdk/*.go) \
 	$(wildcard enterprise/wsproxy/wsproxysdk/*.go) \
-	$(wildcard coderd/workspaceconnwatcher/*.go) \
+	$(wildcard nicloud/workspaceconnwatcher/*.go) \
 	$(DB_GEN_FILES) \
-	coderd/rbac/object_gen.go \
+	nicloud/rbac/object_gen.go \
 	.swaggo \
 	scripts/apidocgen/generate.sh \
 	scripts/apidocgen/swaginit/main.go \
@@ -1304,18 +1304,18 @@ coderd/apidoc/.gen: \
 		./scripts/biome_format.sh "$$swagtmp/swagger.json" && \
 		for f in "$$tmpdir/reference/api/"*.md; do mv "$$f" "docs/reference/api/$$(basename "$$f")"; done && \
 		mv "$$tmpdir/manifest.json" _gen/manifest-staging.json && \
-		mv "$$swagtmp/docs.go" coderd/apidoc/docs.go && \
-		mv "$$swagtmp/swagger.json" coderd/apidoc/swagger.json && \
+		mv "$$swagtmp/docs.go" nicloud/apidoc/docs.go && \
+		mv "$$swagtmp/swagger.json" nicloud/apidoc/swagger.json && \
 		rm -rf "$$tmpdir" "$$swagtmp"
 	touch "$@"
 
-docs/manifest.json: site/node_modules/.installed coderd/apidoc/.gen docs/reference/cli/index.md | _gen
+docs/manifest.json: site/node_modules/.installed nicloud/apidoc/.gen docs/reference/cli/index.md | _gen
 	tmpdir=$$(mktemp -d -p _gen) && tmpfile=$$(realpath "$$tmpdir")/$(notdir $@) && \
 		cp _gen/manifest-staging.json "$$tmpfile" && \
 		./scripts/biome_format.sh "$$tmpfile" && \
 		mv "$$tmpfile" "$@" && rm -rf "$$tmpdir"
 
-coderd/apidoc/swagger.json: site/node_modules/.installed coderd/apidoc/.gen
+nicloud/apidoc/swagger.json: site/node_modules/.installed nicloud/apidoc/.gen
 	touch "$@"
 
 update-golden-files:
@@ -1328,11 +1328,11 @@ clean/golden-files:
 	find . -type f -name '.gen-golden' -delete
 	find \
 		cli/testdata \
-		coderd/notifications/testdata \
-		coderd/testdata \
+		nicloud/notifications/testdata \
+		nicloud/testdata \
 		enterprise/cli/testdata \
 		enterprise/tailnet/testdata \
-		helm/coder/tests/testdata \
+		helm/neuralinverse/tests/testdata \
 		helm/provisioner/tests/testdata \
 		provisioner/terraform/testdata \
 		tailnet/testdata \
@@ -1359,11 +1359,11 @@ enterprise/tailnet/testdata/.gen-golden: $(wildcard enterprise/tailnet/testdata/
 	TZ=UTC go test ./enterprise/tailnet -run="TestDebugTemplate" -update
 	touch "$@"
 
-helm/coder/tests/testdata/.gen-golden: $(wildcard helm/coder/tests/testdata/*.yaml) $(wildcard helm/coder/tests/testdata/*.golden) $(GO_SRC_FILES) $(wildcard helm/coder/tests/*_test.go)
+helm/neuralinverse/tests/testdata/.gen-golden: $(wildcard helm/neuralinverse/tests/testdata/*.yaml) $(wildcard helm/neuralinverse/tests/testdata/*.golden) $(GO_SRC_FILES) $(wildcard helm/neuralinverse/tests/*_test.go)
 	if command -v helm >/dev/null 2>&1; then
-		TZ=UTC go test ./helm/coder/tests -run=TestUpdateGoldenFiles -update
+		TZ=UTC go test ./helm/neuralinverse/tests -run=TestUpdateGoldenFiles -update
 	else
-		echo "WARNING: helm not found; skipping helm/coder golden generation" >&2
+		echo "WARNING: helm not found; skipping helm/neuralinverse golden generation" >&2
 	fi
 	touch "$@"
 
@@ -1375,12 +1375,12 @@ helm/provisioner/tests/testdata/.gen-golden: $(wildcard helm/provisioner/tests/t
 	fi
 	touch "$@"
 
-coderd/.gen-golden: $(wildcard coderd/testdata/*/*.golden) $(GO_SRC_FILES) $(wildcard coderd/*_test.go)
-	TZ=UTC go test ./coderd -run="Test.*Golden$$" -update
+nicloud/.gen-golden: $(wildcard nicloud/testdata/*/*.golden) $(GO_SRC_FILES) $(wildcard nicloud/*_test.go)
+	TZ=UTC go test ./nicloud -run="Test.*Golden$$" -update
 	touch "$@"
 
-coderd/notifications/.gen-golden: $(wildcard coderd/notifications/testdata/*/*.golden) $(GO_SRC_FILES) $(wildcard coderd/notifications/*_test.go)
-	TZ=UTC go test ./coderd/notifications -run="Test.*Golden$$" -update
+nicloud/notifications/.gen-golden: $(wildcard nicloud/notifications/testdata/*/*.golden) $(GO_SRC_FILES) $(wildcard nicloud/notifications/*_test.go)
+	TZ=UTC go test ./nicloud/notifications -run="Test.*Golden$$" -update
 	touch "$@"
 
 provisioner/terraform/testdata/.gen-golden: $(wildcard provisioner/terraform/testdata/*/*.golden) $(wildcard provisioner/terraform/testdata/*/*/*.golden) $(GO_SRC_FILES) $(wildcard provisioner/terraform/*_test.go)
@@ -1505,19 +1505,19 @@ sqlc-cloud-is-setup:
 sqlc-push: sqlc-cloud-is-setup test-postgres-docker
 	echo "--- sqlc push"
 	SQLC_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/$$(go run scripts/migrate-ci/main.go)" \
-	sqlc push -f coderd/database/sqlc.yaml && echo "Passed sqlc push"
+	sqlc push -f nicloud/database/sqlc.yaml && echo "Passed sqlc push"
 .PHONY: sqlc-push
 
 sqlc-verify: sqlc-cloud-is-setup test-postgres-docker
 	echo "--- sqlc verify"
 	SQLC_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/$$(go run scripts/migrate-ci/main.go)" \
-	sqlc verify -f coderd/database/sqlc.yaml && echo "Passed sqlc verify"
+	sqlc verify -f nicloud/database/sqlc.yaml && echo "Passed sqlc verify"
 .PHONY: sqlc-verify
 
 sqlc-vet: test-postgres-docker
 	echo "--- sqlc vet"
 	SQLC_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/$$(go run scripts/migrate-ci/main.go)" \
-	sqlc vet -f coderd/database/sqlc.yaml && echo "Passed sqlc vet"
+	sqlc vet -f nicloud/database/sqlc.yaml && echo "Passed sqlc vet"
 .PHONY: sqlc-vet
 
 
@@ -1600,8 +1600,8 @@ test-postgres-docker:
 
 test-tailnet-integration:
 	env \
-		CODER_TAILNET_TESTS=true \
-		CODER_MAGICSOCK_DEBUG_LOGGING=true \
+		NEURALINVERSE_TAILNET_TESTS=true \
+		NEURALINVERSE_MAGICSOCK_DEBUG_LOGGING=true \
 		TS_DEBUG_NETCHECK=true \
 		GOTRACEBACK=single \
 		go test \
@@ -1619,12 +1619,12 @@ test-clean:
 	go clean -testcache
 .PHONY: test-clean
 
-site/e2e/bin/coder: go.mod go.sum $(GO_SRC_FILES)
+site/e2e/bin/neuralinverse: go.mod go.sum $(GO_SRC_FILES)
 	go build -o $@ \
 		-tags ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube \
-		./enterprise/cmd/coder
+		./enterprise/cmd/neuralinverse
 
-test-e2e: site/e2e/bin/coder site/node_modules/.installed site/out/index.html
+test-e2e: site/e2e/bin/neuralinverse site/node_modules/.installed site/out/index.html
 	cd site/
 	pnpm playwright:install
 ifdef CI

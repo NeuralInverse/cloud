@@ -15,10 +15,10 @@ import (
 	"storj.io/drpc/drpcserver"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/coderd/tracing"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/drpcsdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/nicloud/tracing"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/drpcsdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
 // ServeOptions are configurations to serve a provisioner.
@@ -30,7 +30,7 @@ type ServeOptions struct {
 	Logger              slog.Logger
 	WorkDirectory       string
 	ExternalProvisioner bool
-	Experiments         codersdk.Experiments
+	Experiments         nicloudsdk.Experiments
 }
 
 // InitRequest wraps the InitRequest proto with the module archive bytes, which

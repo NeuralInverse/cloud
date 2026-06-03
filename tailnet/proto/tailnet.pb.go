@@ -755,7 +755,7 @@ type IPFields struct {
 	unknownFields protoimpl.UnknownFields
 
 	Version int32            `protobuf:"varint,1,opt,name=version,proto3" json:"version,omitempty"`
-	Class   IPFields_IPClass `protobuf:"varint,2,opt,name=class,proto3,enum=coder.tailnet.v2.IPFields_IPClass" json:"class,omitempty"`
+	Class   IPFields_IPClass `protobuf:"varint,2,opt,name=class,proto3,enum=neuralinverse.tailnet.v2.IPFields_IPClass" json:"class,omitempty"`
 }
 
 func (x *IPFields) Reset() {
@@ -987,8 +987,8 @@ type TelemetryEvent struct {
 	Id              []byte                      `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Time            *timestamppb.Timestamp      `protobuf:"bytes,2,opt,name=time,proto3" json:"time,omitempty"`
 	Application     string                      `protobuf:"bytes,3,opt,name=application,proto3" json:"application,omitempty"`
-	Status          TelemetryEvent_Status       `protobuf:"varint,4,opt,name=status,proto3,enum=coder.tailnet.v2.TelemetryEvent_Status" json:"status,omitempty"`
-	ClientType      TelemetryEvent_ClientType   `protobuf:"varint,6,opt,name=client_type,json=clientType,proto3,enum=coder.tailnet.v2.TelemetryEvent_ClientType" json:"client_type,omitempty"`
+	Status          TelemetryEvent_Status       `protobuf:"varint,4,opt,name=status,proto3,enum=neuralinverse.tailnet.v2.TelemetryEvent_Status" json:"status,omitempty"`
+	ClientType      TelemetryEvent_ClientType   `protobuf:"varint,6,opt,name=client_type,json=clientType,proto3,enum=neuralinverse.tailnet.v2.TelemetryEvent_ClientType" json:"client_type,omitempty"`
 	ClientVersion   string                      `protobuf:"bytes,19,opt,name=client_version,json=clientVersion,proto3" json:"client_version,omitempty"`
 	NodeIdSelf      uint64                      `protobuf:"varint,7,opt,name=node_id_self,json=nodeIdSelf,proto3" json:"node_id_self,omitempty"`
 	NodeIdRemote    uint64                      `protobuf:"varint,8,opt,name=node_id_remote,json=nodeIdRemote,proto3" json:"node_id_remote,omitempty"`
@@ -1372,7 +1372,7 @@ type Workspace struct {
 
 	Id     []byte           `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // UUID
 	Name   string           `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Status Workspace_Status `protobuf:"varint,3,opt,name=status,proto3,enum=coder.tailnet.v2.Workspace_Status" json:"status,omitempty"`
+	Status Workspace_Status `protobuf:"varint,3,opt,name=status,proto3,enum=neuralinverse.tailnet.v2.Workspace_Status" json:"status,omitempty"`
 }
 
 func (x *Workspace) Reset() {
@@ -1958,7 +1958,7 @@ type CoordinateResponse_PeerUpdate struct {
 
 	Id     []byte                             `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Node   *Node                              `protobuf:"bytes,2,opt,name=node,proto3" json:"node,omitempty"`
-	Kind   CoordinateResponse_PeerUpdate_Kind `protobuf:"varint,3,opt,name=kind,proto3,enum=coder.tailnet.v2.CoordinateResponse_PeerUpdate_Kind" json:"kind,omitempty"`
+	Kind   CoordinateResponse_PeerUpdate_Kind `protobuf:"varint,3,opt,name=kind,proto3,enum=neuralinverse.tailnet.v2.CoordinateResponse_PeerUpdate_Kind" json:"kind,omitempty"`
 	Reason string                             `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
 }
 
@@ -2585,111 +2585,111 @@ func file_tailnet_proto_tailnet_proto_rawDescGZIP() []byte {
 var file_tailnet_proto_tailnet_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_tailnet_proto_tailnet_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_tailnet_proto_tailnet_proto_goTypes = []interface{}{
-	(CoordinateResponse_PeerUpdate_Kind)(0),     // 0: coder.tailnet.v2.CoordinateResponse.PeerUpdate.Kind
-	(IPFields_IPClass)(0),                       // 1: coder.tailnet.v2.IPFields.IPClass
-	(TelemetryEvent_Status)(0),                  // 2: coder.tailnet.v2.TelemetryEvent.Status
-	(TelemetryEvent_ClientType)(0),              // 3: coder.tailnet.v2.TelemetryEvent.ClientType
-	(Workspace_Status)(0),                       // 4: coder.tailnet.v2.Workspace.Status
-	(*DERPMap)(nil),                             // 5: coder.tailnet.v2.DERPMap
-	(*StreamDERPMapsRequest)(nil),               // 6: coder.tailnet.v2.StreamDERPMapsRequest
-	(*Node)(nil),                                // 7: coder.tailnet.v2.Node
-	(*RefreshResumeTokenRequest)(nil),           // 8: coder.tailnet.v2.RefreshResumeTokenRequest
-	(*RefreshResumeTokenResponse)(nil),          // 9: coder.tailnet.v2.RefreshResumeTokenResponse
-	(*CoordinateRequest)(nil),                   // 10: coder.tailnet.v2.CoordinateRequest
-	(*CoordinateResponse)(nil),                  // 11: coder.tailnet.v2.CoordinateResponse
-	(*IPFields)(nil),                            // 12: coder.tailnet.v2.IPFields
-	(*Netcheck)(nil),                            // 13: coder.tailnet.v2.Netcheck
-	(*TelemetryEvent)(nil),                      // 14: coder.tailnet.v2.TelemetryEvent
-	(*TelemetryRequest)(nil),                    // 15: coder.tailnet.v2.TelemetryRequest
-	(*TelemetryResponse)(nil),                   // 16: coder.tailnet.v2.TelemetryResponse
-	(*WorkspaceUpdatesRequest)(nil),             // 17: coder.tailnet.v2.WorkspaceUpdatesRequest
-	(*WorkspaceUpdate)(nil),                     // 18: coder.tailnet.v2.WorkspaceUpdate
-	(*Workspace)(nil),                           // 19: coder.tailnet.v2.Workspace
-	(*Agent)(nil),                               // 20: coder.tailnet.v2.Agent
-	(*DERPMap_HomeParams)(nil),                  // 21: coder.tailnet.v2.DERPMap.HomeParams
-	(*DERPMap_Region)(nil),                      // 22: coder.tailnet.v2.DERPMap.Region
-	nil,                                         // 23: coder.tailnet.v2.DERPMap.RegionsEntry
-	nil,                                         // 24: coder.tailnet.v2.DERPMap.HomeParams.RegionScoreEntry
-	(*DERPMap_Region_Node)(nil),                 // 25: coder.tailnet.v2.DERPMap.Region.Node
-	nil,                                         // 26: coder.tailnet.v2.Node.DerpLatencyEntry
-	nil,                                         // 27: coder.tailnet.v2.Node.DerpForcedWebsocketEntry
-	(*CoordinateRequest_UpdateSelf)(nil),        // 28: coder.tailnet.v2.CoordinateRequest.UpdateSelf
-	(*CoordinateRequest_Disconnect)(nil),        // 29: coder.tailnet.v2.CoordinateRequest.Disconnect
-	(*CoordinateRequest_Tunnel)(nil),            // 30: coder.tailnet.v2.CoordinateRequest.Tunnel
-	(*CoordinateRequest_ReadyForHandshake)(nil), // 31: coder.tailnet.v2.CoordinateRequest.ReadyForHandshake
-	(*CoordinateResponse_PeerUpdate)(nil),       // 32: coder.tailnet.v2.CoordinateResponse.PeerUpdate
-	nil,                                         // 33: coder.tailnet.v2.Netcheck.RegionV4LatencyEntry
-	nil,                                         // 34: coder.tailnet.v2.Netcheck.RegionV6LatencyEntry
-	(*Netcheck_NetcheckIP)(nil),                 // 35: coder.tailnet.v2.Netcheck.NetcheckIP
-	(*TelemetryEvent_P2PEndpoint)(nil),          // 36: coder.tailnet.v2.TelemetryEvent.P2PEndpoint
+	(CoordinateResponse_PeerUpdate_Kind)(0),     // 0: neuralinverse.tailnet.v2.CoordinateResponse.PeerUpdate.Kind
+	(IPFields_IPClass)(0),                       // 1: neuralinverse.tailnet.v2.IPFields.IPClass
+	(TelemetryEvent_Status)(0),                  // 2: neuralinverse.tailnet.v2.TelemetryEvent.Status
+	(TelemetryEvent_ClientType)(0),              // 3: neuralinverse.tailnet.v2.TelemetryEvent.ClientType
+	(Workspace_Status)(0),                       // 4: neuralinverse.tailnet.v2.Workspace.Status
+	(*DERPMap)(nil),                             // 5: neuralinverse.tailnet.v2.DERPMap
+	(*StreamDERPMapsRequest)(nil),               // 6: neuralinverse.tailnet.v2.StreamDERPMapsRequest
+	(*Node)(nil),                                // 7: neuralinverse.tailnet.v2.Node
+	(*RefreshResumeTokenRequest)(nil),           // 8: neuralinverse.tailnet.v2.RefreshResumeTokenRequest
+	(*RefreshResumeTokenResponse)(nil),          // 9: neuralinverse.tailnet.v2.RefreshResumeTokenResponse
+	(*CoordinateRequest)(nil),                   // 10: neuralinverse.tailnet.v2.CoordinateRequest
+	(*CoordinateResponse)(nil),                  // 11: neuralinverse.tailnet.v2.CoordinateResponse
+	(*IPFields)(nil),                            // 12: neuralinverse.tailnet.v2.IPFields
+	(*Netcheck)(nil),                            // 13: neuralinverse.tailnet.v2.Netcheck
+	(*TelemetryEvent)(nil),                      // 14: neuralinverse.tailnet.v2.TelemetryEvent
+	(*TelemetryRequest)(nil),                    // 15: neuralinverse.tailnet.v2.TelemetryRequest
+	(*TelemetryResponse)(nil),                   // 16: neuralinverse.tailnet.v2.TelemetryResponse
+	(*WorkspaceUpdatesRequest)(nil),             // 17: neuralinverse.tailnet.v2.WorkspaceUpdatesRequest
+	(*WorkspaceUpdate)(nil),                     // 18: neuralinverse.tailnet.v2.WorkspaceUpdate
+	(*Workspace)(nil),                           // 19: neuralinverse.tailnet.v2.Workspace
+	(*Agent)(nil),                               // 20: neuralinverse.tailnet.v2.Agent
+	(*DERPMap_HomeParams)(nil),                  // 21: neuralinverse.tailnet.v2.DERPMap.HomeParams
+	(*DERPMap_Region)(nil),                      // 22: neuralinverse.tailnet.v2.DERPMap.Region
+	nil,                                         // 23: neuralinverse.tailnet.v2.DERPMap.RegionsEntry
+	nil,                                         // 24: neuralinverse.tailnet.v2.DERPMap.HomeParams.RegionScoreEntry
+	(*DERPMap_Region_Node)(nil),                 // 25: neuralinverse.tailnet.v2.DERPMap.Region.Node
+	nil,                                         // 26: neuralinverse.tailnet.v2.Node.DerpLatencyEntry
+	nil,                                         // 27: neuralinverse.tailnet.v2.Node.DerpForcedWebsocketEntry
+	(*CoordinateRequest_UpdateSelf)(nil),        // 28: neuralinverse.tailnet.v2.CoordinateRequest.UpdateSelf
+	(*CoordinateRequest_Disconnect)(nil),        // 29: neuralinverse.tailnet.v2.CoordinateRequest.Disconnect
+	(*CoordinateRequest_Tunnel)(nil),            // 30: neuralinverse.tailnet.v2.CoordinateRequest.Tunnel
+	(*CoordinateRequest_ReadyForHandshake)(nil), // 31: neuralinverse.tailnet.v2.CoordinateRequest.ReadyForHandshake
+	(*CoordinateResponse_PeerUpdate)(nil),       // 32: neuralinverse.tailnet.v2.CoordinateResponse.PeerUpdate
+	nil,                                         // 33: neuralinverse.tailnet.v2.Netcheck.RegionV4LatencyEntry
+	nil,                                         // 34: neuralinverse.tailnet.v2.Netcheck.RegionV6LatencyEntry
+	(*Netcheck_NetcheckIP)(nil),                 // 35: neuralinverse.tailnet.v2.Netcheck.NetcheckIP
+	(*TelemetryEvent_P2PEndpoint)(nil),          // 36: neuralinverse.tailnet.v2.TelemetryEvent.P2PEndpoint
 	(*timestamppb.Timestamp)(nil),               // 37: google.protobuf.Timestamp
 	(*durationpb.Duration)(nil),                 // 38: google.protobuf.Duration
 	(*wrapperspb.BoolValue)(nil),                // 39: google.protobuf.BoolValue
 	(*wrapperspb.FloatValue)(nil),               // 40: google.protobuf.FloatValue
 }
 var file_tailnet_proto_tailnet_proto_depIdxs = []int32{
-	21, // 0: coder.tailnet.v2.DERPMap.home_params:type_name -> coder.tailnet.v2.DERPMap.HomeParams
-	23, // 1: coder.tailnet.v2.DERPMap.regions:type_name -> coder.tailnet.v2.DERPMap.RegionsEntry
-	37, // 2: coder.tailnet.v2.Node.as_of:type_name -> google.protobuf.Timestamp
-	26, // 3: coder.tailnet.v2.Node.derp_latency:type_name -> coder.tailnet.v2.Node.DerpLatencyEntry
-	27, // 4: coder.tailnet.v2.Node.derp_forced_websocket:type_name -> coder.tailnet.v2.Node.DerpForcedWebsocketEntry
-	38, // 5: coder.tailnet.v2.RefreshResumeTokenResponse.refresh_in:type_name -> google.protobuf.Duration
-	37, // 6: coder.tailnet.v2.RefreshResumeTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	28, // 7: coder.tailnet.v2.CoordinateRequest.update_self:type_name -> coder.tailnet.v2.CoordinateRequest.UpdateSelf
-	29, // 8: coder.tailnet.v2.CoordinateRequest.disconnect:type_name -> coder.tailnet.v2.CoordinateRequest.Disconnect
-	30, // 9: coder.tailnet.v2.CoordinateRequest.add_tunnel:type_name -> coder.tailnet.v2.CoordinateRequest.Tunnel
-	30, // 10: coder.tailnet.v2.CoordinateRequest.remove_tunnel:type_name -> coder.tailnet.v2.CoordinateRequest.Tunnel
-	31, // 11: coder.tailnet.v2.CoordinateRequest.ready_for_handshake:type_name -> coder.tailnet.v2.CoordinateRequest.ReadyForHandshake
-	32, // 12: coder.tailnet.v2.CoordinateResponse.peer_updates:type_name -> coder.tailnet.v2.CoordinateResponse.PeerUpdate
-	1,  // 13: coder.tailnet.v2.IPFields.class:type_name -> coder.tailnet.v2.IPFields.IPClass
-	39, // 14: coder.tailnet.v2.Netcheck.OSHasIPv6:type_name -> google.protobuf.BoolValue
-	39, // 15: coder.tailnet.v2.Netcheck.MappingVariesByDestIP:type_name -> google.protobuf.BoolValue
-	39, // 16: coder.tailnet.v2.Netcheck.HairPinning:type_name -> google.protobuf.BoolValue
-	39, // 17: coder.tailnet.v2.Netcheck.UPnP:type_name -> google.protobuf.BoolValue
-	39, // 18: coder.tailnet.v2.Netcheck.PMP:type_name -> google.protobuf.BoolValue
-	39, // 19: coder.tailnet.v2.Netcheck.PCP:type_name -> google.protobuf.BoolValue
-	33, // 20: coder.tailnet.v2.Netcheck.RegionV4Latency:type_name -> coder.tailnet.v2.Netcheck.RegionV4LatencyEntry
-	34, // 21: coder.tailnet.v2.Netcheck.RegionV6Latency:type_name -> coder.tailnet.v2.Netcheck.RegionV6LatencyEntry
-	35, // 22: coder.tailnet.v2.Netcheck.GlobalV4:type_name -> coder.tailnet.v2.Netcheck.NetcheckIP
-	35, // 23: coder.tailnet.v2.Netcheck.GlobalV6:type_name -> coder.tailnet.v2.Netcheck.NetcheckIP
-	37, // 24: coder.tailnet.v2.TelemetryEvent.time:type_name -> google.protobuf.Timestamp
-	2,  // 25: coder.tailnet.v2.TelemetryEvent.status:type_name -> coder.tailnet.v2.TelemetryEvent.Status
-	3,  // 26: coder.tailnet.v2.TelemetryEvent.client_type:type_name -> coder.tailnet.v2.TelemetryEvent.ClientType
-	36, // 27: coder.tailnet.v2.TelemetryEvent.p2p_endpoint:type_name -> coder.tailnet.v2.TelemetryEvent.P2PEndpoint
-	5,  // 28: coder.tailnet.v2.TelemetryEvent.derp_map:type_name -> coder.tailnet.v2.DERPMap
-	13, // 29: coder.tailnet.v2.TelemetryEvent.latest_netcheck:type_name -> coder.tailnet.v2.Netcheck
-	38, // 30: coder.tailnet.v2.TelemetryEvent.connection_age:type_name -> google.protobuf.Duration
-	38, // 31: coder.tailnet.v2.TelemetryEvent.connection_setup:type_name -> google.protobuf.Duration
-	38, // 32: coder.tailnet.v2.TelemetryEvent.p2p_setup:type_name -> google.protobuf.Duration
-	38, // 33: coder.tailnet.v2.TelemetryEvent.derp_latency:type_name -> google.protobuf.Duration
-	38, // 34: coder.tailnet.v2.TelemetryEvent.p2p_latency:type_name -> google.protobuf.Duration
-	40, // 35: coder.tailnet.v2.TelemetryEvent.throughput_mbits:type_name -> google.protobuf.FloatValue
-	14, // 36: coder.tailnet.v2.TelemetryRequest.events:type_name -> coder.tailnet.v2.TelemetryEvent
-	19, // 37: coder.tailnet.v2.WorkspaceUpdate.upserted_workspaces:type_name -> coder.tailnet.v2.Workspace
-	20, // 38: coder.tailnet.v2.WorkspaceUpdate.upserted_agents:type_name -> coder.tailnet.v2.Agent
-	19, // 39: coder.tailnet.v2.WorkspaceUpdate.deleted_workspaces:type_name -> coder.tailnet.v2.Workspace
-	20, // 40: coder.tailnet.v2.WorkspaceUpdate.deleted_agents:type_name -> coder.tailnet.v2.Agent
-	4,  // 41: coder.tailnet.v2.Workspace.status:type_name -> coder.tailnet.v2.Workspace.Status
-	24, // 42: coder.tailnet.v2.DERPMap.HomeParams.region_score:type_name -> coder.tailnet.v2.DERPMap.HomeParams.RegionScoreEntry
-	25, // 43: coder.tailnet.v2.DERPMap.Region.nodes:type_name -> coder.tailnet.v2.DERPMap.Region.Node
-	22, // 44: coder.tailnet.v2.DERPMap.RegionsEntry.value:type_name -> coder.tailnet.v2.DERPMap.Region
-	7,  // 45: coder.tailnet.v2.CoordinateRequest.UpdateSelf.node:type_name -> coder.tailnet.v2.Node
-	7,  // 46: coder.tailnet.v2.CoordinateResponse.PeerUpdate.node:type_name -> coder.tailnet.v2.Node
-	0,  // 47: coder.tailnet.v2.CoordinateResponse.PeerUpdate.kind:type_name -> coder.tailnet.v2.CoordinateResponse.PeerUpdate.Kind
-	38, // 48: coder.tailnet.v2.Netcheck.RegionV4LatencyEntry.value:type_name -> google.protobuf.Duration
-	38, // 49: coder.tailnet.v2.Netcheck.RegionV6LatencyEntry.value:type_name -> google.protobuf.Duration
-	12, // 50: coder.tailnet.v2.Netcheck.NetcheckIP.fields:type_name -> coder.tailnet.v2.IPFields
-	12, // 51: coder.tailnet.v2.TelemetryEvent.P2PEndpoint.fields:type_name -> coder.tailnet.v2.IPFields
-	15, // 52: coder.tailnet.v2.Tailnet.PostTelemetry:input_type -> coder.tailnet.v2.TelemetryRequest
-	6,  // 53: coder.tailnet.v2.Tailnet.StreamDERPMaps:input_type -> coder.tailnet.v2.StreamDERPMapsRequest
-	8,  // 54: coder.tailnet.v2.Tailnet.RefreshResumeToken:input_type -> coder.tailnet.v2.RefreshResumeTokenRequest
-	10, // 55: coder.tailnet.v2.Tailnet.Coordinate:input_type -> coder.tailnet.v2.CoordinateRequest
-	17, // 56: coder.tailnet.v2.Tailnet.WorkspaceUpdates:input_type -> coder.tailnet.v2.WorkspaceUpdatesRequest
-	16, // 57: coder.tailnet.v2.Tailnet.PostTelemetry:output_type -> coder.tailnet.v2.TelemetryResponse
-	5,  // 58: coder.tailnet.v2.Tailnet.StreamDERPMaps:output_type -> coder.tailnet.v2.DERPMap
-	9,  // 59: coder.tailnet.v2.Tailnet.RefreshResumeToken:output_type -> coder.tailnet.v2.RefreshResumeTokenResponse
-	11, // 60: coder.tailnet.v2.Tailnet.Coordinate:output_type -> coder.tailnet.v2.CoordinateResponse
-	18, // 61: coder.tailnet.v2.Tailnet.WorkspaceUpdates:output_type -> coder.tailnet.v2.WorkspaceUpdate
+	21, // 0: neuralinverse.tailnet.v2.DERPMap.home_params:type_name -> neuralinverse.tailnet.v2.DERPMap.HomeParams
+	23, // 1: neuralinverse.tailnet.v2.DERPMap.regions:type_name -> neuralinverse.tailnet.v2.DERPMap.RegionsEntry
+	37, // 2: neuralinverse.tailnet.v2.Node.as_of:type_name -> google.protobuf.Timestamp
+	26, // 3: neuralinverse.tailnet.v2.Node.derp_latency:type_name -> neuralinverse.tailnet.v2.Node.DerpLatencyEntry
+	27, // 4: neuralinverse.tailnet.v2.Node.derp_forced_websocket:type_name -> neuralinverse.tailnet.v2.Node.DerpForcedWebsocketEntry
+	38, // 5: neuralinverse.tailnet.v2.RefreshResumeTokenResponse.refresh_in:type_name -> google.protobuf.Duration
+	37, // 6: neuralinverse.tailnet.v2.RefreshResumeTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	28, // 7: neuralinverse.tailnet.v2.CoordinateRequest.update_self:type_name -> neuralinverse.tailnet.v2.CoordinateRequest.UpdateSelf
+	29, // 8: neuralinverse.tailnet.v2.CoordinateRequest.disconnect:type_name -> neuralinverse.tailnet.v2.CoordinateRequest.Disconnect
+	30, // 9: neuralinverse.tailnet.v2.CoordinateRequest.add_tunnel:type_name -> neuralinverse.tailnet.v2.CoordinateRequest.Tunnel
+	30, // 10: neuralinverse.tailnet.v2.CoordinateRequest.remove_tunnel:type_name -> neuralinverse.tailnet.v2.CoordinateRequest.Tunnel
+	31, // 11: neuralinverse.tailnet.v2.CoordinateRequest.ready_for_handshake:type_name -> neuralinverse.tailnet.v2.CoordinateRequest.ReadyForHandshake
+	32, // 12: neuralinverse.tailnet.v2.CoordinateResponse.peer_updates:type_name -> neuralinverse.tailnet.v2.CoordinateResponse.PeerUpdate
+	1,  // 13: neuralinverse.tailnet.v2.IPFields.class:type_name -> neuralinverse.tailnet.v2.IPFields.IPClass
+	39, // 14: neuralinverse.tailnet.v2.Netcheck.OSHasIPv6:type_name -> google.protobuf.BoolValue
+	39, // 15: neuralinverse.tailnet.v2.Netcheck.MappingVariesByDestIP:type_name -> google.protobuf.BoolValue
+	39, // 16: neuralinverse.tailnet.v2.Netcheck.HairPinning:type_name -> google.protobuf.BoolValue
+	39, // 17: neuralinverse.tailnet.v2.Netcheck.UPnP:type_name -> google.protobuf.BoolValue
+	39, // 18: neuralinverse.tailnet.v2.Netcheck.PMP:type_name -> google.protobuf.BoolValue
+	39, // 19: neuralinverse.tailnet.v2.Netcheck.PCP:type_name -> google.protobuf.BoolValue
+	33, // 20: neuralinverse.tailnet.v2.Netcheck.RegionV4Latency:type_name -> neuralinverse.tailnet.v2.Netcheck.RegionV4LatencyEntry
+	34, // 21: neuralinverse.tailnet.v2.Netcheck.RegionV6Latency:type_name -> neuralinverse.tailnet.v2.Netcheck.RegionV6LatencyEntry
+	35, // 22: neuralinverse.tailnet.v2.Netcheck.GlobalV4:type_name -> neuralinverse.tailnet.v2.Netcheck.NetcheckIP
+	35, // 23: neuralinverse.tailnet.v2.Netcheck.GlobalV6:type_name -> neuralinverse.tailnet.v2.Netcheck.NetcheckIP
+	37, // 24: neuralinverse.tailnet.v2.TelemetryEvent.time:type_name -> google.protobuf.Timestamp
+	2,  // 25: neuralinverse.tailnet.v2.TelemetryEvent.status:type_name -> neuralinverse.tailnet.v2.TelemetryEvent.Status
+	3,  // 26: neuralinverse.tailnet.v2.TelemetryEvent.client_type:type_name -> neuralinverse.tailnet.v2.TelemetryEvent.ClientType
+	36, // 27: neuralinverse.tailnet.v2.TelemetryEvent.p2p_endpoint:type_name -> neuralinverse.tailnet.v2.TelemetryEvent.P2PEndpoint
+	5,  // 28: neuralinverse.tailnet.v2.TelemetryEvent.derp_map:type_name -> neuralinverse.tailnet.v2.DERPMap
+	13, // 29: neuralinverse.tailnet.v2.TelemetryEvent.latest_netcheck:type_name -> neuralinverse.tailnet.v2.Netcheck
+	38, // 30: neuralinverse.tailnet.v2.TelemetryEvent.connection_age:type_name -> google.protobuf.Duration
+	38, // 31: neuralinverse.tailnet.v2.TelemetryEvent.connection_setup:type_name -> google.protobuf.Duration
+	38, // 32: neuralinverse.tailnet.v2.TelemetryEvent.p2p_setup:type_name -> google.protobuf.Duration
+	38, // 33: neuralinverse.tailnet.v2.TelemetryEvent.derp_latency:type_name -> google.protobuf.Duration
+	38, // 34: neuralinverse.tailnet.v2.TelemetryEvent.p2p_latency:type_name -> google.protobuf.Duration
+	40, // 35: neuralinverse.tailnet.v2.TelemetryEvent.throughput_mbits:type_name -> google.protobuf.FloatValue
+	14, // 36: neuralinverse.tailnet.v2.TelemetryRequest.events:type_name -> neuralinverse.tailnet.v2.TelemetryEvent
+	19, // 37: neuralinverse.tailnet.v2.WorkspaceUpdate.upserted_workspaces:type_name -> neuralinverse.tailnet.v2.Workspace
+	20, // 38: neuralinverse.tailnet.v2.WorkspaceUpdate.upserted_agents:type_name -> neuralinverse.tailnet.v2.Agent
+	19, // 39: neuralinverse.tailnet.v2.WorkspaceUpdate.deleted_workspaces:type_name -> neuralinverse.tailnet.v2.Workspace
+	20, // 40: neuralinverse.tailnet.v2.WorkspaceUpdate.deleted_agents:type_name -> neuralinverse.tailnet.v2.Agent
+	4,  // 41: neuralinverse.tailnet.v2.Workspace.status:type_name -> neuralinverse.tailnet.v2.Workspace.Status
+	24, // 42: neuralinverse.tailnet.v2.DERPMap.HomeParams.region_score:type_name -> neuralinverse.tailnet.v2.DERPMap.HomeParams.RegionScoreEntry
+	25, // 43: neuralinverse.tailnet.v2.DERPMap.Region.nodes:type_name -> neuralinverse.tailnet.v2.DERPMap.Region.Node
+	22, // 44: neuralinverse.tailnet.v2.DERPMap.RegionsEntry.value:type_name -> neuralinverse.tailnet.v2.DERPMap.Region
+	7,  // 45: neuralinverse.tailnet.v2.CoordinateRequest.UpdateSelf.node:type_name -> neuralinverse.tailnet.v2.Node
+	7,  // 46: neuralinverse.tailnet.v2.CoordinateResponse.PeerUpdate.node:type_name -> neuralinverse.tailnet.v2.Node
+	0,  // 47: neuralinverse.tailnet.v2.CoordinateResponse.PeerUpdate.kind:type_name -> neuralinverse.tailnet.v2.CoordinateResponse.PeerUpdate.Kind
+	38, // 48: neuralinverse.tailnet.v2.Netcheck.RegionV4LatencyEntry.value:type_name -> google.protobuf.Duration
+	38, // 49: neuralinverse.tailnet.v2.Netcheck.RegionV6LatencyEntry.value:type_name -> google.protobuf.Duration
+	12, // 50: neuralinverse.tailnet.v2.Netcheck.NetcheckIP.fields:type_name -> neuralinverse.tailnet.v2.IPFields
+	12, // 51: neuralinverse.tailnet.v2.TelemetryEvent.P2PEndpoint.fields:type_name -> neuralinverse.tailnet.v2.IPFields
+	15, // 52: neuralinverse.tailnet.v2.Tailnet.PostTelemetry:input_type -> neuralinverse.tailnet.v2.TelemetryRequest
+	6,  // 53: neuralinverse.tailnet.v2.Tailnet.StreamDERPMaps:input_type -> neuralinverse.tailnet.v2.StreamDERPMapsRequest
+	8,  // 54: neuralinverse.tailnet.v2.Tailnet.RefreshResumeToken:input_type -> neuralinverse.tailnet.v2.RefreshResumeTokenRequest
+	10, // 55: neuralinverse.tailnet.v2.Tailnet.Coordinate:input_type -> neuralinverse.tailnet.v2.CoordinateRequest
+	17, // 56: neuralinverse.tailnet.v2.Tailnet.WorkspaceUpdates:input_type -> neuralinverse.tailnet.v2.WorkspaceUpdatesRequest
+	16, // 57: neuralinverse.tailnet.v2.Tailnet.PostTelemetry:output_type -> neuralinverse.tailnet.v2.TelemetryResponse
+	5,  // 58: neuralinverse.tailnet.v2.Tailnet.StreamDERPMaps:output_type -> neuralinverse.tailnet.v2.DERPMap
+	9,  // 59: neuralinverse.tailnet.v2.Tailnet.RefreshResumeToken:output_type -> neuralinverse.tailnet.v2.RefreshResumeTokenResponse
+	11, // 60: neuralinverse.tailnet.v2.Tailnet.Coordinate:output_type -> neuralinverse.tailnet.v2.CoordinateResponse
+	18, // 61: neuralinverse.tailnet.v2.Tailnet.WorkspaceUpdates:output_type -> neuralinverse.tailnet.v2.WorkspaceUpdate
 	57, // [57:62] is the sub-list for method output_type
 	52, // [52:57] is the sub-list for method input_type
 	52, // [52:52] is the sub-list for extension type_name

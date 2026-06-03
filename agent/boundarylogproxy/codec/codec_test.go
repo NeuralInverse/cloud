@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/agent/boundarylogproxy/codec"
+	"github.com/NeuralInverse/cloud/v2/agent/boundarylogproxy/codec"
 )
 
 func TestRoundTrip(t *testing.T) {

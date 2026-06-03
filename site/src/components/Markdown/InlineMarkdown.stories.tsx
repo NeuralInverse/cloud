@@ -17,7 +17,7 @@ export const WithFormatting: Story = {
 
 export const WithLink: Story = {
 	args: {
-		children: "Read the [documentation](https://coder.com/docs).",
+		children: "Read the [documentation](https://cloud.neuralinverse.com/docs).",
 	},
 };
 

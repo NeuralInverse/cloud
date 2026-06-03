@@ -14,7 +14,7 @@ the [Dev Containers Integration](../integration.md) offers container management
 with dashboard visibility and multi-container support.
 
 Dev containers provide developers with increased autonomy and control over their
-Coder cloud development environments.
+Neural Inverse Cloud cloud development environments.
 
 By using dev containers, developers can customize their workspaces with tools
 pre-approved by platform teams in registries like
@@ -36,16 +36,16 @@ configuration that can be composed together on top of an existing base image.
 This is a good place to install project-specific tools, such as
 language-specific runtimes and compilers.
 
-## Coder Envbuilder
+## Neural Inverse Cloud Envbuilder
 
 [Envbuilder](https://github.com/coder/envbuilder/) is an open-source project
-maintained by Coder that runs dev containers via Coder templates and your
+maintained by Neural Inverse Cloud that runs dev containers via Neural Inverse Cloud templates and your
 underlying infrastructure. Envbuilder can run on Docker or Kubernetes.
 
-It is independently packaged and versioned from the centralized Coder
-open-source project. This means that Envbuilder can be used with Coder, but it
+It is independently packaged and versioned from the centralized Neural Inverse Cloud
+open-source project. This means that Envbuilder can be used with Neural Inverse Cloud, but it
 is not required. It also means that dev container builds can scale independently
-of the Coder control plane and even run within a CI/CD pipeline.
+of the Neural Inverse Cloud control plane and even run within a CI/CD pipeline.
 
 ## Next steps
 

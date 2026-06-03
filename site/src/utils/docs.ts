@@ -1,7 +1,7 @@
 import { getStaticBuildInfo } from "./buildInfo";
 
 function defaultDocsUrl(): string {
-	const docsUrl = "https://coder.com/docs";
+	const docsUrl = "https://cloud.neuralinverse.com/docs";
 	// If we can get the specific version, we want to include that in default docs URL.
 	let version = getStaticBuildInfo()?.version;
 	if (!version) {

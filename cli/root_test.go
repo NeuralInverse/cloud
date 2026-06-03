@@ -15,15 +15,15 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/buildinfo"
-	"github.com/coder/coder/v2/cli"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/buildinfo"
+	"github.com/NeuralInverse/cloud/v2/cli"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 	"github.com/coder/serpent"
 )
 
@@ -42,60 +42,60 @@ func TestCommandHelp(t *testing.T) {
 	}
 	clitest.TestCommandHelp(t, getCmds, append(clitest.DefaultCases(),
 		clitest.CommandHelpCase{
-			Name: "coder agent --help",
+			Name: "neuralinverse agent --help",
 			Cmd:  []string{"agent", "--help"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder list --output json",
+			Name: "neuralinverse list --output json",
 			Cmd:  []string{"list", "--output", "json"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder users list --output json",
+			Name: "neuralinverse users list --output json",
 			Cmd:  []string{"users", "list", "--output", "json"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder users list",
+			Name: "neuralinverse users list",
 			Cmd:  []string{"users", "list"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder provisioner list",
+			Name: "neuralinverse provisioner list",
 			Cmd:  []string{"provisioner", "list"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder provisioner list --output json",
+			Name: "neuralinverse provisioner list --output json",
 			Cmd:  []string{"provisioner", "list", "--output", "json"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder provisioner jobs list",
+			Name: "neuralinverse provisioner jobs list",
 			Cmd:  []string{"provisioner", "jobs", "list"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder provisioner jobs list --output json",
+			Name: "neuralinverse provisioner jobs list --output json",
 			Cmd:  []string{"provisioner", "jobs", "list", "--output", "json"},
 		},
 		// TODO (SasSwart): Remove these once the sync commands are promoted out of experimental.
 		clitest.CommandHelpCase{
-			Name: "coder exp sync --help",
+			Name: "neuralinverse exp sync --help",
 			Cmd:  []string{"exp", "sync", "--help"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder exp sync ping --help",
+			Name: "neuralinverse exp sync ping --help",
 			Cmd:  []string{"exp", "sync", "ping", "--help"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder exp sync start --help",
+			Name: "neuralinverse exp sync start --help",
 			Cmd:  []string{"exp", "sync", "start", "--help"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder exp sync want --help",
+			Name: "neuralinverse exp sync want --help",
 			Cmd:  []string{"exp", "sync", "want", "--help"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder exp sync complete --help",
+			Name: "neuralinverse exp sync complete --help",
 			Cmd:  []string{"exp", "sync", "complete", "--help"},
 		},
 		clitest.CommandHelpCase{
-			Name: "coder exp sync status --help",
+			Name: "neuralinverse exp sync status --help",
 			Cmd:  []string{"exp", "sync", "status", "--help"},
 		},
 	))
@@ -176,16 +176,16 @@ func TestRoot(t *testing.T) {
 		defer srv.Close()
 		url = srv.URL
 		buf := new(bytes.Buffer)
-		coderURLEnv := "$CODER_URL"
+		niURLEnv := "$NEURALINVERSE_URL"
 		if runtime.GOOS == "windows" {
-			coderURLEnv = "%CODER_URL%"
+			niURLEnv = "%NEURALINVERSE_URL%"
 		}
 		inv, _ := clitest.New(t,
 			"--no-feature-warning",
 			"--no-version-warning",
 			"--header", "X-Testing=wow",
 			"--header", "Cool-Header=Dean was Here!",
-			"--header-command", "printf X-Process-Testing=very-wow-"+coderURLEnv+"'\\r\\n'X-Process-Testing2=more-wow",
+			"--header-command", "printf X-Process-Testing=very-wow-"+niURLEnv+"'\\r\\n'X-Process-Testing2=more-wow",
 			"login", srv.URL,
 		)
 		inv.Stdout = buf
@@ -202,32 +202,32 @@ func TestRoot(t *testing.T) {
 func TestDERPHeaders(t *testing.T) {
 	t.Parallel()
 
-	// Create a coderd API instance the hard way since we need to change the
+	// Create a nicloud API instance the hard way since we need to change the
 	// handler to inject our custom /derp handler.
-	dv := coderdtest.DeploymentValues(t)
+	dv := nicloudtest.DeploymentValues(t)
 	dv.DERP.Config.BlockDirect = true
-	setHandler, cancelFunc, serverURL, newOptions := coderdtest.NewOptions(t, &coderdtest.Options{
+	setHandler, cancelFunc, serverURL, newOptions := nicloudtest.NewOptions(t, &nicloudtest.Options{
 		DeploymentValues: dv,
 	})
 
 	// We set the handler after server creation for the access URL.
-	coderAPI := coderd.New(newOptions)
-	setHandler(coderAPI.RootHandler)
-	provisionerCloser := coderdtest.NewProvisionerDaemon(t, coderAPI)
+	niAPI := nicloud.New(newOptions)
+	setHandler(niAPI.RootHandler)
+	provisionerCloser := nicloudtest.NewProvisionerDaemon(t, niAPI)
 	t.Cleanup(func() {
 		_ = provisionerCloser.Close()
 	})
-	client := codersdk.New(serverURL, codersdk.WithHTTPClient(coderdtest.NewIsolatedHTTPClient(serverURL)))
+	client := nicloudsdk.New(serverURL, nicloudsdk.WithHTTPClient(nicloudtest.NewIsolatedHTTPClient(serverURL)))
 	t.Cleanup(func() {
 		cancelFunc()
 		_ = provisionerCloser.Close()
-		_ = coderAPI.Close()
+		_ = niAPI.Close()
 		client.HTTPClient.CloseIdleConnections()
 	})
 
 	var (
-		admin              = coderdtest.CreateFirstUser(t, client)
-		member, memberUser = coderdtest.CreateAnotherUser(t, client, admin.OrganizationID)
+		admin              = nicloudtest.CreateFirstUser(t, client)
+		member, memberUser = nicloudtest.CreateAnotherUser(t, client, admin.OrganizationID)
 		workspace          = runAgent(t, client, memberUser.ID, newOptions.Database)
 	)
 
@@ -256,7 +256,7 @@ func TestDERPHeaders(t *testing.T) {
 			}
 		}
 
-		coderAPI.RootHandler.ServeHTTP(w, r)
+		niAPI.RootHandler.ServeHTTP(w, r)
 	}))
 
 	// Connect with the headers set as args.
@@ -386,7 +386,7 @@ func TestCreateAgentClient_GoogleAgentNameEnv(t *testing.T) {
 		"agent-client",
 		"--auth", "google-instance-identity",
 		"--agent-url", "http://coder.fake")
-	inv.Environ.Set("CODER_AGENT_NAME", "env-agent")
+	inv.Environ.Set("NEURALINVERSE_AGENT_NAME", "env-agent")
 	err = inv.Run()
 	require.NoError(t, err)
 	require.NotNil(t, client)
@@ -453,18 +453,18 @@ func TestWrapTransportWithUserAgentHeader(t *testing.T) {
 		{
 			name:                    "top-level command",
 			cmdArgs:                 []string{"login"},
-			expectedUserAgentHeader: fmt.Sprintf("coder-cli/%s (%s/%s; coder login)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH),
+			expectedUserAgentHeader: fmt.Sprintf("coder-cli/%s (%s/%s; neuralinverse login)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH),
 		},
 		{
 			name:                    "nested commands",
 			cmdArgs:                 []string{"templates", "list"},
-			expectedUserAgentHeader: fmt.Sprintf("coder-cli/%s (%s/%s; coder templates list)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH),
+			expectedUserAgentHeader: fmt.Sprintf("coder-cli/%s (%s/%s; neuralinverse templates list)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH),
 		},
 		{
 			name:                    "does not include positional args, flags, or env",
 			cmdArgs:                 []string{"templates", "push", "my-template", "-d", "/path/to/template", "--yes", "--var", "myvar=myvalue"},
 			cmdEnv:                  map[string]string{"SECRET_KEY": "secret_value"},
-			expectedUserAgentHeader: fmt.Sprintf("coder-cli/%s (%s/%s; coder templates push)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH),
+			expectedUserAgentHeader: fmt.Sprintf("coder-cli/%s (%s/%s; neuralinverse templates push)", buildinfo.Version(), runtime.GOOS, runtime.GOARCH),
 		},
 	}
 
@@ -483,7 +483,7 @@ func TestWrapTransportWithUserAgentHeader(t *testing.T) {
 
 			args := append([]string{}, tc.cmdArgs...)
 			inv, _ := clitest.New(t, args...)
-			inv.Environ.Set("CODER_URL", srv.URL)
+			inv.Environ.Set("NEURALINVERSE_URL", srv.URL)
 			for k, v := range tc.cmdEnv {
 				inv.Environ.Set(k, v)
 			}

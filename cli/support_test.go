@@ -20,24 +20,24 @@ import (
 	"github.com/stretchr/testify/require"
 	"tailscale.com/ipn/ipnstate"
 
-	"github.com/coder/coder/v2/agent"
-	"github.com/coder/coder/v2/agent/agenttest"
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/coderd/database/dbauthz"
-	"github.com/coder/coder/v2/coderd/database/dbfake"
-	"github.com/coder/coder/v2/coderd/database/dbtime"
-	"github.com/coder/coder/v2/coderd/healthcheck"
-	"github.com/coder/coder/v2/coderd/healthcheck/derphealth"
-	"github.com/coder/coder/v2/coderd/healthcheck/health"
-	"github.com/coder/coder/v2/codersdk"
-	"github.com/coder/coder/v2/codersdk/agentsdk"
-	"github.com/coder/coder/v2/codersdk/healthsdk"
-	"github.com/coder/coder/v2/codersdk/workspacesdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
-	"github.com/coder/coder/v2/tailnet"
-	"github.com/coder/coder/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/agent"
+	"github.com/NeuralInverse/cloud/v2/agent/agenttest"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbauthz"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbfake"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database/dbtime"
+	"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck"
+	"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck/derphealth"
+	"github.com/NeuralInverse/cloud/v2/nicloud/healthcheck/health"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/agentsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/healthsdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk/workspacesdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
+	"github.com/NeuralInverse/cloud/v2/testutil"
 )
 
 func TestSupportBundle(t *testing.T) {
@@ -46,9 +46,9 @@ func TestSupportBundle(t *testing.T) {
 		t.Skip("for some reason, windows fails to remove tempdirs sometimes")
 	}
 
-	// Support bundle tests can share a single coderdtest instance.
-	var dc codersdk.DeploymentConfig
-	dc.Values = coderdtest.DeploymentValues(t)
+	// Support bundle tests can share a single nicloudtest instance.
+	var dc nicloudsdk.DeploymentConfig
+	dc.Values = nicloudtest.DeploymentValues(t)
 	dc.Values.Prometheus.Enable = true
 	secretValue := uuid.NewString()
 	seedSecretDeploymentOptions(t, &dc, secretValue)
@@ -58,7 +58,7 @@ func TestSupportBundle(t *testing.T) {
 	// macOS CI runners. Since this test validates support bundle
 	// generation, not healthcheck correctness, a canned report is
 	// sufficient.
-	client, closer, api := coderdtest.NewWithAPI(t, &coderdtest.Options{
+	client, closer, api := nicloudtest.NewWithAPI(t, &nicloudtest.Options{
 		DeploymentValues: dc.Values,
 		HealthcheckFunc: func(_ context.Context, _ string, _ *healthcheck.Progress) *healthsdk.HealthcheckReport {
 			return &healthsdk.HealthcheckReport{
@@ -70,8 +70,8 @@ func TestSupportBundle(t *testing.T) {
 	})
 
 	t.Cleanup(func() { closer.Close() })
-	owner := coderdtest.CreateFirstUser(t, client)
-	memberClient, member := coderdtest.CreateAnotherUser(t, client, owner.OrganizationID)
+	owner := nicloudtest.CreateFirstUser(t, client)
+	memberClient, member := nicloudtest.CreateAnotherUser(t, client, owner.OrganizationID)
 
 	// Set up test fixtures
 	setupCtx := testutil.Context(t, testutil.WaitLong)
@@ -93,7 +93,7 @@ func TestSupportBundle(t *testing.T) {
 			o.LogDir = tempDir
 		})
 		defer agt.Close()
-		coderdtest.NewWorkspaceAgentWaiter(t, client, workspaceWithAgent.Workspace.ID).Wait()
+		nicloudtest.NewWorkspaceAgentWaiter(t, client, workspaceWithAgent.Workspace.ID).Wait()
 
 		d := t.TempDir()
 		path := filepath.Join(d, "bundle.zip")
@@ -126,8 +126,8 @@ func TestSupportBundle(t *testing.T) {
 		// No workspace arg, but set env vars as if inside a workspace.
 		inv, root := clitest.New(t, "support", "bundle", "--output-file", path, "--yes")
 		inv.Environ.Set("CODER", "true")
-		inv.Environ.Set("CODER_WORKSPACE_ID", workspaceWithoutAgent.Workspace.ID.String())
-		inv.Environ.Set("CODER_WORKSPACE_AGENT_NAME", "dev")
+		inv.Environ.Set("NEURALINVERSE_WORKSPACE_ID", workspaceWithoutAgent.Workspace.ID.String())
+		inv.Environ.Set("NEURALINVERSE_WORKSPACE_AGENT_NAME", "dev")
 		//nolint: gocritic // requires owner privilege
 		clitest.SetupConfig(t, client, root)
 		err := inv.Run()
@@ -141,13 +141,13 @@ func TestSupportBundle(t *testing.T) {
 
 		d := t.TempDir()
 		path := filepath.Join(d, "bundle.zip")
-		// No workspace arg and no CODER_WORKSPACE_ID; fall back to
+		// No workspace arg and no NEURALINVERSE_WORKSPACE_ID; fall back to
 		// owner/name resolution for older agents.
 		inv, root := clitest.New(t, "support", "bundle", "--output-file", path, "--yes")
 		inv.Environ.Set("CODER", "true")
-		inv.Environ.Set("CODER_WORKSPACE_NAME", workspaceWithoutAgent.Workspace.Name)
-		inv.Environ.Set("CODER_WORKSPACE_OWNER_NAME", coderdtest.FirstUserParams.Username)
-		inv.Environ.Set("CODER_WORKSPACE_AGENT_NAME", "dev")
+		inv.Environ.Set("NEURALINVERSE_WORKSPACE_NAME", workspaceWithoutAgent.Workspace.Name)
+		inv.Environ.Set("NEURALINVERSE_WORKSPACE_OWNER_NAME", nicloudtest.FirstUserParams.Username)
+		inv.Environ.Set("NEURALINVERSE_WORKSPACE_AGENT_NAME", "dev")
 		//nolint: gocritic // requires owner privilege
 		clitest.SetupConfig(t, client, root)
 		err := inv.Run()
@@ -218,12 +218,12 @@ func TestSupportBundle(t *testing.T) {
 					t.Logf("received request: %s %s", r.Method, r.URL)
 					switch r.URL.Path {
 					case "/api/v2/users/me":
-						resp := codersdk.User{}
+						resp := nicloudsdk.User{}
 						w.WriteHeader(http.StatusOK)
 						assert.NoError(t, json.NewEncoder(w).Encode(resp))
 					case "/api/v2/authcheck":
 						// Fake auth check
-						resp := codersdk.AuthorizationResponse{
+						resp := nicloudsdk.AuthorizationResponse{
 							"Read DeploymentValues": true,
 						}
 						w.WriteHeader(http.StatusOK)
@@ -236,7 +236,7 @@ func TestSupportBundle(t *testing.T) {
 				defer srv.Close()
 				u, err := url.Parse(srv.URL)
 				require.NoError(t, err)
-				client := codersdk.New(u)
+				client := nicloudsdk.New(u)
 
 				d := t.TempDir()
 				path := filepath.Join(d, "bundle.zip")
@@ -260,19 +260,19 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 		assertDoesNotContain(t, f, badValues...)
 		switch f.Name {
 		case "deployment/buildinfo.json":
-			var v codersdk.BuildInfoResponse
+			var v nicloudsdk.BuildInfoResponse
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, v, "deployment build info should not be empty")
 		case "deployment/config.json":
-			var v codersdk.DeploymentConfig
+			var v nicloudsdk.DeploymentConfig
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, v, "deployment config should not be empty")
 		case "deployment/entitlements.json":
-			var v codersdk.Entitlements
+			var v nicloudsdk.Entitlements
 			decodeJSONFromZip(t, f, &v)
 			require.NotNil(t, v, "entitlements should not be nil")
 		case "deployment/experiments.json":
-			var v codersdk.Experiments
+			var v nicloudsdk.Experiments
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, f, v, "experiments should not be empty")
 		case "deployment/health.json":
@@ -284,11 +284,11 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, v, "health settings should not be empty")
 		case "deployment/stats.json":
-			var v codersdk.DeploymentStats
+			var v nicloudsdk.DeploymentStats
 			decodeJSONFromZip(t, f, &v)
 			require.NotNil(t, v, "deployment stats should not be nil")
 		case "deployment/workspaces.json":
-			var v codersdk.Workspace
+			var v nicloudsdk.Workspace
 			decodeJSONFromZip(t, f, &v)
 			require.NotNil(t, v, "deployment workspaces should not be nil")
 		case "deployment/prometheus.txt":
@@ -314,7 +314,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			decodeJSONFromZip(t, f, &v)
 			require.NotEmpty(t, v, "interfaces should not be empty")
 		case "workspace/workspace.json":
-			var v codersdk.Workspace
+			var v nicloudsdk.Workspace
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace to be empty")
@@ -329,7 +329,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.Contains(t, string(bs), "provision done")
 		case "workspace/template.json":
-			var v codersdk.Template
+			var v nicloudsdk.Template
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace template to be empty")
@@ -337,7 +337,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotEmpty(t, v, "workspace template should not be empty")
 		case "workspace/template_version.json":
-			var v codersdk.TemplateVersion
+			var v nicloudsdk.TemplateVersion
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace template version to be empty")
@@ -345,7 +345,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotEmpty(t, v, "workspace template version should not be empty")
 		case "workspace/parameters.json":
-			var v []codersdk.WorkspaceBuildParameter
+			var v []nicloudsdk.WorkspaceBuildParameter
 			decodeJSONFromZip(t, f, &v)
 			if !wantWorkspace {
 				require.Empty(t, v, "expected workspace parameters to be empty")
@@ -360,7 +360,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotNil(t, bs, "template file should not be nil")
 		case "agent/agent.json":
-			var v codersdk.WorkspaceAgent
+			var v nicloudsdk.WorkspaceAgent
 			decodeJSONFromZip(t, f, &v)
 			if !wantAgent {
 				require.Empty(t, v, "expected agent to be empty")
@@ -368,7 +368,7 @@ func assertBundleContents(t *testing.T, path string, wantWorkspace bool, wantAge
 			}
 			require.NotEmpty(t, v, "agent should not be empty")
 		case "agent/listening_ports.json":
-			var v codersdk.WorkspaceAgentListeningPortsResponse
+			var v nicloudsdk.WorkspaceAgentListeningPortsResponse
 			decodeJSONFromZip(t, f, &v)
 			if !wantAgent {
 				require.Empty(t, v, "expected agent listening ports to be empty")
@@ -476,13 +476,13 @@ func assertDoesNotContain(t *testing.T, f *zip.File, vals ...string) {
 	}
 }
 
-func seedSecretDeploymentOptions(t *testing.T, dc *codersdk.DeploymentConfig, secretValue string) {
+func seedSecretDeploymentOptions(t *testing.T, dc *nicloudsdk.DeploymentConfig, secretValue string) {
 	t.Helper()
 	if dc == nil {
-		dc = &codersdk.DeploymentConfig{}
+		dc = &nicloudsdk.DeploymentConfig{}
 	}
 	for _, opt := range dc.Options {
-		if codersdk.IsSecretDeploymentOption(opt) {
+		if nicloudsdk.IsSecretDeploymentOption(opt) {
 			opt.Value.Set(secretValue)
 		}
 	}

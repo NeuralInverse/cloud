@@ -30,7 +30,7 @@ interface AutoArchiveSettingsProps {
 	isSaveAutoArchiveDaysError: boolean;
 }
 
-// Keep in sync with autoArchiveDaysMaximum in coderd/exp_chats.go.
+// Keep in sync with autoArchiveDaysMaximum in nicloud/exp_chats.go.
 const validationSchema = Yup.object({
 	auto_archive_days: Yup.number()
 		.integer("Auto-archive days must be a whole number.")

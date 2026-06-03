@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/pty"
+	"github.com/NeuralInverse/cloud/v2/pty"
 )
 
 // testPTY is a pipe-based PTY implementation for in-process CLI testing on

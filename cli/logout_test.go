@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/coder/coder/v2/cli/clitest"
-	"github.com/coder/coder/v2/cli/config"
-	"github.com/coder/coder/v2/coderd/coderdtest"
-	"github.com/coder/coder/v2/testutil"
-	"github.com/coder/coder/v2/testutil/expecter"
+	"github.com/NeuralInverse/cloud/v2/cli/clitest"
+	"github.com/NeuralInverse/cloud/v2/cli/config"
+	"github.com/NeuralInverse/cloud/v2/nicloud/nicloudtest"
+	"github.com/NeuralInverse/cloud/v2/testutil"
+	"github.com/NeuralInverse/cloud/v2/testutil/expecter"
 )
 
 func TestLogout(t *testing.T) {
@@ -170,8 +170,8 @@ func login(ctx context.Context, t *testing.T) config.Root {
 	t.Helper()
 
 	logger := testutil.Logger(t)
-	client := coderdtest.New(t, nil)
-	coderdtest.CreateFirstUser(t, client)
+	client := nicloudtest.New(t, nil)
+	nicloudtest.CreateFirstUser(t, client)
 
 	doneChan := make(chan struct{})
 	root, cfg := clitest.New(t, "login", "--force-tty", client.URL.String(), "--no-open")

@@ -11,7 +11,7 @@ import (
 	"cdr.dev/slog/v3"
 )
 
-// MaxLength is the largest possible CoderVPN Protocol message size. This is set
+// MaxLength is the largest possible Neural Inverse CloudVPN Protocol message size. This is set
 // so that a misbehaving peer can't cause us to allocate a huge amount of memory.
 const MaxLength = 0x1000000 // 16MiB
 

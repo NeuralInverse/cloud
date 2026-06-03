@@ -15,10 +15,10 @@ data "coder_provisioner" "me" {}
 
 provider "incus" {}
 
-data "coder_workspace" "me" {}
-data "coder_workspace_owner" "me" {}
+data "ni_workspace" "me" {}
+data "ni_workspace_owner" "me" {}
 
-data "coder_parameter" "image" {
+data "ni_parameter" "image" {
   name         = "image"
   display_name = "Image"
   description  = "The container image to use. Must have cloud-init installed."
@@ -45,7 +45,7 @@ data "coder_parameter" "image" {
 
 }
 
-data "coder_parameter" "cpu" {
+data "ni_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU"
   description  = "The number of CPUs to allocate to the workspace (1-8)"
@@ -59,7 +59,7 @@ data "coder_parameter" "cpu" {
   }
 }
 
-data "coder_parameter" "memory" {
+data "ni_parameter" "memory" {
   name         = "memory"
   display_name = "Memory"
   description  = "The amount of memory to allocate to the workspace in GB (up to 16GB)"
@@ -73,7 +73,7 @@ data "coder_parameter" "memory" {
   }
 }
 
-data "coder_parameter" "git_repo" {
+data "ni_parameter" "git_repo" {
   type        = "string"
   name        = "Git repository"
   default     = ""
@@ -81,7 +81,7 @@ data "coder_parameter" "git_repo" {
   mutable     = true
 }
 
-data "coder_parameter" "pool" {
+data "ni_parameter" "pool" {
   type         = "string"
   name         = "pool"
   display_name = "Storage pool"
@@ -90,15 +90,15 @@ data "coder_parameter" "pool" {
   mutable      = false
 }
 
-resource "coder_agent" "main" {
-  count = data.coder_workspace.me.start_count
+resource "ni_agent" "main" {
+  count = data.ni_workspace.me.start_count
   arch  = data.coder_provisioner.me.arch
   os    = "linux"
   dir   = "/home/${local.workspace_user}"
   env = {
-    CODER_WORKSPACE_ID  = data.coder_workspace.me.id
-    CODER_SESSION_TOKEN = data.coder_workspace_owner.me.session_token
-    CODER_URL           = data.coder_workspace.me.access_url
+    CODER_WORKSPACE_ID  = data.ni_workspace.me.id
+    CODER_SESSION_TOKEN = data.ni_workspace_owner.me.session_token
+    CODER_URL           = data.ni_workspace.me.access_url
   }
 
   metadata {
@@ -122,8 +122,8 @@ resource "coder_agent" "main" {
 # include packages here that are not required for either the
 # agent or modules.
 resource "coder_script" "packages" {
-  count        = data.coder_workspace.me.start_count
-  agent_id     = coder_agent.main[0].id
+  count        = data.ni_workspace.me.start_count
+  agent_id     = ni_agent.main[0].id
   display_name = "Install packages"
   icon         = "/icon/debian.svg"
   run_on_start = true
@@ -155,18 +155,18 @@ resource "coder_script" "packages" {
 }
 
 resource "incus_storage_volume" "home" {
-  name = "coder-${data.coder_workspace.me.id}-home"
+  name = "coder-${data.ni_workspace.me.id}-home"
   pool = local.pool
 }
 
 resource "incus_instance" "dev" {
-  running = data.coder_workspace.me.start_count == 1
-  name    = "coder-${lower(data.coder_workspace_owner.me.name)}-${lower(data.coder_workspace.me.name)}"
-  image   = data.coder_parameter.image.value
+  running = data.ni_workspace.me.start_count == 1
+  name    = "coder-${lower(data.ni_workspace_owner.me.name)}-${lower(data.ni_workspace.me.name)}"
+  image   = data.ni_parameter.image.value
 
   config = {
-    "limits.cpu"                           = data.coder_parameter.cpu.value
-    "limits.memory"                        = "${data.coder_parameter.memory.value}GiB"
+    "limits.cpu"                           = data.ni_parameter.cpu.value
+    "limits.memory"                        = "${data.ni_parameter.memory.value}GiB"
     "security.nesting"                     = true
     "security.syscalls.intercept.mknod"    = true
     "security.syscalls.intercept.setxattr" = true
@@ -180,12 +180,12 @@ resource "incus_instance" "dev" {
     # Terraform on every workspace start; Incus updates the config on the
     # instance even while it is stopped, so the new value is available
     # immediately when the container boots.
-    "user.coder_agent_token" = local.agent_token
-    "user.coder_agent_url"   = data.coder_workspace.me.access_url
+    "user.ni_agent_token" = local.agent_token
+    "user.ni_agent_url"   = data.ni_workspace.me.access_url
 
     "cloud-init.user-data" = <<EOF
 #cloud-config
-hostname: ${lower(data.coder_workspace.me.name)}
+hostname: ${lower(data.ni_workspace.me.name)}
 users:
   - name: ${local.workspace_user}
     uid: 1000
@@ -210,12 +210,12 @@ write_files:
       INCUS_SOCK="/dev/incus/sock"
 
       # Read agent config from Incus guest API.
-      CODER_AGENT_TOKEN=$(curl -sf --unix-socket "$INCUS_SOCK" http://localhost/1.0/config/user.coder_agent_token)
-      CODER_AGENT_URL=$(curl -sf --unix-socket "$INCUS_SOCK" http://localhost/1.0/config/user.coder_agent_url)
+      CODER_AGENT_TOKEN=$(curl -sf --unix-socket "$INCUS_SOCK" http://localhost/1.0/config/user.ni_agent_token)
+      CODER_AGENT_URL=$(curl -sf --unix-socket "$INCUS_SOCK" http://localhost/1.0/config/user.ni_agent_url)
 
       # Write env file for the systemd service.
       printf 'CODER_AGENT_TOKEN=%s\nCODER_AGENT_URL=%s\n' "$CODER_AGENT_TOKEN" "$CODER_AGENT_URL" > /opt/coder/init.env
-  # The standard Coder agent init script, provided by coder_agent.init_script.
+  # The standard Coder agent init script, provided by ni_agent.init_script.
   # This handles downloading the correct agent binary and running it.
   - path: /opt/coder/coder-init.sh
     permissions: "0755"
@@ -235,7 +235,7 @@ write_files:
   # Watcher script that listens for config changes via the Incus guest API
   # events endpoint. The Incus Terraform provider starts the instance before
   # updating config keys, so on a stop->start cycle the agent initially boots
-  # with a stale token. This watcher detects when user.coder_agent_token is
+  # with a stale token. This watcher detects when user.ni_agent_token is
   # updated, re-fetches the config, and restarts the agent with the new token.
   - path: /opt/coder/watch-config.sh
     permissions: "0755"
@@ -245,7 +245,7 @@ write_files:
       curl -sfN --unix-socket "$INCUS_SOCK" http://localhost/1.0/events?type=config | \
         while read -r event; do
           key=$(echo "$event" | sed -n 's/.*"key":"\([^"]*\)".*/\1/p')
-          if [ "$key" = "user.coder_agent_token" ]; then
+          if [ "$key" = "user.ni_agent_token" ]; then
             /opt/coder/fetch-config.sh
             systemctl restart coder-agent.service
           fi
@@ -318,16 +318,16 @@ EOF
 }
 
 locals {
-  workspace_user = lower(data.coder_workspace_owner.me.name)
-  pool           = data.coder_parameter.pool.value
+  workspace_user = lower(data.ni_workspace_owner.me.name)
+  pool           = data.ni_parameter.pool.value
   # Workaround for the LXC provider stripping empty string config values, causing unexpected new values.
-  agent_token       = data.coder_workspace.me.start_count == 1 ? coder_agent.main[0].token : "no-token"
-  agent_init_script = data.coder_workspace.me.start_count == 1 ? coder_agent.main[0].init_script : "#!/bin/sh\nexit 0"
+  agent_token       = data.ni_workspace.me.start_count == 1 ? ni_agent.main[0].token : "no-token"
+  agent_init_script = data.ni_workspace.me.start_count == 1 ? ni_agent.main[0].init_script : "#!/bin/sh\nexit 0"
 }
 
 resource "coder_metadata" "info" {
-  count       = data.coder_workspace.me.start_count
-  resource_id = coder_agent.main[0].id
+  count       = data.ni_workspace.me.start_count
+  resource_id = ni_agent.main[0].id
   item {
     key   = "memory"
     value = incus_instance.dev.config["limits.memory"]
@@ -342,21 +342,21 @@ resource "coder_metadata" "info" {
   }
   item {
     key   = "image"
-    value = data.coder_parameter.image.value
+    value = data.ni_parameter.image.value
   }
 }
 
 module "code-server" {
   source   = "registry.coder.com/coder/code-server/coder"
   version  = "~> 1.0"
-  agent_id = coder_agent.main[0].id
-  count    = data.coder_workspace.me.start_count
+  agent_id = ni_agent.main[0].id
+  count    = data.ni_workspace.me.start_count
 }
 
 module "git-clone" {
-  count    = data.coder_workspace.me.start_count == 1 && data.coder_parameter.git_repo.value != "" ? 1 : 0
+  count    = data.ni_workspace.me.start_count == 1 && data.ni_parameter.git_repo.value != "" ? 1 : 0
   source   = "registry.coder.com/coder/git-clone/coder"
   version  = "~> 2.0"
-  agent_id = coder_agent.main[0].id
-  url      = data.coder_parameter.git_repo.value
+  agent_id = ni_agent.main[0].id
+  url      = data.ni_parameter.git_repo.value
 }

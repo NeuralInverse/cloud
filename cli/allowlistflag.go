@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/pflag"
 	"golang.org/x/xerrors"
 
-	"github.com/coder/coder/v2/codersdk"
+	"github.com/NeuralInverse/cloud/v2/nicloudsdk"
 )
 
 var (
@@ -15,10 +15,10 @@ var (
 	_ pflag.Value      = &AllowListFlag{}
 )
 
-// AllowListFlag implements pflag.SliceValue for codersdk.APIAllowListTarget entries.
-type AllowListFlag []codersdk.APIAllowListTarget
+// AllowListFlag implements pflag.SliceValue for nicloudsdk.APIAllowListTarget entries.
+type AllowListFlag []nicloudsdk.APIAllowListTarget
 
-func AllowListFlagOf(al *[]codersdk.APIAllowListTarget) *AllowListFlag {
+func AllowListFlagOf(al *[]nicloudsdk.APIAllowListTarget) *AllowListFlag {
 	return (*AllowListFlag)(al)
 }
 
@@ -26,8 +26,8 @@ func (a AllowListFlag) String() string {
 	return strings.Join(a.GetSlice(), ",")
 }
 
-func (a AllowListFlag) Value() []codersdk.APIAllowListTarget {
-	return []codersdk.APIAllowListTarget(a)
+func (a AllowListFlag) Value() []nicloudsdk.APIAllowListTarget {
+	return []nicloudsdk.APIAllowListTarget(a)
 }
 
 func (AllowListFlag) Type() string { return "allow-list" }
@@ -50,7 +50,7 @@ func (a *AllowListFlag) Append(value string) error {
 	if value == "" {
 		return xerrors.New("allow list entry cannot be empty")
 	}
-	var target codersdk.APIAllowListTarget
+	var target nicloudsdk.APIAllowListTarget
 	if err := target.UnmarshalText([]byte(value)); err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (a *AllowListFlag) Append(value string) error {
 }
 
 func (a *AllowListFlag) Replace(items []string) error {
-	*a = []codersdk.APIAllowListTarget{}
+	*a = []nicloudsdk.APIAllowListTarget{}
 	for _, item := range items {
 		if err := a.Append(item); err != nil {
 			return err

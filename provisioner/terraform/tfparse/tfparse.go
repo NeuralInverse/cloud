@@ -21,12 +21,12 @@ import (
 	"golang.org/x/xerrors"
 
 	"cdr.dev/slog/v3"
-	"github.com/coder/coder/v2/archive"
-	"github.com/coder/coder/v2/provisionersdk"
-	"github.com/coder/coder/v2/provisionersdk/proto"
+	"github.com/NeuralInverse/cloud/v2/archive"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk"
+	"github.com/NeuralInverse/cloud/v2/provisionersdk/proto"
 )
 
-// NOTE: This is duplicated from coderd but we can't import it here without
+// NOTE: This is duplicated from nicloud but we can't import it here without
 // introducing a circular dependency
 const maxFileSizeBytes = 10 * (10 << 20) // 10 MB
 
@@ -78,7 +78,7 @@ func New(workdir string, opts ...Option) (*Parser, tfconfig.Diagnostics) {
 	return &p, diags
 }
 
-// WorkspaceTags looks for all coder_workspace_tags datasource in the module
+// WorkspaceTags looks for all ni_workspace_tags datasource in the module
 // and returns the raw values for the tags. It also returns the set of
 // variables referenced by any expressions in the raw values of tags.
 func (p *Parser) WorkspaceTags(ctx context.Context) (map[string]string, map[string]struct{}, error) {
@@ -86,7 +86,7 @@ func (p *Parser) WorkspaceTags(ctx context.Context) (map[string]string, map[stri
 	skipped := []string{}
 	requiredVars := map[string]struct{}{}
 	for _, dataResource := range p.module.DataResources {
-		if dataResource.Type != "coder_workspace_tags" {
+		if dataResource.Type != "ni_workspace_tags" {
 			skipped = append(skipped, strings.Join([]string{"data", dataResource.Type, dataResource.Name}, "."))
 			continue
 		}
@@ -103,22 +103,22 @@ func (p *Parser) WorkspaceTags(ctx context.Context) (map[string]string, map[stri
 			return nil, nil, xerrors.Errorf("can't parse the resource file: %s", diags.Error())
 		}
 
-		// Parse root to find "coder_workspace_tags".
+		// Parse root to find "ni_workspace_tags".
 		content, _, diags := file.Body.PartialContent(rootTemplateSchema)
 		if diags.HasErrors() {
 			return nil, nil, xerrors.Errorf("can't parse the resource file: %s", diags.Error())
 		}
 
-		// Iterate over blocks to locate the exact "coder_workspace_tags" data resource.
+		// Iterate over blocks to locate the exact "ni_workspace_tags" data resource.
 		for _, block := range content.Blocks {
-			if !slices.Equal(block.Labels, []string{"coder_workspace_tags", dataResource.Name}) {
+			if !slices.Equal(block.Labels, []string{"ni_workspace_tags", dataResource.Name}) {
 				continue
 			}
 
-			// Parse "coder_workspace_tags" to find all key-value tags.
+			// Parse "ni_workspace_tags" to find all key-value tags.
 			resContent, _, diags := block.Body.PartialContent(coderWorkspaceTagsSchema)
 			if diags.HasErrors() {
-				return nil, nil, xerrors.Errorf(`can't parse the resource coder_workspace_tags: %s`, diags.Error())
+				return nil, nil, xerrors.Errorf(`can't parse the resource ni_workspace_tags: %s`, diags.Error())
 			}
 
 			if resContent == nil {
@@ -126,7 +126,7 @@ func (p *Parser) WorkspaceTags(ctx context.Context) (map[string]string, map[stri
 			}
 
 			if _, ok := resContent.Attributes["tags"]; !ok {
-				return nil, nil, xerrors.Errorf(`"tags" attribute is required by coder_workspace_tags`)
+				return nil, nil, xerrors.Errorf(`"tags" attribute is required by ni_workspace_tags`)
 			}
 
 			expr := resContent.Attributes["tags"].Expr
@@ -135,7 +135,7 @@ func (p *Parser) WorkspaceTags(ctx context.Context) (map[string]string, map[stri
 				return nil, nil, xerrors.Errorf(`"tags" attribute is expected to be a key-value map`)
 			}
 
-			// Parse key-value entries in "coder_workspace_tags"
+			// Parse key-value entries in "ni_workspace_tags"
 			for _, tagItem := range tagsExpr.Items {
 				key, err := previewFileContent(tagItem.KeyExpr.Range())
 				if err != nil {
@@ -192,7 +192,7 @@ func referencedVariablesExpr(expr hclsyntax.Expression) (names []string) {
 // cleanupTraversalName chops off extraneous pieces of the traversal.
 // for example:
 // - var.foo -> unchanged
-// - data.coder_parameter.bar.value -> data.coder_parameter.bar
+// - data.ni_parameter.bar.value -> data.ni_parameter.bar
 // - null_resource.baz.zap -> null_resource.baz
 func cleanupTraversalName(parts []string) []string {
 	if len(parts) == 0 {
@@ -225,7 +225,7 @@ func (p *Parser) WorkspaceTagDefaults(ctx context.Context) (map[string]string, e
 	if err != nil {
 		return nil, xerrors.Errorf("load variable defaults: %w", err)
 	}
-	paramsDefaults, err := p.CoderParameterDefaults(ctx, varsDefaults, requiredVars)
+	paramsDefaults, err := p.NIParameterDefaults(ctx, varsDefaults, requiredVars)
 	if err != nil {
 		return nil, xerrors.Errorf("load parameter defaults: %w", err)
 	}
@@ -312,9 +312,9 @@ func (p *Parser) VariableDefaults(ctx context.Context) (map[string]string, error
 	return m, nil
 }
 
-// CoderParameterDefaults returns the default values of all coder_parameter data sources
+// Neural Inverse CloudParameterDefaults returns the default values of all ni_parameter data sources
 // in the parsed module.
-func (p *Parser) CoderParameterDefaults(ctx context.Context, varsDefaults map[string]string, names map[string]struct{}) (map[string]string, error) {
+func (p *Parser) NIParameterDefaults(ctx context.Context, varsDefaults map[string]string, names map[string]struct{}) (map[string]string, error) {
 	defaultsM := make(map[string]string)
 	var (
 		skipped []string
@@ -332,7 +332,7 @@ func (p *Parser) CoderParameterDefaults(ctx context.Context, varsDefaults map[st
 		}
 
 		needle := strings.Join([]string{"data", dataResource.Type, dataResource.Name}, ".")
-		if dataResource.Type != "coder_parameter" {
+		if dataResource.Type != "ni_parameter" {
 			skipped = append(skipped, needle)
 			continue
 		}
@@ -349,26 +349,26 @@ func (p *Parser) CoderParameterDefaults(ctx context.Context, varsDefaults map[st
 			return nil, xerrors.Errorf("can't parse the resource file %q: %s", dataResource.Pos.Filename, diags.Error())
 		}
 
-		// Parse root to find "coder_parameter".
+		// Parse root to find "ni_parameter".
 		content, _, diags := file.Body.PartialContent(rootTemplateSchema)
 		if diags.HasErrors() {
 			return nil, xerrors.Errorf("can't parse the resource file: %s", diags.Error())
 		}
 
-		// Iterate over blocks to locate the exact "coder_parameter" data resource.
+		// Iterate over blocks to locate the exact "ni_parameter" data resource.
 		for _, block := range content.Blocks {
-			if !slices.Equal(block.Labels, []string{"coder_parameter", dataResource.Name}) {
+			if !slices.Equal(block.Labels, []string{"ni_parameter", dataResource.Name}) {
 				continue
 			}
 
-			// Parse "coder_parameter" to find the default value.
+			// Parse "ni_parameter" to find the default value.
 			resContent, _, diags := block.Body.PartialContent(coderParameterSchema)
 			if diags.HasErrors() {
-				return nil, xerrors.Errorf(`can't parse the coder_parameter: %s`, diags.Error())
+				return nil, xerrors.Errorf(`can't parse the ni_parameter: %s`, diags.Error())
 			}
 
 			if _, ok := resContent.Attributes["default"]; !ok {
-				p.logger.Warn(ctx, "coder_parameter data source does not have a default value", slog.F("name", dataResource.Name))
+				p.logger.Warn(ctx, "ni_parameter data source does not have a default value", slog.F("name", dataResource.Name))
 				defaultsM[dataResource.Name] = ""
 			} else {
 				expr := resContent.Attributes["default"].Expr
@@ -378,16 +378,16 @@ func (p *Parser) CoderParameterDefaults(ctx context.Context, varsDefaults map[st
 				}
 				// Issue #15795: the "default" value could also be an expression we need
 				// to evaluate.
-				// TODO: should we support coder_parameter default values that reference other coder_parameter data sources?
+				// TODO: should we support ni_parameter default values that reference other ni_parameter data sources?
 				evalCtx := BuildEvalContext(varsDefaults, nil)
 				val, diags := expr.Value(evalCtx)
 				if diags.HasErrors() {
-					return nil, xerrors.Errorf("failed to evaluate coder_parameter %q default value %q: %s", dataResource.Name, value, diags.Error())
+					return nil, xerrors.Errorf("failed to evaluate ni_parameter %q default value %q: %s", dataResource.Name, value, diags.Error())
 				}
 				// Do not use "val.AsString()" as it can panic
 				strVal, err := CtyValueString(val)
 				if err != nil {
-					return nil, xerrors.Errorf("failed to marshal coder_parameter %q default value %q as string: %s", dataResource.Name, value, err)
+					return nil, xerrors.Errorf("failed to marshal ni_parameter %q default value %q as string: %s", dataResource.Name, value, err)
 				}
 				defaultsM[dataResource.Name] = strings.Trim(strVal, `"`)
 			}
@@ -398,14 +398,14 @@ func (p *Parser) CoderParameterDefaults(ctx context.Context, varsDefaults map[st
 }
 
 // evaluateWorkspaceTags evaluates the given workspaceTags based on the given
-// default values for variables and coder_parameter data sources.
+// default values for variables and ni_parameter data sources.
 func evaluateWorkspaceTags(varsDefaults, paramsDefaults, workspaceTags map[string]string) (map[string]string, error) {
 	// Filter only allowed data sources for preflight check.
 	// This is not strictly required but provides a friendlier error.
 	if err := validWorkspaceTagValues(workspaceTags); err != nil {
 		return nil, err
 	}
-	// We only add variables and coder_parameter data sources. Anything else will be
+	// We only add variables and ni_parameter data sources. Anything else will be
 	// undefined and will raise a Terraform error.
 	evalCtx := BuildEvalContext(varsDefaults, paramsDefaults)
 	tags := make(map[string]string)
@@ -431,17 +431,17 @@ func evaluateWorkspaceTags(varsDefaults, paramsDefaults, workspaceTags map[strin
 }
 
 // validWorkspaceTagValues returns an error if any value of the given tags map
-// evaluates to a datasource other than "coder_parameter".
+// evaluates to a datasource other than "ni_parameter".
 // This only serves to provide a friendly error if a user attempts to reference
-// a data source other than "coder_parameter" in "coder_workspace_tags".
+// a data source other than "ni_parameter" in "ni_workspace_tags".
 func validWorkspaceTagValues(tags map[string]string) error {
 	for _, v := range tags {
 		parts := strings.SplitN(v, ".", 3)
 		if len(parts) != 3 {
 			continue
 		}
-		if parts[0] == "data" && parts[1] != "coder_parameter" {
-			return xerrors.Errorf("invalid workspace tag value %q: only the \"coder_parameter\" data source is supported here", v)
+		if parts[0] == "data" && parts[1] != "ni_parameter" {
+			return xerrors.Errorf("invalid workspace tag value %q: only the \"ni_parameter\" data source is supported here", v)
 		}
 	}
 	return nil
@@ -476,7 +476,7 @@ func BuildEvalContext(vars map[string]string, params map[string]string) *hcl.Eva
 	}
 	if len(paramDefaultsM) != 0 {
 		evalCtx.Variables["data"] = cty.MapVal(map[string]cty.Value{
-			"coder_parameter": cty.MapVal(paramDefaultsM),
+			"ni_parameter": cty.MapVal(paramDefaultsM),
 		})
 	}
 
@@ -516,7 +516,7 @@ func previewFileContent(fileRange hcl.Range) (string, error) {
 	return string(fileRange.SliceBytes(body)), nil
 }
 
-// convertTerraformVariable converts a Terraform variable to a template-wide variable, processed by Coder.
+// convertTerraformVariable converts a Terraform variable to a template-wide variable, processed by Neural Inverse Cloud.
 func convertTerraformVariable(variable *tfconfig.Variable) (*proto.TemplateVariable, error) {
 	var defaultData string
 	if variable.Default != nil {

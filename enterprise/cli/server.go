@@ -15,23 +15,23 @@ import (
 	"tailscale.com/derp"
 	"tailscale.com/types/key"
 
-	agplcoderd "github.com/coder/coder/v2/coderd"
-	"github.com/coder/coder/v2/coderd/database"
-	"github.com/coder/coder/v2/cryptorand"
-	"github.com/coder/coder/v2/enterprise/audit"
-	"github.com/coder/coder/v2/enterprise/audit/backends"
-	"github.com/coder/coder/v2/enterprise/coderd"
-	"github.com/coder/coder/v2/enterprise/coderd/dormancy"
-	"github.com/coder/coder/v2/enterprise/coderd/usage"
-	"github.com/coder/coder/v2/enterprise/dbcrypt"
-	"github.com/coder/coder/v2/enterprise/trialer"
-	"github.com/coder/coder/v2/tailnet"
+	agplnicloud "github.com/NeuralInverse/cloud/v2/nicloud"
+	"github.com/NeuralInverse/cloud/v2/nicloud/database"
+	"github.com/NeuralInverse/cloud/v2/cryptorand"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit"
+	"github.com/NeuralInverse/cloud/v2/enterprise/audit/backends"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/dormancy"
+	"github.com/NeuralInverse/cloud/v2/enterprise/nicloud/usage"
+	"github.com/NeuralInverse/cloud/v2/enterprise/dbcrypt"
+	"github.com/NeuralInverse/cloud/v2/enterprise/trialer"
+	"github.com/NeuralInverse/cloud/v2/tailnet"
 	"github.com/coder/quartz"
 	"github.com/coder/serpent"
 )
 
 func (r *RootCmd) Server(_ func()) *serpent.Command {
-	cmd := r.RootCmd.Server(func(ctx context.Context, options *agplcoderd.Options) (*agplcoderd.API, io.Closer, error) {
+	cmd := r.RootCmd.Server(func(ctx context.Context, options *agplnicloud.Options) (*agplnicloud.API, io.Closer, error) {
 		if options.DeploymentValues.DERP.Server.RelayURL.String() != "" {
 			_, err := url.Parse(options.DeploymentValues.DERP.Server.RelayURL.String())
 			if err != nil {
@@ -87,9 +87,9 @@ func (r *RootCmd) Server(_ func()) *serpent.Command {
 			backends.NewSlog(options.Logger),
 		)
 
-		options.TrialGenerator = trialer.New(options.Database, "https://v2-licensor.coder.com/trial", coderd.Keys)
+		options.TrialGenerator = trialer.New(options.Database, "https://v2-licensor.cloud.neuralinverse.com/trial", nicloud.Keys)
 
-		o := &coderd.Options{
+		o := &nicloud.Options{
 			Options:                   options,
 			AuditLogging:              true,
 			ConnectionLogging:         true,
@@ -123,13 +123,13 @@ func (r *RootCmd) Server(_ func()) *serpent.Command {
 		}
 
 		if o.LicenseKeys == nil {
-			o.LicenseKeys = coderd.Keys
+			o.LicenseKeys = nicloud.Keys
 		}
 
 		closers := &multiCloser{}
 
 		// Create the enterprise API.
-		api, err := coderd.New(ctx, o)
+		api, err := nicloud.New(ctx, o)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -170,7 +170,7 @@ func (r *RootCmd) Server(_ func()) *serpent.Command {
 			// Seed env-derived providers before the proxy daemon's reloader
 			// reads them back so the proxy observes them on first startup.
 			// options.Database is dbcrypt-wrapped at this point (set by
-			// coderd.New above), so env-seeded keys are also written
+			// nicloud.New above), so env-seeded keys are also written
 			// encrypted. Detached ctx for the same reason as in agplcli
 			// below: an early return would orphan newAPI's goroutines.
 			// Seeding is idempotent; the agplcli path seeds again
@@ -178,7 +178,7 @@ func (r *RootCmd) Server(_ func()) *serpent.Command {
 			//nolint:gocritic // Production timeout, not a test wait.
 			aibridgeInitCtx, aibridgeInitCancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 			defer aibridgeInitCancel()
-			if err := agplcoderd.SeedAIProvidersFromEnv(
+			if err := agplnicloud.SeedAIProvidersFromEnv(
 				aibridgeInitCtx,
 				options.Database,
 				options.DeploymentValues.AI.BridgeConfig,

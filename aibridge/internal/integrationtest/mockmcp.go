@@ -18,8 +18,8 @@ import (
 
 	"cdr.dev/slog/v3"
 	"cdr.dev/slog/v3/sloggers/slogtest"
-	"github.com/coder/coder/v2/aibridge/internal/testutil"
-	"github.com/coder/coder/v2/aibridge/mcp"
+	"github.com/NeuralInverse/cloud/v2/aibridge/internal/testutil"
+	"github.com/NeuralInverse/cloud/v2/aibridge/mcp"
 )
 
 // mockToolName is the primary mock tool name used in MCP tests.
@@ -42,10 +42,10 @@ func (m *mockMCP) setToolError(tool, errMsg string) {
 	m.calls.setToolError(tool, errMsg)
 }
 
-// setupMCPForTest creates a ready-to-use MCP server with proxy named "coder".
+// setupMCPForTest creates a ready-to-use MCP server with proxy named "neuralinverse".
 func setupMCPForTest(t *testing.T, tracer trace.Tracer) *mockMCP {
 	t.Helper()
-	return setupMCPForTestWithName(t, "coder", tracer)
+	return setupMCPForTestWithName(t, "neuralinverse", tracer)
 }
 
 func setupMCPForTestWithName(t *testing.T, name string, tracer trace.Tracer) *mockMCP {
@@ -130,7 +130,7 @@ func createMockMCPSrv(t *testing.T) (http.Handler, *callAccumulator) {
 	t.Helper()
 
 	s := server.NewMCPServer(
-		"Mock coder MCP server",
+		"Mock neuralinverse MCP server",
 		"1.0.0",
 		server.WithToolCapabilities(true),
 	)

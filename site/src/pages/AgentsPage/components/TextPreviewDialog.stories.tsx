@@ -64,7 +64,7 @@ This document captures the rollout plan for the upcoming auth split.
 
 ## Goals
 
-1. Move OAuth2 endpoints under \`coderd/oauth2/\`.
+1. Move OAuth2 endpoints under \`nicloud/oauth2/\`.
 2. Keep external auth providers behind their existing routes.
 3. Avoid downtime for in-flight tokens.
 
@@ -73,7 +73,7 @@ This document captures the rollout plan for the upcoming auth split.
 
 ## Checklist
 
-- [x] Draft the migration in \`coderd/database/migrations/\`.
+- [x] Draft the migration in \`nicloud/database/migrations/\`.
 - [x] Update [the SDK types](https://example.com/sdk).
 - [ ] Coordinate with the deployments team.
 

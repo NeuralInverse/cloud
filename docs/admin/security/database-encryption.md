@@ -1,19 +1,19 @@
 # Database Encryption
 
-By default, Coder stores external user tokens in plaintext in the database.
-Database Encryption allows Coder administrators to encrypt these tokens at-rest,
+By default, Neural Inverse Cloud stores external user tokens in plaintext in the database.
+Database Encryption allows Neural Inverse Cloud administrators to encrypt these tokens at-rest,
 preventing attackers with database access from using them to impersonate users.
 
 ## How it works
 
-Coder allows administrators to specify
+Neural Inverse Cloud allows administrators to specify
 [external token encryption keys](../../reference/cli/server.md#--external-token-encryption-keys).
-If configured, Coder will use these keys to encrypt external user tokens before
+If configured, Neural Inverse Cloud will use these keys to encrypt external user tokens before
 storing them in the database. The encryption algorithm used is AES-256-GCM with
 a 32-byte key length.
 
-Coder will use the first key provided for both encryption and decryption. If
-additional keys are provided, Coder will use it for decryption only. This allows
+Neural Inverse Cloud will use the first key provided for both encryption and decryption. If
+additional keys are provided, Neural Inverse Cloud will use it for decryption only. This allows
 administrators to rotate encryption keys without invalidating existing tokens.
 
 The following database fields are currently encrypted:
@@ -32,7 +32,7 @@ Additional database fields may be encrypted in the future.
 
 Each encrypted database column `$C` has a corresponding
 `$C_key_id` column. This column is used to determine which encryption key was
-used to encrypt the data. This allows Coder to rotate encryption keys without
+used to encrypt the data. This allows Neural Inverse Cloud to rotate encryption keys without
 invalidating existing tokens, and provides referential integrity for encrypted
 data.
 
@@ -68,7 +68,7 @@ dd if=/dev/urandom bs=32 count=1 | base64
 kubectl create secret generic coder-external-token-encryption-keys --from-literal=keys=<key>
 ```
 
-- In your Coder configuration set `CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS` to a
+- In your Neural Inverse Cloud configuration set `NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS` to a
   comma-separated list of base64-encoded keys. For example, in your Helm
   `values.yaml`:
 
@@ -76,14 +76,14 @@ kubectl create secret generic coder-external-token-encryption-keys --from-litera
 coder:
   env:
     [...]
-    - name: CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS
+    - name: NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS
       valueFrom:
         secretKeyRef:
           name: coder-external-token-encryption-keys
           key: keys
 ```
 
-- Restart the Coder server. The server will now encrypt all new data with the
+- Restart the Neural Inverse Cloud server. The server will now encrypt all new data with the
   provided key.
 
 ## Rotating keys
@@ -111,7 +111,7 @@ data:
   keys: <new-key>,<old-key1>,<old-key2>,...
 ```
 
-- After updating the configuration, restart the Coder server. The server will
+- After updating the configuration, restart the Neural Inverse Cloud server. The server will
   now encrypt all new data with the new key, but will be able to decrypt tokens
   encrypted with the old key(s).
 
@@ -126,7 +126,7 @@ data:
   to get the connection URL.
 
 - Once the above command completes successfully, remove the old encryption key
-  from Coder's configuration and restart Coder once more. You can now safely
+  from Neural Inverse Cloud's configuration and restart Neural Inverse Cloud once more. You can now safely
   delete the old key from your secret store.
 
 ## Disabling encryption
@@ -135,7 +135,7 @@ To disable encryption, perform the following actions:
 
 - Ensure you have a valid backup of your database. **Do not skip this step.**
 
-- Stop all active coderd instances. This will prevent new encrypted data from
+- Stop all active nicloud instances. This will prevent new encrypted data from
   being written, which may cause the next step to fail.
 
 - Run
@@ -145,15 +145,15 @@ To disable encryption, perform the following actions:
 
   > [!NOTE]
   > for `decrypt` command, the equivalent environment variable for
-  > `--keys` is `CODER_EXTERNAL_TOKEN_ENCRYPTION_DECRYPT_KEYS` and not
-  > `CODER_EXTERNAL_TOKEN_ENCRYPTION_KEYS`. This is explicitly named differently
+  > `--keys` is `NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_DECRYPT_KEYS` and not
+  > `NEURALINVERSE_EXTERNAL_TOKEN_ENCRYPTION_KEYS`. This is explicitly named differently
   > to help prevent accidentally decrypting data.
 
 - Remove all
   [external token encryption keys](../../reference/cli/server.md#--external-token-encryption-keys)
-  from Coder's configuration.
+  from Neural Inverse Cloud's configuration.
 
-- Start coderd. You can now safely delete the encryption keys from your secret
+- Start nicloud. You can now safely delete the encryption keys from your secret
   store.
 
 ## Deleting Encrypted Data
@@ -165,7 +165,7 @@ To delete all encrypted data from your database, perform the following actions:
 
 - Ensure you have a valid backup of your database. **Do not skip this step.**
 
-- Stop all active coderd instances. This will prevent new encrypted data from
+- Stop all active nicloud instances. This will prevent new encrypted data from
   being written.
 
 - Run
@@ -175,17 +175,17 @@ To delete all encrypted data from your database, perform the following actions:
 
 - Remove all
   [external token encryption keys](../../reference/cli/server.md#--external-token-encryption-keys)
-  from Coder's configuration.
+  from Neural Inverse Cloud's configuration.
 
-- Start coderd. You can now safely delete the encryption keys from your secret
+- Start nicloud. You can now safely delete the encryption keys from your secret
   store.
 
 ## Troubleshooting
 
-- If Coder detects that the data stored in the database was not encrypted with
+- If Neural Inverse Cloud detects that the data stored in the database was not encrypted with
   any known keys, it will refuse to start. If you are seeing this behavior,
   ensure that the encryption keys provided are correct.
-- If Coder detects that the data stored in the database was encrypted with a key
+- If Neural Inverse Cloud detects that the data stored in the database was encrypted with a key
   that is no longer active, it will refuse to start. If you are seeing this
   behavior, ensure that the encryption keys provided are correct and that you
   have not revoked any keys that are still in use.
