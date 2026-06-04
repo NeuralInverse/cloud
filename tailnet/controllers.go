@@ -1444,7 +1444,7 @@ func (t *tunnelUpdater) updateDNSNamesLocked() map[dnsname.FQDN][]netip.Addr {
 		t.logger.Critical(context.Background(),
 			"failed to include Coder Connect enabled DNS name", slog.F("suffix", t.dnsNameOptions.Suffix))
 	} else {
-		names[isNIConnectEnabledFQDN] = []netip.Addr{tsaddr.NIServiceIPv6()}
+		names[isNIConnectEnabledFQDN] = []netip.Addr{tsaddr.CoderServiceIPv6()}
 	}
 	return names
 }
