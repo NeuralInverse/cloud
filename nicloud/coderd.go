@@ -682,6 +682,7 @@ func New(options *Options) *API {
 		DeploymentID:          api.DeploymentID,
 		WebPushPublicKey:      api.WebpushDispatcher.PublicKey(),
 		Telemetry:             api.Telemetry.Enabled(),
+		BillingURL:            api.DeploymentValues.BillingURL.String(),
 	}
 	api.SiteHandler, err = site.New(&site.Options{
 		CacheDir:          siteCacheDir,
@@ -1403,6 +1404,11 @@ func New(options *Options) *API {
 		r.Get("/auth/scopes", api.listExternalScopes)
 
 		r.Get("/buildinfo", buildInfoHandler(buildInfo))
+		// Billing redirect — only active when NEURALINVERSE_BILLING_URL is set
+		r.Group(func(r chi.Router) {
+			r.Use(apiKeyMiddleware)
+			r.Get("/billing/redirect", api.billingRedirect)
+		})
 		// /regions is overridden in the enterprise version
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)

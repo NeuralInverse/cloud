@@ -1436,6 +1436,7 @@ export interface BuildInfoResponse {
 	 * WebPushPublicKey is the public key for push notifications via Web Push.
 	 */
 	readonly webpush_public_key?: string;
+	readonly billing_url?: string;
 }
 
 // From nicloudsdk/workspacebuilds.go

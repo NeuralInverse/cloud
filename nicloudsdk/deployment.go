@@ -668,6 +668,8 @@ type DeploymentValues struct {
 	Retention                               RetentionConfig                      `json:"retention,omitempty" typescript:",notnull"`
 	CLIUpgradeMessage                       serpent.String                       `json:"cli_upgrade_message,omitempty" typescript:",notnull"`
 	TermsOfServiceURL                       serpent.String                       `json:"terms_of_service_url,omitempty" typescript:",notnull"`
+	BillingURL                              serpent.String                       `json:"billing_url,omitempty" typescript:",notnull"`
+	BillingJWTSecret                        serpent.String                       `json:"billing_jwt_secret,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3367,6 +3369,23 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Value:       &c.TermsOfServiceURL,
 		},
 		{
+			Name:        "Billing URL",
+			Description: "External billing service URL. When set, enables the billing redirect endpoint and shows a Billing link in the user menu. Leave unset for self-hosted deployments.",
+			Flag:        "billing-url",
+			Env:         "NEURALINVERSE_BILLING_URL",
+			YAML:        "billingURL",
+			Value:       &c.BillingURL,
+		},
+		{
+			Name:        "Billing JWT Secret",
+			Description: "Shared secret used to sign billing redirect tokens. Must match the billing service's BILLING_JWT_SECRET.",
+			Flag:        "billing-jwt-secret",
+			Env:         "NEURALINVERSE_BILLING_JWT_SECRET",
+			YAML:        "billingJWTSecret",
+			Value:       &c.BillingJWTSecret,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
 			Name: "Strict-Transport-Security",
 			Description: "Controls if the 'Strict-Transport-Security' header is set on all static file responses. " +
 				"This header should only be set if the server is accessed via HTTPS. This value is the MaxAge in seconds of " +
@@ -4958,6 +4977,9 @@ type BuildInfoResponse struct {
 
 	// WebPushPublicKey is the public key for push notifications via Web Push.
 	WebPushPublicKey string `json:"webpush_public_key,omitempty"`
+
+	// BillingURL is the external billing service URL. Empty for self-hosted deployments.
+	BillingURL string `json:"billing_url,omitempty"`
 }
 
 type WorkspaceProxyBuildInfo struct {
