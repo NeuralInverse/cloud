@@ -123,7 +123,7 @@ export const NavbarView: FC<NavbarViewProps> = ({
 					<div className="hidden md:block">
 						<Button asChild variant="outline">
 							<a href="/api/v2/hardware/redirect" className="inline-block">
-								Hardware
+								Run
 							</a>
 						</Button>
 					</div>
