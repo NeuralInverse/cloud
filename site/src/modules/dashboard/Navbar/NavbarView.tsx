@@ -109,6 +109,16 @@ export const NavbarView: FC<NavbarViewProps> = ({
 			)}
 
 			<div className="flex items-center gap-3 ml-auto">
+				{buildInfo?.model_url && (
+					<div className="hidden md:block">
+						<Button asChild variant="outline">
+							<a href="/api/v2/model/redirect" className="inline-block">
+								Models
+							</a>
+						</Button>
+					</div>
+				)}
+
 				{buildInfo?.billing_url && (
 					<div className="hidden md:block">
 						<Button asChild variant="outline">

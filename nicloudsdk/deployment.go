@@ -670,6 +670,8 @@ type DeploymentValues struct {
 	TermsOfServiceURL                       serpent.String                       `json:"terms_of_service_url,omitempty" typescript:",notnull"`
 	BillingURL                              serpent.String                       `json:"billing_url,omitempty" typescript:",notnull"`
 	BillingJWTSecret                        serpent.String                       `json:"billing_jwt_secret,omitempty" typescript:",notnull"`
+	ModelURL                                serpent.String                       `json:"model_url,omitempty" typescript:",notnull"`
+	ModelJWTSecret                          serpent.String                       `json:"model_jwt_secret,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3386,6 +3388,23 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
 		},
 		{
+			Name:        "Model URL",
+			Description: "External model gateway URL. When set, enables the model redirect endpoint and shows a Models link in the navbar. Leave unset for self-hosted deployments.",
+			Flag:        "model-url",
+			Env:         "NEURALINVERSE_MODEL_URL",
+			YAML:        "modelURL",
+			Value:       &c.ModelURL,
+		},
+		{
+			Name:        "Model JWT Secret",
+			Description: "Shared secret used to sign model redirect tokens. Must match the model service's JWT_SECRET.",
+			Flag:        "model-jwt-secret",
+			Env:         "NEURALINVERSE_MODEL_JWT_SECRET",
+			YAML:        "modelJWTSecret",
+			Value:       &c.ModelJWTSecret,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
 			Name: "Strict-Transport-Security",
 			Description: "Controls if the 'Strict-Transport-Security' header is set on all static file responses. " +
 				"This header should only be set if the server is accessed via HTTPS. This value is the MaxAge in seconds of " +
@@ -4980,6 +4999,9 @@ type BuildInfoResponse struct {
 
 	// BillingURL is the external billing service URL. Empty for self-hosted deployments.
 	BillingURL string `json:"billing_url,omitempty"`
+
+	// ModelURL is the external model gateway URL. Empty for self-hosted deployments.
+	ModelURL string `json:"model_url,omitempty"`
 }
 
 type WorkspaceProxyBuildInfo struct {

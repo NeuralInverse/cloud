@@ -51,13 +51,58 @@ func (api *API) billingRedirect(rw http.ResponseWriter, r *http.Request) {
 	http.Redirect(rw, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
+// modelRedirect generates a signed JWT and redirects the authenticated user
+// to the external model gateway. Only active when NEURALINVERSE_MODEL_URL is set.
+//
+// @Summary Redirect to model gateway
+// @ID model-redirect
+// @Tags Model
+// @Success 307
+// @Router /api/v2/model/redirect [get]
+func (api *API) modelRedirect(rw http.ResponseWriter, r *http.Request) {
+	modelURL := api.DeploymentValues.ModelURL.String()
+	if modelURL == "" {
+		http.NotFound(rw, r)
+		return
+	}
+
+	secret := api.DeploymentValues.ModelJWTSecret.String()
+	if secret == "" {
+		http.Error(rw, "Model gateway not configured", http.StatusInternalServerError)
+		return
+	}
+
+	apiKey := httpmw.APIKey(r)
+
+	// Look up user from the API key's owner
+	user, err := api.Database.GetUserByID(r.Context(), apiKey.UserID)
+	if err != nil {
+		http.Error(rw, "User not found", http.StatusInternalServerError)
+		return
+	}
+
+	token, err := createServiceToken(user.ID.String(), user.Email, user.Username, secret, "model")
+	if err != nil {
+		http.Error(rw, "Failed to generate model token", http.StatusInternalServerError)
+		return
+	}
+
+	redirectURL := modelURL + "/?token=" + token
+	http.Redirect(rw, r, redirectURL, http.StatusTemporaryRedirect)
+}
+
 func createBillingToken(userID, email, username, secret string) (string, error) {
+	return createServiceToken(userID, email, username, secret, "billing")
+}
+
+func createServiceToken(userID, email, username, secret, service string) (string, error) {
 	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
 
 	payload := map[string]interface{}{
 		"userId":   userID,
 		"email":    email,
 		"username": username,
+		"service":  service,
 		"iat":      time.Now().Unix(),
 		"exp":      time.Now().Add(5 * time.Minute).Unix(),
 	}
