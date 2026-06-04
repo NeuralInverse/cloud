@@ -684,6 +684,7 @@ func New(options *Options) *API {
 		Telemetry:             api.Telemetry.Enabled(),
 		BillingURL:            api.DeploymentValues.BillingURL.String(),
 		ModelURL:              api.DeploymentValues.ModelURL.String(),
+		HardwareURL:           api.DeploymentValues.HardwareURL.String(),
 	}
 	api.SiteHandler, err = site.New(&site.Options{
 		CacheDir:          siteCacheDir,
@@ -1414,6 +1415,11 @@ func New(options *Options) *API {
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)
 			r.Get("/model/redirect", api.modelRedirect)
+		})
+		// Hardware gateway redirect — only active when NEURALINVERSE_HARDWARE_URL is set
+		r.Group(func(r chi.Router) {
+			r.Use(apiKeyMiddleware)
+			r.Get("/hardware/redirect", api.hardwareRedirect)
 		})
 		// /regions is overridden in the enterprise version
 		r.Group(func(r chi.Router) {

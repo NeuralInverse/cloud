@@ -672,6 +672,8 @@ type DeploymentValues struct {
 	BillingJWTSecret                        serpent.String                       `json:"billing_jwt_secret,omitempty" typescript:",notnull"`
 	ModelURL                                serpent.String                       `json:"model_url,omitempty" typescript:",notnull"`
 	ModelJWTSecret                          serpent.String                       `json:"model_jwt_secret,omitempty" typescript:",notnull"`
+	HardwareURL                             serpent.String                       `json:"hardware_url,omitempty" typescript:",notnull"`
+	HardwareJWTSecret                       serpent.String                       `json:"hardware_jwt_secret,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3405,6 +3407,23 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
 		},
 		{
+			Name:        "Hardware URL",
+			Description: "External hardware gateway URL. When set, enables the hardware redirect endpoint and shows a Hardware link in the navbar. Leave unset for self-hosted deployments.",
+			Flag:        "hardware-url",
+			Env:         "NEURALINVERSE_HARDWARE_URL",
+			YAML:        "hardwareURL",
+			Value:       &c.HardwareURL,
+		},
+		{
+			Name:        "Hardware JWT Secret",
+			Description: "Shared secret used to sign hardware redirect tokens. Must match the hardware service's JWT_SECRET.",
+			Flag:        "hardware-jwt-secret",
+			Env:         "NEURALINVERSE_HARDWARE_JWT_SECRET",
+			YAML:        "hardwareJWTSecret",
+			Value:       &c.HardwareJWTSecret,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
 			Name: "Strict-Transport-Security",
 			Description: "Controls if the 'Strict-Transport-Security' header is set on all static file responses. " +
 				"This header should only be set if the server is accessed via HTTPS. This value is the MaxAge in seconds of " +
@@ -5002,6 +5021,9 @@ type BuildInfoResponse struct {
 
 	// ModelURL is the external model gateway URL. Empty for self-hosted deployments.
 	ModelURL string `json:"model_url,omitempty"`
+
+	// HardwareURL is the external hardware gateway URL. Empty for self-hosted deployments.
+	HardwareURL string `json:"hardware_url,omitempty"`
 }
 
 type WorkspaceProxyBuildInfo struct {

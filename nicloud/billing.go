@@ -95,6 +95,46 @@ func createBillingToken(userID, email, username, secret string) (string, error) 
 	return createServiceToken(userID, email, username, secret, "billing")
 }
 
+// hardwareRedirect generates a signed JWT and redirects the authenticated user
+// to the external hardware gateway. Only active when NEURALINVERSE_HARDWARE_URL is set.
+//
+// @Summary Redirect to hardware gateway
+// @ID hardware-redirect
+// @Tags Hardware
+// @Success 307
+// @Router /api/v2/hardware/redirect [get]
+func (api *API) hardwareRedirect(rw http.ResponseWriter, r *http.Request) {
+	hardwareURL := api.DeploymentValues.HardwareURL.String()
+	if hardwareURL == "" {
+		http.NotFound(rw, r)
+		return
+	}
+
+	secret := api.DeploymentValues.HardwareJWTSecret.String()
+	if secret == "" {
+		http.Error(rw, "Hardware gateway not configured", http.StatusInternalServerError)
+		return
+	}
+
+	apiKey := httpmw.APIKey(r)
+
+	// Look up user from the API key's owner
+	user, err := api.Database.GetUserByID(r.Context(), apiKey.UserID)
+	if err != nil {
+		http.Error(rw, "User not found", http.StatusInternalServerError)
+		return
+	}
+
+	token, err := createServiceToken(user.ID.String(), user.Email, user.Username, secret, "hardware")
+	if err != nil {
+		http.Error(rw, "Failed to generate hardware token", http.StatusInternalServerError)
+		return
+	}
+
+	redirectURL := hardwareURL + "/?token=" + token
+	http.Redirect(rw, r, redirectURL, http.StatusTemporaryRedirect)
+}
+
 func createServiceToken(userID, email, username, secret, service string) (string, error) {
 	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
 

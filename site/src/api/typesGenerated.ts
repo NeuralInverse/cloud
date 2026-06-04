@@ -1438,6 +1438,7 @@ export interface BuildInfoResponse {
 	readonly webpush_public_key?: string;
 	readonly billing_url?: string;
 	readonly model_url?: string;
+	readonly hardware_url?: string;
 }
 
 // From nicloudsdk/workspacebuilds.go
