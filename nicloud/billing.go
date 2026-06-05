@@ -87,7 +87,7 @@ func (api *API) modelRedirect(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redirectURL := modelURL + "/?token=" + token
+	redirectURL := modelURL + "/auth/cloud-redirect?token=" + token
 	http.Redirect(rw, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
@@ -131,7 +131,7 @@ func (api *API) hardwareRedirect(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redirectURL := hardwareURL + "/?token=" + token
+	redirectURL := hardwareURL + "/auth/cloud-redirect?token=" + token
 	http.Redirect(rw, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
