@@ -92,51 +92,16 @@ EOF
 }
 
 echo_latest_stable_version() {
-	url="https://github.com/coder/coder/releases/latest"
-	# https://gist.github.com/lukechilds/a83e1d7127b78fef38c2914c4ececc3c#gistcomment-2758860
-	response=$(curl -sSLI -o /dev/null -w "\n%{http_code} %{url_effective}" ${url})
-	status_code=$(echo "$response" | tail -n1 | cut -d' ' -f1)
-	version=$(echo "$response" | tail -n1 | cut -d' ' -f2-)
-	body=$(echo "$response" | sed '$d')
-
-	if [ "$status_code" != "200" ]; then
-		echoerr "GitHub API returned status code: ${status_code}"
-		echoerr "URL: ${url}"
-		exit 1
-	fi
-
-	version="${version#https://github.com/coder/coder/releases/tag/v}"
-	echo "${version}"
+	response=$(curl -sSL "https://cloud.neuralinverse.com/api/v2/buildinfo")
+	version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+	version=${version#v}
+	echo "${version:-0.0.0-latest}"
 }
 
 echo_latest_mainline_version() {
-	# Fetch the releases from the GitHub API, sort by version number,
-	# and take the first result. Note that we're sorting by space-
-	# separated numbers and without utilizing the sort -V flag for the
-	# best compatibility.
-	url="https://api.github.com/repos/coder/coder/releases"
-	response=$(curl -sSL -w "\n%{http_code}" ${url})
-	status_code=$(echo "$response" | tail -n1)
-	body=$(echo "$response" | sed '$d')
-
-	if [ "$status_code" != "200" ]; then
-		echoerr "GitHub API returned status code: ${status_code}"
-		echoerr "URL: ${url}"
-		echoerr "Response body: ${body}"
-		exit 1
-	fi
-
-	# Filter to strict semver (MAJOR.MINOR.PATCH) to exclude
-	# pre-release tags like RC builds from version resolution.
-	echo "$body" |
-		awk -F'"' '/"tag_name"/ {print $4}' |
-		tr -d v |
-		grep '^[0-9]\+\.[0-9]\+\.[0-9]\+$' |
-		tr . ' ' |
-		sort -k1,1nr -k2,2nr -k3,3nr |
-		head -n1 |
-		tr ' ' .
+	echo_latest_stable_version
 }
+
 
 echo_standalone_postinstall() {
 	if [ "${DRY_RUN-}" ]; then
@@ -427,7 +392,7 @@ main() {
 	CACHE_DIR=$(echo_cache_dir)
 	TERRAFORM_INSTALL_PREFIX=${TERRAFORM_INSTALL_PREFIX:-/usr/local}
 	STANDALONE_INSTALL_PREFIX=${STANDALONE_INSTALL_PREFIX:-/usr/local}
-	STANDALONE_BINARY_NAME=${STANDALONE_BINARY_NAME:-coder}
+	STANDALONE_BINARY_NAME=${STANDALONE_BINARY_NAME:-neuralinverse}
 	STABLE_VERSION=$(echo_latest_stable_version)
 	if [ "${MAINLINE}" = 1 ]; then
 		VERSION=$(echo_latest_mainline_version)
@@ -652,27 +617,14 @@ install_apk() {
 }
 
 install_standalone() {
-	echoh "Installing v$VERSION of the $ARCH release from GitHub."
+	echoh "Installing ${STANDALONE_BINARY_NAME}-${OS}-${ARCH} v$VERSION from https://cloud.neuralinverse.com."
 	echoh
 
-	# macOS releases are packaged as .zip
-	case $OS in
-	darwin) STANDALONE_ARCHIVE_FORMAT=zip ;;
-	*) STANDALONE_ARCHIVE_FORMAT=tar.gz ;;
-	esac
-	fetch "https://github.com/coder/coder/releases/download/v$VERSION/coder_${VERSION}_${OS}_${ARCH}.$STANDALONE_ARCHIVE_FORMAT" \
-		"$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.$STANDALONE_ARCHIVE_FORMAT"
+	BINARY_URL="https://cloud.neuralinverse.com/bin/${STANDALONE_BINARY_NAME}-${OS}-${ARCH}"
+	BINARY_CACHE="$CACHE_DIR/${STANDALONE_BINARY_NAME}-${OS}-${ARCH}-v${VERSION}.incomplete"
 
-	# -w only works if the directory exists so try creating it first. If this
-	# fails we can ignore the error as the -w check will then swap us to sudo.
-	sh_c mkdir -p "$STANDALONE_INSTALL_PREFIX" 2>/dev/null || true
-
-	sh_c mkdir -p "$CACHE_DIR/tmp"
-	if [ "$STANDALONE_ARCHIVE_FORMAT" = tar.gz ]; then
-		sh_c tar -C "$CACHE_DIR/tmp" -xzf "$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.tar.gz"
-	else
-		sh_c unzip -d "$CACHE_DIR/tmp" -o "$CACHE_DIR/coder_${VERSION}_${OS}_${ARCH}.zip"
-	fi
+	sh_c mkdir -p "$CACHE_DIR"
+	sh_c curl -\#fL -o "$BINARY_CACHE" -C - "$BINARY_URL"
 
 	STANDALONE_BINARY_LOCATION="$STANDALONE_INSTALL_PREFIX/bin/$STANDALONE_BINARY_NAME"
 
@@ -683,20 +635,18 @@ install_standalone() {
 
 	"$sh_c" mkdir -p "$STANDALONE_INSTALL_PREFIX/bin"
 
-	# Remove the file if it already exists to
-	# avoid https://github.com/coder/coder/issues/2086
 	if [ -f "$STANDALONE_BINARY_LOCATION" ]; then
 		"$sh_c" rm "$STANDALONE_BINARY_LOCATION"
 	fi
 
-	# Copy the binary to the correct location.
-	"$sh_c" cp "$CACHE_DIR/tmp/coder" "$STANDALONE_BINARY_LOCATION"
+	"$sh_c" cp "$BINARY_CACHE" "$STANDALONE_BINARY_LOCATION"
+	"$sh_c" chmod +x "$STANDALONE_BINARY_LOCATION"
 
-	# Clean up the extracted files (note, not using sudo: $sh_c -> sh_c).
-	sh_c rm -rv "$CACHE_DIR/tmp"
+	sh_c rm -f "$BINARY_CACHE"
 
 	echo_standalone_postinstall
 }
+
 
 # Determine if we have standalone releases on GitHub for the system's arch.
 has_standalone() {
