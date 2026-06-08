@@ -132,7 +132,7 @@ func (r *RootCmd) loginWithPassword(
 
 	_, _ = fmt.Fprintf(
 		inv.Stdout,
-		"Welcome to Coder, %s! You're authenticated.",
+		"Welcome to Neural Inverse, %s! You're authenticated.",
 		pretty.Sprint(cliui.DefaultStyles.Keyword, u.Username),
 	)
 
@@ -440,7 +440,7 @@ func (r *RootCmd) login() *serpent.Command {
 				return xerrors.Errorf("write server url: %w", err)
 			}
 
-			_, _ = fmt.Fprintf(inv.Stdout, Caret+"Welcome to Coder, %s! You're authenticated.\n", pretty.Sprint(cliui.DefaultStyles.Keyword, resp.Username))
+			_, _ = fmt.Fprintf(inv.Stdout, Caret+"Welcome to Neural Inverse, %s! You're authenticated.\n", pretty.Sprint(cliui.DefaultStyles.Keyword, resp.Username))
 			return nil
 		},
 	}

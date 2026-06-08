@@ -22,7 +22,7 @@ type whoamiRow struct {
 
 func (r whoamiRow) String() string {
 	return fmt.Sprintf(
-		Caret+"Coder is running at %s, You're authenticated as %s !\n",
+		Caret+"Neural Inverse is running at %s, you're authenticated as %s !\n",
 		pretty.Sprint(cliui.DefaultStyles.Keyword, r.URL),
 		pretty.Sprint(cliui.DefaultStyles.Keyword, r.Username),
 	)
