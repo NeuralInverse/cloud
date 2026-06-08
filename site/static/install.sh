@@ -17,8 +17,8 @@ usage() {
 	fi
 
 	cath <<EOF
-Installs the Coder CLI.
-A matching version of the CLI will be downloaded from this Coder deployment.
+Installs the Neural Inverse CLI.
+A matching version of the CLI will be downloaded from this Neural Inverse deployment.
 
 Pass in user@host to install the CLI on user@host over ssh.
 The remote host must have internet access.
@@ -59,9 +59,9 @@ echo_standalone_postinstall() {
 
 	cath <<EOF
 
-Coder {{ .Version }} installed.
+Neural Inverse {{ .Version }} installed.
 
-The Coder binary has been placed in the following location:
+The Neural Inverse binary has been placed in the following location:
 
   $STANDALONE_INSTALL_PREFIX/bin/$STANDALONE_BINARY_NAME
 
@@ -80,11 +80,11 @@ EOF
 		echo_path_conflict "$NEURALINVERSE_COMMAND"
 	else
 		cath <<EOF
-To run a Coder server:
+To run a Neural Inverse server:
 
   $ $STANDALONE_BINARY_NAME server
 
-To connect to a Coder deployment:
+To connect to a Neural Inverse deployment:
 
   $ $STANDALONE_BINARY_NAME login <deployment url>
 
@@ -96,7 +96,7 @@ echo_dryrun_postinstall() {
 	cath <<EOF
 Dry-run complete.
 
-To install Coder, re-run this script without the --dry-run flag.
+To install Neural Inverse, re-run this script without the --dry-run flag.
 
 EOF
 }
@@ -107,7 +107,7 @@ There is another binary in your PATH that conflicts with the binary we've instal
 
   $1
 
-This is likely because of an existing installation of Coder in your \$PATH.
+This is likely because of an existing installation of Neural Inverse in your \$PATH.
 
 Run \`which -a coder\` to view all installations.
 
@@ -209,7 +209,7 @@ main() {
 	# releases in order to download and unpack the right release.
 	CACHE_DIR=$(echo_cache_dir)
 	STANDALONE_INSTALL_PREFIX=${STANDALONE_INSTALL_PREFIX:-/usr/local}
-	STANDALONE_BINARY_NAME=${STANDALONE_BINARY_NAME:-coder}
+	STANDALONE_BINARY_NAME=${STANDALONE_BINARY_NAME:-neuralinverse}
 
 	if [ "${DRY_RUN-}" ]; then
 		echoh "Running with --dry-run; the following are the commands that would be run if this were a real installation:"
@@ -273,10 +273,10 @@ fetch() {
 }
 
 install_standalone() {
-	echoh "Installing coder-$OS-$ARCH {{ .Version }} from $ORIGIN."
+	echoh "Installing neuralinverse-$OS-$ARCH {{ .Version }} from $ORIGIN."
 	echoh
 
-	BINARY_FILE="$CACHE_DIR/coder-${OS}-${ARCH}-{{ .Version }}"
+	BINARY_FILE="$CACHE_DIR/neuralinverse-${OS}-${ARCH}-{{ .Version }}"
 
 	fetch "$ORIGIN/bin/neuralinverse-${OS}-${ARCH}" "$BINARY_FILE"
 
