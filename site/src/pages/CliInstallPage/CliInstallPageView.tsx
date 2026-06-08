@@ -16,7 +16,7 @@ export const CliInstallPageView: FC<CliInstallPageViewProps> = ({ origin }) => {
 				"flex flex-1 flex-col items-center justify-center",
 			)}
 		>
-			<Welcome>Install the Coder CLI</Welcome>
+			<Welcome>Install the Neural Inverse CLI</Welcome>
 
 			<p className="pb-2 text-center text-base leading-[1.4] text-content-secondary">
 				Copy the command below and{" "}

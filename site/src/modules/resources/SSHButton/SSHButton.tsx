@@ -51,7 +51,7 @@ export const AgentSSHButton: FC<AgentSSHButtonProps> = ({
 					<div className="flex flex-col gap-1 mt-3">
 						<SSHStep
 							helpText="Configure SSH hosts on machine:"
-							codeExample="coder config-ssh"
+							codeExample="neuralinverse config-ssh"
 						/>
 						<SSHStep
 							helpText="Connect to the agent:"
@@ -61,7 +61,7 @@ export const AgentSSHButton: FC<AgentSSHButtonProps> = ({
 				</ol>
 
 				<HelpPopoverLinksGroup>
-					<HelpPopoverLink href="/install">Install Coder CLI</HelpPopoverLink>
+					<HelpPopoverLink href="/install">Install Neural Inverse CLI</HelpPopoverLink>
 					<HelpPopoverLink href={docs("/user-guides/workspace-access/vscode")}>
 						Connect via VS Code Remote SSH
 					</HelpPopoverLink>
@@ -71,7 +71,7 @@ export const AgentSSHButton: FC<AgentSSHButtonProps> = ({
 						Connect via JetBrains IDEs
 					</HelpPopoverLink>
 					<HelpPopoverLink href={docs("/user-guides/desktop")}>
-						Connect via Coder Desktop
+						Connect via Neural Inverse Desktop
 					</HelpPopoverLink>
 					<HelpPopoverLink href={docs("/user-guides/workspace-access#ssh")}>
 						SSH configuration
