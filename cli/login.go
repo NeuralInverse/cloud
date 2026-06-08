@@ -152,7 +152,7 @@ func (r *RootCmd) login() *serpent.Command {
 	)
 	cmd := &serpent.Command{
 		Use:   "login [<url>]",
-		Short: "Authenticate with Coder deployment",
+		Short: "Authenticate with Neural Inverse deployment",
 		Long: "By default, the session token is stored in the operating system keyring on " +
 			"macOS and Windows and a plain text file on Linux. Use the --use-keyring flag " +
 			"or NEURALINVERSE_USE_KEYRING environment variable to change the storage mechanism.",
@@ -222,7 +222,7 @@ func (r *RootCmd) login() *serpent.Command {
 
 			// nolint: nestif
 			if !hasFirstUser {
-				_, _ = fmt.Fprint(inv.Stdout, Caret+"Your Coder deployment hasn't been set up!\n")
+				_, _ = fmt.Fprint(inv.Stdout, Caret+"Your Neural Inverse deployment hasn't been set up!\n")
 
 				if username == "" {
 					if !isTTYIn(inv) {
@@ -472,7 +472,7 @@ func (r *RootCmd) login() *serpent.Command {
 		{
 			Flag:        "first-user-trial",
 			Env:         firstUserTrialEnv,
-			Description: "Specifies whether a trial license should be provisioned for the Coder deployment or not.",
+			Description: "Specifies whether a trial license should be provisioned for the Neural Inverse deployment or not.",
 			Value:       serpent.BoolOf(&trial),
 		},
 		{

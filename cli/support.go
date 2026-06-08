@@ -30,7 +30,7 @@ import (
 func (r *RootCmd) support() *serpent.Command {
 	supportCmd := &serpent.Command{
 		Use:   "support",
-		Short: "Commands for troubleshooting issues with a Coder deployment.",
+		Short: "Commands for troubleshooting issues with a Neural Inverse deployment.",
 		Handler: func(inv *serpent.Invocation) error {
 			return inv.Command.HelpHandler(inv)
 		},
@@ -42,13 +42,13 @@ func (r *RootCmd) support() *serpent.Command {
 }
 
 var supportBundleBlurb = cliui.Bold("This will collect the following information:\n") +
-	`  - Coder deployment version
-  - Coder deployment Configuration (sanitized), including enabled experiments
-  - Coder deployment health snapshot
-  - Coder deployment stats (aggregated workspace/session metrics)
+	`  - Neural Inverse deployment version
+  - Neural Inverse deployment Configuration (sanitized), including enabled experiments
+  - Neural Inverse deployment health snapshot
+  - Neural Inverse deployment stats (aggregated workspace/session metrics)
   - Entitlements (if available)
   - Health settings (dismissed healthchecks)
-  - Coder deployment Network troubleshooting information
+  - Neural Inverse deployment Network troubleshooting information
   - Workspace list accessible to the user (sanitized)
   - Workspace configuration, parameters, and build logs
   - Template version and source code for the given workspace
@@ -73,7 +73,7 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 	cmd := &serpent.Command{
 		Use:   "bundle [<workspace>] [<agent>]",
 		Short: "Generate a support bundle to troubleshoot issues connecting to a workspace.",
-		Long:  `This command generates a file containing detailed troubleshooting information about the Coder deployment and workspace connections. You may specify a single workspace (and optionally an agent name). When run inside a workspace, the workspace and agent are inferred from the environment if not provided.`,
+		Long:  `This command generates a file containing detailed troubleshooting information about the Neural Inverse deployment and workspace connections. You may specify a single workspace (and optionally an agent name). When run inside a workspace, the workspace and agent are inferred from the environment if not provided.`,
 		Middleware: serpent.Chain(
 			serpent.RequireRangeArgs(0, 2),
 		),
@@ -287,7 +287,7 @@ func (r *RootCmd) supportBundle() *serpent.Command {
 		{
 			Flag:        "url-override",
 			Env:         "NEURALINVERSE_SUPPORT_BUNDLE_URL_OVERRIDE",
-			Description: "Override the URL to your Coder deployment. This may be useful, for example, if you need to troubleshoot a specific Coder replica.",
+			Description: "Override the URL to your Neural Inverse deployment. This may be useful, for example, if you need to troubleshoot a specific Coder replica.",
 			Value:       serpent.StringOf(&niURLOverride),
 		},
 		{

@@ -7,7 +7,7 @@ import "github.com/coder/serpent"
 func (r *RootCmd) Server(_ func()) *serpent.Command {
 	root := &serpent.Command{
 		Use:   "server",
-		Short: "Start a Coder server",
+		Short: "Start a Neural Inverse server",
 		// We accept RawArgs so all commands and flags are accepted.
 		RawArgs: true,
 		Hidden:  true,

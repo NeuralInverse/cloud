@@ -37,7 +37,7 @@ func (r *RootCmd) whoami() *serpent.Command {
 	cmd := &serpent.Command{
 		Annotations: workspaceCommand,
 		Use:         "whoami",
-		Short:       "Fetch authenticated user info for Coder deployment",
+		Short:       "Fetch authenticated user info for Neural Inverse deployment",
 		Middleware: serpent.Chain(
 			serpent.RequireNArgs(0),
 		),

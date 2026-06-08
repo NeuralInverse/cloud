@@ -12,14 +12,14 @@ import (
 func (r *RootCmd) notifications() *serpent.Command {
 	cmd := &serpent.Command{
 		Use:   "notifications",
-		Short: "Manage Coder notifications",
+		Short: "Manage Neural Inverse notifications",
 		Long: "Administrators can use these commands to change notification settings.\n" + FormatExamples(
 			Example{
-				Description: "Pause Coder notifications. Administrators can temporarily stop notifiers from dispatching messages in case of the target outage (for example: unavailable SMTP server or Webhook not responding)",
+				Description: "Pause Neural Inverse notifications. Administrators can temporarily stop notifiers from dispatching messages in case of the target outage (for example: unavailable SMTP server or Webhook not responding)",
 				Command:     "neuralinverse notifications pause",
 			},
 			Example{
-				Description: "Resume Coder notifications",
+				Description: "Resume Neural Inverse notifications",
 				Command:     "neuralinverse notifications resume",
 			},
 			Example{

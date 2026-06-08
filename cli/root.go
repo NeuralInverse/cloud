@@ -246,14 +246,14 @@ func (r *RootCmd) Command(subcommands []*serpent.Command) (*serpent.Command, err
 		r.clock = quartz.NewReal()
 	}
 
-	fmtLong := `Coder %s — A tool for provisioning self-hosted development environments with Terraform.
+	fmtLong := `Neural Inverse %s — A tool for provisioning self-hosted development environments with Terraform.
 `
 	hiddenAgentAuth := &AgentAuth{}
 	cmd := &serpent.Command{
 		Use: "neuralinverse [global-flags] <subcommand>",
 		Long: fmt.Sprintf(fmtLong, buildinfo.Version()) + FormatExamples(
 			Example{
-				Description: "Start a Coder server",
+				Description: "Start a Neural Inverse server",
 				Command:     "neuralinverse server",
 			},
 			Example{
@@ -1540,7 +1540,7 @@ func SlimUnsupported(w io.Writer, cmd string) {
 	_, _ = fmt.Fprintf(w, "You are using a 'slim' build of Coder, which does not support the %s subcommand.\n", pretty.Sprint(cliui.DefaultStyles.Code, cmd))
 	_, _ = fmt.Fprintln(w, "")
 	_, _ = fmt.Fprintln(w, "Please use a build of Coder from GitHub releases:")
-	_, _ = fmt.Fprintln(w, "  https://github.com/coder/coder/releases")
+	_, _ = fmt.Fprintln(w, "  https://github.com/NeuralInverse/cloud/releases")
 
 	//nolint:revive
 	os.Exit(1)
@@ -1551,7 +1551,7 @@ func defaultUpgradeMessage(version string) string {
 	// to the GitHub release page to download the latest installer.
 	version = strings.TrimPrefix(version, "v")
 	if runtime.GOOS == "windows" {
-		return fmt.Sprintf("download the server version from: https://github.com/coder/coder/releases/v%s", version)
+		return fmt.Sprintf("download the server version from: https://github.com/NeuralInverse/cloud/releases/v%s", version)
 	}
 	return fmt.Sprintf("download the server version with: 'curl -L https://cloud.neuralinverse.com/install.sh | sh -s -- --version %s'", version)
 }

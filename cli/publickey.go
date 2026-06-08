@@ -16,7 +16,7 @@ func (r *RootCmd) publickey() *serpent.Command {
 	cmd := &serpent.Command{
 		Use:     "publickey",
 		Aliases: []string{"pubkey"},
-		Short:   "Output your Coder public key used for Git operations",
+		Short:   "Output your Neural Inverse public key used for Git operations",
 		Handler: func(inv *serpent.Invocation) error {
 			client, err := r.InitClient(inv)
 			if err != nil {

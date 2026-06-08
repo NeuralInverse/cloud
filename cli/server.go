@@ -328,7 +328,7 @@ func (r *RootCmd) Server(newAPI func(context.Context, *nicloud.Options) (*niclou
 	)
 	serverCmd := &serpent.Command{
 		Use:     "server",
-		Short:   "Start a Coder server",
+		Short:   "Start a Neural Inverse server",
 		Options: opts,
 		Middleware: serpent.Chain(
 			WriteConfigMW(vals),
