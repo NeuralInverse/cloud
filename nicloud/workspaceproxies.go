@@ -44,7 +44,13 @@ func (api *API) PrimaryRegion(ctx context.Context) (nicloudsdk.Region, error) {
 		IconURL:          proxy.IconURL,
 		Healthy:          true,
 		PathAppURL:       api.AccessURL.String(),
-		WildcardHostname: appurl.SubdomainAppHost(api.AppHostname, api.AccessURL),
+		WildcardHostname: func() string {
+			h := appurl.SubdomainAppHost(api.AppHostname, api.AccessURL)
+			if h == "" {
+				h = api.DeploymentValues.WildcardAccessURL.String()
+			}
+			return h
+		}(),
 	}, nil
 }
 

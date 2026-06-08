@@ -5024,6 +5024,9 @@ type BuildInfoResponse struct {
 
 	// HardwareURL is the external hardware gateway URL. Empty for self-hosted deployments.
 	HardwareURL string `json:"hardware_url,omitempty"`
+
+	// WildcardAccessURL is the URL for wildcard workspace subdomain apps.
+	WildcardAccessURL string `json:"wildcard_access_url,omitempty"`
 }
 
 type WorkspaceProxyBuildInfo struct {

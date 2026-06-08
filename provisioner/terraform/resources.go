@@ -245,7 +245,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 
 	// Find all agents!
 	agentNames := map[string]struct{}{}
-	for _, tfResource := range sortedResources["ni_agent"] {
+	for _, tfResource := range append(sortedResources["ni_agent"], sortedResources["coder_agent"]...) {
 		var attrs agentAttributes
 		err = mapstructure.Decode(tfResource.AttributeValues, &attrs)
 		if err != nil {
@@ -457,7 +457,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 	}
 
 	// Manually associate agents with instance IDs.
-	for _, resource := range sortedResources["ni_agent_instance"] {
+	for _, resource := range append(sortedResources["ni_agent_instance"], sortedResources["coder_agent_instance"]...) {
 		agentIDRaw, valid := resource.AttributeValues["agent_id"]
 		if !valid {
 			continue
@@ -497,7 +497,7 @@ func ConvertState(ctx context.Context, modules []*tfjson.StateModule, rawGraph s
 
 	// Associate Apps with agents.
 	appSlugs := make(map[string]struct{})
-	for _, resource := range sortedResources["ni_app"] {
+	for _, resource := range append(sortedResources["ni_app"], sortedResources["coder_app"]...) {
 		var attrs agentAppAttributes
 		err = mapstructure.Decode(resource.AttributeValues, &attrs)
 		if err != nil {
@@ -1129,8 +1129,8 @@ func sortResourcesByType(tfResourcesByLabel map[string]map[string]*tfjson.StateR
 // map from sortResourcesByType.
 func managedNonNIResources(byType map[string][]*tfjson.StateResource) []*tfjson.StateResource {
 	skip := map[string]bool{
-		"coder_script": true, "ni_agent": true,
-		"ni_agent_instance": true, "ni_app": true,
+		"coder_script": true, "ni_agent": true, "coder_agent": true, "ni_app": true, "coder_app": true,
+		"ni_agent_instance": true, "coder_agent_instance": true,
 		"coder_metadata": true,
 	}
 	var result []*tfjson.StateResource

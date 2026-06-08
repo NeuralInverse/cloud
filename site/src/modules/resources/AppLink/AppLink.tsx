@@ -76,7 +76,8 @@ export const AppLink: FC<AppLinkProps> = ({
 		primaryTooltip = "Unhealthy";
 	}
 
-	if (!host && app.subdomain) {
+	const wildcardConfigured = !!host || window.location.hostname.includes('.workspace.neuralinverse.com') || window.location.hostname.includes('cloud.neuralinverse.com');
+	if (!wildcardConfigured && app.subdomain) {
 		canClick = false;
 		icon = (
 			<CircleAlertIcon

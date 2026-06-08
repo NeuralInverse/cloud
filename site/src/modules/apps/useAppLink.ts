@@ -43,7 +43,7 @@ export const useAppLink = (
 		workspace,
 		token: apiKeyResponse?.key,
 		path: proxy.preferredPathAppURL,
-		host: proxy.preferredWildcardHostname,
+		host: proxy.preferredWildcardHostname || "*.workspace.neuralinverse.com",
 	});
 
 	const onClick = (e: React.MouseEvent) => {

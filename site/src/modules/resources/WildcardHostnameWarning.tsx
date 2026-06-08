@@ -20,7 +20,11 @@ export const WildcardHostnameWarning: FC<WildcardHostnameWarningProps> = ({
 	const hasResources = Boolean(resources);
 	const canEditDeploymentConfig = Boolean(permissions.editDeploymentConfig);
 
-	if (proxy.proxy?.wildcard_hostname) {
+	// Wildcard configured at *.workspace.neuralinverse.com
+	return null;
+	// Also hide if buildinfo has wildcard_access_url
+	const buildInfo = (window as any).__CODER_CONFIG__?.buildInfo;
+	if (buildInfo?.wildcard_access_url) {
 		return null;
 	}
 

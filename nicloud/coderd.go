@@ -685,6 +685,7 @@ func New(options *Options) *API {
 		BillingURL:            api.DeploymentValues.BillingURL.String(),
 		ModelURL:              api.DeploymentValues.ModelURL.String(),
 		HardwareURL:           api.DeploymentValues.HardwareURL.String(),
+		WildcardAccessURL:     api.DeploymentValues.WildcardAccessURL.String(),
 	}
 	api.SiteHandler, err = site.New(&site.Options{
 		CacheDir:          siteCacheDir,

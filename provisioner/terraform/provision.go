@@ -361,6 +361,7 @@ func provisionEnv(
 
 	env = append(env,
 		"NEURALINVERSE_AGENT_URL="+metadata.GetNIUrl(),
+		"CODER_AGENT_URL="+metadata.GetNIUrl(),
 		"NEURALINVERSE_WORKSPACE_TRANSITION="+strings.ToLower(metadata.GetWorkspaceTransition().String()),
 		"NEURALINVERSE_WORKSPACE_NAME="+metadata.GetWorkspaceName(),
 		"NEURALINVERSE_WORKSPACE_OWNER="+metadata.GetWorkspaceOwner(),
