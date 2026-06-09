@@ -1412,6 +1412,8 @@ func New(options *Options) *API {
 			r.Use(apiKeyMiddleware)
 			r.Get("/billing/redirect", api.billingRedirect)
 		})
+		// Internal billing notification — gated by X-Internal-Key, no-op if unconfigured
+		r.Post("/billing/notify", api.postBillingNotify)
 		// Model gateway redirect — only active when NEURALINVERSE_MODEL_URL is set
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)

@@ -11,9 +11,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 
+	"cdr.dev/slog/v3"
+
 	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
+	"github.com/NeuralInverse/cloud/v2/nicloud/notifications"
 )
 
 // checkBillingQuota calls the billing service to verify a user can start a workspace.
@@ -220,4 +224,70 @@ func createServiceToken(userID, email, username, secret, service string) (string
 	sig := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 
 	return sigInput + "." + sig, nil
+}
+
+// postBillingNotify is an internal endpoint called by the billing service to push
+// a quota-exceeded notification into a user's inbox. Only active when
+// NEURALINVERSE_BILLING_INTERNAL_KEY is configured — no-op on self-hosted instances.
+//
+// @Summary Notify user of quota exceeded (internal)
+// @ID billing-notify
+// @Tags Billing
+// @Accept json
+// @Produce json
+// @Param request body billingNotifyRequest true "Notification request"
+// @Success 204
+// @Router /api/v2/billing/notify [post]
+func (api *API) postBillingNotify(rw http.ResponseWriter, r *http.Request) {
+	internalKey := api.DeploymentValues.BillingInternalKey.String()
+	if internalKey == "" {
+		http.NotFound(rw, r)
+		return
+	}
+	if r.Header.Get("X-Internal-Key") != internalKey {
+		http.Error(rw, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var req billingNotifyRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(rw, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		http.Error(rw, "Invalid user_id", http.StatusBadRequest)
+		return
+	}
+	workspaceID, err := uuid.Parse(req.WorkspaceID)
+	if err != nil {
+		http.Error(rw, "Invalid workspace_id", http.StatusBadRequest)
+		return
+	}
+
+	_, err = api.NotificationsEnqueuer.Enqueue(
+		r.Context(),
+		userID,
+		notifications.TemplateWorkspaceQuotaExceeded,
+		map[string]string{
+			"name":        req.WorkspaceName,
+			"billing_url": req.BillingURL,
+		},
+		"billing",
+		workspaceID, userID,
+	)
+	if err != nil {
+		// Log but don't fail — notification is best-effort
+		api.Logger.Warn(r.Context(), "failed to enqueue quota exceeded notification", slog.Error(err))
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+type billingNotifyRequest struct {
+	UserID        string `json:"user_id"`
+	WorkspaceID   string `json:"workspace_id"`
+	WorkspaceName string `json:"workspace_name"`
+	BillingURL    string `json:"billing_url"`
 }

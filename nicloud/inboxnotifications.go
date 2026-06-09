@@ -40,6 +40,7 @@ var fallbackIcons = map[uuid.UUID]string{
 	notifications.TemplateWorkspaceManualBuildFailed: nicloudsdk.InboxNotificationFallbackIconWorkspace,
 	notifications.TemplateWorkspaceOutOfMemory:       nicloudsdk.InboxNotificationFallbackIconWorkspace,
 	notifications.TemplateWorkspaceOutOfDisk:         nicloudsdk.InboxNotificationFallbackIconWorkspace,
+	notifications.TemplateWorkspaceQuotaExceeded:     nicloudsdk.InboxNotificationFallbackIconWorkspace,
 
 	// account related notifications
 	notifications.TemplateUserAccountCreated:           nicloudsdk.InboxNotificationFallbackIconAccount,
