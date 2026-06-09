@@ -1,15 +1,77 @@
 package nicloud
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"time"
 
+	"golang.org/x/xerrors"
+
 	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
 )
+
+// checkBillingQuota calls the billing service to verify a user can start a workspace.
+// Returns nil if allowed, error with user-facing message if blocked.
+// Silently allows if billing is not configured (self-hosted).
+func (api *API) checkBillingQuota(ctx context.Context, userID string) error {
+	billingURL := api.DeploymentValues.BillingURL.String()
+	if billingURL == "" {
+		return nil // self-hosted, no billing
+	}
+
+	internalKey := api.DeploymentValues.BillingInternalKey.String()
+	if internalKey == "" {
+		return nil // not configured
+	}
+
+	url := fmt.Sprintf("%s/api/billing/can-start/%s", billingURL, userID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil // fail open
+	}
+	req.Header.Set("X-Internal-Key", internalKey)
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil // fail open on network error
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil // fail open
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil
+	}
+
+	var result struct {
+		Allowed bool   `json:"allowed"`
+		Reason  string `json:"reason"`
+		Message string `json:"message"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil
+	}
+
+	if !result.Allowed {
+		msg := result.Message
+		if msg == "" {
+			msg = "Workspace quota exceeded. Please add a payment method to continue."
+		}
+		return xerrors.New(msg)
+	}
+
+	return nil
+}
 
 // billingRedirect generates a signed JWT and redirects the authenticated user
 // to the external billing service. Only active when NEURALINVERSE_BILLING_URL is set.

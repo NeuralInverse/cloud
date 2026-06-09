@@ -334,6 +334,16 @@ func (api *API) postWorkspaceBuilds(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Billing gate: check quota before starting a workspace
+	if createBuild.Transition == nicloudsdk.WorkspaceTransitionStart {
+		if err := api.checkBillingQuota(ctx, workspace.OwnerID.String()); err != nil {
+			httpapi.Write(ctx, rw, http.StatusPaymentRequired, nicloudsdk.Response{
+				Message: err.Error(),
+			})
+			return
+		}
+	}
+
 	// We want to allow a delete build for a deleted workspace, but not a start or stop build.
 	if workspace.Deleted && createBuild.Transition != nicloudsdk.WorkspaceTransitionDelete {
 		httpapi.Write(ctx, rw, http.StatusConflict, nicloudsdk.Response{

@@ -670,6 +670,7 @@ type DeploymentValues struct {
 	TermsOfServiceURL                       serpent.String                       `json:"terms_of_service_url,omitempty" typescript:",notnull"`
 	BillingURL                              serpent.String                       `json:"billing_url,omitempty" typescript:",notnull"`
 	BillingJWTSecret                        serpent.String                       `json:"billing_jwt_secret,omitempty" typescript:",notnull"`
+	BillingInternalKey                      serpent.String                       `json:"billing_internal_key,omitempty" typescript:",notnull"`
 	ModelURL                                serpent.String                       `json:"model_url,omitempty" typescript:",notnull"`
 	ModelJWTSecret                          serpent.String                       `json:"model_jwt_secret,omitempty" typescript:",notnull"`
 	HardwareURL                             serpent.String                       `json:"hardware_url,omitempty" typescript:",notnull"`
@@ -3387,6 +3388,15 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Env:         "NEURALINVERSE_BILLING_JWT_SECRET",
 			YAML:        "billingJWTSecret",
 			Value:       &c.BillingJWTSecret,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
+			Name:        "Billing Internal Key",
+			Description: "Internal API key for server-to-server billing calls (quota checks). Must match BILLING_INTERNAL_KEY on the billing service.",
+			Flag:        "billing-internal-key",
+			Env:         "NEURALINVERSE_BILLING_INTERNAL_KEY",
+			YAML:        "billingInternalKey",
+			Value:       &c.BillingInternalKey,
 			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
 		},
 		{
