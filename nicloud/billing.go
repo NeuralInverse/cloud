@@ -273,6 +273,7 @@ func (api *API) postBillingNotify(rw http.ResponseWriter, r *http.Request) {
 		map[string]string{
 			"name":        req.WorkspaceName,
 			"billing_url": req.BillingURL,
+			"reason":      req.Reason,
 		},
 		"billing",
 		workspaceID, userID,
@@ -290,4 +291,5 @@ type billingNotifyRequest struct {
 	WorkspaceID   string `json:"workspace_id"`
 	WorkspaceName string `json:"workspace_name"`
 	BillingURL    string `json:"billing_url"`
+	Reason        string `json:"reason"`
 }
