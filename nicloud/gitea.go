@@ -1,6 +1,7 @@
 package nicloud
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"net/http"
 
@@ -28,10 +29,16 @@ func (api *API) giteaUserInfo(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// GitHub provider expects id as int — derive a stable int64 from the UUID bytes
+	numericID := int64(binary.BigEndian.Uint64(user.ID[:8]))
+	if numericID < 0 {
+		numericID = -numericID
+	}
+
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(rw).Encode(map[string]any{
-		"id":         user.ID.String(),
+		"id":         numericID,
 		"login":      user.Username,
 		"name":       user.Name,
 		"email":      user.Email,
