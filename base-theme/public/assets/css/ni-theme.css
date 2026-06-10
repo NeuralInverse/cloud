@@ -458,3 +458,23 @@ a.navbar-brand svg {
   width: 22px !important;
   height: 22px !important;
 }
+
+/* ── Hide Gitea landing page marketing content ── */
+.home.explore .features,
+.home .features,
+#landing-features,
+.landing-features,
+section.features,
+.ui.stackable.three.column.grid.features,
+.ui.stackable.two.column.grid.features,
+.landing .features,
+.ui.container .features {
+  display: none !important;
+}
+
+/* Hide "A painless, self-hosted Git service" subtitle on home */
+.home .hero p,
+.home .ui.container > p:not(.lead),
+#homepage .subtitle {
+  display: none !important;
+}

@@ -1,0 +1,10 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{ctx.Locale.Tr "home_title"}}" class="page-content home">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;">
+    <img src="/assets/img/ni-logo.png" alt="Neural Inverse" style="width:72px;height:72px;object-fit:contain;">
+    <h1 style="color:#cccccc;font-size:22px;font-weight:600;margin:0;">Neural Inverse Base</h1>
+    <p style="color:#9d9d9d;font-size:13px;margin:0;">Workspace code storage — sign in via Neural Inverse Cloud</p>
+    <a href="{{AppSubUrl}}/user/oauth2/NeuralInverse" style="margin-top:8px;padding:7px 20px;background:#358DF6;color:#fff;font-size:13px;font-weight:600;border-radius:0;text-decoration:none;">Sign in with Neural Inverse</a>
+  </div>
+</div>
+{{template "base/footer" .}}
