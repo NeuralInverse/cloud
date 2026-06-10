@@ -33,7 +33,7 @@ export const DashboardLayout: FC = () => {
 			{canViewDeployment && <LicenseBanner />}
 			<AnnouncementBanners />
 
-			<div className="flex flex-col min-h-screen justify-between">
+			<div className="flex flex-col min-h-screen justify-between pb-8">
 				{/* biome-ignore lint/a11y/useValidAnchor: Skip links use fragment anchors by design. */}
 				<a
 					href="#main-content"
@@ -64,30 +64,30 @@ export const DashboardLayout: FC = () => {
 				<DeploymentBanner />
 
 				<footer
-					className="flex items-center justify-center gap-4 px-6 py-3 text-xs text-content-disabled shrink-0"
-					style={{ borderTop: "1px solid #2b2b2b" }}
+					className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-2 text-xs text-content-disabled"
+					style={{ borderTop: "1px solid #2b2b2b", background: "#181818" }}
 				>
-					<span>Neural Inverse Inc. 2026</span>
-					<span style={{ color: "#2b2b2b" }}>·</span>
-					<a
-						href="https://neuralinverse.com/terms"
-						target="_blank"
-						rel="noreferrer"
-						className="hover:text-content-secondary no-underline"
-						style={{ color: "inherit" }}
-					>
-						Terms
-					</a>
-					<span style={{ color: "#2b2b2b" }}>·</span>
-					<a
-						href="https://neuralinverse.com/privacy"
-						target="_blank"
-						rel="noreferrer"
-						className="hover:text-content-secondary no-underline"
-						style={{ color: "inherit" }}
-					>
-						Privacy
-					</a>
+					<span>&copy; Neural Inverse Inc. 2026</span>
+					<div className="flex items-center gap-4">
+						<a
+							href="https://neuralinverse.com/terms"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-content-secondary no-underline"
+							style={{ color: "inherit" }}
+						>
+							Terms
+						</a>
+						<a
+							href="https://neuralinverse.com/privacy"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-content-secondary no-underline"
+							style={{ color: "inherit" }}
+						>
+							Privacy
+						</a>
+					</div>
 				</footer>
 
 				<Snackbar
