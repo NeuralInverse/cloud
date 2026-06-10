@@ -63,6 +63,33 @@ export const DashboardLayout: FC = () => {
 
 				<DeploymentBanner />
 
+				<footer
+					className="flex items-center justify-center gap-4 px-6 py-3 text-xs text-content-disabled shrink-0"
+					style={{ borderTop: "1px solid #2b2b2b" }}
+				>
+					<span>Neural Inverse Inc. 2026</span>
+					<span style={{ color: "#2b2b2b" }}>·</span>
+					<a
+						href="https://neuralinverse.com/terms"
+						target="_blank"
+						rel="noreferrer"
+						className="hover:text-content-secondary no-underline"
+						style={{ color: "inherit" }}
+					>
+						Terms
+					</a>
+					<span style={{ color: "#2b2b2b" }}>·</span>
+					<a
+						href="https://neuralinverse.com/privacy"
+						target="_blank"
+						rel="noreferrer"
+						className="hover:text-content-secondary no-underline"
+						style={{ color: "inherit" }}
+					>
+						Privacy
+					</a>
+				</footer>
+
 				<Snackbar
 					data-testid="update-check-snackbar"
 					open={updateCheck.isVisible}
