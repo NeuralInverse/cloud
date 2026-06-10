@@ -42,7 +42,14 @@ export const WorkspaceStatusIndicator: FC<WorkspaceStatusIndicatorProps> = ({
 		workspace.latest_build.job,
 	);
 
-	if (!workspace.health.healthy) {
+	// Don't show the warning while workspace is still starting or agents are still connecting
+	const buildStatus = workspace.latest_build.status;
+	const agentsConnecting = workspace.latest_build.resources?.some((r) =>
+		r.agents?.some((a) => a.status === "connecting"),
+	);
+	const stillStarting = buildStatus === "starting" || agentsConnecting;
+
+	if (!workspace.health.healthy && !stillStarting) {
 		type = "warning";
 	}
 
@@ -54,7 +61,7 @@ export const WorkspaceStatusIndicator: FC<WorkspaceStatusIndicatorProps> = ({
 		</StatusIndicator>
 	);
 
-	if (workspace.health.healthy) {
+	if (workspace.health.healthy || stillStarting) {
 		return statusIndicator;
 	}
 

@@ -84,10 +84,14 @@ export const WorkspaceNotifications: FC<WorkspaceNotificationsProps> = ({
 		}
 	}
 
-	// Unhealthy
+	// Unhealthy — suppress while agents are still connecting (normal startup delay)
+	const agentsStillConnecting = workspace.latest_build.resources?.some((r) =>
+		r.agents?.some((a) => a.status === "connecting"),
+	);
 	if (
 		workspace.latest_build.status === "running" &&
-		!workspace.health.healthy
+		!workspace.health.healthy &&
+		!agentsStillConnecting
 	) {
 		const troubleshootingURL = findTroubleshootingURL(workspace.latest_build);
 
