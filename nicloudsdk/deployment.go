@@ -680,6 +680,9 @@ type DeploymentValues struct {
 	BaseAdminToken                          serpent.String                       `json:"base_admin_token,omitempty" typescript:",notnull"`
 	BaseAdminUser                           serpent.String                       `json:"base_admin_user,omitempty" typescript:",notnull"`
 	BaseAdminPass                           serpent.String                       `json:"base_admin_pass,omitempty" typescript:",notnull"`
+	BaseWebhookSecret                       serpent.String                       `json:"base_webhook_secret,omitempty" typescript:",notnull"`
+	BaseActionsURL                          serpent.String                       `json:"base_actions_url,omitempty" typescript:",notnull"`
+	BaseRegistryURL                         serpent.String                       `json:"base_registry_url,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3480,6 +3483,31 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			YAML:        "baseAdminPass",
 			Value:       &c.BaseAdminPass,
 			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
+			Name:        "Base Webhook Secret",
+			Description: "HMAC secret used to verify inbound webhooks from Gitea (base.neuralinverse.com).",
+			Flag:        "base-webhook-secret",
+			Env:         "NEURALINVERSE_BASE_WEBHOOK_SECRET",
+			YAML:        "baseWebhookSecret",
+			Value:       &c.BaseWebhookSecret,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
+			Name:        "Base Actions URL",
+			Description: "External Gitea Actions runner registration URL (actions.base.neuralinverse.com). Used in workspace startup to register act_runner.",
+			Flag:        "base-actions-url",
+			Env:         "NEURALINVERSE_BASE_ACTIONS_URL",
+			YAML:        "baseActionsURL",
+			Value:       &c.BaseActionsURL,
+		},
+		{
+			Name:        "Base Registry URL",
+			Description: "External Gitea package registry URL (registry.base.neuralinverse.com). Injected into workspaces as NI_REGISTRY_URL.",
+			Flag:        "base-registry-url",
+			Env:         "NEURALINVERSE_BASE_REGISTRY_URL",
+			YAML:        "baseRegistryURL",
+			Value:       &c.BaseRegistryURL,
 		},
 		{
 			Name: "Strict-Transport-Security",

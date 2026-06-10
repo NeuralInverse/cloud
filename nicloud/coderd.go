@@ -1440,6 +1440,8 @@ func New(options *Options) *API {
 			r.Use(workspaceAgentInfo)
 			r.Get("/base/workspace-init", api.baseWorkspaceInit)
 		})
+		// Gitea push webhook — verified via HMAC (NEURALINVERSE_BASE_WEBHOOK_SECRET), no-op if unconfigured
+		r.Post("/base/webhook", api.baseWebhook)
 		// /regions is overridden in the enterprise version
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)
