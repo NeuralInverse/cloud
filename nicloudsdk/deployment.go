@@ -678,6 +678,8 @@ type DeploymentValues struct {
 	BaseURL                                 serpent.String                       `json:"base_url,omitempty" typescript:",notnull"`
 	BaseJWTSecret                           serpent.String                       `json:"base_jwt_secret,omitempty" typescript:",notnull"`
 	BaseAdminToken                          serpent.String                       `json:"base_admin_token,omitempty" typescript:",notnull"`
+	BaseAdminUser                           serpent.String                       `json:"base_admin_user,omitempty" typescript:",notnull"`
+	BaseAdminPass                           serpent.String                       `json:"base_admin_pass,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3460,6 +3462,23 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Env:         "NEURALINVERSE_BASE_ADMIN_TOKEN",
 			YAML:        "baseAdminToken",
 			Value:       &c.BaseAdminToken,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
+			Name:        "Base Admin User",
+			Description: "Gitea admin username for impersonated token creation (basic auth + Sudo).",
+			Flag:        "base-admin-user",
+			Env:         "NEURALINVERSE_BASE_ADMIN_USER",
+			YAML:        "baseAdminUser",
+			Value:       &c.BaseAdminUser,
+		},
+		{
+			Name:        "Base Admin Pass",
+			Description: "Gitea admin password for impersonated token creation (basic auth + Sudo).",
+			Flag:        "base-admin-pass",
+			Env:         "NEURALINVERSE_BASE_ADMIN_PASS",
+			YAML:        "baseAdminPass",
+			Value:       &c.BaseAdminPass,
 			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
 		},
 		{

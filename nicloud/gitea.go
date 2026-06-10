@@ -99,7 +99,12 @@ func (api *API) baseWorkspaceInit(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gc := &giteaAdminClient{baseURL: strings.TrimRight(baseURL, "/"), token: adminToken}
+	gc := &giteaAdminClient{
+		baseURL:   strings.TrimRight(baseURL, "/"),
+		token:     adminToken,
+		adminUser: api.DeploymentValues.BaseAdminUser.String(),
+		adminPass: api.DeploymentValues.BaseAdminPass.String(),
+	}
 
 	// Ensure Gitea user exists (may not have logged into Base yet)
 	if err := gc.ensureUser(user.Username, user.Email, user.Name); err != nil {
@@ -134,8 +139,10 @@ func (api *API) baseWorkspaceInit(rw http.ResponseWriter, r *http.Request) {
 
 // giteaAdminClient calls the Gitea admin API on behalf of Cloud.
 type giteaAdminClient struct {
-	baseURL string
-	token   string
+	baseURL   string
+	token     string
+	adminUser string // for basic-auth+Sudo token creation
+	adminPass string
 }
 
 func (g *giteaAdminClient) do(method, path string, body any) ([]byte, int, error) {
@@ -218,25 +225,40 @@ func (g *giteaAdminClient) ensureRepo(owner, repo string) (exists bool, err erro
 }
 
 func (g *giteaAdminClient) createUserToken(username, tokenName string) (string, error) {
-	// Delete old token with same name to avoid conflicts
-	_, _, _ = g.do("DELETE", fmt.Sprintf("/users/%s/tokens/%s", username, tokenName), nil)
-
-	b, status, err := g.do("POST", fmt.Sprintf("/users/%s/tokens", username), map[string]any{
-		"name": tokenName,
+	// Token creation requires basic auth + Sudo (admin token alone is rejected by Gitea)
+	body, err := json.Marshal(map[string]any{
+		"name":   tokenName,
+		"scopes": []string{"write:repository", "write:user"},
 	})
 	if err != nil {
 		return "", err
 	}
+	req, err := http.NewRequest("POST", g.baseURL+"/api/v1/users/"+username+"/tokens", bytes.NewReader(body))
+	if err != nil {
+		return "", err
+	}
+	req.SetBasicAuth(g.adminUser, g.adminPass)
+	req.Header.Set("Sudo", username)
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
+	status := resp.StatusCode
+
 	if status != http.StatusCreated && status != http.StatusOK {
 		return "", xerrors.Errorf("create gitea token status %d", status)
 	}
-	var resp struct {
+	var tresp struct {
 		SHA1 string `json:"sha1"`
 	}
-	if err := json.Unmarshal(b, &resp); err != nil {
+	if err := json.Unmarshal(b, &tresp); err != nil {
 		return "", err
 	}
-	return resp.SHA1, nil
+	return tresp.SHA1, nil
 }
 
 func randomHex(n int) string {
