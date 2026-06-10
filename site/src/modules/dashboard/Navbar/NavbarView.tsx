@@ -91,24 +91,8 @@ export const NavbarView: FC<NavbarViewProps> = ({
 				canCreateChat={canCreateChat}
 			/>
 
-			{prerelease && buildInfo?.version && (
-				<a
-					href={buildInfo.external_url}
-					target="_blank"
-					rel="noreferrer"
-					className="absolute top-0 left-1/2 -translate-x-1/2 no-underline z-10"
-				>
-					<Badge
-						variant={prerelease === "rc" ? "info" : "warning"}
-						size="sm"
-						className="font-mono rounded-t-none border-t-0"
-					>
-						{buildInfo.version}
-					</Badge>
-				</a>
-			)}
 
-			<div className="flex items-center gap-3 ml-auto">
+<div className="flex items-center gap-3 ml-auto">
 				{buildInfo?.model_url && (
 					<div className="hidden md:block">
 						<Button asChild variant="subtle" size="sm">
