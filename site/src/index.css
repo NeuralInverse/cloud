@@ -131,7 +131,7 @@
 		--border-destructive: 0 84% 60%;
 		--border-secondary: 240 5% 65%;
 		--overlay-default: 240 5% 84% / 80%;
-		--radius: 0.5rem;
+		--radius: 0px;
 		--highlight-purple: 271, 61%, 35%;
 		--highlight-green: 143 64% 24%;
 		--highlight-orange: 30 100% 32%;
@@ -172,38 +172,38 @@
 		--avatar-sm: 1.5rem;
 	}
 	.dark {
-		--content-primary: 0 0% 100%;
-		--content-secondary: 240 5% 65%;
-		--content-link: 213 94% 68%;
-		--content-invert: 240 10% 4%;
-		--content-disabled: 240 5% 26%;
+		--content-primary: 0 0% 80%;
+		--content-secondary: 0 0% 62%;
+		--content-link: 213 91% 59%;
+		--content-invert: 0 0% 10%;
+		--content-disabled: 0 0% 30%;
 		--content-success: 142 76% 36%;
 		--content-warning: 31 97% 72%;
 		--content-destructive: 0 91% 71%;
-		--surface-primary: 240 10% 4%;
-		--surface-secondary: 240 6% 10%;
-		--surface-tertiary: 240 4% 16%;
-		--surface-quaternary: 240 5% 26%;
-		--surface-invert-primary: 240 6% 90%;
-		--surface-invert-secondary: 240 5% 65%;
+		--surface-primary: 0 0% 10%;
+		--surface-secondary: 0 0% 13%;
+		--surface-tertiary: 0 0% 16%;
+		--surface-quaternary: 0 0% 20%;
+		--surface-invert-primary: 0 0% 80%;
+		--surface-invert-secondary: 0 0% 62%;
 		--surface-destructive: 0 75% 15%;
 		--surface-green: 145 80% 10%;
-		--surface-grey: 240 6% 10%;
+		--surface-grey: 0 0% 13%;
 		--surface-orange: 13 81% 15%;
 		--surface-sky: 196, 67%, 12%;
 		--surface-red: 0 75% 15%;
 		--surface-purple: 268, 68%, 17%;
 		--surface-magenta: 291, 74%, 15%;
 		--border-purple: 255 92% 76%;
-		--border-default: 240 4% 16%;
+		--border-default: 0 0% 17%;
 		--border-success: 142 76% 36%;
 		--border-magenta: 292, 100%, 78%;
 		--border-warning: 30.66, 97.16%, 72.35%;
 		--border-destructive: 0 91% 71%;
 		--border-sky: 194 90% 62%;
 		--border-green: 143 77% 87%;
-		--border-secondary: 240 5% 26%;
-		--overlay-default: 240 10% 4% / 80%;
+		--border-secondary: 0 0% 20%;
+		--overlay-default: 0 0% 10% / 80%;
 		--highlight-purple: 269, 100%, 74%;
 		--highlight-green: 141 79% 85%;
 		--highlight-orange: 31 100% 70%;
@@ -224,9 +224,9 @@
 		--surface-git-added: 145 80% 10%;
 		--surface-git-deleted: 0 75% 15%;
 		--surface-git-merged: 274 87% 21%;
-		--border: 240 3.7% 15.9%;
-		--input: 240 3.7% 15.9%;
-		--ring: 240 4.9% 83.9%;
+		--border: 0 0% 17%;
+		--input: 0 0% 17%;
+		--ring: 213 91% 59%;
 		/* shadcn-compatible aliases – see :root block for details. */
 		--background: var(--surface-primary);
 		--foreground: var(--content-primary);
@@ -353,6 +353,7 @@
 	#root,
 	#storybook-root {
 		@apply h-full;
+		font-size: 13px;
 	}
 
 	button,
