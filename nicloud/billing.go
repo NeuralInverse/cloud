@@ -230,12 +230,12 @@ func (api *API) baseRedirect(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, "Failed to generate base token", http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(rw, r, baseURL+"/auth/cloud-redirect?token="+token, http.StatusTemporaryRedirect)
-		return
+		// JWT auth not needed — Gitea uses Cloud OAuth2 directly
+		_ = token
 	}
 
-	// No JWT secret configured — redirect directly (user will be prompted to log in via OAuth2)
-	http.Redirect(rw, r, baseURL, http.StatusTemporaryRedirect)
+	// Redirect to Gitea's OAuth2 initiation URL — Cloud is the provider, so login is seamless
+	http.Redirect(rw, r, baseURL+"/user/oauth2/NeuralInverse", http.StatusTemporaryRedirect)
 }
 
 func createServiceToken(userID, email, username, secret, service string) (string, error) {

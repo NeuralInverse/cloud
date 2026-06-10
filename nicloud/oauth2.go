@@ -116,7 +116,7 @@ func (api *API) deleteOAuth2ProviderAppSecret() http.HandlerFunc {
 // @Success 200 "Returns HTML authorization page"
 // @Router /oauth2/authorize [get]
 func (api *API) getOAuth2ProviderAppAuthorize() http.HandlerFunc {
-	return oauth2provider.ShowAuthorizePage(api.AccessURL)
+	return oauth2provider.ShowAuthorizePage(api.AccessURL, api.Database)
 }
 
 // @Summary OAuth2 authorization request (POST - process authorization).

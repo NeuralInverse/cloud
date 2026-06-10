@@ -78,8 +78,19 @@ func extractAuthorizeParams(r *http.Request, callbackURL *url.URL) (authorizePar
 	return params, nil, nil
 }
 
+// isTrustedApp returns true for first-party Neural Inverse apps that should skip the consent screen.
+func isTrustedApp(callbackURL string) bool {
+	u, err := url.Parse(callbackURL)
+	if err != nil {
+		return false
+	}
+	host := u.Hostname()
+	return strings.HasSuffix(host, ".neuralinverse.com") || host == "neuralinverse.com"
+}
+
 // ShowAuthorizePage handles GET /oauth2/authorize requests to display the HTML authorization page.
-func ShowAuthorizePage(accessURL *url.URL) http.HandlerFunc {
+// For first-party Neural Inverse apps the consent screen is skipped and the code is issued immediately.
+func ShowAuthorizePage(accessURL *url.URL, db database.Store) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		app := httpmw.OAuth2ProviderApp(r)
 		ua := httpmw.UserAuthorization(r.Context())
@@ -165,6 +176,13 @@ func ShowAuthorizePage(accessURL *url.URL) http.HandlerFunc {
 			return
 		}
 
+		// First-party Neural Inverse apps (e.g. base.neuralinverse.com) skip the consent screen.
+		if isTrustedApp(app.CallbackURL) {
+			apiKey := httpmw.APIKey(r)
+			issueAuthCode(rw, r, db, app.ID, apiKey.UserID, params)
+			return
+		}
+
 		site.RenderOAuthAllowPage(rw, r, site.RenderOAuthAllowData{
 			AppIcon: app.Icon,
 			AppName: app.Name,
@@ -218,65 +236,56 @@ func ProcessAuthorize(db database.Store) http.HandlerFunc {
 		}
 
 		// TODO: Ignoring scope for now, but should look into implementing.
-		code, err := GenerateSecret()
-		if err != nil {
-			httpapi.WriteOAuth2Error(r.Context(), rw, http.StatusInternalServerError, nicloudsdk.OAuth2ErrorCodeServerError, "Failed to generate OAuth2 app authorization code")
-			return
-		}
-		err = db.InTx(func(tx database.Store) error {
-			// Delete any previous codes.
-			err = tx.DeleteOAuth2ProviderAppCodesByAppAndUserID(ctx, database.DeleteOAuth2ProviderAppCodesByAppAndUserIDParams{
-				AppID:  app.ID,
-				UserID: apiKey.UserID,
-			})
-			if err != nil && !errors.Is(err, sql.ErrNoRows) {
-				return xerrors.Errorf("delete oauth2 app codes: %w", err)
-			}
-
-			// Insert the new code.
-			_, err = tx.InsertOAuth2ProviderAppCode(ctx, database.InsertOAuth2ProviderAppCodeParams{
-				ID:        uuid.New(),
-				CreatedAt: dbtime.Now(),
-				// TODO: Configurable expiration?  Ten minutes matches GitHub.
-				// This timeout is only for the code that will be exchanged for the
-				// access token, not the access token itself.  It does not need to be
-				// long-lived because normally it will be exchanged immediately after it
-				// is received.  If the application does wait before exchanging the
-				// token (for example suppose they ask the user to confirm and the user
-				// has left) then they can just retry immediately and get a new code.
-				ExpiresAt:           dbtime.Now().Add(time.Duration(10) * time.Minute),
-				SecretPrefix:        []byte(code.Prefix),
-				HashedSecret:        code.Hashed,
-				AppID:               app.ID,
-				UserID:              apiKey.UserID,
-				ResourceUri:         sql.NullString{String: params.resource, Valid: params.resource != ""},
-				CodeChallenge:       sql.NullString{String: params.codeChallenge, Valid: params.codeChallenge != ""},
-				CodeChallengeMethod: sql.NullString{String: params.codeChallengeMethod, Valid: params.codeChallengeMethod != ""},
-				StateHash:           hashOAuth2State(params.state),
-				RedirectUri:         sql.NullString{String: params.redirectURL.String(), Valid: params.redirectURIProvided},
-			})
-			if err != nil {
-				return xerrors.Errorf("insert oauth2 authorization code: %w", err)
-			}
-
-			return nil
-		}, nil)
-		if err != nil {
-			httpapi.WriteOAuth2Error(ctx, rw, http.StatusInternalServerError, nicloudsdk.OAuth2ErrorCodeServerError, "Failed to generate OAuth2 authorization code")
-			return
-		}
-
-		newQuery := params.redirectURL.Query()
-		newQuery.Add("code", code.Formatted)
-		if params.state != "" {
-			newQuery.Add("state", params.state)
-		}
-		params.redirectURL.RawQuery = newQuery.Encode()
-
-		// (ThomasK33): Use a 302 redirect as some (external) OAuth 2 apps and browsers
-		// do not work with the 307.
-		http.Redirect(rw, r, params.redirectURL.String(), http.StatusFound)
+		issueAuthCode(rw, r, db, app.ID, apiKey.UserID, params)
 	}
+}
+
+// issueAuthCode generates an authorization code, writes it to the DB, and redirects to the callback.
+func issueAuthCode(rw http.ResponseWriter, r *http.Request, db database.Store, appID uuid.UUID, userID uuid.UUID, params authorizeParams) {
+	ctx := r.Context()
+	code, err := GenerateSecret()
+	if err != nil {
+		httpapi.WriteOAuth2Error(ctx, rw, http.StatusInternalServerError, nicloudsdk.OAuth2ErrorCodeServerError, "Failed to generate OAuth2 app authorization code")
+		return
+	}
+	err = db.InTx(func(tx database.Store) error {
+		err := tx.DeleteOAuth2ProviderAppCodesByAppAndUserID(ctx, database.DeleteOAuth2ProviderAppCodesByAppAndUserIDParams{
+			AppID:  appID,
+			UserID: userID,
+		})
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return xerrors.Errorf("delete oauth2 app codes: %w", err)
+		}
+		_, err = tx.InsertOAuth2ProviderAppCode(ctx, database.InsertOAuth2ProviderAppCodeParams{
+			ID:                  uuid.New(),
+			CreatedAt:           dbtime.Now(),
+			ExpiresAt:           dbtime.Now().Add(10 * time.Minute),
+			SecretPrefix:        []byte(code.Prefix),
+			HashedSecret:        code.Hashed,
+			AppID:               appID,
+			UserID:              userID,
+			ResourceUri:         sql.NullString{String: params.resource, Valid: params.resource != ""},
+			CodeChallenge:       sql.NullString{String: params.codeChallenge, Valid: params.codeChallenge != ""},
+			CodeChallengeMethod: sql.NullString{String: params.codeChallengeMethod, Valid: params.codeChallengeMethod != ""},
+			StateHash:           hashOAuth2State(params.state),
+			RedirectUri:         sql.NullString{String: params.redirectURL.String(), Valid: params.redirectURIProvided},
+		})
+		if err != nil {
+			return xerrors.Errorf("insert oauth2 authorization code: %w", err)
+		}
+		return nil
+	}, nil)
+	if err != nil {
+		httpapi.WriteOAuth2Error(ctx, rw, http.StatusInternalServerError, nicloudsdk.OAuth2ErrorCodeServerError, "Failed to generate OAuth2 authorization code")
+		return
+	}
+	newQuery := params.redirectURL.Query()
+	newQuery.Add("code", code.Formatted)
+	if params.state != "" {
+		newQuery.Add("state", params.state)
+	}
+	params.redirectURL.RawQuery = newQuery.Encode()
+	http.Redirect(rw, r, params.redirectURL.String(), http.StatusFound)
 }
 
 // hashOAuth2State returns a SHA-256 hash of the OAuth2 state parameter. If
