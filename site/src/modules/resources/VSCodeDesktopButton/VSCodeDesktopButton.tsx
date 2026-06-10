@@ -1,13 +1,13 @@
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { type FC, useRef, useState } from "react";
-import { Button } from "#/components/Button/Button";
 import { API } from "#/api/api";
 import type { DisplayApp } from "#/api/typesGenerated";
 import { ChevronDownIcon } from "#/components/AnimatedIcons/ChevronDown";
 import { ProductLogo } from "#/components/Icons/ProductLogo";
 import { VSCodeInsidersIcon } from "#/components/Icons/VSCodeInsidersIcon";
 import { getVSCodeHref } from "#/modules/apps/apps";
+import { LocalStep } from "#/modules/dashboard/Onboarding/OnboardingModal";
 import { AgentButton } from "../AgentButton";
 import { DisplayAppNameMap } from "../AppLink/AppLink";
 
@@ -127,8 +127,7 @@ const VSCodeButton: FC<VSCodeDesktopButtonProps> = ({
 					folder: folderPath,
 				});
 				location.href = href;
-				// If the app isn't installed the browser stays on the page
-				// Show download prompt after 2.5s if still here
+				// If the app isn't installed the browser stays on this page — show download after 2.5s
 				setTimeout(() => {
 					setShowDownload(true);
 					setLoading(false);
@@ -139,30 +138,36 @@ const VSCodeButton: FC<VSCodeDesktopButtonProps> = ({
 			});
 	}
 
-	return (
-		<div className="flex flex-col items-start gap-2">
-			<AgentButton disabled={loading} onClick={handleClick}>
-				<ProductLogo className="w-4 h-4" />
-				{DisplayAppNameMap.vscode}
-			</AgentButton>
-			{showDownload && (
+	if (showDownload) {
+		return (
+			<div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#1a1a1a" }}>
 				<div
-					className="flex items-center gap-3 px-3 py-2 text-xs"
-					style={{ background: "#202020", border: "1px solid #2b2b2b" }}
+					className="flex items-center justify-between px-8 py-4 shrink-0"
+					style={{ borderBottom: "1px solid #2b2b2b", background: "#181818" }}
 				>
-					<span className="text-content-secondary">Neural Inverse IDE not found.</span>
-					<Button
-						size="sm"
-						variant="outline"
-						asChild
+					<ProductLogo className="h-6" />
+					<button
+						type="button"
+						onClick={() => setShowDownload(false)}
+						className="text-xs text-content-disabled hover:text-content-secondary bg-transparent border-none cursor-pointer"
 					>
-						<a href="https://neuralinverse.com/download" target="_blank" rel="noreferrer">
-							Download
-						</a>
-					</Button>
+						Cancel
+					</button>
 				</div>
-			)}
-		</div>
+				<div className="flex-1 flex items-center justify-center px-4 py-12 overflow-y-auto">
+					<div className="w-full max-w-lg">
+						<LocalStep onBack={() => setShowDownload(false)} onDone={() => setShowDownload(false)} />
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<AgentButton disabled={loading} onClick={handleClick}>
+			<ProductLogo className="w-4 h-4" />
+			{DisplayAppNameMap.vscode}
+		</AgentButton>
 	);
 };
 

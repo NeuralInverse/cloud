@@ -231,7 +231,7 @@ const CloudStep: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onD
 	</div>
 );
 
-const LocalStep: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
+export const LocalStep: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
 	<div className="flex flex-col gap-8">
 		<div className="flex flex-col gap-2">
 			<h1 className="text-2xl font-semibold text-content-primary m-0">
