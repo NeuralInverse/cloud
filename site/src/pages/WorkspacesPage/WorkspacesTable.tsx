@@ -40,7 +40,7 @@ import { Button } from "#/components/Button/Button";
 import { Checkbox } from "#/components/Checkbox/Checkbox";
 import { ConfirmDialog } from "#/components/Dialogs/ConfirmDialog/ConfirmDialog";
 import { ExternalImage } from "#/components/ExternalImage/ExternalImage";
-import { VSCodeIcon } from "#/components/Icons/VSCodeIcon";
+import { ProductLogo } from "#/components/Icons/ProductLogo";
 import { VSCodeInsidersIcon } from "#/components/Icons/VSCodeInsidersIcon";
 import { Skeleton } from "#/components/Skeleton/Skeleton";
 import { Spinner } from "#/components/Spinner/Spinner";
@@ -687,13 +687,13 @@ const WorkspaceApps: FC<WorkspaceAppsProps> = ({ workspace }) => {
 			<VSCodeIconLink
 				key="vscode"
 				variant="vscode"
-				label="Open VSCode"
+				label="Open Neural Inverse Desktop"
 				owner={workspace.owner_name}
 				workspace={workspace.name}
 				agent={agent.name}
 				folder={agent.expanded_directory}
 			>
-				<VSCodeIcon />
+				<ProductLogo className="size-4" />
 			</VSCodeIconLink>,
 		);
 	}
@@ -833,7 +833,7 @@ const VSCodeIconLink: FC<VSCodeIconLinkProps> = ({
 		onSuccess: ({ key }) => {
 			// We use a `location.href` here instead of a `navigate` because
 			// these are protocol-specific links.
-			location.href = getVSCodeHref(variant, {
+			location.href = getVSCodeHref(variant === "vscode" ? "neuralinverse" : variant, {
 				owner,
 				workspace,
 				token: key,
