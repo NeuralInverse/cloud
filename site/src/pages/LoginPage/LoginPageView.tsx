@@ -67,20 +67,42 @@ export const LoginPageView: FC<LoginPageViewProps> = ({
 
 						{/* GitHub — primary sign-in */}
 						{githubEnabled && !showAdmin && (
-							<Button
-								variant="outline"
-								asChild
-								disabled={isSigningIn}
-								className="w-full"
-								size="lg"
-							>
-								<a
-									href={`/api/v2/users/oauth2/github/callback?redirect=${encodeURIComponent(redirectTo)}`}
+							<div className="flex flex-col items-center gap-3 w-full">
+								<Button
+									variant="outline"
+									asChild
+									disabled={isSigningIn}
+									className="w-full"
+									size="lg"
 								>
-									<ExternalImage src="/icon/github.svg" className="size-4" />
-									Continue with GitHub
-								</a>
-							</Button>
+									<a
+										href={`/api/v2/users/oauth2/github/callback?redirect=${encodeURIComponent(redirectTo)}`}
+									>
+										<ExternalImage src="/icon/github.svg" className="size-4" />
+										Continue with GitHub
+									</a>
+								</Button>
+								<p className="text-xs text-content-disabled text-center m-0 leading-relaxed">
+									By continuing, you agree to our{" "}
+									<a
+										href="https://neuralinverse.com/terms"
+										target="_blank"
+										rel="noreferrer"
+										className="text-content-secondary hover:text-content-primary underline"
+									>
+										Terms of Service
+									</a>
+									{" "}and{" "}
+									<a
+										href="https://neuralinverse.com/privacy"
+										target="_blank"
+										rel="noreferrer"
+										className="text-content-secondary hover:text-content-primary underline"
+									>
+										Privacy Policy
+									</a>
+								</p>
+							</div>
 						)}
 
 						{/* Admin password form — hidden by default */}
