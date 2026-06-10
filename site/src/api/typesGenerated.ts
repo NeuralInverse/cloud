@@ -1439,6 +1439,7 @@ export interface BuildInfoResponse {
 	readonly billing_url?: string;
 	readonly model_url?: string;
 	readonly hardware_url?: string;
+	readonly base_url?: string;
 }
 
 // From nicloudsdk/workspacebuilds.go

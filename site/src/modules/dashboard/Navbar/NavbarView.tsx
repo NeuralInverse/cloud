@@ -123,6 +123,16 @@ export const NavbarView: FC<NavbarViewProps> = ({
 					</div>
 				)}
 
+				{buildInfo?.base_url && (
+					<div className="hidden md:block">
+						<Button asChild variant="subtle" size="sm">
+							<a href="/api/v2/base/redirect" className="inline-block">
+								Base
+							</a>
+						</Button>
+					</div>
+				)}
+
 				{supportLinks.filter(isNavbarLink).map((link) => (
 					<div key={link.name} className="hidden md:block">
 						<SupportButton

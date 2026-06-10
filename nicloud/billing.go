@@ -201,6 +201,43 @@ func (api *API) hardwareRedirect(rw http.ResponseWriter, r *http.Request) {
 	http.Redirect(rw, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
+// baseRedirect generates a signed JWT and redirects the authenticated user
+// to base.neuralinverse.com. Only active when NEURALINVERSE_BASE_URL is set.
+//
+// @Summary Redirect to Base (code storage)
+// @ID base-redirect
+// @Tags Base
+// @Success 307
+// @Router /api/v2/base/redirect [get]
+func (api *API) baseRedirect(rw http.ResponseWriter, r *http.Request) {
+	baseURL := api.DeploymentValues.BaseURL.String()
+	if baseURL == "" {
+		http.NotFound(rw, r)
+		return
+	}
+
+	secret := api.DeploymentValues.BaseJWTSecret.String()
+	apiKey := httpmw.APIKey(r)
+	user, err := api.Database.GetUserByID(r.Context(), apiKey.UserID)
+	if err != nil {
+		http.Error(rw, "User not found", http.StatusInternalServerError)
+		return
+	}
+
+	if secret != "" {
+		token, err := createServiceToken(user.ID.String(), user.Email, user.Username, secret, "base")
+		if err != nil {
+			http.Error(rw, "Failed to generate base token", http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(rw, r, baseURL+"/auth/cloud-redirect?token="+token, http.StatusTemporaryRedirect)
+		return
+	}
+
+	// No JWT secret configured — redirect directly (user will be prompted to log in via OAuth2)
+	http.Redirect(rw, r, baseURL, http.StatusTemporaryRedirect)
+}
+
 func createServiceToken(userID, email, username, secret, service string) (string, error) {
 	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
 

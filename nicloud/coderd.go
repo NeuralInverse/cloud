@@ -685,6 +685,7 @@ func New(options *Options) *API {
 		BillingURL:            api.DeploymentValues.BillingURL.String(),
 		ModelURL:              api.DeploymentValues.ModelURL.String(),
 		HardwareURL:           api.DeploymentValues.HardwareURL.String(),
+		BaseURL:               api.DeploymentValues.BaseURL.String(),
 		WildcardAccessURL:     api.DeploymentValues.WildcardAccessURL.String(),
 	}
 	api.SiteHandler, err = site.New(&site.Options{
@@ -1428,6 +1429,11 @@ func New(options *Options) *API {
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)
 			r.Get("/hardware/redirect", api.hardwareRedirect)
+		})
+		// Base (code storage) redirect — only active when NEURALINVERSE_BASE_URL is set
+		r.Group(func(r chi.Router) {
+			r.Use(apiKeyMiddleware)
+			r.Get("/base/redirect", api.baseRedirect)
 		})
 		// /regions is overridden in the enterprise version
 		r.Group(func(r chi.Router) {

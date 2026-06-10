@@ -675,6 +675,8 @@ type DeploymentValues struct {
 	ModelJWTSecret                          serpent.String                       `json:"model_jwt_secret,omitempty" typescript:",notnull"`
 	HardwareURL                             serpent.String                       `json:"hardware_url,omitempty" typescript:",notnull"`
 	HardwareJWTSecret                       serpent.String                       `json:"hardware_jwt_secret,omitempty" typescript:",notnull"`
+	BaseURL                                 serpent.String                       `json:"base_url,omitempty" typescript:",notnull"`
+	BaseJWTSecret                           serpent.String                       `json:"base_jwt_secret,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3434,6 +3436,23 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
 		},
 		{
+			Name:        "Base URL",
+			Description: "External code-storage service URL (base.neuralinverse.com). When set, shows a Base link in the navbar.",
+			Flag:        "base-url",
+			Env:         "NEURALINVERSE_BASE_URL",
+			YAML:        "baseURL",
+			Value:       &c.BaseURL,
+		},
+		{
+			Name:        "Base JWT Secret",
+			Description: "Shared secret used to sign base redirect tokens.",
+			Flag:        "base-jwt-secret",
+			Env:         "NEURALINVERSE_BASE_JWT_SECRET",
+			YAML:        "baseJWTSecret",
+			Value:       &c.BaseJWTSecret,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
 			Name: "Strict-Transport-Security",
 			Description: "Controls if the 'Strict-Transport-Security' header is set on all static file responses. " +
 				"This header should only be set if the server is accessed via HTTPS. This value is the MaxAge in seconds of " +
@@ -5034,6 +5053,9 @@ type BuildInfoResponse struct {
 
 	// HardwareURL is the external hardware gateway URL. Empty for self-hosted deployments.
 	HardwareURL string `json:"hardware_url,omitempty"`
+
+	// BaseURL is the external code-storage service URL. Empty for self-hosted deployments.
+	BaseURL string `json:"base_url,omitempty"`
 
 	// WildcardAccessURL is the URL for wildcard workspace subdomain apps.
 	WildcardAccessURL string `json:"wildcard_access_url,omitempty"`
