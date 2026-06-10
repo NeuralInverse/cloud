@@ -1,0 +1,307 @@
+/* Neural Inverse Base — Custom Theme */
+/* Matches billing/cloud VS Code Dark Modern palette */
+
+:root {
+  --ni-bg:            #1a1a1a;
+  --ni-bg-sidebar:    #181818;
+  --ni-bg-card:       #202020;
+  --ni-bg-hover:      #2a2d2e;
+  --ni-bg-active:     #37373d;
+  --ni-border:        #2b2b2b;
+  --ni-border-header: #212121;
+  --ni-fg:            #cccccc;
+  --ni-fg-muted:      #9d9d9d;
+  --ni-focus:         #358DF6;
+  --ni-accent:        #358DF6;
+  --ni-success:       #73c991;
+  --ni-warning:       #e0a84e;
+  --ni-danger:        #cf222e;
+  --ni-radius:        6px;
+  --ni-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --ni-mono: "Fira Code", "JetBrains Mono", "IBM Plex Mono", monospace;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body, html {
+  background: var(--ni-bg) !important;
+  color: var(--ni-fg) !important;
+  font-family: var(--ni-font) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header / Navbar ── */
+.full.height > .stackable.menu,
+#navbar,
+.ui.menu,
+.navbar,
+header.ui {
+  background: var(--ni-bg-sidebar) !important;
+  border-bottom: 1px solid var(--ni-border-header) !important;
+  min-height: 35px !important;
+  height: 35px !important;
+  padding: 0 14px !important;
+  box-shadow: none !important;
+}
+
+.ui.menu .item,
+.ui.menu .item a,
+#navbar .item,
+#navbar a {
+  color: var(--ni-fg) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.ui.menu .item:hover,
+#navbar .item:hover {
+  background: var(--ni-bg-hover) !important;
+  color: #fff !important;
+}
+
+.ui.menu .active.item,
+#navbar .active.item {
+  background: var(--ni-bg-active) !important;
+  color: #fff !important;
+  border-radius: var(--ni-radius) !important;
+}
+
+/* Brand name in header */
+.ui.menu .header.item,
+#navbar .header.item,
+.gitea-logo-container {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: var(--ni-fg) !important;
+  letter-spacing: 0 !important;
+}
+
+/* ── Sidebar ── */
+.sidebar,
+.ui.vertical.menu,
+.repository.file.list .sidebar {
+  background: var(--ni-bg-sidebar) !important;
+  border-right: 1px solid var(--ni-border) !important;
+}
+
+/* ── Cards / Panels ── */
+.ui.segment,
+.ui.card,
+.ui.cards > .card,
+.repository-summary,
+.dashboard-repos .item,
+.explore .item {
+  background: var(--ni-bg-card) !important;
+  border: 1px solid var(--ni-border) !important;
+  border-radius: var(--ni-radius) !important;
+  color: var(--ni-fg) !important;
+  box-shadow: none !important;
+}
+
+/* ── Inputs / Forms ── */
+input, textarea, select,
+.ui.input input,
+.ui.dropdown,
+.CodeMirror,
+.monaco-editor {
+  background: var(--ni-bg-card) !important;
+  border: 1px solid var(--ni-border) !important;
+  color: var(--ni-fg) !important;
+  border-radius: var(--ni-radius) !important;
+  font-family: var(--ni-font) !important;
+  font-size: 13px !important;
+}
+
+input:focus, textarea:focus,
+.ui.input input:focus {
+  border-color: var(--ni-focus) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px var(--ni-focus) !important;
+}
+
+/* ── Buttons ── */
+.ui.button,
+.btn,
+button:not([class*="monaco"]) {
+  background: var(--ni-bg-active) !important;
+  color: var(--ni-fg) !important;
+  border: 1px solid var(--ni-border) !important;
+  border-radius: var(--ni-radius) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  transition: background 0.1s, border-color 0.1s !important;
+}
+
+.ui.button:hover, .btn:hover {
+  background: #444 !important;
+  border-color: #555 !important;
+  color: #fff !important;
+}
+
+.ui.primary.button,
+.ui.blue.button,
+.btn-primary {
+  background: var(--ni-focus) !important;
+  border-color: var(--ni-focus) !important;
+  color: #fff !important;
+}
+
+.ui.primary.button:hover,
+.btn-primary:hover {
+  background: #2979d4 !important;
+  border-color: #2979d4 !important;
+}
+
+.ui.red.button, .btn-danger {
+  background: var(--ni-danger) !important;
+  border-color: var(--ni-danger) !important;
+  color: #fff !important;
+}
+
+.ui.green.button, .btn-success {
+  background: var(--ni-success) !important;
+  border-color: var(--ni-success) !important;
+  color: #000 !important;
+}
+
+/* ── Links ── */
+a { color: var(--ni-accent) !important; text-decoration: none !important; }
+a:hover { color: #5ba8ff !important; text-decoration: underline !important; }
+
+/* ── Tables ── */
+.ui.table, table {
+  background: var(--ni-bg-card) !important;
+  color: var(--ni-fg) !important;
+  border: 1px solid var(--ni-border) !important;
+  border-radius: var(--ni-radius) !important;
+}
+
+.ui.table thead th, th {
+  background: var(--ni-bg-sidebar) !important;
+  color: var(--ni-fg-muted) !important;
+  border-bottom: 1px solid var(--ni-border) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.ui.table tr:hover td, tr:hover td {
+  background: var(--ni-bg-hover) !important;
+}
+
+.ui.table td, td {
+  border-top: 1px solid var(--ni-border) !important;
+  color: var(--ni-fg) !important;
+}
+
+/* ── Labels / Badges ── */
+.ui.label, .label, .badge, .topic-tag {
+  background: var(--ni-bg-active) !important;
+  color: var(--ni-fg) !important;
+  border: 1px solid var(--ni-border) !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 2px 8px !important;
+}
+
+.ui.green.label  { background: #0d2b1a !important; color: var(--ni-success) !important; border-color: #1a4a2a !important; }
+.ui.red.label    { background: #2b0d0d !important; color: #ff7070 !important; border-color: #4a1a1a !important; }
+.ui.yellow.label { background: #2b1f00 !important; color: var(--ni-warning) !important; border-color: #4a3800 !important; }
+.ui.blue.label   { background: #051b38 !important; color: var(--ni-focus) !important; border-color: #0a336a !important; }
+
+/* ── Code / Diff ── */
+pre, code, .code-view, .diff-file-body {
+  background: var(--ni-bg-card) !important;
+  color: var(--ni-fg) !important;
+  font-family: var(--ni-mono) !important;
+  font-size: 12px !important;
+  border: 1px solid var(--ni-border) !important;
+  border-radius: var(--ni-radius) !important;
+}
+
+.diff-file-header {
+  background: var(--ni-bg-sidebar) !important;
+  border-bottom: 1px solid var(--ni-border) !important;
+  color: var(--ni-fg-muted) !important;
+}
+
+.added { background: #0d2b1a !important; }
+.removed { background: #2b0d0d !important; }
+.code-view td.lines-num { color: var(--ni-fg-muted) !important; background: var(--ni-bg-sidebar) !important; }
+
+/* ── Dropdowns ── */
+.ui.dropdown .menu,
+.tippy-box {
+  background: var(--ni-bg-card) !important;
+  border: 1px solid var(--ni-border) !important;
+  border-radius: var(--ni-radius) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+}
+
+.ui.dropdown .menu .item:hover,
+.tippy-box .item:hover {
+  background: var(--ni-bg-hover) !important;
+  color: #fff !important;
+}
+
+/* ── Footer ── */
+footer, #footer {
+  background: var(--ni-bg-sidebar) !important;
+  border-top: 1px solid var(--ni-border-header) !important;
+  color: var(--ni-fg-muted) !important;
+  font-size: 11px !important;
+  padding: 8px 14px !important;
+  text-align: center !important;
+}
+
+footer a, #footer a {
+  color: var(--ni-fg-muted) !important;
+}
+
+/* ── Explore / Dashboard ── */
+.dashboard-repos .item,
+.explore.repos .item,
+.repository.list .item {
+  border-bottom: 1px solid var(--ni-border) !important;
+  padding: 12px 0 !important;
+}
+
+.dashboard-repos .item:hover,
+.explore.repos .item:hover {
+  background: var(--ni-bg-hover) !important;
+}
+
+/* ── Tabs ── */
+.ui.tabular.menu .item,
+.ui.secondary.menu .item {
+  background: transparent !important;
+  color: var(--ni-fg-muted) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.ui.tabular.menu .active.item,
+.ui.secondary.menu .active.item {
+  background: transparent !important;
+  color: #fff !important;
+  border-bottom: 2px solid var(--ni-focus) !important;
+  font-weight: 600 !important;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--ni-bg); }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* ── Hide Gitea powered-by text ── */
+#footer .color.grey { display: none !important; }
