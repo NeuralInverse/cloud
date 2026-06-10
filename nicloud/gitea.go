@@ -15,7 +15,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"cdr.dev/slog"
+	"cdr.dev/slog/v3"
 
 	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
 	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
