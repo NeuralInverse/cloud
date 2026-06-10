@@ -430,3 +430,23 @@ footer a:hover, #footer a:hover { color: var(--ni-fg) !important; text-decoratio
 ::-webkit-scrollbar-track { background: var(--ni-bg); }
 ::-webkit-scrollbar-thumb { background: #37373d; border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+/* ── Logo visibility ── */
+/* Gitea's default SVG logo is dark — invert to white on our dark bg */
+#navbar .gitea-logo img,
+#navbar .gitea-logo svg,
+.navbar-brand img,
+.navbar-brand svg,
+.ui.menu .header.item img,
+.ui.menu .header.item svg,
+a.navbar-brand img,
+a.navbar-brand svg {
+  filter: brightness(0) invert(1) !important;
+  height: 20px !important;
+  width: auto !important;
+}
+
+/* Avatar images should NOT be inverted */
+.ui.avatar.image, .avatar, img.avatar {
+  filter: none !important;
+}
