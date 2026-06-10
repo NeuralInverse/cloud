@@ -15,6 +15,8 @@ import (
 
 	"golang.org/x/xerrors"
 
+	"cdr.dev/slog"
+
 	"github.com/NeuralInverse/cloud/v2/nicloud/httpapi"
 	"github.com/NeuralInverse/cloud/v2/nicloud/httpmw"
 )
@@ -203,9 +205,9 @@ func (api *API) baseWebhook(rw http.ResponseWriter, r *http.Request) {
 
 	// Log the push — extend here to trigger workspace rebuilds, notifications, etc.
 	api.Logger.Info(r.Context(), "base push webhook",
-		"repo", payload.Repository.FullName,
-		"ref", payload.Ref,
-		"pusher", payload.Pusher.Login,
+		slog.F("repo", payload.Repository.FullName),
+		slog.F("ref", payload.Ref),
+		slog.F("pusher", payload.Pusher.Login),
 	)
 
 	rw.WriteHeader(http.StatusNoContent)
