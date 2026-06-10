@@ -2,9 +2,11 @@ import { type FC, useState } from "react";
 import { useLocation } from "react-router";
 import type { AuthMethods, BuildInfoResponse } from "#/api/typesGenerated";
 import { Button } from "#/components/Button/Button";
+import { ExternalImage } from "#/components/ExternalImage/ExternalImage";
 import { ProductLogo } from "#/components/Icons/ProductLogo";
 import { Loader } from "#/components/Loader/Loader";
-import { SignInForm } from "./SignInForm";
+import { Spinner } from "#/components/Spinner/Spinner";
+import { PasswordSignInForm } from "./PasswordSignInForm";
 import { TermsOfServiceLink } from "./TermsOfServiceLink";
 
 interface LoginPageViewProps {
@@ -27,45 +29,92 @@ export const LoginPageView: FC<LoginPageViewProps> = ({
 	redirectTo,
 }) => {
 	const location = useLocation();
-	// This allows messages to be displayed at the top of the sign in form.
-	// Helpful for any redirects that want to inform the user of something.
 	const message = new URLSearchParams(location.search).get("message");
+	const [showAdmin, setShowAdmin] = useState(false);
 	const [tosAccepted, setTosAccepted] = useState(false);
 	const tosAcceptanceRequired =
 		authMethods?.terms_of_service_url && !tosAccepted;
 
+	const githubEnabled = authMethods?.github.enabled ?? false;
+	const passwordEnabled = authMethods?.password.enabled ?? true;
+
 	return (
-		<div className="p-6 flex items-center justify-center min-h-full text-center">
-			<div className="w-full max-w-xs flex flex-col items-center gap-4">
-				<ProductLogo />
+		<div
+			className="min-h-screen flex flex-col items-center justify-center"
+			style={{ background: "#1a1a1a" }}
+		>
+			<div className="w-full max-w-[340px] flex flex-col items-center gap-8 px-4">
+				{/* Logo */}
+				<ProductLogo className="h-10" />
+
 				{isLoading ? (
 					<Loader />
 				) : tosAcceptanceRequired ? (
-					<>
+					<div className="w-full flex flex-col gap-4">
 						<TermsOfServiceLink url={authMethods.terms_of_service_url} />
-						<Button
-							size="lg"
-							className="w-full"
-							onClick={() => setTosAccepted(true)}
-						>
+						<Button size="lg" className="w-full" onClick={() => setTosAccepted(true)}>
 							I agree
 						</Button>
-					</>
-				) : (
-					<SignInForm
-						authMethods={authMethods}
-						redirectTo={redirectTo}
-						isSigningIn={isSigningIn}
-						error={error}
-						message={message}
-						onSubmit={onSignIn}
-					/>
-				)}
-				<footer className="text-xs text-content-secondary mt-6">
-					<div>
-						Copyright &copy; {new Date().getFullYear()} Neural Inverse Inc.
 					</div>
-					<div>{buildInfo?.version}</div>
+				) : (
+					<div className="w-full flex flex-col gap-3">
+						{message && (
+							<p className="text-xs text-content-secondary text-center">{message}</p>
+						)}
+
+						{/* GitHub — primary sign-in */}
+						{githubEnabled && !showAdmin && (
+							<Button
+								variant="outline"
+								asChild
+								disabled={isSigningIn}
+								className="w-full"
+								size="lg"
+							>
+								<a
+									href={`/api/v2/users/oauth2/github/callback?redirect=${encodeURIComponent(redirectTo)}`}
+								>
+									<ExternalImage src="/icon/github.svg" className="size-4" />
+									Continue with GitHub
+								</a>
+							</Button>
+						)}
+
+						{/* Admin password form — hidden by default */}
+						{showAdmin && passwordEnabled && (
+							<div className="w-full flex flex-col gap-4">
+								<PasswordSignInForm
+									onSubmit={onSignIn}
+									autoFocus
+									isSigningIn={isSigningIn}
+									error={error}
+								/>
+								<button
+									type="button"
+									onClick={() => setShowAdmin(false)}
+									className="text-xs text-content-secondary hover:text-content-primary bg-transparent border-none cursor-pointer text-center"
+								>
+									Back
+								</button>
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Footer */}
+				<footer className="flex flex-col items-center gap-2">
+					{!showAdmin && passwordEnabled && (
+						<button
+							type="button"
+							onClick={() => setShowAdmin(true)}
+							className="text-xs text-content-secondary hover:text-content-primary bg-transparent border-none cursor-pointer"
+						>
+							Admin
+						</button>
+					)}
+					<p className="text-xs text-content-disabled">
+						{buildInfo?.version}
+					</p>
 					{tosAccepted && (
 						<TermsOfServiceLink url={authMethods?.terms_of_service_url} />
 					)}

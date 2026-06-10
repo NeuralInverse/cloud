@@ -13,12 +13,14 @@ type PasswordSignInFormProps = {
 	onSubmit: (credentials: { email: string; password: string }) => void;
 	isSigningIn: boolean;
 	autoFocus: boolean;
+	error?: unknown;
 };
 
 export const PasswordSignInForm: FC<PasswordSignInFormProps> = ({
 	onSubmit,
 	isSigningIn,
 	autoFocus,
+	error,
 }) => {
 	const validationSchema = Yup.object({
 		email: Yup.string()
@@ -44,7 +46,12 @@ export const PasswordSignInForm: FC<PasswordSignInFormProps> = ({
 	const passwordErrorId = "signin-password-error";
 
 	return (
-		<form onSubmit={form.handleSubmit} className="flex flex-col gap-5">
+		<form onSubmit={form.handleSubmit} className="flex flex-col gap-4">
+			{Boolean(error) && (
+				<p className="text-xs text-content-destructive text-center">
+					Invalid email or password.
+				</p>
+			)}
 			<div className="flex flex-col items-start gap-2">
 				<Label htmlFor={emailField.id}>
 					Email{" "}
