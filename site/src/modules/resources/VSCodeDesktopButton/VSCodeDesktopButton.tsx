@@ -127,11 +127,19 @@ const VSCodeButton: FC<VSCodeDesktopButtonProps> = ({
 					folder: folderPath,
 				});
 				location.href = href;
-				// If the app isn't installed the browser stays on this page — show download after 2.5s
+
+				// If the app opened, the window loses focus — cancel the timer
+				let appOpened = false;
+				const onBlur = () => { appOpened = true; };
+				window.addEventListener("blur", onBlur, { once: true });
+
 				setTimeout(() => {
-					setShowDownload(true);
+					window.removeEventListener("blur", onBlur);
+					if (!appOpened) {
+						setShowDownload(true);
+					}
 					setLoading(false);
-				}, 2500);
+				}, 3000);
 			})
 			.catch(() => {
 				setLoading(false);
