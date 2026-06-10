@@ -1,5 +1,5 @@
-import { BlocksIcon, CheckIcon, CopyIcon, HistoryIcon } from "lucide-react";
-import { type FC, useState } from "react";
+import { BlocksIcon, HistoryIcon } from "lucide-react";
+import type { FC } from "react";
 import type * as TypesGen from "#/api/typesGenerated";
 import { Alert, AlertDescription, AlertTitle } from "#/components/Alert/Alert";
 import { useDashboard } from "#/modules/dashboard/useDashboard";
@@ -180,11 +180,21 @@ export const Workspace: FC<WorkspaceProps> = ({
 							)}
 
 							{workspaceStopped && buildInfo?.base_url && (
-								<BaseRepoBanner
-									baseURL={buildInfo.base_url}
-									ownerName={workspace.owner_name}
-									workspaceName={workspace.name}
-								/>
+								<Alert severity="info">
+									<AlertTitle>Workspace stopped</AlertTitle>
+									<AlertDescription>
+										Your code is saved.{" "}
+										<a
+											href={`${buildInfo.base_url}/${workspace.owner_name}/${workspace.name}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-content-link underline"
+										>
+											Browse repository on Base
+										</a>{" "}
+										or start the workspace to continue working.
+									</AlertDescription>
+								</Alert>
 							)}
 
 							{shouldShowProvisionerAlert && (
@@ -263,61 +273,6 @@ export const Workspace: FC<WorkspaceProps> = ({
 				</div>
 			</div>
 		</div>
-	);
-};
-
-interface BaseRepoBannerProps {
-	baseURL: string;
-	ownerName: string;
-	workspaceName: string;
-}
-
-const BaseRepoBanner: FC<BaseRepoBannerProps> = ({
-	baseURL,
-	ownerName,
-	workspaceName,
-}) => {
-	const repoURL = `${baseURL}/${ownerName}/${workspaceName}`;
-	const [copied, setCopied] = useState(false);
-
-	const handleCopy = () => {
-		void navigator.clipboard.writeText(repoURL).then(() => {
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		});
-	};
-
-	return (
-		<Alert severity="info">
-			<AlertTitle>Workspace stopped — your code is saved</AlertTitle>
-			<AlertDescription>
-				<div className="flex flex-col gap-2 mt-1">
-					<div className="flex items-center gap-2">
-						<a
-							href={repoURL}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-content-link font-mono text-sm truncate"
-						>
-							{repoURL}
-						</a>
-						<button
-							type="button"
-							onClick={handleCopy}
-							className="shrink-0 flex items-center gap-1 text-xs text-content-secondary hover:text-content-primary transition-colors"
-							aria-label="Copy repository URL"
-						>
-							{copied ? (
-								<CheckIcon className="size-3.5 text-content-success" />
-							) : (
-								<CopyIcon className="size-3.5" />
-							)}
-							{copied ? "Copied" : "Copy"}
-						</button>
-					</div>
-				</div>
-			</AlertDescription>
-		</Alert>
 	);
 };
 
