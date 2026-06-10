@@ -18,7 +18,7 @@ function markDone(userId: string) {
 	} catch {}
 }
 
-type Step = "welcome" | "choose" | "cloud" | "local" | "ai" | "hardware" | "openmodels";
+type Step = "welcome" | "choose" | "cloud" | "local";
 
 interface OnboardingModalProps {
 	userId: string;
@@ -41,15 +41,6 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 	// Full-page takeovers
 	if (step === "local") {
 		return <LocalPage onBack={() => setStep("choose")} onDone={finish} />;
-	}
-	if (step === "ai") {
-		return <AIPage onBack={() => setStep("choose")} onDone={finish} />;
-	}
-	if (step === "hardware") {
-		return <HardwarePage onBack={() => setStep("choose")} onDone={finish} />;
-	}
-	if (step === "openmodels") {
-		return <OpenModelsPage onBack={() => setStep("choose")} onDone={finish} />;
 	}
 
 	const stepOrder: Step[] = ["welcome", "choose", "cloud"];
@@ -89,9 +80,6 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 							onBack={() => setStep("welcome")}
 							onCloud={() => setStep("cloud")}
 							onLocal={() => setStep("local")}
-							onAI={() => setStep("ai")}
-							onHardware={() => setStep("hardware")}
-							onOpenModels={() => setStep("openmodels")}
 						/>
 					)}
 					{step === "cloud" && (
@@ -160,19 +148,18 @@ const ChooseStep: FC<{
 	onBack: () => void;
 	onCloud: () => void;
 	onLocal: () => void;
-	onAI: () => void;
-	onHardware: () => void;
-	onOpenModels: () => void;
-}> = ({ onBack, onCloud, onLocal, onAI, onHardware, onOpenModels }) => (
-	<div className="flex flex-col gap-6">
-		<div className="flex flex-col gap-2">
+}> = ({ onBack, onCloud, onLocal }) => (
+	<div className="flex flex-col gap-5">
+		<div className="flex flex-col gap-1">
 			<h2 className="text-lg font-semibold text-content-primary m-0">
 				How would you like to work?
 			</h2>
-			<p className="text-sm text-content-secondary m-0">
-				You can use all of these together — pick where to start.
+			<p className="text-xs text-content-secondary m-0">
+				Pick where to start — you can use everything together.
 			</p>
 		</div>
+
+		{/* Clickable — Cloud or Local */}
 		<div className="flex flex-col gap-2">
 			<ChoiceCard
 				title="Cloud IDE"
@@ -184,22 +171,30 @@ const ChooseStep: FC<{
 				desc="Download Neural Inverse and run it on your machine"
 				onClick={onLocal}
 			/>
-			<ChoiceCard
-				title="AI Inference"
-				desc="Access Anthropic, OpenAI and more directly from your workspace"
-				onClick={onAI}
-			/>
-			<ChoiceCard
-				title="Hardware Runner"
-				desc="Run and debug firmware on real or simulated embedded hardware"
-				onClick={onHardware}
-			/>
-			<ChoiceCard
-				title="Open Models — Free Forever"
-				desc="DeepSeek, Llama, Mistral — auto-connected to the IDE, zero setup"
-				onClick={onOpenModels}
-			/>
 		</div>
+
+		{/* Info-only — already included */}
+		<div className="flex flex-col gap-1">
+			<p className="text-xs text-content-disabled uppercase tracking-widest m-0 mb-1">
+				Also included
+			</p>
+			{[
+				["AI Inference", "Anthropic, OpenAI and more — bring your own key or use ours"],
+				["Bring Your Own LLM", "Connect any OpenAI-compatible model endpoint"],
+				["Open Models — Free Forever", "DeepSeek, Llama, Mistral — auto-connected, zero setup"],
+				["Hardware Runner", "Run & debug firmware on real or simulated embedded hardware"],
+			].map(([title, desc]) => (
+				<div
+					key={title}
+					className="flex flex-col gap-0.5 px-3 py-2"
+					style={{ borderLeft: "2px solid #2b2b2b" }}
+				>
+					<span className="text-xs font-medium text-content-primary">{title}</span>
+					<span className="text-xs text-content-disabled">{desc}</span>
+				</div>
+			))}
+		</div>
+
 		<BackButton onClick={onBack} />
 	</div>
 );
@@ -283,111 +278,6 @@ const LocalPage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onD
 			After installing, sign in with your GitHub account to connect to your
 			cloud workspaces.
 		</p>
-		<div className="flex gap-3">
-			<BackButton onClick={onBack} />
-			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
-		</div>
-	</FullPage>
-);
-
-/* ── AI Inference full page ──────────────────────────────────────── */
-
-const AIPage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
-	<FullPage title="AI Inference" onDone={onDone}>
-		<p className="text-sm text-content-secondary m-0 leading-relaxed">
-			Access frontier AI models — Anthropic Claude, OpenAI GPT, and more —
-			directly from your workspace. Use them for code generation, architecture
-			review, compliance checks, and legacy modernisation.
-		</p>
-		<div className="flex flex-col gap-3">
-			{[
-				["model.neuralinverse.com", "Manage API keys, usage and provider settings"],
-				["Free Models", "DeepSeek, Llama, Mistral — free forever at free.neuralinverse.com"],
-				["IDE Integration", "AI is built into Neural Inverse IDE — no extra config needed"],
-			].map(([title, desc]) => (
-				<div
-					key={title}
-					className="flex flex-col gap-1 p-3"
-					style={{ background: "#181818", border: "1px solid #2b2b2b" }}
-				>
-					<span className="text-xs font-medium text-content-primary">{title}</span>
-					<span className="text-xs text-content-secondary">{desc}</span>
-				</div>
-			))}
-		</div>
-		<div className="flex gap-3">
-			<BackButton onClick={onBack} />
-			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
-		</div>
-	</FullPage>
-);
-
-/* ── Hardware Runner full page ───────────────────────────────────── */
-
-const HardwarePage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
-	<FullPage title="Hardware Runner" onDone={onDone}>
-		<p className="text-sm text-content-secondary m-0 leading-relaxed">
-			Run and debug firmware on real or simulated embedded hardware — STM32,
-			nRF52, ESP32, RP2040, and more — directly from your cloud workspace.
-		</p>
-		<div className="flex flex-col gap-3">
-			{[
-				["run.neuralinverse.com", "Launch and manage hardware sessions from the dashboard"],
-				["GDB Debug", "Full GDB remote debugging over a secure tunnel"],
-				["Supported Boards", "STM32F4, STM32H7, nRF52840, ESP32, RP2040 and more"],
-			].map(([title, desc]) => (
-				<div
-					key={title}
-					className="flex flex-col gap-1 p-3"
-					style={{ background: "#181818", border: "1px solid #2b2b2b" }}
-				>
-					<span className="text-xs font-medium text-content-primary">{title}</span>
-					<span className="text-xs text-content-secondary">{desc}</span>
-				</div>
-			))}
-		</div>
-		<div className="flex gap-3">
-			<BackButton onClick={onBack} />
-			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
-		</div>
-	</FullPage>
-);
-
-/* ── Open Models full page ───────────────────────────────────────── */
-
-const OpenModelsPage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
-	<FullPage title="Open Models — Free Forever" onDone={onDone}>
-		<p className="text-sm text-content-secondary m-0 leading-relaxed">
-			Neural Inverse includes a curated set of open-source models hosted at{" "}
-			<span className="text-content-primary">free.neuralinverse.com</span>.
-			They are auto-connected to the IDE — no API key, no configuration, no cost.
-		</p>
-		<div className="flex flex-col gap-2">
-			{[
-				["DeepSeek R1 / V3 / V4", "Reasoning and code generation"],
-				["Llama 3.3 70B / Llama 4 Maverick", "General-purpose chat and code"],
-				["Mistral Large 3", "Fast, instruction-following"],
-				["Kimi K2.6", "Long-context tasks"],
-			].map(([model, desc]) => (
-				<div
-					key={model}
-					className="flex items-start justify-between gap-4 p-3"
-					style={{ background: "#181818", border: "1px solid #2b2b2b" }}
-				>
-					<span className="text-xs font-medium text-content-primary">{model}</span>
-					<span className="text-xs text-content-secondary shrink-0">{desc}</span>
-				</div>
-			))}
-		</div>
-		<div
-			className="flex items-start gap-3 p-3"
-			style={{ background: "#181818", border: "1px solid #358DF6" }}
-		>
-			<span className="text-xs text-content-secondary leading-relaxed">
-				Already active in your IDE. Just open Neural Inverse and select any
-				Open Model from the model picker — no extra setup needed.
-			</span>
-		</div>
 		<div className="flex gap-3">
 			<BackButton onClick={onBack} />
 			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
