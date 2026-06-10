@@ -4,7 +4,7 @@ import { type FC, useRef, useState } from "react";
 import { API } from "#/api/api";
 import type { DisplayApp } from "#/api/typesGenerated";
 import { ChevronDownIcon } from "#/components/AnimatedIcons/ChevronDown";
-import { VSCodeIcon } from "#/components/Icons/VSCodeIcon";
+import { ProductLogo } from "#/components/Icons/ProductLogo";
 import { VSCodeInsidersIcon } from "#/components/Icons/VSCodeInsidersIcon";
 import { getVSCodeHref } from "#/modules/apps/apps";
 import { AgentButton } from "../AgentButton";
@@ -83,7 +83,7 @@ export const VSCodeDesktopButton: FC<VSCodeDesktopButtonProps> = (props) => {
 						selectVariant("vscode");
 					}}
 				>
-					<VSCodeIcon className="w-3 h-3" />
+					<ProductLogo className="w-3 h-3" />
 					{DisplayAppNameMap.vscode}
 				</MenuItem>
 				<MenuItem
@@ -135,7 +135,7 @@ const VSCodeButton: FC<VSCodeDesktopButtonProps> = ({
 					});
 			}}
 		>
-			<VSCodeIcon />
+			<ProductLogo className="w-4 h-4" />
 			{DisplayAppNameMap.vscode}
 		</AgentButton>
 	);
