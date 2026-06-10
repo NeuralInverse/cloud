@@ -2,6 +2,7 @@ import { BlocksIcon, HistoryIcon } from "lucide-react";
 import type { FC } from "react";
 import type * as TypesGen from "#/api/typesGenerated";
 import { Alert, AlertDescription, AlertTitle } from "#/components/Alert/Alert";
+import { useDashboard } from "#/modules/dashboard/useDashboard";
 import { SidebarIconButton } from "#/components/FullPageLayout/Sidebar";
 import { useSearchParamsKey } from "#/hooks/useSearchParamsKey";
 import { linkToTemplate, useLinks } from "#/modules/navigation";
@@ -93,8 +94,10 @@ export const Workspace: FC<WorkspaceProps> = ({
 		(r) => resourceOptionValue(r) === resourcesNav.value,
 	);
 
+	const { buildInfo } = useDashboard();
 	const workspaceRunning = workspace.latest_build.status === "running";
 	const workspacePending = workspace.latest_build.status === "pending";
+	const workspaceStopped = workspace.latest_build.status === "stopped";
 	const haveBuildLogs = (buildLogs ?? []).length > 0;
 	const shouldShowBuildLogs = haveBuildLogs && !workspaceRunning;
 	const provisionersHealthy =
@@ -174,6 +177,24 @@ export const Workspace: FC<WorkspaceProps> = ({
 									createWorkspaceLink={createWorkspaceLink}
 									templateName={templateName}
 								/>
+							)}
+
+							{workspaceStopped && buildInfo?.base_url && (
+								<Alert severity="info">
+									<AlertTitle>Workspace stopped</AlertTitle>
+									<AlertDescription>
+										Your code is saved.{" "}
+										<a
+											href={`${buildInfo.base_url}/${workspace.owner_name}/${workspace.name}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-content-link underline"
+										>
+											Browse repository on Base
+										</a>{" "}
+										or start the workspace to continue working.
+									</AlertDescription>
+								</Alert>
 							)}
 
 							{shouldShowProvisionerAlert && (
