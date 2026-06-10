@@ -79,14 +79,21 @@ func (api *API) baseWorkspaceInit(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiKey := httpmw.APIKey(r)
-	user, err := api.Database.GetUserByID(r.Context(), apiKey.UserID)
+	// Called from workspace startup_script using agent token — look up owner via workspace
+	agent := httpmw.WorkspaceAgent(r)
+	workspace, err := api.Database.GetWorkspaceByAgentID(r.Context(), agent.ID)
+	if err != nil {
+		httpapi.InternalServerError(rw, xerrors.Errorf("get workspace: %w", err))
+		return
+	}
+	user, err := api.Database.GetUserByID(r.Context(), workspace.OwnerID)
 	if err != nil {
 		httpapi.InternalServerError(rw, xerrors.Errorf("get user: %w", err))
 		return
 	}
 
-	workspaceName := r.URL.Query().Get("workspace_name")
+	workspaceName := workspace.Name
+	_ = r.URL.Query().Get("workspace_name") // ignored — use workspace name from DB
 	if workspaceName == "" {
 		http.Error(rw, "workspace_name required", http.StatusBadRequest)
 		return

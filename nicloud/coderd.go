@@ -1434,6 +1434,10 @@ func New(options *Options) *API {
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)
 			r.Get("/base/redirect", api.baseRedirect)
+		})
+		// workspace-init is called from the agent startup_script using the agent token
+		r.Group(func(r chi.Router) {
+			r.Use(workspaceAgentInfo)
 			r.Get("/base/workspace-init", api.baseWorkspaceInit)
 		})
 		// /regions is overridden in the enterprise version
