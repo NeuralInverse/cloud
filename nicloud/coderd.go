@@ -1414,6 +1414,11 @@ func New(options *Options) *API {
 		})
 		// Internal billing notification — gated by X-Internal-Key, no-op if unconfigured
 		r.Post("/billing/notify", api.postBillingNotify)
+		// Gitea OAuth2 userinfo — GitHub-compatible profile endpoint for base.neuralinverse.com
+		r.Group(func(r chi.Router) {
+			r.Use(apiKeyMiddleware)
+			r.Get("/gitea/userinfo", api.giteaUserInfo)
+		})
 		// Model gateway redirect — only active when NEURALINVERSE_MODEL_URL is set
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)
