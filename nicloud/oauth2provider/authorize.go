@@ -150,8 +150,9 @@ func ShowAuthorizePage(accessURL *url.URL, db database.Store) http.HandlerFunc {
 			return
 		}
 
-		cancel := params.redirectURL
-		cancelQuery := params.redirectURL.Query()
+		cancelCopy := *params.redirectURL // deep copy so we don't mutate params.redirectURL
+		cancel := &cancelCopy
+		cancelQuery := cancel.Query()
 		cancelQuery.Add("error", "access_denied")
 		cancelQuery.Add("error_description", "The resource owner or authorization server denied the request")
 		if params.state != "" {
