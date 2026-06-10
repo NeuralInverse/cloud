@@ -478,3 +478,11 @@ section.features,
 #homepage .subtitle {
   display: none !important;
 }
+
+/* ── Home sign-in button ── */
+a.ni-signin-btn,
+a.ni-signin-btn:hover {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  opacity: 1 !important;
+}
