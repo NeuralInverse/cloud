@@ -262,19 +262,15 @@ func authorizationCodeGrant(ctx context.Context, db database.Store, app database
 		}
 	}
 
-	// PKCE is mandatory for all authorization code flows
-	// (OAuth 2.1). Verify the code verifier against the stored
-	// challenge.
-	if req.CodeVerifier == "" {
-		return nicloudsdk.OAuth2TokenResponse{}, errInvalidPKCE
-	}
-	if !dbCode.CodeChallenge.Valid || dbCode.CodeChallenge.String == "" {
-		// Code was issued without a challenge — should not happen
-		// with authorize endpoint enforcement, but defend in depth.
-		return nicloudsdk.OAuth2TokenResponse{}, errInvalidPKCE
-	}
-	if !VerifyPKCE(dbCode.CodeChallenge.String, req.CodeVerifier) {
-		return nicloudsdk.OAuth2TokenResponse{}, errInvalidPKCE
+	// PKCE verification — only required when a code_challenge was included at authorize time.
+	// Confidential clients (e.g. Gitea) use client_secret instead of PKCE.
+	if dbCode.CodeChallenge.Valid && dbCode.CodeChallenge.String != "" {
+		if req.CodeVerifier == "" {
+			return nicloudsdk.OAuth2TokenResponse{}, errInvalidPKCE
+		}
+		if !VerifyPKCE(dbCode.CodeChallenge.String, req.CodeVerifier) {
+			return nicloudsdk.OAuth2TokenResponse{}, errInvalidPKCE
+		}
 	}
 
 	// Verify resource parameter consistency (RFC 8707)

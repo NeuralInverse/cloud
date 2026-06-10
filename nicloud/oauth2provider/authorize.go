@@ -54,13 +54,8 @@ func extractAuthorizeParams(r *http.Request, callbackURL *url.URL) (authorizePar
 		codeChallengeMethod: p.String(vals, "", "code_challenge_method"),
 	}
 
-	// PKCE is required for authorization code flow requests.
-	if params.responseType == nicloudsdk.OAuth2ProviderResponseTypeCode && params.codeChallenge == "" {
-		p.Errors = append(p.Errors, nicloudsdk.ValidationError{
-			Field:  "code_challenge",
-			Detail: `Query param "code_challenge" is required and cannot be empty`,
-		})
-	}
+	// PKCE is recommended but not required — confidential server-side clients (e.g. Gitea)
+	// use client_secret for security instead of code_challenge.
 
 	// Validate resource indicator syntax (RFC 8707): must be absolute URI without fragment
 	if err := validateResourceParameter(params.resource); err != nil {
