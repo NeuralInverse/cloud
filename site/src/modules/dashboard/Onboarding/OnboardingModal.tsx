@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, type ReactNode, useState } from "react";
 import { Button } from "#/components/Button/Button";
 import { ProductLogo } from "#/components/Icons/ProductLogo";
 
@@ -18,7 +18,7 @@ function markDone(userId: string) {
 	} catch {}
 }
 
-type Step = "welcome" | "choose" | "cloud" | "local";
+type Step = "welcome" | "choose" | "cloud" | "local" | "ai" | "hardware";
 
 interface OnboardingModalProps {
 	userId: string;
@@ -38,10 +38,19 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 		onDone();
 	}
 
-	// Local IDE is a full page takeover
+	// Full-page takeovers
 	if (step === "local") {
 		return <LocalPage onBack={() => setStep("choose")} onDone={finish} />;
 	}
+	if (step === "ai") {
+		return <AIPage onBack={() => setStep("choose")} onDone={finish} />;
+	}
+	if (step === "hardware") {
+		return <HardwarePage onBack={() => setStep("choose")} onDone={finish} />;
+	}
+
+	const stepOrder: Step[] = ["welcome", "choose", "cloud"];
+	const currentIdx = stepOrder.indexOf(step);
 
 	return (
 		<div
@@ -77,6 +86,8 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 							onBack={() => setStep("welcome")}
 							onCloud={() => setStep("cloud")}
 							onLocal={() => setStep("local")}
+							onAI={() => setStep("ai")}
+							onHardware={() => setStep("hardware")}
 						/>
 					)}
 					{step === "cloud" && (
@@ -89,20 +100,16 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 					className="flex items-center justify-center gap-2 px-6 py-4"
 					style={{ borderTop: "1px solid #2b2b2b" }}
 				>
-					{(["welcome", "choose", "cloud"] as Step[]).map((s, i) => {
-						const order: Step[] = ["welcome", "choose", "cloud"];
-						const current = order.indexOf(step);
-						return (
-							<div
-								key={i}
-								className="h-1 transition-all"
-								style={{
-									width: i === current ? 24 : 8,
-									background: i === current ? "#358DF6" : "#2b2b2b",
-								}}
-							/>
-						);
-					})}
+					{stepOrder.map((_, i) => (
+						<div
+							key={i}
+							className="h-1 transition-all"
+							style={{
+								width: i === currentIdx ? 24 : 8,
+								background: i === currentIdx ? "#358DF6" : "#2b2b2b",
+							}}
+						/>
+					))}
 				</div>
 			</div>
 		</div>
@@ -118,8 +125,9 @@ const WelcomeStep: FC<{ name: string; onNext: () => void }> = ({ name, onNext })
 				Welcome to Neural Inverse Cloud{name ? `, ${name.split(" ")[0]}` : ""}
 			</h2>
 			<p className="text-sm text-content-secondary m-0 leading-relaxed">
-				An AI-native platform built for regulated and critical software
-				development — firmware, embedded systems, and beyond.
+				An AI-native IDE platform for every stage of the software lifecycle —
+				firmware, embedded systems, general development, legacy modernisation,
+				and regulated critical software.
 			</p>
 		</div>
 		<ul className="flex flex-col gap-3 m-0 p-0 list-none">
@@ -127,6 +135,7 @@ const WelcomeStep: FC<{ name: string; onNext: () => void }> = ({ name, onNext })
 				["Cloud Workspaces", "Full dev environments in your browser, zero setup"],
 				["Local IDE", "Download Neural Inverse IDE for macOS, Linux, or Windows"],
 				["AI Inference", "Access Anthropic, OpenAI and more from your workspace"],
+				["Legacy Modernisation", "Migrate and modernise codebases with AI-guided refactoring"],
 			].map(([title, desc]) => (
 				<li key={title} className="flex items-start gap-3">
 					<div className="mt-1 shrink-0 size-1.5" style={{ background: "#358DF6" }} />
@@ -143,21 +152,23 @@ const WelcomeStep: FC<{ name: string; onNext: () => void }> = ({ name, onNext })
 	</div>
 );
 
-const ChooseStep: FC<{ onBack: () => void; onCloud: () => void; onLocal: () => void }> = ({
-	onBack,
-	onCloud,
-	onLocal,
-}) => (
+const ChooseStep: FC<{
+	onBack: () => void;
+	onCloud: () => void;
+	onLocal: () => void;
+	onAI: () => void;
+	onHardware: () => void;
+}> = ({ onBack, onCloud, onLocal, onAI, onHardware }) => (
 	<div className="flex flex-col gap-6">
 		<div className="flex flex-col gap-2">
 			<h2 className="text-lg font-semibold text-content-primary m-0">
 				How would you like to work?
 			</h2>
 			<p className="text-sm text-content-secondary m-0">
-				You can always switch between both options later.
+				You can use all of these together — pick where to start.
 			</p>
 		</div>
-		<div className="flex flex-col gap-3">
+		<div className="flex flex-col gap-2">
 			<ChoiceCard
 				title="Cloud IDE"
 				desc="Launch a workspace in your browser — no install needed"
@@ -167,6 +178,16 @@ const ChooseStep: FC<{ onBack: () => void; onCloud: () => void; onLocal: () => v
 				title="Local IDE"
 				desc="Download Neural Inverse and run it on your machine"
 				onClick={onLocal}
+			/>
+			<ChoiceCard
+				title="AI Inference"
+				desc="Access Anthropic, OpenAI and more directly from your workspace"
+				onClick={onAI}
+			/>
+			<ChoiceCard
+				title="Hardware Runner"
+				desc="Run and debug firmware on real or simulated embedded hardware"
+				onClick={onHardware}
 			/>
 		</div>
 		<BackButton onClick={onBack} />
@@ -214,11 +235,122 @@ const CloudStep: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onD
 /* ── Local IDE full page ─────────────────────────────────────────── */
 
 const LocalPage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
-	<div
-		className="fixed inset-0 z-50 flex flex-col"
-		style={{ background: "#1a1a1a" }}
-	>
-		{/* Top bar */}
+	<FullPage title="Download Neural Inverse IDE" onDone={onDone}>
+		<p className="text-sm text-content-secondary m-0 leading-relaxed">
+			Install with one command. Build firmware, embedded systems, general
+			software, or modernise legacy codebases — locally or connected to
+			your cloud workspaces.
+		</p>
+		<div className="flex flex-col gap-3">
+			<div
+				className="px-3 py-1 self-start text-xs font-medium"
+				style={{ background: "#2b2b2b", color: "#9d9d9d" }}
+			>
+				macOS / Linux
+			</div>
+			<pre
+				className="m-0 p-4 text-sm text-content-primary overflow-x-auto"
+				style={{ background: "#202020", border: "1px solid #2b2b2b" }}
+			>
+				<code>curl -fsSL https://neuralinverse.com/sh | bash</code>
+			</pre>
+		</div>
+		<div className="flex flex-col gap-3">
+			<div
+				className="px-3 py-1 self-start text-xs font-medium"
+				style={{ background: "#2b2b2b", color: "#9d9d9d" }}
+			>
+				Windows (PowerShell)
+			</div>
+			<pre
+				className="m-0 p-4 text-sm text-content-primary overflow-x-auto"
+				style={{ background: "#202020", border: "1px solid #2b2b2b" }}
+			>
+				<code>irm https://neuralinverse.com/win | iex</code>
+			</pre>
+		</div>
+		<p className="text-xs text-content-disabled m-0">
+			After installing, sign in with your GitHub account to connect to your
+			cloud workspaces.
+		</p>
+		<div className="flex gap-3">
+			<BackButton onClick={onBack} />
+			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
+		</div>
+	</FullPage>
+);
+
+/* ── AI Inference full page ──────────────────────────────────────── */
+
+const AIPage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
+	<FullPage title="AI Inference" onDone={onDone}>
+		<p className="text-sm text-content-secondary m-0 leading-relaxed">
+			Access frontier AI models — Anthropic Claude, OpenAI GPT, and more —
+			directly from your workspace. Use them for code generation, architecture
+			review, compliance checks, and legacy modernisation.
+		</p>
+		<div className="flex flex-col gap-3">
+			{[
+				["model.neuralinverse.com", "Manage API keys, usage and provider settings"],
+				["Free Models", "DeepSeek, Llama, Mistral — free forever at free.neuralinverse.com"],
+				["IDE Integration", "AI is built into Neural Inverse IDE — no extra config needed"],
+			].map(([title, desc]) => (
+				<div
+					key={title}
+					className="flex flex-col gap-1 p-3"
+					style={{ background: "#181818", border: "1px solid #2b2b2b" }}
+				>
+					<span className="text-xs font-medium text-content-primary">{title}</span>
+					<span className="text-xs text-content-secondary">{desc}</span>
+				</div>
+			))}
+		</div>
+		<div className="flex gap-3">
+			<BackButton onClick={onBack} />
+			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
+		</div>
+	</FullPage>
+);
+
+/* ── Hardware Runner full page ───────────────────────────────────── */
+
+const HardwarePage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
+	<FullPage title="Hardware Runner" onDone={onDone}>
+		<p className="text-sm text-content-secondary m-0 leading-relaxed">
+			Run and debug firmware on real or simulated embedded hardware — STM32,
+			nRF52, ESP32, RP2040, and more — directly from your cloud workspace.
+		</p>
+		<div className="flex flex-col gap-3">
+			{[
+				["run.neuralinverse.com", "Launch and manage hardware sessions from the dashboard"],
+				["GDB Debug", "Full GDB remote debugging over a secure tunnel"],
+				["Supported Boards", "STM32F4, STM32H7, nRF52840, ESP32, RP2040 and more"],
+			].map(([title, desc]) => (
+				<div
+					key={title}
+					className="flex flex-col gap-1 p-3"
+					style={{ background: "#181818", border: "1px solid #2b2b2b" }}
+				>
+					<span className="text-xs font-medium text-content-primary">{title}</span>
+					<span className="text-xs text-content-secondary">{desc}</span>
+				</div>
+			))}
+		</div>
+		<div className="flex gap-3">
+			<BackButton onClick={onBack} />
+			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
+		</div>
+	</FullPage>
+);
+
+/* ── Shared full-page wrapper ────────────────────────────────────── */
+
+const FullPage: FC<{ title: string; onDone: () => void; children: ReactNode }> = ({
+	title,
+	onDone,
+	children,
+}) => (
+	<div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#1a1a1a" }}>
 		<div
 			className="flex items-center justify-between px-8 py-4 shrink-0"
 			style={{ borderBottom: "1px solid #2b2b2b", background: "#181818" }}
@@ -232,65 +364,10 @@ const LocalPage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onD
 				Skip
 			</button>
 		</div>
-
-		{/* Content */}
 		<div className="flex-1 flex items-center justify-center px-4 py-12 overflow-y-auto">
 			<div className="w-full max-w-lg flex flex-col gap-8">
-				<div className="flex flex-col gap-2">
-					<h1 className="text-2xl font-semibold text-content-primary m-0">
-						Download Neural Inverse IDE
-					</h1>
-					<p className="text-sm text-content-secondary m-0 leading-relaxed">
-						Install with one command. Connect to your cloud workspaces or work
-						fully offline.
-					</p>
-				</div>
-
-				{/* macOS / Linux */}
-				<div className="flex flex-col gap-3">
-					<div
-						className="px-3 py-1 self-start text-xs font-medium"
-						style={{ background: "#2b2b2b", color: "#9d9d9d" }}
-					>
-						macOS / Linux
-					</div>
-					<pre
-						className="m-0 p-4 text-sm text-content-primary overflow-x-auto"
-						style={{ background: "#202020", border: "1px solid #2b2b2b" }}
-					>
-						<code>curl -fsSL https://neuralinverse.com/sh | bash</code>
-					</pre>
-				</div>
-
-				{/* Windows */}
-				<div className="flex flex-col gap-3">
-					<div
-						className="px-3 py-1 self-start text-xs font-medium"
-						style={{ background: "#2b2b2b", color: "#9d9d9d" }}
-					>
-						Windows (PowerShell)
-					</div>
-					<pre
-						className="m-0 p-4 text-sm text-content-primary overflow-x-auto"
-						style={{ background: "#202020", border: "1px solid #2b2b2b" }}
-					>
-						<code>irm https://neuralinverse.com/win | iex</code>
-					</pre>
-				</div>
-
-				<p className="text-xs text-content-disabled m-0">
-					After installing, open Neural Inverse and sign in with your GitHub
-					account to connect to your cloud workspaces.
-				</p>
-
-				<div className="flex gap-3">
-					<Button variant="outline" className="flex-1" onClick={onBack}>
-						&larr; Back
-					</Button>
-					<Button className="flex-1" onClick={onDone}>
-						Done &rarr;
-					</Button>
-				</div>
+				<h1 className="text-2xl font-semibold text-content-primary m-0">{title}</h1>
+				{children}
 			</div>
 		</div>
 	</div>
