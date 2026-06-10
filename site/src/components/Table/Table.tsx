@@ -43,8 +43,9 @@ export const TableBody: React.FC<React.ComponentPropsWithRef<"tbody">> = ({
 			className={cn(
 				"[&>tr:first-of-type>td]:border-t [&>tr>td:first-of-type]:border-l",
 				"[&>tr:last-child>td]:border-b [&>tr>td:last-child]:border-r",
-				"[&>tr:first-of-type>td:first-of-type]:rounded-tl-md [&>tr:first-of-type>td:last-child]:rounded-tr-md",
-				"[&>tr:last-child>td:first-of-type]:rounded-bl-md [&>tr:last-child>td:last-child]:rounded-br-md",
+				"[&>tr:first-of-type>td:first-of-type]:rounded-none [&>tr:first-of-type>td:last-child]:rounded-none",
+				"[&>tr:last-child>td:first-of-type]:rounded-none [&>tr:last-child>td:last-child]:rounded-none",
+				"[&>tr>td]:bg-surface-secondary",
 				className,
 			)}
 			{...props}
@@ -78,7 +79,7 @@ const tableRowVariants = cva(
 				false: null,
 				true: cn(
 					"cursor-pointer hover:outline focus-visible:outline outline-1 -outline-offset-1 outline-border-secondary",
-					"first:rounded-t-md last:rounded-b-md",
+					"first:rounded-none last:rounded-none",
 				),
 			},
 		},

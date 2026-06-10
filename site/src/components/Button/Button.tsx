@@ -11,7 +11,7 @@ import { cn } from "#/utils/cn";
 const buttonVariants = cva(
 	`
 	group inline-flex items-center justify-center gap-1 whitespace-nowrap font-sans
-	border-solid rounded-md transition-colors shrink-0
+	border-solid rounded-none transition-colors shrink-0
 	text-sm font-medium cursor-pointer no-underline
 	focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-content-link
 	disabled:pointer-events-none disabled:text-content-disabled
@@ -45,7 +45,7 @@ const buttonVariants = cva(
 			size: {
 				lg: "min-w-20 h-10 px-3 py-2 [&>svg]:size-icon-lg [&>img]:size-icon-lg",
 				sm: "min-w-20 h-8 px-2 py-1.5 text-xs [&>svg]:size-icon-sm [&>img]:size-icon-sm",
-				xs: "min-w-8 py-1 px-2 text-2xs rounded-md",
+				xs: "min-w-8 py-1 px-2 text-2xs rounded-none",
 				icon: "size-8 px-1.5 [&>svg]:size-icon-sm [&>img]:size-icon-sm",
 				"icon-lg": "size-10 px-2 [&>svg]:size-icon-lg [&>img]:size-icon-lg",
 			},

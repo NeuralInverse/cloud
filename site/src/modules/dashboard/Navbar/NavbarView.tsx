@@ -111,7 +111,7 @@ export const NavbarView: FC<NavbarViewProps> = ({
 			<div className="flex items-center gap-3 ml-auto">
 				{buildInfo?.model_url && (
 					<div className="hidden md:block">
-						<Button asChild variant="outline">
+						<Button asChild variant="subtle" size="sm">
 							<a href="/api/v2/model/redirect" className="inline-block">
 								Models
 							</a>
@@ -121,7 +121,7 @@ export const NavbarView: FC<NavbarViewProps> = ({
 
 				{buildInfo?.hardware_url && (
 					<div className="hidden md:block">
-						<Button asChild variant="outline">
+						<Button asChild variant="subtle" size="sm">
 							<a href="/api/v2/hardware/redirect" className="inline-block">
 								Run
 							</a>
@@ -131,7 +131,7 @@ export const NavbarView: FC<NavbarViewProps> = ({
 
 				{buildInfo?.billing_url && (
 					<div className="hidden md:block">
-						<Button asChild variant="outline">
+						<Button asChild variant="subtle" size="sm">
 							<a href="/api/v2/billing/redirect" className="inline-block">
 								Billing
 							</a>
