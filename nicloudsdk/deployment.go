@@ -677,6 +677,7 @@ type DeploymentValues struct {
 	HardwareJWTSecret                       serpent.String                       `json:"hardware_jwt_secret,omitempty" typescript:",notnull"`
 	BaseURL                                 serpent.String                       `json:"base_url,omitempty" typescript:",notnull"`
 	BaseJWTSecret                           serpent.String                       `json:"base_jwt_secret,omitempty" typescript:",notnull"`
+	BaseAdminToken                          serpent.String                       `json:"base_admin_token,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3450,6 +3451,15 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Env:         "NEURALINVERSE_BASE_JWT_SECRET",
 			YAML:        "baseJWTSecret",
 			Value:       &c.BaseJWTSecret,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
+			Name:        "Base Admin Token",
+			Description: "Gitea admin API token for provisioning workspace repos and user tokens.",
+			Flag:        "base-admin-token",
+			Env:         "NEURALINVERSE_BASE_ADMIN_TOKEN",
+			YAML:        "baseAdminToken",
+			Value:       &c.BaseAdminToken,
 			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
 		},
 		{

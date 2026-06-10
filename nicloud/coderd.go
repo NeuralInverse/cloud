@@ -1430,10 +1430,11 @@ func New(options *Options) *API {
 			r.Use(apiKeyMiddleware)
 			r.Get("/hardware/redirect", api.hardwareRedirect)
 		})
-		// Base (code storage) redirect — only active when NEURALINVERSE_BASE_URL is set
+		// Base (code storage) — only active when NEURALINVERSE_BASE_URL is set
 		r.Group(func(r chi.Router) {
 			r.Use(apiKeyMiddleware)
 			r.Get("/base/redirect", api.baseRedirect)
+			r.Get("/base/workspace-init", api.baseWorkspaceInit)
 		})
 		// /regions is overridden in the enterprise version
 		r.Group(func(r chi.Router) {
