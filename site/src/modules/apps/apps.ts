@@ -17,6 +17,7 @@ export const SESSION_TOKEN_PLACEHOLDER = "$SESSION_TOKEN";
 // is tricked into clicking a link that opens
 // a malicious app using the Coder session token.
 const ALLOWED_EXTERNAL_APP_PROTOCOLS = [
+	"neuralinverse:",
 	"vscode:",
 	"vscode-insiders:",
 	"windsurf:",
@@ -38,7 +39,7 @@ type GetVSCodeHrefParams = {
 };
 
 export const getVSCodeHref = (
-	app: "vscode" | "vscode-insiders" | "cursor",
+	app: "vscode" | "vscode-insiders" | "cursor" | "neuralinverse",
 	{ owner, workspace, token, agent, folder, chatId }: GetVSCodeHrefParams,
 ) => {
 	const query = new URLSearchParams({
@@ -57,7 +58,8 @@ export const getVSCodeHref = (
 	if (chatId) {
 		query.set("chatId", chatId);
 	}
-	return `${app}://coder.coder-remote/open?${query}`;
+	const scheme = app === "neuralinverse" ? "neuralinverse" : app;
+	return `${scheme}://coder.coder-remote/open?${query}`;
 };
 
 type GetTerminalHrefParams = {

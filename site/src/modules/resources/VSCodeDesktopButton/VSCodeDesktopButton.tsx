@@ -119,7 +119,7 @@ const VSCodeButton: FC<VSCodeDesktopButtonProps> = ({
 				setLoading(true);
 				API.getApiKey()
 					.then(({ key }) => {
-						location.href = getVSCodeHref("vscode", {
+						location.href = getVSCodeHref("neuralinverse", {
 							owner: userName,
 							workspace: workspaceName,
 							token: key,
