@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useRef } from "react";
 import { useLocation } from "react-router";
 import type { AuthMethods, BuildInfoResponse } from "#/api/typesGenerated";
 import { Button } from "#/components/Button/Button";
@@ -31,6 +31,7 @@ export const LoginPageView: FC<LoginPageViewProps> = ({
 	const location = useLocation();
 	const message = new URLSearchParams(location.search).get("message");
 	const [showAdmin, setShowAdmin] = useState(false);
+	const [emailUpdates, setEmailUpdates] = useState(false);
 	const [tosAccepted, setTosAccepted] = useState(false);
 	const tosAcceptanceRequired =
 		authMethods?.terms_of_service_url && !tosAccepted;
@@ -102,6 +103,18 @@ export const LoginPageView: FC<LoginPageViewProps> = ({
 										Privacy Policy
 									</a>
 								</p>
+								<label className="flex items-start gap-2 cursor-pointer w-full">
+									<input
+										type="checkbox"
+										checked={emailUpdates}
+										onChange={(e) => setEmailUpdates(e.target.checked)}
+										className="mt-0.5 shrink-0 accent-content-link"
+									/>
+									<span className="text-xs text-content-disabled leading-relaxed text-left">
+										I agree to receive occasional product updates via email{" "}
+										<span className="opacity-60">(optional)</span>
+									</span>
+								</label>
 							</div>
 						)}
 
