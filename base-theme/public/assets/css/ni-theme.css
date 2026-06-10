@@ -450,3 +450,11 @@ a.navbar-brand svg {
 .ui.avatar.image, .avatar, img.avatar {
   filter: none !important;
 }
+
+/* ── Navbar logo — use custom NI SVG, no filter needed ── */
+#navbar-logo img,
+#navbar .item#navbar-logo img {
+  filter: none !important;
+  width: 22px !important;
+  height: 22px !important;
+}
