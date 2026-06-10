@@ -44,8 +44,11 @@ export const LoginPageView: FC<LoginPageViewProps> = ({
 			style={{ background: "#1a1a1a" }}
 		>
 			<div className="w-full max-w-[340px] flex flex-col items-center gap-8 px-4">
-				{/* Logo */}
-				<ProductLogo className="h-10" />
+				{/* Logo + title */}
+				<div className="flex flex-col items-center gap-3">
+					<ProductLogo className="h-10" />
+					<p className="text-sm text-content-secondary m-0">Login / Sign up</p>
+				</div>
 
 				{isLoading ? (
 					<Loader />
@@ -103,18 +106,18 @@ export const LoginPageView: FC<LoginPageViewProps> = ({
 
 				{/* Footer */}
 				<footer className="flex flex-col items-center gap-2">
+					<p className="text-xs text-content-disabled m-0">
+						Neural Inverse Inc. 2026
+					</p>
 					{!showAdmin && passwordEnabled && (
 						<button
 							type="button"
 							onClick={() => setShowAdmin(true)}
-							className="text-xs text-content-secondary hover:text-content-primary bg-transparent border-none cursor-pointer"
+							className="text-xs text-content-disabled hover:text-content-secondary bg-transparent border-none cursor-pointer"
 						>
-							Admin
+							Super User
 						</button>
 					)}
-					<p className="text-xs text-content-disabled">
-						{buildInfo?.version}
-					</p>
 					{tosAccepted && (
 						<TermsOfServiceLink url={authMethods?.terms_of_service_url} />
 					)}
