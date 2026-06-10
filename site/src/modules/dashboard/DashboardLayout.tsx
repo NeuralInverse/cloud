@@ -12,15 +12,24 @@ import { cn } from "#/utils/cn";
 import { docs } from "#/utils/docs";
 import { DeploymentBanner } from "./DeploymentBanner/DeploymentBanner";
 import { Navbar } from "./Navbar/Navbar";
+import { OnboardingModal, useOnboarding } from "./Onboarding/OnboardingModal";
 import { useUpdateCheck } from "./useUpdateCheck";
 
 export const DashboardLayout: FC = () => {
-	const { permissions } = useAuthenticated();
+	const { permissions, user } = useAuthenticated();
 	const updateCheck = useUpdateCheck(permissions.viewDeploymentConfig);
 	const canViewDeployment = Boolean(permissions.viewDeploymentConfig);
+	const onboarding = useOnboarding(user.id);
 
 	return (
 		<>
+			{onboarding.visible && (
+				<OnboardingModal
+					userId={user.id}
+					userName={user.name ?? user.username}
+					onDone={onboarding.dismiss}
+				/>
+			)}
 			{canViewDeployment && <LicenseBanner />}
 			<AnnouncementBanners />
 
