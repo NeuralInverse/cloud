@@ -18,7 +18,7 @@ function markDone(userId: string) {
 	} catch {}
 }
 
-type Step = "welcome" | "choose" | "cloud" | "local" | "ai" | "hardware";
+type Step = "welcome" | "choose" | "cloud" | "local" | "ai" | "hardware" | "openmodels";
 
 interface OnboardingModalProps {
 	userId: string;
@@ -47,6 +47,9 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 	}
 	if (step === "hardware") {
 		return <HardwarePage onBack={() => setStep("choose")} onDone={finish} />;
+	}
+	if (step === "openmodels") {
+		return <OpenModelsPage onBack={() => setStep("choose")} onDone={finish} />;
 	}
 
 	const stepOrder: Step[] = ["welcome", "choose", "cloud"];
@@ -88,6 +91,7 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 							onLocal={() => setStep("local")}
 							onAI={() => setStep("ai")}
 							onHardware={() => setStep("hardware")}
+							onOpenModels={() => setStep("openmodels")}
 						/>
 					)}
 					{step === "cloud" && (
@@ -158,7 +162,8 @@ const ChooseStep: FC<{
 	onLocal: () => void;
 	onAI: () => void;
 	onHardware: () => void;
-}> = ({ onBack, onCloud, onLocal, onAI, onHardware }) => (
+	onOpenModels: () => void;
+}> = ({ onBack, onCloud, onLocal, onAI, onHardware, onOpenModels }) => (
 	<div className="flex flex-col gap-6">
 		<div className="flex flex-col gap-2">
 			<h2 className="text-lg font-semibold text-content-primary m-0">
@@ -188,6 +193,11 @@ const ChooseStep: FC<{
 				title="Hardware Runner"
 				desc="Run and debug firmware on real or simulated embedded hardware"
 				onClick={onHardware}
+			/>
+			<ChoiceCard
+				title="Open Models — Free Forever"
+				desc="DeepSeek, Llama, Mistral — auto-connected to the IDE, zero setup"
+				onClick={onOpenModels}
 			/>
 		</div>
 		<BackButton onClick={onBack} />
@@ -335,6 +345,48 @@ const HardwarePage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, 
 					<span className="text-xs text-content-secondary">{desc}</span>
 				</div>
 			))}
+		</div>
+		<div className="flex gap-3">
+			<BackButton onClick={onBack} />
+			<Button className="flex-1" onClick={onDone}>Done &rarr;</Button>
+		</div>
+	</FullPage>
+);
+
+/* ── Open Models full page ───────────────────────────────────────── */
+
+const OpenModelsPage: FC<{ onBack: () => void; onDone: () => void }> = ({ onBack, onDone }) => (
+	<FullPage title="Open Models — Free Forever" onDone={onDone}>
+		<p className="text-sm text-content-secondary m-0 leading-relaxed">
+			Neural Inverse includes a curated set of open-source models hosted at{" "}
+			<span className="text-content-primary">free.neuralinverse.com</span>.
+			They are auto-connected to the IDE — no API key, no configuration, no cost.
+		</p>
+		<div className="flex flex-col gap-2">
+			{[
+				["DeepSeek R1 / V3 / V4", "Reasoning and code generation"],
+				["Llama 3.3 70B / Llama 4 Maverick", "General-purpose chat and code"],
+				["Mistral Large 3", "Fast, instruction-following"],
+				["Kimi K2.6", "Long-context tasks"],
+			].map(([model, desc]) => (
+				<div
+					key={model}
+					className="flex items-start justify-between gap-4 p-3"
+					style={{ background: "#181818", border: "1px solid #2b2b2b" }}
+				>
+					<span className="text-xs font-medium text-content-primary">{model}</span>
+					<span className="text-xs text-content-secondary shrink-0">{desc}</span>
+				</div>
+			))}
+		</div>
+		<div
+			className="flex items-start gap-3 p-3"
+			style={{ background: "#181818", border: "1px solid #358DF6" }}
+		>
+			<span className="text-xs text-content-secondary leading-relaxed">
+				Already active in your IDE. Just open Neural Inverse and select any
+				Open Model from the model picker — no extra setup needed.
+			</span>
 		</div>
 		<div className="flex gap-3">
 			<BackButton onClick={onBack} />
