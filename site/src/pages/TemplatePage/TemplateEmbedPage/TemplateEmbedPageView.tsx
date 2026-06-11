@@ -204,11 +204,11 @@ const TestHelpPopover: React.FC = () => {
 		<HelpPopover>
 			<HelpPopoverIconTrigger size="small" />
 			<HelpPopoverContent>
-				<HelpPopoverTitle>Testing your Open in Coder settings</HelpPopoverTitle>
+				<HelpPopoverTitle>Testing your Open in Neural Inverse settings</HelpPopoverTitle>
 				<HelpPopoverText>
 					This button will open the workspace creation page in a new tab with
 					the parameters that you have supplied. Use this to debug your{" "}
-					<strong>Open in Coder</strong> button before using it.
+					<strong>Open in Neural Inverse</strong> button before using it.
 				</HelpPopoverText>
 				<HelpPopoverText>
 					Note: Even if you have set creation mode to auto, this button will not
@@ -217,7 +217,7 @@ const TestHelpPopover: React.FC = () => {
 				</HelpPopoverText>
 				<HelpPopoverLinksGroup>
 					<HelpPopoverLink href={docs("/admin/templates/open-in-coder")}>
-						Templates &ndash; Open in Coder
+						Templates &ndash; Open in Neural Inverse
 					</HelpPopoverLink>
 				</HelpPopoverLinksGroup>
 			</HelpPopoverContent>
@@ -232,7 +232,7 @@ function getClipboardCopyContent(
 	buttonValues: ButtonValues | undefined,
 ): string {
 	const buttonUrl = getButtonUrl(template, buttonValues);
-	return `[![Open in Coder](${deploymentUrl}/open-in-coder.svg)](${buttonUrl})`;
+	return `[![Open in Neural Inverse](${deploymentUrl}/open-in-coder.svg)](${buttonUrl})`;
 }
 
 function getButtonUrl(
@@ -261,7 +261,7 @@ const ButtonPreview: React.FC<ButtonPreviewProps> = ({
 				flex flex-col items-center justify-center p-6
 			 	rounded-lg border border-border border-solid bg-surface-secondary"
 			>
-				<img src="/open-in-coder.svg" alt="Open in Coder button" />
+				<img src="/open-in-coder.svg" alt="Open in Neural Inverse button" />
 			</div>
 			<Button
 				variant="default"
