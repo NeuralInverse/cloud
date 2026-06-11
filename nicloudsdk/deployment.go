@@ -683,6 +683,12 @@ type DeploymentValues struct {
 	BaseWebhookSecret                       serpent.String                       `json:"base_webhook_secret,omitempty" typescript:",notnull"`
 	BaseActionsURL                          serpent.String                       `json:"base_actions_url,omitempty" typescript:",notnull"`
 	BaseRegistryURL                         serpent.String                       `json:"base_registry_url,omitempty" typescript:",notnull"`
+	BaseURLSEA                              serpent.String                       `json:"base_url_sea,omitempty" typescript:",notnull"`
+	BaseAdminTokenSEA                       serpent.String                       `json:"base_admin_token_sea,omitempty" typescript:",notnull"`
+	BaseURLEU                               serpent.String                       `json:"base_url_eu,omitempty" typescript:",notnull"`
+	BaseAdminTokenEU                        serpent.String                       `json:"base_admin_token_eu,omitempty" typescript:",notnull"`
+	BaseURLJP                               serpent.String                       `json:"base_url_jp,omitempty" typescript:",notnull"`
+	BaseAdminTokenJP                        serpent.String                       `json:"base_admin_token_jp,omitempty" typescript:",notnull"`
 	Notifications                           NotificationsConfig                  `json:"notifications,omitempty" typescript:",notnull"`
 	AdditionalCSPPolicy                     serpent.StringArray                  `json:"additional_csp_policy,omitempty" typescript:",notnull"`
 	WorkspaceHostnameSuffix                 serpent.String                       `json:"workspace_hostname_suffix,omitempty" typescript:",notnull"`
@@ -3508,6 +3514,57 @@ func (c *DeploymentValues) Options() serpent.OptionSet {
 			Env:         "NEURALINVERSE_BASE_REGISTRY_URL",
 			YAML:        "baseRegistryURL",
 			Value:       &c.BaseRegistryURL,
+		},
+		{
+			Name:        "Base URL SEA",
+			Description: "Southeast Asia Gitea URL for regional workspace repos.",
+			Flag:        "base-url-sea",
+			Env:         "NEURALINVERSE_BASE_URL_SEA",
+			YAML:        "baseURLSEA",
+			Value:       &c.BaseURLSEA,
+		},
+		{
+			Name:        "Base Admin Token SEA",
+			Description: "Gitea admin API token for Southeast Asia instance.",
+			Flag:        "base-admin-token-sea",
+			Env:         "NEURALINVERSE_BASE_ADMIN_TOKEN_SEA",
+			YAML:        "baseAdminTokenSEA",
+			Value:       &c.BaseAdminTokenSEA,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
+			Name:        "Base URL EU",
+			Description: "West Europe Gitea URL for regional workspace repos.",
+			Flag:        "base-url-eu",
+			Env:         "NEURALINVERSE_BASE_URL_EU",
+			YAML:        "baseURLEU",
+			Value:       &c.BaseURLEU,
+		},
+		{
+			Name:        "Base Admin Token EU",
+			Description: "Gitea admin API token for West Europe instance.",
+			Flag:        "base-admin-token-eu",
+			Env:         "NEURALINVERSE_BASE_ADMIN_TOKEN_EU",
+			YAML:        "baseAdminTokenEU",
+			Value:       &c.BaseAdminTokenEU,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
+		},
+		{
+			Name:        "Base URL JP",
+			Description: "Japan Gitea URL for regional workspace repos.",
+			Flag:        "base-url-jp",
+			Env:         "NEURALINVERSE_BASE_URL_JP",
+			YAML:        "baseURLJP",
+			Value:       &c.BaseURLJP,
+		},
+		{
+			Name:        "Base Admin Token JP",
+			Description: "Gitea admin API token for Japan instance.",
+			Flag:        "base-admin-token-jp",
+			Env:         "NEURALINVERSE_BASE_ADMIN_TOKEN_JP",
+			YAML:        "baseAdminTokenJP",
+			Value:       &c.BaseAdminTokenJP,
+			Annotations: serpent.Annotations{}.Mark(annotationSecretKey, "true"),
 		},
 		{
 			Name: "Strict-Transport-Security",

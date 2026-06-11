@@ -82,6 +82,26 @@ type baseWorkspaceInitResponse struct {
 func (api *API) baseWorkspaceInit(rw http.ResponseWriter, r *http.Request) {
 	baseURL := api.DeploymentValues.BaseURL.String()
 	adminToken := api.DeploymentValues.BaseAdminToken.String()
+
+	// Route to regional Gitea based on NI-Region header sent by workspace startup script.
+	switch r.Header.Get("NI-Region") {
+	case "seasia":
+		if u := api.DeploymentValues.BaseURLSEA.String(); u != "" {
+			baseURL = u
+			adminToken = api.DeploymentValues.BaseAdminTokenSEA.String()
+		}
+	case "westeurope":
+		if u := api.DeploymentValues.BaseURLEU.String(); u != "" {
+			baseURL = u
+			adminToken = api.DeploymentValues.BaseAdminTokenEU.String()
+		}
+	case "japan":
+		if u := api.DeploymentValues.BaseURLJP.String(); u != "" {
+			baseURL = u
+			adminToken = api.DeploymentValues.BaseAdminTokenJP.String()
+		}
+	}
+
 	if baseURL == "" || adminToken == "" {
 		http.NotFound(rw, r)
 		return
