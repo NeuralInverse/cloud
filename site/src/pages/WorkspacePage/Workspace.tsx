@@ -1,5 +1,7 @@
 import { BlocksIcon, HistoryIcon } from "lucide-react";
 import type { FC } from "react";
+import { useQuery } from "react-query";
+import { workspaceBuildParameters } from "#/api/queries/workspaceBuilds";
 import type * as TypesGen from "#/api/typesGenerated";
 import { Alert, AlertDescription, AlertTitle } from "#/components/Alert/Alert";
 import { useDashboard } from "#/modules/dashboard/useDashboard";
@@ -95,6 +97,15 @@ export const Workspace: FC<WorkspaceProps> = ({
 	);
 
 	const { buildInfo } = useDashboard();
+	const { data: buildParams } = useQuery(workspaceBuildParameters(workspace.latest_build.id));
+	const workspaceRegion = buildParams?.find((p) => p.name === "region")?.value ?? "eastus";
+	const regionBaseURLs: Record<string, string> = {
+		eastus: "https://base.neuralinverse.com",
+		seasia: "https://sea.base.neuralinverse.com",
+		westeurope: "https://eu.base.neuralinverse.com",
+		japan: "https://jp.base.neuralinverse.com",
+	};
+	const workspaceBaseURL = regionBaseURLs[workspaceRegion] ?? buildInfo?.base_url ?? "https://base.neuralinverse.com";
 	const workspaceRunning = workspace.latest_build.status === "running";
 	const workspacePending = workspace.latest_build.status === "pending";
 	const workspaceStopped = workspace.latest_build.status === "stopped";
@@ -185,18 +196,7 @@ export const Workspace: FC<WorkspaceProps> = ({
 									<AlertDescription>
 										Your code is saved.{" "}
 										<a
-											href={(() => {
-												const regionBaseURLs: Record<string, string> = {
-													eastus: "https://base.neuralinverse.com",
-													seasia: "https://sea.base.neuralinverse.com",
-													westeurope: "https://eu.base.neuralinverse.com",
-													japan: "https://jp.base.neuralinverse.com",
-												};
-												const agents = workspace.latest_build.resources.flatMap((r) => r.agents ?? []);
-												const region = agents[0]?.environment_variables?.["NEURALINVERSE_REGION"] ?? "eastus";
-												const baseURL = regionBaseURLs[region] ?? buildInfo.base_url;
-												return `${baseURL}/${workspace.owner_name}/${workspace.name}`;
-											})()}
+											href={`${workspaceBaseURL}/${workspace.owner_name}/${workspace.name}`}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="text-content-link underline"
