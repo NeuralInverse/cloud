@@ -1,7 +1,5 @@
 import { BlocksIcon, HistoryIcon } from "lucide-react";
 import type { FC } from "react";
-import { useQuery } from "react-query";
-import { workspaceBuildParameters } from "#/api/queries/workspaceBuilds";
 import type * as TypesGen from "#/api/typesGenerated";
 import { Alert, AlertDescription, AlertTitle } from "#/components/Alert/Alert";
 import { useDashboard } from "#/modules/dashboard/useDashboard";
@@ -97,15 +95,13 @@ export const Workspace: FC<WorkspaceProps> = ({
 	);
 
 	const { buildInfo } = useDashboard();
-	const { data: buildParams } = useQuery(workspaceBuildParameters(workspace.latest_build.id));
-	const workspaceRegion = buildParams?.find((p) => p.name === "region")?.value ?? "eastus";
-	const regionBaseURLs: Record<string, string> = {
-		eastus: "https://base.neuralinverse.com",
-		seasia: "https://sea.base.neuralinverse.com",
-		westeurope: "https://eu.base.neuralinverse.com",
-		japan: "https://jp.base.neuralinverse.com",
-	};
-	const workspaceBaseURL = regionBaseURLs[workspaceRegion] ?? buildInfo?.base_url ?? "https://base.neuralinverse.com";
+	// Read regional base URL from agent env var — set by template per region.
+	// Falls back to global base_url so self-hosted deployments work without changes.
+	const agentBaseURL = workspace.latest_build.resources
+		.flatMap((r) => r.agents ?? [])
+		.map((a) => a.environment_variables?.["NEURALINVERSE_BASE_URL"])
+		.find((url) => Boolean(url));
+	const workspaceBaseURL = agentBaseURL ?? buildInfo?.base_url;
 	const workspaceRunning = workspace.latest_build.status === "running";
 	const workspacePending = workspace.latest_build.status === "pending";
 	const workspaceStopped = workspace.latest_build.status === "stopped";
