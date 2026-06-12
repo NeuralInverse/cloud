@@ -96,12 +96,11 @@ export const Workspace: FC<WorkspaceProps> = ({
 
 	const { buildInfo } = useDashboard();
 	// Read regional base URL from agent env var — set by template per region.
-	// Falls back to global base_url so self-hosted deployments work without changes.
-	const agentBaseURL = workspace.latest_build.resources
-		.flatMap((r) => r.agents ?? [])
-		.map((a) => a.environment_variables?.["NEURALINVERSE_BASE_URL"])
-		.find((url) => Boolean(url));
-	const workspaceBaseURL = agentBaseURL ?? buildInfo?.base_url;
+	// Read base_url from coder_metadata on the agent resource — persists when stopped.
+	const metadataBaseURL = workspace.latest_build.resources
+		.flatMap((r) => r.metadata ?? [])
+		.find((m) => m.key === "base_url")?.value;
+	const workspaceBaseURL = (metadataBaseURL && metadataBaseURL !== "") ? metadataBaseURL : buildInfo?.base_url;
 	const workspaceRunning = workspace.latest_build.status === "running";
 	const workspacePending = workspace.latest_build.status === "pending";
 	const workspaceStopped = workspace.latest_build.status === "stopped";
