@@ -185,7 +185,18 @@ export const Workspace: FC<WorkspaceProps> = ({
 									<AlertDescription>
 										Your code is saved.{" "}
 										<a
-											href={`${buildInfo.base_url}/${workspace.owner_name}/${workspace.name}`}
+											href={(() => {
+												const regionBaseURLs: Record<string, string> = {
+													eastus: "https://base.neuralinverse.com",
+													seasia: "https://sea.base.neuralinverse.com",
+													westeurope: "https://eu.base.neuralinverse.com",
+													japan: "https://jp.base.neuralinverse.com",
+												};
+												const agents = workspace.latest_build.resources.flatMap((r) => r.agents ?? []);
+												const region = agents[0]?.environment_variables?.["NEURALINVERSE_REGION"] ?? "eastus";
+												const baseURL = regionBaseURLs[region] ?? buildInfo.base_url;
+												return `${baseURL}/${workspace.owner_name}/${workspace.name}`;
+											})()}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="text-content-link underline"
