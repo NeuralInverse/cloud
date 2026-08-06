@@ -80,7 +80,7 @@ export const UserDropdownContent: FC<UserDropdownContentProps> = ({
 				</>
 			)}
 			<DropdownMenuItem asChild>
-				<Link to="/coder-cup">
+				<Link to="/ni-cup">
 					<svg
 						viewBox="0 0 24 24"
 						fill="none"
@@ -98,7 +98,7 @@ export const UserDropdownContent: FC<UserDropdownContentProps> = ({
 						<line x1="18" y1="19" x2="22" y2="19" />
 						<path d="M10,15 L10.5,18 L13.5,18 L14,15" />
 					</svg>
-					<span>NINauts</span>
+					<span>NI Nauts</span>
 				</Link>
 			</DropdownMenuItem>{" "}
 			<DropdownMenuSeparator />

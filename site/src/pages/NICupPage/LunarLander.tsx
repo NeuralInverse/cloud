@@ -554,7 +554,7 @@ function drawTerrain(ctx: CanvasRenderingContext2D, terrain: Terrain) {
 
 		if (pad.isStation) {
 			drawSpaceStation(ctx, midX, pad.y, pad.width);
-			drawVectorText(ctx, "CODER BASE", midX, pad.y + tick + 10, 7);
+			drawVectorText(ctx, "NI BASE", midX, pad.y + tick + 10, 7);
 		} else {
 			const helpH = Math.min(10, pad.width / 4);
 			drawVectorText(ctx, "HELP", midX, pad.y + tick + 10, helpH);
@@ -1687,7 +1687,7 @@ function drawSidebar(
 	ctx.fillStyle = "#666";
 	ctx.font = "bold 10px monospace";
 	ctx.textAlign = "left";
-	ctx.fillText("CODERNAUTS ROSTER", x + padX, headerH - 6);
+	ctx.fillText("NI NAUTS ROSTER", x + padX, headerH - 6);
 
 	// Clip to sidebar area below header.
 	ctx.save();
@@ -1996,7 +1996,7 @@ export const LunarLander: FC = () => {
 
 				const playH = logicalH - DASHBOARD_H;
 				drawVectorText(cx, "SAVE ALL", dashW / 2, playH * 0.25, 44);
-				drawVectorText(cx, "CODERNAUTS", dashW / 2, playH * 0.43, 44);
+				drawVectorText(cx, "NI NAUTS", dashW / 2, playH * 0.43, 44);
 
 				cx.fillStyle = "white";
 				cx.font = "bold 14px monospace";

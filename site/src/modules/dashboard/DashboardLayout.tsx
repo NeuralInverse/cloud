@@ -11,6 +11,7 @@ import { LicenseBanner } from "#/modules/dashboard/LicenseBanner/LicenseBanner";
 import { cn } from "#/utils/cn";
 import { docs } from "#/utils/docs";
 import { DeploymentBanner } from "./DeploymentBanner/DeploymentBanner";
+import { FreeModelsBanner } from "./FreeModelsBanner/FreeModelsBanner";
 import { Navbar } from "./Navbar/Navbar";
 import { OnboardingModal, useOnboarding } from "./Onboarding/OnboardingModal";
 import { useUpdateCheck } from "./useUpdateCheck";
@@ -46,6 +47,7 @@ export const DashboardLayout: FC = () => {
 				>
 					Skip to main content
 				</a>
+				<FreeModelsBanner />
 				<Navbar />
 
 				<main

@@ -35,19 +35,19 @@ export const agentScriptMessages = {
  */
 export const agentConnectionMessages = {
 	connecting: {
-		title: "Workspace agent is connecting",
+		title: "Setting up your workspace",
 		detail:
-			"The workspace agent has not connected yet. Wait for it to connect or check the logs if it does not.",
+			"Connecting to your region. This usually takes 1 to 3 minutes for the first launch. Hang tight.",
 	},
 	timeout: {
-		title: "Agent is taking longer than expected to connect",
+		title: "Still connecting, this is taking longer than usual",
 		detail:
-			"Continue to wait and check the log output for errors. If agents do not connect, try restarting the workspace.",
+			"Your workspace is still starting up. This can happen with cold starts in distant regions. Give it another minute or try restarting if it stays stuck.",
 	},
 	disconnected: {
-		title: "Workspace agent has disconnected",
+		title: "Your workspace lost its connection",
 		detail:
-			"Check the log output for errors. If agents do not reconnect, try restarting the workspace.",
+			"The workspace disconnected unexpectedly. Try restarting it to reconnect.",
 	},
 } as const;
 
@@ -59,6 +59,7 @@ interface AgentHealthIssue {
 	// warnings, but connection timeout and startup timeout are
 	// exceptions (warning severity without prominent styling).
 	prominent: boolean;
+	kind?: "connecting";
 }
 
 /**
@@ -147,6 +148,7 @@ export function getAgentHealthIssues(
 			detail: agentConnectionMessages.connecting.detail,
 			severity: "info",
 			prominent: false,
+			kind: "connecting",
 		});
 	}
 

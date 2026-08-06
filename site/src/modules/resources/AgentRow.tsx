@@ -472,9 +472,14 @@ export const AgentRow: FC<AgentRowProps> = ({
 				)}
 
 				{agent.status === "connecting" && !isExternalAgent && (
-					<section className="flex flex-wrap gap-4 [&:empty]:hidden">
-						<Skeleton width={80} height={32} className="rounded" />
-						<Skeleton width={110} height={32} className="rounded" />
+					<section className="flex flex-col gap-2">
+						<p className="text-sm text-content-secondary">
+							Connecting to region, this may take a few minutes...
+						</p>
+						<div className="flex flex-wrap gap-4">
+							<Skeleton width={80} height={32} className="rounded" />
+							<Skeleton width={110} height={32} className="rounded" />
+						</div>
 					</section>
 				)}
 
@@ -558,13 +563,30 @@ export const AgentRow: FC<AgentRowProps> = ({
 						)}
 						{hasAgentIssues && (
 							<div className="mb-4 flex flex-col gap-3">
-								{healthIssues.map((issue) => (
-									<AgentAlert
-										key={`${issue.title}-${issue.detail}`}
-										{...issue}
-										troubleshootingURL={agent.troubleshooting_url}
-									/>
-								))}
+								{healthIssues.map((issue) =>
+									issue.kind === "connecting" ? (
+										<div
+											key="connecting"
+											className="flex items-center gap-3 rounded-md border border-solid border-border bg-surface-secondary px-4 py-3"
+										>
+											<Spinner size="lg" loading />
+											<div>
+												<p className="text-sm font-medium text-content-primary m-0">
+													{issue.title}
+												</p>
+												<p className="text-xs text-content-secondary m-0 mt-0.5">
+													{issue.detail}
+												</p>
+											</div>
+										</div>
+									) : (
+										<AgentAlert
+											key={`${issue.title}-${issue.detail}`}
+											{...issue}
+											troubleshootingURL={agent.troubleshooting_url}
+										/>
+									),
+								)}
 							</div>
 						)}
 						{shouldShowLogsTabs && (

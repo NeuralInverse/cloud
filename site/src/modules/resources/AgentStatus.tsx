@@ -249,7 +249,7 @@ const ConnectingStatus: FC = () => {
 					className={cn(statusDotBaseClassName, statusDotConnectingClassName)}
 				/>
 			</TooltipTrigger>
-			<TooltipContent side="bottom">Connecting...</TooltipContent>
+			<TooltipContent side="bottom">Connecting to region, this may take a few minutes...</TooltipContent>
 		</Tooltip>
 	);
 };

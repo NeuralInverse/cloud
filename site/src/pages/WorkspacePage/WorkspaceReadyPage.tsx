@@ -1,3 +1,4 @@
+import posthog from "posthog-js";
 import { type FC, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { toast } from "sonner";
@@ -130,6 +131,12 @@ export const WorkspaceReadyPage: FC<WorkspaceReadyPageProps> = ({
 	// Delete workspace
 	const deleteWorkspaceMutation = useMutation({
 		...deleteWorkspace(workspace, queryClient),
+		onSuccess: () => {
+			posthog.capture("workspace_deleted", {
+				template: workspace.template_name,
+				workspace: workspace.name,
+			});
+		},
 		onError: (error: unknown) => {
 			handleError(error);
 		},
@@ -146,6 +153,12 @@ export const WorkspaceReadyPage: FC<WorkspaceReadyPageProps> = ({
 	// Stop workspace
 	const stopWorkspaceMutation = useMutation({
 		...stopWorkspace(workspace, queryClient),
+		onSuccess: () => {
+			posthog.capture("workspace_stopped", {
+				template: workspace.template_name,
+				workspace: workspace.name,
+			});
+		},
 		onError: (error: unknown) => {
 			handleError(error);
 		},
@@ -154,6 +167,12 @@ export const WorkspaceReadyPage: FC<WorkspaceReadyPageProps> = ({
 	// Start workspace
 	const startWorkspaceMutation = useMutation({
 		...startWorkspace(workspace, queryClient),
+		onSuccess: () => {
+			posthog.capture("workspace_started", {
+				template: workspace.template_name,
+				workspace: workspace.name,
+			});
+		},
 		onError: (error: unknown) => {
 			handleError(error);
 		},

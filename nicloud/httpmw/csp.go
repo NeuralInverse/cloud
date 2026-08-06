@@ -102,6 +102,10 @@ func CSPHeaders(telemetry bool, proxyHosts func() []*proxyhealth.ProxyHost, stat
 				cspSrcs.Append(CSPDirectiveConnectSrc, "https://cloud.neuralinverse.com")
 			}
 
+			// PostHog analytics.
+			cspSrcs.Append(CSPDirectiveConnectSrc, "https://eu.i.posthog.com https://eu-assets.i.posthog.com")
+			cspSrcs.Append(CSPDirectiveScriptSrc, "https://eu-assets.i.posthog.com")
+
 			// This extra connect-src addition is required to support old webkit
 			// based browsers (Safari).
 			// See issue: https://github.com/w3c/webappsec-csp/issues/7

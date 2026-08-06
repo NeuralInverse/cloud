@@ -59,7 +59,8 @@ export const getVSCodeHref = (
 		query.set("chatId", chatId);
 	}
 	const scheme = app === "neuralinverse" ? "neuralinverse" : app;
-	return `${scheme}://coder.coder-remote/open?${query}`;
+	const authority = app === "neuralinverse" ? "neuralinverse.cloud" : "coder.coder-remote";
+	return `${scheme}://${authority}/open?${query}`;
 };
 
 type GetTerminalHrefParams = {

@@ -1289,17 +1289,17 @@ func DefaultSupportLinks(docsURL string) []LinkConfig {
 		},
 		{
 			Name:   "Report a bug",
-			Target: "https://github.com/coder/coder/issues/new?labels=needs+triage&body=" + buildInfo,
+			Target: "https://github.com/neuralinverse/neuralinverse/issues/new?labels=needs+triage&body=" + buildInfo,
 			Icon:   "bug",
 		},
 		{
-			Name:   "Join the Coder Discord",
-			Target: "https://discord.gg/coder",
+			Name:   "Join the Discord",
+			Target: "https://discord.gg/tsFRzk9h",
 			Icon:   "chat",
 		},
 		{
-			Name:   "Star the Repo",
-			Target: "https://github.com/coder/coder",
+			Name:   "GitHub",
+			Target: "https://github.com/neuralinverse/neuralinverse",
 			Icon:   "star",
 		},
 	}

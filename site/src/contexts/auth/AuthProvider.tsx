@@ -1,9 +1,11 @@
+import posthog from "posthog-js";
 import {
 	createContext,
 	type FC,
 	type PropsWithChildren,
 	useCallback,
 	useContext,
+	useEffect,
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { toast } from "sonner";
@@ -85,13 +87,30 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 	const isSigningIn = loginMutation.isPending;
 	const isUpdatingProfile = updateProfileMutation.isPending;
 
+	useEffect(() => {
+		if (isSignedIn && userQuery.data) {
+			const user = userQuery.data;
+			posthog.identify(user.id, {
+				email: user.email,
+				username: user.username,
+				name: user.name,
+				created_at: user.created_at,
+				roles: user.roles.map((r) => r.name),
+			});
+		} else if (!isSignedIn && !isSigningIn) {
+			posthog.reset();
+		}
+	}, [isSignedIn, isSigningIn, userQuery.data]);
+
 	const signOut = useCallback(() => {
+		posthog.capture("user_signed_out");
 		logoutMutation.mutate();
 	}, [logoutMutation]);
 
 	const signIn = useCallback(
 		async (email: string, password: string) => {
 			await loginMutation.mutateAsync({ email, password });
+			posthog.capture("user_signed_in");
 		},
 		[loginMutation],
 	);

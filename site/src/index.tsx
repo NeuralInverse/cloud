@@ -1,6 +1,15 @@
+import posthog from "posthog-js";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { App } from "./App";
+
+posthog.init("phc_BYYBMg7Sq6TsfdPAWdS4wfk3BV5LEYLW6c547vBnPgJj", {
+	api_host: "https://eu.i.posthog.com",
+	ui_host: "https://eu.posthog.com",
+	person_profiles: "identified_only",
+	capture_pageview: true,
+	capture_pageleave: true,
+});
 
 console.info(`      -#######          +######-      ########+       ##########  ########+.      ###########
    +#####--######    +#####--#####+   ############    ##########  ####+++#####-   ###########

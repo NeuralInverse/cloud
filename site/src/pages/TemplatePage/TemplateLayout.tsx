@@ -1,9 +1,11 @@
+import posthog from "posthog-js";
 import {
 	createContext,
 	type FC,
 	type PropsWithChildren,
 	Suspense,
 	useContext,
+	useEffect,
 } from "react";
 import { useQuery } from "react-query";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router";
@@ -94,6 +96,15 @@ export const TemplateLayout: FC<PropsWithChildren> = ({
 		}),
 		enabled: Boolean(data),
 	});
+
+	useEffect(() => {
+		if (data?.template) {
+			posthog.capture("template_viewed", {
+				template: data.template.name,
+				display_name: data.template.display_name,
+			});
+		}
+	}, [data?.template]);
 
 	const location = useLocation();
 	const paths = location.pathname.split("/");

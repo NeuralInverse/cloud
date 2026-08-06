@@ -1,3 +1,4 @@
+import posthog from "posthog-js";
 import {
 	type FC,
 	useCallback,
@@ -268,6 +269,10 @@ const CreateWorkspacePage: FC = () => {
 
 	const onCreateWorkspace = useCallback(
 		(workspace: Workspace) => {
+			posthog.capture("workspace_created", {
+				template: workspace.template_name,
+				workspace: workspace.name,
+			});
 			navigate(`/@${workspace.owner_name}/${workspace.name}`);
 		},
 		[navigate],

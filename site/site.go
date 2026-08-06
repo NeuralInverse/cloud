@@ -342,6 +342,7 @@ func (h *Handler) serveHTML(resp http.ResponseWriter, request *http.Request, req
 		h.telemetryHTMLServedOnce.Do(func() {
 			go h.reportHTMLFirstServedAt()
 		})
+		resp.Header().Set("Cache-Control", "no-store")
 		http.ServeContent(resp, request, reqPath, time.Time{}, bytes.NewReader(data))
 		return true
 	}

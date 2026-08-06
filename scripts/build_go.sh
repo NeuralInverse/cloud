@@ -173,7 +173,7 @@ fi
 # Compute default output path.
 if [[ "$output_path" == "" ]]; then
 	mkdir -p "build"
-	output_path="build/coder_${version}_${os}_${arch}"
+	output_path="build/neuralinverse-cloud_${version}_${os}_${arch}"
 	if [[ "$os" == "windows" ]]; then
 		output_path+=".exe"
 	fi

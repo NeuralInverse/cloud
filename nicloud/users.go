@@ -2003,6 +2003,9 @@ func (api *API) CreateUser(ctx context.Context, store database.Store, req Create
 		return user, xerrors.Errorf("find user admins: %w", err)
 	}
 
+	// Send welcome email to the new user via Resend.
+	go sendWelcomeEmail(ctx, api.Logger, user.Email, user.Name)
+
 	for _, u := range userAdmins {
 		if u.ID == user.ID {
 			// If the new user is an admin, don't notify them about themselves.

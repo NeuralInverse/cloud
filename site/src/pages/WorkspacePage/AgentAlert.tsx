@@ -22,10 +22,10 @@ export const AgentAlert: FC<AgentAlertProps> = ({
 			<AlertTitle>{title}</AlertTitle>
 			<AlertDescription>
 				<div className="mb-2">{detail}</div>
-				{troubleshootingURL && (
+				{(
 					<Button size="sm" asChild>
-						<a href={troubleshootingURL} target="_blank" rel="noopener">
-							View docs to troubleshoot
+						<a href={troubleshootingURL || "https://www.neuralinverse.com/docs/cloud"} target="_blank" rel="noopener">
+							View docs
 						</a>
 					</Button>
 				)}

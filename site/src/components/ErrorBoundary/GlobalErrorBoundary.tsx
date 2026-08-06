@@ -45,7 +45,7 @@ export const GlobalErrorBoundaryInner: FC<GlobalErrorBoundaryInnerProps> = ({
 							Please try reloading the page. If reloading does not work, you can
 							ask for help in the{" "}
 							<Link
-								href="https://discord.gg/coder"
+								href="https://discord.gg/tsFRzk9h"
 								target="_blank"
 								rel="noreferrer"
 							>
@@ -139,7 +139,7 @@ function publicGithubIssueLink(
 	pathName: string,
 	error: unknown,
 ): string {
-	const baseLink = "https://github.com/coder/coder/issues/new";
+	const baseLink = "https://github.com/neuralinverse/neuralinverse/issues/new";
 
 	// Anytime you see \`\`\`txt, that's wrapping the text in a GitHub codeblock
 	let printableError: string;

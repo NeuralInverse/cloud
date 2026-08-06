@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	notificationsDefaultLogoURL = "https://cloud.neuralinverse.com/coder-logo-horizontal.png"
+	notificationsDefaultLogoURL = "https://cloud.neuralinverse.com/ni-logo-horizontal.svg"
 	notificationsDefaultAppName = "Neural Inverse Cloud"
 )
 
